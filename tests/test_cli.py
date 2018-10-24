@@ -21,6 +21,7 @@ class TestVersion(TestCase):
         output = popen(['substra', '--version'], stdout=PIPE).communicate()[0]
         self.assertEqual(output.decode('utf-8').strip(), VERSION)
 
+
 class TestCommand(TestCase):
     def test_returns_command(self):
         output = popen(['substra', 'list', 'challenge'], stdout=PIPE).communicate()[0]

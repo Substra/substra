@@ -10,7 +10,7 @@ default_config = {
     'version': '0.0'
 }
 
-
+# TODO support --profile
 class Config(Base):
     """Create config"""
 

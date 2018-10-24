@@ -40,6 +40,10 @@ class Add(Api):
                 'file': open(data['file'], 'rb'),
                 'description': open(data['description'], 'rb')
             }
+        elif entity == 'data':
+            files = {
+                'file': open(data['file'], 'rb'),
+            }
 
         try:
             r = requests.post('%s/%s/' % (config['url'], entity), files=files, data=data, headers={'Accept': 'application/json;version=%s' % config['version']})
