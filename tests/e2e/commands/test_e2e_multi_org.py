@@ -50,7 +50,7 @@ class TestFixtures(TestCase):
                 "name": "ISIC 2018",
                 "data_opener": "%s/media/datasets/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/opener.py" % chunantes_url,
                 "description": "%s/media/datasets/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/description.md" % chunantes_url,
-                "validated": False
+                "validated": True
             })
 
         # register train data on dataset chu nantes (will take dataset creator as worker)
@@ -65,7 +65,7 @@ class TestFixtures(TestCase):
 
         self.assertTrue(
             json.loads(res) == {"pkhash": "62fb3263208d62c7235a046ee1d80e25512fe782254b730a9e566276b8c0ef3a",
-                                "validated": False,
+                                "validated": True,
                                 "file": "%s/media/data/62fb3263208d62c7235a046ee1d80e25512fe782254b730a9e566276b8c0ef3a/0024700.zip" % chunantes_url})
 
         data = json.dumps({
@@ -79,7 +79,7 @@ class TestFixtures(TestCase):
 
         self.assertTrue(
             json.loads(res) == {"pkhash": "42303efa663015e729159833a12ffb510ff92a6e386b8152f90f6fb14ddc94c9",
-                                "validated": False,
+                                "validated": True,
                                 "file": "%s/media/data/42303efa663015e729159833a12ffb510ff92a6e386b8152f90f6fb14ddc94c9/0024899.zip" % chunantes_url})
 
         ###############################
@@ -103,7 +103,7 @@ class TestFixtures(TestCase):
                 "name": "Simplified ISIC 2018",
                 "data_opener": "%s/media/datasets/b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0/opener.py" % owkin_url,
                 "description": "%s/media/datasets/b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0/description.md" % owkin_url,
-                "validated": False
+                "validated": True
             })
 
         #########################
@@ -120,7 +120,7 @@ class TestFixtures(TestCase):
 
         self.assertTrue(
             json.loads(res) == {"pkhash": "e11aeec290749e4c50c91305e10463eced8dbf3808971ec0c6ea0e36cb7ab3e1",
-                                "validated": False,
+                                "validated": True,
                                 "file": "%s/media/data/e11aeec290749e4c50c91305e10463eced8dbf3808971ec0c6ea0e36cb7ab3e1/0024900.zip" % owkin_url})
 
         # register test data
@@ -135,7 +135,7 @@ class TestFixtures(TestCase):
 
         self.assertTrue(
             json.loads(res) == {"pkhash": "4b5152871b181d10ee774c10458c064c70710f4ba35938f10c0b7aa51f7dc010",
-                                "validated": False,
+                                "validated": True,
                                 "file": "%s/media/data/4b5152871b181d10ee774c10458c064c70710f4ba35938f10c0b7aa51f7dc010/0024701.zip" % owkin_url})
 
         #########################
@@ -152,7 +152,7 @@ class TestFixtures(TestCase):
 
         self.assertTrue(
             json.loads(res) == {"pkhash": "93e4b1e040b08cfa8a68b13f9dddb95a6672e8a377378545b2b1254691cfc060",
-                                "validated": False,
+                                "validated": True,
                                 "file": "%s/media/data/93e4b1e040b08cfa8a68b13f9dddb95a6672e8a377378545b2b1254691cfc060/0024317.zip" % owkin_url})
 
         # register test data
@@ -167,7 +167,7 @@ class TestFixtures(TestCase):
 
         self.assertTrue(
             json.loads(res) == {"pkhash": "eed4c6ea09babe7ca6428377fff6e54102ef5cdb0cae593732ddbe3f224217cb",
-                                "validated": False,
+                                "validated": True,
                                 "file": "%s/media/data/eed4c6ea09babe7ca6428377fff6e54102ef5cdb0cae593732ddbe3f224217cb/0024316.zip" % owkin_url})
 
         #########################
@@ -184,7 +184,7 @@ class TestFixtures(TestCase):
 
         self.assertTrue(
             json.loads(res) == {"pkhash": "2d0f943aa81a9cb3fe84b162559ce6aff068ccb04e0cb284733b8f9d7e06517e",
-                                "validated": False,
+                                "validated": True,
                                 "file": "%s/media/data/2d0f943aa81a9cb3fe84b162559ce6aff068ccb04e0cb284733b8f9d7e06517e/0024315.zip" % owkin_url})
 
         # register test data
@@ -199,7 +199,7 @@ class TestFixtures(TestCase):
 
         self.assertTrue(
             json.loads(res) == {"pkhash": "533ee6e7b9d8b247e7e853b24547f57e6ef351852bac0418f13a0666173448f1",
-                                "validated": False,
+                                "validated": True,
                                 "file": "%s/media/data/533ee6e7b9d8b247e7e853b24547f57e6ef351852bac0418f13a0666173448f1/0024318.zip" % owkin_url})
 
         # #########################
@@ -220,7 +220,7 @@ class TestFixtures(TestCase):
         res = json.loads(res)
 
         self.assertTrue(res['pkhash'] == '6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c')
-        self.assertTrue(res['validated'] == False)
+        self.assertTrue(res['validated'] == True)
         self.assertTrue(res['description'] == '%s/media/challenges/6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c/description.md' % owkin_url)
         self.assertTrue(res['metrics'] == '%s/media/challenges/6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c/metrics.py' % owkin_url)
 
@@ -240,7 +240,7 @@ class TestFixtures(TestCase):
         res = json.loads(res)
 
         self.assertTrue(res['pkhash'] == 'd5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f')
-        self.assertTrue(res['validated'] == False)
+        self.assertTrue(res['validated'] == True)
         self.assertTrue(res['description'] == '%s/media/challenges/d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f/description.md' % chunantes_url)
         self.assertTrue(res['metrics'] == '%s/media/challenges/d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f/metrics.py' % chunantes_url)
 
@@ -260,7 +260,7 @@ class TestFixtures(TestCase):
         res = json.loads(res)
 
         self.assertTrue(res['pkhash'] == '6dcbfcf29146acd19c6a2997b2e81d0cd4e88072eea9c90bbac33f0e8573993f')
-        self.assertTrue(res['validated'] == False)
+        self.assertTrue(res['validated'] == True)
         self.assertTrue(res['description'] == '%s/media/algos/6dcbfcf29146acd19c6a2997b2e81d0cd4e88072eea9c90bbac33f0e8573993f/description.md' % chunantes_url)
         self.assertTrue(res['file'] == '%s/media/algos/6dcbfcf29146acd19c6a2997b2e81d0cd4e88072eea9c90bbac33f0e8573993f/algo.tar.gz' % chunantes_url)
 
@@ -279,7 +279,7 @@ class TestFixtures(TestCase):
         res = json.loads(res)
 
         self.assertTrue(res['pkhash'] == '7742aea2001ceb40e9ce8a37fa27237d5b2d1f574e06d48677af945cfdf42ec0')
-        self.assertTrue(res['validated'] == False)
+        self.assertTrue(res['validated'] == True)
         self.assertTrue(res['description'] == '%s/media/algos/7742aea2001ceb40e9ce8a37fa27237d5b2d1f574e06d48677af945cfdf42ec0/description.md' % chunantes_url)
         self.assertTrue(res['file'] == '%s/media/algos/7742aea2001ceb40e9ce8a37fa27237d5b2d1f574e06d48677af945cfdf42ec0/algo.tar.gz' % chunantes_url)
 
@@ -297,7 +297,7 @@ class TestFixtures(TestCase):
         res = json.loads(res)
 
         self.assertTrue(res['pkhash'] == '0acc5180e09b6a6ac250f4e3c172e2893f617aa1c22ef1f379019d20fe44142f')
-        self.assertTrue(res['validated'] == False)
+        self.assertTrue(res['validated'] == True)
         self.assertTrue(res['description'] == '%s/media/algos/0acc5180e09b6a6ac250f4e3c172e2893f617aa1c22ef1f379019d20fe44142f/description.md' % chunantes_url)
         self.assertTrue(res['file'] == '%s/media/algos/0acc5180e09b6a6ac250f4e3c172e2893f617aa1c22ef1f379019d20fe44142f/algo.tar.gz' % chunantes_url)
 
@@ -315,7 +315,7 @@ class TestFixtures(TestCase):
         res = json.loads(res)
 
         self.assertTrue(res['pkhash'] == 'f2d9fd38e25cd975c49f3ce7e6739846585e89635a86689b5db42ab2c0c57284')
-        self.assertTrue(res['validated'] == False)
+        self.assertTrue(res['validated'] == True)
         self.assertTrue(res['description'] == '%s/media/algos/f2d9fd38e25cd975c49f3ce7e6739846585e89635a86689b5db42ab2c0c57284/description.md' % chunantes_url)
         self.assertTrue(res['file'] == '%s/media/algos/f2d9fd38e25cd975c49f3ce7e6739846585e89635a86689b5db42ab2c0c57284/algo.tar.gz' % chunantes_url)
 
