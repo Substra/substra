@@ -3,30 +3,48 @@ import os
 
 from .base import Base
 
+# default, you can override it with --config <configuration_file_path>
 config_path = os.path.expanduser('~/.substra')
 
 default_config = {
-    'url': 'http://127.0.0.1:8000',
-    'version': '0.0'
+    'default': {
+        'url': 'http://127.0.0.1:8000',
+        'version': '0.0'
+    }
 }
 
-# TODO support --profile
 class Config(Base):
     """Create config"""
 
     def run(self):
         res = {}
 
-        with open(config_path, 'a+') as f:
+        # check overrides
+        profile = self.options.get('--profile')
+        if not profile:
+            profile = 'default'
+
+        conf_path = self.options.get('--config')
+        if not conf_path:
+            conf_path = config_path
+
+        with open(conf_path, 'a+') as f:
             try:
+                f.seek(0)
                 res = json.load(f)
-            except:
+            except Exception as e:
                 # define default if does not exists
                 res = default_config
             finally:
-                res['url'] = self.options['<url>']
-                res['version'] = self.options['<version>']
+                if profile not in res:
+                    res[profile] = {}
+
+                res[profile]['url'] = self.options['<url>']
+                res[profile]['version'] = self.options.get('<version>', '0.0')
                 f.seek(0)
                 f.truncate()
                 json.dump(res, f)
+
+                print('Created/Updated config file in %s with values: %s' % (conf_path, json.dumps(res, indent=2)))
+
                 return res

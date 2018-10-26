@@ -24,7 +24,6 @@ class Add(Api):
                 raise Exception('Invalid args. Please review help')
 
         files = {}
-        # TODO put try except and close files
         if entity == 'dataset':
             files = {
                 'data_opener': open(data['data_opener'], 'rb'),

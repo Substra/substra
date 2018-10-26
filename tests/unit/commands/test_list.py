@@ -78,9 +78,17 @@ def mocked_requests_get_challenge(*args, **kwargs):
 def mocked_requests_get_dataset(*args, **kwargs):
     return MockResponse(dataset, 200)
 
+
+def mocked_requests_get_dataset_no_json(*args, **kwargs):
+    return MockResponse(open, 200)
+
+
 def mocked_requests_list_challenge_fail(*args, **kwargs):
     raise Exception('fail')
 
+
+def mocked_requests_get_challenge_filtered(*args, **kwargs):
+    return MockResponse(challenge, 200)
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
 class TestList(TestCase):
@@ -128,3 +136,38 @@ class TestList(TestCase):
 
         self.assertTrue(res == json.dumps(dataset))
         self.assertEqual(len(mock_get.call_args_list), 1)
+
+    @mock.patch('substra.commands.list.requests.get', side_effect=mocked_requests_get_dataset_no_json)
+    def test_returns_dataset_list_no_json(self, mock_get):
+        try:
+            List({
+                '<entity>': 'dataset'
+            }).run()
+        except Exception as e:
+            print(str(e))
+            self.assertTrue(str(e) == 'Can\'t decode response value from server to json.')
+        self.assertEqual(len(mock_get.call_args_list), 1)
+
+    @mock.patch('substra.commands.list.requests.get', side_effect=mocked_requests_get_challenge_filtered)
+    def test_returns_challenge_list_filters(self, mock_get):
+
+        res = List({
+            '<entity>': 'challenge',
+            '<filters>': '["challenge:name:Skin Lesion Classification Challenge", "OR", "dataset:name:Simplified ISIC 2018"]'
+        }).run()
+
+        self.assertTrue(res == json.dumps(challenge))
+        self.assertEqual(len(mock_get.call_args_list), 1)
+
+    @mock.patch('substra.commands.list.requests.get', side_effect=mocked_requests_get_challenge_filtered)
+    def test_returns_challenge_list_bad_filters(self, mock_get):
+
+        try:
+            List({
+                '<entity>': 'challenge',
+                '<filters>': 'toto'
+            }).run()
+        except Exception as e:
+            self.assertTrue(str(e) == 'Cannot load filters. Please review help substra -h')
+
+        self.assertEqual(len(mock_get.call_args_list), 0)

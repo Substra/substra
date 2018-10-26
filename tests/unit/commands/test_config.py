@@ -1,3 +1,5 @@
+import json
+import os
 from unittest import TestCase, mock
 
 from mock import mock_open
@@ -5,8 +7,8 @@ from mock import mock_open
 from substra.commands import Config, default_config
 
 empty_file = mock_open(read_data='')
-loaded_file = mock_open(read_data='{"url": "http://127.0.0.1:8000", "version": "0.0.0"}')
-custom_loaded_file = mock_open(read_data='{"url": "http://tutu:8000" "version": "1.0.0"}}')
+loaded_file = mock_open(read_data='{"default": {"url": "http://127.0.0.1:8000", "version": "0.0.0"}}')
+custom_loaded_file = mock_open(read_data='{"default": {"url": "http://tutu:8000" "version": "1.0.0"}}')
 corrupt_file = mock_open(read_data='tutu')
 
 
@@ -31,8 +33,10 @@ class TestConfig(TestCase):
             }).run()
 
             self.assertTrue(res == {
-                'url': 'http://toto.com',
-                'version': '1.0.0',
+                'default': {
+                    'url': 'http://toto.com',
+                    'version': '1.0.0',
+                }
             })
 
             self.assertEqual(len(mock_object.call_args_list), 1)
@@ -45,8 +49,10 @@ class TestConfig(TestCase):
             }).run()
 
             self.assertTrue(res == {
-                'url': 'http://override.com',
-                'version': '9.9.9',
+                'default': {
+                    'url': 'http://override.com',
+                    'version': '9.9.9',
+                }
             })
 
             self.assertEqual(len(mock_object.call_args_list), 1)
@@ -59,8 +65,47 @@ class TestConfig(TestCase):
             }).run()
 
             self.assertTrue(res == {
-                'url': 'http://toto.com',
-                'version': '1.0.0',
+                'default': {
+                    'url': 'http://toto.com',
+                    'version': '1.0.0',
+                }
             })
 
             self.assertEqual(len(mock_object.call_args_list), 1)
+
+
+class TestConfigOverride(TestCase):
+    def setUp(self):
+        json.dump({
+            'default': {
+                'url': 'http://localhost',
+                'version': '0.0'
+            }
+        }, open('/tmp/.substra_config', 'w+'))
+
+    def tearDown(self):
+        try:
+            os.remove('/tmp/.substra_config')
+        except:
+            pass
+
+    def test_add_profile(self):
+        res = Config({
+            '<url>': 'http://toto.com',
+            '<version>': '1.0',
+            '--profile': 'test',
+            '--config': '/tmp/.substra_config'
+        }).run()
+
+        print(res)
+
+        self.assertTrue({
+            'default': {
+                'url': 'http://localhost',
+                'version': '0.0',
+            },
+            'test': {
+                'url': 'http://toto.com',
+                'version': '1.0',
+            }
+        })

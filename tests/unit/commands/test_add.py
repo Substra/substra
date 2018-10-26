@@ -30,6 +30,9 @@ algo = {"challengeKey": "6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c
         "owner": "c657699f8b03c19e6eadc7b474c23f26dd83454395266a673406f2cf44de2ca2", "permissions": "all",
         "storageAddress": "http://127.0.0.1:8001/algo/7742aea2001ceb40e9ce8a37fa27237d5b2d1f574e06d48677af945cfdf42ec0/file/"}
 
+data = {"pkhash": "e11aeec290749e4c50c91305e10463eced8dbf3808971ec0c6ea0e36cb7ab3e1", "validated": True,
+        "file": "http://127.0.0.1:8000/media/data/e11aeec290749e4c50c91305e10463eced8dbf3808971ec0c6ea0e36cb7ab3e1/0024700.zip"}
+
 
 class MockResponse:
     def __init__(self, json_data, status_code):
@@ -52,6 +55,10 @@ def mocked_requests_post_algo(*args, **kwargs):
     return MockResponse(algo, 201)
 
 
+def mocked_requests_post_data(*args, **kwargs):
+    return MockResponse(data, 201)
+
+
 def mocked_requests_add_challenge_fail(*args, **kwargs):
     raise Exception('fail')
 
@@ -62,6 +69,7 @@ class TestAdd(TestCase):
         self.dataset_file_path = './tests/assets/dataset/dataset.json'
         self.challenge_file_path = './tests/assets/challenge/challenge.json'
         self.algo_file_path = './tests/assets/algo/algo.json'
+        self.data_file_path = './tests/assets/data/data.json'
 
         with mock.patch('substra.commands.config.config_path', '/tmp/.substra', create=True):
             Config({
@@ -139,6 +147,22 @@ class TestAdd(TestCase):
             self.assertTrue(res == json.dumps(algo))
             self.assertEqual(len(mock_get.call_args_list), 1)
 
+    @mock.patch('substra.commands.list.requests.post', side_effect=mocked_requests_post_data)
+    def test_add_data(self, mock_get):
+        # open algo file
+        with open(self.data_file_path, 'r') as f:
+            content = f.read()
+
+            res = Add({
+                '<entity>': 'data',
+                '<args>': content,
+            }).run()
+
+            print(res)
+
+            self.assertTrue(res == json.dumps(data))
+            self.assertEqual(len(mock_get.call_args_list), 1)
+
     @mock.patch('substra.commands.list.requests.post', side_effect=mocked_requests_add_challenge_fail)
     def test_returns_challenge_list_fail(self, mock_get):
         with open(self.challenge_file_path, 'r') as f:
@@ -176,6 +200,8 @@ class TestAddNoConfig(TestCase):
                     '<args>': data,
                 }).run()
             except Exception as e:
-                self.assertTrue(str(e) == 'No config file found, please run "substra config <url> <version>"')
+                print('test: ', str(e))
+                self.assertTrue(str(
+                    e) == 'No config file or profile found, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"')
 
             self.assertEqual(len(mock_get.call_args_list), 0)
