@@ -16,16 +16,22 @@ Options:
 Examples:
   substra config http://127.0.0.1:8000 0.0
   substra config http://127.0.0.1:8000 0.0 --profile owkin --config /tmp/.substra
-  substra add dataset '{"name": "liver slide", "data_opener": "./tests/assets/dataset/opener.py", "type": "images", "description": "./tests/assets/dataset/description.md", "permissions": "all", "challenge_keys": []}'
-  substra add dataset ./dataset_definition.json
   substra get dataset ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994
   substra list dataset
   substra list dataset '{"challenge": {"name": "Skin Lesion Classification Challenge"}}'
   substra list challenge '["challenge:name:Skin Lesion Classification Challenge", "OR", "dataset:name:Simplified ISIC 2018"]' --profile=owkin --config=/tmp/.substra
+  substra add dataset '{"name": "liver slide", "data_opener": "./tests/assets/dataset/opener.py", "type": "images", "description": "./tests/assets/dataset/description.md", "permissions": "all", "challenge_keys": []}'
+  substra add dataset ./dataset_definition.json
+
+  # add data
+  substra add data '{"file": "./fixtures/chunantes/data/42303efa663015e729159833a12ffb510ff92a6e386b8152f90f6fb14ddc94c9/0024899.zip", "dataset_key": "b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0", "test_only": false}'
+  # add data in bulk
+  substra add data '{"files": ["./fixtures/chunantes/data/42303efa663015e729159833a12ffb510ff92a6e386b8152f90f6fb14ddc94c9/0024899.zip", "./fixtures/chunantes/data/62fb3263208d62c7235a046ee1d80e25512fe782254b730a9e566276b8c0ef3a/0024700.zip"], "dataset_key": "b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0", "test_only": false}'
+
 
 Entities available:
   - dataset
-  - data (add only)
+  - data (add, bulk add, list and get only)
   - challenge
   - algo
   - model (list and get only)

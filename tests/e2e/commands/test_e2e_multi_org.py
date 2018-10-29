@@ -5,8 +5,8 @@ from unittest import TestCase, mock
 
 from substra.commands import Config
 
-owkin_url = 'http://127.0.0.1:8000'
-chunantes_url = 'http://127.0.0.1:8001'
+owkin_url = 'http://owkin.substrabac:8000'
+chunantes_url = 'http://chunantes.substrabac:8001'
 
 
 class TestFixtures(TestCase):

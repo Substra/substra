@@ -10,7 +10,7 @@ class TestGet(TestCase):
 
     def setUp(self):
         Config({
-            '<url>': 'http://127.0.0.1:8000',
+            '<url>': 'http://owkin.substrabac:8000',
             '<version>': '0.0',
             '--config': '/tmp/.substra_e2e'
         }).run()

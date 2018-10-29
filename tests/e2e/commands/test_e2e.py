@@ -5,7 +5,7 @@ from unittest import TestCase, mock
 
 from substra.commands import Config
 
-url = 'http://127.0.0.1:8000'
+url = 'http://owkin.substrabac:8000'
 
 
 class TestFixtures(TestCase):

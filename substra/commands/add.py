@@ -1,8 +1,13 @@
 import json
+import ntpath
 
 import requests
 
 from .api import Api
+
+def path_leaf(path):
+    head, tail = ntpath.split(path)
+    return tail or ntpath.basename(head)
 
 
 class Add(Api):
@@ -40,12 +45,19 @@ class Add(Api):
                 'description': open(data['description'], 'rb')
             }
         elif entity == 'data':
-            files = {
-                'file': open(data['file'], 'rb'),
-            }
+            # support bulk with multiple files
+            files = data.get('files', None)
+            if files and type(files) == list:
+                files = {
+                    path_leaf(x): open(x, 'rb') for x in files
+                }
+            else:
+                files = {
+                    'file': open(data['file'], 'rb'),
+                }
 
         try:
-            r = requests.post('%s/%s/' % (config['url'], entity), files=files, data=data, headers={'Accept': 'application/json;version=%s' % config['version']})
+            r = requests.post('%s/%s/' % (config['url'], entity), data=data, files=files, headers={'Accept': 'application/json;version=%s' % config['version']})
         except:
             raise Exception('Failed to create %s' % entity)
         else:
