@@ -14,8 +14,11 @@ class Get(Api):
         entity = self.options['<entity>']
         pkhash = self.options['<pkhash>']
 
+        kwargs = {}
+        if config['auth']:
+            kwargs = {'auth': (config['user'], config['pass']), 'verify': False}
         try:
-            r = requests.get('%s/%s/%s' % (config['url'], entity, pkhash), headers={'Accept': 'application/json;version=%s' % config['version']})
+            r = requests.get('%s/%s/%s' % (config['url'], entity, pkhash), headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
         except:
             raise Exception('Failed to get %s' % entity)
         else:

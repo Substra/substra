@@ -28,6 +28,7 @@ class Add(Api):
             except:
                 raise Exception('Invalid args. Please review help')
 
+        # TODO add try except on this part of the code
         files = {}
         if entity == 'dataset':
             files = {
@@ -56,8 +57,11 @@ class Add(Api):
                     'file': open(data['file'], 'rb'),
                 }
 
+        kwargs = {}
+        if config['auth']:
+            kwargs = {'auth': (config['user'], config['pass']), 'verify': False}
         try:
-            r = requests.post('%s/%s/' % (config['url'], entity), data=data, files=files, headers={'Accept': 'application/json;version=%s' % config['version']})
+            r = requests.post('%s/%s/' % (config['url'], entity), data=data, files=files, headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
         except:
             raise Exception('Failed to create %s' % entity)
         else:

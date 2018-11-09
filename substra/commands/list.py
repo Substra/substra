@@ -32,8 +32,11 @@ class List(Api):
                 get_parameters = quote(''.join(res))
                 url = '%s?%s' % (url, get_parameters)
 
+        kwargs = {}
+        if config['auth']:
+            kwargs = {'auth': (config['user'], config['pass']), 'verify': False}
         try:
-            r = requests.get('%s/%s/' % (url, entity), headers={'Accept': 'application/json;version=%s' % config['version']})
+            r = requests.get('%s/%s/' % (url, entity), headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
         except:
             print('Failed to list %s. Please make sure the substrabac instance is live.' % entity)
         else:

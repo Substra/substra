@@ -41,6 +41,15 @@ class Config(Base):
 
                 res[profile]['url'] = self.options['<url>']
                 res[profile]['version'] = self.options.get('<version>', '0.0')
+                user = self.options.get('<user>', None)
+                pwd = self.options.get('<pass>', None)
+                if user and pwd:
+                    res[profile]['auth'] = True
+                    res[profile]['user'] = user
+                    res[profile]['pass'] = pwd
+                else:
+                    res[profile]['auth'] = False
+
                 f.seek(0)
                 f.truncate()
                 json.dump(res, f)
