@@ -59,7 +59,7 @@ class Add(Api):
 
         kwargs = {}
         if config['auth']:
-            kwargs = {'auth': (config['user'], config['pass']), 'verify': False}
+            kwargs = {'auth': (config['user'], config['password']), 'verify': False}
         try:
             r = requests.post('%s/%s/' % (config['url'], entity), data=data, files=files, headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
         except:

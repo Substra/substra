@@ -205,3 +205,37 @@ class TestAddNoConfig(TestCase):
                     e) == 'No config file or profile found, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"')
 
             self.assertEqual(len(mock_get.call_args_list), 0)
+
+
+@mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
+class TestAddConfigBasicAuth(TestCase):
+    def setUp(self):
+        self.dataset_file_path = './tests/assets/dataset/dataset.json'
+
+        with mock.patch('substra.commands.config.config_path', '/tmp/.substra', create=True):
+            Config({
+                '<url>': 'http://toto.com',
+                '<version>': '1.0.0',
+                '<user>': 'foo',
+                '<password>': 'bar'
+            }).run()
+
+    def tearDown(self):
+        try:
+            os.remove('/tmp/.substra')
+        except:
+            pass
+
+    @mock.patch('substra.commands.list.requests.post', side_effect=mocked_requests_post_dataset)
+    def test_add_dataset(self, mock_get):
+        # open dataset file
+        with open(self.dataset_file_path, 'r') as f:
+            data = f.read()
+
+            res = Add({
+                '<entity>': 'dataset',
+                '<args>': data,
+            }).run()
+
+            self.assertTrue(res == json.dumps(dataset))
+            self.assertEqual(len(mock_get.call_args_list), 1)

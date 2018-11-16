@@ -34,7 +34,7 @@ class List(Api):
 
         kwargs = {}
         if config['auth']:
-            kwargs = {'auth': (config['user'], config['pass']), 'verify': False}
+            kwargs = {'auth': (config['user'], config['password']), 'verify': False}
         try:
             r = requests.get('%s/%s/' % (url, entity), headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
         except:

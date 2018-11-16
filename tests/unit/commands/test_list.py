@@ -171,3 +171,33 @@ class TestList(TestCase):
             self.assertTrue(str(e) == 'Cannot load filters. Please review help substra -h')
 
         self.assertEqual(len(mock_get.call_args_list), 0)
+
+
+@mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
+class TestListConfigBasicAuth(TestCase):
+    def setUp(self):
+        self.dataset_file_path = './tests/assets/dataset/dataset.json'
+
+        with mock.patch('substra.commands.config.config_path', '/tmp/.substra', create=True):
+            Config({
+                '<url>': 'http://toto.com',
+                '<version>': '1.0.0',
+                '<user>': 'foo',
+                '<password>': 'bar'
+            }).run()
+
+    def tearDown(self):
+        try:
+            os.remove('/tmp/.substra')
+        except:
+            pass
+
+    @mock.patch('substra.commands.list.requests.get', side_effect=mocked_requests_get_challenge)
+    def test_returns_challenge_list(self, mock_get):
+
+        res = List({
+            '<entity>': 'challenge'
+        }).run()
+
+        self.assertTrue(res == json.dumps(challenge))
+        self.assertEqual(len(mock_get.call_args_list), 1)

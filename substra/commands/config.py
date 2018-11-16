@@ -1,3 +1,4 @@
+import copy
 import json
 import os
 
@@ -9,9 +10,11 @@ config_path = os.path.expanduser('~/.substra')
 default_config = {
     'default': {
         'url': 'http://127.0.0.1:8000',
-        'version': '0.0'
+        'version': '0.0',
+        'auth': False
     }
 }
+
 
 class Config(Base):
     """Create config"""
@@ -34,7 +37,7 @@ class Config(Base):
                 res = json.load(f)
             except Exception as e:
                 # define default if does not exists
-                res = default_config
+                res = copy.deepcopy(default_config)
             finally:
                 if profile not in res:
                     res[profile] = {}
@@ -42,11 +45,11 @@ class Config(Base):
                 res[profile]['url'] = self.options['<url>']
                 res[profile]['version'] = self.options.get('<version>', '0.0')
                 user = self.options.get('<user>', None)
-                pwd = self.options.get('<pass>', None)
+                pwd = self.options.get('<password>', None)
                 if user and pwd:
                     res[profile]['auth'] = True
                     res[profile]['user'] = user
-                    res[profile]['pass'] = pwd
+                    res[profile]['password'] = pwd
                 else:
                     res[profile]['auth'] = False
 

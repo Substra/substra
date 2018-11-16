@@ -2,7 +2,7 @@
 substra
 
 Usage:
-  substra config <url> [<version>] [<user>] [<pass>] [--profile=<profile>] [--config=<configuration_file_path>]
+  substra config <url> [<version>] [<user>] [<password>] [--profile=<profile>] [--config=<configuration_file_path>]
   substra list <entity> [<filters>] [--profile=<profile>] [--config=<configuration_file_path>]
   substra add <entity> (<args>|<json_file) [--profile=<profile>] [--config=<configuration_file_path>]
   substra get <entity> <pkhash> [--profile=<profile>] [--config=<configuration_file_path>]
