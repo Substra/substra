@@ -129,6 +129,8 @@ class TestList(TestCase):
         Config({
             '<url>': 'http://owkin.substrabac:8000',
             '<version>': '0.0',
+            '<user>': os.environ.get('BACK_AUTH_USER', ''),
+            '<password>': os.environ.get('BACK_AUTH_PASSWORD', ''),
             '--config': '/tmp/.substra_e2e'
         }).run()
 

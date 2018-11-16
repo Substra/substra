@@ -15,13 +15,17 @@ class TestFixtures(TestCase):
             '<url>': owkin_url,
             '<version>': '0.0',
             '--profile': 'owkin',
-            '--config': '/tmp/.substra_e2e_multi_orgs'
+            '--config': '/tmp/.substra_e2e_multi_orgs',
+            '<user>': os.environ.get('BACK_AUTH_USER', ''),
+            '<password>': os.environ.get('BACK_AUTH_PASSWORD', ''),
         }).run()
         Config({
             '<url>': chunantes_url,
             '<version>': '0.0',
             '--profile': 'chunantes',
-            '--config': '/tmp/.substra_e2e_multi_orgs'
+            '--config': '/tmp/.substra_e2e_multi_orgs',
+            '<user>': os.environ.get('BACK_AUTH_USER', ''),
+            '<password>': os.environ.get('BACK_AUTH_PASSWORD', ''),
         }).run()
 
     def tearDown(self):

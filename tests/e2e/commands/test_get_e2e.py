@@ -12,7 +12,9 @@ class TestGet(TestCase):
         Config({
             '<url>': 'http://owkin.substrabac:8000',
             '<version>': '0.0',
-            '--config': '/tmp/.substra_e2e'
+            '<user>': os.environ.get('BACK_AUTH_USER', ''),
+            '<password>': os.environ.get('BACK_AUTH_PASSWORD', ''),
+            '--config': '/tmp/.substra_e2e',
         }).run()
 
     def tearDown(self):

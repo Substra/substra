@@ -13,8 +13,8 @@ class TestFixtures(TestCase):
         Config({
             '<url>': url,
             '<version>': '0.0',
-            '<user>': os.environ.get('BACK_AUTH_USER'),
-            '<password>': os.environ.get('BACK_AUTH_PASSWORD'),
+            '<user>': os.environ.get('BACK_AUTH_USER', ''),
+            '<password>': os.environ.get('BACK_AUTH_PASSWORD', ''),
             '--config': '/tmp/.substra_e2e'
         }).run()
 
