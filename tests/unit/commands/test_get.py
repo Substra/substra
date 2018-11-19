@@ -56,7 +56,7 @@ class TestGet(TestCase):
         with mock.patch('substra.commands.config.config_path', '/tmp/.substra', create=True):
             Config({
                 '<url>': 'http://toto.com',
-                '<version>': '1.0.0',
+                '<version>': '1.0',
             }).run()
 
     def tearDown(self):
@@ -106,9 +106,39 @@ class TestGetConfigBasicAuth(TestCase):
         with mock.patch('substra.commands.config.config_path', '/tmp/.substra', create=True):
             Config({
                 '<url>': 'http://toto.com',
-                '<version>': '1.0.0',
+                '<version>': '1.0',
                 '<user>': 'foo',
                 '<password>': 'bar'
+            }).run()
+
+    def tearDown(self):
+        try:
+            os.remove('/tmp/.substra')
+        except:
+            pass
+
+    @mock.patch('substra.commands.get.requests.get', side_effect=mocked_requests_get_challenge)
+    def test_returns_challenge_list(self, mock_get):
+        res = Get({
+            '<entity>': 'challenge',
+            '<pkhash>': 'd5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f',
+        }).run()
+
+        self.assertTrue(res == json.dumps(challenge))
+        self.assertEqual(len(mock_get.call_args_list), 1)
+
+@mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
+class TestGetConfigInsecure(TestCase):
+    def setUp(self):
+        self.dataset_file_path = './tests/assets/dataset/dataset.json'
+
+        with mock.patch('substra.commands.config.config_path', '/tmp/.substra', create=True):
+            Config({
+                '<url>': 'http://toto.com',
+                '<version>': '1.0',
+                '<user>': 'foo',
+                '<password>': 'bar',
+                '-k': True
             }).run()
 
     def tearDown(self):

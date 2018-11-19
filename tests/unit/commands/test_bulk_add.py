@@ -39,7 +39,7 @@ class TestAdd(TestCase):
         with mock.patch('substra.commands.config.config_path', '/tmp/.substra', create=True):
             Config({
                 '<url>': 'http://toto.com',
-                '<version>': '1.0.0',
+                '<version>': '1.0',
             }).run()
 
     def tearDown(self):

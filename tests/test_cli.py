@@ -12,6 +12,7 @@ from substra import __version__ as VERSION
 class TestHelp(TestCase):
     def test_returns_usage_information(self):
         output = popen(['substra', '-h'], stdout=PIPE).communicate()[0]
+        print(output.decode('utf-8'))
         self.assertTrue('Usage:' in output.decode('utf-8'))
 
         output = popen(['substra', '--help'], stdout=PIPE).communicate()[0]
@@ -31,6 +32,7 @@ class TestCommand(TestCase):
                 'url': 'http://localhost',
                 'version': '0.0',
                 'auth': False,
+                'insecure': False,
             }
         }, open('/tmp/.substra2', 'w+'))
 

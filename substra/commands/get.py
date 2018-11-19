@@ -16,7 +16,9 @@ class Get(Api):
 
         kwargs = {}
         if config['auth']:
-            kwargs = {'auth': (config['user'], config['password']), 'verify': False}
+            kwargs = {'auth': (config['user'], config['password'])}
+        if config['insecure']:
+            kwargs = {'verify': False}
         try:
             r = requests.get('%s/%s/%s' % (config['url'], entity, pkhash), headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
         except:

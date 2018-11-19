@@ -36,7 +36,8 @@ class TestConfig(TestCase):
                 'default': {
                     'url': 'http://toto.com',
                     'version': '1.0',
-                    'auth': False
+                    'auth': False,
+                    'insecure': False,
                 }
             })
 
@@ -53,6 +54,7 @@ class TestConfig(TestCase):
                 'default': {
                     'url': 'http://override.com',
                     'version': '9.9',
+                    'insecure': False,
                     'auth': False
                 }
             })
@@ -70,6 +72,7 @@ class TestConfig(TestCase):
                 'default': {
                     'url': 'http://toto.com',
                     'version': '1.0',
+                    'insecure': False,
                     'auth': False
                 }
             })
@@ -89,6 +92,7 @@ class TestConfig(TestCase):
                 'default': {
                     'url': 'http://toto.com',
                     'version': '0.1',
+                    'insecure': False,
                     'auth': True,
                     'user': 'foo',
                     'password': 'bar'

@@ -11,7 +11,8 @@ default_config = {
     'default': {
         'url': 'http://127.0.0.1:8000',
         'version': '0.0',
-        'auth': False
+        'auth': False,
+        'insecure': False,
     }
 }
 
@@ -44,6 +45,7 @@ class Config(Base):
 
                 res[profile]['url'] = self.options['<url>']
                 res[profile]['version'] = self.options.get('<version>', '0.0')
+                res[profile]['insecure'] = self.options.get('--insecure', self.options.get('-k', False))
                 user = self.options.get('<user>', None)
                 pwd = self.options.get('<password>', None)
                 if user and pwd:
