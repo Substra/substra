@@ -3,26 +3,25 @@ substra
 
 Usage:
   substra config <url> [<version>] [<user>] [<password>] [--profile=<profile>] [--config=<configuration_file_path>] [-k | --insecure]
-  substra list <entity> [<filters>] [--profile=<profile>] [--config=<configuration_file_path>] [-k | --insecure]
-  substra add <entity> (<args>|<json_file) [--profile=<profile>] [--config=<configuration_file_path>] [-k | --insecure]
-  substra get <entity> <pkhash> [--profile=<profile>] [--config=<configuration_file_path>] [-k | --insecure]
+  substra list <entity> [<filters>] [--profile=<profile>] [--config=<configuration_file_path>]
+  substra add <entity> (<args>|<json_file) [--profile=<profile>] [--config=<configuration_file_path>]
+  substra get <entity> <pkhash> [--profile=<profile>] [--config=<configuration_file_path>]
   substra -h | --help
   substra --version
 
 Options:
-  -h --help                         Show this screen.
-  --version                         Show version.
-  -k --insecure                     Do not verify SSL certificates.
-  --profile=<profile>]                         Create/Use a (new) profile
-  --config=<configuration_file_path>                          Path to config file (default ~/.substra)
+  -h --help                                     Show this screen.
+  --version                                     Show version.
+  -k --insecure                                 Do not verify SSL certificates.
+  --profile=<profile>]                          Create/Use a (new) profile
+  --config=<configuration_file_path>            Path to config file (default ~/.substra)
 
 Examples:
   substra config http://127.0.0.1:8000 0.0
   substra config http://127.0.0.1:8000 0.0 user password # basic auth user/password
-  substra config http://127.0.0.1:8000 0.0 --profile owkin --config /tmp/.substra
+  substra config http://127.0.0.1:8000 0.0 --profile=owkin --config=/tmp/.substra
   substra get dataset ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994
   substra list dataset
-  substra list dataset '{"challenge": {"name": "Skin Lesion Classification Challenge"}}'
   substra list challenge '["challenge:name:Skin Lesion Classification Challenge", "OR", "dataset:name:Simplified ISIC 2018"]' --profile=owkin --config=/tmp/.substra
   substra add dataset '{"name": "liver slide", "data_opener": "./tests/assets/dataset/opener.py", "type": "images", "description": "./tests/assets/dataset/description.md", "permissions": "all", "challenge_keys": []}'
   substra add dataset ./dataset_definition.json

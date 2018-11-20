@@ -34,13 +34,13 @@ class List(Api):
 
         kwargs = {}
         if config['auth']:
-            kwargs = {'auth': (config['user'], config['password'])}
+            kwargs.update({'auth': (config['user'], config['password'])})
         if config['insecure']:
-            kwargs = {'verify': False}
+            kwargs.update({'verify': False})
         try:
             r = requests.get('%s/%s/' % (url, entity), headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
-        except:
-            print('Failed to list %s. Please make sure the substrabac instance is live.' % entity)
+        except Exception as e:
+            print('Failed to list %s. Please make sure the substrabac instance is live. Detail %s' % (entity, e))
         else:
             try:
                 res = json.dumps(r.json())

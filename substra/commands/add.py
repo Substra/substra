@@ -59,9 +59,9 @@ class Add(Api):
 
         kwargs = {}
         if config['auth']:
-            kwargs = {'auth': (config['user'], config['password'])}
+            kwargs.update({'auth': (config['user'], config['password'])})
         if config['insecure']:
-            kwargs = {'verify': False}
+            kwargs.update({'verify': False})
         try:
             r = requests.post('%s/%s/' % (config['url'], entity), data=data, files=files, headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
         except:
