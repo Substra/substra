@@ -24,6 +24,11 @@ class Get(Api):
         except:
             raise Exception('Failed to get %s' % entity)
         else:
-            res = json.dumps(r.json())
-            print(res, end='')
-            return res
+            res = ''
+            try:
+                res = json.dumps(r.json())
+            except:
+                res = 'Can\'t decode response value from server to json: %s' % r.content
+            finally:
+                print(res, end='')
+                return res

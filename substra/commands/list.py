@@ -42,12 +42,11 @@ class List(Api):
         except Exception as e:
             print('Failed to list %s. Please make sure the substrabac instance is live. Detail %s' % (entity, e))
         else:
+            res = ''
             try:
                 res = json.dumps(r.json())
             except:
-                msg = 'Can\'t decode response value from server to json.'
-                print(msg)
-                return msg
-            else:
+                res = 'Can\'t decode response value from server to json: %s' % r.content
+            finally:
                 print(res, end='')
                 return res

@@ -67,6 +67,11 @@ class Add(Api):
         except:
             raise Exception('Failed to create %s' % entity)
         else:
-            res = json.dumps(r.json())
-            print(res, end='')
-            return res
+            res = ''
+            try:
+                res = json.dumps(r.json())
+            except:
+                res = r.content
+            finally:
+                print(res, end='')
+                return res
