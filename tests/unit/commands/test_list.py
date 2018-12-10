@@ -162,13 +162,11 @@ class TestList(TestCase):
     @mock.patch('substra.commands.list.requests.get', side_effect=mocked_requests_get_challenge_filtered)
     def test_returns_challenge_list_bad_filters(self, mock_get):
 
-        try:
-            List({
-                '<entity>': 'challenge',
-                '<filters>': 'toto'
-            }).run()
-        except Exception as e:
-            self.assertTrue(str(e) == 'Cannot load filters. Please review help substra -h')
+        res = List({
+            '<entity>': 'challenge',
+            '<filters>': 'toto'
+        }).run()
+        self.assertTrue(res == 'Cannot load filters. Please review help substra -h')
 
         self.assertEqual(len(mock_get.call_args_list), 0)
 

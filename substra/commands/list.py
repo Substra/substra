@@ -21,7 +21,9 @@ class List(Api):
             try:
                 filters = json.loads(filters)
             except:
-                raise Exception('Cannot load filters. Please review help substra -h')
+                res = 'Cannot load filters. Please review help substra -h'
+                print(res)
+                return res
             else:
                 res = []
                 for filter in filters:

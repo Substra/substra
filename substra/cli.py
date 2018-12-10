@@ -27,9 +27,9 @@ Examples:
   substra add dataset ./dataset_definition.json
 
   # add data
-  substra add data '{"file": "./fixtures/chunantes/data/42303efa663015e729159833a12ffb510ff92a6e386b8152f90f6fb14ddc94c9/0024899.zip", "dataset_key": "b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0", "test_only": false}'
+  substra add data '{"file": "./myzippedfile.zip", "dataset_key": "b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0", "test_only": false}'
   # add data in bulk
-  substra add data '{"files": ["./fixtures/chunantes/data/42303efa663015e729159833a12ffb510ff92a6e386b8152f90f6fb14ddc94c9/0024899.zip", "./fixtures/chunantes/data/62fb3263208d62c7235a046ee1d80e25512fe782254b730a9e566276b8c0ef3a/0024700.zip"], "dataset_key": "b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0", "test_only": false}'
+  substra add data '{"files": ["./myzippedfile.zip", "./myzippedfile2.zip"], "dataset_key": "b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0", "test_only": false}'
 
 
 Entities available:
@@ -38,7 +38,7 @@ Entities available:
   - challenge
   - algo
   - model (list and get only)
-  - traintuple (list and add only)
+  - traintuple (list, get and add only)
 
 Help:
     You can pass the --config option for defining the configuration file path you want to write/get the configuration.
