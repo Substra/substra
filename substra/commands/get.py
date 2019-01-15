@@ -26,7 +26,7 @@ class Get(Api):
         else:
             res = ''
             try:
-                res = json.dumps(r.json())
+                res = json.dumps(r.json(), indent=2)
             except:
                 res = 'Can\'t decode response value from server to json: %s' % r.content
             finally:
