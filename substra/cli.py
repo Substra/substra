@@ -39,6 +39,7 @@ Entities available:
   - algo
   - model (list and get only)
   - traintuple
+  - testtuple
 
 Help:
     You can pass the --config option for defining the configuration file path you want to write/get the configuration.
