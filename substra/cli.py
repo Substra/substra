@@ -7,6 +7,7 @@ Usage:
   substra add <entity> (<args>|<json_file) [--profile=<profile>] [--config=<configuration_file_path>]
   substra get <entity> <pkhash> [--profile=<profile>] [--config=<configuration_file_path>]
   substra bulk_update <entity> (<args>|<json_file) [--profile=<profile>] [--config=<configuration_file_path>]
+  substra path <entity> <pkhash> <path> [--profile=<profile>] [--config=<configuration_file_path>]
   substra -h | --help
   substra --version
 
@@ -35,14 +36,17 @@ Examples:
   # bulk update data
   substra bulk_update data '{"data_keys": ["62fb3263208d62c7235a046ee1d80e25512fe782254b730a9e566276b8c0ef3a", "42303efa663015e729159833a12ffb510ff92a6e386b8152f90f6fb14ddc94c9"], "dataset_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"]}'
 
+  # get details path of model
+  substra path model 640496cd77521be69122092213c0ab4fb3385250656aed7cd71c42e324f67356 details
+
 Entities available:
-  - dataset
-  - data (add, bulk add, bulk update, list and get only)
-  - challenge
-  - algo
-  - model (list and get only)
-  - traintuple
-  - testtuple
+  - dataset (add, list and get)
+  - data (add, bulk add, bulk update, list and get)
+  - challenge (add, list and get)
+  - algo (add, list and get)
+  - model (list, get and path)
+  - traintuple (add, list and get)
+  - testtuple (add, list and get)
 
 Help:
     You can pass the --config option for defining the configuration file path you want to write/get the configuration.
