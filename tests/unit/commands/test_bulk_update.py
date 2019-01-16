@@ -2,18 +2,14 @@ import json
 import os
 from unittest import TestCase, mock
 
-from substra.commands import Add, Config
+from substra.commands import Config, BulkUpdate
 
 data = [
     {
-        "pkhash": "2d0f943aa81a9cb3fe84b162559ce6aff068ccb04e0cb284733b8f9d7e06517e",
-        "validated": True,
-        "file": "http://127.0.0.1:8000/media/data/2d0f943aa81a9cb3fe84b162559ce6aff068ccb04e0cb284733b8f9d7e06517e/0024315.zip"
+        "pkhash": "62fb3263208d62c7235a046ee1d80e25512fe782254b730a9e566276b8c0ef3a",
     },
     {
-        "pkhash": "4b5152871b181d10ee774c10458c064c70710f4ba35938f10c0b7aa51f7dc010",
-        "validated": True,
-        "file": "http://127.0.0.1:8000/media/data/4b5152871b181d10ee774c10458c064c70710f4ba35938f10c0b7aa51f7dc010/0024701.zip"
+        "pkhash": "42303efa663015e729159833a12ffb510ff92a6e386b8152f90f6fb14ddc94c9",
     }
 ]
 
@@ -32,9 +28,9 @@ def mocked_requests_post_data(*args, **kwargs):
 
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
-class TestBulkAdd(TestCase):
+class TestBulkUpdate(TestCase):
     def setUp(self):
-        self.data_file_path = './tests/assets/data/bulk_data.json'
+        self.data_file_path = './tests/assets/data/bulk_update_data.json'
 
         with mock.patch('substra.commands.config.config_path', '/tmp/.substra', create=True):
             Config({
@@ -48,16 +44,17 @@ class TestBulkAdd(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_data)
-    def test_bulk_add_data(self, mock_get):
-        # open data file
+    @mock.patch('substra.commands.bulk_update.requests.post', side_effect=mocked_requests_post_data)
+    def test_bulk_update_data(self, mock_get):
         with open(self.data_file_path, 'r') as f:
             content = f.read()
 
-            res = Add({
+            res = BulkUpdate({
                 '<entity>': 'data',
                 '<args>': content,
             }).run()
 
-            self.assertEqual(json.loads(res), data)
+            print(res)
+
+            self.assertTrue(res == json.dumps(data))
             self.assertEqual(len(mock_get.call_args_list), 1)

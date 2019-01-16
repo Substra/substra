@@ -6,6 +6,7 @@ Usage:
   substra list <entity> [<filters>] [--profile=<profile>] [--config=<configuration_file_path>] [--is-complex]
   substra add <entity> (<args>|<json_file) [--profile=<profile>] [--config=<configuration_file_path>]
   substra get <entity> <pkhash> [--profile=<profile>] [--config=<configuration_file_path>]
+  substra bulk_update <entity> (<args>|<json_file) [--profile=<profile>] [--config=<configuration_file_path>]
   substra -h | --help
   substra --version
 
@@ -28,13 +29,15 @@ Examples:
 
   # add data
   substra add data '{"file": "./myzippedfile.zip", "dataset_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"], "test_only": false}'
-  # add data in bulk
+  # bulk add data
   substra add data '{"files": ["./myzippedfile.zip", "./myzippedfile2.zip"], "dataset_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"], "test_only": false}'
 
+  # bulk update data
+  substra bulk_update data '{"data_keys": ["62fb3263208d62c7235a046ee1d80e25512fe782254b730a9e566276b8c0ef3a", "42303efa663015e729159833a12ffb510ff92a6e386b8152f90f6fb14ddc94c9"], "dataset_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"]}'
 
 Entities available:
   - dataset
-  - data (add, bulk add, list and get only)
+  - data (add, bulk add, bulk update, list and get only)
   - challenge
   - algo
   - model (list and get only)
