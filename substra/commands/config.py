@@ -57,7 +57,7 @@ class Config(Base):
 
                 f.seek(0)
                 f.truncate()
-                json.dump(res, f, indent=4, sort_keys=True)
+                json.dump(res, f, indent=2, sort_keys=True)
 
                 print('Created/Updated config file in %s with values: \n%s' % (conf_path, json.dumps(res, indent=2)))
 
