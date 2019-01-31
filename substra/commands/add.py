@@ -57,6 +57,9 @@ class Add(Api):
                     'file': open(data['file'], 'rb'),
                 }
 
+        if 'permissions' not in data:
+            data['permissions'] = 'all'
+
         kwargs = {}
         if config['auth']:
             kwargs.update({'auth': (config['user'], config['password'])})

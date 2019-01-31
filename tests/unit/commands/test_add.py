@@ -96,6 +96,7 @@ class TestAdd(TestCase):
 
             self.assertEqual(json.loads(res), dataset)
             self.assertEqual(len(mock_get.call_args_list), 1)
+            self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
 
     @mock.patch('substra.commands.list.requests.post', side_effect=mocked_requests_post_dataset)
     def test_add_dataset_from_file(self, mock_get):
@@ -132,6 +133,7 @@ class TestAdd(TestCase):
 
             self.assertEqual(json.loads(res), challenge)
             self.assertEqual(len(mock_get.call_args_list), 1)
+            self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
 
     @mock.patch('substra.commands.list.requests.post', side_effect=mocked_requests_post_algo)
     def test_add_algo(self, mock_get):
@@ -146,6 +148,7 @@ class TestAdd(TestCase):
 
             self.assertEqual(json.loads(res), algo)
             self.assertEqual(len(mock_get.call_args_list), 1)
+            self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
 
     @mock.patch('substra.commands.list.requests.post', side_effect=mocked_requests_post_data)
     def test_add_data(self, mock_get):
