@@ -111,7 +111,7 @@ class TestList(TestCase):
     def test_returns_challenge_list(self, mock_get):
 
         res = List({
-            '<entity>': 'challenge'
+            '<asset>': 'challenge'
         }).run()
 
         self.assertEqual(json.loads(res), flatten(challenge))
@@ -121,7 +121,7 @@ class TestList(TestCase):
     def test_returns_challenge_list_fail(self, mock_get):
         try:
             List({
-                '<entity>': 'challenge',
+                '<asset>': 'challenge',
             }).run()
         except Exception as e:
             print(str(e))
@@ -133,7 +133,7 @@ class TestList(TestCase):
     def test_returns_dataset_list(self, mock_get):
 
         res = List({
-            '<entity>': 'dataset'
+            '<asset>': 'dataset'
         }).run()
 
         self.assertEqual(json.loads(res), flatten(dataset))
@@ -143,7 +143,7 @@ class TestList(TestCase):
     def test_returns_dataset_list_no_json(self, mock_get):
         try:
             List({
-                '<entity>': 'dataset'
+                '<asset>': 'dataset'
             }).run()
         except Exception as e:
             print(str(e))
@@ -154,7 +154,7 @@ class TestList(TestCase):
     def test_returns_challenge_list_filters(self, mock_get):
 
         res = List({
-            '<entity>': 'challenge',
+            '<asset>': 'challenge',
             '<filters>': '["challenge:name:Skin Lesion Classification Challenge", "OR", "dataset:name:Simplified ISIC 2018"]'
         }).run()
 
@@ -165,7 +165,7 @@ class TestList(TestCase):
     def test_returns_challenge_list_bad_filters(self, mock_get):
 
         res = List({
-            '<entity>': 'challenge',
+            '<asset>': 'challenge',
             '<filters>': 'toto'
         }).run()
         self.assertTrue(res == 'Cannot load filters. Please review help substra -h')
@@ -196,7 +196,7 @@ class TestListConfigBasicAuth(TestCase):
     def test_returns_challenge_list(self, mock_get):
 
         res = List({
-            '<entity>': 'challenge'
+            '<asset>': 'challenge'
         }).run()
 
         self.assertEqual(json.loads(res), flatten(challenge))
@@ -227,7 +227,7 @@ class TestListConfigInsecure(TestCase):
     def test_returns_challenge_list(self, mock_get):
 
         res = List({
-            '<entity>': 'challenge'
+            '<asset>': 'challenge'
         }).run()
 
         self.assertTrue(json.loads(res) == flatten(challenge))

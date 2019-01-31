@@ -11,12 +11,12 @@ def path_leaf(path):
 
 
 class Add(Api):
-    """Add entity"""
+    """Add asset"""
 
     def run(self):
         config = super(Add, self).run()
 
-        entity = self.options['<entity>']
+        asset = self.options['<asset>']
         args = self.options['<args>']
 
         try:
@@ -30,22 +30,22 @@ class Add(Api):
 
         # TODO add try except on this part of the code
         files = {}
-        if entity == 'dataset':
+        if asset == 'dataset':
             files = {
                 'data_opener': open(data['data_opener'], 'rb'),
                 'description': open(data['description'], 'rb')
             }
-        elif entity == 'challenge':
+        elif asset == 'challenge':
             files = {
                 'metrics': open(data['metrics'], 'rb'),
                 'description': open(data['description'], 'rb')
             }
-        elif entity == 'algo':
+        elif asset == 'algo':
             files = {
                 'file': open(data['file'], 'rb'),
                 'description': open(data['description'], 'rb')
             }
-        elif entity == 'data':
+        elif asset == 'data':
             # support bulk with multiple files
             files = data.get('files', None)
             if files and type(files) == list:
@@ -66,9 +66,9 @@ class Add(Api):
         if config['insecure']:
             kwargs.update({'verify': False})
         try:
-            r = requests.post('%s/%s/' % (config['url'], entity), data=data, files=files, headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
+            r = requests.post('%s/%s/' % (config['url'], asset), data=data, files=files, headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
         except:
-            raise Exception('Failed to create %s' % entity)
+            raise Exception('Failed to create %s' % asset)
         else:
             res = ''
             try:
