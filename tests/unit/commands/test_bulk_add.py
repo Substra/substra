@@ -59,7 +59,5 @@ class TestAdd(TestCase):
                 '<args>': content,
             }).run()
 
-            print(res)
-
-            self.assertTrue(res == json.dumps(data))
+            self.assertEqual(json.loads(res), data)
             self.assertEqual(len(mock_get.call_args_list), 1)

@@ -112,7 +112,7 @@ class TestList(TestCase):
             '<entity>': 'challenge'
         }).run()
 
-        self.assertTrue(res == json.dumps(challenge))
+        self.assertEqual(json.loads(res), challenge)
         self.assertEqual(len(mock_get.call_args_list), 1)
 
     @mock.patch('substra.commands.list.requests.get', side_effect=mocked_requests_list_challenge_fail)
@@ -134,7 +134,7 @@ class TestList(TestCase):
             '<entity>': 'dataset'
         }).run()
 
-        self.assertTrue(res == json.dumps(dataset))
+        self.assertEqual(json.loads(res), dataset)
         self.assertEqual(len(mock_get.call_args_list), 1)
 
     @mock.patch('substra.commands.list.requests.get', side_effect=mocked_requests_get_dataset_no_json)
@@ -156,7 +156,7 @@ class TestList(TestCase):
             '<filters>': '["challenge:name:Skin Lesion Classification Challenge", "OR", "dataset:name:Simplified ISIC 2018"]'
         }).run()
 
-        self.assertTrue(res == json.dumps(challenge))
+        self.assertEqual(json.loads(res), challenge)
         self.assertEqual(len(mock_get.call_args_list), 1)
 
     @mock.patch('substra.commands.list.requests.get', side_effect=mocked_requests_get_challenge_filtered)
@@ -197,7 +197,7 @@ class TestListConfigBasicAuth(TestCase):
             '<entity>': 'challenge'
         }).run()
 
-        self.assertTrue(res == json.dumps(challenge))
+        self.assertEqual(json.loads(res), challenge)
         self.assertEqual(len(mock_get.call_args_list), 1)
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
@@ -227,5 +227,5 @@ class TestListConfigInsecure(TestCase):
             '<entity>': 'challenge'
         }).run()
 
-        self.assertTrue(res == json.dumps(challenge))
+        self.assertTrue(json.loads(res) == challenge)
         self.assertEqual(len(mock_get.call_args_list), 1)
