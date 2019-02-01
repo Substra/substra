@@ -72,9 +72,9 @@ class Add(Api):
         else:
             res = ''
             try:
-                res = json.dumps(r.json())
+                res = json.dumps(r.json(), indent=2)
             except:
                 res = r.content
             finally:
-                print(res, end='')
+                print(res)
                 return res
