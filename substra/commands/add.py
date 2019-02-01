@@ -73,5 +73,5 @@ class Add(Api):
             except:
                 res = r.content
             finally:
-                print(f'{res}\n', end='')
+                print(res)
                 return res
