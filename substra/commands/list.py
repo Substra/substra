@@ -1,6 +1,7 @@
 import json
 
 import requests
+import itertools
 from urllib.parse import quote
 
 from .api import Api
@@ -8,10 +9,9 @@ from .api import Api
 
 def flatten(list_of_list):
     res = []
-    for l in list_of_list:
-        for item in l:
-            if item not in res:
-                res.append(item)
+    for item in itertools.chain.from_iterable(list_of_list):
+        if item not in res:
+            res.append(item)
     return res
 
 
