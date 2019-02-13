@@ -23,6 +23,7 @@ class List(Api):
         base_url = config['url']
         entity = self.options['<entity>']
         filters = self.options.get('<filters>', None)
+        is_complex = self.options.get('--is-complex')
 
         url = base_url
 
@@ -50,7 +51,7 @@ class List(Api):
             res = ''
             try:
                 res = r.json()
-                res = flatten(res)
+                res = flatten(res) if not is_complex else res
                 res = json.dumps(res, indent=2)
             except:
                 res = 'Can\'t decode response value from server to json: %s' % r.content
