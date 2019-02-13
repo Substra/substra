@@ -3,5 +3,5 @@
   "data_opener": "./tests/assets/dataset/opener.py",
   "type": "images",
   "description": "./tests/assets/dataset/description.md",
-  "challenge_keys": []
+  "challenge_key": ""
 }

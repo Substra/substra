@@ -1,7 +1,7 @@
 import json
 import os
 from subprocess import PIPE, Popen as popen
-from unittest import TestCase, mock
+from unittest import TestCase
 
 from substra.commands import Config
 

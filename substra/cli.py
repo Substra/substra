@@ -5,8 +5,9 @@ Usage:
   substra config <url> [<version>] [<user>] [<password>] [--profile=<profile>] [--config=<configuration_file_path>] [-k | --insecure]
   substra list <entity> [<filters>] [--profile=<profile>] [--config=<configuration_file_path>] [--is-complex]
   substra add <entity> (<args>|<json_file) [--profile=<profile>] [--config=<configuration_file_path>]
+  substra update <entity> <pkhash> (<args>|<json_file>) [--profile=<profile>] [--config=<configuration_file_path>]
   substra get <entity> <pkhash> [--profile=<profile>] [--config=<configuration_file_path>]
-  substra bulk_update <entity> (<args>|<json_file) [--profile=<profile>] [--config=<configuration_file_path>]
+  substra bulk_update <entity> (<args>|<json_file>) [--profile=<profile>] [--config=<configuration_file_path>]
   substra path <entity> <pkhash> <path> [--profile=<profile>] [--config=<configuration_file_path>]
   substra -h | --help
   substra --version
@@ -40,7 +41,7 @@ Examples:
   substra path model 640496cd77521be69122092213c0ab4fb3385250656aed7cd71c42e324f67356 details
 
 Entities available:
-  - dataset (add, list and get)
+  - dataset (add, update, list and get)
   - data (add, bulk add, bulk update, list and get)
   - challenge (add, list and get)
   - algo (add, list and get)

@@ -4,7 +4,7 @@ from unittest import TestCase, mock
 
 from substra.commands import Add, Config
 
-dataset = {"challengeKeys": [],
+dataset = {"challengeKey": "",
            "description": {"hash": "7a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
                            "storageAddress": "http://127.0.0.1:8001/dataset/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/description/"},
            "key": "ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994", "name": "ISIC 2018", "nbData": 2,
