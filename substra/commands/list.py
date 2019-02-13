@@ -1,9 +1,17 @@
 import json
-from urllib.parse import urlencode, quote
 
 import requests
 
 from .api import Api
+
+
+def flatten(list_of_list):
+    res = []
+    for l in list_of_list:
+        for item in l:
+            if item not in res:
+                res.append(item)
+    return res
 
 
 class List(Api):
@@ -17,6 +25,12 @@ class List(Api):
         filters = self.options.get('<filters>', None)
 
         url = base_url
+
+        kwargs = {}
+        if config['auth']:
+            kwargs.update({'auth': (config['user'], config['password'])})
+        if config['insecure']:
+            kwargs.update({'verify': False})
         if filters:
             try:
                 filters = json.loads(filters)
@@ -25,20 +39,9 @@ class List(Api):
                 print(res)
                 return res
             else:
-                res = []
-                for filter in filters:
-                    if filter == 'OR':
-                       filter = '-OR-'
-                    res.append(quote(filter))
+                filters = map(lambda x: '-OR-' if x == 'OR' else x, filters)
+                kwargs['params'] = {'search': ''.join(filters)}
 
-                get_parameters = quote(''.join(res))
-                url = '%s?%s' % (url, get_parameters)
-
-        kwargs = {}
-        if config['auth']:
-            kwargs.update({'auth': (config['user'], config['password'])})
-        if config['insecure']:
-            kwargs.update({'verify': False})
         try:
             r = requests.get('%s/%s/' % (url, entity), headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
         except Exception as e:
@@ -46,9 +49,11 @@ class List(Api):
         else:
             res = ''
             try:
-                res = json.dumps(r.json(), indent=2)
+                res = r.json()
+                res = flatten(res)
+                res = json.dumps(res, indent=2)
             except:
                 res = 'Can\'t decode response value from server to json: %s' % r.content
             finally:
-                print(res, end='')
+                print(res)
                 return res
