@@ -3,9 +3,12 @@ substra
 
 Usage:
   substra config <url> [<version>] [<user>] [<password>] [--profile=<profile>] [--config=<configuration_file_path>] [-k | --insecure]
-  substra list <entity> [<filters>] [--profile=<profile>] [--config=<configuration_file_path>]
+  substra list <entity> [<filters>] [--profile=<profile>] [--config=<configuration_file_path>] [--is-complex]
   substra add <entity> (<args>|<json_file) [--profile=<profile>] [--config=<configuration_file_path>]
+  substra update <entity> <pkhash> (<args>|<json_file>) [--profile=<profile>] [--config=<configuration_file_path>]
   substra get <entity> <pkhash> [--profile=<profile>] [--config=<configuration_file_path>]
+  substra bulk_update <entity> (<args>|<json_file>) [--profile=<profile>] [--config=<configuration_file_path>]
+  substra path <entity> <pkhash> <path> [--profile=<profile>] [--config=<configuration_file_path>]
   substra -h | --help
   substra --version
 
@@ -23,23 +26,28 @@ Examples:
   substra get dataset ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994
   substra list dataset
   substra list challenge '["challenge:name:Skin Lesion Classification Challenge", "OR", "dataset:name:Simplified ISIC 2018"]' --profile=owkin --config=/tmp/.substra
-  substra add dataset '{"name": "liver slide", "data_opener": "./tests/assets/dataset/opener.py", "type": "images", "description": "./tests/assets/dataset/description.md", "permissions": "all", "challenge_key": "6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c"}'
+  substra add dataset '{"name": "liver slide", "data_opener": "./tests/assets/dataset/opener.py", "type": "images", "description": "./tests/assets/dataset/description.md", "challenge_key": "6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c"}'
   substra add dataset ./dataset_definition.json
 
   # add data
   substra add data '{"file": "./myzippedfile.zip", "dataset_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"], "test_only": false}'
-  # add data in bulk
+  # bulk add data
   substra add data '{"files": ["./myzippedfile.zip", "./myzippedfile2.zip"], "dataset_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"], "test_only": false}'
 
+  # bulk update data
+  substra bulk_update data '{"data_keys": ["62fb3263208d62c7235a046ee1d80e25512fe782254b730a9e566276b8c0ef3a", "42303efa663015e729159833a12ffb510ff92a6e386b8152f90f6fb14ddc94c9"], "dataset_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"]}'
+
+  # get details path of model
+  substra path model 640496cd77521be69122092213c0ab4fb3385250656aed7cd71c42e324f67356 details
 
 Entities available:
-  - dataset
-  - data (add, bulk add, list and get only)
-  - challenge
-  - algo
-  - model (list and get only)
-  - traintuple
-  - testtuple
+  - dataset (add, update, list and get)
+  - data (add, bulk add, bulk update, list and get)
+  - challenge (add, list and get)
+  - algo (add, list and get)
+  - model (list, get and path)
+  - traintuple (add, list and get)
+  - testtuple (add, list and get)
 
 Help:
     You can pass the --config option for defining the configuration file path you want to write/get the configuration.

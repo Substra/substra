@@ -2,6 +2,5 @@
   "name": "MSI classification",
   "description": "./tests/assets/challenge/description.md",
   "metrics": "./tests/assets/challenge/metrics.py",
-  "test_data_keys": [],
-  "permissions": "all"
+  "test_data_keys": []
 }

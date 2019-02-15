@@ -57,6 +57,9 @@ class Add(Api):
                     'file': open(data['file'], 'rb'),
                 }
 
+        if 'permissions' not in data:
+            data['permissions'] = 'all'
+
         kwargs = {}
         if config['auth']:
             kwargs.update({'auth': (config['user'], config['password'])})
@@ -69,9 +72,9 @@ class Add(Api):
         else:
             res = ''
             try:
-                res = json.dumps(r.json())
+                res = json.dumps(r.json(), indent=2)
             except:
                 res = r.content
             finally:
-                print(res, end='')
+                print(res)
                 return res

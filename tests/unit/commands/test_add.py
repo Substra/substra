@@ -4,7 +4,7 @@ from unittest import TestCase, mock
 
 from substra.commands import Add, Config
 
-dataset = {"challengeKeys": [],
+dataset = {"challengeKey": "",
            "description": {"hash": "7a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
                            "storageAddress": "http://127.0.0.1:8001/dataset/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/description/"},
            "key": "ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994", "name": "ISIC 2018", "nbData": 2,
@@ -83,7 +83,7 @@ class TestAdd(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.list.requests.post', side_effect=mocked_requests_post_dataset)
+    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_dataset)
     def test_add_dataset(self, mock_get):
         # open dataset file
         with open(self.dataset_file_path, 'r') as f:
@@ -94,10 +94,11 @@ class TestAdd(TestCase):
                 '<args>': data,
             }).run()
 
-            self.assertTrue(res == json.dumps(dataset))
+            self.assertEqual(json.loads(res), dataset)
             self.assertEqual(len(mock_get.call_args_list), 1)
+            self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
 
-    @mock.patch('substra.commands.list.requests.post', side_effect=mocked_requests_post_dataset)
+    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_dataset)
     def test_add_dataset_from_file(self, mock_get):
 
         res = Add({
@@ -105,10 +106,10 @@ class TestAdd(TestCase):
             '<args>': self.dataset_file_path,
         }).run()
 
-        self.assertTrue(res == json.dumps(dataset))
+        self.assertEqual(json.loads(res), dataset)
         self.assertEqual(len(mock_get.call_args_list), 1)
 
-    @mock.patch('substra.commands.list.requests.post', side_effect=mocked_requests_post_dataset)
+    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_dataset)
     def test_add_dataset_invalid_args(self, mock_get):
         try:
             Add({
@@ -119,7 +120,7 @@ class TestAdd(TestCase):
             self.assertTrue(str(e) == 'Invalid args. Please review help')
         self.assertEqual(len(mock_get.call_args_list), 0)
 
-    @mock.patch('substra.commands.list.requests.post', side_effect=mocked_requests_post_challenge)
+    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_challenge)
     def test_add_challenge(self, mock_get):
         # open challenge file
         with open(self.challenge_file_path, 'r') as f:
@@ -130,10 +131,11 @@ class TestAdd(TestCase):
                 '<args>': data,
             }).run()
 
-            self.assertTrue(res == json.dumps(challenge))
+            self.assertEqual(json.loads(res), challenge)
             self.assertEqual(len(mock_get.call_args_list), 1)
+            self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
 
-    @mock.patch('substra.commands.list.requests.post', side_effect=mocked_requests_post_algo)
+    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_algo)
     def test_add_algo(self, mock_get):
         # open algo file
         with open(self.algo_file_path, 'r') as f:
@@ -144,10 +146,11 @@ class TestAdd(TestCase):
                 '<args>': data,
             }).run()
 
-            self.assertTrue(res == json.dumps(algo))
+            self.assertEqual(json.loads(res), algo)
             self.assertEqual(len(mock_get.call_args_list), 1)
+            self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
 
-    @mock.patch('substra.commands.list.requests.post', side_effect=mocked_requests_post_data)
+    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_data)
     def test_add_data(self, mock_get):
         # open algo file
         with open(self.data_file_path, 'r') as f:
@@ -160,10 +163,10 @@ class TestAdd(TestCase):
 
             print(res)
 
-            self.assertTrue(res == json.dumps(data))
+            self.assertEqual(json.loads(res), data)
             self.assertEqual(len(mock_get.call_args_list), 1)
 
-    @mock.patch('substra.commands.list.requests.post', side_effect=mocked_requests_add_challenge_fail)
+    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_add_challenge_fail)
     def test_returns_challenge_list_fail(self, mock_get):
         with open(self.challenge_file_path, 'r') as f:
             data = f.read()
@@ -188,7 +191,7 @@ class TestAddNoConfig(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.list.requests.post', side_effect=mocked_requests_post_dataset)
+    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_dataset)
     def test_add_dataset(self, mock_get):
         # open dataset file
         with open(self.dataset_file_path, 'r') as f:
@@ -226,7 +229,7 @@ class TestAddConfigBasicAuth(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.list.requests.post', side_effect=mocked_requests_post_dataset)
+    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_dataset)
     def test_add_dataset(self, mock_get):
         # open dataset file
         with open(self.dataset_file_path, 'r') as f:
@@ -237,7 +240,7 @@ class TestAddConfigBasicAuth(TestCase):
                 '<args>': data,
             }).run()
 
-            self.assertTrue(res == json.dumps(dataset))
+            self.assertEqual(json.loads(res), dataset)
             self.assertEqual(len(mock_get.call_args_list), 1)
 
 
@@ -261,7 +264,7 @@ class TestAddConfigInsecure(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.list.requests.post', side_effect=mocked_requests_post_dataset)
+    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_dataset)
     def test_add_dataset(self, mock_get):
         # open dataset file
         with open(self.dataset_file_path, 'r') as f:
@@ -272,5 +275,5 @@ class TestAddConfigInsecure(TestCase):
                 '<args>': data,
             }).run()
 
-            self.assertTrue(res == json.dumps(dataset))
+            self.assertEqual(json.loads(res), dataset)
             self.assertEqual(len(mock_get.call_args_list), 1)

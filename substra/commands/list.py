@@ -1,9 +1,18 @@
 import json
-from urllib.parse import urlencode, quote
 
 import requests
+import itertools
+from urllib.parse import quote
 
 from .api import Api
+
+
+def flatten(list_of_list):
+    res = []
+    for item in itertools.chain.from_iterable(list_of_list):
+        if item not in res:
+            res.append(item)
+    return res
 
 
 class List(Api):
@@ -15,8 +24,15 @@ class List(Api):
         base_url = config['url']
         entity = self.options['<entity>']
         filters = self.options.get('<filters>', None)
+        is_complex = self.options.get('--is-complex')
 
         url = base_url
+
+        kwargs = {}
+        if config['auth']:
+            kwargs.update({'auth': (config['user'], config['password'])})
+        if config['insecure']:
+            kwargs.update({'verify': False})
         if filters:
             try:
                 filters = json.loads(filters)
@@ -25,30 +41,25 @@ class List(Api):
                 print(res)
                 return res
             else:
-                res = []
-                for filter in filters:
-                    if filter == 'OR':
-                       filter = '-OR-'
-                    res.append(quote(filter))
+                filters = map(lambda x: '-OR-' if x == 'OR' else x, filters)
+                # requests uses quote_plus to escape the params, but we want to use quote
+                # we're therefore passing a string (won't be escaped again) instead of an object
+                kwargs['params'] = 'search=%s' % quote(''.join(filters))
 
-                get_parameters = quote(''.join(res))
-                url = '%s?%s' % (url, get_parameters)
-
-        kwargs = {}
-        if config['auth']:
-            kwargs.update({'auth': (config['user'], config['password'])})
-        if config['insecure']:
-            kwargs.update({'verify': False})
         try:
             r = requests.get('%s/%s/' % (url, entity), headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
+            print(r.url)
         except Exception as e:
             print('Failed to list %s. Please make sure the substrabac instance is live. Detail %s' % (entity, e))
         else:
             res = ''
             try:
-                res = json.dumps(r.json(), indent=2)
+                res = r.json()
             except:
                 res = 'Can\'t decode response value from server to json: %s' % r.content
+            else:
+                res = flatten(res) if not is_complex else res
+                res = json.dumps(res, indent=2)
             finally:
-                print(res, end='')
+                print(res)
                 return res
