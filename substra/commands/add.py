@@ -52,6 +52,7 @@ class Add(Api):
 
         exit = False
 
+        files = {}
         if asset == 'dataset':
             files, exit, exit_msg = load_data_files(data, ['data_opener', 'description'])
         elif asset == 'challenge':
