@@ -1,5 +1,8 @@
 import json
 import os
+from io import StringIO
+import sys
+
 from unittest import TestCase, mock
 
 from substra.commands import Add, Config
@@ -197,15 +200,28 @@ class TestAddNoConfig(TestCase):
         with open(self.dataset_file_path, 'r') as f:
             data = f.read()
 
+            saved_stdout = sys.stdout
+
             try:
-                Add({
-                    '<entity>': 'dataset',
-                    '<args>': data,
-                }).run()
-            except Exception as e:
-                print('test: ', str(e))
+                out = StringIO()
+                sys.stdout = out
+
+                with self.assertRaises(SystemExit) as se:
+                    Add({
+                        '<entity>': 'dataset',
+                        '<args>': data,
+                    }).run()
+
+                    self.assertEqual(se.exception.code, 1)
+
+                e = out.getvalue().strip()
+                sys.stdout = saved_stdout
                 self.assertTrue(str(
-                    e) == 'No config file or profile found, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"')
+                    e) == 'No config file "/tmp/.substra" found, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"')
+            except:
+                self.assertTrue(False)
+            finally:
+                sys.stdout = saved_stdout
 
             self.assertEqual(len(mock_get.call_args_list), 0)
 
