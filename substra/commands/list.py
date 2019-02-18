@@ -24,8 +24,7 @@ class List(Api):
         base_url = config['url']
         entity = self.options['<entity>']
         filters = self.options.get('<filters>', None)
-        is_complex = self.options.get('--is-complex')
-
+        is_complex = self.options.get('--is-complex', False)
         url = base_url
 
         kwargs = {}
@@ -48,7 +47,6 @@ class List(Api):
 
         try:
             r = requests.get('%s/%s/' % (url, entity), headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
-            print(r.url)
         except Exception as e:
             print('Failed to list %s. Please make sure the substrabac instance is live. Detail %s' % (entity, e))
         else:
