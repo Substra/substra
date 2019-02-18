@@ -6,12 +6,12 @@ from .api import Api
 
 
 class Get(Api):
-    """Get entity"""
+    """Get asset"""
 
     def run(self):
         config = super(Get, self).run()
 
-        entity = self.options['<entity>']
+        asset = self.options['<asset>']
         pkhash = self.options['<pkhash>']
 
         kwargs = {}
@@ -20,9 +20,9 @@ class Get(Api):
         if config['insecure']:
             kwargs.update({'verify': False})
         try:
-            r = requests.get('%s/%s/%s' % (config['url'], entity, pkhash), headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
+            r = requests.get('%s/%s/%s' % (config['url'], asset, pkhash), headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
         except:
-            raise Exception('Failed to get %s' % entity)
+            raise Exception('Failed to get %s' % asset)
         else:
             res = ''
             try:

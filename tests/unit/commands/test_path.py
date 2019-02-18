@@ -105,7 +105,7 @@ class TestPath(TestCase):
     @mock.patch('substra.commands.path.requests.get', side_effect=mocked_requests_get_model)
     def test_returns_challenge_list(self, mock_get):
         res = Get({
-            '<entity>': 'model',
+            '<asset>': 'model',
             '<pkhash>': '640496cd77521be69122092213c0ab4fb3385250656aed7cd71c42e324f67356',
             '<path>': 'details',
         }).run()

@@ -71,7 +71,7 @@ class TestGet(TestCase):
     @mock.patch('substra.commands.get.requests.get', side_effect=mocked_requests_get_challenge)
     def test_returns_challenge_list(self, mock_get):
         res = Get({
-            '<entity>': 'challenge',
+            '<asset>': 'challenge',
             '<pkhash>': 'd5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f',
         }).run()
 
@@ -82,7 +82,7 @@ class TestGet(TestCase):
     def test_returns_challenge_list_fail(self, mock_get):
         try:
             Get({
-                '<entity>': 'challenge',
+                '<asset>': 'challenge',
                 '<pkhash>': 'd5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f',
             }).run()
         except Exception as e:
@@ -94,7 +94,7 @@ class TestGet(TestCase):
     @mock.patch('substra.commands.get.requests.get', side_effect=mocked_requests_get_dataset)
     def test_returns_dataset_list(self, mock_get):
         res = Get({
-            '<entity>': 'dataset',
+            '<asset>': 'dataset',
             '<pkhash>': 'ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994',
         }).run()
 
@@ -123,7 +123,7 @@ class TestGetConfigBasicAuth(TestCase):
     @mock.patch('substra.commands.get.requests.get', side_effect=mocked_requests_get_challenge)
     def test_returns_challenge_list(self, mock_get):
         res = Get({
-            '<entity>': 'challenge',
+            '<asset>': 'challenge',
             '<pkhash>': 'd5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f',
         }).run()
 
@@ -153,7 +153,7 @@ class TestGetConfigInsecure(TestCase):
     @mock.patch('substra.commands.get.requests.get', side_effect=mocked_requests_get_challenge)
     def test_returns_challenge_list(self, mock_get):
         res = Get({
-            '<entity>': 'challenge',
+            '<asset>': 'challenge',
             '<pkhash>': 'd5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f',
         }).run()
 

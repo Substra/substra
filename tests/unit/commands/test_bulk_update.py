@@ -50,7 +50,7 @@ class TestBulkUpdate(TestCase):
             content = f.read()
 
             res = BulkUpdate({
-                '<entity>': 'data',
+                '<asset>': 'data',
                 '<args>': content,
             }).run()
 

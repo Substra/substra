@@ -5,12 +5,12 @@ from .api import Api
 
 
 class Update(Api):
-    """BulkUpdate entity"""
+    """Update asset"""
 
     def run(self):
         config = super(Update, self).run()
 
-        entity = self.options['<entity>']
+        asset = self.options['<asset>']
         pkhash = self.options['<pkhash>']
         args = self.options['<args>']
 
@@ -29,7 +29,7 @@ class Update(Api):
         if config['insecure']:
             kwargs.update({'verify': False})
         try:
-            r = requests.post('%s/%s/%s/update_ledger/' % (config['url'], entity, pkhash), data=data, headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
+            r = requests.post('%s/%s/%s/update_ledger/' % (config['url'], asset, pkhash), data=data, headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
         except:
             raise Exception('Failed to update')
         else:

@@ -3,12 +3,12 @@ substra
 
 Usage:
   substra config <url> [<version>] [<user>] [<password>] [--profile=<profile>] [--config=<configuration_file_path>] [-k | --insecure]
-  substra list <entity> [<filters>] [--profile=<profile>] [--config=<configuration_file_path>] [--is-complex]
-  substra add <entity> (<args>|<json_file) [--profile=<profile>] [--config=<configuration_file_path>]
-  substra update <entity> <pkhash> (<args>|<json_file>) [--profile=<profile>] [--config=<configuration_file_path>]
-  substra get <entity> <pkhash> [--profile=<profile>] [--config=<configuration_file_path>]
-  substra bulk_update <entity> (<args>|<json_file>) [--profile=<profile>] [--config=<configuration_file_path>]
-  substra path <entity> <pkhash> <path> [--profile=<profile>] [--config=<configuration_file_path>]
+  substra list <asset> [<filters>] [--profile=<profile>] [--config=<configuration_file_path>] [--is-complex]
+  substra add <asset> (<args>|<json_file) [--profile=<profile>] [--config=<configuration_file_path>]
+  substra update <asset> <pkhash> (<args>|<json_file>) [--profile=<profile>] [--config=<configuration_file_path>]
+  substra get <asset> <pkhash> [--profile=<profile>] [--config=<configuration_file_path>]
+  substra bulk_update <asset> (<args>|<json_file>) [--profile=<profile>] [--config=<configuration_file_path>]
+  substra path <asset> <pkhash> <path> [--profile=<profile>] [--config=<configuration_file_path>]
   substra -h | --help
   substra --version
 
@@ -40,7 +40,7 @@ Examples:
   # get details path of model
   substra path model 640496cd77521be69122092213c0ab4fb3385250656aed7cd71c42e324f67356 details
 
-Entities available:
+Assets available:
   - dataset (add, update, list and get)
   - data (add, bulk add, bulk update, list and get)
   - challenge (add, list and get)

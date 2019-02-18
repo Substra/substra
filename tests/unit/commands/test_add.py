@@ -93,7 +93,7 @@ class TestAdd(TestCase):
             data = f.read()
 
             res = Add({
-                '<entity>': 'dataset',
+                '<asset>': 'dataset',
                 '<args>': data,
             }).run()
 
@@ -105,7 +105,7 @@ class TestAdd(TestCase):
     def test_add_dataset_from_file(self, mock_get):
 
         res = Add({
-            '<entity>': 'dataset',
+            '<asset>': 'dataset',
             '<args>': self.dataset_file_path,
         }).run()
 
@@ -116,7 +116,7 @@ class TestAdd(TestCase):
     def test_add_dataset_invalid_args(self, mock_get):
         try:
             Add({
-                '<entity>': 'dataset',
+                '<asset>': 'dataset',
                 '<args>': 'test',
             }).run()
         except Exception as e:
@@ -130,7 +130,7 @@ class TestAdd(TestCase):
             data = f.read()
 
             res = Add({
-                '<entity>': 'challenge',
+                '<asset>': 'challenge',
                 '<args>': data,
             }).run()
 
@@ -145,7 +145,7 @@ class TestAdd(TestCase):
             data = f.read()
 
             res = Add({
-                '<entity>': 'algo',
+                '<asset>': 'algo',
                 '<args>': data,
             }).run()
 
@@ -160,7 +160,7 @@ class TestAdd(TestCase):
             content = f.read()
 
             res = Add({
-                '<entity>': 'data',
+                '<asset>': 'data',
                 '<args>': content,
             }).run()
 
@@ -175,7 +175,7 @@ class TestAdd(TestCase):
             data = f.read()
             try:
                 Add({
-                    '<entity>': 'challenge',
+                    '<asset>': 'challenge',
                     '<args>': data,
                 }).run()
             except Exception as e:
@@ -208,7 +208,7 @@ class TestAddNoConfig(TestCase):
 
                 with self.assertRaises(SystemExit) as se:
                     Add({
-                        '<entity>': 'dataset',
+                        '<asset>': 'dataset',
                         '<args>': data,
                     }).run()
 
@@ -252,7 +252,7 @@ class TestAddConfigBasicAuth(TestCase):
             data = f.read()
 
             res = Add({
-                '<entity>': 'dataset',
+                '<asset>': 'dataset',
                 '<args>': data,
             }).run()
 
@@ -287,7 +287,7 @@ class TestAddConfigInsecure(TestCase):
             data = f.read()
 
             res = Add({
-                '<entity>': 'dataset',
+                '<asset>': 'dataset',
                 '<args>': data,
             }).run()
 

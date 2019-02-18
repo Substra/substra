@@ -6,12 +6,12 @@ from .api import Api
 
 
 class Path(Api):
-    """Details entity"""
+    """Details asset"""
 
     def run(self):
         config = super(Path, self).run()
 
-        entity = self.options['<entity>']
+        asset = self.options['<asset>']
         pkhash = self.options['<pkhash>']
         path = self.options['<path>']
 
@@ -21,9 +21,9 @@ class Path(Api):
         if config['insecure']:
             kwargs.update({'verify': False})
         try:
-            r = requests.get('%s/%s/%s/%s' % (config['url'], entity, pkhash, path), headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
+            r = requests.get('%s/%s/%s/%s' % (config['url'], asset, pkhash, path), headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
         except:
-            raise Exception('Failed to get %s' % entity)
+            raise Exception('Failed to get %s' % asset)
         else:
             res = ''
             try:
