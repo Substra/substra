@@ -5,12 +5,12 @@ from .api import Api
 
 
 class BulkUpdate(Api):
-    """BulkUpdate entity"""
+    """BulkUpdate asset"""
 
     def run(self):
         config = super(BulkUpdate, self).run()
 
-        entity = self.options['<entity>']
+        asset = self.options['<asset>']
         args = self.options['<args>']
 
         try:
@@ -28,7 +28,7 @@ class BulkUpdate(Api):
         if config['insecure']:
             kwargs.update({'verify': False})
         try:
-            r = requests.post('%s/%s/bulk_update' % (config['url'], entity), data=data, headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
+            r = requests.post('%s/%s/bulk_update' % (config['url'], asset), data=data, headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
         except:
             raise Exception('Failed to update')
         else:

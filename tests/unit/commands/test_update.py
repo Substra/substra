@@ -47,7 +47,7 @@ class TestUpdate(TestCase):
             content = f.read()
 
             res = Update({
-                '<entity>': 'dataset',
+                '<asset>': 'dataset',
                 '<pkhash>': '62fb3263208d62c7235a046ee1d80e25512fe782254b730a9e566276b8c0ef3a',
                 '<args>': content,
             }).run()
