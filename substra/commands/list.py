@@ -6,7 +6,8 @@ from urllib.parse import quote
 
 from .api import Api
 
-FLAT_ASSET_LISTS = ['data', 'traintuple', 'testtuple']
+SIMPLE_ASSETS = ['data', 'traintuple', 'testtuple']
+
 
 def flatten(list_of_list):
     res = []
@@ -57,7 +58,7 @@ class List(Api):
             except:
                 res = 'Can\'t decode response value from server to json: %s' % r.content
             else:
-                res = flatten(res) if not is_complex and asset not in FLAT_ASSET_LISTS else res
+                res = flatten(res) if not is_complex and asset not in SIMPLE_ASSETS else res
                 res = json.dumps(res, indent=2)
             finally:
                 print(res)
