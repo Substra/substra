@@ -40,6 +40,7 @@ class Add(Api):
 
         asset = self.options['<asset>']
         args = self.options['<args>']
+        dryrun = self.options['--dry-run']
 
         try:
             data = json.loads(args)
@@ -75,6 +76,9 @@ class Add(Api):
 
         if 'permissions' not in data:
             data['permissions'] = 'all'
+
+        if dryrun:
+            data['dryrun'] = True
 
         kwargs = {}
         if config['auth']:

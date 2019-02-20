@@ -4,7 +4,7 @@ substra
 Usage:
   substra config <url> [<version>] [<user>] [<password>] [--profile=<profile>] [--config=<configuration_file_path>] [-k | --insecure]
   substra list <asset> [<filters>] [--profile=<profile>] [--config=<configuration_file_path>] [--is-complex]
-  substra add <asset> (<args>|<json_file) [--profile=<profile>] [--config=<configuration_file_path>]
+  substra add <asset> (<args>|<json_file>) [--profile=<profile>] [--config=<configuration_file_path>] [--dry-run]
   substra update <asset> <pkhash> (<args>|<json_file>) [--profile=<profile>] [--config=<configuration_file_path>]
   substra get <asset> <pkhash> [--profile=<profile>] [--config=<configuration_file_path>]
   substra bulk_update <asset> (<args>|<json_file>) [--profile=<profile>] [--config=<configuration_file_path>]
@@ -28,6 +28,7 @@ Examples:
   substra list challenge '["challenge:name:Skin Lesion Classification Challenge", "OR", "dataset:name:Simplified ISIC 2018"]' --profile=owkin --config=/tmp/.substra
   substra add dataset '{"name": "liver slide", "data_opener": "./tests/assets/dataset/opener.py", "type": "images", "description": "./tests/assets/dataset/description.md", "challenge_key": "6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c"}'
   substra add dataset ./dataset_definition.json
+  substra add dataset ./dataset_definition.json --dry-run
 
   # add data
   substra add data '{"file": "./myzippedfile.zip", "dataset_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"], "test_only": false}'
@@ -51,7 +52,8 @@ Assets available:
 
 Help:
     You can pass the --config option for defining the configuration file path you want to write/get the configuration.
-    Use the --profile variable for writing/getting the configuration profile to use.
+    Use the --profile option for writing/getting the configuration profile to use.
+    Use the --dry-run option when adding an asset for testing the validity of your files
 
     You can use a `--config /tmp/.substra` for testing for example.
     You can use different profiles for making calls to substrabac. Nice when playing with multiple instances of substrabac.
