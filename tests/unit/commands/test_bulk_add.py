@@ -55,7 +55,7 @@ class TestBulkAdd(TestCase):
             content = f.read()
 
             res = Add({
-                '<entity>': 'data',
+                '<asset>': 'data',
                 '<args>': content,
             }).run()
 

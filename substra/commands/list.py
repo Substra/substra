@@ -16,16 +16,15 @@ def flatten(list_of_list):
 
 
 class List(Api):
-    '''Get entity'''
+    '''Get asset'''
 
     def run(self):
         config = super(List, self).run()
 
         base_url = config['url']
-        entity = self.options['<entity>']
+        asset = self.options['<asset>']
         filters = self.options.get('<filters>', None)
-        is_complex = self.options.get('--is-complex')
-
+        is_complex = self.options.get('--is-complex', False)
         url = base_url
 
         kwargs = {}
@@ -47,10 +46,9 @@ class List(Api):
                 kwargs['params'] = 'search=%s' % quote(''.join(filters))
 
         try:
-            r = requests.get('%s/%s/' % (url, entity), headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
-            print(r.url)
+            r = requests.get('%s/%s/' % (url, asset), headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
         except Exception as e:
-            print('Failed to list %s. Please make sure the substrabac instance is live. Detail %s' % (entity, e))
+            print('Failed to list %s. Please make sure the substrabac instance is live. Detail %s' % (asset, e))
         else:
             res = ''
             try:

@@ -1,5 +1,8 @@
 import json
 import os
+from io import StringIO
+import sys
+
 from unittest import TestCase, mock
 
 from substra.commands import Add, Config
@@ -90,7 +93,7 @@ class TestAdd(TestCase):
             data = f.read()
 
             res = Add({
-                '<entity>': 'dataset',
+                '<asset>': 'dataset',
                 '<args>': data,
             }).run()
 
@@ -102,7 +105,7 @@ class TestAdd(TestCase):
     def test_add_dataset_from_file(self, mock_get):
 
         res = Add({
-            '<entity>': 'dataset',
+            '<asset>': 'dataset',
             '<args>': self.dataset_file_path,
         }).run()
 
@@ -113,7 +116,7 @@ class TestAdd(TestCase):
     def test_add_dataset_invalid_args(self, mock_get):
         try:
             Add({
-                '<entity>': 'dataset',
+                '<asset>': 'dataset',
                 '<args>': 'test',
             }).run()
         except Exception as e:
@@ -127,7 +130,7 @@ class TestAdd(TestCase):
             data = f.read()
 
             res = Add({
-                '<entity>': 'challenge',
+                '<asset>': 'challenge',
                 '<args>': data,
             }).run()
 
@@ -142,7 +145,7 @@ class TestAdd(TestCase):
             data = f.read()
 
             res = Add({
-                '<entity>': 'algo',
+                '<asset>': 'algo',
                 '<args>': data,
             }).run()
 
@@ -157,7 +160,7 @@ class TestAdd(TestCase):
             content = f.read()
 
             res = Add({
-                '<entity>': 'data',
+                '<asset>': 'data',
                 '<args>': content,
             }).run()
 
@@ -172,7 +175,7 @@ class TestAdd(TestCase):
             data = f.read()
             try:
                 Add({
-                    '<entity>': 'challenge',
+                    '<asset>': 'challenge',
                     '<args>': data,
                 }).run()
             except Exception as e:
@@ -197,15 +200,28 @@ class TestAddNoConfig(TestCase):
         with open(self.dataset_file_path, 'r') as f:
             data = f.read()
 
+            saved_stdout = sys.stdout
+
             try:
-                Add({
-                    '<entity>': 'dataset',
-                    '<args>': data,
-                }).run()
-            except Exception as e:
-                print('test: ', str(e))
+                out = StringIO()
+                sys.stdout = out
+
+                with self.assertRaises(SystemExit) as se:
+                    Add({
+                        '<asset>': 'dataset',
+                        '<args>': data,
+                    }).run()
+
+                    self.assertEqual(se.exception.code, 1)
+
+                e = out.getvalue().strip()
+                sys.stdout = saved_stdout
                 self.assertTrue(str(
-                    e) == 'No config file or profile found, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"')
+                    e) == 'No config file "/tmp/.substra" found, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"')
+            except:
+                self.assertTrue(False)
+            finally:
+                sys.stdout = saved_stdout
 
             self.assertEqual(len(mock_get.call_args_list), 0)
 
@@ -236,7 +252,7 @@ class TestAddConfigBasicAuth(TestCase):
             data = f.read()
 
             res = Add({
-                '<entity>': 'dataset',
+                '<asset>': 'dataset',
                 '<args>': data,
             }).run()
 
@@ -271,7 +287,7 @@ class TestAddConfigInsecure(TestCase):
             data = f.read()
 
             res = Add({
-                '<entity>': 'dataset',
+                '<asset>': 'dataset',
                 '<args>': data,
             }).run()
 
