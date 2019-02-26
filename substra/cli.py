@@ -43,7 +43,7 @@ Examples:
 
 Assets available:
   - dataset (add, update, list and get)
-  - data (add, bulk add, bulk update, list and get)
+  - data (add, bulk add, bulk update and get)
   - challenge (add, list and get)
   - algo (add, list and get)
   - model (list, get and path)
