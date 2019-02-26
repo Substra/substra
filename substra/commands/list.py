@@ -54,12 +54,12 @@ class List(Api):
         else:
             res = ''
             try:
-                res = r.json()
+                result = r.json()
             except:
                 res = 'Can\'t decode response value from server to json: %s' % r.content
             else:
                 res = flatten(res) if not is_complex and asset not in SIMPLE_ASSETS and r.status_code == 200 else res
-                res = json.dumps(res, indent=2)
+                res = json.dumps({'result': result, 'status_code': r.status_code}, indent=2)
             finally:
-                print(res)
+                print(res, end='')
                 return res

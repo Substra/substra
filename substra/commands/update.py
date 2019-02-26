@@ -35,7 +35,8 @@ class Update(Api):
         else:
             res = ''
             try:
-                res = json.dumps(r.json())
+                result = r.json()
+                res = json.dumps({'result': result, 'status_code': r.status_code}, indent=2)
             except:
                 res = r.content
             finally:

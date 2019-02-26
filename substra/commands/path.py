@@ -27,7 +27,8 @@ class Path(Api):
         else:
             res = ''
             try:
-                res = json.dumps(r.json(), indent=2)
+                result = r.json()
+                res = json.dumps({'result': result, 'status_code': r.status_code}, indent=2)
             except:
                 res = 'Can\'t decode response value from server to json: %s' % r.content
             finally:
