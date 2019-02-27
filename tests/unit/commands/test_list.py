@@ -114,7 +114,10 @@ class TestList(TestCase):
             '<asset>': 'challenge'
         }).run()
 
-        self.assertEqual(json.loads(res), flatten(challenge))
+        print(json.loads(res)['result'])
+
+        self.assertEqual(json.loads(res)['status_code'], 200)
+        self.assertEqual(json.loads(res)['result'], flatten(challenge))
         self.assertEqual(len(mock_get.call_args_list), 1)
 
     @mock.patch('substra.commands.list.requests.get', side_effect=mocked_requests_list_challenge_fail)
@@ -136,7 +139,8 @@ class TestList(TestCase):
             '<asset>': 'dataset'
         }).run()
 
-        self.assertEqual(json.loads(res), flatten(dataset))
+        self.assertEqual(json.loads(res)['status_code'], 200)
+        self.assertEqual(json.loads(res)['result'], flatten(dataset))
         self.assertEqual(len(mock_get.call_args_list), 1)
 
     @mock.patch('substra.commands.list.requests.get', side_effect=mocked_requests_get_dataset_no_json)
@@ -158,7 +162,8 @@ class TestList(TestCase):
             '<filters>': '["challenge:name:Skin Lesion Classification Challenge", "OR", "dataset:name:Simplified ISIC 2018"]'
         }).run()
 
-        self.assertEqual(json.loads(res), flatten(challenge))
+        self.assertEqual(json.loads(res)['status_code'], 200)
+        self.assertEqual(json.loads(res)['result'], flatten(challenge))
         self.assertEqual(len(mock_get.call_args_list), 1)
 
     @mock.patch('substra.commands.list.requests.get', side_effect=mocked_requests_get_challenge_filtered)
@@ -199,7 +204,8 @@ class TestListConfigBasicAuth(TestCase):
             '<asset>': 'challenge'
         }).run()
 
-        self.assertEqual(json.loads(res), flatten(challenge))
+        self.assertEqual(json.loads(res)['status_code'], 200)
+        self.assertEqual(json.loads(res)['result'], flatten(challenge))
         self.assertEqual(len(mock_get.call_args_list), 1)
 
 
@@ -230,5 +236,6 @@ class TestListConfigInsecure(TestCase):
             '<asset>': 'challenge'
         }).run()
 
-        self.assertTrue(json.loads(res) == flatten(challenge))
+        self.assertEqual(json.loads(res)['status_code'], 200)
+        self.assertEqual(json.loads(res)['result'], flatten(challenge))
         self.assertEqual(len(mock_get.call_args_list), 1)

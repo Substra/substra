@@ -54,5 +54,6 @@ class TestUpdate(TestCase):
 
             print(res)
 
-            self.assertTrue(res == json.dumps(dataset))
+            self.assertEqual(json.loads(res)['status_code'], 200)
+            self.assertEqual(json.loads(res)['result'], dataset)
             self.assertEqual(len(mock_get.call_args_list), 1)

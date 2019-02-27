@@ -58,7 +58,7 @@ class List(Api):
             except:
                 res = 'Can\'t decode response value from server to json: %s' % r.content
             else:
-                res = flatten(res) if not is_complex and asset not in SIMPLE_ASSETS and r.status_code == 200 else res
+                result = flatten(result) if not is_complex and asset not in SIMPLE_ASSETS and r.status_code == 200 else result
                 res = json.dumps({'result': result, 'status_code': r.status_code}, indent=2)
             finally:
                 print(res, end='')
