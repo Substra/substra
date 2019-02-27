@@ -19,7 +19,7 @@ class MockResponse:
 
 
 def mocked_requests_post_dataset(*args, **kwargs):
-    return MockResponse(dataset, 201)
+    return MockResponse(dataset, 200)
 
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
