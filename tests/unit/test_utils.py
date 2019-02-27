@@ -1,7 +1,8 @@
 import os
 from unittest import TestCase
 
-from substra.utils import load_json_from_args
+from substra.utils import load_json_from_args, InvalidJSONStringException, InvalidJSONFileException, \
+    InvalidJSONArgsException
 
 UNIT_TESTS_DIR = os.path.dirname(__file__)
 
@@ -35,15 +36,13 @@ class TestUtils(TestCase):
         self.assertEqual(load_json_from_args(self.path_to_valid_json), {"a": "b"})
 
         # invalid arguments
-
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(InvalidJSONStringException):
             load_json_from_args(self.invalid_json)
-        self.assertTrue(str(cm.exception).startswith(f'String "{self.invalid_json}" is not valid JSON:'))
 
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(InvalidJSONFileException):
             load_json_from_args(self.path_to_invalid_json)
-        self.assertTrue(str(cm.exception).startswith(f'File "{self.path_to_invalid_json}" is not a valid JSON file:'))
 
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(InvalidJSONArgsException) as cm:
             load_json_from_args(self.invalid_args)
-        self.assertTrue(str(cm.exception).startswith(f'String "{self.invalid_args}" is neither a path to a JSON file nor valid JSON:'))
+        self.assertTrue(type(cm.exception) != InvalidJSONStringException)
+        self.assertTrue(type(cm.exception) != InvalidJSONFileException)

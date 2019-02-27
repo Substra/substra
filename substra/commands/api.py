@@ -40,4 +40,3 @@ class Api(Base):
         if verbose:
             raise exception
         print(exception)
-        sys.exit(1)

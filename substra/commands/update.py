@@ -1,7 +1,9 @@
 import json
+import sys
+
 import requests
 
-from substra.utils import load_json_from_args
+from substra.utils import load_json_from_args, InvalidJSONArgsException
 from .api import Api
 
 
@@ -17,8 +19,9 @@ class Update(Api):
 
         try:
             data = load_json_from_args(args)
-        except Exception as e:
+        except InvalidJSONArgsException as e:
             self.handle_exception(e)
+            sys.exit(1)
 
         kwargs = {}
         if config['auth']:
