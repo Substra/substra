@@ -34,3 +34,10 @@ class Api(Base):
             raise Exception(msg)
         else:
             return config
+
+    def handle_exception(self, exception):
+        verbose = self.options.get('--verbose')
+        if verbose:
+            raise exception
+        print(exception)
+        sys.exit(1)

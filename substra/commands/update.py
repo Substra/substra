@@ -1,6 +1,7 @@
 import json
 import requests
 
+from substra.utils import load_json_from_args
 from .api import Api
 
 
@@ -15,13 +16,9 @@ class Update(Api):
         args = self.options['<args>']
 
         try:
-            data = json.loads(args)
-        except:
-            try:
-                with open(args, 'r') as f:
-                    data = json.load(f)
-            except:
-                raise Exception('Invalid args. Please review help')
+            data = load_json_from_args(args)
+        except Exception as e:
+            self.handle_exception(e)
 
         kwargs = {}
         if config['auth']:

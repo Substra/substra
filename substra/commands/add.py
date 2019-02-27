@@ -5,6 +5,7 @@ import os
 import requests
 import sys
 
+from substra.utils import load_json_from_args
 from .api import Api
 
 
@@ -43,13 +44,9 @@ class Add(Api):
         dryrun = self.options.get('--dry-run', False)
 
         try:
-            data = json.loads(args)
-        except:
-            try:
-                with open(args, 'r') as f:
-                    data = json.load(f)
-            except:
-                raise Exception('Invalid args. Please review help')
+            data = load_json_from_args(args)
+        except Exception as e:
+            self.handle_exception(e)
 
         exit = False
 
