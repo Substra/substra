@@ -40,7 +40,7 @@ class Add(Api):
 
         asset = self.options['<asset>']
         args = self.options['<args>']
-        dryrun = self.options['--dry-run']
+        dryrun = self.options.get('--dry-run', False)
 
         try:
             data = json.loads(args)
