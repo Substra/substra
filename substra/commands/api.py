@@ -36,7 +36,7 @@ class Api(Base):
             return config
 
     def handle_exception(self, exception):
-        verbose = self.options.get('--verbose')
+        verbose = self.options.get('--verbose', False)
         if verbose:
             raise exception
         print(exception)
