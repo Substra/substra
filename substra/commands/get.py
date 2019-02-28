@@ -20,7 +20,7 @@ class Get(Api):
         if config['insecure']:
             kwargs.update({'verify': False})
         try:
-            r = requests.get('%s/%s/%s' % (config['url'], asset, pkhash), headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
+            r = requests.get('%s/%s/%s/' % (config['url'], asset, pkhash), headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
         except:
             raise Exception('Failed to get %s' % asset)
         else:
