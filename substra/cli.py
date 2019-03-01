@@ -4,10 +4,10 @@ substra
 Usage:
   substra config <url> [<version>] [<user>] [<password>] [--profile=<profile>] [--config=<configuration_file_path>] [-k | --insecure]
   substra list <asset> [<filters>] [--profile=<profile>] [--config=<configuration_file_path>] [--is-complex]
-  substra add <asset> (<args>|<json_file>) [--profile=<profile>] [--config=<configuration_file_path>] [--dry-run]
-  substra update <asset> <pkhash> (<args>|<json_file>) [--profile=<profile>] [--config=<configuration_file_path>]
+  substra add <asset> <args> [--profile=<profile>] [--config=<configuration_file_path>] [--dry-run] [-v | --verbose]
+  substra update <asset> <pkhash> <args> [--profile=<profile>] [--config=<configuration_file_path>] [-v | --verbose]
   substra get <asset> <pkhash> [--profile=<profile>] [--config=<configuration_file_path>]
-  substra bulk_update <asset> (<args>|<json_file>) [--profile=<profile>] [--config=<configuration_file_path>]
+  substra bulk_update <asset> <args> [--profile=<profile>] [--config=<configuration_file_path>] [-v | --verbose]
   substra path <asset> <pkhash> <path> [--profile=<profile>] [--config=<configuration_file_path>]
   substra -h | --help
   substra --version
@@ -16,8 +16,10 @@ Options:
   -h --help                                     Show this screen.
   --version                                     Show version.
   -k --insecure                                 Do not verify SSL certificates.
-  --profile=<profile>]                          Create/Use a (new) profile
+  --profile=<profile>                           Create/Use a (new) profile
   --config=<configuration_file_path>            Path to config file (default ~/.substra)
+  -v --verbose                                  Print more information when an error occurs
+  args                                          Stringified JSON or path to a JSON file
 
 Examples:
   substra config http://127.0.0.1:8000 0.0
