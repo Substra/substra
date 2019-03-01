@@ -14,7 +14,7 @@ class InvalidJSONFileException(InvalidJSONArgsException):
 
 
 class InvalidJSONStringException(InvalidJSONArgsException):
-    msg = 'String "{args}" is not valid JSON: {json_error}'
+    msg = 'String "{args}" is not valid JSON stringified value: {json_error}'
 
 
 def load_json_from_args(args):
@@ -29,10 +29,15 @@ def load_json_from_args(args):
             data = json.loads(args)
         except json.JSONDecodeError as e:
             # testing whether args is json-like
-            if args[0] in ['[', '{']:
+            if args[0] in ('[', '{'):
                 raise InvalidJSONStringException(args, e)
             else:
                 raise InvalidJSONArgsException(args, e)
+
+    # make sure the user passed an object
+    if type(data) is not dict:
+        raise InvalidJSONStringException(args, 'not an object')
+
     return data
 
 
