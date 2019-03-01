@@ -39,4 +39,4 @@ class Api(Base):
         verbose = self.options.get('--verbose', False)
         if verbose:
             raise exception
-        print(exception)
+        print(str(exception))

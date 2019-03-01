@@ -72,10 +72,8 @@ class Add(Api):
             try:
                 # try loading files if needed
                 files = self.load_files(asset, data)
-            except LoadDataException as e:
-                print(json.dumps({'message': str(e)}))
             except Exception as e:
-                raise e  # not user friendly
+                self.handle_exception(e)
             else:
                 # build request
                 if 'permissions' not in data:
