@@ -33,9 +33,9 @@ class RunTests(Command):
 setup(
     name='substra',
     version=__version__,
-    description='Substra SDK for interacting with substrabac',
+    description='Substra CLI for interacting with substrabac',
     long_description=long_description,
-    url='https://github.com/substra/substraSDK',
+    url='https://github.com/SubstraFoundation/substra-cli',
     author='Guillaume Cisco',
     author_email='guillaumecisco@gmail.com',
     license='MIT',
