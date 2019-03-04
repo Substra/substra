@@ -3,9 +3,13 @@ import ntpath
 
 import os
 import requests
-import sys
 
+from substra.utils import load_json_from_args, InvalidJSONArgsException
 from .api import Api
+
+
+class LoadDataException(Exception):
+    pass
 
 
 def path_leaf(path):
@@ -15,86 +19,84 @@ def path_leaf(path):
 
 def load_data_files(data, attributes):
     files = {}
-    exit_msg = {'message': []}
-    exit = False
 
     for attribute in attributes:
         if attribute not in data:
-            exit = True
-            exit_msg['message'].append("The \'%s\' attribute has no file associated with it." % attribute)
+            raise LoadDataException(f"The '{attribute}' attribute is missing.")
         else:
-            if os.path.exists(data[attribute]):
-                files[attribute] = open(data[attribute], 'rb')
-            else:
-                exit = True
-                exit_msg['message'].append("The \'%s\' attribute file (%s) does not exit." % (attribute, data[attribute]))
+            if not os.path.exists(data[attribute]):
+                raise LoadDataException(f"The '{attribute}' attribute file ({data[attribute]}) does not exit.")
 
-    return files, exit, exit_msg
+            files[attribute] = open(data[attribute], 'rb')
+
+    return files
 
 
 class Add(Api):
     """Add asset"""
+
+    def load_files(self, asset, data):
+        files = {}
+        if asset == 'dataset':
+            files = load_data_files(data, ['data_opener', 'description'])
+        elif asset == 'challenge':
+            files = load_data_files(data, ['metrics', 'description'])
+        elif asset == 'algo':
+            files = load_data_files(data, ['file', 'description'])
+        elif asset == 'data':
+            # support bulk with multiple files
+            # TODO add bulletproof for bulk using load_data_files
+            data_files = data.get('files', None)
+            if data_files and type(data_files) == list:
+                files = {
+                    # open can fail
+                    path_leaf(x): open(x, 'rb') for x in data_files
+                }
+            else:
+                files = load_data_files(data, ['file'])
+
+        return files
 
     def run(self):
         config = super(Add, self).run()
 
         asset = self.options['<asset>']
         args = self.options['<args>']
-        dryrun = self.options['--dry-run']
+        dryrun = self.options.get('--dry-run', False)
 
         try:
-            data = json.loads(args)
-        except:
-            try:
-                with open(args, 'r') as f:
-                    data = json.load(f)
-            except:
-                raise Exception('Invalid args. Please review help')
-
-        exit = False
-
-        files = {}
-        if asset == 'dataset':
-            files, exit, exit_msg = load_data_files(data, ['data_opener', 'description'])
-        elif asset == 'challenge':
-            files, exit, exit_msg = load_data_files(data, ['metrics', 'description'])
-        elif asset == 'algo':
-            files, exit, exit_msg = load_data_files(data, ['file', 'description'])
-        elif asset == 'data':
-            # support bulk with multiple files
-            data_files = data.get('files', None)
-            if data_files and type(data_files) == list:
-                files = {
-                    path_leaf(x): open(x, 'rb') for x in data_files
-                }
-            else:
-                files, exit, exit_msg = load_data_files(data, ['file'])
-
-        if exit:
-            print(json.dumps(exit_msg))
-            sys.exit(1)
-
-        if 'permissions' not in data:
-            data['permissions'] = 'all'
-
-        if dryrun:
-            data['dryrun'] = True
-
-        kwargs = {}
-        if config['auth']:
-            kwargs.update({'auth': (config['user'], config['password'])})
-        if config['insecure']:
-            kwargs.update({'verify': False})
-        try:
-            r = requests.post('%s/%s/' % (config['url'], asset), data=data, files=files, headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
-        except:
-            raise Exception('Failed to create %s' % asset)
+            data = load_json_from_args(args)
+        except InvalidJSONArgsException as e:
+            self.handle_exception(e)
         else:
-            res = ''
             try:
-                res = json.dumps(r.json(), indent=2)
-            except:
-                res = r.content
-            finally:
-                print(res)
-                return res
+                # try loading files if needed
+                files = self.load_files(asset, data)
+            except Exception as e:
+                self.handle_exception(e)
+            else:
+                # build request
+                if 'permissions' not in data:
+                    data['permissions'] = 'all'
+
+                if dryrun:
+                    data['dryrun'] = True
+
+                kwargs = {}
+                if config['auth']:
+                    kwargs.update({'auth': (config['user'], config['password'])})
+                if config['insecure']:
+                    kwargs.update({'verify': False})
+                try:
+                    r = requests.post('%s/%s/' % (config['url'], asset), data=data, files=files, headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
+                except:
+                    raise Exception('Failed to create %s' % asset)
+                else:
+                    res = ''
+                    try:
+                        res = json.dumps(r.json(), indent=2)
+                    except:
+                        res = r.content
+                    finally:
+                        print(res)
+                        return res

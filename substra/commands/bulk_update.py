@@ -1,6 +1,9 @@
 import json
+import sys
+
 import requests
 
+from substra.utils import load_json_from_args, InvalidJSONArgsException
 from .api import Api
 
 
@@ -14,13 +17,10 @@ class BulkUpdate(Api):
         args = self.options['<args>']
 
         try:
-            data = json.loads(args)
-        except:
-            try:
-                with open(args, 'r') as f:
-                    data = json.load(f)
-            except:
-                raise Exception('Invalid args. Please review help')
+            data = load_json_from_args(args)
+        except InvalidJSONArgsException as e:
+            self.handle_exception(e)
+            sys.exit(1)
 
         kwargs = {}
         if config['auth']:
@@ -28,7 +28,7 @@ class BulkUpdate(Api):
         if config['insecure']:
             kwargs.update({'verify': False})
         try:
-            r = requests.post('%s/%s/bulk_update' % (config['url'], asset), data=data, headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
+            r = requests.post('%s/%s/bulk_update/' % (config['url'], asset), data=data, headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
         except:
             raise Exception('Failed to update')
         else:
