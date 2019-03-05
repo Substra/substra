@@ -1,11 +1,7 @@
 import requests
 
-from .config import ConfigManager
 
-
-def update(asset, pkhash, data, profile='default'):
-    configManager = ConfigManager()
-    config = configManager.get(profile)
+def update(asset, pkhash, data, config):
 
     kwargs = {}
     if config['auth']:

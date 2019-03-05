@@ -3,7 +3,6 @@ import json
 import requests
 import itertools
 from urllib.parse import quote
-from .config import ConfigManager
 
 
 SIMPLE_ASSETS = ['data', 'traintuple', 'testtuple']
@@ -17,9 +16,7 @@ def flatten(list_of_list):
     return res
 
 
-def list(asset, filters=None, is_complex=False, profile='default'):
-    configManager = ConfigManager()
-    config = configManager.get(profile)
+def list(asset, config, filters=None, is_complex=False):
 
     kwargs = {}
     if config['auth']:

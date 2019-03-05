@@ -3,8 +3,6 @@ import ntpath
 import os
 import requests
 
-from .config import ConfigManager
-
 
 class LoadDataException(Exception):
     pass
@@ -53,9 +51,7 @@ def load_files(asset, data):
     return files
 
 
-def add(asset, data, dryrun=False, profile='default'):
-    configManager= ConfigManager()
-    config = configManager.get(profile)
+def add(asset, data, config, dryrun=False):
 
     # try loading files if needed
     files = load_files(asset, data)

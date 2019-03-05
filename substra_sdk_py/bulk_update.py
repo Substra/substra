@@ -1,11 +1,7 @@
 import requests
 
-from .config import ConfigManager
 
-
-def bulkUpdate(asset, args, profile='default'):
-    configManager = ConfigManager()
-    config = configManager.get(profile)
+def bulkUpdate(asset, args, config):
 
     data = args
 
