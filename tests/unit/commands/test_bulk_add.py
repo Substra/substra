@@ -59,5 +59,6 @@ class TestBulkAdd(TestCase):
                 '<args>': content,
             }).run()
 
-            self.assertEqual(json.loads(res), data)
+            self.assertEqual(json.loads(res)['status_code'], 201)
+            self.assertEqual(json.loads(res)['result'], data)
             self.assertEqual(len(mock_get.call_args_list), 1)

@@ -19,7 +19,7 @@ class MockResponse:
 
 
 def mocked_requests_post_dataset(*args, **kwargs):
-    return MockResponse(dataset, 201)
+    return MockResponse(dataset, 200)
 
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
@@ -54,5 +54,6 @@ class TestUpdate(TestCase):
 
             print(res)
 
-            self.assertTrue(res == json.dumps(dataset))
+            self.assertEqual(json.loads(res)['status_code'], 200)
+            self.assertEqual(json.loads(res)['result'], dataset)
             self.assertEqual(len(mock_get.call_args_list), 1)

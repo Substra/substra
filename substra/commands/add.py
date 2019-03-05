@@ -94,9 +94,15 @@ class Add(Api):
                 else:
                     res = ''
                     try:
-                        res = json.dumps(r.json(), indent=2)
+                        result = r.json()
+                        res = json.dumps({'result': result, 'status_code': r.status_code}, indent=2)
                     except:
                         res = r.content
                     finally:
-                        print(res)
+                        print(res, end='')
                         return res
+                finally:
+                    # close files
+                    if files:
+                        for x in files:
+                            files[x].close()

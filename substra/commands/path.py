@@ -21,13 +21,14 @@ class Path(Api):
         if config['insecure']:
             kwargs.update({'verify': False})
         try:
-            r = requests.get('%s/%s/%s/%s' % (config['url'], asset, pkhash, path), headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
+            r = requests.get('%s/%s/%s/%s/' % (config['url'], asset, pkhash, path), headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
         except:
-            raise Exception('Failed to get %s' % asset)
+            raise Exception('Failed to get path %s on %s' % (path, asset))
         else:
             res = ''
             try:
-                res = json.dumps(r.json(), indent=2)
+                result = r.json()
+                res = json.dumps({'result': result, 'status_code': r.status_code}, indent=2)
             except:
                 res = 'Can\'t decode response value from server to json: %s' % r.content
             finally:
