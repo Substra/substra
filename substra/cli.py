@@ -19,7 +19,8 @@ Options:
   --profile=<profile>                           Create/Use a (new) profile
   --config=<configuration_file_path>            Path to config file (default ~/.substra)
   -v --verbose                                  Print more information when an error occurs
-  args                                          Stringified JSON or path to a JSON file
+
+args                                          Stringified JSON or path to a JSON file
 
 Examples:
   substra config http://127.0.0.1:8000 0.0
@@ -45,7 +46,7 @@ Examples:
 
 Assets available:
   - dataset (add, update, list and get)
-  - data (add, bulk add, bulk update and get)
+  - data (add, bulk add, bulk_update and get)
   - challenge (add, list and get)
   - algo (add, list and get)
   - model (list, get and path)
@@ -72,6 +73,7 @@ from docopt import docopt
 
 from . import __version__ as VERSION
 
+COMMANDS = ('Add', 'BulkUpdate', 'Config', 'Get', 'List', 'Path', 'Update')
 
 def main():
     """Main CLI entrypoint."""
@@ -84,6 +86,6 @@ def main():
         if hasattr(substra.commands, k) and v:
             module = getattr(substra.commands, k)
             substra.commands = getmembers(module, isclass)
-            command = [command[1] for command in substra.commands if command[0] not in ('Base', 'Api')][0]
+            command = [command_class for (command_name, command_class) in substra.commands if command_name in COMMANDS][0]
             command = command(options)
             command.run()

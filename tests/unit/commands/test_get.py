@@ -75,7 +75,8 @@ class TestGet(TestCase):
             '<pkhash>': 'd5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f',
         }).run()
 
-        self.assertEqual(json.loads(res), challenge)
+        self.assertEqual(json.loads(res)['status_code'], 200)
+        self.assertEqual(json.loads(res)['result'], challenge)
         self.assertEqual(len(mock_get.call_args_list), 1)
 
     @mock.patch('substra.commands.get.requests.get', side_effect=mocked_requests_get_challenge_fail)
@@ -98,7 +99,8 @@ class TestGet(TestCase):
             '<pkhash>': 'ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994',
         }).run()
 
-        self.assertEqual(json.loads(res), dataset)
+        self.assertEqual(json.loads(res)['status_code'], 200)
+        self.assertEqual(json.loads(res)['result'], dataset)
         self.assertEqual(len(mock_get.call_args_list), 1)
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
@@ -127,7 +129,8 @@ class TestGetConfigBasicAuth(TestCase):
             '<pkhash>': 'd5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f',
         }).run()
 
-        self.assertEqual(json.loads(res), challenge)
+        self.assertEqual(json.loads(res)['status_code'], 200)
+        self.assertEqual(json.loads(res)['result'], challenge)
         self.assertEqual(len(mock_get.call_args_list), 1)
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
@@ -157,5 +160,6 @@ class TestGetConfigInsecure(TestCase):
             '<pkhash>': 'd5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f',
         }).run()
 
-        self.assertEqual(json.loads(res), challenge)
+        self.assertEqual(json.loads(res)['status_code'], 200)
+        self.assertEqual(json.loads(res)['result'], challenge)
         self.assertEqual(len(mock_get.call_args_list), 1)

@@ -110,5 +110,6 @@ class TestPath(TestCase):
             '<path>': 'details',
         }).run()
 
-        self.assertTrue(json.loads(res) == model)
+        self.assertEqual(json.loads(res)['status_code'], 200)
+        self.assertEqual(json.loads(res)['result'], model)
         self.assertEqual(len(mock_get.call_args_list), 1)

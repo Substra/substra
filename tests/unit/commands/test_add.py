@@ -97,7 +97,8 @@ class TestAdd(TestCase):
                 '<args>': data,
             }).run()
 
-            self.assertEqual(json.loads(res), dataset)
+            self.assertEqual(json.loads(res)['status_code'], 201)
+            self.assertEqual(json.loads(res)['result'], dataset)
             self.assertEqual(len(mock_get.call_args_list), 1)
             self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
 
@@ -109,7 +110,8 @@ class TestAdd(TestCase):
             '<args>': self.dataset_file_path,
         }).run()
 
-        self.assertEqual(json.loads(res), dataset)
+        self.assertEqual(json.loads(res)['status_code'], 201)
+        self.assertEqual(json.loads(res)['result'], dataset)
         self.assertEqual(len(mock_get.call_args_list), 1)
 
     @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_dataset)
@@ -134,7 +136,8 @@ class TestAdd(TestCase):
                 '<args>': data,
             }).run()
 
-            self.assertEqual(json.loads(res), challenge)
+            self.assertEqual(json.loads(res)['status_code'], 201)
+            self.assertEqual(json.loads(res)['result'], challenge)
             self.assertEqual(len(mock_get.call_args_list), 1)
             self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
 
@@ -149,7 +152,8 @@ class TestAdd(TestCase):
                 '<args>': data,
             }).run()
 
-            self.assertEqual(json.loads(res), algo)
+            self.assertEqual(json.loads(res)['status_code'], 201)
+            self.assertEqual(json.loads(res)['result'], algo)
             self.assertEqual(len(mock_get.call_args_list), 1)
             self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
 
@@ -166,7 +170,8 @@ class TestAdd(TestCase):
 
             print(res)
 
-            self.assertEqual(json.loads(res), data)
+            self.assertEqual(json.loads(res)['status_code'], 201)
+            self.assertEqual(json.loads(res)['result'], data)
             self.assertEqual(len(mock_get.call_args_list), 1)
 
     @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_add_challenge_fail)
@@ -256,7 +261,8 @@ class TestAddConfigBasicAuth(TestCase):
                 '<args>': data,
             }).run()
 
-            self.assertEqual(json.loads(res), dataset)
+            self.assertEqual(json.loads(res)['status_code'], 201)
+            self.assertEqual(json.loads(res)['result'], dataset)
             self.assertEqual(len(mock_get.call_args_list), 1)
 
 
@@ -291,5 +297,6 @@ class TestAddConfigInsecure(TestCase):
                 '<args>': data,
             }).run()
 
-            self.assertEqual(json.loads(res), dataset)
+            self.assertEqual(json.loads(res)['status_code'], 201)
+            self.assertEqual(json.loads(res)['result'], dataset)
             self.assertEqual(len(mock_get.call_args_list), 1)
