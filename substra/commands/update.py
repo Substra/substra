@@ -31,7 +31,7 @@ class Update(Api):
         try:
             r = requests.post('%s/%s/%s/update_ledger/' % (config['url'], asset, pkhash), data=data, headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
         except:
-            raise Exception('Failed to update')
+            raise Exception('Failed to update %s' % asset)
         else:
             res = ''
             try:

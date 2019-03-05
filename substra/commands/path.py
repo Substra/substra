@@ -23,7 +23,7 @@ class Path(Api):
         try:
             r = requests.get('%s/%s/%s/%s' % (config['url'], asset, pkhash, path), headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
         except:
-            raise Exception('Failed to get %s' % asset)
+            raise Exception('Failed to get path %s on %s' % (path, asset))
         else:
             res = ''
             try:
