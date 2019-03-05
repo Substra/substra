@@ -100,3 +100,8 @@ class Add(Api):
                     finally:
                         print(res)
                         return res
+                finally:
+                    # close files
+                    if files:
+                        for x in files:
+                            files[x].close()

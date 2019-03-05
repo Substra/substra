@@ -30,7 +30,7 @@ class BulkUpdate(Api):
         try:
             r = requests.post('%s/%s/bulk_update/' % (config['url'], asset), data=data, headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
         except:
-            raise Exception('Failed to update')
+            raise Exception('Failed to bulk update %s' % asset)
         else:
             res = ''
             try:
