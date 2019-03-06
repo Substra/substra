@@ -33,5 +33,5 @@ class TestE2E(TestCase):
         }
         res = self.client.add('dataset', data)
 
-        print(res)
+        # will fail first time if no precedent populate
         self.assertEqual(res['message'], [{'pkhash': ['dataset with this pkhash already exists.']}])
