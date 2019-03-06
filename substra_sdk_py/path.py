@@ -1,11 +1,7 @@
 import requests
 
-from .config import ConfigManager
 
-
-def path(asset, pkhash, path, profile='default'):
-    configManager = ConfigManager()
-    config = configManager.get(profile)
+def path(asset, pkhash, path, config):
 
     kwargs = {}
     if config['auth']:
