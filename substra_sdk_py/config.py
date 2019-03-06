@@ -13,7 +13,7 @@ class ConfigManager(object):
             'url': url,
             'version': version,
             'auth': False,
-            'inscure': insecure
+            'insecure': insecure
         }
         if user and password:
             config['auth'] = True

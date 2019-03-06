@@ -16,8 +16,10 @@ def path(asset, pkhash, path, config):
     except:
         raise Exception('Failed to get path %s on %s' % (path, asset))
     else:
+        res = ''
         try:
-            res = r.json()
+            result = r.json()
+            res = {'result': result, 'status_code': r.status_code}
         except:
             res = r.content
         finally:

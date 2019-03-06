@@ -1,9 +1,7 @@
 import requests
 
 
-def bulkUpdate(asset, args, config):
-
-    data = args
+def bulkUpdate(asset, data, config):
 
     kwargs = {}
     if config['auth']:
@@ -18,8 +16,10 @@ def bulkUpdate(asset, args, config):
     except:
         raise Exception('Failed to bulk update %s' % asset)
     else:
+        res = ''
         try:
-            res = r.json()
+            result = r.json()
+            res = {'result': result, 'status_code': r.status_code}
         except:
             res = r.content
         finally:
