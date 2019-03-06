@@ -4,16 +4,22 @@ import sys
 import requests
 
 from substra.utils import load_json_from_args, InvalidJSONArgsException
-from .api import Api
+from .api import Api, DATA_ASSET, InvalidAssetException
 
 
 class BulkUpdate(Api):
     """BulkUpdate asset"""
 
+    ACCEPTED_ASSETS = [DATA_ASSET]
+
     def run(self):
         config = super(BulkUpdate, self).run()
 
-        asset = self.options['<asset>']
+        try:
+            asset = self.get_asset_option()
+        except InvalidAssetException as e:
+            self.handle_exception(e)
+            return
         args = self.options['<args>']
 
         try:

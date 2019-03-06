@@ -2,16 +2,23 @@ import json
 
 import requests
 
-from .api import Api
+from .api import Api, ALGO_ASSET, CHALLENGE_ASSET, DATA_ASSET, DATASET_ASSET, MODEL_ASSET, TESTTUPLE_ASSET, \
+    TRAINTUPLE_ASSET, InvalidAssetException
 
 
 class Get(Api):
     """Get asset"""
 
+    ACCEPTED_ASSETS = [ALGO_ASSET, CHALLENGE_ASSET, DATA_ASSET, DATASET_ASSET, MODEL_ASSET, TESTTUPLE_ASSET, TRAINTUPLE_ASSET]
+
     def run(self):
         config = super(Get, self).run()
 
-        asset = self.options['<asset>']
+        try:
+            asset = self.get_asset_option()
+        except InvalidAssetException as e:
+            self.handle_exception(e)
+            return
         pkhash = self.options['<pkhash>']
 
         kwargs = {}

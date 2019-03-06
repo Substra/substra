@@ -1,19 +1,24 @@
 import json
-import sys
 
 import requests
 
 from substra.utils import load_json_from_args, InvalidJSONArgsException
-from .api import Api
+from .api import Api, DATASET_ASSET, InvalidAssetException
 
 
 class Update(Api):
     """Update asset"""
 
+    ACCEPTED_ASSETS = [DATASET_ASSET]
+
     def run(self):
         config = super(Update, self).run()
 
-        asset = self.options['<asset>']
+        try:
+            asset = self.get_asset_option()
+        except InvalidAssetException as e:
+            self.handle_exception(e)
+            return
         pkhash = self.options['<pkhash>']
         args = self.options['<args>']
 

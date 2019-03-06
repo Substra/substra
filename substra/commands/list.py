@@ -4,9 +4,10 @@ import requests
 import itertools
 from urllib.parse import quote
 
-from .api import Api
+from .api import Api, ALGO_ASSET, CHALLENGE_ASSET, DATASET_ASSET, MODEL_ASSET, TRAINTUPLE_ASSET, TESTTUPLE_ASSET, \
+    InvalidAssetException
 
-SIMPLE_ASSETS = ['data', 'traintuple', 'testtuple']
+SIMPLE_ASSETS = [TRAINTUPLE_ASSET, TESTTUPLE_ASSET]
 
 
 def flatten(list_of_list):
@@ -20,11 +21,18 @@ def flatten(list_of_list):
 class List(Api):
     '''Get asset'''
 
+    ACCEPTED_ASSETS = [ALGO_ASSET, CHALLENGE_ASSET, DATASET_ASSET, MODEL_ASSET, TESTTUPLE_ASSET, TRAINTUPLE_ASSET]
+
     def run(self):
         config = super(List, self).run()
 
+        try:
+            asset = self.get_asset_option()
+        except InvalidAssetException as e:
+            self.handle_exception(e)
+            return
+
         base_url = config['url']
-        asset = self.options['<asset>']
         filters = self.options.get('<filters>', None)
         is_complex = self.options.get('--is-complex', False)
         url = base_url

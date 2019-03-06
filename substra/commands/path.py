@@ -2,16 +2,22 @@ import json
 
 import requests
 
-from .api import Api
+from .api import Api, MODEL_ASSET, InvalidAssetException
 
 
 class Path(Api):
     """Details asset"""
 
+    ACCEPTED_ASSETS = [MODEL_ASSET]
+
     def run(self):
         config = super(Path, self).run()
 
-        asset = self.options['<asset>']
+        try:
+            asset = self.get_asset_option()
+        except InvalidAssetException as e:
+            self.handle_exception(e)
+            return
         pkhash = self.options['<pkhash>']
         path = self.options['<path>']
 

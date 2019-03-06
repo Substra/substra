@@ -5,7 +5,8 @@ import os
 import requests
 
 from substra.utils import load_json_from_args, InvalidJSONArgsException
-from .api import Api
+from .api import Api, ALGO_ASSET, CHALLENGE_ASSET, DATASET_ASSET, TRAINTUPLE_ASSET, TESTTUPLE_ASSET, \
+    InvalidAssetException, DATA_ASSET
 
 
 class LoadDataException(Exception):
@@ -35,6 +36,8 @@ def load_data_files(data, attributes):
 class Add(Api):
     """Add asset"""
 
+    ACCEPTED_ASSETS = [ALGO_ASSET, CHALLENGE_ASSET, DATA_ASSET, DATASET_ASSET, TESTTUPLE_ASSET, TRAINTUPLE_ASSET]
+
     def load_files(self, asset, data):
         files = {}
         if asset == 'dataset':
@@ -60,7 +63,11 @@ class Add(Api):
     def run(self):
         config = super(Add, self).run()
 
-        asset = self.options['<asset>']
+        try:
+            asset = self.get_asset_option()
+        except InvalidAssetException as e:
+            self.handle_exception(e)
+            return
         args = self.options['<args>']
         dryrun = self.options.get('--dry-run', False)
 
