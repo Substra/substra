@@ -52,7 +52,6 @@ def load_files(asset, data):
 
 
 def add(asset, data, config, dryrun=False):
-
     # try loading files if needed
     files = load_files(asset, data)
 
@@ -76,8 +75,10 @@ def add(asset, data, config, dryrun=False):
     except:
         raise Exception('Failed to create %s' % asset)
     else:
+        res = ''
         try:
-            res = r.json()
+            result = r.json()
+            res = {'result': result, 'status_code': r.status_code}
         except:
             res = r.content
         finally:

@@ -43,11 +43,12 @@ def list(asset, config, filters=None, is_complex=False):
     except Exception as e:
         print('Failed to list %s. Please make sure the substrabac instance is live. Detail %s' % (asset, e))
     else:
+        res = ''
         try:
-            res = r.json()
+            result = r.json()
+            result = flatten(result) if not is_complex and asset not in SIMPLE_ASSETS and r.status_code == 200 else result
+            res = {'result': result, 'status_code': r.status_code}
         except:
             res = r.content
-        else:
-            res = flatten(res) if not is_complex and asset not in SIMPLE_ASSETS and r.status_code == 200 else res
         finally:
             return res

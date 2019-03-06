@@ -35,6 +35,8 @@ class Client(object):
         return self.config
 
     def add(self, asset, data, dryrun=False):
+        # make a copy for avoiding modification by reference
+        data = dict(data)
         return addFunction(asset, data, self.config, dryrun)
 
     def get(self, asset, pkhash):
@@ -47,7 +49,11 @@ class Client(object):
         return pathFunction(asset, pkhash, path, self.config)
 
     def update(self, asset, pkhash, data):
+        # make a copy for avoiding modification by reference
+        data = dict(data)
         return updateFunction(asset, pkhash, data, self.config)
 
-    def bulk_update(self, asset, args):
-        return bulkUpdateFunction(asset, args, self.config)
+    def bulk_update(self, asset, data):
+        # make a copy for avoiding modification by reference
+        data = dict(data)
+        return bulkUpdateFunction(asset, data, self.config)

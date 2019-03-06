@@ -16,8 +16,10 @@ def update(asset, pkhash, data, config):
     except:
         raise Exception('Failed to update %s' % asset)
     else:
+        res = ''
         try:
-            res = r.json()
+            result = r.json()
+            res = {'result': result, 'status_code': r.status_code}
         except:
             res = r.content
         finally:
