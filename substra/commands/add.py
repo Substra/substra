@@ -5,7 +5,8 @@ import os
 import requests
 
 from substra.utils import load_json_from_args, InvalidJSONArgsException
-from .api import Api
+from .api import Api, ALGO_ASSET, CHALLENGE_ASSET, DATASET_ASSET, TRAINTUPLE_ASSET, TESTTUPLE_ASSET, \
+    DATA_ASSET, InvalidAssetException
 
 
 class LoadDataException(Exception):
@@ -35,6 +36,8 @@ def load_data_files(data, attributes):
 class Add(Api):
     """Add asset"""
 
+    ACCEPTED_ASSETS = [ALGO_ASSET, CHALLENGE_ASSET, DATA_ASSET, DATASET_ASSET, TESTTUPLE_ASSET, TRAINTUPLE_ASSET]
+
     def load_files(self, asset, data):
         files = {}
         if asset == 'dataset':
@@ -60,49 +63,53 @@ class Add(Api):
     def run(self):
         config = super(Add, self).run()
 
-        asset = self.options['<asset>']
-        args = self.options['<args>']
-        dryrun = self.options.get('--dry-run', False)
-
         try:
-            data = load_json_from_args(args)
-        except InvalidJSONArgsException as e:
+            asset = self.get_asset_option()
+        except InvalidAssetException as e:
             self.handle_exception(e)
         else:
+            args = self.options['<args>']
+            dryrun = self.options.get('--dry-run', False)
+
             try:
-                # try loading files if needed
-                files = self.load_files(asset, data)
-            except Exception as e:
+                data = load_json_from_args(args)
+            except InvalidJSONArgsException as e:
                 self.handle_exception(e)
             else:
-                # build request
-                if 'permissions' not in data:
-                    data['permissions'] = 'all'
-
-                if dryrun:
-                    data['dryrun'] = True
-
-                kwargs = {}
-                if config['auth']:
-                    kwargs.update({'auth': (config['user'], config['password'])})
-                if config['insecure']:
-                    kwargs.update({'verify': False})
                 try:
-                    r = requests.post('%s/%s/' % (config['url'], asset), data=data, files=files, headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
-                except:
-                    raise Exception('Failed to create %s' % asset)
+                    # try loading files if needed
+                    files = self.load_files(asset, data)
+                except Exception as e:
+                    self.handle_exception(e)
                 else:
-                    res = ''
+                    # build request
+                    if 'permissions' not in data:
+                        data['permissions'] = 'all'
+
+                    if dryrun:
+                        data['dryrun'] = True
+
+                    kwargs = {}
+                    if config['auth']:
+                        kwargs.update({'auth': (config['user'], config['password'])})
+                    if config['insecure']:
+                        kwargs.update({'verify': False})
                     try:
-                        result = r.json()
-                        res = json.dumps({'result': result, 'status_code': r.status_code}, indent=2)
+                        r = requests.post('%s/%s/' % (config['url'], asset), data=data, files=files, headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
                     except:
-                        res = r.content
+                        raise Exception('Failed to create %s' % asset)
+                    else:
+                        res = ''
+                        try:
+                            result = r.json()
+                            res = json.dumps({'result': result, 'status_code': r.status_code}, indent=2)
+                        except:
+                            res = r.content
+                        finally:
+                            print(res, end='')
+                            return res
                     finally:
-                        print(res, end='')
-                        return res
-                finally:
-                    # close files
-                    if files:
-                        for x in files:
-                            files[x].close()
+                        # close files
+                        if files:
+                            for x in files:
+                                files[x].close()

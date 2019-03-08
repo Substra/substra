@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from substra.commands import Api, Base
+from substra.commands import Base
 
 
 class UnFinished(Base):

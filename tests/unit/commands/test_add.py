@@ -122,7 +122,7 @@ class TestAdd(TestCase):
                 '<args>': 'test',
             }).run()
         except Exception as e:
-            self.assertTrue(str(e) == 'Invalid args. Please review help')
+            self.assertEqual(str(e), 'Invalid args. Please review help')
         self.assertEqual(len(mock_get.call_args_list), 0)
 
     @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_challenge)
