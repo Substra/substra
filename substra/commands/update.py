@@ -18,31 +18,31 @@ class Update(Api):
             asset = self.get_asset_option()
         except InvalidAssetException as e:
             self.handle_exception(e)
-            return
-        pkhash = self.options['<pkhash>']
-        args = self.options['<args>']
-
-        try:
-            data = load_json_from_args(args)
-        except InvalidJSONArgsException as e:
-            self.handle_exception(e)
         else:
-            kwargs = {}
-            if config['auth']:
-                kwargs.update({'auth': (config['user'], config['password'])})
-            if config['insecure']:
-                kwargs.update({'verify': False})
+            pkhash = self.options['<pkhash>']
+            args = self.options['<args>']
+
             try:
-                r = requests.post('%s/%s/%s/update_ledger/' % (config['url'], asset, pkhash), data=data, headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
-            except:
-                raise Exception('Failed to update %s' % asset)
+                data = load_json_from_args(args)
+            except InvalidJSONArgsException as e:
+                self.handle_exception(e)
             else:
-                res = ''
+                kwargs = {}
+                if config['auth']:
+                    kwargs.update({'auth': (config['user'], config['password'])})
+                if config['insecure']:
+                    kwargs.update({'verify': False})
                 try:
-                    result = r.json()
-                    res = json.dumps({'result': result, 'status_code': r.status_code}, indent=2)
+                    r = requests.post('%s/%s/%s/update_ledger/' % (config['url'], asset, pkhash), data=data, headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
                 except:
-                    res = r.content
-                finally:
-                    print(res, end='')
-                    return res
+                    raise Exception('Failed to update %s' % asset)
+                else:
+                    res = ''
+                    try:
+                        result = r.json()
+                        res = json.dumps({'result': result, 'status_code': r.status_code}, indent=2)
+                    except:
+                        res = r.content
+                    finally:
+                        print(res, end='')
+                        return res
