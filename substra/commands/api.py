@@ -17,16 +17,17 @@ ALL_ASSETS = [ALGO_ASSET, CHALLENGE_ASSET, DATA_ASSET, DATASET_ASSET, MODEL_ASSE
 
 class InvalidAssetException(Exception):
     def __init__(self, accepted_assets, asset):
-        accepted_assets = [f'"{accepted_asset}"' for accepted_asset in accepted_assets]
         if len(accepted_assets) > 1:
-            accepted_assets = ', '.join(accepted_assets[:-1]) + ' and ' + accepted_assets[-1]
+            accepted_assets = [f'"{accepted_asset}"' for accepted_asset in accepted_assets]
+            accepted_assets = f'{", ".join(accepted_assets[:-1])} and {accepted_assets[-1]}'
+            message = f'Invalid asset argument "{asset}", accepted values are {accepted_assets}'
         else:
-            accepted_assets = accepted_assets[0]
-        super().__init__(f'Invalid asset argument "{asset}", accepted values are {accepted_assets}')
+            message = f'Invalid asset argument "{asset}", "{accepted_assets[0]}" is the only accepted value'
+        super().__init__(message)
 
 
 class Api(Base):
-    ACCEPTED_ASSETS = ALL_ASSETS[:]
+    ACCEPTED_ASSETS = ALL_ASSETS
 
     def run(self):
 

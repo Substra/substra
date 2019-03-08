@@ -6,7 +6,7 @@ import requests
 
 from substra.utils import load_json_from_args, InvalidJSONArgsException
 from .api import Api, ALGO_ASSET, CHALLENGE_ASSET, DATASET_ASSET, TRAINTUPLE_ASSET, TESTTUPLE_ASSET, \
-    InvalidAssetException, DATA_ASSET
+    DATA_ASSET, InvalidAssetException
 
 
 class LoadDataException(Exception):
