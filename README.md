@@ -6,6 +6,9 @@ substra-cli
 Getting started
 ---------------
 
+The substra cli depends on `substra-sdk-py`, please install it before.
+
+
 If you've cloned this project, and want to install the library (*and
 all development dependencies*), the command you'll want to run is:
 
