@@ -27,7 +27,7 @@ def list(asset, config, filters=None, is_complex=False):
         try:
             filters = json.loads(filters)
         except:
-            res = 'Cannot load filters. Please review help substra -h'
+            res = 'Cannot load filters. Please review the documentation.'
             print(res)
             return res
         else:

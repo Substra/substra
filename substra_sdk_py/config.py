@@ -1,12 +1,15 @@
-class ConfigManager(object):
-    configs = {
-        'default': {
-            'url': 'http://127.0.0.1:8000',
-            'version': '0.0',
-            'auth': False,
-            'insecure': False,
-        }
+default_config = {
+    'default': {
+        'url': 'http://127.0.0.1:8000',
+        'version': '0.0',
+        'auth': False,
+        'insecure': False,
     }
+}
+
+
+class ConfigManager(object):
+    configs = default_config
 
     def create(self, profile, url='http://127.0.0.1:8000', version='0.0', user=None, password=None, insecure=False):
         config = {
