@@ -40,16 +40,32 @@ class MockResponse:
     def json(self):
         return self.json_data
 
+    def sdk(self):
+        return {'result': self.json_data,
+                'status_code': self.status_code}
+
 
 def mocked_requests_get_challenge(*args, **kwargs):
     return MockResponse(challenge, 200)
+
+
+def mocked_client_get_challenge(*args, **kwargs):
+    return MockResponse(challenge, 200).sdk()
 
 
 def mocked_requests_get_dataset(*args, **kwargs):
     return MockResponse(dataset, 200)
 
 
+def mocked_client_get_dataset(*args, **kwargs):
+    return MockResponse(dataset, 200).sdk()
+
+
 def mocked_requests_get_challenge_fail(*args, **kwargs):
+    raise Exception('fail')
+
+
+def mocked_client_get_challenge_fail(*args, **kwargs):
     raise Exception('fail')
 
 
@@ -68,7 +84,7 @@ class TestGet(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.get.requests.get', side_effect=mocked_requests_get_challenge)
+    @mock.patch('substra.commands.api.Client.get', side_effect=mocked_client_get_challenge)
     def test_returns_challenge_list(self, mock_get):
         res = Get({
             '<asset>': 'challenge',
@@ -79,7 +95,7 @@ class TestGet(TestCase):
         self.assertEqual(json.loads(res)['result'], challenge)
         self.assertEqual(len(mock_get.call_args_list), 1)
 
-    @mock.patch('substra.commands.get.requests.get', side_effect=mocked_requests_get_challenge_fail)
+    @mock.patch('substra.commands.api.Client.get', side_effect=mocked_client_get_challenge_fail)
     def test_returns_challenge_list_fail(self, mock_get):
         try:
             Get({
@@ -92,7 +108,7 @@ class TestGet(TestCase):
 
         self.assertEqual(len(mock_get.call_args_list), 1)
 
-    @mock.patch('substra.commands.get.requests.get', side_effect=mocked_requests_get_dataset)
+    @mock.patch('substra.commands.api.Client.get', side_effect=mocked_client_get_dataset)
     def test_returns_dataset_list(self, mock_get):
         res = Get({
             '<asset>': 'dataset',
@@ -102,6 +118,7 @@ class TestGet(TestCase):
         self.assertEqual(json.loads(res)['status_code'], 200)
         self.assertEqual(json.loads(res)['result'], dataset)
         self.assertEqual(len(mock_get.call_args_list), 1)
+
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
 class TestGetConfigBasicAuth(TestCase):
@@ -122,7 +139,7 @@ class TestGetConfigBasicAuth(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.get.requests.get', side_effect=mocked_requests_get_challenge)
+    @mock.patch('substra.commands.api.Client.get', side_effect=mocked_client_get_challenge)
     def test_returns_challenge_list(self, mock_get):
         res = Get({
             '<asset>': 'challenge',
@@ -132,6 +149,7 @@ class TestGetConfigBasicAuth(TestCase):
         self.assertEqual(json.loads(res)['status_code'], 200)
         self.assertEqual(json.loads(res)['result'], challenge)
         self.assertEqual(len(mock_get.call_args_list), 1)
+
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
 class TestGetConfigInsecure(TestCase):
@@ -153,7 +171,7 @@ class TestGetConfigInsecure(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.get.requests.get', side_effect=mocked_requests_get_challenge)
+    @mock.patch('substra.commands.api.Client.get', side_effect=mocked_client_get_challenge)
     def test_returns_challenge_list(self, mock_get):
         res = Get({
             '<asset>': 'challenge',

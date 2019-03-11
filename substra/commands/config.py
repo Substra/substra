@@ -4,17 +4,10 @@ import os
 
 from .base import Base
 
+from substra_sdk_py.config import default_config
+
 # default, you can override it with --config <configuration_file_path>
 config_path = os.path.expanduser('~/.substra')
-
-default_config = {
-    'default': {
-        'url': 'http://127.0.0.1:8000',
-        'version': '0.0',
-        'auth': False,
-        'insecure': False,
-    }
-}
 
 
 class Config(Base):
@@ -36,7 +29,7 @@ class Config(Base):
             try:
                 f.seek(0)
                 res = json.load(f)
-            except Exception as e:
+            except:
                 # define default if does not exists
                 res = copy.deepcopy(default_config)
             finally:

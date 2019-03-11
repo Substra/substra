@@ -4,7 +4,6 @@ import os
 from subprocess import PIPE, Popen as popen
 from unittest import TestCase
 
-import mock
 
 from substra import __version__ as VERSION
 

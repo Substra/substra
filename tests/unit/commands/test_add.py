@@ -45,24 +45,48 @@ class MockResponse:
     def json(self):
         return self.json_data
 
+    def sdk(self):
+        return {'result': self.json_data,
+                'status_code': self.status_code}
+
 
 def mocked_requests_post_dataset(*args, **kwargs):
     return MockResponse(dataset, 201)
+
+
+def mocked_client_add_dataset(*args, **kwargs):
+    return MockResponse(dataset, 201).sdk()
 
 
 def mocked_requests_post_challenge(*args, **kwargs):
     return MockResponse(challenge, 201)
 
 
+def mocked_client_add_challenge(*args, **kwargs):
+    return MockResponse(challenge, 201).sdk()
+
+
 def mocked_requests_post_algo(*args, **kwargs):
     return MockResponse(algo, 201)
+
+
+def mocked_client_add_algo(*args, **kwargs):
+    return MockResponse(algo, 201).sdk()
 
 
 def mocked_requests_post_data(*args, **kwargs):
     return MockResponse(data, 201)
 
 
+def mocked_client_add_data(*args, **kwargs):
+    return MockResponse(data, 201).sdk()
+
+
 def mocked_requests_add_challenge_fail(*args, **kwargs):
+    raise Exception('fail')
+
+
+def mocked_client_add_challenge_fail(*args, **kwargs):
     raise Exception('fail')
 
 
@@ -86,7 +110,7 @@ class TestAdd(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_dataset)
+    @mock.patch('substra.commands.api.Client.add', side_effect=mocked_client_add_dataset)
     def test_add_dataset(self, mock_get):
         # open dataset file
         with open(self.dataset_file_path, 'r') as f:
@@ -100,9 +124,11 @@ class TestAdd(TestCase):
             self.assertEqual(json.loads(res)['status_code'], 201)
             self.assertEqual(json.loads(res)['result'], dataset)
             self.assertEqual(len(mock_get.call_args_list), 1)
-            self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
+            # TO DO : move it to substra-sdk-py tests
+            # TO DO : move it to substra-sdk-py tests#
+            # self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
 
-    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_dataset)
+    @mock.patch('substra.commands.api.Client.add', side_effect=mocked_client_add_dataset)
     def test_add_dataset_from_file(self, mock_get):
 
         res = Add({
@@ -114,7 +140,7 @@ class TestAdd(TestCase):
         self.assertEqual(json.loads(res)['result'], dataset)
         self.assertEqual(len(mock_get.call_args_list), 1)
 
-    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_dataset)
+    @mock.patch('substra.commands.api.Client.add', side_effect=mocked_client_add_dataset)
     def test_add_dataset_invalid_args(self, mock_get):
         try:
             Add({
@@ -125,7 +151,7 @@ class TestAdd(TestCase):
             self.assertEqual(str(e), 'Invalid args. Please review help')
         self.assertEqual(len(mock_get.call_args_list), 0)
 
-    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_challenge)
+    @mock.patch('substra.commands.api.Client.add', side_effect=mocked_client_add_challenge)
     def test_add_challenge(self, mock_get):
         # open challenge file
         with open(self.challenge_file_path, 'r') as f:
@@ -139,9 +165,10 @@ class TestAdd(TestCase):
             self.assertEqual(json.loads(res)['status_code'], 201)
             self.assertEqual(json.loads(res)['result'], challenge)
             self.assertEqual(len(mock_get.call_args_list), 1)
-            self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
+            # TO DO : move it to substra-sdk-py tests
+            # self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
 
-    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_algo)
+    @mock.patch('substra.commands.api.Client.add', side_effect=mocked_client_add_algo)
     def test_add_algo(self, mock_get):
         # open algo file
         with open(self.algo_file_path, 'r') as f:
@@ -155,9 +182,10 @@ class TestAdd(TestCase):
             self.assertEqual(json.loads(res)['status_code'], 201)
             self.assertEqual(json.loads(res)['result'], algo)
             self.assertEqual(len(mock_get.call_args_list), 1)
-            self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
+            # TO DO : move it to substra-sdk-py tests
+            # self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
 
-    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_data)
+    @mock.patch('substra.commands.api.Client.add', side_effect=mocked_client_add_data)
     def test_add_data(self, mock_get):
         # open algo file
         with open(self.data_file_path, 'r') as f:
@@ -174,7 +202,7 @@ class TestAdd(TestCase):
             self.assertEqual(json.loads(res)['result'], data)
             self.assertEqual(len(mock_get.call_args_list), 1)
 
-    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_add_challenge_fail)
+    @mock.patch('substra.commands.api.Client.add', side_effect=mocked_client_add_challenge_fail)
     def test_returns_challenge_list_fail(self, mock_get):
         with open(self.challenge_file_path, 'r') as f:
             data = f.read()
@@ -199,7 +227,7 @@ class TestAddNoConfig(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_dataset)
+    @mock.patch('substra.commands.api.Client.add', side_effect=mocked_client_add_dataset)
     def test_add_dataset(self, mock_get):
         # open dataset file
         with open(self.dataset_file_path, 'r') as f:
@@ -250,7 +278,7 @@ class TestAddConfigBasicAuth(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_dataset)
+    @mock.patch('substra.commands.api.Client.add', side_effect=mocked_client_add_dataset)
     def test_add_dataset(self, mock_get):
         # open dataset file
         with open(self.dataset_file_path, 'r') as f:
@@ -286,7 +314,7 @@ class TestAddConfigInsecure(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_dataset)
+    @mock.patch('substra.commands.api.Client.add', side_effect=mocked_client_add_dataset)
     def test_add_dataset(self, mock_get):
         # open dataset file
         with open(self.dataset_file_path, 'r') as f:

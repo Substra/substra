@@ -22,9 +22,17 @@ class MockResponse:
     def json(self):
         return self.json_data
 
+    def sdk(self):
+        return {'result': self.json_data,
+                'status_code': self.status_code}
+
 
 def mocked_requests_post_data(*args, **kwargs):
     return MockResponse(data, 201)
+
+
+def mocked_client_bulk_update_data(*args, **kwargs):
+    return MockResponse(data, 201).sdk()
 
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
@@ -44,8 +52,9 @@ class TestBulkUpdate(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.bulk_update.requests.post', side_effect=mocked_requests_post_data)
+    @mock.patch('substra.commands.api.Client.bulk_update', side_effect=mocked_client_bulk_update_data)
     def test_bulk_update_data(self, mock_get):
+
         with open(self.data_file_path, 'r') as f:
             content = f.read()
 
@@ -53,8 +62,6 @@ class TestBulkUpdate(TestCase):
                 '<asset>': 'data',
                 '<args>': content,
             }).run()
-
-            print(res)
 
             self.assertEqual(json.loads(res)['status_code'], 201)
             self.assertTrue(json.loads(res)['result'], data)

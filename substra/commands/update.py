@@ -1,7 +1,5 @@
 import json
 
-import requests
-
 from substra.utils import load_json_from_args, InvalidJSONArgsException
 from .api import Api, DATASET_ASSET, InvalidAssetException
 
@@ -12,7 +10,7 @@ class Update(Api):
     ACCEPTED_ASSETS = [DATASET_ASSET]
 
     def run(self):
-        config = super(Update, self).run()
+        super(Update, self).run()
 
         try:
             asset = self.get_asset_option()
@@ -27,22 +25,15 @@ class Update(Api):
             except InvalidJSONArgsException as e:
                 self.handle_exception(e)
             else:
-                kwargs = {}
-                if config['auth']:
-                    kwargs.update({'auth': (config['user'], config['password'])})
-                if config['insecure']:
-                    kwargs.update({'verify': False})
                 try:
-                    r = requests.post('%s/%s/%s/update_ledger/' % (config['url'], asset, pkhash), data=data, headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
+                    res = self.client.update(asset, pkhash, data)
                 except:
                     raise Exception('Failed to update %s' % asset)
                 else:
-                    res = ''
                     try:
-                        result = r.json()
-                        res = json.dumps({'result': result, 'status_code': r.status_code}, indent=2)
+                        res = json.dumps(res, indent=2)
                     except:
-                        res = r.content
+                        res = 'Can\'t decode response value from server to json: %s' % res
                     finally:
                         print(res, end='')
                         return res

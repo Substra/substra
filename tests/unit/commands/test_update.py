@@ -17,9 +17,17 @@ class MockResponse:
     def json(self):
         return self.json_data
 
+    def sdk(self):
+        return {'result': self.json_data,
+                'status_code': self.status_code}
+
 
 def mocked_requests_post_dataset(*args, **kwargs):
     return MockResponse(dataset, 200)
+
+
+def mocked_update_dataset(*args, **kwargs):
+    return MockResponse(dataset, 200).sdk()
 
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
@@ -40,8 +48,8 @@ class TestUpdate(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.update.requests.post',
-                side_effect=mocked_requests_post_dataset)
+    @mock.patch('substra.commands.api.Client.update',
+                side_effect=mocked_update_dataset)
     def test_update_dataset(self, mock_get):
         with open(self.dataset_file_path, 'r') as f:
             content = f.read()

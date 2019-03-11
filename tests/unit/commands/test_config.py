@@ -88,6 +88,7 @@ class TestConfig(TestCase):
                 '<password>': 'bar'
             }).run()
 
+            print(res)
             self.assertTrue(res == {
                 'default': {
                     'url': 'http://toto.com',

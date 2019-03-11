@@ -2,7 +2,7 @@ import json
 import os
 from unittest import TestCase, mock
 
-from substra.commands import Get, Config
+from substra.commands import Path, Config
 
 model = {
     "testtuple": {
@@ -74,6 +74,7 @@ model = {
     }
 }
 
+
 class MockResponse:
     def __init__(self, json_data, status_code):
         self.json_data = json_data
@@ -82,9 +83,17 @@ class MockResponse:
     def json(self):
         return self.json_data
 
+    def sdk(self):
+        return {'result': self.json_data,
+                'status_code': self.status_code}
+
 
 def mocked_requests_get_model(*args, **kwargs):
     return MockResponse(model, 200)
+
+
+def mocked_client_path_model(*args, **kwargs):
+    return MockResponse(model, 200).sdk()
 
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
@@ -102,9 +111,9 @@ class TestPath(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.path.requests.get', side_effect=mocked_requests_get_model)
-    def test_returns_challenge_list(self, mock_get):
-        res = Get({
+    @mock.patch('substra.commands.api.Client.path', side_effect=mocked_client_path_model)
+    def test_returns_model_path(self, mock_get):
+        res = Path({
             '<asset>': 'model',
             '<pkhash>': '640496cd77521be69122092213c0ab4fb3385250656aed7cd71c42e324f67356',
             '<path>': 'details',
