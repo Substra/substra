@@ -14,25 +14,9 @@ data = [
 ]
 
 
-class MockResponse:
-    def __init__(self, json_data, status_code):
-        self.json_data = json_data
-        self.status_code = status_code
-
-    def json(self):
-        return self.json_data
-
-    def sdk(self):
-        return {'result': self.json_data,
-                'status_code': self.status_code}
-
-
-def mocked_requests_post_data(*args, **kwargs):
-    return MockResponse(data, 201)
-
-
-def mocked_client_bulk_update_data(*args, **kwargs):
-    return MockResponse(data, 201).sdk()
+def mocked_client_bulk_update(data, st):
+    return {'result': data,
+            'status_code': st}
 
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
@@ -40,7 +24,8 @@ class TestBulkUpdate(TestCase):
     def setUp(self):
         self.data_file_path = './tests/assets/data/bulk_update_data.json'
 
-        with mock.patch('substra.commands.config.config_path', '/tmp/.substra', create=True):
+        with mock.patch('substra.commands.config.config_path', '/tmp/.substra',
+                        create=True):
             Config({
                 '<url>': 'http://toto.com',
                 '<version>': '1.0',
@@ -52,8 +37,9 @@ class TestBulkUpdate(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.api.Client.bulk_update', side_effect=mocked_client_bulk_update_data)
-    def test_bulk_update_data(self, mock_get):
+    @mock.patch('substra.commands.api.Client.bulk_update',
+                return_value=mocked_client_bulk_update(data, 201))
+    def test_bulk_update_data(self, mock_bulk_update):
 
         with open(self.data_file_path, 'r') as f:
             content = f.read()
@@ -65,4 +51,4 @@ class TestBulkUpdate(TestCase):
 
             self.assertEqual(json.loads(res)['status_code'], 201)
             self.assertTrue(json.loads(res)['result'], data)
-            self.assertEqual(len(mock_get.call_args_list), 1)
+            self.assertEqual(len(mock_bulk_update.call_args_list), 1)

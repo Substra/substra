@@ -40,13 +40,14 @@ class Config(Base):
                 res[profile]['version'] = self.options.get('<version>', '0.0')
                 res[profile]['insecure'] = self.options.get('--insecure', self.options.get('-k', False))
                 user = self.options.get('<user>', None)
-                pwd = self.options.get('<password>', None)
-                if user and pwd:
-                    res[profile]['auth'] = True
-                    res[profile]['user'] = user
-                    res[profile]['password'] = pwd
-                else:
-                    res[profile]['auth'] = False
+                password = self.options.get('<password>', None)
+
+                res[profile]['auth'] = False
+                if user and password:
+                    res[profile]['auth'] = {
+                        'user': user,
+                        'password': password
+                    }
 
                 f.seek(0)
                 f.truncate()

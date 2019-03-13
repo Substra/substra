@@ -34,44 +34,40 @@ class Api(Base):
     def run(self):
 
         # check overrides
-        self.is_default = False
         self.profile = self.options.get('--profile')
 
         if not self.profile:
             self.profile = 'default'
-            self.is_default = True
 
         conf_path = self.options.get('--config')
         if not conf_path:
             conf_path = config_path
 
-        if not self.is_default or conf_path:
-            try:
-                with open(conf_path, 'r') as f:
-                    config = json.load(f)[self.profile]
-            except FileNotFoundError:
-                msg = 'No config file "%s" found, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"' % conf_path
-                print(msg)
-                sys.exit(1)
-            except KeyError:
-                msg = 'No profile "%s" found, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"' % profile
-                print(msg)
-                sys.exit(1)
-            except Exception:
-                msg = 'There is an issue with the config file loading, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"'
-                print(msg)
-                sys.exit(1)
-
+        # Do we have to load a specific config?
         try:
-            self.client = Client()
-            if not self.is_default and config:
-                self.client.create_config(profile=self.profile, **config)
-                self.client.set_config(self.profile)
-        except Exception as e:
-            raise e
-            msg = 'There is an issue with setting up the substra-sdk client (%s)"' % e
+            with open(conf_path, 'r') as f:
+                config = json.load(f)[self.profile]
+        except FileNotFoundError:
+            msg = 'No config file "%s" found, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"' % conf_path
             print(msg)
             sys.exit(1)
+        except KeyError:
+            msg = 'No profile "%s" found, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"' % self.profile
+            print(msg)
+            sys.exit(1)
+        except Exception:
+            msg = 'There is an issue with the config file loading, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"'
+            print(msg)
+            sys.exit(1)
+        else:
+            try:
+                self.client = Client()
+            except Exception as e:
+                msg = 'There is an issue with setting up the substra-sdk-py client (%s)"' % e
+                print(msg)
+            else:
+                self.client.create_config(profile=self.profile, **config)
+                self.client.set_config(self.profile)
 
     def handle_exception(self, exception):
         verbose = self.options.get('--verbose', False)

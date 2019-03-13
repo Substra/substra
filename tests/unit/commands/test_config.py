@@ -36,8 +36,8 @@ class TestConfig(TestCase):
                 'default': {
                     'url': 'http://toto.com',
                     'version': '1.0',
-                    'auth': False,
                     'insecure': False,
+                    'auth': False
                 }
             })
 
@@ -88,15 +88,15 @@ class TestConfig(TestCase):
                 '<password>': 'bar'
             }).run()
 
-            print(res)
             self.assertTrue(res == {
                 'default': {
                     'url': 'http://toto.com',
                     'version': '0.1',
                     'insecure': False,
-                    'auth': True,
-                    'user': 'foo',
-                    'password': 'bar'
+                    'auth': {
+                        'user': 'foo',
+                        'password': 'bar'
+                    },
                 }
             })
 
