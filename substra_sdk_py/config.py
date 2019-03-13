@@ -1,3 +1,5 @@
+import copy
+
 default_config = {
     'default': {
         'url': 'http://127.0.0.1:8000',
@@ -9,26 +11,24 @@ default_config = {
 
 
 class ConfigManager(object):
-    configs = default_config
+    config = copy.deepcopy(default_config)
 
-    def create(self, profile, url='http://127.0.0.1:8000', version='0.0', user=None, password=None, insecure=False):
+    def create(self, profile, url='http://127.0.0.1:8000', version='0.0',
+               auth=False, insecure=False):
+
         config = {
             'url': url,
             'version': version,
-            'auth': False,
+            'auth': auth,
             'insecure': insecure
         }
-        if user and password:
-            config['auth'] = True
-            config['user'] = user
-            config['password'] = password
 
         # add to config list
-        self.configs[profile] = config
+        self.config[profile] = config
 
         return config
 
     def get(self, profile):
-        if profile in self.configs:
-            return self.configs[profile]
+        if profile in self.config:
+            return self.config[profile]
         raise Exception(f'{profile} config does not exist, please create it or use the default one.')

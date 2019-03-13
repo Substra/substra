@@ -14,12 +14,11 @@ class Client(object):
         self.config = self.configManager.get('default')
 
     def create_config(self, profile, url='http://127.0.0.1:8000',
-                      version='0.0', user=None, password=None, insecure=False):
+                      version='0.0', auth=False, insecure=False):
         return self.configManager.create(profile=profile,
                                          url=url,
                                          version=version,
-                                         user=user,
-                                         password=password,
+                                         auth=auth,
                                          insecure=insecure)
 
     def set_config(self, profile='default'):
