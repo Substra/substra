@@ -17,7 +17,7 @@ class TestConfig(TestCase):
     def test_create_config(self):
         configManager = ConfigManager()
         conf = configManager.create('owkin', url='http://owkin.substrabac:8000', version='0.0')
-        self.assertTrue(len(configManager.configs) >= 2)
+        self.assertTrue(len(configManager.config) >= 2)
         self.assertEqual(configManager.get('owkin'), conf)
 
     def test_get_config(self):

@@ -19,9 +19,10 @@ class TestE2E(TestCase):
         self.assertTrue(len(res))
 
     def test_get_asset(self):
-        datasets = self.client.list('dataset')
-        res = self.client.get('dataset', datasets[0]['key'])
-        self.assertEqual(res['name'], datasets[0]['name'])
+        res_l = self.client.list('dataset')
+        res = self.client.get('dataset', res_l['result'][0]['key'])
+
+        self.assertEqual(res['result']['name'], res_l['result'][0]['name'])
 
     def test_add_asset(self):
         data = {
@@ -34,4 +35,4 @@ class TestE2E(TestCase):
         res = self.client.add('dataset', data)
 
         # will fail first time if no precedent populate
-        self.assertEqual(res['message'], [{'pkhash': ['dataset with this pkhash already exists.']}])
+        self.assertEqual(res['result']['message'], [{'pkhash': ['dataset with this pkhash already exists.']}])
