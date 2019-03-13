@@ -75,6 +75,7 @@ from . import __version__ as VERSION
 
 COMMANDS = ('Add', 'BulkUpdate', 'Config', 'Get', 'List', 'Path', 'Update')
 
+
 def main():
     """Main CLI entrypoint."""
     import substra.commands

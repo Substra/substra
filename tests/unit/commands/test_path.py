@@ -2,7 +2,7 @@ import json
 import os
 from unittest import TestCase, mock
 
-from substra.commands import Get, Config
+from substra.commands import Path, Config
 
 model = {
     "testtuple": {
@@ -74,17 +74,10 @@ model = {
     }
 }
 
-class MockResponse:
-    def __init__(self, json_data, status_code):
-        self.json_data = json_data
-        self.status_code = status_code
 
-    def json(self):
-        return self.json_data
-
-
-def mocked_requests_get_model(*args, **kwargs):
-    return MockResponse(model, 200)
+def mocked_client_path(data, st):
+    return {'result': data,
+            'status_code': st}
 
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
@@ -102,9 +95,9 @@ class TestPath(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.path.requests.get', side_effect=mocked_requests_get_model)
-    def test_returns_challenge_list(self, mock_get):
-        res = Get({
+    @mock.patch('substra.commands.api.Client.path', return_value=mocked_client_path(model, 200))
+    def test_returns_model_path(self, mock_path):
+        res = Path({
             '<asset>': 'model',
             '<pkhash>': '640496cd77521be69122092213c0ab4fb3385250656aed7cd71c42e324f67356',
             '<path>': 'details',
@@ -112,4 +105,4 @@ class TestPath(TestCase):
 
         self.assertEqual(json.loads(res)['status_code'], 200)
         self.assertEqual(json.loads(res)['result'], model)
-        self.assertEqual(len(mock_get.call_args_list), 1)
+        self.assertEqual(len(mock_path.call_args_list), 1)

@@ -1,7 +1,5 @@
 import json
 
-import requests
-
 from .api import Api, MODEL_ASSET, InvalidAssetException
 
 
@@ -11,7 +9,7 @@ class Path(Api):
     ACCEPTED_ASSETS = [MODEL_ASSET]
 
     def run(self):
-        config = super(Path, self).run()
+        super(Path, self).run()
 
         try:
             asset = self.get_asset_option()
@@ -21,22 +19,15 @@ class Path(Api):
             pkhash = self.options['<pkhash>']
             path = self.options['<path>']
 
-            kwargs = {}
-            if config['auth']:
-                kwargs.update({'auth': (config['user'], config['password'])})
-            if config['insecure']:
-                kwargs.update({'verify': False})
             try:
-                r = requests.get('%s/%s/%s/%s/' % (config['url'], asset, pkhash, path), headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
+                res = self.client.path(asset, pkhash, path)
             except:
                 raise Exception('Failed to get path %s on %s' % (path, asset))
             else:
-                res = ''
                 try:
-                    result = r.json()
-                    res = json.dumps({'result': result, 'status_code': r.status_code}, indent=2)
+                    res = json.dumps(res, indent=2)
                 except:
-                    res = 'Can\'t decode response value from server to json: %s' % r.content
+                    res = 'Can\'t decode response value from server to json: %s' % res
                 finally:
                     print(res, end='')
                     return res

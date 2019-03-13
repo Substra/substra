@@ -63,33 +63,9 @@ challenge = [[{
                                     "533ee6e7b9d8b247e7e853b24547f57e6ef351852bac0418f13a0666173448f1"]}]]
 
 
-class MockResponse:
-    def __init__(self, json_data, status_code):
-        self.json_data = json_data
-        self.status_code = status_code
-
-    def json(self):
-        return self.json_data
-
-
-def mocked_requests_get_challenge(*args, **kwargs):
-    return MockResponse(challenge, 200)
-
-
-def mocked_requests_get_dataset(*args, **kwargs):
-    return MockResponse(dataset, 200)
-
-
-def mocked_requests_get_dataset_no_json(*args, **kwargs):
-    return MockResponse(open, 200)
-
-
-def mocked_requests_list_challenge_fail(*args, **kwargs):
-    raise Exception('fail')
-
-
-def mocked_requests_get_challenge_filtered(*args, **kwargs):
-    return MockResponse(challenge, 200)
+def mocked_client_list_asset(data, st):
+    return {'result': flatten(data),
+            'status_code': st}
 
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
@@ -107,33 +83,27 @@ class TestList(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.list.requests.get', side_effect=mocked_requests_get_challenge)
-    def test_returns_challenge_list(self, mock_get):
+    @mock.patch('substra.commands.api.Client.list', return_value=mocked_client_list_asset(challenge, 200))
+    def test_returns_challenge_list(self, mock_list):
 
         res = List({
-            '<asset>': 'challenge'
+            '<asset>': 'challenge',
         }).run()
-
-        print(json.loads(res)['result'])
 
         self.assertEqual(json.loads(res)['status_code'], 200)
         self.assertEqual(json.loads(res)['result'], flatten(challenge))
-        self.assertEqual(len(mock_get.call_args_list), 1)
+        self.assertEqual(len(mock_list.call_args_list), 1)
 
-    @mock.patch('substra.commands.list.requests.get', side_effect=mocked_requests_list_challenge_fail)
-    def test_returns_challenge_list_fail(self, mock_get):
-        try:
-            List({
-                '<asset>': 'challenge',
-            }).run()
-        except Exception as e:
-            print(str(e))
+    @mock.patch('substra.commands.api.Client.list', side_effect=Exception('fail'))
+    def test_returns_challenge_list_fail(self, mock_list):
+        with self.assertRaises(Exception) as e:
+            List({'<asset>': 'challenge'}).run()
             self.assertTrue(str(e) == 'Failed to list challenge')
 
-        self.assertEqual(len(mock_get.call_args_list), 1)
+        self.assertEqual(len(mock_list.call_args_list), 1)
 
-    @mock.patch('substra.commands.list.requests.get', side_effect=mocked_requests_get_dataset)
-    def test_returns_dataset_list(self, mock_get):
+    @mock.patch('substra.commands.api.Client.list', return_value=mocked_client_list_asset(dataset, 200))
+    def test_returns_dataset_list(self, mock_list):
 
         res = List({
             '<asset>': 'dataset'
@@ -141,21 +111,17 @@ class TestList(TestCase):
 
         self.assertEqual(json.loads(res)['status_code'], 200)
         self.assertEqual(json.loads(res)['result'], flatten(dataset))
-        self.assertEqual(len(mock_get.call_args_list), 1)
+        self.assertEqual(len(mock_list.call_args_list), 1)
 
-    @mock.patch('substra.commands.list.requests.get', side_effect=mocked_requests_get_dataset_no_json)
-    def test_returns_dataset_list_no_json(self, mock_get):
-        try:
-            List({
-                '<asset>': 'dataset'
-            }).run()
-        except Exception as e:
-            print(str(e))
+    @mock.patch('substra.commands.api.Client.list', side_effect=Exception('fail'))
+    def test_returns_dataset_list_no_json(self, mock_list):
+        with self.assertRaises(Exception) as e:
+            List({'<asset>': 'dataset'}).run()
             self.assertTrue(str(e) == 'Can\'t decode response value from server to json.')
-        self.assertEqual(len(mock_get.call_args_list), 1)
+        self.assertEqual(len(mock_list.call_args_list), 1)
 
-    @mock.patch('substra.commands.list.requests.get', side_effect=mocked_requests_get_challenge_filtered)
-    def test_returns_challenge_list_filters(self, mock_get):
+    @mock.patch('substra.commands.api.Client.list', return_value=mocked_client_list_asset(challenge, 200))
+    def test_returns_challenge_list_filters(self, mock_list):
 
         res = List({
             '<asset>': 'challenge',
@@ -164,18 +130,7 @@ class TestList(TestCase):
 
         self.assertEqual(json.loads(res)['status_code'], 200)
         self.assertEqual(json.loads(res)['result'], flatten(challenge))
-        self.assertEqual(len(mock_get.call_args_list), 1)
-
-    @mock.patch('substra.commands.list.requests.get', side_effect=mocked_requests_get_challenge_filtered)
-    def test_returns_challenge_list_bad_filters(self, mock_get):
-
-        res = List({
-            '<asset>': 'challenge',
-            '<filters>': 'toto'
-        }).run()
-        self.assertTrue(res == 'Cannot load filters. Please review help substra -h')
-
-        self.assertEqual(len(mock_get.call_args_list), 0)
+        self.assertEqual(len(mock_list.call_args_list), 1)
 
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
@@ -197,8 +152,8 @@ class TestListConfigBasicAuth(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.list.requests.get', side_effect=mocked_requests_get_challenge)
-    def test_returns_challenge_list(self, mock_get):
+    @mock.patch('substra.commands.api.Client.list', return_value=mocked_client_list_asset(challenge, 200))
+    def test_returns_challenge_list(self, mock_list):
 
         res = List({
             '<asset>': 'challenge'
@@ -206,7 +161,7 @@ class TestListConfigBasicAuth(TestCase):
 
         self.assertEqual(json.loads(res)['status_code'], 200)
         self.assertEqual(json.loads(res)['result'], flatten(challenge))
-        self.assertEqual(len(mock_get.call_args_list), 1)
+        self.assertEqual(len(mock_list.call_args_list), 1)
 
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
@@ -229,8 +184,8 @@ class TestListConfigInsecure(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.list.requests.get', side_effect=mocked_requests_get_challenge)
-    def test_returns_challenge_list(self, mock_get):
+    @mock.patch('substra.commands.api.Client.list', return_value=mocked_client_list_asset(challenge, 200))
+    def test_returns_challenge_list(self, mock_list):
 
         res = List({
             '<asset>': 'challenge'
@@ -238,4 +193,4 @@ class TestListConfigInsecure(TestCase):
 
         self.assertEqual(json.loads(res)['status_code'], 200)
         self.assertEqual(json.loads(res)['result'], flatten(challenge))
-        self.assertEqual(len(mock_get.call_args_list), 1)
+        self.assertEqual(len(mock_list.call_args_list), 1)

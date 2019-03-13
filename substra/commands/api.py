@@ -4,6 +4,8 @@ import sys
 from .config import config_path
 from .base import Base
 
+from substra_sdk_py import Client
+
 ALGO_ASSET = 'algo'
 CHALLENGE_ASSET = 'challenge'
 DATA_ASSET = 'data'
@@ -32,30 +34,40 @@ class Api(Base):
     def run(self):
 
         # check overrides
-        profile = self.options.get('--profile')
-        if not profile:
-            profile = 'default'
+        self.profile = self.options.get('--profile')
+
+        if not self.profile:
+            self.profile = 'default'
 
         conf_path = self.options.get('--config')
         if not conf_path:
             conf_path = config_path
 
+        # Do we have to load a specific config?
         try:
             with open(conf_path, 'r') as f:
-                config = json.load(f)[profile]
-        except FileNotFoundError as e:
+                config = json.load(f)[self.profile]
+        except FileNotFoundError:
             msg = 'No config file "%s" found, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"' % conf_path
             print(msg)
             sys.exit(1)
-        except KeyError as e:
-            msg = 'No profile "%s" found, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"' % profile
+        except KeyError:
+            msg = 'No profile "%s" found, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"' % self.profile
             print(msg)
             sys.exit(1)
-        except Exception as e:
+        except Exception:
             msg = 'There is an issue with the config file loading, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"'
-            raise Exception(msg)
+            print(msg)
+            sys.exit(1)
         else:
-            return config
+            try:
+                self.client = Client()
+            except Exception as e:
+                msg = 'There is an issue with setting up the substra-sdk-py client (%s)"' % e
+                print(msg)
+            else:
+                self.client.create_config(profile=self.profile, **config)
+                self.client.set_config(self.profile)
 
     def handle_exception(self, exception):
         verbose = self.options.get('--verbose', False)

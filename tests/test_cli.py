@@ -4,7 +4,6 @@ import os
 from subprocess import PIPE, Popen as popen
 from unittest import TestCase
 
-import mock
 
 from substra import __version__ as VERSION
 
@@ -31,7 +30,6 @@ class TestCommand(TestCase):
             'default': {
                 'url': 'http://localhost',
                 'version': '0.0',
-                'auth': False,
                 'insecure': False,
             }
         }, open('/tmp/.substra2', 'w+'))

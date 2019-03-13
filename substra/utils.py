@@ -39,5 +39,3 @@ def load_json_from_args(args):
         raise InvalidJSONStringException(args, 'not an object')
 
     return data
-
-

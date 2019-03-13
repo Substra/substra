@@ -2,7 +2,6 @@ import json
 import ntpath
 
 import os
-import requests
 
 from substra.utils import load_json_from_args, InvalidJSONArgsException
 from .api import Api, ALGO_ASSET, CHALLENGE_ASSET, DATASET_ASSET, TRAINTUPLE_ASSET, TESTTUPLE_ASSET, \
@@ -38,30 +37,8 @@ class Add(Api):
 
     ACCEPTED_ASSETS = [ALGO_ASSET, CHALLENGE_ASSET, DATA_ASSET, DATASET_ASSET, TESTTUPLE_ASSET, TRAINTUPLE_ASSET]
 
-    def load_files(self, asset, data):
-        files = {}
-        if asset == 'dataset':
-            files = load_data_files(data, ['data_opener', 'description'])
-        elif asset == 'challenge':
-            files = load_data_files(data, ['metrics', 'description'])
-        elif asset == 'algo':
-            files = load_data_files(data, ['file', 'description'])
-        elif asset == 'data':
-            # support bulk with multiple files
-            # TODO add bulletproof for bulk using load_data_files
-            data_files = data.get('files', None)
-            if data_files and type(data_files) == list:
-                files = {
-                    # open can fail
-                    path_leaf(x): open(x, 'rb') for x in data_files
-                }
-            else:
-                files = load_data_files(data, ['file'])
-
-        return files
-
     def run(self):
-        config = super(Add, self).run()
+        super(Add, self).run()
 
         try:
             asset = self.get_asset_option()
@@ -77,39 +54,14 @@ class Add(Api):
                 self.handle_exception(e)
             else:
                 try:
-                    # try loading files if needed
-                    files = self.load_files(asset, data)
-                except Exception as e:
-                    self.handle_exception(e)
+                    res = self.client.add(asset, data, dryrun)
+                except:
+                    raise Exception('Failed to create %s' % asset)
                 else:
-                    # build request
-                    if 'permissions' not in data:
-                        data['permissions'] = 'all'
-
-                    if dryrun:
-                        data['dryrun'] = True
-
-                    kwargs = {}
-                    if config['auth']:
-                        kwargs.update({'auth': (config['user'], config['password'])})
-                    if config['insecure']:
-                        kwargs.update({'verify': False})
                     try:
-                        r = requests.post('%s/%s/' % (config['url'], asset), data=data, files=files, headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
+                        res = json.dumps(res, indent=2)
                     except:
-                        raise Exception('Failed to create %s' % asset)
-                    else:
-                        res = ''
-                        try:
-                            result = r.json()
-                            res = json.dumps({'result': result, 'status_code': r.status_code}, indent=2)
-                        except:
-                            res = r.content
-                        finally:
-                            print(res, end='')
-                            return res
+                        res = 'Can\'t decode response value from server to json: %s' % res
                     finally:
-                        # close files
-                        if files:
-                            for x in files:
-                                files[x].close()
+                        print(res, end='')
+                        return res
