@@ -1,0 +1,16 @@
+{
+  "name": "",
+  "description": "description.md",
+  "metrics": {
+    "name": "",
+    "file": "metrics.py"
+  },
+  "test_dataset": {
+    "name": "",
+    "type": "",
+    "description": "test_dataset_description.md",
+    "data_opener": "opener.py",
+    "test_data_samples_files":[
+    ]
+  }
+}

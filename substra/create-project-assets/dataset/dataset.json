@@ -1,0 +1,8 @@
+{
+  "name": "",
+  "type": "",
+  "description": "description.md",
+  "data_opener": "opener.py",
+  "train_data_samples_files": [
+  ]
+}

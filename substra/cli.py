@@ -9,6 +9,7 @@ Usage:
   substra get <asset> <pkhash> [--profile=<profile>] [--config=<configuration_file_path>]
   substra bulk_update <asset> <args> [--profile=<profile>] [--config=<configuration_file_path>] [-v | --verbose]
   substra path <asset> <pkhash> <path> [--profile=<profile>] [--config=<configuration_file_path>]
+  substra create_project <path>
   substra -h | --help
   substra --version
 
@@ -73,7 +74,7 @@ from docopt import docopt
 
 from . import __version__ as VERSION
 
-COMMANDS = ('Add', 'BulkUpdate', 'Config', 'Get', 'List', 'Path', 'Update')
+COMMANDS = ('Add', 'BulkUpdate', 'Config', 'Get', 'List', 'Path', 'Update', 'CreateProject')
 
 
 def main():
