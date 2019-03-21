@@ -32,7 +32,7 @@ def load_files(asset, data):
     files = {}
     if asset == 'dataset':
         files = load_data_files(data, ['data_opener', 'description'])
-    elif asset == 'challenge':
+    elif asset == 'objective':
         files = load_data_files(data, ['metrics', 'description'])
     elif asset == 'algo':
         files = load_data_files(data, ['file', 'description'])
