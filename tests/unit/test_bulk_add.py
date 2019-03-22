@@ -8,12 +8,12 @@ data = [
     {
         "pkhash": "2d0f943aa81a9cb3fe84b162559ce6aff068ccb04e0cb284733b8f9d7e06517e",
         "validated": True,
-        "file": "http://127.0.0.1:8000/media/data/2d0f943aa81a9cb3fe84b162559ce6aff068ccb04e0cb284733b8f9d7e06517e/0024315.zip"
+        "file": "http://127.0.0.1:8000/media/data_sample/2d0f943aa81a9cb3fe84b162559ce6aff068ccb04e0cb284733b8f9d7e06517e/0024315.zip"
     },
     {
         "pkhash": "4b5152871b181d10ee774c10458c064c70710f4ba35938f10c0b7aa51f7dc010",
         "validated": True,
-        "file": "http://127.0.0.1:8000/media/data/4b5152871b181d10ee774c10458c064c70710f4ba35938f10c0b7aa51f7dc010/0024701.zip"
+        "file": "http://127.0.0.1:8000/media/data_sample/4b5152871b181d10ee774c10458c064c70710f4ba35938f10c0b7aa51f7dc010/0024701.zip"
     }
 ]
 
@@ -51,7 +51,7 @@ class TestBulkAdd(TestCase):
         with open(self.data_file_path, 'r') as f:
             content = json.loads(f.read())
 
-            res = addFunction('data', content, config=self.config)
+            res = addFunction('data_sample', content, config=self.config)
 
             self.assertEqual(res['status_code'], 201)
             self.assertEqual(res['result'], data)

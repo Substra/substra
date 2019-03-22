@@ -45,7 +45,7 @@ class TestBulkUpdate(TestCase):
         with open(self.data_file_path, 'r') as f:
             content = json.loads(f.read())
 
-            res = bulkUpdateFunction('data', content, config=self.config)
+            res = bulkUpdateFunction('data_sample', content, config=self.config)
 
             self.assertEqual(res['status_code'], 201)
             self.assertTrue(res['result'], data)

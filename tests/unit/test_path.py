@@ -17,7 +17,7 @@ model = {
             }
         },
         "creator": "02599f2b053b4a43f5f5cc8dad4fb7683c132b6ea9bbdaefb8290df92ec28a2a",
-        "data": {
+        "dataSample": {
             "keys": [
                 "e11aeec290749e4c50c91305e10463eced8dbf3808971ec0c6ea0e36cb7ab3e1"
             ],
@@ -49,7 +49,7 @@ model = {
             }
         },
         "creator": "02599f2b053b4a43f5f5cc8dad4fb7683c132b6ea9bbdaefb8290df92ec28a2a",
-        "data": {
+        "dataSample": {
             "keys": [
                 "62fb3263208d62c7235a046ee1d80e25512fe782254b730a9e566276b8c0ef3a",
                 "42303efa663015e729159833a12ffb510ff92a6e386b8152f90f6fb14ddc94c9"

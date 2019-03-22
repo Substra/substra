@@ -2,5 +2,5 @@
   "name": "MSI classification",
   "description": "./tests/assets/objective/description.md",
   "metrics": "./tests/assets/objective/metrics.py",
-  "test_data_keys": []
+  "test_data_sample_keys": []
 }

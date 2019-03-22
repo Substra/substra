@@ -31,7 +31,7 @@ algo = {"objectiveKey": "6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c
         "storageAddress": "http://127.0.0.1:8001/algo/7742aea2001ceb40e9ce8a37fa27237d5b2d1f574e06d48677af945cfdf42ec0/file/"}
 
 data = {"pkhash": "e11aeec290749e4c50c91305e10463eced8dbf3808971ec0c6ea0e36cb7ab3e1", "validated": True,
-        "file": "http://127.0.0.1:8000/media/data/e11aeec290749e4c50c91305e10463eced8dbf3808971ec0c6ea0e36cb7ab3e1/0024700.zip"}
+        "file": "http://127.0.0.1:8000/media/data_sample/e11aeec290749e4c50c91305e10463eced8dbf3808971ec0c6ea0e36cb7ab3e1/0024700.zip"}
 
 
 class MockResponse:
@@ -135,7 +135,7 @@ class TestAdd(TestCase):
         with open(self.data_file_path, 'r') as f:
             content = json.loads(f.read())
 
-            res = addFunction('data', content, config=self.config)
+            res = addFunction('data_sample', content, config=self.config)
 
             print(res)
 

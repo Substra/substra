@@ -13,7 +13,7 @@ def path_leaf(path):
     return tail or ntpath.basename(head)
 
 
-def load_data_files(data, attributes):
+def load_data_sample_files(data, attributes):
     files = {}
 
     for attribute in attributes:
@@ -31,12 +31,12 @@ def load_data_files(data, attributes):
 def load_files(asset, data):
     files = {}
     if asset == 'data_manager':
-        files = load_data_files(data, ['data_opener', 'description'])
+        files = load_data_sample_files(data, ['data_opener', 'description'])
     elif asset == 'objective':
-        files = load_data_files(data, ['metrics', 'description'])
+        files = load_data_sample_files(data, ['metrics', 'description'])
     elif asset == 'algo':
-        files = load_data_files(data, ['file', 'description'])
-    elif asset == 'data':
+        files = load_data_sample_files(data, ['file', 'description'])
+    elif asset == 'data_sample':
         # support bulk with multiple files
         # TODO add bulletproof for bulk using load_data_files
         data_files = data.get('files', None)
@@ -46,7 +46,7 @@ def load_files(asset, data):
                 path_leaf(x): open(x, 'rb') for x in data_files
             }
         else:
-            files = load_data_files(data, ['file'])
+            files = load_data_sample_files(data, ['file'])
 
     return files
 
