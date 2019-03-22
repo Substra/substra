@@ -4,15 +4,15 @@ from unittest import TestCase, mock
 
 from substra.commands import Get, Config
 
-dataset = {
+data_manager = {
     "challengeKeys": [],
     "description": {
         "hash": "7a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
-        "storageAddress": "http://127.0.0.1:8001/dataset/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/description/"},
+        "storageAddress": "http://127.0.0.1:8001/data_manager/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/description/"},
     "key": "ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994",
     "name": "ISIC 2018",
     "nbData": 2,
-    "openerStorageAddress": "http://127.0.0.1:8001/dataset/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/opener/",
+    "openerStorageAddress": "http://127.0.0.1:8001/data_manager/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/opener/",
     "owner": "c657699f8b03c19e6eadc7b474c23f26dd83454395266a673406f2cf44de2ca2",
     "permissions": "all",
     "size": 100,
@@ -80,22 +80,22 @@ class TestGet(TestCase):
         self.assertEqual(len(mock_get.call_args_list), 1)
 
     @mock.patch('substra.commands.api.Client.get',
-                return_value=mocked_client_get_asset(dataset, 200))
-    def test_returns_dataset_get(self, mock_get):
+                return_value=mocked_client_get_asset(data_manager, 200))
+    def test_returns_data_manager_get(self, mock_get):
         res = Get({
-            '<asset>': 'dataset',
+            '<asset>': 'data-manager',
             '<pkhash>': 'ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994',
         }).run()
 
         self.assertEqual(json.loads(res)['status_code'], 200)
-        self.assertEqual(json.loads(res)['result'], dataset)
+        self.assertEqual(json.loads(res)['result'], data_manager)
         self.assertEqual(len(mock_get.call_args_list), 1)
 
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
 class TestGetConfigBasicAuth(TestCase):
     def setUp(self):
-        self.dataset_file_path = './tests/assets/dataset/dataset.json'
+        self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
 
         with mock.patch('substra.commands.config.config_path', '/tmp/.substra',
                         create=True):
@@ -128,7 +128,7 @@ class TestGetConfigBasicAuth(TestCase):
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
 class TestGetConfigInsecure(TestCase):
     def setUp(self):
-        self.dataset_file_path = './tests/assets/dataset/dataset.json'
+        self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
 
         with mock.patch('substra.commands.config.config_path', '/tmp/.substra',
                         create=True):

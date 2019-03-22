@@ -4,7 +4,7 @@ import ntpath
 import os
 
 from substra.utils import load_json_from_args, InvalidJSONArgsException
-from .api import Api, ALGO_ASSET, CHALLENGE_ASSET, DATASET_ASSET, TRAINTUPLE_ASSET, TESTTUPLE_ASSET, \
+from .api import Api, ALGO_ASSET, CHALLENGE_ASSET, DATA_MANAGER_ASSET, TRAINTUPLE_ASSET, TESTTUPLE_ASSET, \
     DATA_ASSET, InvalidAssetException
 
 
@@ -35,7 +35,7 @@ def load_data_files(data, attributes):
 class Add(Api):
     """Add asset"""
 
-    ACCEPTED_ASSETS = [ALGO_ASSET, CHALLENGE_ASSET, DATA_ASSET, DATASET_ASSET, TESTTUPLE_ASSET, TRAINTUPLE_ASSET]
+    ACCEPTED_ASSETS = [ALGO_ASSET, CHALLENGE_ASSET, DATA_ASSET, DATA_MANAGER_ASSET, TESTTUPLE_ASSET, TRAINTUPLE_ASSET]
 
     def run(self):
         super(Add, self).run()

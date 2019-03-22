@@ -24,21 +24,21 @@ challenge = [[{
     'testDataKeys': ['2d0f943aa81a9cb3fe84b162559ce6aff068ccb04e0cb284733b8f9d7e06517e',
                      '533ee6e7b9d8b247e7e853b24547f57e6ef351852bac0418f13a0666173448f1']}]]
 
-dataset = [[{'challengeKeys': [],
+data_manager = [[{'challengeKeys': [],
              'description': {'hash': '7a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09',
-                             'storageAddress': 'http://chunantes.substrabac:8001/dataset/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/description/'},
+                             'storageAddress': 'http://chunantes.substrabac:8001/data_manager/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/description/'},
              'key': 'ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994', 'name': 'ISIC 2018',
              'nbData': 2,
-             'openerStorageAddress': 'http://chunantes.substrabac:8001/dataset/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/opener/',
+             'openerStorageAddress': 'http://chunantes.substrabac:8001/data_manager/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/opener/',
              'owner': '91df1c847f714ae3ac9d83ef000c583a2c5e63719bdfe23958ca47a8ffe9a82f', 'permissions': 'all',
              'size': 553113, 'type': 'Images'}, {
                 'challengeKeys': ['6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c',
                                   'd5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f'],
                 'description': {'hash': '258bef187a166b3fef5cb86e68c8f7e154c283a148cd5bc344fec7e698821ad3',
-                                'storageAddress': 'http://owkin.substrabac:8000/dataset/b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0/description/'},
+                                'storageAddress': 'http://owkin.substrabac:8000/data_manager/b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0/description/'},
                 'key': 'b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0',
                 'name': 'Simplified ISIC 2018', 'nbData': 6,
-                'openerStorageAddress': 'http://owkin.substrabac:8000/dataset/b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0/opener/',
+                'openerStorageAddress': 'http://owkin.substrabac:8000/data_manager/b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0/opener/',
                 'owner': 'ca77d9070da2732f3dc1fcdb9397cfcf2fad2dcdde4e355dfe34658ad8b9ce55', 'permissions': 'all',
                 'size': 1415097, 'type': 'Images'}]]
 
@@ -146,11 +146,11 @@ class TestList(TestCase):
 
         self.assertTrue(json.loads(res) == challenge)
 
-    def test_list_dataset(self):
-        output = popen(['substra', 'list', 'dataset', '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
+    def test_list_data_manager(self):
+        output = popen(['substra', 'list', 'data-manager', '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
-        self.assertTrue(json.loads(res) == dataset)
+        self.assertTrue(json.loads(res) == data_manager)
 
     def test_list_data(self):
         output = popen(['substra', 'list', 'data', '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]

@@ -9,12 +9,12 @@ from substra_sdk_py import Client
 ALGO_ASSET = 'algo'
 CHALLENGE_ASSET = 'challenge'
 DATA_ASSET = 'data'
-DATASET_ASSET = 'dataset'
+DATA_MANAGER_ASSET = 'data-manager'
 MODEL_ASSET = 'model'
 TESTTUPLE_ASSET = 'testtuple'
 TRAINTUPLE_ASSET = 'traintuple'
 
-ALL_ASSETS = [ALGO_ASSET, CHALLENGE_ASSET, DATA_ASSET, DATASET_ASSET, MODEL_ASSET, TESTTUPLE_ASSET, TRAINTUPLE_ASSET]
+ALL_ASSETS = [ALGO_ASSET, CHALLENGE_ASSET, DATA_ASSET, DATA_MANAGER_ASSET, MODEL_ASSET, TESTTUPLE_ASSET, TRAINTUPLE_ASSET]
 
 
 class InvalidAssetException(Exception):
@@ -79,4 +79,5 @@ class Api(Base):
         asset = self.options['<asset>']
         if asset not in self.ACCEPTED_ASSETS:
             raise InvalidAssetException(self.ACCEPTED_ASSETS, asset)
+        asset = asset.replace('-', '_')
         return asset

@@ -1,0 +1,7 @@
+{
+  "name": "liver slide",
+  "data_opener": "./tests/assets/data_manager/opener.py",
+  "type": "images",
+  "description": "./tests/assets/data_manager/description.md",
+  "challenge_key": ""
+}

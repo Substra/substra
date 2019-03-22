@@ -35,32 +35,32 @@ class TestFixtures(TestCase):
             pass
 
     def test_add_fixtures(self):
-        # create dataset with chu-nantes org
+        # create data_manager with chu-nantes org
         data = json.dumps({
             "name": "ISIC 2018",
-            "data_opener": "./tests/assets/fixtures/chunantes/datasets/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/opener.py",
+            "data_opener": "./tests/assets/fixtures/chunantes/data_managers/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/opener.py",
             "type": "Images",
-            "description": "./tests/assets/fixtures/chunantes/datasets/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/description.md",
+            "description": "./tests/assets/fixtures/chunantes/data_managers/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/description.md",
             "permissions": "all",
             "challenge_keys": []
         })
 
-        output = popen(['substra', 'add', 'dataset', '--profile=chunantes', '--config=/tmp/.substra_e2e_multi_orgs', data], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'data-manager', '--profile=chunantes', '--config=/tmp/.substra_e2e_multi_orgs', data], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
         self.assertTrue(
             json.loads(res) == {
                 "pkhash": "ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994",
                 "name": "ISIC 2018",
-                "data_opener": "%s/media/datasets/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/opener.py" % chunantes_url,
-                "description": "%s/media/datasets/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/description.md" % chunantes_url,
+                "data_opener": "%s/media/data_managers/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/opener.py" % chunantes_url,
+                "description": "%s/media/data_managers/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/description.md" % chunantes_url,
                 "validated": True
             })
 
-        # register train data on dataset chu nantes (will take dataset creator as worker)
+        # register train data on data_manager chu nantes (will take data_manager creator as worker)
         data = json.dumps({
             "file": "./tests/assets/fixtures/chunantes/data/62fb3263208d62c7235a046ee1d80e25512fe782254b730a9e566276b8c0ef3a/0024700.zip",
-            "dataset_key": "ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994",
+            "data_manager_key": "ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994",
             "test_only": False,
         })
 
@@ -74,7 +74,7 @@ class TestFixtures(TestCase):
 
         data = json.dumps({
             "file": "./tests/assets/fixtures/chunantes/data/42303efa663015e729159833a12ffb510ff92a6e386b8152f90f6fb14ddc94c9/0024899.zip",
-            "dataset_key": "ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994",
+            "data_manager_key": "ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994",
             "test_only": False,
         })
 
@@ -88,25 +88,25 @@ class TestFixtures(TestCase):
 
         ###############################
 
-        # create dataset, test data and challenge on owkin
+        # create data_manager, test data and challenge on owkin
         data = json.dumps({
             "name": "Simplified ISIC 2018",
-            "data_opener": "./tests/assets/fixtures/owkin/datasets/b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0/opener.py",
+            "data_opener": "./tests/assets/fixtures/owkin/data_managers/b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0/opener.py",
             "type": "Images",
-            "description": "./tests/assets/fixtures/owkin/datasets/b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0/description.md",
+            "description": "./tests/assets/fixtures/owkin/data_managers/b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0/description.md",
             "permissions": "all",
             "challenge_keys": []
         })
 
-        output = popen(['substra', 'add', 'dataset', '--profile=owkin', '--config=/tmp/.substra_e2e_multi_orgs', data], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'data-manager', '--profile=owkin', '--config=/tmp/.substra_e2e_multi_orgs', data], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
         self.assertTrue(
             json.loads(res) == {
                 "pkhash": "b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0",
                 "name": "Simplified ISIC 2018",
-                "data_opener": "%s/media/datasets/b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0/opener.py" % owkin_url,
-                "description": "%s/media/datasets/b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0/description.md" % owkin_url,
+                "data_opener": "%s/media/data_managers/b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0/opener.py" % owkin_url,
+                "description": "%s/media/data_managers/b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0/description.md" % owkin_url,
                 "validated": True
             })
 
@@ -115,7 +115,7 @@ class TestFixtures(TestCase):
         # register test data
         data = json.dumps({
             "file": "./tests/assets/fixtures/owkin/data/e11aeec290749e4c50c91305e10463eced8dbf3808971ec0c6ea0e36cb7ab3e1/0024900.zip",
-            "dataset_key": "b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0",
+            "data_manager_key": "b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0",
             "test_only": True,
         })
 
@@ -130,7 +130,7 @@ class TestFixtures(TestCase):
         # register test data
         data = json.dumps({
             "file": "./tests/assets/fixtures/owkin/data/4b5152871b181d10ee774c10458c064c70710f4ba35938f10c0b7aa51f7dc010/0024701.zip",
-            "dataset_key": "b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0",
+            "data_manager_key": "b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0",
             "test_only": True,
         })
 
@@ -147,7 +147,7 @@ class TestFixtures(TestCase):
         # register test data
         data = json.dumps({
             "file": "./tests/assets/fixtures/owkin/data/93e4b1e040b08cfa8a68b13f9dddb95a6672e8a377378545b2b1254691cfc060/0024317.zip",
-            "dataset_key": "b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0",
+            "data_manager_key": "b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0",
             "test_only": True,
         })
 
@@ -162,7 +162,7 @@ class TestFixtures(TestCase):
         # register test data
         data = json.dumps({
             "file": "./tests/assets/fixtures/owkin/data/eed4c6ea09babe7ca6428377fff6e54102ef5cdb0cae593732ddbe3f224217cb/0024316.zip",
-            "dataset_key": "b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0",
+            "data_manager_key": "b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0",
             "test_only": True,
         })
 
@@ -179,7 +179,7 @@ class TestFixtures(TestCase):
         # register test data
         data = json.dumps({
             "file": "./tests/assets/fixtures/owkin/data/2d0f943aa81a9cb3fe84b162559ce6aff068ccb04e0cb284733b8f9d7e06517e/0024315.zip",
-            "dataset_key": "b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0",
+            "data_manager_key": "b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0",
             "test_only": True,
         })
 
@@ -194,7 +194,7 @@ class TestFixtures(TestCase):
         # register test data
         data = json.dumps({
             "file": "./tests/assets/fixtures/owkin/data/533ee6e7b9d8b247e7e853b24547f57e6ef351852bac0418f13a0666173448f1/0024318.zip",
-            "dataset_key": "b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0",
+            "data_manager_key": "b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0",
             "test_only": True,
         })
 

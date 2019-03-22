@@ -26,26 +26,26 @@ Examples:
   substra config http://127.0.0.1:8000 0.0
   substra config http://127.0.0.1:8000 0.0 user password # basic auth user/password
   substra config http://127.0.0.1:8000 0.0 --profile=owkin --config=/tmp/.substra
-  substra get dataset ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994
-  substra list dataset
-  substra list challenge '["challenge:name:Skin Lesion Classification Challenge", "OR", "dataset:name:Simplified ISIC 2018"]' --profile=owkin --config=/tmp/.substra
-  substra add dataset '{"name": "liver slide", "data_opener": "./tests/assets/dataset/opener.py", "type": "images", "description": "./tests/assets/dataset/description.md", "challenge_key": "6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c"}'
-  substra add dataset ./dataset_definition.json
-  substra add dataset ./dataset_definition.json --dry-run
+  substra get data-manager ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994
+  substra list data-manager
+  substra list challenge '["challenge:name:Skin Lesion Classification Challenge", "OR", "dataManager:name:Simplified ISIC 2018"]' --profile=owkin --config=/tmp/.substra
+  substra add data-manager '{"name": "liver slide", "data_opener": "./tests/assets/data_manager/opener.py", "type": "images", "description": "./tests/assets/data_manager/description.md", "challenge_key": "6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c"}'
+  substra add data-manager ./data_manager_definition.json
+  substra add data-manager ./data_manager_definition.json --dry-run
 
   # add data
-  substra add data '{"file": "./myzippedfile.zip", "dataset_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"], "test_only": false}'
+  substra add data '{"file": "./myzippedfile.zip", "data_manager_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"], "test_only": false}'
   # bulk add data
-  substra add data '{"files": ["./myzippedfile.zip", "./myzippedfile2.zip"], "dataset_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"], "test_only": false}'
+  substra add data '{"files": ["./myzippedfile.zip", "./myzippedfile2.zip"], "data_manager_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"], "test_only": false}'
 
   # bulk update data
-  substra bulk_update data '{"data_keys": ["62fb3263208d62c7235a046ee1d80e25512fe782254b730a9e566276b8c0ef3a", "42303efa663015e729159833a12ffb510ff92a6e386b8152f90f6fb14ddc94c9"], "dataset_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"]}'
+  substra bulk_update data '{"data_keys": ["62fb3263208d62c7235a046ee1d80e25512fe782254b730a9e566276b8c0ef3a", "42303efa663015e729159833a12ffb510ff92a6e386b8152f90f6fb14ddc94c9"], "data_manager_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"]}'
 
   # get details path of model
   substra path model 640496cd77521be69122092213c0ab4fb3385250656aed7cd71c42e324f67356 details
 
 Assets available:
-  - dataset (add, update, list and get)
+  - data-manager (add, update, list and get)
   - data (add, bulk add, bulk_update and get)
   - challenge (add, list and get)
   - algo (add, list and get)
