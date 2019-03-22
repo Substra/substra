@@ -28,8 +28,8 @@ Examples:
   substra config http://127.0.0.1:8000 0.0 --profile=owkin --config=/tmp/.substra
   substra get data-manager ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994
   substra list data-manager
-  substra list challenge '["challenge:name:Skin Lesion Classification Challenge", "OR", "dataManager:name:Simplified ISIC 2018"]' --profile=owkin --config=/tmp/.substra
-  substra add data-manager '{"name": "liver slide", "data_opener": "./tests/assets/data_manager/opener.py", "type": "images", "description": "./tests/assets/data_manager/description.md", "challenge_key": "6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c"}'
+  substra list objective '["objective:name:Skin Lesion Classification Challenge", "OR", "dataManager:name:Simplified ISIC 2018"]' --profile=owkin --config=/tmp/.substra
+  substra add data-manager '{"name": "liver slide", "data_opener": "./tests/assets/data_manager/opener.py", "type": "images", "description": "./tests/assets/data_manager/description.md", "objective_key": "6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c"}'
   substra add data-manager ./data_manager_definition.json
   substra add data-manager ./data_manager_definition.json --dry-run
 
@@ -47,7 +47,7 @@ Examples:
 Assets available:
   - data-manager (add, update, list and get)
   - data (add, bulk add, bulk_update and get)
-  - challenge (add, list and get)
+  - objective (add, list and get)
   - algo (add, list and get)
   - model (list, get and path)
   - traintuple (add, list and get)

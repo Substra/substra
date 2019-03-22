@@ -7,7 +7,7 @@ from .base import Base
 from substra_sdk_py import Client
 
 ALGO_ASSET = 'algo'
-CHALLENGE_ASSET = 'challenge'
+CHALLENGE_ASSET = 'objective'
 DATA_ASSET = 'data'
 DATA_MANAGER_ASSET = 'data-manager'
 MODEL_ASSET = 'model'

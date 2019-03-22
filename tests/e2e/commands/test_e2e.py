@@ -32,7 +32,7 @@ class TestFixtures(TestCase):
             "type": "Images",
             "description": "./tests/assets/fixtures/chunantes/data_managers/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/description.md",
             "permissions": "all",
-            "challenge_keys": []
+            "objective_keys": []
         })
 
         output = popen(['substra', 'add', 'data-manager', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
@@ -93,7 +93,7 @@ class TestFixtures(TestCase):
             "type": "Images",
             "description": "./tests/assets/fixtures/owkin/data_managers/b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0/description.md",
             "permissions": "all",
-            "challenge_keys": []
+            "objective_keys": []
         })
 
         output = popen(['substra', 'add', 'data-manager', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
@@ -206,45 +206,45 @@ class TestFixtures(TestCase):
 
         # #########################
 
-        # register challenge
+        # register objective
         data = json.dumps({
             "name": "Simplified skin lesion classification",
-            "description": "./tests/assets/fixtures/owkin/challenges/6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c/description.md",
+            "description": "./tests/assets/fixtures/owkin/objectives/6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c/description.md",
             "metrics_name": "macro-average recall",
-            "metrics": "./tests/assets/fixtures/owkin/challenges/6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c/metrics.py",
+            "metrics": "./tests/assets/fixtures/owkin/objectives/6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c/metrics.py",
             "permissions": "all",
             "test_data_keys": ["2d0f943aa81a9cb3fe84b162559ce6aff068ccb04e0cb284733b8f9d7e06517e",
                                "533ee6e7b9d8b247e7e853b24547f57e6ef351852bac0418f13a0666173448f1"]
         })
 
-        output = popen(['substra', 'add', 'challenge', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'objective', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
         res = json.loads(res)
 
         self.assertTrue(res['pkhash'] == '6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c')
         self.assertTrue(res['validated'] == True)
-        self.assertTrue(res['description'] == '%s/media/challenges/6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c/description.md' % url)
-        self.assertTrue(res['metrics'] == '%s/media/challenges/6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c/metrics.py' % url)
+        self.assertTrue(res['description'] == '%s/media/objectives/6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c/description.md' % url)
+        self.assertTrue(res['metrics'] == '%s/media/objectives/6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c/metrics.py' % url)
 
 
-        # register challenge
+        # register objective
         data = json.dumps({
             "name": "Skin Lesion Classification Challenge",
-            "description": "./tests/assets/fixtures/chunantes/challenges/d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f/description.md",
+            "description": "./tests/assets/fixtures/chunantes/objectives/d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f/description.md",
             "metrics_name": "macro-average recall",
-            "metrics": "./tests/assets/fixtures/chunantes/challenges/d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f/metrics.py",
+            "metrics": "./tests/assets/fixtures/chunantes/objectives/d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f/metrics.py",
             "permissions": "all",
             "test_data_keys": ["e11aeec290749e4c50c91305e10463eced8dbf3808971ec0c6ea0e36cb7ab3e1"]
         })
 
-        output = popen(['substra', 'add', 'challenge', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'objective', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
         res = json.loads(res)
 
         self.assertTrue(res['pkhash'] == 'd5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f')
         self.assertTrue(res['validated'] == True)
-        self.assertTrue(res['description'] == '%s/media/challenges/d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f/description.md' % url)
-        self.assertTrue(res['metrics'] == '%s/media/challenges/d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f/metrics.py' % url)
+        self.assertTrue(res['description'] == '%s/media/objectives/d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f/description.md' % url)
+        self.assertTrue(res['metrics'] == '%s/media/objectives/d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f/metrics.py' % url)
 
         ############################
 
@@ -253,7 +253,7 @@ class TestFixtures(TestCase):
             "name": "Logistic regression",
             "file": "./tests/assets/fixtures/chunantes/algos/6dcbfcf29146acd19c6a2997b2e81d0cd4e88072eea9c90bbac33f0e8573993f/algo.tar.gz",
             "description": "./tests/assets/fixtures/chunantes/algos/6dcbfcf29146acd19c6a2997b2e81d0cd4e88072eea9c90bbac33f0e8573993f/description.md",
-            "challenge_key": "d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f",
+            "objective_key": "d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f",
             "permissions": "all",
         })
 
@@ -266,12 +266,12 @@ class TestFixtures(TestCase):
         self.assertTrue(res['description'] == '%s/media/algos/6dcbfcf29146acd19c6a2997b2e81d0cd4e88072eea9c90bbac33f0e8573993f/description.md' % url)
         self.assertTrue(res['file'] == '%s/media/algos/6dcbfcf29146acd19c6a2997b2e81d0cd4e88072eea9c90bbac33f0e8573993f/algo.tar.gz' % url)
 
-        # register second algo on challenge Simplified skin lesion classification
+        # register second algo on objective Simplified skin lesion classification
         data = json.dumps({
             "name": "Logistic regression for balanced problem",
             "file": "./tests/assets/fixtures/chunantes/algos/7742aea2001ceb40e9ce8a37fa27237d5b2d1f574e06d48677af945cfdf42ec0/algo.tar.gz",
             "description": "./tests/assets/fixtures/chunantes/algos/7742aea2001ceb40e9ce8a37fa27237d5b2d1f574e06d48677af945cfdf42ec0/description.md",
-            "challenge_key": "6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c",
+            "objective_key": "6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c",
             "permissions": "all",
         })
 
@@ -289,7 +289,7 @@ class TestFixtures(TestCase):
             "name": "Neural Network",
             "file": "./tests/assets/fixtures/chunantes/algos/0acc5180e09b6a6ac250f4e3c172e2893f617aa1c22ef1f379019d20fe44142f/algo.tar.gz",
             "description": "./tests/assets/fixtures/chunantes/algos/0acc5180e09b6a6ac250f4e3c172e2893f617aa1c22ef1f379019d20fe44142f/description.md",
-            "challenge_key": "d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f",
+            "objective_key": "d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f",
             "permissions": "all",
         })
 
@@ -307,7 +307,7 @@ class TestFixtures(TestCase):
             "name": "Random Forest",
             "file": "./tests/assets/fixtures/chunantes/algos/f2d9fd38e25cd975c49f3ce7e6739846585e89635a86689b5db42ab2c0c57284/algo.tar.gz",
             "description": "./tests/assets/fixtures/chunantes/algos/f2d9fd38e25cd975c49f3ce7e6739846585e89635a86689b5db42ab2c0c57284/description.md",
-            "challenge_key": "d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f",
+            "objective_key": "d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f",
             "permissions": "all",
         })
 
