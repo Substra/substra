@@ -2,7 +2,7 @@ import json
 import ntpath
 
 from substra.utils import load_json_from_args, InvalidJSONArgsException
-from .api import Api, ALGO_ASSET, CHALLENGE_ASSET, DATA_MANAGER_ASSET, TRAINTUPLE_ASSET, TESTTUPLE_ASSET, \
+from .api import Api, ALGO_ASSET, OBJECTIVE_ASSET, DATA_MANAGER_ASSET, TRAINTUPLE_ASSET, TESTTUPLE_ASSET, \
     DATA_SAMPLE_ASSET, InvalidAssetException
 
 
@@ -18,7 +18,7 @@ def path_leaf(path):
 class Add(Api):
     """Add asset"""
 
-    ACCEPTED_ASSETS = [ALGO_ASSET, CHALLENGE_ASSET, DATA_SAMPLE_ASSET, DATA_MANAGER_ASSET, TESTTUPLE_ASSET, TRAINTUPLE_ASSET]
+    ACCEPTED_ASSETS = [ALGO_ASSET, OBJECTIVE_ASSET, DATA_SAMPLE_ASSET, DATA_MANAGER_ASSET, TESTTUPLE_ASSET, TRAINTUPLE_ASSET]
 
     def run(self):
         super(Add, self).run()
