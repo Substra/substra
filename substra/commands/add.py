@@ -1,8 +1,6 @@
 import json
 import ntpath
 
-import os
-
 from substra.utils import load_json_from_args, InvalidJSONArgsException
 from .api import Api, ALGO_ASSET, CHALLENGE_ASSET, DATA_MANAGER_ASSET, TRAINTUPLE_ASSET, TESTTUPLE_ASSET, \
     DATA_SAMPLE_ASSET, InvalidAssetException
@@ -15,21 +13,6 @@ class LoadDataException(Exception):
 def path_leaf(path):
     head, tail = ntpath.split(path)
     return tail or ntpath.basename(head)
-
-
-def load_data_files(data, attributes):
-    files = {}
-
-    for attribute in attributes:
-        if attribute not in data:
-            raise LoadDataException(f"The '{attribute}' attribute is missing.")
-        else:
-            if not os.path.exists(data[attribute]):
-                raise LoadDataException(f"The '{attribute}' attribute file ({data[attribute]}) does not exit.")
-
-            files[attribute] = open(data[attribute], 'rb')
-
-    return files
 
 
 class Add(Api):
