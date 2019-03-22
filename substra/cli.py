@@ -10,6 +10,7 @@ Usage:
   substra bulk_update <asset> <args> [--profile=<profile>] [--config=<configuration_file_path>] [-v | --verbose]
   substra path <asset> <pkhash> <path> [--profile=<profile>] [--config=<configuration_file_path>]
   substra create_project (starter_kit | isic) <path>  [-v | --verbose]
+  substra run-local <algo-path> --train-opener=<train_opener_path> --test-opener=<test_opener_path> --metrics=<metrics_path> [--rank=<rank>] --train-data-sample=<train_data_sample_path> --test-data-sample=<test_data_sample_path> [--inmodel=<inmodel_path>...] --outmodels=<outmodels_path>
   substra -h | --help
   substra --version
 
@@ -74,7 +75,7 @@ from docopt import docopt
 
 from . import __version__ as VERSION
 
-COMMANDS = ('Add', 'BulkUpdate', 'Config', 'Get', 'List', 'Path', 'Update', 'CreateProject')
+COMMANDS = ('Add', 'BulkUpdate', 'Config', 'Get', 'List', 'Path', 'Update', 'CreateProject', 'RunLocal')
 
 
 def main():
@@ -85,6 +86,7 @@ def main():
     # Here we'll try to dynamically match the command the user is trying to run
     # with a pre-defined command class we've already created.
     for (k, v) in options.items():
+        k = k.replace('-', '_')
         if hasattr(substra.commands, k) and v:
             module = getattr(substra.commands, k)
             substra.commands = getmembers(module, isclass)
