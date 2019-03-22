@@ -1,7 +1,0 @@
-{
-  "name": "liver slide",
-  "data_opener": "./tests/assets/dataset/opener.py",
-  "type": "images",
-  "description": "./tests/assets/dataset/description.md",
-  "objective_key": ""
-}

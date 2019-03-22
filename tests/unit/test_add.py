@@ -4,11 +4,11 @@ from unittest import TestCase, mock
 
 from substra_sdk_py.add import add as addFunction
 
-dataset = {"objectiveKey": "",
+data_manager = {"objectiveKey": "",
            "description": {"hash": "7a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
-                           "storageAddress": "http://127.0.0.1:8001/dataset/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/description/"},
+                           "storageAddress": "http://127.0.0.1:8001/data_manager/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/description/"},
            "key": "ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994", "name": "ISIC 2018", "nbData": 2,
-           "openerStorageAddress": "http://127.0.0.1:8001/dataset/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/opener/",
+           "openerStorageAddress": "http://127.0.0.1:8001/data_manager/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/opener/",
            "owner": "c657699f8b03c19e6eadc7b474c23f26dd83454395266a673406f2cf44de2ca2", "permissions": "all",
            "size": 100, "type": "Images"}
 
@@ -43,8 +43,8 @@ class MockResponse:
         return self.json_data
 
 
-def mocked_requests_post_dataset(*args, **kwargs):
-    return MockResponse(dataset, 201)
+def mocked_requests_post_data_manager(*args, **kwargs):
+    return MockResponse(data_manager, 201)
 
 
 def mocked_requests_post_objective(*args, **kwargs):
@@ -65,7 +65,7 @@ def mocked_requests_add_objective_fail(*args, **kwargs):
 
 class TestAdd(TestCase):
     def setUp(self):
-        self.dataset_file_path = './tests/assets/dataset/dataset.json'
+        self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
         self.objective_file_path = './tests/assets/objective/objective.json'
         self.algo_file_path = './tests/assets/algo/algo.json'
         self.data_file_path = './tests/assets/data/data.json'
@@ -80,23 +80,23 @@ class TestAdd(TestCase):
     def tearDown(self):
         pass
 
-    @mock.patch('substra_sdk_py.add.requests.post', side_effect=mocked_requests_post_dataset)
-    def test_add_dataset(self, mock_get):
-        # open dataset file
-        with open(self.dataset_file_path, 'r') as f:
+    @mock.patch('substra_sdk_py.add.requests.post', side_effect=mocked_requests_post_data_manager)
+    def test_add_data_manager(self, mock_get):
+        # open data_manager file
+        with open(self.data_manager_file_path, 'r') as f:
             data = json.loads(f.read())
 
-            res = addFunction('dataset', data, config=self.config)
+            res = addFunction('data_manager', data, config=self.config)
 
             self.assertEqual(res['status_code'], 201)
-            self.assertEqual(res['result'], dataset)
+            self.assertEqual(res['result'], data_manager)
             self.assertEqual(len(mock_get.call_args_list), 1)
             self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
 
-    @mock.patch('substra_sdk_py.add.requests.post', side_effect=mocked_requests_post_dataset)
-    def test_add_dataset_invalid_args(self, mock_get):
+    @mock.patch('substra_sdk_py.add.requests.post', side_effect=mocked_requests_post_data_manager)
+    def test_add_data_manager_invalid_args(self, mock_get):
         try:
-            addFunction('dataset', 'test', config=self.config)
+            addFunction('data_manager', 'test', config=self.config)
         except Exception as e:
             print(e)
             self.assertEqual(str(e), "The 'data_opener' attribute is missing.")
@@ -158,7 +158,7 @@ class TestAdd(TestCase):
 
 class TestAddConfigBasicAuth(TestCase):
     def setUp(self):
-        self.dataset_file_path = './tests/assets/dataset/dataset.json'
+        self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
 
         self.config = {
             'url': 'http://toto.com',
@@ -172,22 +172,22 @@ class TestAddConfigBasicAuth(TestCase):
     def tearDown(self):
         pass
 
-    @mock.patch('substra_sdk_py.add.requests.post', side_effect=mocked_requests_post_dataset)
-    def test_add_dataset(self, mock_get):
-        # open dataset file
-        with open(self.dataset_file_path, 'r') as f:
+    @mock.patch('substra_sdk_py.add.requests.post', side_effect=mocked_requests_post_data_manager)
+    def test_add_data_manager(self, mock_get):
+        # open data_manager file
+        with open(self.data_manager_file_path, 'r') as f:
             data = json.loads(f.read())
 
-            res = addFunction('dataset', data, config=self.config)
+            res = addFunction('data_manager', data, config=self.config)
 
             self.assertEqual(res['status_code'], 201)
-            self.assertEqual(res['result'], dataset)
+            self.assertEqual(res['result'], data_manager)
             self.assertEqual(len(mock_get.call_args_list), 1)
 
 
 class TestAddConfigInsecure(TestCase):
     def setUp(self):
-        self.dataset_file_path = './tests/assets/dataset/dataset.json'
+        self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
 
         self.config = {
             'url': 'http://toto.com',
@@ -201,14 +201,14 @@ class TestAddConfigInsecure(TestCase):
     def tearDown(self):
         pass
 
-    @mock.patch('substra_sdk_py.add.requests.post', side_effect=mocked_requests_post_dataset)
-    def test_add_dataset(self, mock_get):
-        # open dataset file
-        with open(self.dataset_file_path, 'r') as f:
+    @mock.patch('substra_sdk_py.add.requests.post', side_effect=mocked_requests_post_data_manager)
+    def test_add_data_manager(self, mock_get):
+        # open data_manager file
+        with open(self.data_manager_file_path, 'r') as f:
             data = json.loads(f.read())
 
-            res = addFunction('dataset', data, config=self.config)
+            res = addFunction('data_manager', data, config=self.config)
 
             self.assertEqual(res['status_code'], 201)
-            self.assertEqual(res['result'], dataset)
+            self.assertEqual(res['result'], data_manager)
             self.assertEqual(len(mock_get.call_args_list), 1)

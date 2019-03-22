@@ -2,13 +2,13 @@ from unittest import TestCase, mock
 
 from substra_sdk_py.get import get as getFunction
 
-dataset = {
+data_manager = {
     "objectiveKeys": [],
     "description": {"hash": "7a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
-                    "storageAddress": "http://127.0.0.1:8001/dataset/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/description/"},
+                    "storageAddress": "http://127.0.0.1:8001/data_manager/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/description/"},
     "key": "ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994", "name": "ISIC 2018",
     "nbData": 2,
-    "openerStorageAddress": "http://127.0.0.1:8001/dataset/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/opener/",
+    "openerStorageAddress": "http://127.0.0.1:8001/data_manager/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/opener/",
     "owner": "c657699f8b03c19e6eadc7b474c23f26dd83454395266a673406f2cf44de2ca2",
     "permissions": "all",
     "size": 100,
@@ -41,8 +41,8 @@ def mocked_requests_get_objective(*args, **kwargs):
     return MockResponse(objective, 200)
 
 
-def mocked_requests_get_dataset(*args, **kwargs):
-    return MockResponse(dataset, 200)
+def mocked_requests_get_data_manager(*args, **kwargs):
+    return MockResponse(data_manager, 200)
 
 
 def mocked_requests_get_objective_fail(*args, **kwargs):
@@ -83,20 +83,20 @@ class TestGet(TestCase):
 
         self.assertEqual(len(mock_get.call_args_list), 1)
 
-    @mock.patch('substra_sdk_py.get.requests.get', side_effect=mocked_requests_get_dataset)
-    def test_returns_dataset_list(self, mock_get):
-        res = getFunction('dataset',
+    @mock.patch('substra_sdk_py.get.requests.get', side_effect=mocked_requests_get_data_manager)
+    def test_returns_data_manager_list(self, mock_get):
+        res = getFunction('data_manager',
                           'ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994',
                           self.config)
 
         self.assertEqual(res['status_code'], 200)
-        self.assertEqual(res['result'], dataset)
+        self.assertEqual(res['result'], data_manager)
         self.assertEqual(len(mock_get.call_args_list), 1)
 
 
 class TestGetConfigBasicAuth(TestCase):
     def setUp(self):
-        self.dataset_file_path = './tests/assets/dataset/dataset.json'
+        self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
 
         self.config = {
             'url': 'http://toto.com',
@@ -123,7 +123,7 @@ class TestGetConfigBasicAuth(TestCase):
 
 class TestGetConfigInsecure(TestCase):
     def setUp(self):
-        self.dataset_file_path = './tests/assets/dataset/dataset.json'
+        self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
 
         self.config = {
             'url': 'http://toto.com',

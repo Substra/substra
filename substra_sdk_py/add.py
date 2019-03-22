@@ -30,7 +30,7 @@ def load_data_files(data, attributes):
 
 def load_files(asset, data):
     files = {}
-    if asset == 'dataset':
+    if asset == 'data_manager':
         files = load_data_files(data, ['data_opener', 'description'])
     elif asset == 'objective':
         files = load_data_files(data, ['metrics', 'description'])
