@@ -49,7 +49,7 @@ class TestBulkAdd(TestCase):
             content = f.read()
 
             res = Add({
-                '<asset>': 'data',
+                '<asset>': 'data-sample',
                 '<args>': content,
             }).run()
 

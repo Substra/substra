@@ -64,7 +64,7 @@ class TestFixtures(TestCase):
             "test_only": False,
         })
 
-        output = popen(['substra', 'add', 'data', '--profile=chunantes', '--config=/tmp/.substra_e2e_multi_orgs', data], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'data-sample', '--profile=chunantes', '--config=/tmp/.substra_e2e_multi_orgs', data], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
         self.assertTrue(
@@ -78,7 +78,7 @@ class TestFixtures(TestCase):
             "test_only": False,
         })
 
-        output = popen(['substra', 'add', 'data', '--profile=chunantes', '--config=/tmp/.substra_e2e_multi_orgs', data], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'data-sample', '--profile=chunantes', '--config=/tmp/.substra_e2e_multi_orgs', data], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
         self.assertTrue(
@@ -119,7 +119,7 @@ class TestFixtures(TestCase):
             "test_only": True,
         })
 
-        output = popen(['substra', 'add', 'data', '--profile=owkin', '--config=/tmp/.substra_e2e_multi_orgs', data], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'data-sample', '--profile=owkin', '--config=/tmp/.substra_e2e_multi_orgs', data], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
         self.assertTrue(
@@ -134,7 +134,7 @@ class TestFixtures(TestCase):
             "test_only": True,
         })
 
-        output = popen(['substra', 'add', 'data', '--profile=owkin', '--config=/tmp/.substra_e2e_multi_orgs', data], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'data-sample', '--profile=owkin', '--config=/tmp/.substra_e2e_multi_orgs', data], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
         self.assertTrue(
@@ -151,7 +151,7 @@ class TestFixtures(TestCase):
             "test_only": True,
         })
 
-        output = popen(['substra', 'add', 'data', '--profile=owkin', '--config=/tmp/.substra_e2e_multi_orgs', data], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'data-sample', '--profile=owkin', '--config=/tmp/.substra_e2e_multi_orgs', data], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
         self.assertTrue(
@@ -166,7 +166,7 @@ class TestFixtures(TestCase):
             "test_only": True,
         })
 
-        output = popen(['substra', 'add', 'data', '--profile=owkin', '--config=/tmp/.substra_e2e_multi_orgs', data], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'data-sample', '--profile=owkin', '--config=/tmp/.substra_e2e_multi_orgs', data], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
         self.assertTrue(
@@ -183,7 +183,7 @@ class TestFixtures(TestCase):
             "test_only": True,
         })
 
-        output = popen(['substra', 'add', 'data', '--profile=owkin', '--config=/tmp/.substra_e2e_multi_orgs', data], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'data-sample', '--profile=owkin', '--config=/tmp/.substra_e2e_multi_orgs', data], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
         self.assertTrue(
@@ -198,7 +198,7 @@ class TestFixtures(TestCase):
             "test_only": True,
         })
 
-        output = popen(['substra', 'add', 'data', '--profile=owkin', '--config=/tmp/.substra_e2e_multi_orgs', data], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'data-sample', '--profile=owkin', '--config=/tmp/.substra_e2e_multi_orgs', data], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
         self.assertTrue(

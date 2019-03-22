@@ -33,20 +33,20 @@ Examples:
   substra add data-manager ./data_manager_definition.json
   substra add data-manager ./data_manager_definition.json --dry-run
 
-  # add data
-  substra add data '{"file": "./myzippedfile.zip", "data_manager_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"], "test_only": false}'
-  # bulk add data
-  substra add data '{"files": ["./myzippedfile.zip", "./myzippedfile2.zip"], "data_manager_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"], "test_only": false}'
+  # add data-sample
+  substra add data-sample '{"file": "./myzippedfile.zip", "data_manager_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"], "test_only": false}'
+  # bulk add data-sample
+  substra add data-sample '{"files": ["./myzippedfile.zip", "./myzippedfile2.zip"], "data_manager_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"], "test_only": false}'
 
-  # bulk update data
-  substra bulk_update data '{"data_keys": ["62fb3263208d62c7235a046ee1d80e25512fe782254b730a9e566276b8c0ef3a", "42303efa663015e729159833a12ffb510ff92a6e386b8152f90f6fb14ddc94c9"], "data_manager_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"]}'
+  # bulk update data-sample
+  substra bulk_update data-sample '{"data_sample_keys": ["62fb3263208d62c7235a046ee1d80e25512fe782254b730a9e566276b8c0ef3a", "42303efa663015e729159833a12ffb510ff92a6e386b8152f90f6fb14ddc94c9"], "data_manager_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"]}'
 
   # get details path of model
   substra path model 640496cd77521be69122092213c0ab4fb3385250656aed7cd71c42e324f67356 details
 
 Assets available:
   - data-manager (add, update, list and get)
-  - data (add, bulk add, bulk_update and get)
+  - data-sample (add, bulk add, bulk_update and get)
   - objective (add, list and get)
   - algo (add, list and get)
   - model (list, get and path)

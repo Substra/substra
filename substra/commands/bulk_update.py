@@ -1,13 +1,13 @@
 import json
 
 from substra.utils import load_json_from_args, InvalidJSONArgsException
-from .api import Api, DATA_ASSET, InvalidAssetException
+from .api import Api, DATA_SAMPLE_ASSET, InvalidAssetException
 
 
 class BulkUpdate(Api):
     """BulkUpdate asset"""
 
-    ACCEPTED_ASSETS = [DATA_ASSET]
+    ACCEPTED_ASSETS = [DATA_SAMPLE_ASSET]
 
     def run(self):
         super(BulkUpdate, self).run()
