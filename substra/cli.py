@@ -9,7 +9,7 @@ Usage:
   substra get <asset> <pkhash> [--profile=<profile>] [--config=<configuration_file_path>]
   substra bulk-update <asset> <args> [--profile=<profile>] [--config=<configuration_file_path>] [-v | --verbose]
   substra path <asset> <pkhash> <path> [--profile=<profile>] [--config=<configuration_file_path>]
-  substra create-project <path>
+  substra create-project <path> [-v | --verbose]
   substra -h | --help
   substra --version
 

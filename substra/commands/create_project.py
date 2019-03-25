@@ -17,5 +17,7 @@ class CreateProject(Base):
             print(f'Cannot create project in {target_path}: folder already exists')
         except PermissionError:
             print(f'Cannot create project in {target_path}: permission denied')
+        except Exception as e:
+            self.handle_exception(e)
         else:
             print(f'New project created in {target_path}')
