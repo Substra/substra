@@ -8,8 +8,8 @@ from substra_sdk_py import Client
 
 ALGO_ASSET = 'algo'
 OBJECTIVE_ASSET = 'objective'
-DATA_SAMPLE_ASSET = 'data-sample'
-DATA_MANAGER_ASSET = 'data-manager'
+DATA_SAMPLE_ASSET = 'data_sample'
+DATA_MANAGER_ASSET = 'data_manager'
 MODEL_ASSET = 'model'
 TESTTUPLE_ASSET = 'testtuple'
 TRAINTUPLE_ASSET = 'traintuple'
@@ -79,5 +79,4 @@ class Api(Base):
         asset = self.options['<asset>']
         if asset not in self.ACCEPTED_ASSETS:
             raise InvalidAssetException(self.ACCEPTED_ASSETS, asset)
-        asset = asset.replace('-', '_')
         return asset

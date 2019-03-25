@@ -83,7 +83,7 @@ class TestGet(TestCase):
                 return_value=mocked_client_get_asset(data_manager, 200))
     def test_returns_data_manager_get(self, mock_get):
         res = Get({
-            '<asset>': 'data-manager',
+            '<asset>': 'data_manager',
             '<pkhash>': 'ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994',
         }).run()
 

@@ -85,6 +85,7 @@ def main():
     # with a pre-defined command class we've already created.
     for (k, v) in options.items():
         if hasattr(substra.commands, k) and v:
+            k = k.replace('-', '_')
             module = getattr(substra.commands, k)
             substra.commands = getmembers(module, isclass)
             command = [command_class for (command_name, command_class) in substra.commands if command_name in COMMANDS][0]

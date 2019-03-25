@@ -11,7 +11,6 @@ class TestAPI(TestCase):
         valid_api = DummyApi({'<asset>': DATA_SAMPLE_ASSET})
         invalid_api = DummyApi({'<asset>': ALGO_ASSET})
 
-        self.assertEqual(DATA_SAMPLE_ASSET,
-                         valid_api.get_asset_option().replace('_', '-'))
+        self.assertEqual(DATA_SAMPLE_ASSET, valid_api.get_asset_option())
         with self.assertRaises(InvalidAssetException):
             invalid_api.get_asset_option()

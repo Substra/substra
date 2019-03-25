@@ -69,7 +69,7 @@ class TestAdd(TestCase):
             data = f.read()
 
             res = Add({
-                '<asset>': 'data-manager',
+                '<asset>': 'data_manager',
                 '<args>': data,
             }).run()
 
@@ -81,7 +81,7 @@ class TestAdd(TestCase):
     def test_add_data_manager_from_file(self, mock_add):
 
         res = Add({
-            '<asset>': 'data-manager',
+            '<asset>': 'data_manager',
             '<args>': self.data_manager_file_path,
         }).run()
 
@@ -93,7 +93,7 @@ class TestAdd(TestCase):
     def test_add_data_manager_invalid_args(self, mock_add):
         with self.assertRaises(Exception) as e:
             Add({
-                '<asset>': 'data-manager',
+                '<asset>': 'data_manager',
                 '<args>': 'test',
             }).run()
             self.assertEqual(str(e), 'Invalid args. Please review help')
@@ -137,7 +137,7 @@ class TestAdd(TestCase):
             content = f.read()
 
             res = Add({
-                '<asset>': 'data-sample',
+                '<asset>': 'data_sample',
                 '<args>': content,
             }).run()
 
@@ -183,7 +183,7 @@ class TestAddNoConfig(TestCase):
 
             with self.assertRaises(SystemExit) as se:
                 Add({
-                    '<asset>': 'data-manager',
+                    '<asset>': 'data_manager',
                     '<args>': data,
                 }).run()
 
@@ -222,7 +222,7 @@ class TestAddConfigBasicAuth(TestCase):
             data = f.read()
 
             res = Add({
-                '<asset>': 'data-manager',
+                '<asset>': 'data_manager',
                 '<args>': data,
             }).run()
 
@@ -258,7 +258,7 @@ class TestAddConfigInsecure(TestCase):
             data = f.read()
 
             res = Add({
-                '<asset>': 'data-manager',
+                '<asset>': 'data_manager',
                 '<args>': data,
             }).run()
 

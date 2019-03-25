@@ -106,7 +106,7 @@ class TestList(TestCase):
     def test_returns_data_manager_list(self, mock_list):
 
         res = List({
-            '<asset>': 'data-manager'
+            '<asset>': 'data_manager'
         }).run()
 
         self.assertEqual(json.loads(res)['status_code'], 200)
@@ -116,7 +116,7 @@ class TestList(TestCase):
     @mock.patch('substra.commands.api.Client.list', side_effect=Exception('fail'))
     def test_returns_data_manager_list_no_json(self, mock_list):
         with self.assertRaises(Exception) as e:
-            List({'<asset>': 'data-manager'}).run()
+            List({'<asset>': 'data_manager'}).run()
             self.assertTrue(str(e) == 'Can\'t decode response value from server to json.')
         self.assertEqual(len(mock_list.call_args_list), 1)
 
