@@ -11,11 +11,11 @@ model = {
             "name": "Logistic regression",
             "storageAddress": "http://chunantes.substrabac:8001/algo/6dcbfcf29146acd19c6a2997b2e81d0cd4e88072eea9c90bbac33f0e8573993f/file/"
         },
-        "challenge": {
+        "objective": {
             "hash": "d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f",
             "metrics": {
                 "hash": "750f622262854341bd44f55c1018949e9c119606ef5068bd7d137040a482a756",
-                "storageAddress": "http://owkin.substrabac:8000/challenge/d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f/metrics/"
+                "storageAddress": "http://owkin.substrabac:8000/objective/d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f/metrics/"
             }
         },
         "creator": "02599f2b053b4a43f5f5cc8dad4fb7683c132b6ea9bbdaefb8290df92ec28a2a",
@@ -43,11 +43,11 @@ model = {
             "name": "Logistic regression",
             "storageAddress": "http://chunantes.substrabac:8001/algo/6dcbfcf29146acd19c6a2997b2e81d0cd4e88072eea9c90bbac33f0e8573993f/file/"
         },
-        "challenge": {
+        "objective": {
             "hash": "d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f",
             "metrics": {
                 "hash": "750f622262854341bd44f55c1018949e9c119606ef5068bd7d137040a482a756",
-                "storageAddress": "http://owkin.substrabac:8000/challenge/d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f/metrics/"
+                "storageAddress": "http://owkin.substrabac:8000/objective/d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f/metrics/"
             }
         },
         "creator": "02599f2b053b4a43f5f5cc8dad4fb7683c132b6ea9bbdaefb8290df92ec28a2a",

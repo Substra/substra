@@ -45,7 +45,7 @@ class TestBulkUpdate(TestCase):
             content = f.read()
 
             res = BulkUpdate({
-                '<asset>': 'data',
+                '<asset>': 'data_sample',
                 '<args>': content,
             }).run()
 

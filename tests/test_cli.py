@@ -41,8 +41,8 @@ class TestCommand(TestCase):
             pass
 
     def test_returns_command(self):
-            output = popen(['substra', 'list', 'challenge', '--config=/tmp/.substra2'], stdout=PIPE).communicate()[0]
+            output = popen(['substra', 'list', 'objective', '--config=/tmp/.substra2'], stdout=PIPE).communicate()[0]
 
             print(output.decode('utf-8').strip())
 
-            self.assertTrue('Failed to list challenge. Please make sure the substrabac instance is live.' in output.decode('utf-8').strip())
+            self.assertTrue('Failed to list objective. Please make sure the substrabac instance is live.' in output.decode('utf-8').strip())
