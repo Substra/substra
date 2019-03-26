@@ -68,7 +68,7 @@ class TestAdd(TestCase):
         self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
         self.objective_file_path = './tests/assets/objective/objective.json'
         self.algo_file_path = './tests/assets/algo/algo.json'
-        self.data_file_path = './tests/assets/data/data.json'
+        self.data_sample_file_path = './tests/assets/data/data_sample.json'
 
         self.config = {
             'url': 'http://toto.com',
@@ -132,7 +132,7 @@ class TestAdd(TestCase):
     @mock.patch('substra_sdk_py.add.requests.post', side_effect=mocked_requests_post_data)
     def test_add_data(self, mock_get):
         # open algo file
-        with open(self.data_file_path, 'r') as f:
+        with open(self.data_sample_file_path, 'r') as f:
             content = json.loads(f.read())
 
             res = addFunction('data_sample', content, config=self.config)
