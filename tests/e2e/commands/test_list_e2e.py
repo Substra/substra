@@ -147,13 +147,13 @@ class TestList(TestCase):
         self.assertTrue(json.loads(res) == objective)
 
     def test_list_data_manager(self):
-        output = popen(['substra', 'list', 'data-manager', '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'list', 'data_manager', '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
         self.assertTrue(json.loads(res) == data_manager)
 
     def test_list_data(self):
-        output = popen(['substra', 'list', 'data-sample', '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'list', 'data_sample', '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
         self.assertTrue(json.loads(res) == data)

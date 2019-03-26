@@ -35,7 +35,7 @@ class TestFixtures(TestCase):
             "objective_keys": []
         })
 
-        output = popen(['substra', 'add', 'data-manager', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'data_manager', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
         self.assertTrue(
@@ -48,7 +48,7 @@ class TestFixtures(TestCase):
             })
 
         # readd it
-        output = popen(['substra', 'add', 'data-manager', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'data_manager', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
         self.assertTrue(json.loads(res) == {"message": "A data_manager with this opener file already exists."})
 
@@ -59,7 +59,7 @@ class TestFixtures(TestCase):
             "test_only": False,
         })
 
-        output = popen(['substra', 'add', 'data-sample', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'data_sample', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
         print(res)
@@ -76,7 +76,7 @@ class TestFixtures(TestCase):
             "test_only": False,
         })
 
-        output = popen(['substra', 'add', 'data-sample', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'data_sample', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
         self.assertTrue(
@@ -96,7 +96,7 @@ class TestFixtures(TestCase):
             "objective_keys": []
         })
 
-        output = popen(['substra', 'add', 'data-manager', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'data_manager', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
         self.assertTrue(
@@ -117,7 +117,7 @@ class TestFixtures(TestCase):
             "test_only": True,
         })
 
-        output = popen(['substra', 'add', 'data-sample', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'data_sample', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
         self.assertTrue(
@@ -132,7 +132,7 @@ class TestFixtures(TestCase):
             "test_only": True,
         })
 
-        output = popen(['substra', 'add', 'data-sample', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'data_sample', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
         self.assertTrue(
@@ -149,7 +149,7 @@ class TestFixtures(TestCase):
             "test_only": True,
         })
 
-        output = popen(['substra', 'add', 'data-sample', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'data_sample', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
         self.assertTrue(
@@ -164,7 +164,7 @@ class TestFixtures(TestCase):
             "test_only": True,
         })
 
-        output = popen(['substra', 'add', 'data-sample', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'data_sample', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
         self.assertTrue(
@@ -181,7 +181,7 @@ class TestFixtures(TestCase):
             "test_only": True,
         })
 
-        output = popen(['substra', 'add', 'data-sample', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'data_sample', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
         self.assertTrue(
@@ -196,7 +196,7 @@ class TestFixtures(TestCase):
             "test_only": True,
         })
 
-        output = popen(['substra', 'add', 'data-sample', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
+        output = popen(['substra', 'add', 'data_sample', data, '--config=/tmp/.substra_e2e'], stdout=PIPE).communicate()[0]
         res = output.decode('utf-8')
 
         self.assertTrue(
