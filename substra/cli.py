@@ -7,9 +7,9 @@ Usage:
   substra add <asset> <args> [--profile=<profile>] [--config=<configuration_file_path>] [--dry-run] [-v | --verbose]
   substra update <asset> <pkhash> <args> [--profile=<profile>] [--config=<configuration_file_path>] [-v | --verbose]
   substra get <asset> <pkhash> [--profile=<profile>] [--config=<configuration_file_path>]
-  substra bulk-update <asset> <args> [--profile=<profile>] [--config=<configuration_file_path>] [-v | --verbose]
+  substra bulk_update <asset> <args> [--profile=<profile>] [--config=<configuration_file_path>] [-v | --verbose]
   substra path <asset> <pkhash> <path> [--profile=<profile>] [--config=<configuration_file_path>]
-  substra create-project <path> [-v | --verbose]
+  substra create_project (starter_kit | isic) <path>  [-v | --verbose]
   substra -h | --help
   substra --version
 
@@ -85,7 +85,6 @@ def main():
     # Here we'll try to dynamically match the command the user is trying to run
     # with a pre-defined command class we've already created.
     for (k, v) in options.items():
-        k = k.replace('-', '_')
         if hasattr(substra.commands, k) and v:
             module = getattr(substra.commands, k)
             substra.commands = getmembers(module, isclass)

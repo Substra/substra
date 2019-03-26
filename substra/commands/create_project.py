@@ -2,13 +2,18 @@ import os
 import shutil
 from .base import Base
 
-assets_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'create-project-assets')
+base_assets_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'create_project_assets')
 
 
 class CreateProject(Base):
     """BulkUpdate asset"""
 
     def run(self):
+        if self.options['isic']:
+            assets_path = os.path.join(base_assets_path, 'isic')
+        else:
+            assets_path = os.path.join(base_assets_path, 'starter_kit')
+
         target_path = self.options['<path>']
         target_path = os.path.abspath(target_path)
         try:

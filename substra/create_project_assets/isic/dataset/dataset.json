@@ -1,0 +1,10 @@
+{
+  "name": "ISIC 2018",
+  "type": "Images",
+  "description": "description.md",
+  "data_opener": "opener.py",
+  "train_data_files": [
+    "../data-samples/0024318.tar.gz",
+    "../data-samples/0024319.tar.gz"
+  ]
+}
