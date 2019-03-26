@@ -1,8 +1,13 @@
 {
-  "name": "",
-  "type": "",
-  "description": "description.md",
-  "data_opener": "opener.py",
-  "train_data_samples_files": [
-  ]
+  "data_manager": {
+    "name": "",
+    "type": "",
+    "description": "",
+    "data_opener": ""
+  },
+  "data_samples": {
+    "paths": [
+    ],
+    "test_only": false
+  }
 }

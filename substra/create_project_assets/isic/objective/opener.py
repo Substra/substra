@@ -44,7 +44,7 @@ def _get_files(folder):
     return X_files, y_files
 
 
-def get_X(folder):
+def get_X(folder='./data'):
     """Format and return the ISIC features data as np arrays.
 
     :param folder: path to the folder where all data used by the current training task have been unarchived
@@ -62,7 +62,7 @@ def get_X(folder):
     return np.array(X)
 
 
-def get_y(folder):
+def get_y(folder='./data'):
     """Format and return the ISIC labels as np arrays.
     
     :param folder: path to the folder where all data used by the current training task have been unarchived
@@ -81,7 +81,7 @@ def get_y(folder):
     return np.array(y, dtype=np.float)
 
 
-def save_pred(y_pred, folder):
+def save_pred(y_pred, folder='./pred'):
     """Save prediction in PRED_FILE in folder
 
     :param y_pred: predicted target variable vector
@@ -95,7 +95,7 @@ def save_pred(y_pred, folder):
         writer.writerows(y_pred)
 
 
-def get_pred(folder):
+def get_pred(folder='./pred'):
     """Get predictions which were saved using the save_pred function
 
     :param folder: path to the folder where the previously predicted target variable vector has been saved
@@ -109,19 +109,19 @@ def get_pred(folder):
     return np.array(pred, copy=False, dtype=np.float)
 
 
-def fake_X():
+def fake_X(n_samples=N_FAKE_SAMPLES):
     """Make and return the ISIC like features data as np arrays.
 
     :return: fake matrix of features
     :rtype: numpy array
     """
-    return np.random.randint(low=0, high=256, size=(N_FAKE_SAMPLES, SIZE_X, SIZE_Y, SIZE_Z)).astype('uint8')
+    return np.random.randint(low=0, high=256, size=(n_samples, SIZE_X, SIZE_Y, SIZE_Z)).astype('uint8')
 
 
-def fake_y():
+def fake_y(n_samples=N_FAKE_SAMPLES):
     """Make and return the ISIC like labels as np arrays.
 
     :return: fake target variable vector
     :rtype: numpy array
     """
-    return np.eye(CLASSES)[np.arange(N_FAKE_SAMPLES) % CLASSES].astype('uint8')
+    return np.eye(CLASSES)[np.arange(n_samples) % CLASSES].astype('uint8')

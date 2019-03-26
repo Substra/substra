@@ -1,6 +1,6 @@
 {
-    "dataset_key": "0eb5c11f862f28cad76235f8aa4868d7aa3ad49199d948cabf804bfd616c6eb9",
-    "train_data_keys": [
+    "data_manager_key": "0eb5c11f862f28cad76235f8aa4868d7aa3ad49199d948cabf804bfd616c6eb9",
+    "train_data_sample_keys": [
         "6f80553d764fe88acc9c3b0229ea01cc14b94907a331f842550e1b1f1f08349b",
         "51e59a46dc6df65a7f3673cb3626889605ccf98ca04aad7a48dfb225462c150c"
     ],

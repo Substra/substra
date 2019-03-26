@@ -1,16 +1,19 @@
 {
-  "name": "",
-  "description": "description.md",
-  "metrics": {
+  "objective": {
     "name": "",
-    "file": "metrics.py"
+    "description": "",
+    "metrics_name": "",
+    "metrics": ""
   },
-  "test_dataset": {
+  "data_manager": {
     "name": "",
     "type": "",
     "description": "test_dataset_description.md",
-    "data_opener": "opener.py",
-    "test_data_samples_files":[
-    ]
+    "data_opener": "opener.py"
+  },
+  "data_samples": {
+    "paths":[
+    ],
+    "test_only": true
   }
 }
