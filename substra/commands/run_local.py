@@ -182,14 +182,14 @@ class RunLocal(Base):
 
         algo_path = self.options['<algo-path>']
 
-        train_opener = self.options.get('--train-opener')
-        test_opener = self.options.get('--test-opener')
-        metrics = self.options.get('--metrics')
+        train_opener = self.options.get('--train-opener') or os.path.abspath(os.path.join(algo_path, '../dataset/opener.py'))
+        test_opener = self.options.get('--test-opener') or os.path.abspath(os.path.join(algo_path, '../objective/opener.py'))
+        metrics = self.options.get('--metrics') or os.path.abspath(os.path.join(algo_path, '../objective/metrics.py'))
         rank = self.options.get('--rank', 0)
-        train_data = self.options.get('--train-data-sample')
-        test_data = self.options.get('--test-data-sample')
+        train_data = self.options.get('--train-data-sample') or os.path.abspath(os.path.join(algo_path, '../dataset/data-samples/'))
+        test_data = self.options.get('--test-data-sample') or os.path.abspath(os.path.join(algo_path, '../objective/data-samples/'))
         inmodel = self.options.get('--inmodel', [])
-        outmodel = self.options.get('--outmodels')
+        outmodel = self.options.get('--outmodels') or os.path.abspath(os.path.join(algo_path, '../model/'))
 
         mandatory_options = [train_opener, test_opener, metrics,
                              train_data, test_data, outmodel]
