@@ -28,7 +28,7 @@ def mocked_requests_post_data(*args, **kwargs):
 
 class TestBulkUpdate(TestCase):
     def setUp(self):
-        self.data_sample_file_path = './tests/assets/data/bulk_update_data_sample.json'
+        self.data_samples_file_path = './tests/assets/data/bulk_update_data_samples.json'
 
         self.config = {
             'url': 'http://toto.com',
@@ -42,7 +42,7 @@ class TestBulkUpdate(TestCase):
 
     @mock.patch('substra_sdk_py.bulk_update.requests.post', side_effect=mocked_requests_post_data)
     def test_bulk_update_data(self, mock_get):
-        with open(self.data_sample_file_path, 'r') as f:
+        with open(self.data_samples_file_path, 'r') as f:
             content = json.loads(f.read())
 
             res = bulkUpdateFunction('data_sample', content, config=self.config)

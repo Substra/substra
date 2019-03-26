@@ -33,7 +33,7 @@ def mocked_requests_post_data(*args, **kwargs):
 
 class TestBulkAdd(TestCase):
     def setUp(self):
-        self.data_sample_file_path = './tests/assets/data/bulk_data_sample.json'
+        self.data_samples_file_path = './tests/assets/data/bulk_data_samples.json'
 
         self.config = {
             'url': 'http://toto.com',
@@ -48,7 +48,7 @@ class TestBulkAdd(TestCase):
     @mock.patch('substra_sdk_py.add.requests.post', side_effect=mocked_requests_post_data)
     def test_bulk_add_data(self, mock_get):
         # open data file
-        with open(self.data_sample_file_path, 'r') as f:
+        with open(self.data_samples_file_path, 'r') as f:
             content = json.loads(f.read())
 
             res = addFunction('data_sample', content, config=self.config)
