@@ -199,7 +199,6 @@ class RunLocal(Base):
                 raise Exception('Missing options to run locally.')
 
         try:
-            client = docker.from_env()
 
             config = setup_local(algo_path,
                                  train_opener, test_opener, metrics,
