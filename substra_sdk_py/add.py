@@ -30,13 +30,13 @@ def load_data_files(data, attributes):
 
 def load_files(asset, data):
     files = {}
-    if asset == 'dataset':
+    if asset == 'data_manager':
         files = load_data_files(data, ['data_opener', 'description'])
-    elif asset == 'challenge':
+    elif asset == 'objective':
         files = load_data_files(data, ['metrics', 'description'])
     elif asset == 'algo':
         files = load_data_files(data, ['file', 'description'])
-    elif asset == 'data':
+    elif asset == 'data_sample':
         # support bulk with multiple files
         # TODO add bulletproof for bulk using load_data_files
         data_files = data.get('files', None)

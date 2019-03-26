@@ -9,15 +9,15 @@ model = {
             "name": "Logistic regression",
             "storageAddress": "http://chunantes.substrabac:8001/algo/6dcbfcf29146acd19c6a2997b2e81d0cd4e88072eea9c90bbac33f0e8573993f/file/"
         },
-        "challenge": {
+        "objective": {
             "hash": "d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f",
             "metrics": {
                 "hash": "750f622262854341bd44f55c1018949e9c119606ef5068bd7d137040a482a756",
-                "storageAddress": "http://owkin.substrabac:8000/challenge/d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f/metrics/"
+                "storageAddress": "http://owkin.substrabac:8000/objective/d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f/metrics/"
             }
         },
         "creator": "02599f2b053b4a43f5f5cc8dad4fb7683c132b6ea9bbdaefb8290df92ec28a2a",
-        "data": {
+        "dataSample": {
             "keys": [
                 "e11aeec290749e4c50c91305e10463eced8dbf3808971ec0c6ea0e36cb7ab3e1"
             ],
@@ -41,15 +41,15 @@ model = {
             "name": "Logistic regression",
             "storageAddress": "http://chunantes.substrabac:8001/algo/6dcbfcf29146acd19c6a2997b2e81d0cd4e88072eea9c90bbac33f0e8573993f/file/"
         },
-        "challenge": {
+        "objective": {
             "hash": "d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f",
             "metrics": {
                 "hash": "750f622262854341bd44f55c1018949e9c119606ef5068bd7d137040a482a756",
-                "storageAddress": "http://owkin.substrabac:8000/challenge/d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f/metrics/"
+                "storageAddress": "http://owkin.substrabac:8000/objective/d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f/metrics/"
             }
         },
         "creator": "02599f2b053b4a43f5f5cc8dad4fb7683c132b6ea9bbdaefb8290df92ec28a2a",
-        "data": {
+        "dataSample": {
             "keys": [
                 "62fb3263208d62c7235a046ee1d80e25512fe782254b730a9e566276b8c0ef3a",
                 "42303efa663015e729159833a12ffb510ff92a6e386b8152f90f6fb14ddc94c9"
@@ -99,7 +99,7 @@ class TestPath(TestCase):
         pass
 
     @mock.patch('substra_sdk_py.path.requests.get', side_effect=mocked_requests_get_model)
-    def test_returns_challenge_list(self, mock_get):
+    def test_returns_objective_list(self, mock_get):
         res = pathFunction('model',
                            '640496cd77521be69122092213c0ab4fb3385250656aed7cd71c42e324f67356',
                            'details',

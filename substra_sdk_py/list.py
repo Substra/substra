@@ -5,7 +5,7 @@ import itertools
 from urllib.parse import quote
 
 
-SIMPLE_ASSETS = ['data', 'traintuple', 'testtuple']
+SIMPLE_ASSETS = ['data_sample', 'traintuple', 'testtuple']
 
 
 def flatten(list_of_list):
