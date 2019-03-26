@@ -48,7 +48,7 @@ class TestAdd(TestCase):
         self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
         self.objective_file_path = './tests/assets/objective/objective.json'
         self.algo_file_path = './tests/assets/algo/algo.json'
-        self.data_file_path = './tests/assets/data/data.json'
+        self.data_sample_file_path = './tests/assets/data/data_sample.json'
 
         with mock.patch('substra.commands.config.config_path', '/tmp/.substra', create=True):
             Config({
@@ -133,7 +133,7 @@ class TestAdd(TestCase):
     @mock.patch('substra.commands.api.Client.add', return_value=mocked_client_add(data, 201))
     def test_add_data(self, mock_add):
         # open algo file
-        with open(self.data_file_path, 'r') as f:
+        with open(self.data_sample_file_path, 'r') as f:
             content = f.read()
 
             res = Add({
