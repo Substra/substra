@@ -211,4 +211,4 @@ class RunLocal(Base):
 
             compute_local(client, config, rank, inmodel)
         except Exception as e:
-            raise e
+            self.handle_exception(e)
