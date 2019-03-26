@@ -68,7 +68,7 @@ class TestAdd(TestCase):
         self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
         self.objective_file_path = './tests/assets/objective/objective.json'
         self.algo_file_path = './tests/assets/algo/algo.json'
-        self.data_sample_file_path = './tests/assets/data/data_sample.json'
+        self.data_sample_file_path = './tests/assets/data_sample/data_sample.json'
 
         self.config = {
             'url': 'http://toto.com',

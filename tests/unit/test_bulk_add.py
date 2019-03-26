@@ -33,7 +33,7 @@ def mocked_requests_post_data(*args, **kwargs):
 
 class TestBulkAdd(TestCase):
     def setUp(self):
-        self.data_samples_file_path = './tests/assets/data/bulk_data_samples.json'
+        self.data_samples_file_path = './tests/assets/data_sample/bulk_data_samples.json'
 
         self.config = {
             'url': 'http://toto.com',
