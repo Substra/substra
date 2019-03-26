@@ -31,7 +31,9 @@ def _get_files(folder):
     """return list of features and label files given a folder location (with
     the same order)"""
     # get list of features files and create associated list of label files
-    X_files = [f for f in os.listdir(folder) if '.jpg' in f]
+    X_files = [os.path.join(subfolder, f) for subfolder in os.listdir(folder)
+               for f in os.listdir(os.path.join(folder, subfolder))
+               if '.jpg' in f]
     y_files = [f.replace(PREFIX_X, PREFIX_Y).replace(SUFFIX_X, SUFFIX_Y) for f in X_files]
     # check label files exist
     try:
