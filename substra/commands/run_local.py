@@ -23,7 +23,7 @@ def setup_local(algo_path,
     # setup config
     config['algo_path'] = os.path.abspath(algo_path)
     config['train_opener_file'] = os.path.abspath(train_opener_path)
-    config['test_opener_file'] = os.path.abspath(train_opener_path)
+    config['test_opener_file'] = os.path.abspath(test_opener_path)
     config['train_data_path'] = train_data_sample_path
     config['test_data_path'] = test_data_sample_path
     config['metrics_file'] = os.path.abspath(metric_file_path)
