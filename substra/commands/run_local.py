@@ -20,25 +20,18 @@ def setup_local(algo_path,
 
     config = {}
 
-    # algo
+    # setup config
     config['algo_path'] = os.path.abspath(algo_path)
-    assert os.path.exists(config['algo_path'])
-
-    # opener
     config['train_opener_file'] = os.path.abspath(train_opener_path)
     config['test_opener_file'] = os.path.abspath(train_opener_path)
-    assert os.path.exists(config['train_opener_file'])
-    assert os.path.exists(config['test_opener_file'])
-
-    # data
     config['train_data_path'] = train_data_sample_path
     config['test_data_path'] = test_data_sample_path
-    assert os.path.exists(config['train_data_path']), '"train-data-sample path" (%s) does not exist' % config['train_data_path']
-    assert os.path.exists(config['test_data_path']), '"test-data-sample path" (%s) does not exist' % config['test_data_path']
-
-    # metric
     config['metrics_file'] = os.path.abspath(metric_file_path)
-    assert os.path.exists(config['metrics_file'])
+
+    # check config values
+    for key in config.keys():
+        if not os.path.exists(config[key]):
+            raise Exception(f"Cannot launch local run: {key.replace('_', ' ')} {config[key]} doesn't exist")
 
     # docker
     config['algo_docker'] = 'algo_run_local'
