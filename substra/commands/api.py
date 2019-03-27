@@ -69,12 +69,6 @@ class Api(Base):
                 self.client.create_config(profile=self.profile, **config)
                 self.client.set_config(self.profile)
 
-    def handle_exception(self, exception):
-        verbose = self.options.get('--verbose', False)
-        if verbose:
-            raise exception
-        print(str(exception))
-
     def get_asset_option(self):
         asset = self.options['<asset>']
         if asset not in self.ACCEPTED_ASSETS:

@@ -11,3 +11,9 @@ class Base(object):
 
     def run(self):
         raise NotImplementedError('You must implement the run() method yourself!')
+
+    def handle_exception(self, exception):
+        verbose = self.options.get('--verbose', False)
+        if verbose:
+            raise exception
+        print(str(exception))

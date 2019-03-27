@@ -55,7 +55,7 @@ setup(
     ],
     keywords=['cli', 'substra'],
     packages=find_packages(exclude=['docs', 'tests*']),
-    install_requires=['docopt', 'requests'],
+    install_requires=['docopt', 'requests', 'docker'],
     extras_require={
         'test': ['coverage', 'pytest', 'pytest-cov', 'mock'],
     },

@@ -1,0 +1,13 @@
+{
+  "data_manager": {
+    "name": "",
+    "type": "",
+    "description": "",
+    "data_opener": ""
+  },
+  "data_samples": {
+    "paths": [
+    ],
+    "test_only": false
+  }
+}

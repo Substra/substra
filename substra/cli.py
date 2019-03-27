@@ -9,6 +9,8 @@ Usage:
   substra get <asset> <pkhash> [--profile=<profile>] [--config=<configuration_file_path>]
   substra bulk_update <asset> <args> [--profile=<profile>] [--config=<configuration_file_path>] [-v | --verbose]
   substra path <asset> <pkhash> <path> [--profile=<profile>] [--config=<configuration_file_path>]
+  substra create_project (starter_kit | isic) <path>  [-v | --verbose]
+  substra run_local <algo-path> [--train-opener=<train_opener_path>] [--test-opener=<test_opener_path>] [--metrics=<metrics_path>] [--rank=<rank>] [--train-data-sample=<train_data_sample_path>] [--test-data-sample=<test_data_sample_path>] [--inmodel=<inmodel_path>...] [--outmodels=<outmodels_path>] [-v | --verbose]
   substra -h | --help
   substra --version
 
@@ -20,7 +22,7 @@ Options:
   --config=<configuration_file_path>            Path to config file (default ~/.substra)
   -v --verbose                                  Print more information when an error occurs
 
-args                                          Stringified JSON or path to a JSON file
+args                                            Stringified JSON or path to a JSON file
 
 Examples:
   substra config http://127.0.0.1:8000 0.0
@@ -73,7 +75,7 @@ from docopt import docopt
 
 from . import __version__ as VERSION
 
-COMMANDS = ('Add', 'BulkUpdate', 'Config', 'Get', 'List', 'Path', 'Update')
+COMMANDS = ('Add', 'BulkUpdate', 'Config', 'Get', 'List', 'Path', 'Update', 'CreateProject', 'RunLocal')
 
 
 def main():
