@@ -22,7 +22,7 @@ Options:
   --config=<configuration_file_path>            Path to config file (default ~/.substra)
   -v --verbose                                  Print more information when an error occurs
 
-args                                          Stringified JSON or path to a JSON file
+args                                            Stringified JSON or path to a JSON file
 
 Examples:
   substra config http://127.0.0.1:8000 0.0
