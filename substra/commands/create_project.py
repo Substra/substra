@@ -6,7 +6,7 @@ base_assets_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'
 
 
 class CreateProject(Base):
-    """BulkUpdate asset"""
+    """Create project from template (starter_kit or isic)"""
 
     def run(self):
         if self.options['isic']:
