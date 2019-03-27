@@ -15,8 +15,6 @@
     "paths": [
       "/substra/owkestrathonVIP/myisicproject/objective/data-samples/0024306/",
       "/substra/owkestrathonVIP/myisicproject/objective/data-samples/0024307/"
-    ],
-    "test_only": true
+    ]
   }
 }
-  
