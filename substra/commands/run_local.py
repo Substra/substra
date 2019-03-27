@@ -22,6 +22,7 @@ def setup_local(algo_path,
 
     # setup config
     config['algo_path'] = os.path.abspath(algo_path)
+
     config['train_opener_file'] = os.path.abspath(train_opener_path)
     config['test_opener_file'] = os.path.abspath(test_opener_path)
     config['train_data_path'] = train_data_sample_path
@@ -171,28 +172,24 @@ def compute_local(docker_client, config, rank, inmodels):
 class RunLocal(Base):
     """Run-local asset"""
 
+    def getOption(self, option, default):
+        if option is None:
+            return default
+        return option
+
     def run(self):
 
         algo_path = self.options['<algo-path>']
-
-        train_opener = self.options.get('--train-opener') or os.path.abspath(os.path.join(algo_path, '../dataset/opener.py'))
-        test_opener = self.options.get('--test-opener') or os.path.abspath(os.path.join(algo_path, '../objective/opener.py'))
-        metrics = self.options.get('--metrics') or os.path.abspath(os.path.join(algo_path, '../objective/metrics.py'))
-        rank = self.options.get('--rank', 0)
-        train_data = self.options.get('--train-data-sample') or os.path.abspath(os.path.join(algo_path, '../dataset/data-samples/'))
-        test_data = self.options.get('--test-data-sample') or os.path.abspath(os.path.join(algo_path, '../objective/data-samples/'))
-        inmodel = self.options.get('--inmodel', [])
-        outmodel = self.options.get('--outmodels') or os.path.abspath(os.path.join(algo_path, '../model/'))
-
-        mandatory_options = [train_opener, test_opener, metrics,
-                             train_data, test_data, outmodel]
-
-        for mandatory_option in mandatory_options:
-            if mandatory_option is None:
-                raise Exception('Missing options to run locally.')
+        train_opener = self.getOption(self.options.get('--train-opener'), os.path.abspath(os.path.join(algo_path, '../dataset/opener.py')))
+        test_opener = self.getOption(self.options.get('--test-opener'), os.path.abspath(os.path.join(algo_path, '../objective/opener.py')))
+        metrics = self.getOption(self.options.get('--metrics'), os.path.abspath(os.path.join(algo_path, '../objective/metrics.py')))
+        rank = self.getOption(self.options.get('--rank'), 0)
+        train_data = self.getOption(self.options.get('--train-data-sample'), os.path.abspath(os.path.join(algo_path, '../dataset/data-samples/')))
+        test_data = self.getOption(self.options.get('--test-data-sample'), os.path.abspath(os.path.join(algo_path, '../objective/data-samples/')))
+        inmodel = self.options.get('--inmodel')
+        outmodel = self.getOption(self.options.get('--outmodels'), os.path.abspath(os.path.join(algo_path, '../model/')))
 
         try:
-
             config = setup_local(algo_path,
                                  train_opener, test_opener, metrics,
                                  train_data, test_data,
