@@ -35,7 +35,8 @@ class Client(object):
         """Build url from config and list of strings."""
         url_parts = [self.config['url']]
         url_parts.extend(parts)
-        return '/'.join(url_parts)
+        url = '/'.join(url_parts)
+        return url + '/'  # django requires a suffix /
 
     def add(self, asset, data, dryrun=False):
         """Add asset."""
