@@ -9,12 +9,13 @@ SIMPLE_ASSETS = ['data_sample', 'traintuple', 'testtuple']
 
 class Client(object):
     def __init__(self):
-
+        # TODO make attributes private
         self.configManager = ConfigManager()
         self.config = self.configManager.get('default')
 
     def create_config(self, profile, url='http://127.0.0.1:8000',
                       version='0.0', auth=False, insecure=False):
+        """Create new config profile."""
         return self.configManager.create(profile=profile,
                                          url=url,
                                          version=version,
@@ -22,18 +23,16 @@ class Client(object):
                                          insecure=insecure)
 
     def set_config(self, profile='default'):
-        try:
-            config = self.configManager.get(profile)
-        except Exception as e:
-            raise e
-        else:
-            self.config = config
-            return config
+        """Set config profile."""
+        self.config = self.configManager.get(profile)
+        return self.config
 
     def get_config(self):
+        """Get current config."""
         return self.config
 
     def _get_url(self, *parts):
+        """Build url from config and list of strings."""
         url_parts = [self.config['url']]
         url_parts.extend(parts)
         return '/'.join(url_parts)
@@ -59,6 +58,7 @@ class Client(object):
 
     def list(self, asset, filters=None, is_complex=False):
         """List assets."""
+        # TODO get rid of is_complex input args
         kwargs = {}
         if filters:
             try:
@@ -80,6 +80,7 @@ class Client(object):
         return result
 
     def path(self, asset, pkhash, path):
+        """Get asset path."""
         url = self._get_url(asset, pkhash, path)
         return http_cli.get(self.config, url)
 
