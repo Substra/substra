@@ -1,16 +1,13 @@
 import requests
 
+from .config import requests_get_params
+
 
 def update(asset, pkhash, data, config):
 
-    kwargs = {}
-    if config['auth']:
-        kwargs.update({'auth': (config['auth']['user'], config['auth']['password'])})
-    if config['insecure']:
-        kwargs.update({'verify': False})
-
+    kwargs, headers = requests_get_params(config)
     url = '%s/%s/%s/update_ledger/' % (config['url'], asset, pkhash)
-    headers = {'Accept': 'application/json;version=%s' % config['version']}
+
     try:
         r = requests.post(url, data=data, headers=headers, **kwargs)
     except:

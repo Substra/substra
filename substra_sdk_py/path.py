@@ -1,16 +1,13 @@
 import requests
 
+from .config import requests_get_params
+
 
 def path(asset, pkhash, path, config):
 
-    kwargs = {}
-    if config['auth']:
-        kwargs.update({'auth': (config['auth']['user'], config['auth']['password'])})
-    if config['insecure']:
-        kwargs.update({'verify': False})
-
+    kwargs, headers = requests_get_params(config)
     url = '%s/%s/%s/%s' % (config['url'], asset, pkhash, path)
-    headers = {'Accept': 'application/json;version=%s' % config['version']}
+
     try:
         r = requests.get(url, headers=headers, **kwargs)
     except:

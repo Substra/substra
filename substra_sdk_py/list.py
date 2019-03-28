@@ -4,6 +4,8 @@ import requests
 import itertools
 from urllib.parse import quote
 
+from .config import requests_get_params
+
 
 SIMPLE_ASSETS = ['data_sample', 'traintuple', 'testtuple']
 
@@ -18,11 +20,8 @@ def flatten(list_of_list):
 
 def list(asset, config, filters=None, is_complex=False):
 
-    kwargs = {}
-    if config['auth']:
-        kwargs.update({'auth': (config['auth']['user'], config['auth']['password'])})
-    if config['insecure']:
-        kwargs.update({'verify': False})
+    kwargs, headers = requests_get_params(config)
+
     if filters:
         try:
             filters = json.loads(filters)
@@ -37,7 +36,6 @@ def list(asset, config, filters=None, is_complex=False):
             kwargs['params'] = 'search=%s' % quote(''.join(filters))
 
     url = '%s/%s/' % (config['url'], asset)
-    headers = {'Accept': 'application/json;version=%s' % config['version']}
     try:
         r = requests.get(url, headers=headers, **kwargs)
     except Exception as e:
