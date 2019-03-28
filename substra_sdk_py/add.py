@@ -1,6 +1,7 @@
-import ntpath
-
+import contextlib
 import os
+
+import ntpath
 import requests
 
 
@@ -13,48 +14,49 @@ def path_leaf(path):
     return tail or ntpath.basename(head)
 
 
-def load_data_files(data, attributes):
-    files = {}
+def find_data_paths(data, attributes):
+    paths = {}
 
     for attribute in attributes:
         if attribute not in data:
             raise LoadDataException(f"The '{attribute}' attribute is missing.")
-        else:
-            if not os.path.exists(data[attribute]):
-                raise LoadDataException(f"The '{attribute}' attribute file ({data[attribute]}) does not exit.")
 
-            files[attribute] = open(data[attribute], 'rb')
+        if not os.path.exists(data[attribute]):
+            raise LoadDataException(f"The '{attribute}' attribute file ({data[attribute]}) does not exit.")
 
-    return files
+        paths[attribute] = data[attribute]
+
+    return paths
 
 
+@contextlib.contextmanager
 def load_files(asset, data):
-    files = {}
+    paths = {}
     if asset == 'data_manager':
-        files = load_data_files(data, ['data_opener', 'description'])
+        paths = find_data_paths(data, ['data_opener', 'description'])
     elif asset == 'objective':
-        files = load_data_files(data, ['metrics', 'description'])
+        paths = find_data_paths(data, ['metrics', 'description'])
     elif asset == 'algo':
-        files = load_data_files(data, ['file', 'description'])
+        paths = find_data_paths(data, ['file', 'description'])
     elif asset == 'data_sample':
-        # support bulk with multiple files
-        # TODO add bulletproof for bulk using load_data_files
-        data_files = data.get('files', None)
-        if data_files and type(data_files) == list:
-            files = {
-                # open can fail
-                path_leaf(x): open(x, 'rb') for x in data_files
-            }
+        # support bulk with multiple paths
+        # TODO add bulletproof for bulk using load_data_paths
+        data_paths = data.get('files', None)
+        if data_paths and type(data_paths) == list:
+            paths = {path_leaf(x): x for x in data_paths}
         else:
-            files = load_data_files(data, ['file'])
+            paths = find_data_paths(data, ['file'])
 
-    return files
+    files = {k: open(f, 'rb') for k, f in paths.items()}
+
+    try:
+        yield files
+    finally:
+        for f in files.values():
+            f.close()
 
 
 def add(asset, data, config, dryrun=False):
-    # try loading files if needed
-    files = load_files(asset, data)
-
     # build request
     if 'permissions' not in data:
         data['permissions'] = 'all'
@@ -70,11 +72,14 @@ def add(asset, data, config, dryrun=False):
 
     url = '%s/%s/' % (config['url'], asset)
     headers = {'Accept': 'application/json;version=%s' % config['version']}
-    try:
-        r = requests.post(url, data=data, files=files, headers=headers, **kwargs)
-    except:
-        raise Exception('Failed to create %s' % asset)
-    else:
+
+    with load_files(asset, data) as files:
+        try:
+            r = requests.post(url, data=data, files=files, headers=headers, **kwargs)
+        except:  # TODO use requests.RequestException and reraise it
+            raise Exception('Failed to create %s' % asset)
+
+        # TODO code to parse results duplicated in all queries?
         res = ''
         try:
             result = r.json()
@@ -83,8 +88,3 @@ def add(asset, data, config, dryrun=False):
             res = r.content
         finally:
             return res
-    finally:
-        # close files
-        if files:
-            for x in files:
-                files[x].close()

@@ -96,7 +96,7 @@ class TestAdd(TestCase):
     @mock.patch('substra_sdk_py.add.requests.post', side_effect=mocked_requests_post_data_manager)
     def test_add_data_manager_invalid_args(self, mock_get):
         try:
-            addFunction('data_manager', 'test', config=self.config)
+            addFunction('data_manager', {}, config=self.config)
         except Exception as e:
             print(e)
             self.assertEqual(str(e), "The 'data_opener' attribute is missing.")
