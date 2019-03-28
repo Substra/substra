@@ -2,24 +2,40 @@ import functools
 
 import requests
 
+from . import exceptions
 from .config import requests_get_params
 
 
 def parse_response(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
-        r = f(*args, **kwargs)
-
         try:
+            r = f(*args, **kwargs)
             r.raise_for_status()
-        except requests.exceptions.HTTPError:
+
+        except requests.exceptions.ConnectionError:
+            raise
+
+        except requests.exceptions.Timeout as e:
+            raise exceptions.Timeout(e)
+
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404:
+                raise exceptions.AssetNotFound(e)
+
+            if e.response.status_code == 408:
+                raise exceptions.Timeout(e)
+
+            if e.response.status_code == 409:
+                raise exceptions.AssetAlreadyExist(e)
+
             raise
 
         try:
             result = r.json()
         except ValueError:
             # we always expect JSON response from the server
-            raise ValueError("Cannot decode response: {}".format(r.content))
+            raise exceptions.InvalidResponse(r)
 
         return result
     return wrapper

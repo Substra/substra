@@ -63,7 +63,7 @@ class MockResponse:
 
     def raise_for_status(self):
         if self.status_code > 400:
-            raise requests.exceptions.HTTPError(self.status_code)
+            raise requests.exceptions.HTTPError('500', response=self)
 
 
 class TestBase(TestCase):
