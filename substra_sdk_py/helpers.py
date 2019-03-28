@@ -1,10 +1,8 @@
+import itertools
 import contextlib
 import os
 
 import ntpath
-import requests
-
-from . import http_cli
 
 
 class LoadDataException(Exception):
@@ -58,14 +56,9 @@ def load_files(asset, data):
             f.close()
 
 
-def add(asset, data, config, dryrun=False):
-    if 'permissions' not in data:
-        data['permissions'] = 'all'
-
-    if dryrun:
-        data['dryrun'] = True
-
-    url = '%s/%s/' % (config['url'], asset)
-
-    with load_files(asset, data) as files:
-        return http_cli.post(config, url, data, files=files)
+def flatten(list_of_list):
+    res = []
+    for item in itertools.chain.from_iterable(list_of_list):
+        if item not in res:
+            res.append(item)
+    return res

@@ -1,10 +1,10 @@
-from .get import get as getFunction
-from .list import list as listFunction
-from .add import add as addFunction
-from .update import update as updateFunction
-from .bulk_update import bulkUpdate as bulkUpdateFunction
-from .path import path as pathFunction
+import json
+from urllib.parse import quote
+
 from .config import ConfigManager
+from . import http_cli, helpers
+
+SIMPLE_ASSETS = ['data_sample', 'traintuple', 'testtuple']
 
 
 class Client(object):
@@ -33,26 +33,62 @@ class Client(object):
     def get_config(self):
         return self.config
 
+    def _get_url(self, *parts):
+        url_parts = [self.config['url']]
+        url_parts.extend(parts)
+        return '/'.join(url_parts)
+
     def add(self, asset, data, dryrun=False):
-        # make a copy for avoiding modification by reference
-        data = dict(data)
-        return addFunction(asset, data, self.config, dryrun)
+        """Add asset."""
+        data = dict(data)  # make a copy for avoiding modification by reference
+        if 'permissions' not in data:
+            data['permissions'] = 'all'
+
+        if dryrun:
+            data['dryrun'] = True
+
+        url = self._get_url(asset)
+
+        with helpers.load_files(asset, data) as files:
+            return http_cli.post(self.config, url, data, files=files)
 
     def get(self, asset, pkhash):
-        return getFunction(asset, pkhash, self.config)
+        """Get asset by key."""
+        url = self._get_url(asset, pkhash)
+        return http_cli.get(self.config, url)
 
     def list(self, asset, filters=None, is_complex=False):
-        return listFunction(asset, self.config, filters, is_complex)
+        """List assets."""
+        kwargs = {}
+        if filters:
+            try:
+                filters = json.loads(filters)
+            except ValueError:
+                raise ValueError(
+                    'Cannot load filters. Please review the documentation.')
+            filters = map(lambda x: '-OR-' if x == 'OR' else x, filters)
+            # requests uses quote_plus to escape the params, but we want to use
+            # quote
+            # we're therefore passing a string (won't be escaped again) instead
+            # of an object
+            kwargs['params'] = 'search=%s' % quote(''.join(filters))
+
+        url = self._get_url(asset)
+        result = http_cli.get(self.config, url, **kwargs)
+        if not is_complex and asset not in SIMPLE_ASSETS:
+            result = helpers.flatten(result)
+        return result
 
     def path(self, asset, pkhash, path):
-        return pathFunction(asset, pkhash, path, self.config)
+        url = self._get_url(asset, pkhash, path)
+        return http_cli.get(self.config, url)
 
     def update(self, asset, pkhash, data):
-        # make a copy for avoiding modification by reference
-        data = dict(data)
-        return updateFunction(asset, pkhash, data, self.config)
+        """Update asset by key."""
+        url = self._get_url(asset, pkhash, 'update_ledger')
+        return http_cli.post(self.config, url, data)
 
     def bulk_update(self, asset, data):
-        # make a copy for avoiding modification by reference
-        data = dict(data)
-        return bulkUpdateFunction(asset, data, self.config)
+        """Update several assets."""
+        url = self._get_url(asset, 'bulk_update')
+        return http_cli.post(self.config, url, data)
