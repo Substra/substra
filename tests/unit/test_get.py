@@ -101,9 +101,10 @@ class TestGetConfigBasicAuth(TestCase):
         self.config = {
             'url': 'http://toto.com',
             'version': '1.0',
-            'auth': True,
-            'user': 'foo',
-            'password': 'bar',
+            'auth': {
+                'user': 'foo',
+                'password': 'bar',
+            },
             'insecure': False,
         }
 
@@ -128,9 +129,10 @@ class TestGetConfigInsecure(TestCase):
         self.config = {
             'url': 'http://toto.com',
             'version': '1.0',
-            'auth': True,
-            'user': 'foo',
-            'password': 'bar',
+            'auth': {
+                'user': 'foo',
+                'password': 'bar',
+            },
             'insecure': True,
         }
 

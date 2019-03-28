@@ -20,7 +20,7 @@ def list(asset, config, filters=None, is_complex=False):
 
     kwargs = {}
     if config['auth']:
-        kwargs.update({'auth': (config['user'], config['password'])})
+        kwargs.update({'auth': (config['auth']['user'], config['auth']['password'])})
     if config['insecure']:
         kwargs.update({'verify': False})
     if filters:
