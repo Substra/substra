@@ -75,16 +75,21 @@ def add(asset, data, config, dryrun=False):
 
     with load_files(asset, data) as files:
         try:
-            r = requests.post(url, data=data, files=files, headers=headers, **kwargs)
-        except:  # TODO use requests.RequestException and reraise it
-            raise Exception('Failed to create %s' % asset)
+            r = requests.post(url, data=data, files=files, headers=headers,
+                              **kwargs)
+        except requests.exceptions.Timeout:
+            raise
+        except requests.exceptions.ConnectionError:
+            raise
 
-        # TODO code to parse results duplicated in all queries?
-        res = ''
+        try:
+            r.raise_for_status()
+        except requests.exceptions.HTTPError:
+            raise
+
         try:
             result = r.json()
-            res = {'result': result, 'status_code': r.status_code}
-        except:
-            res = r.content
-        finally:
-            return res
+        except ValueError:
+            raise
+
+        return result

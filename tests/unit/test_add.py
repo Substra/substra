@@ -1,5 +1,6 @@
 import json
 
+import requests
 from unittest import TestCase, mock
 
 from substra_sdk_py.add import add as addFunction
@@ -42,6 +43,9 @@ class MockResponse:
     def json(self):
         return self.json_data
 
+    def raise_for_status(self):
+        if self.status_code > 400:
+            raise requests.exceptions.HTTPError(self.status_code)
 
 def mocked_requests_post_data_manager(*args, **kwargs):
     return MockResponse(data_manager, 201)
@@ -60,7 +64,7 @@ def mocked_requests_post_data(*args, **kwargs):
 
 
 def mocked_requests_add_objective_fail(*args, **kwargs):
-    raise Exception('fail')
+    return MockResponse('fail', 500)
 
 
 class TestAdd(TestCase):
@@ -88,8 +92,7 @@ class TestAdd(TestCase):
 
             res = addFunction('data_manager', data, config=self.config)
 
-            self.assertEqual(res['status_code'], 201)
-            self.assertEqual(res['result'], data_manager)
+            self.assertEqual(res, data_manager)
             self.assertEqual(len(mock_get.call_args_list), 1)
             self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
 
@@ -110,8 +113,7 @@ class TestAdd(TestCase):
 
             res = addFunction('objective', data, config=self.config)
 
-            self.assertEqual(res['status_code'], 201)
-            self.assertEqual(res['result'], objective)
+            self.assertEqual(res, objective)
             self.assertEqual(len(mock_get.call_args_list), 1)
             self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
 
@@ -123,9 +125,7 @@ class TestAdd(TestCase):
 
             res = addFunction('algo', data, config=self.config)
 
-            print(res)
-            self.assertEqual(res['status_code'], 201)
-            self.assertEqual(res['result'], algo)
+            self.assertEqual(res, algo)
             self.assertEqual(len(mock_get.call_args_list), 1)
             self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
 
@@ -137,10 +137,7 @@ class TestAdd(TestCase):
 
             res = addFunction('data_sample', content, config=self.config)
 
-            print(res)
-
-            self.assertEqual(res['status_code'], 201)
-            self.assertEqual(res['result'], data)
+            self.assertEqual(res, data)
             self.assertEqual(len(mock_get.call_args_list), 1)
 
     @mock.patch('substra_sdk_py.add.requests.post', side_effect=mocked_requests_add_objective_fail)
@@ -151,7 +148,7 @@ class TestAdd(TestCase):
                 addFunction('objective', data, config=self.config)
             except Exception as e:
                 print(str(e))
-                self.assertTrue(str(e) == 'Failed to create objective')
+                self.assertEqual(str(e), '500')
 
             self.assertEqual(len(mock_get.call_args_list), 1)
 
@@ -181,8 +178,7 @@ class TestAddConfigBasicAuth(TestCase):
 
             res = addFunction('data_manager', data, config=self.config)
 
-            self.assertEqual(res['status_code'], 201)
-            self.assertEqual(res['result'], data_manager)
+            self.assertEqual(res, data_manager)
             self.assertEqual(len(mock_get.call_args_list), 1)
 
 
@@ -211,6 +207,5 @@ class TestAddConfigInsecure(TestCase):
 
             res = addFunction('data_manager', data, config=self.config)
 
-            self.assertEqual(res['status_code'], 201)
-            self.assertEqual(res['result'], data_manager)
+            self.assertEqual(res, data_manager)
             self.assertEqual(len(mock_get.call_args_list), 1)
