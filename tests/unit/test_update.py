@@ -16,6 +16,10 @@ class MockResponse:
     def json(self):
         return self.json_data
 
+    def raise_for_status(self):
+        if self.status_code > 400:
+            raise requests.exceptions.HTTPError(self.status_code)
+
 
 def mocked_requests_post_data_manager(*args, **kwargs):
     return MockResponse(data_manager, 200)
@@ -46,6 +50,5 @@ class TestUpdate(TestCase):
                                  content,
                                  self.config)
 
-            self.assertEqual(res['status_code'], 200)
-            self.assertEqual(res['result'], data_manager)
+            self.assertEqual(res, data_manager)
             self.assertEqual(len(mock_get.call_args_list), 1)

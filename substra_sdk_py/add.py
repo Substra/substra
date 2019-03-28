@@ -4,7 +4,7 @@ import os
 import ntpath
 import requests
 
-from .config import requests_get_params
+from . import http_cli
 
 
 class LoadDataException(Exception):
@@ -59,33 +59,13 @@ def load_files(asset, data):
 
 
 def add(asset, data, config, dryrun=False):
-    # build request
     if 'permissions' not in data:
         data['permissions'] = 'all'
 
     if dryrun:
         data['dryrun'] = True
 
-    kwargs, headers = requests_get_params(config)
     url = '%s/%s/' % (config['url'], asset)
 
     with load_files(asset, data) as files:
-        try:
-            r = requests.post(url, data=data, files=files, headers=headers,
-                              **kwargs)
-        except requests.exceptions.Timeout:
-            raise
-        except requests.exceptions.ConnectionError:
-            raise
-
-        try:
-            r.raise_for_status()
-        except requests.exceptions.HTTPError:
-            raise
-
-        try:
-            result = r.json()
-        except ValueError:
-            raise
-
-        return result
+        return http_cli.post(config, url, data, files=files)

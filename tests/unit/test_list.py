@@ -2,6 +2,8 @@ import json
 import os
 from unittest import TestCase, mock
 
+import requests
+
 from substra_sdk_py.list import list as listFunction
 from substra_sdk_py.list import flatten
 
@@ -71,6 +73,10 @@ class MockResponse:
     def json(self):
         return self.json_data
 
+    def raise_for_status(self):
+        if self.status_code > 400:
+            raise requests.exceptions.HTTPError(self.status_code)
+
 
 def mocked_requests_get_objective(*args, **kwargs):
     return MockResponse(objective, 200)
@@ -81,11 +87,11 @@ def mocked_requests_get_data_manager(*args, **kwargs):
 
 
 def mocked_requests_get_data_manager_no_json(*args, **kwargs):
-    return MockResponse(open, 200)
+    return MockResponse('invalidjson', 200)
 
 
 def mocked_requests_list_objective_fail(*args, **kwargs):
-    raise Exception('fail')
+    return MockResponse('fail', 500)
 
 
 def mocked_requests_get_objective_filtered(*args, **kwargs):
@@ -109,8 +115,7 @@ class TestList(TestCase):
 
         res = listFunction('objective', self.config)
 
-        self.assertEqual(res['status_code'], 200)
-        self.assertEqual(res['result'], flatten(objective))
+        self.assertEqual(res, flatten(objective))
         self.assertEqual(len(mock_get.call_args_list), 1)
 
     @mock.patch('substra_sdk_py.list.requests.get', side_effect=mocked_requests_list_objective_fail)
@@ -118,8 +123,7 @@ class TestList(TestCase):
         try:
             listFunction('objective', self.config)
         except Exception as e:
-            print(str(e))
-            self.assertTrue(str(e) == 'Failed to list objective')
+            self.assertEqual(str(e), '500')
 
         self.assertEqual(len(mock_get.call_args_list), 1)
 
@@ -128,8 +132,7 @@ class TestList(TestCase):
 
         res = listFunction('data_manager', self.config)
 
-        self.assertEqual(res['status_code'], 200)
-        self.assertEqual(res['result'], flatten(data_manager))
+        self.assertEqual(res, flatten(data_manager))
         self.assertEqual(len(mock_get.call_args_list), 1)
 
     @mock.patch('substra_sdk_py.list.requests.get', side_effect=mocked_requests_get_data_manager_no_json)
@@ -137,8 +140,7 @@ class TestList(TestCase):
         try:
             listFunction('data_manager', self.config)
         except Exception as e:
-            print(str(e))
-            self.assertTrue(str(e) == 'Can\'t decode response value from server to json.')
+            self.assertEqual(str(e), 'Can\'t decode response value from server to json.')
         self.assertEqual(len(mock_get.call_args_list), 1)
 
     @mock.patch('substra_sdk_py.list.requests.get', side_effect=mocked_requests_get_objective_filtered)
@@ -147,17 +149,16 @@ class TestList(TestCase):
         res = listFunction('objective', self.config,
                            '["objective:name:Skin Lesion Classification Challenge", "OR", "data_manager:name:Simplified ISIC 2018"]')
 
-        self.assertEqual(res['status_code'], 200)
-        self.assertEqual(res['result'], flatten(objective))
+        self.assertEqual(res, flatten(objective))
         self.assertEqual(len(mock_get.call_args_list), 1)
 
     @mock.patch('substra_sdk_py.list.requests.get', side_effect=mocked_requests_get_objective_filtered)
     def test_returns_objective_list_bad_filters(self, mock_get):
-
-        res = listFunction('objective', self.config, 'toto')
-        self.assertTrue(res == 'Cannot load filters. Please review the documentation.')
-
-        self.assertEqual(len(mock_get.call_args_list), 0)
+        try:
+            res = listFunction('objective', self.config, 'toto')
+        except Exception as e:
+            self.assertEqual(str(e), 'Cannot load filters. Please review the documentation.')
+            self.assertEqual(len(mock_get.call_args_list), 0)
 
 
 class TestListConfigBasicAuth(TestCase):
@@ -181,8 +182,7 @@ class TestListConfigBasicAuth(TestCase):
 
         res = listFunction('objective', self.config)
 
-        self.assertEqual(res['status_code'], 200)
-        self.assertEqual(res['result'], flatten(objective))
+        self.assertEqual(res, flatten(objective))
         self.assertEqual(len(mock_get.call_args_list), 1)
 
 
@@ -208,6 +208,5 @@ class TestListConfigInsecure(TestCase):
 
         res = listFunction('objective', self.config)
 
-        self.assertEqual(res['status_code'], 200)
-        self.assertEqual(res['result'], flatten(objective))
+        self.assertEqual(res, flatten(objective))
         self.assertEqual(len(mock_get.call_args_list), 1)

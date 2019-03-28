@@ -1,5 +1,7 @@
 from unittest import TestCase, mock
 
+import requests
+
 from substra_sdk_py.get import get as getFunction
 
 data_manager = {
@@ -36,6 +38,10 @@ class MockResponse:
     def json(self):
         return self.json_data
 
+    def raise_for_status(self):
+        if self.status_code > 400:
+            raise requests.exceptions.HTTPError(self.status_code)
+
 
 def mocked_requests_get_objective(*args, **kwargs):
     return MockResponse(objective, 200)
@@ -46,7 +52,7 @@ def mocked_requests_get_data_manager(*args, **kwargs):
 
 
 def mocked_requests_get_objective_fail(*args, **kwargs):
-    raise Exception('fail')
+    return MockResponse('fail', 500)
 
 
 class TestGet(TestCase):
@@ -67,8 +73,7 @@ class TestGet(TestCase):
                           'd5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f',
                           self.config)
 
-        self.assertEqual(res['status_code'], 200)
-        self.assertEqual(res['result'], objective)
+        self.assertEqual(res, objective)
         self.assertEqual(len(mock_get.call_args_list), 1)
 
     @mock.patch('substra_sdk_py.get.requests.get', side_effect=mocked_requests_get_objective_fail)
@@ -79,7 +84,7 @@ class TestGet(TestCase):
                         self.config)
         except Exception as e:
             print(str(e))
-            self.assertTrue(str(e) == 'Failed to get objective')
+            self.assertEqual(str(e), '500')
 
         self.assertEqual(len(mock_get.call_args_list), 1)
 
@@ -89,8 +94,7 @@ class TestGet(TestCase):
                           'ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994',
                           self.config)
 
-        self.assertEqual(res['status_code'], 200)
-        self.assertEqual(res['result'], data_manager)
+        self.assertEqual(res, data_manager)
         self.assertEqual(len(mock_get.call_args_list), 1)
 
 
@@ -117,8 +121,7 @@ class TestGetConfigBasicAuth(TestCase):
                           'd5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f',
                           self.config)
 
-        self.assertEqual(res['status_code'], 200)
-        self.assertEqual(res['result'], objective)
+        self.assertEqual(res, objective)
         self.assertEqual(len(mock_get.call_args_list), 1)
 
 
@@ -145,6 +148,5 @@ class TestGetConfigInsecure(TestCase):
                           'd5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f',
                           self.config)
 
-        self.assertEqual(res['status_code'], 200)
-        self.assertEqual(res['result'], objective)
+        self.assertEqual(res, objective)
         self.assertEqual(len(mock_get.call_args_list), 1)

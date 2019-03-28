@@ -81,6 +81,10 @@ class MockResponse:
     def json(self):
         return self.json_data
 
+    def raise_for_status(self):
+        if self.status_code > 400:
+            raise requests.exceptions.HTTPError(self.status_code)
+
 
 def mocked_requests_get_model(*args, **kwargs):
     return MockResponse(model, 200)
@@ -105,6 +109,5 @@ class TestPath(TestCase):
                            'details',
                            self.config)
 
-        self.assertEqual(res['status_code'], 200)
-        self.assertEqual(res['result'], model)
+        self.assertEqual(res, model)
         self.assertEqual(len(mock_get.call_args_list), 1)
