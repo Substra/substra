@@ -4,6 +4,8 @@ import os
 import ntpath
 import requests
 
+from .config import requests_get_params
+
 
 class LoadDataException(Exception):
     pass
@@ -64,14 +66,8 @@ def add(asset, data, config, dryrun=False):
     if dryrun:
         data['dryrun'] = True
 
-    kwargs = {}
-    if config['auth']:
-        kwargs.update({'auth': (config['auth']['user'], config['auth']['password'])})
-    if config['insecure']:
-        kwargs.update({'verify': False})
-
+    kwargs, headers = requests_get_params(config)
     url = '%s/%s/' % (config['url'], asset)
-    headers = {'Accept': 'application/json;version=%s' % config['version']}
 
     with load_files(asset, data) as files:
         try:
