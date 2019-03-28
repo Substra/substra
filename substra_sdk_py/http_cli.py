@@ -26,11 +26,9 @@ def parse_response(f):
 
 
 @parse_response
-def _req(method, config, url, **kwargs):
+def _req(fn, config, url, **kwargs):
     all_kwargs, headers = requests_get_params(config)
     all_kwargs.update(kwargs)
-
-    fn = getattr(requests, method)
 
     try:
         r = fn(url, headers=headers, **all_kwargs)
@@ -40,8 +38,8 @@ def _req(method, config, url, **kwargs):
 
 
 def post(config, url, data, **kwargs):
-    return _req('POST', config, url, data=data, **kwargs)
+    return _req(requests.post, config, url, data=data, **kwargs)
 
 
 def get(config, url, **kwargs):
-    return _req('GET', config, url, **kwargs)
+    return _req(requests.get, config, url, **kwargs)
