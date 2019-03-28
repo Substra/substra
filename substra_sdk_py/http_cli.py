@@ -1,10 +1,8 @@
-import json
 import functools
 
 import requests
 
 from .config import requests_get_params
-
 
 
 def parse_response(f):
@@ -28,24 +26,22 @@ def parse_response(f):
 
 
 @parse_response
+def _req(method, config, url, **kwargs):
+    all_kwargs, headers = requests_get_params(config)
+    all_kwargs.update(kwargs)
+
+    fn = getattr(requests, method)
+
+    try:
+        r = fn(url, headers=headers, **all_kwargs)
+    except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
+        raise
+    return r
+
+
 def post(config, url, data, **kwargs):
-    all_kwargs, headers = requests_get_params(config)
-    all_kwargs.update(kwargs)
-
-    try:
-        r = requests.post(url, data=data, headers=headers, **all_kwargs)
-    except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
-        raise
-    return r
+    return _req('POST', config, url, data=data, **kwargs)
 
 
-@parse_response
 def get(config, url, **kwargs):
-    all_kwargs, headers = requests_get_params(config)
-    all_kwargs.update(kwargs)
-
-    try:
-        r = requests.get(url, headers=headers, **all_kwargs)
-    except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
-        raise
-    return r
+    return _req('GET', config, url, **kwargs)
