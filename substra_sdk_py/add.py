@@ -42,7 +42,7 @@ def load_files(asset, data):
         # support bulk with multiple paths
         # TODO add bulletproof for bulk using load_data_paths
         data_paths = data.get('files', None)
-        if data_paths and type(data_paths) == list:
+        if data_paths and isinstance(data_paths, list):
             paths = {path_leaf(x): x for x in data_paths}
         else:
             paths = find_data_paths(data, ['file'])
