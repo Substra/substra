@@ -24,7 +24,7 @@ setup(
     url='https://github.com/SubstraFoundation/substra-sdk-py',
     author='Guillaume Cisco',
     author_email='guillaumecisco@gmail.com',
-    license='MIT',
+    license='Apache 2.0',
     packages=['substra_sdk_py'],
     install_requires=[
         'requests',
