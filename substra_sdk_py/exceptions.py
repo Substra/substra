@@ -1,10 +1,15 @@
-class _BaseException(Exception):
+class SDKException(Exception):
     pass
 
 
-class RequestException(_BaseException):
-    def __init__(self, request_exn):
+class RequestException(SDKException):
+    def __init__(self, request_exn, msg=None):
         self.exn = request_exn
+        if msg is None:
+            msg = str(request_exn)
+        else:
+            msg = msg + ": {}".format(str(request_exn))
+        super(RequestException, self).__init__(msg)
 
     @property
     def response(self):
@@ -15,18 +20,26 @@ class RequestException(_BaseException):
         return self.response.status_code
 
 
+class ConnectionError(RequestException):
+    pass
+
+
 class Timeout(RequestException):
     pass
 
 
-class AssetNotFound(RequestException):
+class HTTPError(RequestException):
     pass
 
 
-class AssetAlreadyExist(RequestException):
+class AssetNotFound(HTTPError):
     pass
 
 
-class InvalidResponse(_BaseException):
-    def __init__(self, response):
+class AssetAlreadyExist(HTTPError):
+    pass
+
+
+class InvalidResponse(SDKException):
+    def __init__(self, exn, response, msg=None):
         self.response = response

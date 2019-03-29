@@ -13,8 +13,8 @@ def parse_response(f):
             r = f(*args, **kwargs)
             r.raise_for_status()
 
-        except requests.exceptions.ConnectionError:
-            raise
+        except requests.exceptions.ConnectionError as e:
+            raise exceptions.ConnectionError(e)
 
         except requests.exceptions.Timeout as e:
             raise exceptions.Timeout(e)
@@ -29,13 +29,14 @@ def parse_response(f):
             if e.response.status_code == 409:
                 raise exceptions.AssetAlreadyExist(e)
 
-            raise
+            raise exceptions.HTTPError(e)
 
         try:
             result = r.json()
-        except ValueError:
+        except ValueError as e:
             # we always expect JSON response from the server
-            raise exceptions.InvalidResponse(r)
+            msg = "Cannot parse response to JSON: {}".format(str(e))
+            raise exceptions.InvalidResponse(r, msg)
 
         return result
     return wrapper
