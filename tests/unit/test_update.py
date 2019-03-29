@@ -14,7 +14,7 @@ def mocked_requests_post_data_manager(*args, **kwargs):
 
 class TestUpdate(TestBase):
 
-    @mock.patch('substra_sdk_py.http_cli.requests.post',
+    @mock.patch('substra_sdk_py.requests_wrapper.requests.post',
                 side_effect=mocked_requests_post_data_manager)
     def test_update_data_manager(self, mock_get):
         with open(self.data_manager_file_path, 'r') as f:

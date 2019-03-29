@@ -5,13 +5,13 @@ from .test_base import bulk_data_samples
 from .test_base import TestBase, MockResponse
 
 
-def mocked_requests_post_data(*args, **kwargs):
+def mocked_requests_post_data_sample(*args, **kwargs):
     return MockResponse(bulk_data_samples, 201)
 
 
 class TestBulkAdd(TestBase):
 
-    @mock.patch('substra_sdk_py.http_cli.requests.post', side_effect=mocked_requests_post_data)
+    @mock.patch('substra_sdk_py.requests_wrapper.requests.post', side_effect=mocked_requests_post_data_sample)
     def test_bulk_add_data(self, mock_get):
         # open data file
         with open(self.bulk_data_samples_file_path, 'r') as f:

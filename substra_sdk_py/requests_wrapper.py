@@ -24,7 +24,7 @@ def parse_response(f):
                 raise exceptions.AssetNotFound(e)
 
             if e.response.status_code == 408:
-                raise exceptions.Timeout(e)
+                raise exceptions.RequestTimeout(e)
 
             if e.response.status_code == 409:
                 raise exceptions.AssetAlreadyExist(e)
@@ -44,11 +44,11 @@ def parse_response(f):
 
 @parse_response
 def _req(fn, config, url, **kwargs):
-    all_kwargs, headers = requests_get_params(config)
-    all_kwargs.update(kwargs)
+    default_kwargs, headers = requests_get_params(config)
+    kwargs.update(default_kwargs)
 
     try:
-        r = fn(url, headers=headers, **all_kwargs)
+        r = fn(url, headers=headers, **kwargs)
     except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
         raise
     return r

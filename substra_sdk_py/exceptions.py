@@ -3,17 +3,17 @@ class SDKException(Exception):
 
 
 class RequestException(SDKException):
-    def __init__(self, request_exn, msg=None):
-        self.exn = request_exn
+    def __init__(self, request_exception, msg=None):
+        self.exception = request_exception
         if msg is None:
-            msg = str(request_exn)
+            msg = str(request_exception)
         else:
-            msg = msg + ": {}".format(str(request_exn))
+            msg = f"{msg}: {request_exception}"
         super(RequestException, self).__init__(msg)
 
     @property
     def response(self):
-        return self.exn.response
+        return self.exception.response
 
     @property
     def status_code(self):
@@ -32,6 +32,10 @@ class HTTPError(RequestException):
     pass
 
 
+class RequestTimeout(HTTPError):
+    pass
+
+
 class AssetNotFound(HTTPError):
     pass
 
@@ -41,5 +45,6 @@ class AssetAlreadyExist(HTTPError):
 
 
 class InvalidResponse(SDKException):
-    def __init__(self, exn, response, msg=None):
+    def __init__(self, response, msg):
         self.response = response
+        super(InvalidResponse, self).__init__(msg)

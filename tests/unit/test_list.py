@@ -2,7 +2,7 @@ from unittest import mock
 
 from .test_base import TestBase, MockResponse
 
-from substra_sdk_py.helpers import flatten
+from substra_sdk_py.utils import flatten
 
 data_manager = [
     [
@@ -84,7 +84,7 @@ def mocked_requests_get_objective_filtered(*args, **kwargs):
 
 class TestList(TestBase):
 
-    @mock.patch('substra_sdk_py.http_cli.requests.get', side_effect=mocked_requests_get_objective)
+    @mock.patch('substra_sdk_py.requests_wrapper.requests.get', side_effect=mocked_requests_get_objective)
     def test_returns_objective_list(self, mock_get):
 
         res = self.client.list('objective')
@@ -92,7 +92,7 @@ class TestList(TestBase):
         self.assertEqual(res, flatten(objective))
         self.assertEqual(len(mock_get.call_args_list), 1)
 
-    @mock.patch('substra_sdk_py.http_cli.requests.get', side_effect=mocked_requests_list_objective_fail)
+    @mock.patch('substra_sdk_py.requests_wrapper.requests.get', side_effect=mocked_requests_list_objective_fail)
     def test_returns_objective_list_fail(self, mock_get):
         try:
             self.client.list('objective')
@@ -101,7 +101,7 @@ class TestList(TestBase):
 
         self.assertEqual(len(mock_get.call_args_list), 1)
 
-    @mock.patch('substra_sdk_py.http_cli.requests.get', side_effect=mocked_requests_get_data_manager)
+    @mock.patch('substra_sdk_py.requests_wrapper.requests.get', side_effect=mocked_requests_get_data_manager)
     def test_returns_data_manager_list(self, mock_get):
 
         res = self.client.list('data_manager')
@@ -109,7 +109,7 @@ class TestList(TestBase):
         self.assertEqual(res, flatten(data_manager))
         self.assertEqual(len(mock_get.call_args_list), 1)
 
-    @mock.patch('substra_sdk_py.http_cli.requests.get', side_effect=mocked_requests_get_data_manager_no_json)
+    @mock.patch('substra_sdk_py.requests_wrapper.requests.get', side_effect=mocked_requests_get_data_manager_no_json)
     def test_returns_data_manager_list_no_json(self, mock_get):
         try:
             self.client.list('data_manager')
@@ -117,7 +117,7 @@ class TestList(TestBase):
             self.assertEqual(str(e), 'Can\'t decode response value from server to json.')
         self.assertEqual(len(mock_get.call_args_list), 1)
 
-    @mock.patch('substra_sdk_py.http_cli.requests.get', side_effect=mocked_requests_get_objective_filtered)
+    @mock.patch('substra_sdk_py.requests_wrapper.requests.get', side_effect=mocked_requests_get_objective_filtered)
     def test_returns_objective_list_filters(self, mock_get):
 
         res = self.client.list(
@@ -127,7 +127,7 @@ class TestList(TestBase):
         self.assertEqual(res, flatten(objective))
         self.assertEqual(len(mock_get.call_args_list), 1)
 
-    @mock.patch('substra_sdk_py.http_cli.requests.get', side_effect=mocked_requests_get_objective_filtered)
+    @mock.patch('substra_sdk_py.requests_wrapper.requests.get', side_effect=mocked_requests_get_objective_filtered)
     def test_returns_objective_list_bad_filters(self, mock_get):
         try:
             self.client.list('objective', 'toto')
