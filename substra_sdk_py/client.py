@@ -53,6 +53,14 @@ class Client(object):
         url = self._get_url(asset, pkhash)
         return requests_wrapper.get(self.config, url)
 
+    def options(self, asset, pkhash=None):
+        """Options asset by key."""
+        if pkhash is not None:
+            url = self._get_url(asset, pkhash)
+        else:
+            url = self._get_url(asset)
+        return requests_wrapper.options(self.config, url)
+
     def list(self, asset, filters=None, is_complex=False):
         """List assets."""
         kwargs = {}
