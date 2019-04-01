@@ -46,12 +46,7 @@ def parse_response(f):
 def _req(fn, config, url, **kwargs):
     default_kwargs, headers = requests_get_params(config)
     kwargs.update(default_kwargs)
-
-    try:
-        r = fn(url, headers=headers, **kwargs)
-    except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
-        raise
-    return r
+    return fn(url, headers=headers, **kwargs)
 
 
 def post(config, url, data, **kwargs):
