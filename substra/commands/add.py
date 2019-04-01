@@ -1,6 +1,7 @@
 import json
 import ntpath
 
+from substra_sdk_py import exceptions
 from substra.utils import load_json_from_args
 from .api import Api, ALGO_ASSET, OBJECTIVE_ASSET, DATA_MANAGER_ASSET, TRAINTUPLE_ASSET, TESTTUPLE_ASSET, \
     DATA_SAMPLE_ASSET
@@ -30,8 +31,11 @@ class Add(Api):
 
         try:
             res = self.client.add(asset, data, dryrun)
-        except Exception:
-            raise ValueError('Failed to create %s' % asset)
+        except (exceptions.ConnectionError, exceptions.Timeout) as e:
+            raise ValueError(f'Failed to create {asset}: {e}')
+        except exceptions.HTTPError as e:
+            error = e.response.json()
+            raise ValueError(f'Failed to create {asset}: {e}: {error}')
 
         res = json.dumps(res, indent=2)
         print(res, end='')
