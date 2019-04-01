@@ -60,3 +60,7 @@ def post(config, url, data, **kwargs):
 
 def get(config, url, **kwargs):
     return _req(requests.get, config, url, **kwargs)
+
+
+def options(config, url, **kwargs):
+    return _req(requests.options, config, url, **kwargs)
