@@ -1,5 +1,7 @@
 import json
 
+from substra_sdk_py import exceptions
+
 from substra.utils import load_json_from_args
 from .api import Api, DATA_SAMPLE_ASSET
 
@@ -18,8 +20,11 @@ class BulkUpdate(Api):
 
         try:
             res = self.client.bulk_update(asset, data)
-        except Exception:
-            raise Exception('Failed to bulk update %s' % asset)
+        except (exceptions.ConnectionError, exceptions.Timeout) as e:
+            raise Exception(f'Failed to bulk update {asset}: {e}')
+        except exceptions.HTTPError as e:
+            error = e.response.json()
+            raise Exception(f'Failed to bulk update {asset}: {e}: {error}')
 
         res = json.dumps(res, indent=2)
         print(res, end='')

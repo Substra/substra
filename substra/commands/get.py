@@ -1,5 +1,7 @@
 import json
 
+from substra_sdk_py import exceptions
+
 from .api import Api, ALGO_ASSET, OBJECTIVE_ASSET, DATA_MANAGER_ASSET, MODEL_ASSET, TESTTUPLE_ASSET, \
     TRAINTUPLE_ASSET
 
@@ -17,8 +19,11 @@ class Get(Api):
 
         try:
             res = self.client.get(asset, pkhash)
-        except Exception:
-            raise Exception('Failed to get %s' % asset)
+        except (exceptions.ConnectionError, exceptions.Timeout) as e:
+            raise Exception(f'Failed to get {asset}: {e}')
+        except exceptions.HTTPError as e:
+            error = e.response.json()
+            raise Exception(f'Failed to get {asset}: {e}: {error}')
 
         res = json.dumps(res, indent=2)
         print(res, end='')

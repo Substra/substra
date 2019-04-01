@@ -1,5 +1,7 @@
 import json
 
+from substra_sdk_py import exceptions
+
 import itertools
 
 from .api import Api, ALGO_ASSET, OBJECTIVE_ASSET, DATA_MANAGER_ASSET, MODEL_ASSET, TRAINTUPLE_ASSET, TESTTUPLE_ASSET
@@ -29,8 +31,11 @@ class List(Api):
 
         try:
             res = self.client.list(asset, filters, is_complex)
-        except Exception as e:
-            raise Exception('Failed to list %s. Please make sure the substrabac instance is live. Detail %s' % (asset, e))
+        except (exceptions.ConnectionError, exceptions.Timeout) as e:
+            raise Exception(f'Failed to list {asset}: {e}')
+        except exceptions.HTTPError as e:
+            error = e.response.json()
+            raise Exception(f'Failed to list {asset}: {e}: {error}')
 
         res = json.dumps(res, indent=2)
         print(res, end='')

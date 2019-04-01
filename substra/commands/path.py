@@ -1,5 +1,7 @@
 import json
 
+from substra_sdk_py import exceptions
+
 from .api import Api, MODEL_ASSET
 
 
@@ -17,8 +19,11 @@ class Path(Api):
 
         try:
             res = self.client.path(asset, pkhash, path)
-        except Exception:
-            raise Exception('Failed to get path %s on %s' % (path, asset))
+        except (exceptions.ConnectionError, exceptions.Timeout) as e:
+            raise Exception(f'Failed to get path {asset}: {e}')
+        except exceptions.HTTPError as e:
+            error = e.response.json()
+            raise Exception(f'Failed to get path {asset}: {e}: {error}')
 
         res = json.dumps(res, indent=2)
         print(res, end='')

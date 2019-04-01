@@ -1,5 +1,7 @@
 import json
 
+from substra_sdk_py import exceptions
+
 from substra.utils import load_json_from_args
 from .api import Api, DATA_MANAGER_ASSET
 
@@ -19,8 +21,11 @@ class Update(Api):
 
         try:
             res = self.client.update(asset, pkhash, data)
-        except Exception:
-            raise Exception('Failed to update %s' % asset)
+        except (exceptions.ConnectionError, exceptions.Timeout) as e:
+            raise Exception(f'Failed to update {asset}: {e}')
+        except exceptions.HTTPError as e:
+            error = e.response.json()
+            raise Exception(f'Failed to update {asset}: {e}: {error}')
 
         res = json.dumps(res, indent=2)
         print(res, end='')
