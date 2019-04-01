@@ -19,7 +19,7 @@ class BulkUpdate(Api):
         try:
             res = self.client.bulk_update(asset, data)
         except Exception:
-            raise ValueError('Failed to bulk update %s' % asset)
+            raise Exception('Failed to bulk update %s' % asset)
 
         res = json.dumps(res, indent=2)
         print(res, end='')

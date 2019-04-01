@@ -30,7 +30,7 @@ class List(Api):
         try:
             res = self.client.list(asset, filters, is_complex)
         except Exception as e:
-            raise ValueError('Failed to list %s. Please make sure the substrabac instance is live. Detail %s' % (asset, e))
+            raise Exception('Failed to list %s. Please make sure the substrabac instance is live. Detail %s' % (asset, e))
 
         res = json.dumps(res, indent=2)
         print(res, end='')

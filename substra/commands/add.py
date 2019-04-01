@@ -32,10 +32,10 @@ class Add(Api):
         try:
             res = self.client.add(asset, data, dryrun)
         except (exceptions.ConnectionError, exceptions.Timeout) as e:
-            raise ValueError(f'Failed to create {asset}: {e}')
+            raise Exception(f'Failed to create {asset}: {e}')
         except exceptions.HTTPError as e:
             error = e.response.json()
-            raise ValueError(f'Failed to create {asset}: {e}: {error}')
+            raise Exception(f'Failed to create {asset}: {e}: {error}')
 
         res = json.dumps(res, indent=2)
         print(res, end='')

@@ -18,7 +18,7 @@ class Path(Api):
         try:
             res = self.client.path(asset, pkhash, path)
         except Exception:
-            raise ValueError('Failed to get path %s on %s' % (path, asset))
+            raise Exception('Failed to get path %s on %s' % (path, asset))
 
         res = json.dumps(res, indent=2)
         print(res, end='')

@@ -20,7 +20,7 @@ class Update(Api):
         try:
             res = self.client.update(asset, pkhash, data)
         except Exception:
-            raise ValueError('Failed to update %s' % asset)
+            raise Exception('Failed to update %s' % asset)
 
         res = json.dumps(res, indent=2)
         print(res, end='')
