@@ -1,6 +1,6 @@
 import json
 
-from .api import Api, MODEL_ASSET, InvalidAssetException
+from .api import Api, MODEL_ASSET
 
 
 class Path(Api):
@@ -11,23 +11,15 @@ class Path(Api):
     def run(self):
         super(Path, self).run()
 
-        try:
-            asset = self.get_asset_option()
-        except InvalidAssetException as e:
-            self.handle_exception(e)
-        else:
-            pkhash = self.options['<pkhash>']
-            path = self.options['<path>']
+        asset = self.get_asset_option()
+        pkhash = self.options['<pkhash>']
+        path = self.options['<path>']
 
-            try:
-                res = self.client.path(asset, pkhash, path)
-            except:
-                raise Exception('Failed to get path %s on %s' % (path, asset))
-            else:
-                try:
-                    res = json.dumps(res, indent=2)
-                except:
-                    res = 'Can\'t decode response value from server to json: %s' % res
-                finally:
-                    print(res, end='')
-                    return res
+        try:
+            res = self.client.path(asset, pkhash, path)
+        except Exception:
+            raise ValueError('Failed to get path %s on %s' % (path, asset))
+
+        res = json.dumps(res, indent=2)
+        print(res, end='')
+        return res

@@ -91,4 +91,7 @@ def main():
             substra.commands = getmembers(module, isclass)
             command = [command_class for (command_name, command_class) in substra.commands if command_name in COMMANDS][0]
             command = command(options)
-            command.run()
+            try:
+                command.run()
+            except Exception as e:
+                command.handle_exception(e)

@@ -1,7 +1,7 @@
 import json
 
 from .api import Api, ALGO_ASSET, OBJECTIVE_ASSET, DATA_MANAGER_ASSET, MODEL_ASSET, TESTTUPLE_ASSET, \
-    TRAINTUPLE_ASSET, InvalidAssetException
+    TRAINTUPLE_ASSET
 
 
 class Get(Api):
@@ -12,22 +12,14 @@ class Get(Api):
     def run(self):
         super(Get, self).run()
 
-        try:
-            asset = self.get_asset_option()
-        except InvalidAssetException as e:
-            self.handle_exception(e)
-        else:
-            pkhash = self.options['<pkhash>']
+        asset = self.get_asset_option()
+        pkhash = self.options['<pkhash>']
 
-            try:
-                res = self.client.get(asset, pkhash)
-            except:
-                raise Exception('Failed to get %s' % asset)
-            else:
-                try:
-                    res = json.dumps(res, indent=2)
-                except:
-                    res = 'Can\'t decode response value from server to json: %s' % res
-                finally:
-                    print(res, end='')
-                    return res
+        try:
+            res = self.client.get(asset, pkhash)
+        except Exception:
+            raise Exception('Failed to get %s' % asset)
+
+        res = json.dumps(res, indent=2)
+        print(res, end='')
+        return res

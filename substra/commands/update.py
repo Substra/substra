@@ -1,7 +1,7 @@
 import json
 
-from substra.utils import load_json_from_args, InvalidJSONArgsException
-from .api import Api, DATA_MANAGER_ASSET, InvalidAssetException
+from substra.utils import load_json_from_args
+from .api import Api, DATA_MANAGER_ASSET
 
 
 class Update(Api):
@@ -12,28 +12,16 @@ class Update(Api):
     def run(self):
         super(Update, self).run()
 
-        try:
-            asset = self.get_asset_option()
-        except InvalidAssetException as e:
-            self.handle_exception(e)
-        else:
-            pkhash = self.options['<pkhash>']
-            args = self.options['<args>']
+        asset = self.get_asset_option()
+        args = self.options['<args>']
+        data = load_json_from_args(args)
+        pkhash = self.options['<pkhash>']
 
-            try:
-                data = load_json_from_args(args)
-            except InvalidJSONArgsException as e:
-                self.handle_exception(e)
-            else:
-                try:
-                    res = self.client.update(asset, pkhash, data)
-                except:
-                    raise Exception('Failed to update %s' % asset)
-                else:
-                    try:
-                        res = json.dumps(res, indent=2)
-                    except:
-                        res = 'Can\'t decode response value from server to json: %s' % res
-                    finally:
-                        print(res, end='')
-                        return res
+        try:
+            res = self.client.update(asset, pkhash, data)
+        except Exception:
+            raise ValueError('Failed to update %s' % asset)
+
+        res = json.dumps(res, indent=2)
+        print(res, end='')
+        return res

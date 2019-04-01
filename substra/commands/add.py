@@ -1,9 +1,9 @@
 import json
 import ntpath
 
-from substra.utils import load_json_from_args, InvalidJSONArgsException
+from substra.utils import load_json_from_args
 from .api import Api, ALGO_ASSET, OBJECTIVE_ASSET, DATA_MANAGER_ASSET, TRAINTUPLE_ASSET, TESTTUPLE_ASSET, \
-    DATA_SAMPLE_ASSET, InvalidAssetException
+    DATA_SAMPLE_ASSET
 
 
 class LoadDataException(Exception):
@@ -23,28 +23,16 @@ class Add(Api):
     def run(self):
         super(Add, self).run()
 
-        try:
-            asset = self.get_asset_option()
-        except InvalidAssetException as e:
-            self.handle_exception(e)
-        else:
-            args = self.options['<args>']
-            dryrun = self.options.get('--dry-run', False)
+        asset = self.get_asset_option()
+        args = self.options['<args>']
+        data = load_json_from_args(args)
+        dryrun = self.options.get('--dry-run', False)
 
-            try:
-                data = load_json_from_args(args)
-            except InvalidJSONArgsException as e:
-                self.handle_exception(e)
-            else:
-                try:
-                    res = self.client.add(asset, data, dryrun)
-                except:
-                    raise Exception('Failed to create %s' % asset)
-                else:
-                    try:
-                        res = json.dumps(res, indent=2)
-                    except:
-                        res = 'Can\'t decode response value from server to json: %s' % res
-                    finally:
-                        print(res, end='')
-                        return res
+        try:
+            res = self.client.add(asset, data, dryrun)
+        except Exception:
+            raise ValueError('Failed to create %s' % asset)
+
+        res = json.dumps(res, indent=2)
+        print(res, end='')
+        return res
