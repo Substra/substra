@@ -23,9 +23,6 @@ def find_data_paths(data, attributes):
         if attribute not in data:
             raise LoadDataException(f"The '{attribute}' attribute is missing.")
 
-        if not os.path.exists(data[attribute]):
-            raise LoadDataException(f"The '{attribute}' attribute file ({data[attribute]}) does not exit.")
-
         paths[attribute] = data[attribute]
 
     return paths
@@ -41,13 +38,18 @@ def load_files(asset, data):
     elif asset == 'algo':
         paths = find_data_paths(data, ['file', 'description'])
     elif asset == 'data_sample':
+        # support bulk with multiple files
         data_paths = data.get('files', None)
         if data_paths and isinstance(data_paths, list):
             paths = {path_leaf(x): x for x in data_paths}
         else:
             paths = find_data_paths(data, ['file'])
 
-    files = {k: open(f, 'rb') for k, f in paths.items()}
+    files = {}
+    for k, f in paths.items():
+        if not os.path.exists(f):
+            raise LoadDataException(f"The '{k}' attribute file ({f}) does not exit.")
+        files[k] = open(f, 'rb')
 
     try:
         yield files
