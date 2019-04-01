@@ -6,9 +6,9 @@ substra-cli
 Getting started
 ---------------
 
-The substra cli depends on `substra-sdk-py`, please install it before.  
+The substra cli depends on `substra-sdk-py`, this package is private and you will have to update your `pip.conf` for handling it.  
 For this you need to have access to `https://substra-pypi.owkin.com/simple/`  
-Ask our current Pypi Server Manager Clement Gautier for getting an account.  
+Ask our current Substra Pypi Server Manager for getting an account.  
 You will then need to put in your newly created virtualenv path, a `pip.conf` file containing:
 ```
 [global]
