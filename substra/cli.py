@@ -3,12 +3,12 @@ substra
 
 Usage:
   substra config <url> [<version>] [<user>] [<password>] [--profile=<profile>] [--config=<configuration_file_path>] [-k | --insecure]
-  substra list <asset> [<filters>] [--profile=<profile>] [--config=<configuration_file_path>] [--is-complex]
+  substra list <asset> [<filters>] [--profile=<profile>] [--config=<configuration_file_path>] [--is-complex]  [-v | --verbose]
   substra add <asset> <args> [--profile=<profile>] [--config=<configuration_file_path>] [--dry-run] [-v | --verbose]
   substra update <asset> <pkhash> <args> [--profile=<profile>] [--config=<configuration_file_path>] [-v | --verbose]
-  substra get <asset> <pkhash> [--profile=<profile>] [--config=<configuration_file_path>]
+  substra get <asset> <pkhash> [--profile=<profile>] [--config=<configuration_file_path>]  [-v | --verbose]
   substra bulk_update <asset> <args> [--profile=<profile>] [--config=<configuration_file_path>] [-v | --verbose]
-  substra path <asset> <pkhash> <path> [--profile=<profile>] [--config=<configuration_file_path>]
+  substra path <asset> <pkhash> <path> [--profile=<profile>] [--config=<configuration_file_path>] [-v | --verbose]
   substra create_project (starter_kit | isic) <path>  [-v | --verbose]
   substra run_local <algo-path> [--train-opener=<train_opener_path>] [--test-opener=<test_opener_path>] [--metrics=<metrics_path>] [--rank=<rank>] [--train-data-sample=<train_data_sample_path>] [--test-data-sample=<test_data_sample_path>] [--inmodel=<inmodel_path>...] [--outmodels=<outmodels_path>] [-v | --verbose]
   substra -h | --help
