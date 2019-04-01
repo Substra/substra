@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest import TestCase, mock
 
 import requests
 
@@ -53,17 +53,19 @@ bulk_data_samples = [
 ]
 
 
-class MockResponse:
-    def __init__(self, json_data, status_code):
-        self.json_data = json_data
-        self.status_code = status_code
+def mock_success_response(data=None, status_code=200):
+    m = mock.MagicMock(spec=requests.Response)
+    m.status_code = status_code
+    m.json = mock.MagicMock(return_value=data)
+    return m
 
-    def json(self):
-        return self.json_data
 
-    def raise_for_status(self):
-        if self.status_code > 400:
-            raise requests.exceptions.HTTPError('500', response=self)
+def mock_fail_response(data=None, status_code=500, message=None):
+    m = mock_success_response(data=data, status_code=status_code)
+    message = str(status_code) if message is None else message
+    m.raise_for_status = mock.MagicMock(
+        side_effect=requests.exceptions.HTTPError(message, response=m))
+    return m
 
 
 class TestBase(TestCase):

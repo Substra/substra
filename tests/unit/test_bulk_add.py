@@ -2,11 +2,11 @@ import json
 from unittest import mock
 
 from .test_base import bulk_data_samples
-from .test_base import TestBase, MockResponse
+from .test_base import TestBase, mock_success_response
 
 
 def mocked_requests_post_data_sample(*args, **kwargs):
-    return MockResponse(bulk_data_samples, 201)
+    return mock_success_response(data=bulk_data_samples)
 
 
 class TestBulkAdd(TestBase):

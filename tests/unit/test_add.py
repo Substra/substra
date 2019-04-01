@@ -3,27 +3,27 @@ import json
 from unittest import mock
 
 from .test_base import data_manager, objective, algo, data_sample
-from .test_base import TestBase, MockResponse
+from .test_base import TestBase, mock_success_response, mock_fail_response
 
 
 def mocked_requests_post_data_manager(*args, **kwargs):
-    return MockResponse(data_manager, 201)
+    return mock_success_response(data=data_manager)
 
 
 def mocked_requests_post_objective(*args, **kwargs):
-    return MockResponse(objective, 201)
+    return mock_success_response(data=objective)
 
 
 def mocked_requests_post_algo(*args, **kwargs):
-    return MockResponse(algo, 201)
+    return mock_success_response(data=algo)
 
 
 def mocked_requests_post_data_sample(*args, **kwargs):
-    return MockResponse(data_sample, 201)
+    return mock_success_response(data=data_sample)
 
 
 def mocked_requests_add_objective_fail(*args, **kwargs):
-    return MockResponse('fail', 500)
+    return mock_fail_response()
 
 
 class TestAdd(TestBase):

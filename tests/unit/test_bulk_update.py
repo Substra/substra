@@ -1,7 +1,7 @@
 import json
 from unittest import mock
 
-from .test_base import TestBase, MockResponse
+from .test_base import TestBase, mock_success_response
 
 data_sample_keys = [
     {
@@ -14,7 +14,7 @@ data_sample_keys = [
 
 
 def mocked_requests_post_data_sample(*args, **kwargs):
-    return MockResponse(data_sample_keys, 201)
+    return mock_success_response(data=data_sample_keys)
 
 
 class TestBulkUpdate(TestBase):

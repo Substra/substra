@@ -1,7 +1,7 @@
 import json
 from unittest import mock
 
-from .test_base import TestBase, MockResponse
+from .test_base import TestBase, mock_success_response
 
 data_manager = {
     "pkhash": "62fb3263208d62c7235a046ee1d80e25512fe782254b730a9e566276b8c0ef3a",
@@ -9,7 +9,7 @@ data_manager = {
 
 
 def mocked_requests_post_data_manager(*args, **kwargs):
-    return MockResponse(data_manager, 200)
+    return mock_success_response(data=data_manager)
 
 
 class TestUpdate(TestBase):

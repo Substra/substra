@@ -3,11 +3,11 @@ import pytest
 
 from substra_sdk_py import requests_wrapper
 
-from .test_base import MockResponse
+from .test_base import mock_success_response
 
 
 def mocked_requests_post_success(*args, **kwargs):
-    return MockResponse({}, 200)
+    return mock_success_response()
 
 
 CONFIG = {

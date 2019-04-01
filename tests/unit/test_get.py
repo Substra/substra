@@ -1,19 +1,19 @@
 from unittest import mock
 
 from .test_base import data_manager, objective
-from .test_base import TestBase, MockResponse
+from .test_base import TestBase, mock_success_response, mock_fail_response
 
 
 def mocked_requests_get_objective(*args, **kwargs):
-    return MockResponse(objective, 200)
+    return mock_success_response(data=objective)
 
 
 def mocked_requests_get_data_manager(*args, **kwargs):
-    return MockResponse(data_manager, 200)
+    return mock_success_response(data=data_manager)
 
 
 def mocked_requests_get_objective_fail(*args, **kwargs):
-    return MockResponse('fail', 500)
+    return mock_fail_response()
 
 
 class TestGet(TestBase):

@@ -1,6 +1,6 @@
 from unittest import mock
 
-from .test_base import TestBase, MockResponse
+from .test_base import TestBase, mock_success_response
 
 model = {
     "testtuple": {
@@ -74,7 +74,7 @@ model = {
 
 
 def mocked_requests_get_model(*args, **kwargs):
-    return MockResponse(model, 200)
+    return mock_success_response(data=model)
 
 
 class TestPath(TestBase):

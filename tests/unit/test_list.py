@@ -1,6 +1,6 @@
 from unittest import mock
 
-from .test_base import TestBase, MockResponse
+from .test_base import TestBase, mock_success_response, mock_fail_response
 
 from substra_sdk_py.utils import flatten
 
@@ -63,23 +63,23 @@ objective = [[{
 
 
 def mocked_requests_get_objective(*args, **kwargs):
-    return MockResponse(objective, 200)
+    return mock_success_response(data=objective)
 
 
 def mocked_requests_get_data_manager(*args, **kwargs):
-    return MockResponse(data_manager, 200)
+    return mock_success_response(data=data_manager)
 
 
 def mocked_requests_get_data_manager_no_json(*args, **kwargs):
-    return MockResponse('invalidjson', 200)
+    return mock_success_response(data='invalidjson')
 
 
 def mocked_requests_list_objective_fail(*args, **kwargs):
-    return MockResponse('fail', 500)
+    return mock_fail_response()
 
 
 def mocked_requests_get_objective_filtered(*args, **kwargs):
-    return MockResponse(objective, 200)
+    return mock_success_response(data=objective)
 
 
 class TestList(TestBase):
