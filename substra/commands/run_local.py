@@ -10,6 +10,9 @@ from .base import Base
 metrics_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../run_local_materials/metrics')
 
 
+USER = os.getuid()
+
+
 def setup_local(algo_path,
                 train_opener_path, test_opener_path,
                 metric_file_path,
@@ -93,7 +96,7 @@ def compute_local(docker_client, config, rank, inmodels):
 
         command += f" --inmodels {' '.join(model_keys)}"
 
-    docker_client.containers.run(config['algo_docker'], command=command, volumes=volumes, remove=True)
+    docker_client.containers.run(config['algo_docker'], command=command, volumes=volumes, remove=True, user=USER)
     print('(duration %.2f s )' % (time.time() - start))
 
     print('Evaluating performance - creating docker', end=' ', flush=True)
@@ -111,7 +114,7 @@ def compute_local(docker_client, config, rank, inmodels):
                config['train_pred_path']: {'bind': '/sandbox/pred', 'mode': 'rw'},
                config['metrics_file']: {'bind': '/sandbox/metrics/__init__.py', 'mode': 'ro'},
                config['train_opener_file']: {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}}
-    docker_client.containers.run(config['metrics_docker'], volumes=volumes, remove=True)
+    docker_client.containers.run(config['metrics_docker'], volumes=volumes, remove=True, user=USER)
     print('(duration %.2f s )' % (time.time() - start))
 
     model_key = 'model'
@@ -141,7 +144,7 @@ def compute_local(docker_client, config, rank, inmodels):
                config['outmodel_path']: {'bind': '/sandbox/model', 'mode': 'rw'},
                config['test_pred_path']: {'bind': '/sandbox/pred', 'mode': 'rw'},
                config['test_opener_file']: {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}}
-    docker_client.containers.run(config['algo_docker'], command=f"--predict --inmodels {model_key}", volumes=volumes, remove=True)
+    docker_client.containers.run(config['algo_docker'], command=f"--predict --inmodels {model_key}", volumes=volumes, remove=True, user=USER)
     print('(duration %.2f s )' % (time.time() - start))
 
     print('Evaluating performance - creating docker', end=' ', flush=True)
@@ -158,7 +161,7 @@ def compute_local(docker_client, config, rank, inmodels):
                config['test_pred_path']: {'bind': '/sandbox/pred', 'mode': 'rw'},
                config['metrics_file']: {'bind': '/sandbox/metrics/__init__.py', 'mode': 'ro'},
                config['test_opener_file']: {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}}
-    docker_client.containers.run(config['metrics_docker'], volumes=volumes, remove=True)
+    docker_client.containers.run(config['metrics_docker'], volumes=volumes, remove=True, user=USER)
     print('(duration %.2f s )' % (time.time() - start))
 
     # load performance
