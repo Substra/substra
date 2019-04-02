@@ -23,7 +23,10 @@ class BulkUpdate(Api):
         except (exceptions.ConnectionError, exceptions.Timeout) as e:
             raise Exception(f'Failed to bulk update {asset}: {e}')
         except exceptions.HTTPError as e:
-            error = e.response.json()
+            try:
+                error = e.response.json()
+            except ValueError:
+                error = e.response.content
             raise Exception(f'Failed to bulk update {asset}: {e}: {error}')
 
         res = json.dumps(res, indent=2)
