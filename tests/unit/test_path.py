@@ -1,6 +1,6 @@
-from unittest import TestCase, mock
+from unittest import mock
 
-from substra_sdk_py.path import path as pathFunction
+from .test_base import TestBase, mock_success_response
 
 model = {
     "testtuple": {
@@ -73,38 +73,18 @@ model = {
 }
 
 
-class MockResponse:
-    def __init__(self, json_data, status_code):
-        self.json_data = json_data
-        self.status_code = status_code
-
-    def json(self):
-        return self.json_data
-
-
 def mocked_requests_get_model(*args, **kwargs):
-    return MockResponse(model, 200)
+    return mock_success_response(data=model)
 
 
-class TestPath(TestCase):
-    def setUp(self):
-        self.config = {
-            'url': 'http://toto.com',
-            'version': '1.0',
-            'auth': False,
-            'insecure': False,
-        }
+class TestPath(TestBase):
 
-    def tearDown(self):
-        pass
-
-    @mock.patch('substra_sdk_py.path.requests.get', side_effect=mocked_requests_get_model)
+    @mock.patch('substra_sdk_py.requests_wrapper.requests.get', side_effect=mocked_requests_get_model)
     def test_returns_objective_list(self, mock_get):
-        res = pathFunction('model',
-                           '640496cd77521be69122092213c0ab4fb3385250656aed7cd71c42e324f67356',
-                           'details',
-                           self.config)
+        res = self.client.path(
+            'model',
+            '640496cd77521be69122092213c0ab4fb3385250656aed7cd71c42e324f67356',
+            'details')
 
-        self.assertEqual(res['status_code'], 200)
-        self.assertEqual(res['result'], model)
+        self.assertEqual(res, model)
         self.assertEqual(len(mock_get.call_args_list), 1)

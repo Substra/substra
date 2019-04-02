@@ -1,9 +1,8 @@
-import json
-import os
-from unittest import TestCase, mock
+from unittest import mock
 
-from substra_sdk_py.list import list as listFunction
-from substra_sdk_py.list import flatten
+from .test_base import TestBase, mock_success_response, mock_fail_response
+
+from substra_sdk_py.utils import flatten
 
 data_manager = [
     [
@@ -63,151 +62,75 @@ objective = [[{
                                           "533ee6e7b9d8b247e7e853b24547f57e6ef351852bac0418f13a0666173448f1"]}]]
 
 
-class MockResponse:
-    def __init__(self, json_data, status_code):
-        self.json_data = json_data
-        self.status_code = status_code
-
-    def json(self):
-        return self.json_data
-
-
 def mocked_requests_get_objective(*args, **kwargs):
-    return MockResponse(objective, 200)
+    return mock_success_response(data=objective)
 
 
 def mocked_requests_get_data_manager(*args, **kwargs):
-    return MockResponse(data_manager, 200)
+    return mock_success_response(data=data_manager)
 
 
 def mocked_requests_get_data_manager_no_json(*args, **kwargs):
-    return MockResponse(open, 200)
+    return mock_success_response(data='invalidjson')
 
 
 def mocked_requests_list_objective_fail(*args, **kwargs):
-    raise Exception('fail')
+    return mock_fail_response()
 
 
 def mocked_requests_get_objective_filtered(*args, **kwargs):
-    return MockResponse(objective, 200)
+    return mock_success_response(data=objective)
 
 
-class TestList(TestCase):
-    def setUp(self):
-        self.config = {
-            'url': 'http://toto.com',
-            'version': '1.0',
-            'auth': False,
-            'insecure': False,
-        }
+class TestList(TestBase):
 
-    def tearDown(self):
-        pass
-
-    @mock.patch('substra_sdk_py.list.requests.get', side_effect=mocked_requests_get_objective)
+    @mock.patch('substra_sdk_py.requests_wrapper.requests.get', side_effect=mocked_requests_get_objective)
     def test_returns_objective_list(self, mock_get):
 
-        res = listFunction('objective', self.config)
+        res = self.client.list('objective')
 
-        self.assertEqual(res['status_code'], 200)
-        self.assertEqual(res['result'], flatten(objective))
+        self.assertEqual(res, flatten(objective))
         self.assertEqual(len(mock_get.call_args_list), 1)
 
-    @mock.patch('substra_sdk_py.list.requests.get', side_effect=mocked_requests_list_objective_fail)
+    @mock.patch('substra_sdk_py.requests_wrapper.requests.get', side_effect=mocked_requests_list_objective_fail)
     def test_returns_objective_list_fail(self, mock_get):
         try:
-            listFunction('objective', self.config)
+            self.client.list('objective')
         except Exception as e:
-            print(str(e))
-            self.assertTrue(str(e) == 'Failed to list objective')
+            self.assertEqual(str(e), '500')
 
         self.assertEqual(len(mock_get.call_args_list), 1)
 
-    @mock.patch('substra_sdk_py.list.requests.get', side_effect=mocked_requests_get_data_manager)
+    @mock.patch('substra_sdk_py.requests_wrapper.requests.get', side_effect=mocked_requests_get_data_manager)
     def test_returns_data_manager_list(self, mock_get):
 
-        res = listFunction('data_manager', self.config)
+        res = self.client.list('data_manager')
 
-        self.assertEqual(res['status_code'], 200)
-        self.assertEqual(res['result'], flatten(data_manager))
+        self.assertEqual(res, flatten(data_manager))
         self.assertEqual(len(mock_get.call_args_list), 1)
 
-    @mock.patch('substra_sdk_py.list.requests.get', side_effect=mocked_requests_get_data_manager_no_json)
+    @mock.patch('substra_sdk_py.requests_wrapper.requests.get', side_effect=mocked_requests_get_data_manager_no_json)
     def test_returns_data_manager_list_no_json(self, mock_get):
         try:
-            listFunction('data_manager', self.config)
+            self.client.list('data_manager')
         except Exception as e:
-            print(str(e))
-            self.assertTrue(str(e) == 'Can\'t decode response value from server to json.')
+            self.assertEqual(str(e), 'Can\'t decode response value from server to json.')
         self.assertEqual(len(mock_get.call_args_list), 1)
 
-    @mock.patch('substra_sdk_py.list.requests.get', side_effect=mocked_requests_get_objective_filtered)
+    @mock.patch('substra_sdk_py.requests_wrapper.requests.get', side_effect=mocked_requests_get_objective_filtered)
     def test_returns_objective_list_filters(self, mock_get):
 
-        res = listFunction('objective', self.config,
-                           '["objective:name:Skin Lesion Classification Challenge", "OR", "data_manager:name:Simplified ISIC 2018"]')
+        res = self.client.list(
+            'objective',
+            '["objective:name:Skin Lesion Classification Challenge", "OR", "data_manager:name:Simplified ISIC 2018"]')
 
-        self.assertEqual(res['status_code'], 200)
-        self.assertEqual(res['result'], flatten(objective))
+        self.assertEqual(res, flatten(objective))
         self.assertEqual(len(mock_get.call_args_list), 1)
 
-    @mock.patch('substra_sdk_py.list.requests.get', side_effect=mocked_requests_get_objective_filtered)
+    @mock.patch('substra_sdk_py.requests_wrapper.requests.get', side_effect=mocked_requests_get_objective_filtered)
     def test_returns_objective_list_bad_filters(self, mock_get):
-
-        res = listFunction('objective', self.config, 'toto')
-        self.assertTrue(res == 'Cannot load filters. Please review the documentation.')
-
-        self.assertEqual(len(mock_get.call_args_list), 0)
-
-
-class TestListConfigBasicAuth(TestCase):
-    def setUp(self):
-        self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
-        self.config = {
-            'url': 'http://toto.com',
-            'version': '1.0',
-            'auth': {
-                'user': 'foo',
-                'password': 'bar',
-            },
-            'insecure': False,
-        }
-
-    def tearDown(self):
-        pass
-
-    @mock.patch('substra_sdk_py.list.requests.get', side_effect=mocked_requests_get_objective)
-    def test_returns_objective_list(self, mock_get):
-
-        res = listFunction('objective', self.config)
-
-        self.assertEqual(res['status_code'], 200)
-        self.assertEqual(res['result'], flatten(objective))
-        self.assertEqual(len(mock_get.call_args_list), 1)
-
-
-class TestListConfigInsecure(TestCase):
-    def setUp(self):
-        self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
-
-        self.config = {
-            'url': 'http://toto.com',
-            'version': '1.0',
-            'auth': {
-                'user': 'foo',
-                'password': 'bar',
-            },
-            'insecure': True,
-        }
-
-    def tearDown(self):
-        pass
-
-    @mock.patch('substra_sdk_py.list.requests.get', side_effect=mocked_requests_get_objective)
-    def test_returns_objective_list(self, mock_get):
-
-        res = listFunction('objective', self.config)
-
-        self.assertEqual(res['status_code'], 200)
-        self.assertEqual(res['result'], flatten(objective))
-        self.assertEqual(len(mock_get.call_args_list), 1)
+        try:
+            self.client.list('objective', 'toto')
+        except Exception as e:
+            self.assertEqual(str(e), 'Cannot load filters. Please review the documentation.')
+            self.assertEqual(len(mock_get.call_args_list), 0)
