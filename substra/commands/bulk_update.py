@@ -1,7 +1,9 @@
 import json
 
-from substra.utils import load_json_from_args, InvalidJSONArgsException
-from .api import Api, DATA_SAMPLE_ASSET, InvalidAssetException
+from substra_sdk_py import exceptions
+
+from substra.utils import load_json_from_args
+from .api import Api, DATA_SAMPLE_ASSET
 
 
 class BulkUpdate(Api):
@@ -12,27 +14,21 @@ class BulkUpdate(Api):
     def run(self):
         super(BulkUpdate, self).run()
 
-        try:
-            asset = self.get_asset_option()
-        except InvalidAssetException as e:
-            self.handle_exception(e)
-        else:
-            args = self.options['<args>']
+        asset = self.get_asset_option()
+        args = self.options['<args>']
+        data = load_json_from_args(args)
 
+        try:
+            res = self.client.bulk_update(asset, data)
+        except (exceptions.ConnectionError, exceptions.Timeout) as e:
+            raise Exception(f'Failed to bulk update {asset}: {e}')
+        except exceptions.HTTPError as e:
             try:
-                data = load_json_from_args(args)
-            except InvalidJSONArgsException as e:
-                self.handle_exception(e)
-            else:
-                try:
-                    res = self.client.bulk_update(asset, data)
-                except:
-                    raise Exception('Failed to bulk update %s' % asset)
-                else:
-                    try:
-                        res = json.dumps(res, indent=2)
-                    except:
-                        res = 'Can\'t decode response value from server to json: %s' % res
-                    finally:
-                        print(res, end='')
-                        return res
+                error = e.response.json()
+            except ValueError:
+                error = e.response.content
+            raise Exception(f'Failed to bulk update {asset}: {e}: {error}')
+
+        res = json.dumps(res, indent=2)
+        print(res, end='')
+        return res

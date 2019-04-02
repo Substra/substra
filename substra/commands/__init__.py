@@ -7,3 +7,4 @@ from .path import *
 from .run_local import *
 from .config import *
 from .create_project import *
+from .api import InvalidAssetException

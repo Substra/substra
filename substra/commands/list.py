@@ -1,9 +1,10 @@
 import json
 
+from substra_sdk_py import exceptions
+
 import itertools
 
-from .api import Api, ALGO_ASSET, OBJECTIVE_ASSET, DATA_MANAGER_ASSET, MODEL_ASSET, TRAINTUPLE_ASSET, TESTTUPLE_ASSET, \
-    InvalidAssetException
+from .api import Api, ALGO_ASSET, OBJECTIVE_ASSET, DATA_MANAGER_ASSET, MODEL_ASSET, TRAINTUPLE_ASSET, TESTTUPLE_ASSET
 
 SIMPLE_ASSETS = [TRAINTUPLE_ASSET, TESTTUPLE_ASSET]
 
@@ -24,23 +25,21 @@ class List(Api):
     def run(self):
         super(List, self).run()
 
-        try:
-            asset = self.get_asset_option()
-        except InvalidAssetException as e:
-            self.handle_exception(e)
-        else:
-            filters = self.options.get('<filters>', None)
-            is_complex = self.options.get('--is-complex', False)
+        asset = self.get_asset_option()
+        filters = self.options.get('<filters>', None)
+        is_complex = self.options.get('--is-complex', False)
 
+        try:
+            res = self.client.list(asset, filters, is_complex)
+        except (exceptions.ConnectionError, exceptions.Timeout) as e:
+            raise Exception(f'Failed to list {asset}: {e}')
+        except exceptions.HTTPError as e:
             try:
-                res = self.client.list(asset, filters, is_complex)
-            except Exception as e:
-                print('Failed to list %s. Please make sure the substrabac instance is live. Detail %s' % (asset, e))
-            else:
-                try:
-                    res = json.dumps(res, indent=2)
-                except:
-                    res = 'Can\'t decode response value from server to json: %s' % res
-                finally:
-                    print(res, end='')
-                    return res
+                error = e.response.json()
+            except ValueError:
+                error = e.response.content
+            raise Exception(f'Failed to list {asset}: {e}: {error}')
+
+        res = json.dumps(res, indent=2)
+        print(res, end='')
+        return res
