@@ -13,6 +13,12 @@ metrics_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../run
 USER = os.getuid()
 
 
+def create_directory(directory):
+    if not os.path.exists(directory):
+        print(f'Create path : {directory}')
+        os.makedirs(directory)
+
+
 def setup_local(algo_path,
                 train_opener_path, test_opener_path,
                 metric_file_path,
@@ -56,6 +62,12 @@ def setup_local(algo_path,
     config['train_pred_path'] = os.path.join(config['run_local_path'], 'pred_train')
     config['test_pred_path'] = os.path.join(config['run_local_path'], 'pred_test')
     config['outmodel_path'] = os.path.join(config['run_local_path'], outmodel_path)
+
+    create_directory(config['run_local_path'])
+    create_directory(config['local_path'])
+    create_directory(config['train_pred_path'])
+    create_directory(config['test_pred_path'])
+    create_directory(config['outmodel_path'])
 
     return config
 
