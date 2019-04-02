@@ -9,5 +9,7 @@
     "paths": [
     ],
     "test_only": false
-  }
+  },
+  "objective_keys": [
+  ]
 }

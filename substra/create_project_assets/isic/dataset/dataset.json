@@ -11,5 +11,7 @@
       "/substra/owkestrathonVIP/myisicproject/dataset/data-samples/0024319/"
     ],
     "test_only": false
-  }
+  },
+  "objective_keys": [
+  ]
 }
