@@ -1,36 +1,33 @@
 import json
 
-import requests
+from substra_sdk_py import exceptions
 
-from .api import Api
+from .api import Api, MODEL_ASSET
 
 
 class Path(Api):
     """Details asset"""
 
-    def run(self):
-        config = super(Path, self).run()
+    ACCEPTED_ASSETS = [MODEL_ASSET]
 
-        asset = self.options['<asset>']
+    def run(self):
+        super(Path, self).run()
+
+        asset = self.get_asset_option()
         pkhash = self.options['<pkhash>']
         path = self.options['<path>']
 
-        kwargs = {}
-        if config['auth']:
-            kwargs.update({'auth': (config['user'], config['password'])})
-        if config['insecure']:
-            kwargs.update({'verify': False})
         try:
-            r = requests.get('%s/%s/%s/%s/' % (config['url'], asset, pkhash, path), headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
-        except:
-            raise Exception('Failed to get path %s on %s' % (path, asset))
-        else:
-            res = ''
+            res = self.client.path(asset, pkhash, path)
+        except (exceptions.ConnectionError, exceptions.Timeout) as e:
+            raise Exception(f'Failed to get path {asset}: {e}')
+        except exceptions.HTTPError as e:
             try:
-                result = r.json()
-                res = json.dumps({'result': result, 'status_code': r.status_code}, indent=2)
-            except:
-                res = 'Can\'t decode response value from server to json: %s' % r.content
-            finally:
-                print(res, end='')
-                return res
+                error = e.response.json()
+            except ValueError:
+                error = e.response.content
+            raise Exception(f'Failed to get path {asset}: {e}: {error}')
+
+        res = json.dumps(res, indent=2)
+        print(res, end='')
+        return res

@@ -1,12 +1,12 @@
 import json
 
-import requests
+from substra_sdk_py import exceptions
+
 import itertools
-from urllib.parse import quote
 
-from .api import Api
+from .api import Api, ALGO_ASSET, OBJECTIVE_ASSET, DATA_MANAGER_ASSET, MODEL_ASSET, TRAINTUPLE_ASSET, TESTTUPLE_ASSET
 
-SIMPLE_ASSETS = ['data', 'traintuple', 'testtuple']
+SIMPLE_ASSETS = [TRAINTUPLE_ASSET, TESTTUPLE_ASSET]
 
 
 def flatten(list_of_list):
@@ -20,46 +20,26 @@ def flatten(list_of_list):
 class List(Api):
     '''Get asset'''
 
-    def run(self):
-        config = super(List, self).run()
+    ACCEPTED_ASSETS = [ALGO_ASSET, OBJECTIVE_ASSET, DATA_MANAGER_ASSET, MODEL_ASSET, TESTTUPLE_ASSET, TRAINTUPLE_ASSET]
 
-        base_url = config['url']
-        asset = self.options['<asset>']
+    def run(self):
+        super(List, self).run()
+
+        asset = self.get_asset_option()
         filters = self.options.get('<filters>', None)
         is_complex = self.options.get('--is-complex', False)
-        url = base_url
-
-        kwargs = {}
-        if config['auth']:
-            kwargs.update({'auth': (config['user'], config['password'])})
-        if config['insecure']:
-            kwargs.update({'verify': False})
-        if filters:
-            try:
-                filters = json.loads(filters)
-            except:
-                res = 'Cannot load filters. Please review help substra -h'
-                print(res)
-                return res
-            else:
-                filters = map(lambda x: '-OR-' if x == 'OR' else x, filters)
-                # requests uses quote_plus to escape the params, but we want to use quote
-                # we're therefore passing a string (won't be escaped again) instead of an object
-                kwargs['params'] = 'search=%s' % quote(''.join(filters))
 
         try:
-            r = requests.get('%s/%s/' % (url, asset), headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
-        except Exception as e:
-            print('Failed to list %s. Please make sure the substrabac instance is live. Detail %s' % (asset, e))
-        else:
-            res = ''
+            res = self.client.list(asset, filters, is_complex)
+        except (exceptions.ConnectionError, exceptions.Timeout) as e:
+            raise Exception(f'Failed to list {asset}: {e}')
+        except exceptions.HTTPError as e:
             try:
-                result = r.json()
-            except:
-                res = 'Can\'t decode response value from server to json: %s' % r.content
-            else:
-                result = flatten(result) if not is_complex and asset not in SIMPLE_ASSETS and r.status_code == 200 else result
-                res = json.dumps({'result': result, 'status_code': r.status_code}, indent=2)
-            finally:
-                print(res, end='')
-                return res
+                error = e.response.json()
+            except ValueError:
+                error = e.response.content
+            raise Exception(f'Failed to list {asset}: {e}: {error}')
+
+        res = json.dumps(res, indent=2)
+        print(res, end='')
+        return res

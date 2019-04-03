@@ -1,43 +1,34 @@
 import json
-import sys
 
-import requests
+from substra_sdk_py import exceptions
 
-from substra.utils import load_json_from_args, InvalidJSONArgsException
-from .api import Api
+from substra.utils import load_json_from_args
+from .api import Api, DATA_SAMPLE_ASSET
 
 
 class BulkUpdate(Api):
     """BulkUpdate asset"""
 
+    ACCEPTED_ASSETS = [DATA_SAMPLE_ASSET]
+
     def run(self):
-        config = super(BulkUpdate, self).run()
+        super(BulkUpdate, self).run()
 
-        asset = self.options['<asset>']
+        asset = self.get_asset_option()
         args = self.options['<args>']
+        data = load_json_from_args(args)
 
         try:
-            data = load_json_from_args(args)
-        except InvalidJSONArgsException as e:
-            self.handle_exception(e)
-            sys.exit(1)
-
-        kwargs = {}
-        if config['auth']:
-            kwargs.update({'auth': (config['user'], config['password'])})
-        if config['insecure']:
-            kwargs.update({'verify': False})
-        try:
-            r = requests.post('%s/%s/bulk_update/' % (config['url'], asset), data=data, headers={'Accept': 'application/json;version=%s' % config['version']}, **kwargs)
-        except:
-            raise Exception('Failed to bulk update %s' % asset)
-        else:
-            res = ''
+            res = self.client.bulk_update(asset, data)
+        except (exceptions.ConnectionError, exceptions.Timeout) as e:
+            raise Exception(f'Failed to bulk update {asset}: {e}')
+        except exceptions.HTTPError as e:
             try:
-                result = r.json()
-                res = json.dumps({'result': result, 'status_code': r.status_code}, indent=2)
-            except:
-                res = r.content
-            finally:
-                print(res, end='')
-                return res
+                error = e.response.json()
+            except ValueError:
+                error = e.response.content
+            raise Exception(f'Failed to bulk update {asset}: {e}: {error}')
+
+        res = json.dumps(res, indent=2)
+        print(res, end='')
+        return res

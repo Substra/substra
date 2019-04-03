@@ -7,25 +7,26 @@ from unittest import TestCase, mock
 
 from substra.commands import Add, Config
 
-dataset = {"challengeKey": "",
-           "description": {"hash": "7a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
-                           "storageAddress": "http://127.0.0.1:8001/dataset/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/description/"},
-           "key": "ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994", "name": "ISIC 2018", "nbData": 2,
-           "openerStorageAddress": "http://127.0.0.1:8001/dataset/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/opener/",
-           "owner": "c657699f8b03c19e6eadc7b474c23f26dd83454395266a673406f2cf44de2ca2", "permissions": "all",
-           "size": 100, "type": "Images"}
+data_manager = {
+    "objectiveKey": "",
+    "description": {"hash": "7a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
+                    "storageAddress": "http://127.0.0.1:8001/data_manager/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/description/"},
+    "key": "ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994", "name": "ISIC 2018", "nbData": 2,
+    "openerStorageAddress": "http://127.0.0.1:8001/data_manager/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/opener/",
+    "owner": "c657699f8b03c19e6eadc7b474c23f26dd83454395266a673406f2cf44de2ca2", "permissions": "all",
+    "size": 100, "type": "Images"}
 
-challenge = {
-    "descriptionStorageAddress": "http://127.0.0.1:8001/challenge/d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f/description/",
+objective = {
+    "descriptionStorageAddress": "http://127.0.0.1:8001/objective/d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f/description/",
     "key": "d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f",
     "metrics": {"hash": "750f622262854341bd44f55c1018949e9c119606ef5068bd7d137040a482a756",
                 "name": "macro-average recall",
-                "storageAddress": "http://127.0.0.1:8001/challenge/d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f/metrics/"},
+                "storageAddress": "http://127.0.0.1:8001/objective/d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f/metrics/"},
     "name": "Skin Lesion Classification Challenge",
     "owner": "c657699f8b03c19e6eadc7b474c23f26dd83454395266a673406f2cf44de2ca2", "permissions": "all",
     "testDataKeys": ["e11aeec290749e4c50c91305e10463eced8dbf3808971ec0c6ea0e36cb7ab3e1"]}
 
-algo = {"challengeKey": "6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c",
+algo = {"objectiveKey": "6b8d16ac3eae240743428591943fa8e66b34d4a7e0f4eb8e560485c7617c222c",
         "description": {"hash": "3b1281cbdd6ebfec650d0a9f932a64e45a27262848065d7cecf11fd7191b4b1f",
                         "storageAddress": "http://127.0.0.1:8001/algo/7742aea2001ceb40e9ce8a37fa27237d5b2d1f574e06d48677af945cfdf42ec0/description/"},
         "key": "7742aea2001ceb40e9ce8a37fa27237d5b2d1f574e06d48677af945cfdf42ec0",
@@ -37,42 +38,17 @@ data = {"pkhash": "e11aeec290749e4c50c91305e10463eced8dbf3808971ec0c6ea0e36cb7ab
         "file": "http://127.0.0.1:8000/media/data/e11aeec290749e4c50c91305e10463eced8dbf3808971ec0c6ea0e36cb7ab3e1/0024700.zip"}
 
 
-class MockResponse:
-    def __init__(self, json_data, status_code):
-        self.json_data = json_data
-        self.status_code = status_code
-
-    def json(self):
-        return self.json_data
-
-
-def mocked_requests_post_dataset(*args, **kwargs):
-    return MockResponse(dataset, 201)
-
-
-def mocked_requests_post_challenge(*args, **kwargs):
-    return MockResponse(challenge, 201)
-
-
-def mocked_requests_post_algo(*args, **kwargs):
-    return MockResponse(algo, 201)
-
-
-def mocked_requests_post_data(*args, **kwargs):
-    return MockResponse(data, 201)
-
-
-def mocked_requests_add_challenge_fail(*args, **kwargs):
-    raise Exception('fail')
-
+def mocked_client_add(asset, st):
+    return {'result': asset,
+            'status_code': st}
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
 class TestAdd(TestCase):
     def setUp(self):
-        self.dataset_file_path = './tests/assets/dataset/dataset.json'
-        self.challenge_file_path = './tests/assets/challenge/challenge.json'
+        self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
+        self.objective_file_path = './tests/assets/objective/objective.json'
         self.algo_file_path = './tests/assets/algo/algo.json'
-        self.data_file_path = './tests/assets/data/data.json'
+        self.data_sample_file_path = './tests/assets/data/data_sample.json'
 
         with mock.patch('substra.commands.config.config_path', '/tmp/.substra', create=True):
             Config({
@@ -86,63 +62,61 @@ class TestAdd(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_dataset)
-    def test_add_dataset(self, mock_get):
-        # open dataset file
-        with open(self.dataset_file_path, 'r') as f:
+    @mock.patch('substra.commands.api.Client.add', return_value=mocked_client_add(data_manager, 201))
+    def test_add_data_manager(self, mock_add):
+        # open data_manager file
+        with open(self.data_manager_file_path, 'r') as f:
             data = f.read()
 
             res = Add({
-                '<asset>': 'dataset',
+                '<asset>': 'data_manager',
                 '<args>': data,
             }).run()
 
             self.assertEqual(json.loads(res)['status_code'], 201)
-            self.assertEqual(json.loads(res)['result'], dataset)
-            self.assertEqual(len(mock_get.call_args_list), 1)
-            self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
+            self.assertEqual(json.loads(res)['result'], data_manager)
+            self.assertEqual(len(mock_add.call_args_list), 1)
 
-    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_dataset)
-    def test_add_dataset_from_file(self, mock_get):
+    @mock.patch('substra.commands.api.Client.add', return_value=mocked_client_add(data_manager, 201))
+    def test_add_data_manager_from_file(self, mock_add):
 
         res = Add({
-            '<asset>': 'dataset',
-            '<args>': self.dataset_file_path,
+            '<asset>': 'data_manager',
+            '<args>': self.data_manager_file_path,
         }).run()
 
         self.assertEqual(json.loads(res)['status_code'], 201)
-        self.assertEqual(json.loads(res)['result'], dataset)
-        self.assertEqual(len(mock_get.call_args_list), 1)
+        self.assertEqual(json.loads(res)['result'], data_manager)
+        self.assertEqual(len(mock_add.call_args_list), 1)
 
-    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_dataset)
-    def test_add_dataset_invalid_args(self, mock_get):
-        try:
+    @mock.patch('substra.commands.api.Client.add', return_value=mocked_client_add(data_manager, 201))
+    def test_add_data_manager_invalid_args(self, mock_add):
+        with self.assertRaises(Exception) as e:
             Add({
-                '<asset>': 'dataset',
+                '<asset>': 'data_manager',
                 '<args>': 'test',
             }).run()
-        except Exception as e:
-            self.assertTrue(str(e) == 'Invalid args. Please review help')
-        self.assertEqual(len(mock_get.call_args_list), 0)
+            self.assertEqual(str(e), 'Invalid args. Please review help')
 
-    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_challenge)
-    def test_add_challenge(self, mock_get):
-        # open challenge file
-        with open(self.challenge_file_path, 'r') as f:
+        self.assertEqual(len(mock_add.call_args_list), 0)
+
+    @mock.patch('substra.commands.api.Client.add', return_value=mocked_client_add(objective, 201))
+    def test_add_objective(self, mock_add):
+        # open objective file
+        with open(self.objective_file_path, 'r') as f:
             data = f.read()
 
             res = Add({
-                '<asset>': 'challenge',
+                '<asset>': 'objective',
                 '<args>': data,
             }).run()
 
             self.assertEqual(json.loads(res)['status_code'], 201)
-            self.assertEqual(json.loads(res)['result'], challenge)
-            self.assertEqual(len(mock_get.call_args_list), 1)
-            self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
+            self.assertEqual(json.loads(res)['result'], objective)
+            self.assertEqual(len(mock_add.call_args_list), 1)
 
-    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_algo)
-    def test_add_algo(self, mock_get):
+    @mock.patch('substra.commands.api.Client.add', return_value=mocked_client_add(algo, 201))
+    def test_add_algo(self, mock_add):
         # open algo file
         with open(self.algo_file_path, 'r') as f:
             data = f.read()
@@ -154,17 +128,16 @@ class TestAdd(TestCase):
 
             self.assertEqual(json.loads(res)['status_code'], 201)
             self.assertEqual(json.loads(res)['result'], algo)
-            self.assertEqual(len(mock_get.call_args_list), 1)
-            self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
+            self.assertEqual(len(mock_add.call_args_list), 1)
 
-    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_data)
-    def test_add_data(self, mock_get):
+    @mock.patch('substra.commands.api.Client.add', return_value=mocked_client_add(data, 201))
+    def test_add_data(self, mock_add):
         # open algo file
-        with open(self.data_file_path, 'r') as f:
+        with open(self.data_sample_file_path, 'r') as f:
             content = f.read()
 
             res = Add({
-                '<asset>': 'data',
+                '<asset>': 'data_sample',
                 '<args>': content,
             }).run()
 
@@ -172,69 +145,61 @@ class TestAdd(TestCase):
 
             self.assertEqual(json.loads(res)['status_code'], 201)
             self.assertEqual(json.loads(res)['result'], data)
-            self.assertEqual(len(mock_get.call_args_list), 1)
+            self.assertEqual(len(mock_add.call_args_list), 1)
 
-    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_add_challenge_fail)
-    def test_returns_challenge_list_fail(self, mock_get):
-        with open(self.challenge_file_path, 'r') as f:
+    @mock.patch('substra.commands.api.Client.add', side_effect=Exception('fail'))
+    def test_returns_objective_list_fail(self, mock_add):
+        with open(self.objective_file_path, 'r') as f:
             data = f.read()
-            try:
+            with self.assertRaises(Exception) as e:
                 Add({
-                    '<asset>': 'challenge',
+                    '<asset>': 'objective',
                     '<args>': data,
                 }).run()
-            except Exception as e:
-                print(str(e))
-                self.assertTrue(str(e) == 'Failed to create challenge')
+                self.assertTrue(str(e) == 'Failed to create objective')
 
-            self.assertEqual(len(mock_get.call_args_list), 1)
+            self.assertEqual(len(mock_add.call_args_list), 1)
 
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
 class TestAddNoConfig(TestCase):
     def setUp(self):
-        self.dataset_file_path = './tests/assets/dataset/dataset.json'
+        self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
         try:
             os.remove('/tmp/.substra')
         except:
             pass
 
-    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_dataset)
-    def test_add_dataset(self, mock_get):
-        # open dataset file
-        with open(self.dataset_file_path, 'r') as f:
+    @mock.patch('substra.commands.api.Client.add', return_value=mocked_client_add(data_manager, 201))
+    def test_add_data_manager(self, mock_add):
+        # open data_manager file
+        with open(self.data_manager_file_path, 'r') as f:
             data = f.read()
 
             saved_stdout = sys.stdout
 
-            try:
-                out = StringIO()
-                sys.stdout = out
+            out = StringIO()
+            sys.stdout = out
 
-                with self.assertRaises(SystemExit) as se:
-                    Add({
-                        '<asset>': 'dataset',
-                        '<args>': data,
-                    }).run()
+            with self.assertRaises(SystemExit) as se:
+                Add({
+                    '<asset>': 'data_manager',
+                    '<args>': data,
+                }).run()
 
-                    self.assertEqual(se.exception.code, 1)
+                self.assertEqual(se.exception.code, 1)
 
-                e = out.getvalue().strip()
-                sys.stdout = saved_stdout
-                self.assertTrue(str(
-                    e) == 'No config file "/tmp/.substra" found, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"')
-            except:
-                self.assertTrue(False)
-            finally:
-                sys.stdout = saved_stdout
+            e = out.getvalue().strip()
+            sys.stdout = saved_stdout
+            self.assertEqual(str(e), 'No config file "/tmp/.substra" found, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"')
 
-            self.assertEqual(len(mock_get.call_args_list), 0)
+            self.assertEqual(len(mock_add.call_args_list), 0)
 
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
 class TestAddConfigBasicAuth(TestCase):
     def setUp(self):
-        self.dataset_file_path = './tests/assets/dataset/dataset.json'
+        self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
 
         with mock.patch('substra.commands.config.config_path', '/tmp/.substra', create=True):
             Config({
@@ -250,26 +215,26 @@ class TestAddConfigBasicAuth(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_dataset)
-    def test_add_dataset(self, mock_get):
-        # open dataset file
-        with open(self.dataset_file_path, 'r') as f:
+    @mock.patch('substra.commands.api.Client.add', return_value=mocked_client_add(data_manager, 201))
+    def test_add_data_manager(self, mock_add):
+        # open data_manager file
+        with open(self.data_manager_file_path, 'r') as f:
             data = f.read()
 
             res = Add({
-                '<asset>': 'dataset',
+                '<asset>': 'data_manager',
                 '<args>': data,
             }).run()
 
             self.assertEqual(json.loads(res)['status_code'], 201)
-            self.assertEqual(json.loads(res)['result'], dataset)
-            self.assertEqual(len(mock_get.call_args_list), 1)
+            self.assertEqual(json.loads(res)['result'], data_manager)
+            self.assertEqual(len(mock_add.call_args_list), 1)
 
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
 class TestAddConfigInsecure(TestCase):
     def setUp(self):
-        self.dataset_file_path = './tests/assets/dataset/dataset.json'
+        self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
 
         with mock.patch('substra.commands.config.config_path', '/tmp/.substra', create=True):
             Config({
@@ -286,17 +251,17 @@ class TestAddConfigInsecure(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.add.requests.post', side_effect=mocked_requests_post_dataset)
-    def test_add_dataset(self, mock_get):
-        # open dataset file
-        with open(self.dataset_file_path, 'r') as f:
+    @mock.patch('substra.commands.api.Client.add', return_value=mocked_client_add(data_manager, 201))
+    def test_add_data_manager(self, mock_add):
+        # open data_manager file
+        with open(self.data_manager_file_path, 'r') as f:
             data = f.read()
 
             res = Add({
-                '<asset>': 'dataset',
+                '<asset>': 'data_manager',
                 '<args>': data,
             }).run()
 
             self.assertEqual(json.loads(res)['status_code'], 201)
-            self.assertEqual(json.loads(res)['result'], dataset)
-            self.assertEqual(len(mock_get.call_args_list), 1)
+            self.assertEqual(json.loads(res)['result'], data_manager)
+            self.assertEqual(len(mock_add.call_args_list), 1)
