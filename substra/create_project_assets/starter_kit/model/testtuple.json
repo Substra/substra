@@ -1,3 +1,6 @@
 {
-    "traintuple_key": ""
+    "traintuple_key": "",
+    "data_manager_key": "",
+    "test_data_sample_keys": [
+    ]
 }
