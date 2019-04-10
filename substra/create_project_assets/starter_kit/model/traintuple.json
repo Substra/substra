@@ -1,6 +1,10 @@
 {
-    "dataset_key": "",
-    "train_data_samples_keys": [
+    "data_manager_key": "",
+    "train_data_sample_keys": [
     ],
-    "algo_key": ""
+    "algo_key": "",
+    "rank": "",
+    "FLtask_key": "",
+    "in_models_keys": [
+    ]
 }

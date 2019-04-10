@@ -45,4 +45,4 @@ class TestCommand(TestCase):
 
             print(output.decode('utf-8').strip())
 
-            self.assertTrue('Failed to list objective. Please make sure the substrabac instance is live.' in output.decode('utf-8').strip())
+            self.assertTrue('Failed to list objective' in output.decode('utf-8').strip())
