@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from .config import ConfigManager
 from . import requests_wrapper, utils
 
@@ -36,7 +38,7 @@ class Client(object):
 
     def add(self, asset, data, dryrun=False):
         """Add asset."""
-        data = dict(data)  # make a copy for avoiding modification by reference
+        data = deepcopy(data)  # make a deep copy for avoiding modification by reference
         if 'permissions' not in data:
             data['permissions'] = 'all'
 

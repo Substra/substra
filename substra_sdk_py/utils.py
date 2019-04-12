@@ -32,18 +32,36 @@ def find_data_paths(data, attributes):
 def load_files(asset, data):
     paths = {}
     if asset == 'data_manager':
-        paths = find_data_paths(data, ['data_opener', 'description'])
+        attributes = ['data_opener', 'description']
+        paths = find_data_paths(data, attributes)
+        [data.pop(x) for x in attributes]
     elif asset == 'objective':
-        paths = find_data_paths(data, ['metrics', 'description'])
+        attributes = ['metrics', 'description']
+        paths = find_data_paths(data, attributes)
+        [data.pop(x) for x in attributes]
     elif asset == 'algo':
-        paths = find_data_paths(data, ['file', 'description'])
+        attributes = ['file', 'description']
+        paths = find_data_paths(data, attributes)
+        [data.pop(x) for x in attributes]
     elif asset == 'data_sample':
+        data_path = data.get('path', None)
         # support bulk with multiple files
-        data_paths = data.get('files', None)
+        data_paths = data.get('paths', None)
+
+        # validation
+        if data_path and data_paths:
+            raise Exception('Cannot use path and paths together.')
+
         if data_paths and isinstance(data_paths, list):
-            paths = {path_leaf(x): x for x in data_paths}
+            for file_or_path in list(data_paths):
+                # file case
+                if os.path.isfile(file_or_path):
+                    paths[path_leaf(file_or_path)] = file_or_path
+                    data['paths'].remove(file_or_path)
         else:
-            paths = find_data_paths(data, ['file'])
+            if os.path.isfile(data_path):
+                paths = find_data_paths(data, ['path'])
+                del data['path']
 
     files = {}
     for k, f in paths.items():
