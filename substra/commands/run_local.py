@@ -111,6 +111,10 @@ def compute_local(docker_client, config, rank, inmodels):
     docker_client.containers.run(config['algo_docker'], command=command, volumes=volumes, remove=True, user=USER)
     print('(duration %.2f s )' % (time.time() - start))
 
+    model_key = 'model'
+    if not os.path.exists(os.path.join(config['outmodel_path'], model_key)):
+        raise Exception(f"Model ({os.path.join(config['outmodel_path'], model_key)}) doesn't exist")
+
     print('Evaluating performance - creating docker', end=' ', flush=True)
     start = time.time()
     docker_client.images.build(path=metrics_path,
