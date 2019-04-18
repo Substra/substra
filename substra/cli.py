@@ -5,6 +5,7 @@ Usage:
   substra config <url> [<version>] [<user>] [<password>] [--profile=<profile>] [--config=<configuration_file_path>] [-k | --insecure]
   substra list <asset> [<filters>] [--profile=<profile>] [--config=<configuration_file_path>] [--is-complex]  [-v | --verbose]
   substra add <asset> <args> [--profile=<profile>] [--config=<configuration_file_path>] [--dry-run] [-v | --verbose]
+  substra register <asset> <args> [--profile=<profile>] [--config=<configuration_file_path>] [--dry-run] [-v | --verbose]
   substra update <asset> <pkhash> <args> [--profile=<profile>] [--config=<configuration_file_path>] [-v | --verbose]
   substra get <asset> <pkhash> [--profile=<profile>] [--config=<configuration_file_path>]  [-v | --verbose]
   substra bulk_update <asset> <args> [--profile=<profile>] [--config=<configuration_file_path>] [-v | --verbose]
@@ -75,7 +76,7 @@ from docopt import docopt
 
 from . import __version__ as VERSION
 
-COMMANDS = ('Add', 'BulkUpdate', 'Config', 'Get', 'List', 'Path', 'Update', 'CreateProject', 'RunLocal')
+COMMANDS = ('Add', 'BulkUpdate', 'Config', 'Get', 'List', 'Path', 'Update', 'CreateProject', 'RunLocal', 'Register')
 
 
 def main():
