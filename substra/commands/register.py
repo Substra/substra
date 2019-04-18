@@ -14,6 +14,7 @@ class Register(Api):
 
     def _add_objective(self, data, dryrun):
         asset = OBJECTIVE_ASSET
+        # add objective, do not fail on conflict
         try:
             res = self.client.add(OBJECTIVE_ASSET, data, dryrun)
         except exceptions.HTTPError as e:
@@ -32,6 +33,7 @@ class Register(Api):
 
     def _add_data_manager(self, data, dryrun):
         asset = DATA_MANAGER_ASSET
+        # add data manager, do not fail on conflict
         try:
             res = self.client.add(asset, data, dryrun)
         except exceptions.HTTPError as e:
