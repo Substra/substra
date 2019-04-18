@@ -36,9 +36,9 @@ setup(
     description='Substra CLI for interacting with substrabac',
     long_description=long_description,
     url='https://github.com/SubstraFoundation/substra-cli',
-    author='Guillaume Cisco',
-    author_email='guillaumecisco@gmail.com',
-    license='MIT',
+    author='Owkin, Substra team',
+    author_email='substra@owkin.com',
+    license='Apache 2.0',
     classifiers=[
         'Intended Audience :: Developers',
         'Topic :: Utilities',
