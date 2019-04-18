@@ -8,7 +8,7 @@ from sklearn.linear_model import SGDClassifier
 import substratools as tools
 
 
-class ISICAlgo(tools.algo.Algo):
+class ISICAlgo(tools.Algo):
 
     def dump_sklearn_model(self, model):
         attr = model.__dict__
