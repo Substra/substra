@@ -22,13 +22,13 @@ class Register(Api):
         try:
             res = self.client.register(asset, data, dryrun)
         except (exceptions.ConnectionError, exceptions.Timeout) as e:
-            raise Exception(f'Failed to create {asset}: {e}')
+            raise Exception(f'Failed to register {asset}: {e}')
         except exceptions.HTTPError as e:
             try:
                 error = e.response.json()
             except ValueError:
                 error = e.response.content
-            raise Exception(f'Failed to create {asset}: {e}: {error}')
+            raise Exception(f'Failed to register {asset}: {e}: {error}')
 
         res = json.dumps(res, indent=2)
         print(res, end='')
