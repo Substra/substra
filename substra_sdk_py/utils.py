@@ -1,3 +1,4 @@
+import copy
 import itertools
 import json
 import contextlib
@@ -29,7 +30,9 @@ def find_data_paths(data, attributes):
 
 
 @contextlib.contextmanager
-def load_files(asset, data):
+def extract_files(asset, data):
+    data = copy.deepcopy(data)
+
     paths = {}
     if asset == 'data_manager':
         attributes = ['data_opener', 'description']
@@ -70,7 +73,7 @@ def load_files(asset, data):
         files[k] = open(f, 'rb')
 
     try:
-        yield files
+        yield (data, files)
     finally:
         for f in files.values():
             f.close()

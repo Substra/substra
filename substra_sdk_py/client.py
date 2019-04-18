@@ -47,7 +47,7 @@ class Client(object):
 
         url = self._get_url(asset)
 
-        with utils.load_files(asset, data) as files:
+        with utils.extract_files(asset, data) as (data, files):
             return requests_wrapper.post(self.config, url, data, files=files)
 
     def get(self, asset, pkhash):
