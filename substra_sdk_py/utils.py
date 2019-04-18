@@ -17,54 +17,36 @@ def path_leaf(path):
     return tail or ntpath.basename(head)
 
 
-def find_data_paths(data, attributes):
-    paths = {}
-
-    for attribute in attributes:
-        if attribute not in data:
-            raise LoadDataException(f"The '{attribute}' attribute is missing.")
-
-        paths[attribute] = data[attribute]
-
-    return paths
-
-
 @contextlib.contextmanager
-def extract_files(asset, data):
+def extract_files(asset, data, extract_data_sample=True):
     data = copy.deepcopy(data)
-
-    paths = {}
     if asset == 'data_manager':
         attributes = ['data_opener', 'description']
-        paths = find_data_paths(data, attributes)
-        [data.pop(x) for x in attributes]
     elif asset == 'objective':
         attributes = ['metrics', 'description']
-        paths = find_data_paths(data, attributes)
-        [data.pop(x) for x in attributes]
     elif asset == 'algo':
         attributes = ['file', 'description']
-        paths = find_data_paths(data, attributes)
-        [data.pop(x) for x in attributes]
-    elif asset == 'data_sample':
-        data_path = data.get('path', None)
-        # support bulk with multiple files
-        data_paths = data.get('paths', None)
+    else:
+        attributes = []
 
-        # validation
-        if data_path and data_paths:
-            raise Exception('Cannot use path and paths together.')
+    paths = {}
+    for attr in attributes:
+        try:
+            paths[attr] = data[attr]
+        except KeyError:
+            raise LoadDataException(f"The '{attr}' attribute is missing.")
+        del data[attr]
 
-        if data_paths and isinstance(data_paths, list):
-            for file_or_path in list(data_paths):
-                # file case
-                if os.path.isfile(file_or_path):
-                    paths[path_leaf(file_or_path)] = file_or_path
-                    data['paths'].remove(file_or_path)
-        else:
-            if os.path.isfile(data_path):
-                paths = find_data_paths(data, ['path'])
-                del data['path']
+    # handle data sample specific case; paths and path cases
+    if extract_data_sample and asset == 'data_sample':
+        if data.get('path'):
+            attr = 'path'
+            paths[attr] = data[attr]
+            del data[attr]
+
+        for p in list(data.get('paths', [])):
+            paths[path_leaf(p)] = p
+            data['paths'].remove(p)
 
     files = {}
     for k, f in paths.items():
