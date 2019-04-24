@@ -81,22 +81,19 @@ class Register(Api):
             data_manager_key = self._add_data_manager(data_manager_data,
                                                       dryrun)
 
-            data_sample_data = copy.deepcopy(data['data_samples'])
-            data_sample_data['data_manager_keys'] = [data_manager_key]
-            self._register_data_sample(data_sample_data, dryrun)
+            data['data_samples']['data_manager_keys'] = [data_manager_key]
+            self._register_data_sample(data['data_samples'], dryrun)
 
         elif asset == OBJECTIVE_ASSET:
             objective_data = data['objective']
             objective_key = self._add_objective(objective_data, dryrun)
 
-            data_manager_data = copy.deepcopy(data['data_manager'])
-            data_manager_data['objective_keys'] = [objective_key]
-            data_manager_key = self._add_data_manager(data_manager_data,
+            data['data_manager']['objective_keys'] = [objective_key]
+            data_manager_key = self._add_data_manager(data['data_manager'],
                                                       dryrun)
 
-            data_sample_data = copy.deepcopy(data['data_samples'])
-            data_sample_data['data_manager_keys'] = [data_manager_key]
-            self._register_data_sample(data_sample_data, dryrun)
+            data['data_samples']['data_manager_keys'] = [data_manager_key]
+            self._register_data_sample(data['data_samples'], dryrun)
 
         else:
             raise AssertionError(asset)

@@ -1,5 +1,6 @@
 from .list import *
 from .add import *
+from .register import *
 from .update import *
 from .bulk_update import *
 from .get import *
@@ -8,4 +9,3 @@ from .run_local import *
 from .config import *
 from .create_project import *
 from .api import InvalidAssetException
-from .register import *
