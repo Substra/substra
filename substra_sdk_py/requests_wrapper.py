@@ -20,6 +20,9 @@ def parse_response(f):
             raise exceptions.Timeout(e)
 
         except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 400:
+                raise exceptions.InvalidRequest(e)
+
             if e.response.status_code == 404:
                 raise exceptions.AssetNotFound(e)
 

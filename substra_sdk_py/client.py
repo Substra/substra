@@ -1,8 +1,10 @@
 from copy import deepcopy
+import logging
 
 from .config import ConfigManager
-from . import requests_wrapper, utils
+from . import requests_wrapper, utils, exceptions
 
+logger = logging.getLogger(__name__)
 SIMPLE_ASSETS = ['data_sample', 'traintuple', 'testtuple']
 
 
@@ -36,7 +38,28 @@ class Client(object):
         url = '/'.join(url_parts)
         return f'{url}/'  # django requires a suffix /
 
-    def add(self, asset, data, dryrun=False):
+    def _post(self, asset, url, data, files, block):
+        """Helper to do a POST request to the backend."""
+        try:
+            res = requests_wrapper.post(self.config, url, data, files=files)
+
+        except exceptions.RequestTimeout as e:
+            # TODO should be handled directly by the backend (async create)
+            if not block or asset == 'data_sample':
+                # XXX it won't work for data samples as the get on
+                #     data sample is forbidden, in this case the only
+                #     option is to fail
+                raise e
+            logger.warning(
+                'Request timeout, will block till asset is available')
+            key = e.get_pkhash()
+            retry = utils.retry_on_exception(
+                exceptions=(exceptions.AssetNotFound, ))
+            res = retry(self.get)(asset, key)
+
+        return res
+
+    def add(self, asset, data, dryrun=False, block=True):
         """Add asset."""
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
         if 'permissions' not in data:
@@ -48,9 +71,9 @@ class Client(object):
         url = self._get_url(asset)
 
         with utils.extract_files(asset, data) as (data, files):
-            return requests_wrapper.post(self.config, url, data, files=files)
+            self._post(asset, url, data, files, block)
 
-    def register(self, asset, data, dryrun=False):
+    def register(self, asset, data, dryrun=False, block=True):
         """Register asset."""
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
         if 'permissions' not in data:
@@ -63,7 +86,7 @@ class Client(object):
 
         with utils.extract_files(asset, data, extract_data_sample=False) \
                 as (data, files):
-            return requests_wrapper.post(self.config, url, data, files=files)
+            self._post(asset, url, data, files, block)
 
     def get(self, asset, pkhash):
         """Get asset by key."""
