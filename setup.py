@@ -1,5 +1,6 @@
-from setuptools import Command, find_packages, setup
+from setuptools import Command, setup
 from subprocess import call
+
 
 class RunTests(Command):
     """Run all tests."""
@@ -19,7 +20,7 @@ class RunTests(Command):
 
 setup(
     name='substra-sdk-py',
-    version='0.0.2',
+    version='0.1.0',
     description='Python SDK for interacting with the substrabac project',
     url='https://github.com/SubstraFoundation/substra-sdk-py',
     author='Guillaume Cisco',
