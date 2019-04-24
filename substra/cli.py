@@ -37,7 +37,7 @@ Examples:
   substra add data_manager ./data_manager_definition.json --dry-run
 
   # add data_sample
-  substra add data_sample '{"file": "./myzippedfile.zip", "data_manager_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"], "test_only": false}'
+  substra add data_sample '{"path": "./myzippedfile.zip", "data_manager_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"], "test_only": false}'
   # bulk add data_sample
   substra add data_sample '{"paths": ["./myzippedfile.zip", "./myzippedfile2.zip"], "data_manager_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"], "test_only": false}'
 
