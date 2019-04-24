@@ -5,6 +5,7 @@ Usage:
   substra config <url> [<version>] [<user>] [<password>] [--profile=<profile>] [--config=<configuration_file_path>] [-k | --insecure]
   substra list <asset> [<filters>] [--profile=<profile>] [--config=<configuration_file_path>] [--is-complex]  [-v | --verbose]
   substra add <asset> <args> [--profile=<profile>] [--config=<configuration_file_path>] [--dry-run] [-v | --verbose]
+  substra register <asset> <args> [--profile=<profile>] [--config=<configuration_file_path>] [--dry-run] [-v | --verbose]
   substra update <asset> <pkhash> <args> [--profile=<profile>] [--config=<configuration_file_path>] [-v | --verbose]
   substra get <asset> <pkhash> [--profile=<profile>] [--config=<configuration_file_path>]  [-v | --verbose]
   substra bulk_update <asset> <args> [--profile=<profile>] [--config=<configuration_file_path>] [-v | --verbose]
@@ -36,9 +37,15 @@ Examples:
   substra add data_manager ./data_manager_definition.json --dry-run
 
   # add data_sample
-  substra add data_sample '{"file": "./myzippedfile.zip", "data_manager_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"], "test_only": false}'
+  substra add data_sample '{"path": "./myzippedfile.zip", "data_manager_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"], "test_only": false}'
   # bulk add data_sample
-  substra add data_sample '{"files": ["./myzippedfile.zip", "./myzippedfile2.zip"], "data_manager_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"], "test_only": false}'
+  substra add data_sample '{"paths": ["./myzippedfile.zip", "./myzippedfile2.zip"], "data_manager_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"], "test_only": false}'
+
+  # register data_sample
+  substra register data_sample '{"path": "./my_remote_path", "data_manager_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"], "test_only": false}'
+  # bulk register data_sample
+  substra register data_sample '{"paths": ["./my_remote_path", "./my_remote_path2"], "data_manager_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"], "test_only": false}'
+
 
   # bulk update data_sample
   substra bulk_update data_sample '{"data_sample_keys": ["62fb3263208d62c7235a046ee1d80e25512fe782254b730a9e566276b8c0ef3a", "42303efa663015e729159833a12ffb510ff92a6e386b8152f90f6fb14ddc94c9"], "data_manager_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"]}'
@@ -48,7 +55,7 @@ Examples:
 
 Assets available:
   - data_manager (add, update, list and get)
-  - data_sample (add, bulk add, bulk_update and get)
+  - data_sample (add, register, bulk add, and bulk_update)
   - objective (add, list and get)
   - algo (add, list and get)
   - model (list, get and path)
@@ -75,7 +82,7 @@ from docopt import docopt
 
 from . import __version__ as VERSION
 
-COMMANDS = ('Add', 'BulkUpdate', 'Config', 'Get', 'List', 'Path', 'Update', 'CreateProject', 'RunLocal')
+COMMANDS = ('Add', 'Register', 'BulkUpdate', 'Config', 'Get', 'List', 'Path', 'Update', 'CreateProject', 'RunLocal')
 
 
 def main():
