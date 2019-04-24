@@ -1,3 +1,4 @@
+import copy
 import itertools
 import json
 import contextlib
@@ -16,34 +17,36 @@ def path_leaf(path):
     return tail or ntpath.basename(head)
 
 
-def find_data_paths(data, attributes):
-    paths = {}
-
-    for attribute in attributes:
-        if attribute not in data:
-            raise LoadDataException(f"The '{attribute}' attribute is missing.")
-
-        paths[attribute] = data[attribute]
-
-    return paths
-
-
 @contextlib.contextmanager
-def load_files(asset, data):
-    paths = {}
+def extract_files(asset, data, extract_data_sample=True):
+    data = copy.deepcopy(data)
     if asset == 'data_manager':
-        paths = find_data_paths(data, ['data_opener', 'description'])
+        attributes = ['data_opener', 'description']
     elif asset == 'objective':
-        paths = find_data_paths(data, ['metrics', 'description'])
+        attributes = ['metrics', 'description']
     elif asset == 'algo':
-        paths = find_data_paths(data, ['file', 'description'])
-    elif asset == 'data_sample':
-        # support bulk with multiple files
-        data_paths = data.get('files', None)
-        if data_paths and isinstance(data_paths, list):
-            paths = {path_leaf(x): x for x in data_paths}
-        else:
-            paths = find_data_paths(data, ['file'])
+        attributes = ['file', 'description']
+    else:
+        attributes = []
+
+    paths = {}
+    for attr in attributes:
+        try:
+            paths[attr] = data[attr]
+        except KeyError:
+            raise LoadDataException(f"The '{attr}' attribute is missing.")
+        del data[attr]
+
+    # handle data sample specific case; paths and path cases
+    if extract_data_sample and asset == 'data_sample':
+        if data.get('path'):
+            attr = 'path'
+            paths[attr] = data[attr]
+            del data[attr]
+
+        for p in list(data.get('paths', [])):
+            paths[path_leaf(p)] = p
+            data['paths'].remove(p)
 
     files = {}
     for k, f in paths.items():
@@ -52,7 +55,7 @@ def load_files(asset, data):
         files[k] = open(f, 'rb')
 
     try:
-        yield files
+        yield (data, files)
     finally:
         for f in files.values():
             f.close()

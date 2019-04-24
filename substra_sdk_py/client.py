@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from .config import ConfigManager
 from . import requests_wrapper, utils
 
@@ -36,7 +38,7 @@ class Client(object):
 
     def add(self, asset, data, dryrun=False):
         """Add asset."""
-        data = dict(data)  # make a copy for avoiding modification by reference
+        data = deepcopy(data)  # make a deep copy for avoiding modification by reference
         if 'permissions' not in data:
             data['permissions'] = 'all'
 
@@ -45,7 +47,22 @@ class Client(object):
 
         url = self._get_url(asset)
 
-        with utils.load_files(asset, data) as files:
+        with utils.extract_files(asset, data) as (data, files):
+            return requests_wrapper.post(self.config, url, data, files=files)
+
+    def register(self, asset, data, dryrun=False):
+        """Register asset."""
+        data = deepcopy(data)  # make a deep copy for avoiding modification by reference
+        if 'permissions' not in data:
+            data['permissions'] = 'all'
+
+        if dryrun:
+            data['dryrun'] = True
+
+        url = self._get_url(asset)
+
+        with utils.extract_files(asset, data, extract_data_sample=False) \
+                as (data, files):
             return requests_wrapper.post(self.config, url, data, files=files)
 
     def get(self, asset, pkhash):
