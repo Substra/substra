@@ -13,6 +13,7 @@ class Register(Api):
     ACCEPTED_ASSETS = [DATA_SAMPLE_ASSET, DATASET_ASSET, OBJECTIVE_ASSET]
 
     def _add_objective(self, data, dryrun):
+        print('adding objective')
         asset = OBJECTIVE_ASSET
         # add objective, do not fail on conflict
         try:
@@ -27,11 +28,11 @@ class Register(Api):
 
             res = e.response.json()
 
-        res = json.dumps(res, indent=2)
-        print(res, end='')
+        print(json.dumps(res, indent=2), end='')
         return res['pkhash']
 
     def _add_data_manager(self, data, dryrun):
+        print('adding data manager')
         asset = DATA_MANAGER_ASSET
         # add data manager, do not fail on conflict
         try:
@@ -46,11 +47,11 @@ class Register(Api):
 
             res = e.response.json()
 
-        res = json.dumps(res, indent=2)
-        print(res, end='')
+        print(json.dumps(res, indent=2), end='')
         return res['pkhash']
 
     def _register_data_sample(self, data, dryrun):
+        print('registering data sample')
         asset = DATA_SAMPLE_ASSET
         try:
             res = self.client.register(asset, data, dryrun)
@@ -61,8 +62,7 @@ class Register(Api):
                 error = e.response.content
             raise Exception(f'Failed to create {asset}: {e}: {error}')
 
-        res = json.dumps(res, indent=2)
-        print(res, end='')
+        print(json.dumps(res, indent=2), end='')
         return res
 
     def run(self):
@@ -78,22 +78,24 @@ class Register(Api):
 
         elif asset == DATASET_ASSET:
             data_manager_data = data['data_manager']
-            res = self._add_data_manager(data_manager_data, dryrun)
+            data_manager_key = self._add_data_manager(data_manager_data,
+                                                      dryrun)
 
             data_sample_data = copy.deepcopy(data['data_samples'])
-            data_sample_data['data_manager_keys'] = [res['pkhash']]
+            data_sample_data['data_manager_keys'] = [data_manager_key]
             self._register_data_sample(data_sample_data, dryrun)
 
         elif asset == OBJECTIVE_ASSET:
             objective_data = data['objective']
-            res = self._add_objective(objective_data, dryrun)
+            objective_key = self._add_objective(objective_data, dryrun)
 
             data_manager_data = copy.deepcopy(data['data_manager'])
-            data_manager_data['objective_keys'] = [res['pkhash']]
-            res = self._add_data_manager(data_manager_data, dryrun)
+            data_manager_data['objective_keys'] = [objective_key]
+            data_manager_key = self._add_data_manager(data_manager_data,
+                                                      dryrun)
 
             data_sample_data = copy.deepcopy(data['data_samples'])
-            data_sample_data['data_manager_keys'] = [res['pkhash']]
+            data_sample_data['data_manager_keys'] = [data_manager_key]
             self._register_data_sample(data_sample_data, dryrun)
 
         else:
