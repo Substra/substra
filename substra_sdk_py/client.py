@@ -74,7 +74,7 @@ class Client(object):
         url = self._get_url(asset)
 
         with utils.extract_files(asset, data) as (data, files):
-            self._post(asset, url, data, files, block)
+            return self._post(asset, url, data, files, block)
 
     def register(self, asset, data, dryrun=False, block=True):
         """Register asset."""
@@ -89,7 +89,7 @@ class Client(object):
 
         with utils.extract_files(asset, data, extract_data_sample=False) \
                 as (data, files):
-            self._post(asset, url, data, files, block)
+            return self._post(asset, url, data, files, block)
 
     def get(self, asset, pkhash):
         """Get asset by key."""
