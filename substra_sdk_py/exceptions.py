@@ -36,7 +36,7 @@ class InvalidRequest(HTTPError):
     pass
 
 
-class AssetNotFound(HTTPError):
+class NotFound(HTTPError):
     pass
 
 
@@ -51,9 +51,9 @@ class RequestTimeout(HTTPError):
         self.pkhash = pkhash
 
 
-class AssetAlreadyExist(HTTPError):
+class AlreadyExists(HTTPError):
     def __init__(self, request_exception, msg=None):
-        super(AssetAlreadyExist, self).__init__(request_exception, msg=msg)
+        super(AlreadyExists, self).__init__(request_exception, msg=msg)
 
         # parse response and fetch pkhash
         r = self.response.json()

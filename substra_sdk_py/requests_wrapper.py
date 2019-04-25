@@ -24,13 +24,13 @@ def parse_response(f):
                 raise exceptions.InvalidRequest(e)
 
             if e.response.status_code == 404:
-                raise exceptions.AssetNotFound(e)
+                raise exceptions.NotFound(e)
 
             if e.response.status_code == 408:
                 raise exceptions.RequestTimeout(e)
 
             if e.response.status_code == 409:
-                raise exceptions.AssetAlreadyExist(e)
+                raise exceptions.AlreadyExists(e)
 
             raise exceptions.HTTPError(e)
 
