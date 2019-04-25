@@ -39,7 +39,10 @@ class Client(object):
         return f'{url}/'  # django requires a suffix /
 
     def _post(self, asset, url, data, files, block):
-        """Helper to do a POST request to the backend."""
+        """Helper to do a POST request to the backend.
+
+        In case of timeout, block till object is created.
+        """
         try:
             res = requests_wrapper.post(self.config, url, data, files=files)
 
