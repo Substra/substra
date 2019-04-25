@@ -8,7 +8,7 @@ class RequestException(SDKException):
         if msg is None:
             msg = str(request_exception)
         else:
-            msg = f"{msg}: {request_exception}"
+            msg = f"{request_exception}: {msg}"
         super(RequestException, self).__init__(msg)
 
     @property
@@ -32,6 +32,10 @@ class HTTPError(RequestException):
     pass
 
 
+class InternalServerError(HTTPError):
+    pass
+
+
 class InvalidRequest(HTTPError):
     pass
 
@@ -41,28 +45,32 @@ class NotFound(HTTPError):
 
 
 class RequestTimeout(HTTPError):
-    def __init__(self, request_exception, msg=None):
-        super(RequestTimeout, self).__init__(request_exception, msg=msg)
-
+    def __init__(self, request_exception):
         # parse response and fetch pkhash
-        r = self.response.json()
+        r = request_exception.response.json()
         pkhash = r['pkhash'] if 'pkhash' in r else r['message'].get('pkhash')
 
         self.pkhash = pkhash
 
+        msg = f"Operation on object with key '{pkhash}' timed out."
+
+        super(RequestTimeout, self).__init__(request_exception, msg=msg)
+
 
 class AlreadyExists(HTTPError):
-    def __init__(self, request_exception, msg=None):
-        super(AlreadyExists, self).__init__(request_exception, msg=msg)
-
+    def __init__(self, request_exception):
         # parse response and fetch pkhash
-        r = self.response.json()
+        r = request_exception.response.json()
         # XXX support list of pkhashes; this could be the case when adding
         #     a list of data samples through a single POST request
         pkhash = [x['pkhash'] for x in r] if isinstance(r, list) else \
             r['pkhash']
 
         self.pkhash = pkhash
+
+        msg = f"Object with key '{pkhash}' already exists."
+
+        super(AlreadyExists, self).__init__(request_exception, msg=msg)
 
 
 class InvalidResponse(SDKException):

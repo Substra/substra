@@ -32,6 +32,9 @@ def _req(fn, config, url, **kwargs):
         if e.response.status_code == 409:
             raise exceptions.AlreadyExists(e)
 
+        if e.response.status_code == 500:
+            raise exceptions.InternalServerError(e)
+
         raise exceptions.HTTPError(e)
 
     try:
