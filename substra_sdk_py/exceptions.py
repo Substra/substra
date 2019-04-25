@@ -20,10 +20,6 @@ class RequestException(SDKException):
         return self.response.status_code
 
 
-class InvalidRequest(RequestException):
-    pass
-
-
 class ConnectionError(RequestException):
     pass
 
@@ -33,6 +29,10 @@ class Timeout(RequestException):
 
 
 class HTTPError(RequestException):
+    pass
+
+
+class InvalidRequest(HTTPError):
     pass
 
 
