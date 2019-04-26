@@ -63,8 +63,10 @@ class AlreadyExists(HTTPError):
         r = request_exception.response.json()
         # XXX support list of pkhashes; this could be the case when adding
         #     a list of data samples through a single POST request
-        pkhash = [x['pkhash'] for x in r] if isinstance(r, list) else \
-            r['pkhash']
+        if isinstance(r, list):
+            pkhash = [x['pkhash'] for x in r]
+        else:
+            pkhash = r['pkhash']
 
         self.pkhash = pkhash
 

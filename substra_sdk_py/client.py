@@ -38,7 +38,7 @@ class Client(object):
         url = '/'.join(url_parts)
         return f'{url}/'  # django requires a suffix /
 
-    def _post(self, asset, url, data, files, block):
+    def _post(self, asset, url, data, files, blocking):
         """Helper to do a POST request to the backend.
 
         In case of timeout, block till object is created.
@@ -47,8 +47,9 @@ class Client(object):
             res = requests_wrapper.post(self.config, url, data, files=files)
 
         except exceptions.RequestTimeout as e:
-            # TODO should be handled directly by the backend (async create)
-            if not block or asset == 'data_sample':
+            # XXX could be handled directly by the backend (async create)
+            unhandled_assets = ('data_sample', )
+            if not blocking or asset in unhandled_assets:
                 # XXX it won't work for data samples as the get on
                 #     data sample is forbidden, in this case the only
                 #     option is to fail
@@ -62,7 +63,7 @@ class Client(object):
 
         return res
 
-    def add(self, asset, data, dryrun=False, block=True):
+    def add(self, asset, data, dryrun=False, blocking=True):
         """Add asset."""
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
         if 'permissions' not in data:
@@ -74,9 +75,9 @@ class Client(object):
         url = self._get_url(asset)
 
         with utils.extract_files(asset, data) as (data, files):
-            return self._post(asset, url, data, files, block)
+            return self._post(asset, url, data, files, blocking)
 
-    def register(self, asset, data, dryrun=False, block=True):
+    def register(self, asset, data, dryrun=False, blocking=True):
         """Register asset."""
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
         if 'permissions' not in data:
@@ -89,7 +90,7 @@ class Client(object):
 
         with utils.extract_files(asset, data, extract_data_sample=False) \
                 as (data, files):
-            return self._post(asset, url, data, files, block)
+            return self._post(asset, url, data, files, blocking)
 
     def get(self, asset, pkhash):
         """Get asset by key."""
