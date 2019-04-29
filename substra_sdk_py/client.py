@@ -57,8 +57,11 @@ class Client(object):
             logger.warning(
                 'Request timeout, will block till asset is available')
             key = e.pkhash
+            # TODO retry only on NotFound exceptions only when backend has been
+            #      fixed:
+            #      https://github.com/SubstraFoundation/substrabac/issues/196
             retry = utils.retry_on_exception(
-                exceptions=(exceptions.NotFound, ))
+                exceptions=(exceptions.NotFound, exceptions.InvalidRequest))
             res = retry(self.get)(asset, key)
 
         return res
