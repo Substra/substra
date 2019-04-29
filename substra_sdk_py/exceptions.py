@@ -79,7 +79,7 @@ class AlreadyExists(HTTPError):
 
         self.pkhash = pkhash
 
-        msg = f"Object with key '{pkhash}' already exists."
+        msg = f"Object with key(s) '{pkhash}' already exists."
 
         super(AlreadyExists, self).__init__(request_exception, msg=msg)
 
