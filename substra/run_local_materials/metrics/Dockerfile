@@ -1,4 +1,4 @@
-FROM substra/substratools
+FROM substratools
 
 RUN mkdir -p /sandbox
 RUN mkdir -p /sandbox/opener
