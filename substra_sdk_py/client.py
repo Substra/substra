@@ -51,6 +51,12 @@ class Client(object):
             logger.warning(
                 'Request timeout, will block till asset is available')
             key = e.pkhash
+            is_many = isinstance(key, list)
+            if not blocking or is_many:
+                # FIXME timeout on many objects is too complicated to handled.
+                #       avoid operation on many objects
+                #       https://github.com/SubstraFoundation/substra-sdk-py/issues/25
+                raise e
             # TODO retry only on NotFound exceptions only when backend has been
             #      fixed:
             #      https://github.com/SubstraFoundation/substrabac/issues/196
