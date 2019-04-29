@@ -90,6 +90,7 @@ class Register(Api):
             data_manager_key = self._add_data_manager(data['data_manager'],
                                                       dryrun)
 
+            data['data_samples']['test_only'] = True
             data['data_samples']['data_manager_keys'] = [data_manager_key]
             data_sample_keys = self._register_data_sample(data['data_samples'],
                                                           dryrun)
