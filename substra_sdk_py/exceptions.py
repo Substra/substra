@@ -48,7 +48,13 @@ class RequestTimeout(HTTPError):
     def __init__(self, request_exception):
         # parse response and fetch pkhash
         r = request_exception.response.json()
-        pkhash = r['pkhash'] if 'pkhash' in r else r['message'].get('pkhash')
+
+        try:
+            pkhash = r['pkhash'] if 'pkhash' in r else r['message'].get('pkhash')
+        except (AttributeError, KeyError):
+            # XXX this is the case when doing a POST query to update the
+            #     data manager for instance
+            pkhash = None
 
         self.pkhash = pkhash
 
