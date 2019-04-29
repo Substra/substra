@@ -37,7 +37,10 @@ class InternalServerError(HTTPError):
 
 
 class InvalidRequest(HTTPError):
-    pass
+    def __init__(self, request_exception, msg=None):
+        error = request_exception.response.json()
+        message = error.get('message', None)
+        super(InvalidRequest, self).__init__(request_exception, message)
 
 
 class NotFound(HTTPError):
