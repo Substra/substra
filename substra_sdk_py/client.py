@@ -56,9 +56,9 @@ class Client(object):
                 raise e
             logger.warning(
                 'Request timeout, will block till asset is available')
-            key = e.get_pkhash()
+            key = e.pkhash
             retry = utils.retry_on_exception(
-                exceptions=(exceptions.AssetNotFound, ))
+                exceptions=(exceptions.NotFound, ))
             res = retry(self.get)(asset, key)
 
         return res
