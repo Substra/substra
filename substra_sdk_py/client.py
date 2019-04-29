@@ -53,12 +53,11 @@ class Client(object):
             key = e.pkhash
             is_many = isinstance(key, list)
             if not blocking or is_many:
-                # FIXME timeout on many objects is too complicated to handled.
-                #       avoid operation on many objects
+                # FIXME timeout on many objects is too complicated to handle.
+                #       avoid operation on many objects:
                 #       https://github.com/SubstraFoundation/substra-sdk-py/issues/25
                 raise e
-            # TODO retry only on NotFound exceptions only when backend has been
-            #      fixed:
+            # TODO retry only on NotFound exceptions when backend has been fixed:
             #      https://github.com/SubstraFoundation/substrabac/issues/196
             retry = utils.retry_on_exception(
                 exceptions=(exceptions.NotFound, exceptions.InvalidRequest))
