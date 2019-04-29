@@ -41,7 +41,7 @@ def _req(fn, config, url, **kwargs):
         result = r.json()
     except ValueError as e:
         # we always expect JSON response from the server
-        msg = "Cannot parse response to JSON: {}".format(str(e))
+        msg = f"Cannot parse response to JSON: {e}"
         raise exceptions.InvalidResponse(r, msg)
 
     return result

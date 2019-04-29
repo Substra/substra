@@ -48,12 +48,6 @@ class Client(object):
 
         except exceptions.RequestTimeout as e:
             # XXX could be handled directly by the backend (async create)
-            unhandled_assets = ('data_sample', )
-            if not blocking or asset in unhandled_assets:
-                # XXX it won't work for data samples as the get on
-                #     data sample is forbidden, in this case the only
-                #     option is to fail
-                raise e
             logger.warning(
                 'Request timeout, will block till asset is available')
             key = e.pkhash

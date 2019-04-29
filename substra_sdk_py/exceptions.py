@@ -58,7 +58,7 @@ class RequestTimeout(HTTPError):
 
         self.pkhash = pkhash
 
-        msg = f"Operation on object with key '{pkhash}' timed out."
+        msg = f"Operation on object with key(s) '{pkhash}' timed out."
 
         super(RequestTimeout, self).__init__(request_exception, msg=msg)
 
