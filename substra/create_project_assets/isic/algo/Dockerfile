@@ -1,5 +1,5 @@
 # this base image works in both CPU and GPU enabled environments
-FROM substratools
+FROM eu.gcr.io/substra-208412/substratools
 
 # install dependencies
 RUN pip3 install pandas numpy sklearn pillow scipy keras

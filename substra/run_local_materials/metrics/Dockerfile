@@ -1,4 +1,4 @@
-FROM substratools
+FROM eu.gcr.io/substra-208412/substratools
 
 RUN mkdir -p /sandbox
 RUN mkdir -p /sandbox/opener
