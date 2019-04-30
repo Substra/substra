@@ -1,4 +1,3 @@
-import copy
 import json
 
 from substra_sdk_py import exceptions
@@ -63,7 +62,10 @@ class Register(Api):
             raise Exception(f'Failed to create {asset}: {e}: {error}')
 
         print(json.dumps(res, indent=2), end='')
-        return res
+        if isinstance(res, list):
+            return [r['pkhash'] for r in res]
+        else:
+            return res['pkhash']
 
     def run(self):
         super(Register, self).run()
@@ -85,15 +87,18 @@ class Register(Api):
             self._register_data_sample(data['data_samples'], dryrun)
 
         elif asset == OBJECTIVE_ASSET:
-            objective_data = data['objective']
-            objective_key = self._add_objective(objective_data, dryrun)
-
-            data['data_manager']['objective_keys'] = [objective_key]
             data_manager_key = self._add_data_manager(data['data_manager'],
                                                       dryrun)
 
+            data['data_samples']['test_only'] = True
             data['data_samples']['data_manager_keys'] = [data_manager_key]
-            self._register_data_sample(data['data_samples'], dryrun)
+            data_sample_keys = self._register_data_sample(data['data_samples'],
+                                                          dryrun)
+
+            objective_data = data['objective']
+            objective_data['test_data_manager_key'] = data_manager_key
+            objective_data['test_data_sample_keys'] = data_sample_keys
+            self._add_objective(objective_data, dryrun)
 
         else:
             raise AssertionError(asset)
