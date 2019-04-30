@@ -86,29 +86,26 @@ def parse_filters(filters):
     return 'search=%s' % quote(''.join(filters))
 
 
-def retry_on_exception(exceptions, tries=5):
+def retry_on_exception(exceptions, timeout=False):
     """Retry function in case of exception(s)."""
     def _retry(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
-            current_try = tries
             delay = 1
             backoff = 2
-            exn = None
+            tstart = time.time()
 
-            while current_try > 0:
+            while True:
                 try:
                     return f(*args, **kwargs)
 
-                except exceptions as e:
-                    exn = e
+                except exceptions:
+                    if timeout is not False and time.time() - tstart > timeout:
+                        raise
                     logging.warning(
                         f'Function {f.__name__} failed: retrying in {delay}s')
                     time.sleep(delay)
                     delay *= backoff
-                    current_try -= 1
-
-            raise exn
 
         return wrapper
     return _retry

@@ -38,7 +38,7 @@ class Client(object):
         url = '/'.join(url_parts)
         return f'{url}/'  # django requires a suffix /
 
-    def _post(self, asset, url, data, files, blocking):
+    def _post(self, asset, url, data, files, timeout):
         """Helper to do a POST request to the backend.
 
         In case of timeout, block till object is created.
@@ -52,7 +52,7 @@ class Client(object):
                 'Request timeout, will block till asset is available')
             key = e.pkhash
             is_many = isinstance(key, list)
-            if not blocking or is_many:
+            if not timeout or is_many:
                 # FIXME timeout on many objects is too complicated to handle.
                 #       avoid operation on many objects:
                 #       https://github.com/SubstraFoundation/substra-sdk-py/issues/25
@@ -60,12 +60,14 @@ class Client(object):
             # TODO retry only on NotFound exceptions when backend has been fixed:
             #      https://github.com/SubstraFoundation/substrabac/issues/196
             retry = utils.retry_on_exception(
-                exceptions=(exceptions.NotFound, exceptions.InvalidRequest))
+                exceptions=(exceptions.NotFound, exceptions.InvalidRequest),
+                timeout=float(timeout),
+            )
             res = retry(self.get)(asset, key)
 
         return res
 
-    def add(self, asset, data, dryrun=False, blocking=True):
+    def add(self, asset, data, dryrun=False, timeout=False):
         """Add asset."""
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
         if 'permissions' not in data:
@@ -77,9 +79,9 @@ class Client(object):
         url = self._get_url(asset)
 
         with utils.extract_files(asset, data) as (data, files):
-            return self._post(asset, url, data, files, blocking)
+            return self._post(asset, url, data, files, timeout)
 
-    def register(self, asset, data, dryrun=False, blocking=True):
+    def register(self, asset, data, dryrun=False, timeout=False):
         """Register asset."""
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
         if 'permissions' not in data:
@@ -92,7 +94,7 @@ class Client(object):
 
         with utils.extract_files(asset, data, extract_data_sample=False) \
                 as (data, files):
-            return self._post(asset, url, data, files, blocking)
+            return self._post(asset, url, data, files, timeout)
 
     def get(self, asset, pkhash):
         """Get asset by key."""
