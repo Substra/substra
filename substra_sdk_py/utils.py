@@ -1,7 +1,10 @@
+import contextlib
 import copy
 import itertools
+import functools
 import json
-import contextlib
+import logging
+import time
 import os
 from urllib.parse import quote
 
@@ -81,3 +84,28 @@ def parse_filters(filters):
     # we're therefore passing a string (won't be escaped again) instead
     # of an object
     return 'search=%s' % quote(''.join(filters))
+
+
+def retry_on_exception(exceptions, timeout=False):
+    """Retry function in case of exception(s)."""
+    def _retry(f):
+        @functools.wraps(f)
+        def wrapper(*args, **kwargs):
+            delay = 1
+            backoff = 2
+            tstart = time.time()
+
+            while True:
+                try:
+                    return f(*args, **kwargs)
+
+                except exceptions:
+                    if timeout is not False and time.time() - tstart > timeout:
+                        raise
+                    logging.warning(
+                        f'Function {f.__name__} failed: retrying in {delay}s')
+                    time.sleep(delay)
+                    delay *= backoff
+
+        return wrapper
+    return _retry
