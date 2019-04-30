@@ -91,12 +91,12 @@ def retry_on_exception(exceptions, tries=5):
     def _retry(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
-            current_trie = tries
+            current_try = tries
             delay = 1
             backoff = 2
             exn = None
 
-            while current_trie > 0:
+            while current_try > 0:
                 try:
                     return f(*args, **kwargs)
 
@@ -106,7 +106,7 @@ def retry_on_exception(exceptions, tries=5):
                         f'Function {f.__name__} failed: retrying in {delay}s')
                     time.sleep(delay)
                     delay *= backoff
-                    current_trie -= 1
+                    current_try -= 1
 
             raise exn
 
