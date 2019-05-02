@@ -1,4 +1,5 @@
 # this base image works in both CPU and GPU enabled environments
+# to pull this image from our private registry you need to be authenticated using your google account
 FROM eu.gcr.io/substra-208412/substratools
 
 # install dependencies
