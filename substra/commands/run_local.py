@@ -91,7 +91,7 @@ def compute_local(docker_client, config, rank, inmodels):
                config['local_path']: {'bind': '/sandbox/local', 'mode': 'rw'},
                config['train_opener_file']: {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}}
 
-    command = '--train'
+    command = 'train'
 
     if rank is not None:
         command += f" --rank {rank}"
@@ -106,7 +106,7 @@ def compute_local(docker_client, config, rank, inmodels):
             os.symlink(src, dst)
             model_keys.append(model_key)
 
-        command += f" --inmodels {' '.join(model_keys)}"
+        command += ' '.join(model_keys)
 
     docker_client.containers.run(config['algo_docker'], command=command, volumes=volumes, remove=True, user=USER)
     print('(duration %.2f s )' % (time.time() - start))
@@ -160,7 +160,7 @@ def compute_local(docker_client, config, rank, inmodels):
                config['outmodel_path']: {'bind': '/sandbox/model', 'mode': 'rw'},
                config['test_pred_path']: {'bind': '/sandbox/pred', 'mode': 'rw'},
                config['test_opener_file']: {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}}
-    docker_client.containers.run(config['algo_docker'], command=f"--predict --inmodels {model_key}", volumes=volumes, remove=True, user=USER)
+    docker_client.containers.run(config['algo_docker'], command=f"predict {model_key}", volumes=volumes, remove=True, user=USER)
     print('(duration %.2f s )' % (time.time() - start))
 
     print('Evaluating performance - creating docker', end=' ', flush=True)

@@ -1,10 +1,8 @@
 # this base image works in both CPU and GPU enabled environments
-FROM nvidia/cuda:9.0-base
+# to pull this image from our private registry you need to be authenticated using your google account
+FROM eu.gcr.io/substra-208412/substratools
 
 # install dependencies
-RUN apt-get update
-RUN apt-get install -y build-essential libssl-dev python3 python3-dev python3-pip
-RUN pip3 install --upgrade pip
 RUN pip3 install pandas numpy sklearn pillow scipy keras
 
 # create base directory in which the experiment will happen
