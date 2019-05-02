@@ -89,11 +89,12 @@ def compute_local(docker_client, config, rank, inmodels, dryrun=False):
         print('Training algo fake data samples', end='', flush=True)
 
     start = time.time()
-    volumes = {config['train_data_path']: {'bind': '/sandbox/data', 'mode': 'ro'},
-               config['outmodel_path']: {'bind': '/sandbox/model', 'mode': 'rw'},
+    volumes = {config['outmodel_path']: {'bind': '/sandbox/model', 'mode': 'rw'},
                config['train_pred_path']: {'bind': '/sandbox/pred', 'mode': 'rw'},
                config['local_path']: {'bind': '/sandbox/local', 'mode': 'rw'},
                config['train_opener_file']: {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}}
+    if not dryrun:
+        volumes[config['train_data_path']] = {'bind': '/sandbox/data', 'mode': 'ro'}
 
     command = 'train'
     if dryrun:
@@ -132,10 +133,11 @@ def compute_local(docker_client, config, rank, inmodels, dryrun=False):
                                                                                               config['train_data_path']), end=' ', flush=True)
     start = time.time()
 
-    volumes = {config['train_data_path']: {'bind': '/sandbox/data', 'mode': 'ro'},
-               config['train_pred_path']: {'bind': '/sandbox/pred', 'mode': 'rw'},
+    volumes = {config['train_pred_path']: {'bind': '/sandbox/pred', 'mode': 'rw'},
                config['metrics_file']: {'bind': '/sandbox/metrics/__init__.py', 'mode': 'ro'},
                config['train_opener_file']: {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}}
+    if not dryrun:
+        volumes[config['train_data_path']] = {'bind': '/sandbox/data', 'mode': 'ro'}
     docker_client.containers.run(config['metrics_docker'], volumes=volumes, remove=True, user=USER)
     print('(duration %.2f s )' % (time.time() - start))
 
@@ -162,10 +164,12 @@ def compute_local(docker_client, config, rank, inmodels, dryrun=False):
     print('Testing model on %s with %s saved in %s' % (config['test_data_path'],
                                                        model_key, config['test_pred_path']), end=' ', flush=True)
     start = time.time()
-    volumes = {config['test_data_path']: {'bind': '/sandbox/data', 'mode': 'ro'},
-               config['outmodel_path']: {'bind': '/sandbox/model', 'mode': 'rw'},
+    volumes = {config['outmodel_path']: {'bind': '/sandbox/model', 'mode': 'rw'},
                config['test_pred_path']: {'bind': '/sandbox/pred', 'mode': 'rw'},
                config['test_opener_file']: {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}}
+    if not dryrun:
+        volumes[config['test_data_path']] = {'bind': '/sandbox/data', 'mode': 'ro'}
+
     docker_client.containers.run(config['algo_docker'], command=f"predict {model_key}", volumes=volumes, remove=True, user=USER)
     print('(duration %.2f s )' % (time.time() - start))
 
@@ -179,10 +183,12 @@ def compute_local(docker_client, config, rank, inmodels, dryrun=False):
     print('Evaluating performance - compute metric with %s predictions against %s labels' % (config['test_pred_path'],
                                                                                              config['test_data_path']), end=' ', flush=True)
 
-    volumes = {config['test_data_path']: {'bind': '/sandbox/data', 'mode': 'ro'},
-               config['test_pred_path']: {'bind': '/sandbox/pred', 'mode': 'rw'},
+    volumes = {config['test_pred_path']: {'bind': '/sandbox/pred', 'mode': 'rw'},
                config['metrics_file']: {'bind': '/sandbox/metrics/__init__.py', 'mode': 'ro'},
                config['test_opener_file']: {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}}
+    if not dryrun:
+        volumes[config['test_data_path']] = {'bind': '/sandbox/data', 'mode': 'ro'}
+
     docker_client.containers.run(config['metrics_docker'], volumes=volumes, remove=True, user=USER)
     print('(duration %.2f s )' % (time.time() - start))
 
@@ -214,6 +220,9 @@ class RunLocal(Base):
         inmodel = self.options.get('--inmodel')
         outmodel = self.getOption(self.options.get('--outmodels'), os.path.abspath(os.path.join(algo_path, '../model/')))
         fake_data_samples = self.options.get('--fake-data-samples', False)
+        if fake_data_samples:
+            train_data = None
+            test_data = None
 
         try:
             config = setup_local(algo_path,
