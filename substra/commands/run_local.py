@@ -40,8 +40,9 @@ def setup_local(algo_path,
 
     # check config values
     for key in config.keys():
-        if not os.path.exists(config[key]):
-            raise Exception(f"Cannot launch local run: {key.replace('_', ' ')} {config[key]} doesn't exist")
+        path = config[key]
+        if path and not os.path.exists(path):
+            raise Exception(f"Cannot launch local run: {key.replace('_', ' ')} {path} doesn't exist")
 
     # docker
     config['algo_docker'] = 'algo_run_local'
