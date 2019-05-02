@@ -72,7 +72,7 @@ def setup_local(algo_path,
     return config
 
 
-def compute_local(docker_client, config, rank, inmodels):
+def compute_local(docker_client, config, rank, inmodels, dryrun=False):
 
     print('Training starts')
 
@@ -83,7 +83,11 @@ def compute_local(docker_client, config, rank, inmodels):
                                rm=False)
     print('(duration %.2f s )' % (time.time() - start))
 
-    print('Training algo on %s' % (config['train_data_path'],), end=' ', flush=True)
+    if not dryrun:
+        print('Training algo on %s' % (config['train_data_path'],), end=' ', flush=True)
+    else:
+        print('Training algo fake data samples', end='', flush=True)
+
     start = time.time()
     volumes = {config['train_data_path']: {'bind': '/sandbox/data', 'mode': 'ro'},
                config['outmodel_path']: {'bind': '/sandbox/model', 'mode': 'rw'},
@@ -92,6 +96,8 @@ def compute_local(docker_client, config, rank, inmodels):
                config['train_opener_file']: {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}}
 
     command = 'train'
+    if dryrun:
+        command += " --dry-run"
 
     if rank is not None:
         command += f" --rank {rank}"
@@ -207,6 +213,7 @@ class RunLocal(Base):
         test_data = self.getOption(self.options.get('--test-data-sample'), os.path.abspath(os.path.join(algo_path, '../objective/data-samples/')))
         inmodel = self.options.get('--inmodel')
         outmodel = self.getOption(self.options.get('--outmodels'), os.path.abspath(os.path.join(algo_path, '../model/')))
+        fake_data_samples = self.options.get('--fake-data-samples', False)
 
         try:
             config = setup_local(algo_path,
@@ -218,6 +225,6 @@ class RunLocal(Base):
 
             client = docker.from_env()
 
-            compute_local(client, config, rank, inmodel)
+            compute_local(client, config, rank, inmodel, dryrun=fake_data_samples)
         except Exception as e:
             self.handle_exception(e)
