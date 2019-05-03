@@ -232,16 +232,13 @@ class RunLocal(Base):
             train_data = None
             test_data = None
 
-        try:
-            config = setup_local(algo_path,
-                                 train_opener, test_opener, metrics,
-                                 train_data, test_data,
-                                 outmodel_path=outmodel,
-                                 compute_path='./sandbox',
-                                 local_path='local')
+        config = setup_local(algo_path,
+                             train_opener, test_opener, metrics,
+                             train_data, test_data,
+                             outmodel_path=outmodel,
+                             compute_path='./sandbox',
+                             local_path='local')
 
-            client = docker.from_env()
+        client = docker.from_env()
 
-            compute_local(client, config, rank, inmodel, dryrun=fake_data_samples)
-        except Exception as e:
-            self.handle_exception(e)
+        compute_local(client, config, rank, inmodel, dryrun=fake_data_samples)
