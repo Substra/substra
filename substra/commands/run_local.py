@@ -162,7 +162,7 @@ def compute_local(docker_client, config, rank, inmodels, dry_run=False):
     _docker_build(docker_client, metrics_path, docker_metrics_tag, rm=True)
 
     print('Evaluating performance - compute metrics with %s predictions against %s labels' % (
-        config['train_pred_path'], config['train_data_path']))
+        config['train_pred_path'], config['train_data_path'] or 'fake'))
 
     volumes = {config['train_pred_path']: VOLUME_PRED,
                config['metrics_file']: VOLUME_METRICS,
@@ -188,8 +188,8 @@ def compute_local(docker_client, config, rank, inmodels, dry_run=False):
 
     print('Testing model')
 
-    print('Testing model on %s with %s saved in %s' % (
-        config['test_data_path'], model_key, config['test_pred_path']))
+    print('Testing model on %s labels with %s saved in %s' % (
+        config['test_data_path'] or 'fake', model_key, config['test_pred_path']))
     volumes = {config['outmodel_path']: VOLUME_OUTPUT_MODEL,
                config['test_pred_path']: VOLUME_PRED,
                config['test_opener_file']: VOLUME_OPENER}
@@ -205,7 +205,7 @@ def compute_local(docker_client, config, rank, inmodels, dry_run=False):
     _docker_build(docker_client, metrics_path, docker_metrics_tag)
 
     print('Evaluating performance - compute metric with %s predictions against %s labels' % (
-        config['test_pred_path'], config['test_data_path']))
+        config['test_pred_path'], config['test_data_path'] or 'fake'))
 
     volumes = {config['test_pred_path']: VOLUME_PRED,
                config['metrics_file']: VOLUME_METRICS,
