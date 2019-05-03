@@ -94,6 +94,14 @@ def _docker_build(docker_client, dockerfile_path, name, rm=False):
     print('(duration %.2f s )' % (time.time() - start))
 
 
+def _docker_run(docker_client, name, command, volumes, remove=True):
+    print('Running docker {}'.format(name), end=' ', flush=True)
+    start = time.time()
+    docker_client.containers.run(name, command=command,
+                                 volumes=volumes, remove=remove, user=USER)
+    print('(duration %.2f s )' % (time.time() - start))
+
+
 def compute_local(docker_client, config, rank, inmodels, dry_run=False):
     docker_algo_tag = 'algo_run_local'
     docker_metrics_tag = 'metrics_run_local'
@@ -103,11 +111,10 @@ def compute_local(docker_client, config, rank, inmodels, dry_run=False):
     _docker_build(docker_client, config['algo_path'], docker_algo_tag)
 
     if not dry_run:
-        print('Training algo on %s' % (config['train_data_path'],), end=' ', flush=True)
+        print('Training algo on %s' % (config['train_data_path'],))
     else:
-        print('Training algo fake data samples', end='', flush=True)
+        print('Training algo fake data samples')
 
-    start = time.time()
     volumes = {config['outmodel_path']: VOLUME_OUTPUT_MODEL,
                config['train_pred_path']: VOLUME_PRED,
                config['local_path']: VOLUME_LOCAL,
@@ -133,10 +140,8 @@ def compute_local(docker_client, config, rank, inmodels, dry_run=False):
             model_keys.append(model_hash)
 
         command += ' '.join(model_keys)
-
-    docker_client.containers.run(docker_algo_tag, command=command,
-                                 volumes=volumes, remove=True, user=USER)
-    print('(duration %.2f s )' % (time.time() - start))
+    _docker_run(docker_client, docker_algo_tag, command=command,
+                volumes=volumes)
 
     model_key = 'model'
     if not os.path.exists(os.path.join(config['outmodel_path'], model_key)):
@@ -144,9 +149,8 @@ def compute_local(docker_client, config, rank, inmodels, dry_run=False):
 
     _docker_build(docker_client, metrics_path, docker_metrics_tag, rm=True)
 
-    print('Evaluating performance - compute metrics with %s predictions against %s labels' % (config['train_pred_path'],
-                                                                                              config['train_data_path']), end=' ', flush=True)
-    start = time.time()
+    print('Evaluating performance - compute metrics with %s predictions against %s labels' % (
+        config['train_pred_path'], config['train_data_path']))
 
     volumes = {config['train_pred_path']: VOLUME_PRED,
                config['metrics_file']: VOLUME_METRICS,
@@ -154,9 +158,8 @@ def compute_local(docker_client, config, rank, inmodels, dry_run=False):
     if not dry_run:
         volumes[config['train_data_path']] = VOLUME_DATA
     command = get_metrics_command(dry_run)
-    docker_client.containers.run(docker_metrics_tag, volumes=volumes,
-                                 command=command, remove=True, user=USER)
-    print('(duration %.2f s )' % (time.time() - start))
+    _docker_run(docker_client, docker_metrics_tag, command=command,
+                volumes=volumes)
 
     model_key = 'model'
 
@@ -173,24 +176,21 @@ def compute_local(docker_client, config, rank, inmodels, dry_run=False):
 
     print('Testing model')
 
-    print('Testing model on %s with %s saved in %s' % (config['test_data_path'],
-                                                       model_key, config['test_pred_path']), end=' ', flush=True)
-    start = time.time()
+    print('Testing model on %s with %s saved in %s' % (
+        config['test_data_path'], model_key, config['test_pred_path']))
     volumes = {config['outmodel_path']: VOLUME_OUTPUT_MODEL,
                config['test_pred_path']: VOLUME_PRED,
                config['test_opener_file']: VOLUME_OPENER}
     if not dry_run:
         volumes[config['test_data_path']] = VOLUME_DATA
 
-    docker_client.containers.run(docker_algo_tag,
-                                 command=f"predict {model_key}",
-                                 volumes=volumes, remove=True, user=USER)
-    print('(duration %.2f s )' % (time.time() - start))
+    _docker_run(docker_client, docker_algo_tag,
+                command=f"predict {model_key}", volumes=volumes)
 
     _docker_build(docker_client, metrics_path, docker_metrics_tag)
 
-    print('Evaluating performance - compute metric with %s predictions against %s labels' % (config['test_pred_path'],
-                                                                                             config['test_data_path']), end=' ', flush=True)
+    print('Evaluating performance - compute metric with %s predictions against %s labels' % (
+        config['test_pred_path'], config['test_data_path']))
 
     volumes = {config['test_pred_path']: VOLUME_PRED,
                config['metrics_file']: VOLUME_METRICS,
@@ -199,9 +199,8 @@ def compute_local(docker_client, config, rank, inmodels, dry_run=False):
         volumes[config['test_data_path']] = VOLUME_DATA
 
     command = get_metrics_command(dry_run)
-    docker_client.containers.run(docker_metrics_tag, volumes=volumes,
-                                 command=command, remove=True, user=USER)
-    print('(duration %.2f s )' % (time.time() - start))
+    _docker_run(docker_client, docker_metrics_tag, command=command,
+                volumes=volumes)
 
     # load performance
     with open(os.path.join(config['test_pred_path'], 'perf.json'), 'r') as perf_file:
