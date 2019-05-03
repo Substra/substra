@@ -97,8 +97,20 @@ def _docker_build(docker_client, dockerfile_path, name, rm=False):
 def _docker_run(docker_client, name, command, volumes, remove=True):
     print('Running docker {}'.format(name), end=' ', flush=True)
     start = time.time()
-    docker_client.containers.run(name, command=command,
-                                 volumes=volumes, remove=remove, user=USER)
+    try:
+        docker_client.containers.run(name, command=command,
+                                     volumes=volumes, remove=remove, user=USER)
+    except docker.errors.ContainerError as e:
+        # try to pretty print traceback
+        try:
+            err = e.stderr.decode('utf-8')
+        except Exception:
+            raise e
+        else:
+            msg = ("Command '{}' in image '{}' returned non-zero exit "
+                   "status {}:\n{}").format(command, name, e.exit_status, err)
+            raise Exception(msg)
+
     print('(duration %.2f s )' % (time.time() - start))
 
 
