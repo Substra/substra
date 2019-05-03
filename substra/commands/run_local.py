@@ -206,25 +206,37 @@ class RunLocal(Base):
 
     def run(self):
 
-        def _get_option(option, default):
+        def _get_option(option_name, default):
+            option = self.options.get(option_name)
             if option is None:
                 return default
             return option
 
+        def _get_path(base_path, relpath):
+            return os.path.abspath(os.path.join(base_path, relpath))
+
         algo_path = self.options['<algo-path>']
-        train_opener = _get_option(self.options.get('--train-opener'), os.path.abspath(os.path.join(algo_path, '../dataset/opener.py')))
+        train_opener = _get_option('--train-opener',
+                                   _get_path(algo_path, '../dataset/opener.py'))
 
-        test_opener = _get_option(self.options.get('--test-opener'), os.path.abspath(os.path.join(algo_path, '../objective/opener.py')))
+        test_opener = _get_option('--test-opener',
+                                  _get_path(algo_path, '../objective/opener.py'))
 
-        metrics = _get_option(self.options.get('--metrics'), os.path.abspath(os.path.join(algo_path, '../objective/metrics.py')))
-        rank = _get_option(self.options.get('--rank'), 0)
+        metrics = _get_option('--metrics',
+                              _get_path(algo_path, '../objective/metrics.py'))
 
-        train_data = _get_option(self.options.get('--train-data-sample'), os.path.abspath(os.path.join(algo_path, '../dataset/data-samples/')))
+        rank = _get_option('--rank', 0)
 
-        test_data = _get_option(self.options.get('--test-data-sample'), os.path.abspath(os.path.join(algo_path, '../objective/data-samples/')))
+        train_data = _get_option('--train-data-sample',
+                                 _get_path(algo_path, '../dataset/data-samples/'))
+
+        test_data = _get_option('--test-data-sample',
+                                _get_path(algo_path, '../objective/data-samples/'))
 
         inmodel = self.options.get('--inmodel')
-        outmodel = _get_option(self.options.get('--outmodels'), os.path.abspath(os.path.join(algo_path, '../model/')))
+
+        outmodel = _get_option('--outmodels',
+                               _get_path(algo_path, '../model/'))
 
         fake_data_samples = self.options.get('--fake-data-samples', False)
 
