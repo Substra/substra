@@ -12,7 +12,7 @@ metrics_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../run
 
 USER = os.getuid()
 
-METRICS_NO_DRYRUN = 0
+METRICS_NO_DRY_RUN = 0
 METRICS_FAKE_Y = 1
 
 VOLUME_OUTPUT_MODEL = {'bind': '/sandbox/model', 'mode': 'rw'}
@@ -29,9 +29,9 @@ def create_directory(directory):
         os.makedirs(directory)
 
 
-def get_metrics_command(dryrun=False):
-    mode = METRICS_FAKE_Y if dryrun else METRICS_NO_DRYRUN
-    return '-c "import substratools as tools; tools.metrics.execute({})"' \
+def get_metrics_command(dry_run=False):
+    mode = METRICS_FAKE_Y if dry_run else METRICS_NO_DRY_RUN
+    return '-c "import substratools as tools; tools.metrics.execute(dry_run={})"' \
         .format(mode)
 
 
@@ -94,7 +94,7 @@ def _docker_build(docker_client, dockerfile_path, name, rm=False):
     print('(duration %.2f s )' % (time.time() - start))
 
 
-def compute_local(docker_client, config, rank, inmodels, dryrun=False):
+def compute_local(docker_client, config, rank, inmodels, dry_run=False):
     docker_algo_tag = 'algo_run_local'
     docker_metrics_tag = 'metrics_run_local'
 
@@ -102,7 +102,7 @@ def compute_local(docker_client, config, rank, inmodels, dryrun=False):
 
     _docker_build(docker_client, config['algo_path'], docker_algo_tag)
 
-    if not dryrun:
+    if not dry_run:
         print('Training algo on %s' % (config['train_data_path'],), end=' ', flush=True)
     else:
         print('Training algo fake data samples', end='', flush=True)
@@ -112,11 +112,11 @@ def compute_local(docker_client, config, rank, inmodels, dryrun=False):
                config['train_pred_path']: VOLUME_PRED,
                config['local_path']: VOLUME_LOCAL,
                config['train_opener_file']: VOLUME_OPENER}
-    if not dryrun:
+    if not dry_run:
         volumes[config['train_data_path']] = VOLUME_DATA
 
     command = 'train'
-    if dryrun:
+    if dry_run:
         command += " --dry-run"
 
     if rank is not None:
@@ -151,9 +151,9 @@ def compute_local(docker_client, config, rank, inmodels, dryrun=False):
     volumes = {config['train_pred_path']: VOLUME_PRED,
                config['metrics_file']: VOLUME_METRICS,
                config['train_opener_file']: VOLUME_OPENER}
-    if not dryrun:
+    if not dry_run:
         volumes[config['train_data_path']] = VOLUME_DATA
-    command = get_metrics_command(dryrun)
+    command = get_metrics_command(dry_run)
     docker_client.containers.run(docker_metrics_tag, volumes=volumes,
                                  command=command, remove=True, user=USER)
     print('(duration %.2f s )' % (time.time() - start))
@@ -179,7 +179,7 @@ def compute_local(docker_client, config, rank, inmodels, dryrun=False):
     volumes = {config['outmodel_path']: VOLUME_OUTPUT_MODEL,
                config['test_pred_path']: VOLUME_PRED,
                config['test_opener_file']: VOLUME_OPENER}
-    if not dryrun:
+    if not dry_run:
         volumes[config['test_data_path']] = VOLUME_DATA
 
     docker_client.containers.run(docker_algo_tag,
@@ -195,10 +195,10 @@ def compute_local(docker_client, config, rank, inmodels, dryrun=False):
     volumes = {config['test_pred_path']: VOLUME_PRED,
                config['metrics_file']: VOLUME_METRICS,
                config['test_opener_file']: VOLUME_OPENER}
-    if not dryrun:
+    if not dry_run:
         volumes[config['test_data_path']] = VOLUME_DATA
 
-    command = get_metrics_command(dryrun)
+    command = get_metrics_command(dry_run)
     docker_client.containers.run(docker_metrics_tag, volumes=volumes,
                                  command=command, remove=True, user=USER)
     print('(duration %.2f s )' % (time.time() - start))
@@ -264,4 +264,4 @@ class RunLocal(Base):
 
         client = docker.from_env()
 
-        compute_local(client, config, rank, inmodel, dryrun=fake_data_samples)
+        compute_local(client, config, rank, inmodel, dry_run=fake_data_samples)
