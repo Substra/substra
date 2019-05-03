@@ -12,6 +12,13 @@ metrics_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../run
 
 USER = os.getuid()
 
+VOLUME_OUTPUT_MODEL = {'bind': '/sandbox/model', 'mode': 'rw'}
+VOLUME_OPENER = {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}
+VOLUME_METRICS = {'bind': '/sandbox/metrics/__init__.py', 'mode': 'ro'}
+VOLUME_PRED = {'bind': '/sandbox/pred', 'mode': 'rw'}
+VOLUME_DATA = {'bind': '/sandbox/data', 'mode': 'ro'}
+VOLUME_LOCAL = {'bind': '/sandbox/local', 'mode': 'rw'}
+
 
 def create_directory(directory):
     if not os.path.exists(directory):
@@ -44,10 +51,6 @@ def setup_local(algo_path,
         if path and not os.path.exists(path):
             raise Exception(f"Cannot launch local run: {key.replace('_', ' ')} {path} doesn't exist")
 
-    # docker
-    config['algo_docker'] = 'algo_run_local'
-    config['metrics_docker'] = 'metrics_run_local'
-
     # sandbox
     config['run_local_path'] = os.path.abspath(compute_path)
 
@@ -73,16 +76,22 @@ def setup_local(algo_path,
     return config
 
 
+def _docker_build(docker_client, dockerfile_path, name, rm=False):
+    print('Creating docker {}'.format(name), end=' ', flush=True)
+    start = time.time()
+    docker_client.images.build(path=dockerfile_path,
+                               tag=name,
+                               rm=rm)
+    print('(duration %.2f s )' % (time.time() - start))
+
+
 def compute_local(docker_client, config, rank, inmodels, dryrun=False):
+    docker_algo_tag = 'algo_run_local'
+    docker_metrics_tag = 'metrics_run_local'
 
     print('Training starts')
 
-    print('Creating docker for train', end=' ', flush=True)
-    start = time.time()
-    docker_client.images.build(path=config['algo_path'],
-                               tag=config['algo_docker'],
-                               rm=False)
-    print('(duration %.2f s )' % (time.time() - start))
+    _docker_build(docker_client, config['algo_path'], docker_algo_tag)
 
     if not dryrun:
         print('Training algo on %s' % (config['train_data_path'],), end=' ', flush=True)
@@ -90,12 +99,12 @@ def compute_local(docker_client, config, rank, inmodels, dryrun=False):
         print('Training algo fake data samples', end='', flush=True)
 
     start = time.time()
-    volumes = {config['outmodel_path']: {'bind': '/sandbox/model', 'mode': 'rw'},
-               config['train_pred_path']: {'bind': '/sandbox/pred', 'mode': 'rw'},
-               config['local_path']: {'bind': '/sandbox/local', 'mode': 'rw'},
-               config['train_opener_file']: {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}}
+    volumes = {config['outmodel_path']: VOLUME_OUTPUT_MODEL,
+               config['train_pred_path']: VOLUME_PRED,
+               config['local_path']: VOLUME_LOCAL,
+               config['train_opener_file']: VOLUME_OPENER}
     if not dryrun:
-        volumes[config['train_data_path']] = {'bind': '/sandbox/data', 'mode': 'ro'}
+        volumes[config['train_data_path']] = VOLUME_DATA
 
     command = 'train'
     if dryrun:
@@ -109,37 +118,33 @@ def compute_local(docker_client, config, rank, inmodels, dryrun=False):
 
         for inmodel in inmodels:
             src = os.abspath(inmodel)
-            model_key = hashlib.sha256(src)
-            dst = os.path.join(config['outmodel_path'], model_key)
+            model_hash = hashlib.sha256(src)
+            dst = os.path.join(config['outmodel_path'], model_hash)
             os.symlink(src, dst)
-            model_keys.append(model_key)
+            model_keys.append(model_hash)
 
         command += ' '.join(model_keys)
 
-    docker_client.containers.run(config['algo_docker'], command=command, volumes=volumes, remove=True, user=USER)
+    docker_client.containers.run(docker_algo_tag, command=command,
+                                 volumes=volumes, remove=True, user=USER)
     print('(duration %.2f s )' % (time.time() - start))
 
     model_key = 'model'
     if not os.path.exists(os.path.join(config['outmodel_path'], model_key)):
         raise Exception(f"Model ({os.path.join(config['outmodel_path'], model_key)}) doesn't exist")
 
-    print('Evaluating performance - creating docker', end=' ', flush=True)
-    start = time.time()
-    docker_client.images.build(path=metrics_path,
-                               tag=config['metrics_docker'],
-                               rm=True)
-    print('(duration %.2f s )' % (time.time() - start))
+    _docker_build(docker_client, metrics_path, docker_metrics_tag, rm=True)
 
     print('Evaluating performance - compute metrics with %s predictions against %s labels' % (config['train_pred_path'],
                                                                                               config['train_data_path']), end=' ', flush=True)
     start = time.time()
 
-    volumes = {config['train_pred_path']: {'bind': '/sandbox/pred', 'mode': 'rw'},
-               config['metrics_file']: {'bind': '/sandbox/metrics/__init__.py', 'mode': 'ro'},
-               config['train_opener_file']: {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}}
+    volumes = {config['train_pred_path']: VOLUME_PRED,
+               config['metrics_file']: VOLUME_METRICS,
+               config['train_opener_file']: VOLUME_OPENER}
     if not dryrun:
-        volumes[config['train_data_path']] = {'bind': '/sandbox/data', 'mode': 'ro'}
-    docker_client.containers.run(config['metrics_docker'], volumes=volumes, remove=True, user=USER)
+        volumes[config['train_data_path']] = VOLUME_DATA
+    docker_client.containers.run(docker_metrics_tag, volumes=volumes, remove=True, user=USER)
     print('(duration %.2f s )' % (time.time() - start))
 
     model_key = 'model'
@@ -153,44 +158,36 @@ def compute_local(docker_client, config, rank, inmodels, dryrun=False):
 
     print('Testing starts')
 
-    print('Creating docker for test', end=' ', flush=True)
-    start = time.time()
-    docker_client.images.build(path=config['algo_path'],
-                               tag=config['algo_docker'],
-                               rm=False)
-    print('(duration %.2f s )' % (time.time() - start))
+    _docker_build(docker_client, config['algo_path'], docker_algo_tag)
 
     print('Testing model')
 
     print('Testing model on %s with %s saved in %s' % (config['test_data_path'],
                                                        model_key, config['test_pred_path']), end=' ', flush=True)
     start = time.time()
-    volumes = {config['outmodel_path']: {'bind': '/sandbox/model', 'mode': 'rw'},
-               config['test_pred_path']: {'bind': '/sandbox/pred', 'mode': 'rw'},
-               config['test_opener_file']: {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}}
+    volumes = {config['outmodel_path']: VOLUME_OUTPUT_MODEL,
+               config['test_pred_path']: VOLUME_PRED,
+               config['test_opener_file']: VOLUME_OPENER}
     if not dryrun:
-        volumes[config['test_data_path']] = {'bind': '/sandbox/data', 'mode': 'ro'}
+        volumes[config['test_data_path']] = VOLUME_DATA
 
-    docker_client.containers.run(config['algo_docker'], command=f"predict {model_key}", volumes=volumes, remove=True, user=USER)
+    docker_client.containers.run(docker_algo_tag,
+                                 command=f"predict {model_key}",
+                                 volumes=volumes, remove=True, user=USER)
     print('(duration %.2f s )' % (time.time() - start))
 
-    print('Evaluating performance - creating docker', end=' ', flush=True)
-    start = time.time()
-    docker_client.images.build(path=metrics_path,
-                               tag=config['metrics_docker'],
-                               rm=False)
-    print('(duration %.2f s )' % (time.time() - start))
+    _docker_build(docker_client, metrics_path, docker_metrics_tag)
 
     print('Evaluating performance - compute metric with %s predictions against %s labels' % (config['test_pred_path'],
                                                                                              config['test_data_path']), end=' ', flush=True)
 
-    volumes = {config['test_pred_path']: {'bind': '/sandbox/pred', 'mode': 'rw'},
-               config['metrics_file']: {'bind': '/sandbox/metrics/__init__.py', 'mode': 'ro'},
-               config['test_opener_file']: {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}}
+    volumes = {config['test_pred_path']: VOLUME_PRED,
+               config['metrics_file']: VOLUME_METRICS,
+               config['test_opener_file']: VOLUME_OPENER}
     if not dryrun:
-        volumes[config['test_data_path']] = {'bind': '/sandbox/data', 'mode': 'ro'}
+        volumes[config['test_data_path']] = VOLUME_DATA
 
-    docker_client.containers.run(config['metrics_docker'], volumes=volumes, remove=True, user=USER)
+    docker_client.containers.run(docker_metrics_tag, volumes=volumes, remove=True, user=USER)
     print('(duration %.2f s )' % (time.time() - start))
 
     # load performance
@@ -216,6 +213,7 @@ class RunLocal(Base):
             return os.path.abspath(os.path.join(base_path, relpath))
 
         algo_path = self.options['<algo-path>']
+
         train_opener = _get_option('--train-opener',
                                    _get_path(algo_path, '../dataset/opener.py'))
 
