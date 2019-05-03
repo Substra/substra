@@ -12,6 +12,9 @@ metrics_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../run
 
 USER = os.getuid()
 
+METRICS_NO_DRYRUN = 0
+METRICS_FAKE_Y = 1
+
 VOLUME_OUTPUT_MODEL = {'bind': '/sandbox/model', 'mode': 'rw'}
 VOLUME_OPENER = {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}
 VOLUME_METRICS = {'bind': '/sandbox/metrics/__init__.py', 'mode': 'ro'}
@@ -24,6 +27,12 @@ def create_directory(directory):
     if not os.path.exists(directory):
         print(f'Create path : {directory}')
         os.makedirs(directory)
+
+
+def get_metrics_command(dryrun=False):
+    mode = METRICS_FAKE_Y if dryrun else METRICS_NO_DRYRUN
+    return '-c "import substratools as tools; tools.metrics.execute({})"' \
+        .format(mode)
 
 
 def setup_local(algo_path,
@@ -144,7 +153,9 @@ def compute_local(docker_client, config, rank, inmodels, dryrun=False):
                config['train_opener_file']: VOLUME_OPENER}
     if not dryrun:
         volumes[config['train_data_path']] = VOLUME_DATA
-    docker_client.containers.run(docker_metrics_tag, volumes=volumes, remove=True, user=USER)
+    command = get_metrics_command(dryrun)
+    docker_client.containers.run(docker_metrics_tag, volumes=volumes,
+                                 command=command, remove=True, user=USER)
     print('(duration %.2f s )' % (time.time() - start))
 
     model_key = 'model'
@@ -187,7 +198,9 @@ def compute_local(docker_client, config, rank, inmodels, dryrun=False):
     if not dryrun:
         volumes[config['test_data_path']] = VOLUME_DATA
 
-    docker_client.containers.run(docker_metrics_tag, volumes=volumes, remove=True, user=USER)
+    command = get_metrics_command(dryrun)
+    docker_client.containers.run(docker_metrics_tag, volumes=volumes,
+                                 command=command, remove=True, user=USER)
     print('(duration %.2f s )' % (time.time() - start))
 
     # load performance
