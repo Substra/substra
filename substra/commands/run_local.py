@@ -204,23 +204,30 @@ def compute_local(docker_client, config, rank, inmodels, dryrun=False):
 class RunLocal(Base):
     """Run-local asset"""
 
-    def getOption(self, option, default):
-        if option is None:
-            return default
-        return option
-
     def run(self):
 
+        def _get_option(option, default):
+            if option is None:
+                return default
+            return option
+
         algo_path = self.options['<algo-path>']
-        train_opener = self.getOption(self.options.get('--train-opener'), os.path.abspath(os.path.join(algo_path, '../dataset/opener.py')))
-        test_opener = self.getOption(self.options.get('--test-opener'), os.path.abspath(os.path.join(algo_path, '../objective/opener.py')))
-        metrics = self.getOption(self.options.get('--metrics'), os.path.abspath(os.path.join(algo_path, '../objective/metrics.py')))
-        rank = self.getOption(self.options.get('--rank'), 0)
-        train_data = self.getOption(self.options.get('--train-data-sample'), os.path.abspath(os.path.join(algo_path, '../dataset/data-samples/')))
-        test_data = self.getOption(self.options.get('--test-data-sample'), os.path.abspath(os.path.join(algo_path, '../objective/data-samples/')))
+        train_opener = _get_option(self.options.get('--train-opener'), os.path.abspath(os.path.join(algo_path, '../dataset/opener.py')))
+
+        test_opener = _get_option(self.options.get('--test-opener'), os.path.abspath(os.path.join(algo_path, '../objective/opener.py')))
+
+        metrics = _get_option(self.options.get('--metrics'), os.path.abspath(os.path.join(algo_path, '../objective/metrics.py')))
+        rank = _get_option(self.options.get('--rank'), 0)
+
+        train_data = _get_option(self.options.get('--train-data-sample'), os.path.abspath(os.path.join(algo_path, '../dataset/data-samples/')))
+
+        test_data = _get_option(self.options.get('--test-data-sample'), os.path.abspath(os.path.join(algo_path, '../objective/data-samples/')))
+
         inmodel = self.options.get('--inmodel')
-        outmodel = self.getOption(self.options.get('--outmodels'), os.path.abspath(os.path.join(algo_path, '../model/')))
+        outmodel = _get_option(self.options.get('--outmodels'), os.path.abspath(os.path.join(algo_path, '../model/')))
+
         fake_data_samples = self.options.get('--fake-data-samples', False)
+
         if fake_data_samples:
             train_data = None
             test_data = None
