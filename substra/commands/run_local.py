@@ -196,8 +196,11 @@ def compute_local(docker_client, config, rank, inmodels, dry_run=False):
     if not dry_run:
         volumes[config['test_data_path']] = VOLUME_DATA
 
-    _docker_run(docker_client, docker_algo_tag,
-                command=f"predict {model_key}", volumes=volumes)
+    command = f"predict {model_key}"
+    if dry_run:
+        command += " --dry-run"
+    _docker_run(docker_client, docker_algo_tag, command=command,
+                volumes=volumes)
 
     _docker_build(docker_client, metrics_path, docker_metrics_tag)
 
