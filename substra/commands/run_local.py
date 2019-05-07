@@ -85,16 +85,17 @@ def setup_local(algo_path,
 
 
 def _docker_build(docker_client, dockerfile_path, name, rm=False):
-    print('Creating docker {}'.format(name), end=' ', flush=True)
+    print(f'Creating docker {name}', end=' ', flush=True)
     start = time.time()
     docker_client.images.build(path=dockerfile_path,
                                tag=name,
                                rm=rm)
-    print('(duration %.2f s )' % (time.time() - start))
+    elaps = time.time() - start
+    print(f'(duration {elaps:%.2f} s )')
 
 
 def _docker_run(docker_client, name, command, volumes, remove=True):
-    print('Running docker {}'.format(name), end=' ', flush=True)
+    print(f'Running docker {name}', end=' ', flush=True)
     start = time.time()
     try:
         docker_client.containers.run(name, command=command,
@@ -110,28 +111,40 @@ def _docker_run(docker_client, name, command, volumes, remove=True):
                    "status {}:\n{}").format(command, name, e.exit_status, err)
             raise Exception(msg)
 
-    print('(duration %.2f s )' % (time.time() - start))
+    elaps = time.time() - start
+    print(f'(duration {elaps:%.2f} s )')
 
 
 def compute_local(docker_client, config, rank, inmodels, dry_run=False):
     docker_algo_tag = 'algo_run_local'
     docker_metrics_tag = 'metrics_run_local'
 
+    outmodel_path = config['outmodel_path']
+    train_pred_path = config['train_pred_path']
+    algo_path = config['algo_path']
+    local_path = config['local_path']
+    train_opener_file = config['train_opener_file']
+    metrics_file = config['metrics_file']
+    test_pred_path = config['test_pred_path']
+    test_opener_file = config['test_opener_file']
+    test_data_path = config['test_data_path']
+    train_data_path = config['train_data_path']
+
     print('Training starts')
 
-    _docker_build(docker_client, config['algo_path'], docker_algo_tag)
+    _docker_build(docker_client, algo_path, docker_algo_tag)
 
     if not dry_run:
-        print('Training algo on %s' % (config['train_data_path'],))
+        print(f'Training algo on {train_data_path}')
     else:
         print('Training algo fake data samples')
 
-    volumes = {config['outmodel_path']: VOLUME_OUTPUT_MODEL,
-               config['train_pred_path']: VOLUME_PRED,
-               config['local_path']: VOLUME_LOCAL,
-               config['train_opener_file']: VOLUME_OPENER}
+    volumes = {outmodel_path: VOLUME_OUTPUT_MODEL,
+               train_pred_path: VOLUME_PRED,
+               local_path: VOLUME_LOCAL,
+               train_opener_file: VOLUME_OPENER}
     if not dry_run:
-        volumes[config['train_data_path']] = VOLUME_DATA
+        volumes[train_data_path] = VOLUME_DATA
 
     command = 'train'
     if dry_run:
@@ -146,7 +159,7 @@ def compute_local(docker_client, config, rank, inmodels, dry_run=False):
         for inmodel in inmodels:
             src = os.abspath(inmodel)
             model_hash = hashlib.sha256(src)
-            dst = os.path.join(config['outmodel_path'], model_hash)
+            dst = os.path.join(outmodel_path, model_hash)
             os.symlink(src, dst)
             model_keys.append(model_hash)
 
@@ -155,19 +168,19 @@ def compute_local(docker_client, config, rank, inmodels, dry_run=False):
                 volumes=volumes)
 
     model_key = 'model'
-    if not os.path.exists(os.path.join(config['outmodel_path'], model_key)):
-        raise Exception(f"Model ({os.path.join(config['outmodel_path'], model_key)}) doesn't exist")
+    if not os.path.exists(os.path.join(outmodel_path, model_key)):
+        raise Exception(f"Model ({os.path.join(outmodel_path, model_key)}) doesn't exist")
 
     _docker_build(docker_client, metrics_path, docker_metrics_tag, rm=True)
 
-    print('Evaluating performance - compute metrics with %s predictions against %s labels' % (
-        config['train_pred_path'], config['train_data_path'] or 'fake'))
+    print(f'Evaluating performance - compute metrics with %s predictions against %s labels' % (
+        train_pred_path, train_data_path or 'fake'))
 
-    volumes = {config['train_pred_path']: VOLUME_PRED,
-               config['metrics_file']: VOLUME_METRICS,
-               config['train_opener_file']: VOLUME_OPENER}
+    volumes = {train_pred_path: VOLUME_PRED,
+               metrics_file: VOLUME_METRICS,
+               train_opener_file: VOLUME_OPENER}
     if not dry_run:
-        volumes[config['train_data_path']] = VOLUME_DATA
+        volumes[train_data_path] = VOLUME_DATA
     command = get_metrics_command(dry_run)
     _docker_run(docker_client, docker_metrics_tag, command=command,
                 volumes=volumes)
@@ -175,25 +188,25 @@ def compute_local(docker_client, config, rank, inmodels, dry_run=False):
     model_key = 'model'
 
     # load performance
-    with open(os.path.join(config['train_pred_path'], 'perf.json'), 'r') as perf_file:
+    with open(os.path.join(train_pred_path, 'perf.json'), 'r') as perf_file:
         perf = json.load(perf_file)
     train_perf = perf['all']
 
-    print('Successfully train model %s with a score of %s on train data' % (os.path.join(config['outmodel_path'], model_key), train_perf))
+    print('Successfully train model %s with a score of %s on train data' % (os.path.join(outmodel_path, model_key), train_perf))
 
     print('Testing starts')
 
-    _docker_build(docker_client, config['algo_path'], docker_algo_tag)
+    _docker_build(docker_client, algo_path, docker_algo_tag)
 
     print('Testing model')
 
     print('Testing model on %s labels with %s saved in %s' % (
-        config['test_data_path'] or 'fake', model_key, config['test_pred_path']))
-    volumes = {config['outmodel_path']: VOLUME_OUTPUT_MODEL,
-               config['test_pred_path']: VOLUME_PRED,
-               config['test_opener_file']: VOLUME_OPENER}
+        test_data_path or 'fake', model_key, test_pred_path))
+    volumes = {outmodel_path: VOLUME_OUTPUT_MODEL,
+               test_pred_path: VOLUME_PRED,
+               test_opener_file: VOLUME_OPENER}
     if not dry_run:
-        volumes[config['test_data_path']] = VOLUME_DATA
+        volumes[test_data_path] = VOLUME_DATA
 
     command = f"predict {model_key}"
     if dry_run:
@@ -204,24 +217,24 @@ def compute_local(docker_client, config, rank, inmodels, dry_run=False):
     _docker_build(docker_client, metrics_path, docker_metrics_tag)
 
     print('Evaluating performance - compute metric with %s predictions against %s labels' % (
-        config['test_pred_path'], config['test_data_path'] or 'fake'))
+        test_pred_path, test_data_path or 'fake'))
 
-    volumes = {config['test_pred_path']: VOLUME_PRED,
-               config['metrics_file']: VOLUME_METRICS,
-               config['test_opener_file']: VOLUME_OPENER}
+    volumes = {test_pred_path: VOLUME_PRED,
+               metrics_file: VOLUME_METRICS,
+               test_opener_file: VOLUME_OPENER}
     if not dry_run:
-        volumes[config['test_data_path']] = VOLUME_DATA
+        volumes[test_data_path] = VOLUME_DATA
 
     command = get_metrics_command(dry_run)
     _docker_run(docker_client, docker_metrics_tag, command=command,
                 volumes=volumes)
 
     # load performance
-    with open(os.path.join(config['test_pred_path'], 'perf.json'), 'r') as perf_file:
+    with open(os.path.join(test_pred_path, 'perf.json'), 'r') as perf_file:
         perf = json.load(perf_file)
     test_perf = perf['all']
 
-    print('Successfully test model %s with a score of %s on test data' % (os.path.join(config['outmodel_path'], model_key), test_perf))
+    print('Successfully test model %s with a score of %s on test data' % (os.path.join(outmodel_path, model_key), test_perf))
 
 
 class RunLocal(Base):
