@@ -103,12 +103,12 @@ def _docker_run(docker_client, name, command, volumes, remove=True):
     except docker.errors.ContainerError as e:
         # try to pretty print traceback
         try:
-            err = e.stderr.decode('utf-8')  # noqa
+            err = e.stderr.decode('utf-8')
         except Exception:
             raise e
         msg = (
             f"Command '{command}' in image '{name}' returned non-zero exit "
-            "status {e.exit_status}:\n{err}"
+            f"status {e.exit_status}:\n{err}"
         )
         raise Exception(msg)
 
