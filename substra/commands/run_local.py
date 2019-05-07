@@ -31,8 +31,7 @@ def create_directory(directory):
 
 def get_metrics_command(dry_run=False):
     mode = METRICS_FAKE_Y if dry_run else METRICS_NO_DRY_RUN
-    return '-c "import substratools as tools; tools.metrics.execute(dry_run={})"' \
-        .format(mode)
+    return f'-c "import substratools as tools; tools.metrics.execute(dry_run={mode})"'
 
 
 def setup_local(algo_path,
@@ -61,22 +60,22 @@ def setup_local(algo_path,
             raise Exception(f"Cannot launch local run: {key.replace('_', ' ')} {path} doesn't exist")
 
     # sandbox
-    config['run_local_path'] = os.path.abspath(compute_path)
+    run_local_path = os.path.abspath(compute_path)
 
-    print('Run local results will be in sandbox : %s' % config['run_local_path'])
-    print('Clean run local sandbox %s' % config['run_local_path'])
+    print(f'Run local results will be in sandbox : {run_local_path}')
+    print(f'Clean run local sandbox {run_local_path}')
 
     try:
-        shutil.rmtree(config['run_local_path'])
+        shutil.rmtree(run_local_path)
     except FileNotFoundError:
         pass
 
-    config['local_path'] = os.path.join(config['run_local_path'], local_path)
-    config['train_pred_path'] = os.path.join(config['run_local_path'], 'pred_train')
-    config['test_pred_path'] = os.path.join(config['run_local_path'], 'pred_test')
-    config['outmodel_path'] = os.path.join(config['run_local_path'], outmodel_path)
+    config['local_path'] = os.path.join(run_local_path, local_path)
+    config['train_pred_path'] = os.path.join(run_local_path, 'pred_train')
+    config['test_pred_path'] = os.path.join(run_local_path, 'pred_test')
+    config['outmodel_path'] = os.path.join(run_local_path, outmodel_path)
 
-    create_directory(config['run_local_path'])
+    create_directory(run_local_path)
     create_directory(config['local_path'])
     create_directory(config['train_pred_path'])
     create_directory(config['test_pred_path'])
