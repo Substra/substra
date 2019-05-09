@@ -266,10 +266,10 @@ class RunLocal(Base):
 
         rank = _get_option('--rank', 0)
 
-        train_data = _get_option('--train-data-sample',
+        train_data = _get_option('--train-data-samples',
                                  _get_path(algo_path, '../dataset/data-samples/'))
 
-        test_data = _get_option('--test-data-sample',
+        test_data = _get_option('--test-data-samples',
                                 _get_path(algo_path, '../objective/data-samples/'))
 
         inmodel = self.options.get('--inmodel')

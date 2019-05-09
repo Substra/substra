@@ -11,7 +11,7 @@ Usage:
   substra bulk_update <asset> <args> [--profile=<profile>] [--config=<configuration_file_path>] [-v | --verbose]
   substra path <asset> <pkhash> <path> [--profile=<profile>] [--config=<configuration_file_path>] [-v | --verbose]
   substra create_project (starter_kit | isic) <path>  [-v | --verbose]
-  substra run_local <algo-path> [--train-opener=<train_opener_path>] [--test-opener=<test_opener_path>] [--metrics=<metrics_path>] [--rank=<rank>] [--train-data-sample=<train_data_sample_path>] [--test-data-sample=<test_data_sample_path>] [--inmodel=<inmodel_path>...] [--outmodels=<outmodels_path>] [--fake-data-samples] [-v | --verbose]
+  substra run_local <algo-path> [--train-opener=<train_opener_path>] [--test-opener=<test_opener_path>] [--metrics=<metrics_path>] [--rank=<rank>] [--train-data-samples=<train_data_sample_path>] [--test-data-samples=<test_data_sample_path>] [--inmodel=<inmodel_path>...] [--outmodels=<outmodels_path>] [--fake-data-samples] [-v | --verbose]
   substra -h | --help
   substra --version
 
