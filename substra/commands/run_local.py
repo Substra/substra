@@ -169,7 +169,7 @@ def compute_local(docker_client, config, rank, inmodels, dry_run=False):
         model_keys = []
 
         for inmodel in inmodels:
-            src = os.abspath(inmodel)
+            src = os.path.abspath(inmodel)
             model_hash = hashlib.sha256(src)
             dst = os.path.join(outmodel_path, model_hash)
             os.symlink(src, dst)
