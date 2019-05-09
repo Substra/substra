@@ -35,23 +35,29 @@ def get_metrics_command(dry_run=False):
 
 
 def setup_local(algo_path,
-                train_opener_path, test_opener_path,
+                train_opener_path,
+                test_opener_path,
                 metric_file_path,
-                train_data_sample_path, test_data_sample_path,
-                outmodel_path='./',
-                compute_path='./sandbox',
-                local_path='local'):
+                train_data_sample_path,
+                test_data_sample_path,
+                outmodel_path,
+                compute_path,
+                local_path):
 
     config = {}
 
-    # setup config
-    config['algo_path'] = os.path.abspath(algo_path)
+    def _get_abspath(path):
+        if path:  # path may be None
+            path = os.path.abspath(path)
+        return path
 
-    config['train_opener_file'] = os.path.abspath(train_opener_path)
-    config['test_opener_file'] = os.path.abspath(test_opener_path)
-    config['train_data_path'] = train_data_sample_path
-    config['test_data_path'] = test_data_sample_path
-    config['metrics_file'] = os.path.abspath(metric_file_path)
+    # setup config
+    config['algo_path'] = _get_abspath(algo_path)
+    config['train_opener_file'] = _get_abspath(train_opener_path)
+    config['test_opener_file'] = _get_abspath(test_opener_path)
+    config['train_data_path'] = _get_abspath(train_data_sample_path)
+    config['test_data_path'] = _get_abspath(test_data_sample_path)
+    config['metrics_file'] = _get_abspath(metric_file_path)
 
     # check config values
     for key in config.keys():
@@ -60,7 +66,7 @@ def setup_local(algo_path,
             raise Exception(f"Cannot launch local run: {key.replace('_', ' ')} {path} doesn't exist")
 
     # sandbox
-    run_local_path = os.path.abspath(compute_path)
+    run_local_path = _get_abspath(compute_path)
 
     print(f'Run local results will be in sandbox : {run_local_path}')
     print(f'Clean run local sandbox {run_local_path}')
@@ -163,7 +169,7 @@ def compute_local(docker_client, config, rank, inmodels, dry_run=False):
         model_keys = []
 
         for inmodel in inmodels:
-            src = os.abspath(inmodel)
+            src = os.path.abspath(inmodel)
             model_hash = hashlib.sha256(src)
             dst = os.path.join(outmodel_path, model_hash)
             os.symlink(src, dst)
@@ -244,14 +250,14 @@ class RunLocal(Base):
 
     def run(self):
 
+        def _get_path(base_path, relpath):
+            return os.path.abspath(os.path.join(base_path, relpath))
+
         def _get_option(option_name, default):
             option = self.options.get(option_name)
             if option is None:
                 return default
             return option
-
-        def _get_path(base_path, relpath):
-            return os.path.abspath(os.path.join(base_path, relpath))
 
         algo_path = self.options['<algo-path>']
 
@@ -266,10 +272,10 @@ class RunLocal(Base):
 
         rank = _get_option('--rank', 0)
 
-        train_data = _get_option('--train-data-sample',
+        train_data = _get_option('--train-data-samples',
                                  _get_path(algo_path, '../dataset/data-samples/'))
 
-        test_data = _get_option('--test-data-sample',
+        test_data = _get_option('--test-data-samples',
                                 _get_path(algo_path, '../objective/data-samples/'))
 
         inmodel = self.options.get('--inmodel')
@@ -283,12 +289,18 @@ class RunLocal(Base):
             train_data = None
             test_data = None
 
+        compute_path = './sandbox'
+        local_path = 'local'
+
         config = setup_local(algo_path,
-                             train_opener, test_opener, metrics,
-                             train_data, test_data,
-                             outmodel_path=outmodel,
-                             compute_path='./sandbox',
-                             local_path='local')
+                             train_opener,
+                             test_opener,
+                             metrics,
+                             train_data,
+                             test_data,
+                             outmodel,
+                             compute_path,
+                             local_path)
 
         client = docker.from_env()
 
