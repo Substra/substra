@@ -46,14 +46,18 @@ def setup_local(algo_path,
 
     config = {}
 
-    # setup config
-    config['algo_path'] = os.path.abspath(algo_path)
+    def _get_abspath(path):
+        if path:  # path may be None
+            path = os.path.abspath(path)
+        return path
 
-    config['train_opener_file'] = os.path.abspath(train_opener_path)
-    config['test_opener_file'] = os.path.abspath(test_opener_path)
-    config['train_data_path'] = os.path.abspath(train_data_sample_path)
-    config['test_data_path'] = os.path.abspath(test_data_sample_path)
-    config['metrics_file'] = os.path.abspath(metric_file_path)
+    # setup config
+    config['algo_path'] = _get_abspath(algo_path)
+    config['train_opener_file'] = _get_abspath(train_opener_path)
+    config['test_opener_file'] = _get_abspath(test_opener_path)
+    config['train_data_path'] = _get_abspath(train_data_sample_path)
+    config['test_data_path'] = _get_abspath(test_data_sample_path)
+    config['metrics_file'] = _get_abspath(metric_file_path)
 
     # check config values
     for key in config.keys():
@@ -62,7 +66,7 @@ def setup_local(algo_path,
             raise Exception(f"Cannot launch local run: {key.replace('_', ' ')} {path} doesn't exist")
 
     # sandbox
-    run_local_path = os.path.abspath(compute_path)
+    run_local_path = _get_abspath(compute_path)
 
     print(f'Run local results will be in sandbox : {run_local_path}')
     print(f'Clean run local sandbox {run_local_path}')
