@@ -70,9 +70,8 @@ Help:
     You can use a `--config /tmp/.substra` for testing for example.
     You can use different profiles for making calls to substrabac. Nice when playing with multiple instances of substrabac.
 
-Help:
-  For help using this tool, please open an issue on the Github repository:
-  https://github.com/SubstraFoundation/substra-cli
+    For additional help using this tool, please open an issue on the Github repository:
+    https://github.com/SubstraFoundation/substra-cli
 """
 
 
