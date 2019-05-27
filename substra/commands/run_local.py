@@ -12,6 +12,16 @@ metrics_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../run
 
 USER = os.getuid()
 
+METRICS_NO_DRY_RUN = 0
+METRICS_FAKE_Y = 1
+
+VOLUME_OUTPUT_MODEL = {'bind': '/sandbox/model', 'mode': 'rw'}
+VOLUME_OPENER = {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}
+VOLUME_METRICS = {'bind': '/sandbox/metrics/__init__.py', 'mode': 'ro'}
+VOLUME_PRED = {'bind': '/sandbox/pred', 'mode': 'rw'}
+VOLUME_DATA = {'bind': '/sandbox/data', 'mode': 'ro'}
+VOLUME_LOCAL = {'bind': '/sandbox/local', 'mode': 'rw'}
+
 
 def create_directory(directory):
     if not os.path.exists(directory):
@@ -19,51 +29,59 @@ def create_directory(directory):
         os.makedirs(directory)
 
 
+def get_metrics_command(dry_run=False):
+    mode = METRICS_FAKE_Y if dry_run else METRICS_NO_DRY_RUN
+    return f'-c "import substratools as tools; tools.metrics.execute(dry_run={mode})"'
+
+
 def setup_local(algo_path,
-                train_opener_path, test_opener_path,
+                train_opener_path,
+                test_opener_path,
                 metric_file_path,
-                train_data_sample_path, test_data_sample_path,
-                outmodel_path='./',
-                compute_path='./sandbox',
-                local_path='local'):
+                train_data_sample_path,
+                test_data_sample_path,
+                outmodel_path,
+                compute_path,
+                local_path):
 
     config = {}
 
-    # setup config
-    config['algo_path'] = os.path.abspath(algo_path)
+    def _get_abspath(path):
+        if path:  # path may be None
+            path = os.path.abspath(path)
+        return path
 
-    config['train_opener_file'] = os.path.abspath(train_opener_path)
-    config['test_opener_file'] = os.path.abspath(test_opener_path)
-    config['train_data_path'] = train_data_sample_path
-    config['test_data_path'] = test_data_sample_path
-    config['metrics_file'] = os.path.abspath(metric_file_path)
+    # setup config
+    config['algo_path'] = _get_abspath(algo_path)
+    config['train_opener_file'] = _get_abspath(train_opener_path)
+    config['test_opener_file'] = _get_abspath(test_opener_path)
+    config['train_data_path'] = _get_abspath(train_data_sample_path)
+    config['test_data_path'] = _get_abspath(test_data_sample_path)
+    config['metrics_file'] = _get_abspath(metric_file_path)
 
     # check config values
     for key in config.keys():
-        if not os.path.exists(config[key]):
-            raise Exception(f"Cannot launch local run: {key.replace('_', ' ')} {config[key]} doesn't exist")
-
-    # docker
-    config['algo_docker'] = 'algo_run_local'
-    config['metrics_docker'] = 'metrics_run_local'
+        path = config[key]
+        if path and not os.path.exists(path):
+            raise Exception(f"Cannot launch local run: {key.replace('_', ' ')} {path} doesn't exist")
 
     # sandbox
-    config['run_local_path'] = os.path.abspath(compute_path)
+    run_local_path = _get_abspath(compute_path)
 
-    print('Run local results will be in sandbox : %s' % config['run_local_path'])
-    print('Clean run local sandbox %s' % config['run_local_path'])
+    print(f'Run local results will be in sandbox : {run_local_path}')
+    print(f'Clean run local sandbox {run_local_path}')
 
     try:
-        shutil.rmtree(config['run_local_path'])
+        shutil.rmtree(run_local_path)
     except FileNotFoundError:
         pass
 
-    config['local_path'] = os.path.join(config['run_local_path'], local_path)
-    config['train_pred_path'] = os.path.join(config['run_local_path'], 'pred_train')
-    config['test_pred_path'] = os.path.join(config['run_local_path'], 'pred_test')
-    config['outmodel_path'] = os.path.join(config['run_local_path'], outmodel_path)
+    config['local_path'] = os.path.join(run_local_path, local_path)
+    config['train_pred_path'] = os.path.join(run_local_path, 'pred_train')
+    config['test_pred_path'] = os.path.join(run_local_path, 'pred_test')
+    config['outmodel_path'] = os.path.join(run_local_path, outmodel_path)
 
-    create_directory(config['run_local_path'])
+    create_directory(run_local_path)
     create_directory(config['local_path'])
     create_directory(config['train_pred_path'])
     create_directory(config['test_pred_path'])
@@ -72,26 +90,77 @@ def setup_local(algo_path,
     return config
 
 
-def compute_local(docker_client, config, rank, inmodels):
+def _docker_build(docker_client, dockerfile_path, name, rm=False):
+    print(f'Creating docker {name}', end=' ', flush=True)
+    start = time.time()
+    docker_client.images.build(path=dockerfile_path,
+                               tag=name,
+                               rm=rm)
+    elaps = time.time() - start
+    print(f'(duration {elaps:.2f} s )')
+
+
+def _docker_run(docker_client, name, command, volumes, remove=True):
+    print(f'Running docker {name}', end=' ', flush=True)
+    start = time.time()
+    try:
+        docker_client.containers.run(name, command=command,
+                                     volumes=volumes, remove=remove, user=USER)
+    except docker.errors.ContainerError as e:
+        # try to pretty print traceback
+        try:
+            err = e.stderr.decode('utf-8')
+        except Exception:
+            raise e
+        msg = (
+            f"Command '{command}' in image '{name}' returned non-zero exit "
+            f"status {e.exit_status}:\n{err}"
+        )
+        raise Exception(msg)
+
+    elaps = time.time() - start
+    print(f'(duration {elaps:.2f} s )')
+
+
+def compute_local(docker_client, config, rank, inmodels, dry_run=False):
+    docker_algo_tag = 'algo_run_local'
+    docker_metrics_tag = 'metrics_run_local'
+
+    outmodel_path = config['outmodel_path']
+    train_pred_path = config['train_pred_path']
+    algo_path = config['algo_path']
+    local_path = config['local_path']
+    train_opener_file = config['train_opener_file']
+    metrics_file = config['metrics_file']
+    test_pred_path = config['test_pred_path']
+    test_opener_file = config['test_opener_file']
+    test_data_path = config['test_data_path']
+    train_data_path = config['train_data_path']
+
+    train_data_path_str = train_data_path or 'fake'
+
+    model_key = 'model'
+    outmodel_file = os.path.join(outmodel_path, model_key)
 
     print('Training starts')
 
-    print('Creating docker for train', end=' ', flush=True)
-    start = time.time()
-    docker_client.images.build(path=config['algo_path'],
-                               tag=config['algo_docker'],
-                               rm=False)
-    print('(duration %.2f s )' % (time.time() - start))
+    _docker_build(docker_client, algo_path, docker_algo_tag)
 
-    print('Training algo on %s' % (config['train_data_path'],), end=' ', flush=True)
-    start = time.time()
-    volumes = {config['train_data_path']: {'bind': '/sandbox/data', 'mode': 'ro'},
-               config['outmodel_path']: {'bind': '/sandbox/model', 'mode': 'rw'},
-               config['train_pred_path']: {'bind': '/sandbox/pred', 'mode': 'rw'},
-               config['local_path']: {'bind': '/sandbox/local', 'mode': 'rw'},
-               config['train_opener_file']: {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}}
+    if not dry_run:
+        print(f'Training algo on {train_data_path}')
+    else:
+        print('Training algo fake data samples')
 
-    command = '--train'
+    volumes = {outmodel_path: VOLUME_OUTPUT_MODEL,
+               train_pred_path: VOLUME_PRED,
+               local_path: VOLUME_LOCAL,
+               train_opener_file: VOLUME_OPENER}
+    if not dry_run:
+        volumes[train_data_path] = VOLUME_DATA
+
+    command = 'train'
+    if dry_run:
+        command += " --dry-run"
 
     if rank is not None:
         command += f" --rank {rank}"
@@ -100,120 +169,139 @@ def compute_local(docker_client, config, rank, inmodels):
         model_keys = []
 
         for inmodel in inmodels:
-            src = os.abspath(inmodel)
-            model_key = hashlib.sha256(src)
-            dst = os.path.join(config['outmodel_path'], model_key)
+            src = os.path.abspath(inmodel)
+            model_hash = hashlib.sha256(src)
+            dst = os.path.join(outmodel_path, model_hash)
             os.symlink(src, dst)
-            model_keys.append(model_key)
+            model_keys.append(model_hash)
 
-        command += f" --inmodels {' '.join(model_keys)}"
+        command += ' '.join(model_keys)
+    _docker_run(docker_client, docker_algo_tag, command=command,
+                volumes=volumes)
 
-    docker_client.containers.run(config['algo_docker'], command=command, volumes=volumes, remove=True, user=USER)
-    print('(duration %.2f s )' % (time.time() - start))
+    if not os.path.exists(outmodel_file):
+        raise Exception(f"Model {outmodel_file} doesn't exist")
 
-    print('Evaluating performance - creating docker', end=' ', flush=True)
-    start = time.time()
-    docker_client.images.build(path=metrics_path,
-                               tag=config['metrics_docker'],
-                               rm=True)
-    print('(duration %.2f s )' % (time.time() - start))
+    _docker_build(docker_client, metrics_path, docker_metrics_tag, rm=True)
 
-    print('Evaluating performance - compute metrics with %s predictions against %s labels' % (config['train_pred_path'],
-                                                                                              config['train_data_path']), end=' ', flush=True)
-    start = time.time()
+    print(f'Evaluating performance - compute metrics with {train_pred_path} predictions against {train_data_path_str} labels')
 
-    volumes = {config['train_data_path']: {'bind': '/sandbox/data', 'mode': 'ro'},
-               config['train_pred_path']: {'bind': '/sandbox/pred', 'mode': 'rw'},
-               config['metrics_file']: {'bind': '/sandbox/metrics/__init__.py', 'mode': 'ro'},
-               config['train_opener_file']: {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}}
-    docker_client.containers.run(config['metrics_docker'], volumes=volumes, remove=True, user=USER)
-    print('(duration %.2f s )' % (time.time() - start))
-
-    model_key = 'model'
+    volumes = {train_pred_path: VOLUME_PRED,
+               metrics_file: VOLUME_METRICS,
+               train_opener_file: VOLUME_OPENER}
+    if not dry_run:
+        volumes[train_data_path] = VOLUME_DATA
+    command = get_metrics_command(dry_run)
+    _docker_run(docker_client, docker_metrics_tag, command=command,
+                volumes=volumes)
 
     # load performance
-    with open(os.path.join(config['train_pred_path'], 'perf.json'), 'r') as perf_file:
+    with open(os.path.join(train_pred_path, 'perf.json'), 'r') as perf_file:
         perf = json.load(perf_file)
     train_perf = perf['all']
 
-    print('Successfully train model %s with a score of %s on train data' % (os.path.join(config['outmodel_path'], model_key), train_perf))
+    print(f'Successfully train model {outmodel_file} with a score of {train_perf} on train data')
 
     print('Testing starts')
 
-    print('Creating docker for test', end=' ', flush=True)
-    start = time.time()
-    docker_client.images.build(path=config['algo_path'],
-                               tag=config['algo_docker'],
-                               rm=False)
-    print('(duration %.2f s )' % (time.time() - start))
+    _docker_build(docker_client, algo_path, docker_algo_tag)
 
     print('Testing model')
 
-    print('Testing model on %s with %s saved in %s' % (config['test_data_path'],
-                                                       model_key, config['test_pred_path']), end=' ', flush=True)
-    start = time.time()
-    volumes = {config['test_data_path']: {'bind': '/sandbox/data', 'mode': 'ro'},
-               config['outmodel_path']: {'bind': '/sandbox/model', 'mode': 'rw'},
-               config['test_pred_path']: {'bind': '/sandbox/pred', 'mode': 'rw'},
-               config['test_opener_file']: {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}}
-    docker_client.containers.run(config['algo_docker'], command=f"--predict --inmodels {model_key}", volumes=volumes, remove=True, user=USER)
-    print('(duration %.2f s )' % (time.time() - start))
+    test_data_path_str = test_data_path or 'fake'
+    print(f'Testing model on {test_data_path_str} labels with {model_key} saved in {test_pred_path}')
 
-    print('Evaluating performance - creating docker', end=' ', flush=True)
-    start = time.time()
-    docker_client.images.build(path=metrics_path,
-                               tag=config['metrics_docker'],
-                               rm=False)
-    print('(duration %.2f s )' % (time.time() - start))
+    volumes = {outmodel_path: VOLUME_OUTPUT_MODEL,
+               test_pred_path: VOLUME_PRED,
+               test_opener_file: VOLUME_OPENER}
+    if not dry_run:
+        volumes[test_data_path] = VOLUME_DATA
 
-    print('Evaluating performance - compute metric with %s predictions against %s labels' % (config['test_pred_path'],
-                                                                                             config['test_data_path']), end=' ', flush=True)
+    command = f"predict {model_key}"
+    if dry_run:
+        command += " --dry-run"
+    _docker_run(docker_client, docker_algo_tag, command=command,
+                volumes=volumes)
 
-    volumes = {config['test_data_path']: {'bind': '/sandbox/data', 'mode': 'ro'},
-               config['test_pred_path']: {'bind': '/sandbox/pred', 'mode': 'rw'},
-               config['metrics_file']: {'bind': '/sandbox/metrics/__init__.py', 'mode': 'ro'},
-               config['test_opener_file']: {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}}
-    docker_client.containers.run(config['metrics_docker'], volumes=volumes, remove=True, user=USER)
-    print('(duration %.2f s )' % (time.time() - start))
+    _docker_build(docker_client, metrics_path, docker_metrics_tag)
+
+    print(f'Evaluating performance - compute metric with {test_pred_path} predictions against {test_data_path_str} labels')
+
+    volumes = {test_pred_path: VOLUME_PRED,
+               metrics_file: VOLUME_METRICS,
+               test_opener_file: VOLUME_OPENER}
+    if not dry_run:
+        volumes[test_data_path] = VOLUME_DATA
+
+    command = get_metrics_command(dry_run)
+    _docker_run(docker_client, docker_metrics_tag, command=command,
+                volumes=volumes)
 
     # load performance
-    with open(os.path.join(config['test_pred_path'], 'perf.json'), 'r') as perf_file:
+    with open(os.path.join(test_pred_path, 'perf.json'), 'r') as perf_file:
         perf = json.load(perf_file)
     test_perf = perf['all']
 
-    print('Successfully test model %s with a score of %s on test data' % (os.path.join(config['outmodel_path'], model_key), test_perf))
+    print(f'Successfully test model {outmodel_file} with a score of {test_perf} on test data')
 
 
 class RunLocal(Base):
     """Run-local asset"""
 
-    def getOption(self, option, default):
-        if option is None:
-            return default
-        return option
-
     def run(self):
 
+        def _get_path(base_path, relpath):
+            return os.path.abspath(os.path.join(base_path, relpath))
+
+        def _get_option(option_name, default):
+            option = self.options.get(option_name)
+            if option is None:
+                return default
+            return option
+
         algo_path = self.options['<algo-path>']
-        train_opener = self.getOption(self.options.get('--train-opener'), os.path.abspath(os.path.join(algo_path, '../dataset/opener.py')))
-        test_opener = self.getOption(self.options.get('--test-opener'), os.path.abspath(os.path.join(algo_path, '../objective/opener.py')))
-        metrics = self.getOption(self.options.get('--metrics'), os.path.abspath(os.path.join(algo_path, '../objective/metrics.py')))
-        rank = self.getOption(self.options.get('--rank'), 0)
-        train_data = self.getOption(self.options.get('--train-data-sample'), os.path.abspath(os.path.join(algo_path, '../dataset/data-samples/')))
-        test_data = self.getOption(self.options.get('--test-data-sample'), os.path.abspath(os.path.join(algo_path, '../objective/data-samples/')))
+
+        train_opener = _get_option('--train-opener',
+                                   _get_path(algo_path, '../dataset/opener.py'))
+
+        test_opener = _get_option('--test-opener',
+                                  _get_path(algo_path, '../objective/opener.py'))
+
+        metrics = _get_option('--metrics',
+                              _get_path(algo_path, '../objective/metrics.py'))
+
+        rank = _get_option('--rank', 0)
+
+        train_data = _get_option('--train-data-samples',
+                                 _get_path(algo_path, '../dataset/data-samples/'))
+
+        test_data = _get_option('--test-data-samples',
+                                _get_path(algo_path, '../objective/data-samples/'))
+
         inmodel = self.options.get('--inmodel')
-        outmodel = self.getOption(self.options.get('--outmodels'), os.path.abspath(os.path.join(algo_path, '../model/')))
 
-        try:
-            config = setup_local(algo_path,
-                                 train_opener, test_opener, metrics,
-                                 train_data, test_data,
-                                 outmodel_path=outmodel,
-                                 compute_path='./sandbox',
-                                 local_path='local')
+        outmodel = _get_option('--outmodels',
+                               _get_path(algo_path, '../model/'))
 
-            client = docker.from_env()
+        fake_data_samples = self.options.get('--fake-data-samples', False)
 
-            compute_local(client, config, rank, inmodel)
-        except Exception as e:
-            self.handle_exception(e)
+        if fake_data_samples:
+            train_data = None
+            test_data = None
+
+        compute_path = './sandbox'
+        local_path = 'local'
+
+        config = setup_local(algo_path,
+                             train_opener,
+                             test_opener,
+                             metrics,
+                             train_data,
+                             test_data,
+                             outmodel,
+                             compute_path,
+                             local_path)
+
+        client = docker.from_env()
+
+        compute_local(client, config, rank, inmodel, dry_run=fake_data_samples)
