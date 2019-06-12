@@ -9,8 +9,6 @@ Usage:
   substra update <asset> <pkhash> <args> [--profile=<profile>] [--config=<configuration_file_path>] [-v | --verbose]
   substra get <asset> <pkhash> [--profile=<profile>] [--config=<configuration_file_path>]  [-v | --verbose]
   substra bulk_update <asset> <args> [--profile=<profile>] [--config=<configuration_file_path>] [-v | --verbose]
-  substra path <asset> <pkhash> <path> [--profile=<profile>] [--config=<configuration_file_path>] [-v | --verbose]
-  substra create_project (starter_kit | isic) <path>  [-v | --verbose]
   substra run_local <algo-path> [--train-opener=<train_opener_path>] [--test-opener=<test_opener_path>] [--metrics=<metrics_path>] [--rank=<rank>] [--train-data-samples=<train_data_sample_path>] [--test-data-samples=<test_data_sample_path>] [--inmodel=<inmodel_path>...] [--outmodels=<outmodels_path>] [--fake-data-samples] [-v | --verbose]
   substra -h | --help
   substra --version
@@ -49,9 +47,6 @@ Examples:
 
   # bulk update data_sample
   substra bulk_update data_sample '{"data_sample_keys": ["62fb3263208d62c7235a046ee1d80e25512fe782254b730a9e566276b8c0ef3a", "42303efa663015e729159833a12ffb510ff92a6e386b8152f90f6fb14ddc94c9"], "data_manager_keys": ["b4d2deeb9a59944d608e612abc8595c49186fa24075c4eb6f5e6050e4f9affa0"]}'
-
-  # get details path of model
-  substra path model 640496cd77521be69122092213c0ab4fb3385250656aed7cd71c42e324f67356 details
 
 Assets available:
   - data_manager (add, update, list and get)
