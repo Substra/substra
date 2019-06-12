@@ -81,7 +81,7 @@ from docopt import docopt
 
 from . import __version__ as VERSION
 
-COMMANDS = ('Add', 'Register', 'BulkUpdate', 'Config', 'Get', 'List', 'Path', 'Update', 'CreateProject', 'RunLocal')
+COMMANDS = ('Add', 'Register', 'BulkUpdate', 'Config', 'Get', 'List', 'Update', 'RunLocal')
 
 
 def main():
