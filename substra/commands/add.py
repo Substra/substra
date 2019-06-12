@@ -20,6 +20,7 @@ class Add(Api):
     """Add asset"""
 
     ACCEPTED_ASSETS = [ALGO_ASSET, OBJECTIVE_ASSET, DATA_SAMPLE_ASSET, DATA_MANAGER_ASSET, TESTTUPLE_ASSET, TRAINTUPLE_ASSET]
+    ACCEPTED_REMOTE_ASSETS = [DATA_SAMPLE_ASSET]
 
     def run(self):
         super(Add, self).run()
@@ -29,8 +30,14 @@ class Add(Api):
         data = load_json_from_args(args)
         dryrun = self.options.get('--dry-run', False)
 
+        remote = self.options.get('--remote', False)
+        if remote and asset not in self.ACCEPTED_REMOTE_ASSETS:
+            raise Exception(f"Cannot add remote asset {asset}")
+
+        method = self.client.register if remote else self.client.add
+
         try:
-            res = self.client.add(asset, data, dryrun)
+            res = method(asset, data, dryrun)
         except (exceptions.ConnectionError, exceptions.Timeout) as e:
             raise Exception(f'Failed to create {asset}: {e}')
         except exceptions.HTTPError as e:
