@@ -1,58 +1,95 @@
 import copy
 import json
+import logging
 import os
 
 from .base import Base
 
 from substra_sdk_py.config import default_config
 
-# default, you can override it with --config <configuration_file_path>
 config_path = os.path.expanduser('~/.substra')
+logger = logging.getLogger(__name__)
+
+
+class ConfigException(Exception):
+    pass
+
+
+def _read_config(path):
+    with open(path) as fh:
+        try:
+            return json.load(fh)
+        except json.decoder.JSONDecodeError as e:
+            raise e
+
+
+def _write_config(path, config):
+    with open(path, 'w') as fh:
+        json.dump(config, fh, indent=2, sort_keys=True)
+
+
+def load_profile(path, name):
+    help_command = \
+        "substra config <url> [<version>] [--profile=<profile>] [--config=<path>]"
+    logger.debug(f"Loading profile '{name}' from '{path}'")
+
+    try:
+        config = _read_config(path)
+    except FileNotFoundError:
+        raise ConfigException(
+            f"Config file '{path}' not found. Please run '{help_command}'.")
+    try:
+        return config[name]
+    except KeyError:
+        raise ConfigException(
+            f"Config profile '{name}' not found. Please run '{help_command}'.")
+
+
+def add_profile(path, name, profile):
+    try:
+        config = _read_config(path)
+    except json.decoder.JSONDecodeError:
+        # could not load file, will be replaced by default configuration
+        config = {}
+    except FileNotFoundError:
+        config = {}
+    if not config:
+        config = copy.deepcopy(default_config)
+
+    if name in config:
+        config[name].update(profile)
+    else:
+        config[name] = profile
+    _write_config(path, config)
+    return config
 
 
 class Config(Base):
     """Create config"""
 
     def run(self):
-        res = {}
+        """Add/modify profile to config file."""
+        name = self.options.get('--profile', 'default')
+        path = self.options.get('--config', config_path)
 
-        # check overrides
-        profile = self.options.get('--profile')
-        if not profile:
-            profile = 'default'
+        profile = {
+            'url': self.options['<url>'],
+            'version': self.options.get('<version>', '0.0'),
+            'insecure': self.options.get('--insecure',
+                                         self.options.get('-k', False)),
+            'auth': False,
+        }
 
-        conf_path = self.options.get('--config')
-        if not conf_path:
-            conf_path = config_path
+        user = self.options.get('<user>')
+        password = self.options.get('<password>')
 
-        with open(conf_path, 'a+') as f:
-            try:
-                f.seek(0)
-                res = json.load(f)
-            except:
-                # define default if does not exists
-                res = copy.deepcopy(default_config)
-            finally:
-                if profile not in res:
-                    res[profile] = {}
+        if user and password:
+            profile['auth'] = {
+                'user': user,
+                'password': password,
+            }
 
-                res[profile]['url'] = self.options['<url>']
-                res[profile]['version'] = self.options.get('<version>', '0.0')
-                res[profile]['insecure'] = self.options.get('--insecure', self.options.get('-k', False))
-                user = self.options.get('<user>', None)
-                password = self.options.get('<password>', None)
-
-                res[profile]['auth'] = False
-                if user and password:
-                    res[profile]['auth'] = {
-                        'user': user,
-                        'password': password
-                    }
-
-                f.seek(0)
-                f.truncate()
-                json.dump(res, f, indent=2, sort_keys=True)
-
-                print('Created/Updated config file in %s with values: \n%s' % (conf_path, json.dumps(res, indent=2)))
-
-                return res
+        full_config = add_profile(path, name, profile)
+        full_config_str = json.dumps(full_config, indent=2)
+        print(f"Config from '{path}' has been updated with:\n{full_config_str}")
+        return full_config

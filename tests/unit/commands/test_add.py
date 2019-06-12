@@ -6,6 +6,7 @@ import sys
 from unittest import TestCase, mock
 
 from substra.commands import Add, Config
+from substra.commands.config import ConfigException
 
 data_manager = {
     "objectiveKey": "",
@@ -176,22 +177,14 @@ class TestAddNoConfig(TestCase):
         with open(self.data_manager_file_path, 'r') as f:
             data = f.read()
 
-            saved_stdout = sys.stdout
-
             out = StringIO()
             sys.stdout = out
 
-            with self.assertRaises(SystemExit) as se:
+            with self.assertRaises(ConfigException):
                 Add({
                     '<asset>': 'data_manager',
                     '<args>': data,
                 }).run()
-
-                self.assertEqual(se.exception.code, 1)
-
-            e = out.getvalue().strip()
-            sys.stdout = saved_stdout
-            self.assertEqual(str(e), 'No config file "/tmp/.substra" found, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"')
 
             self.assertEqual(len(mock_add.call_args_list), 0)
 

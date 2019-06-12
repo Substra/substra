@@ -1,7 +1,5 @@
-import json
-import sys
-
 from .config import config_path
+from .config import load_profile
 from .base import Base
 
 from substra_sdk_py import Client
@@ -33,42 +31,15 @@ class Api(Base):
     ACCEPTED_ASSETS = ALL_ASSETS
 
     def run(self):
+        # load config
+        self.profile = self.options.get('--profile', 'default')
+        path = self.options.get('--config', config_path)
+        config = load_profile(path, self.profile)
 
-        # check overrides
-        self.profile = self.options.get('--profile')
-
-        if not self.profile:
-            self.profile = 'default'
-
-        conf_path = self.options.get('--config')
-        if not conf_path:
-            conf_path = config_path
-
-        # Do we have to load a specific config?
-        try:
-            with open(conf_path, 'r') as f:
-                config = json.load(f)[self.profile]
-        except FileNotFoundError:
-            msg = 'No config file "%s" found, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"' % conf_path
-            print(msg)
-            sys.exit(1)
-        except KeyError:
-            msg = 'No profile "%s" found, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"' % self.profile
-            print(msg)
-            sys.exit(1)
-        except Exception:
-            msg = 'There is an issue with the config file loading, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"'
-            print(msg)
-            sys.exit(1)
-        else:
-            try:
-                self.client = Client()
-            except Exception as e:
-                msg = 'There is an issue with setting up the substra-sdk-py client (%s)"' % e
-                print(msg)
-            else:
-                self.client.create_config(profile=self.profile, **config)
-                self.client.set_config(self.profile)
+        # initialize substra client
+        self.client = Client()
+        self.client.create_config(profile=self.profile, **config)
+        self.client.set_config(self.profile)
 
     def get_asset_option(self):
         asset = self.options['<asset>']

@@ -4,35 +4,41 @@ from unittest import TestCase, mock
 
 from mock import mock_open
 
-from substra.commands import Config, default_config
+from substra.commands.config import Config, default_config
 
-empty_file = mock_open(read_data='')
-loaded_file = mock_open(read_data='{"default": {"url": "http://127.0.0.1:8000", "version": "0.0"}}')
-custom_loaded_file = mock_open(read_data='{"default": {"url": "http://tutu:8000" "version": "1.0"}}')
+empty_file = mock_open(
+    read_data=json.dumps({}))
+
+loaded_file = mock_open(
+    read_data=json.dumps({
+        "default": {"url": "http://127.0.0.1:8000", "version": "0.0"}}))
+
+custom_loaded_file = mock_open(
+    read_data=json.dumps({
+        "default": {"url": "http://tutu:8000", "version": "1.0"}}))
+
 corrupt_file = mock_open(read_data='tutu')
 
 
 class TestConfig(TestCase):
 
     def test_init_config_empty(self):
-        with mock.patch('substra.commands.config.open', empty_file, create=True) as mock_object:
+        with mock.patch('substra.commands.config.open', empty_file, create=True):
             res = Config({
                 '<url>': 'http://127.0.0.1:8000',
                 '<version>': '0.0',
             }).run()
 
-            self.assertTrue(res == default_config)
-
-            self.assertEqual(len(mock_object.call_args_list), 2)
+            self.assertEqual(res, default_config)
 
     def test_init_config(self):
-        with mock.patch('substra.commands.config.open', loaded_file, create=True) as mock_object:
+        with mock.patch('substra.commands.config.open', loaded_file, create=True):
             res = Config({
                 '<url>': 'http://toto.com',
                 '<version>': '1.0',
             }).run()
 
-            self.assertTrue(res == {
+            self.assertEqual(res, {
                 'default': {
                     'url': 'http://toto.com',
                     'version': '1.0',
@@ -41,16 +47,14 @@ class TestConfig(TestCase):
                 }
             })
 
-            self.assertEqual(len(mock_object.call_args_list), 1)
-
     def test_init_config_override(self):
-        with mock.patch('substra.commands.config.open', custom_loaded_file, create=True) as mock_object:
+        with mock.patch('substra.commands.config.open', custom_loaded_file, create=True):
             res = Config({
                 '<url>': 'http://override.com',
                 '<version>': '9.9',
             }).run()
 
-            self.assertTrue(res == {
+            self.assertEqual(res, {
                 'default': {
                     'url': 'http://override.com',
                     'version': '9.9',
@@ -59,16 +63,14 @@ class TestConfig(TestCase):
                 }
             })
 
-            self.assertEqual(len(mock_object.call_args_list), 1)
-
     def test_init_config_corrupt(self):
-        with mock.patch('substra.commands.config.open', corrupt_file, create=True) as mock_object:
+        with mock.patch('substra.commands.config.open', corrupt_file, create=True):
             res = Config({
                 '<url>': 'http://toto.com',
                 '<version>': '1.0',
             }).run()
 
-            self.assertTrue(res == {
+            self.assertEqual(res, {
                 'default': {
                     'url': 'http://toto.com',
                     'version': '1.0',
@@ -77,10 +79,8 @@ class TestConfig(TestCase):
                 }
             })
 
-            self.assertEqual(len(mock_object.call_args_list), 1)
-
     def test_init_config_basic_auth(self):
-        with mock.patch('substra.commands.config.open', empty_file, create=True) as mock_object:
+        with mock.patch('substra.commands.config.open', empty_file, create=True):
             res = Config({
                 '<url>': 'http://toto.com',
                 '<version>': '0.1',
@@ -88,7 +88,7 @@ class TestConfig(TestCase):
                 '<password>': 'bar'
             }).run()
 
-            self.assertTrue(res == {
+            self.assertEqual(res, {
                 'default': {
                     'url': 'http://toto.com',
                     'version': '0.1',
@@ -99,8 +99,6 @@ class TestConfig(TestCase):
                     },
                 }
             })
-
-            self.assertEqual(len(mock_object.call_args_list), 1)
 
 
 class TestConfigOverride(TestCase):
@@ -115,18 +113,18 @@ class TestConfigOverride(TestCase):
     def tearDown(self):
         try:
             os.remove('/tmp/.substra_config')
-        except:
+        except Exception:
             pass
 
     def test_add_profile(self):
-        Config({
+        res = Config({
             '<url>': 'http://toto.com',
             '<version>': '1.0',
             '--profile': 'test',
             '--config': '/tmp/.substra_config'
         }).run()
 
-        self.assertTrue({
+        self.assertEqual(res, {
             'default': {
                 'url': 'http://localhost',
                 'version': '0.0',
@@ -134,5 +132,7 @@ class TestConfigOverride(TestCase):
             'test': {
                 'url': 'http://toto.com',
                 'version': '1.0',
+                'insecure': False,
+                'auth': False,
             }
         })
