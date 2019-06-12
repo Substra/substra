@@ -26,23 +26,28 @@ class TestVersion(TestCase):
 
 class TestCommand(TestCase):
     def setUp(self):
-        json.dump({
-            'default': {
-                'url': 'http://localhost',
-                'version': '0.0',
-                'insecure': False,
-            }
-        }, open('/tmp/.substra2', 'w+'))
+        with open('/tmp/.substra2', 'w+') as fh:
+            json.dump({
+                'default': {
+                    'url': 'http://localhost',
+                    'version': '0.0',
+                    'insecure': False,
+                }
+            }, fh)
 
     def tearDown(self):
         try:
             os.remove('/tmp/.substra2')
-        except:
+        except Exception:
             pass
 
     def test_returns_command(self):
-            output = popen(['substra', 'list', 'objective', '--config=/tmp/.substra2'], stdout=PIPE).communicate()[0]
+        output = popen([
+            'substra',
+            'list',
+            'objective',
+            '--config=/tmp/.substra2'], stdout=PIPE).communicate()[0]
 
-            print(output.decode('utf-8').strip())
+        print(output.decode('utf-8').strip())
 
-            self.assertTrue('Failed to list objective' in output.decode('utf-8').strip())
+        self.assertTrue('Failed to list objective' in output.decode('utf-8').strip())

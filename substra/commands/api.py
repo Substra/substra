@@ -32,8 +32,10 @@ class Api(Base):
 
     def run(self):
         # load config
-        self.profile = self.options.get('--profile', 'default')
-        path = self.options.get('--config', config_path)
+        self.profile = self.options.get('--profile')
+        self.profile = self.profile or 'default'
+        path = self.options.get('--config')
+        path = path or config_path
         config = load_profile(path, self.profile)
 
         # initialize substra client

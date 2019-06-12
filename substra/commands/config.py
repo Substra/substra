@@ -64,8 +64,10 @@ class Config(Base):
 
     def run(self):
         """Add/modify profile to config file."""
-        name = self.options.get('--profile', 'default')
-        path = self.options.get('--config', config_path)
+        name = self.options.get('--profile')
+        name = name or 'default'
+        path = self.options.get('--config')
+        path = path or config_path
 
         profile = {
             'url': self.options['<url>'],

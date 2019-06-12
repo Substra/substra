@@ -63,6 +63,7 @@ Help:
 """
 
 from docopt import docopt
+import logging
 
 from . import commands
 from . import __version__ as VERSION
@@ -80,8 +81,12 @@ COMMANDS_MAPPER = {
 
 def _find_command(ctx):
     for k, v in ctx.items():
-        if k in COMMANDS_MAPPER.keys:
+        if not v:
+            continue
+        try:
             return COMMANDS_MAPPER[k]
+        except KeyError:
+            continue
     raise ValueError('Command not found')
 
 
@@ -100,4 +105,5 @@ def main():
     try:
         command.run()
     except Exception as e:
+        logging.exception(e)
         _handle_exception(options, e)
