@@ -19,8 +19,8 @@ def _read_config(path):
     with open(path) as fh:
         try:
             return json.load(fh)
-        except json.decoder.JSONDecodeError as e:
-            raise e
+        except json.decoder.JSONDecodeError:
+            raise ConfigException(f"Cannot parse config file '{path}'")
 
 
 def _write_config(path, config):
@@ -48,12 +48,7 @@ def load_profile(path, name):
 def add_profile(path, name, profile):
     try:
         config = _read_config(path)
-    except json.decoder.JSONDecodeError:
-        # could not load file, will be replaced by default configuration
-        config = {}
     except FileNotFoundError:
-        config = {}
-    if not config:
         config = copy.deepcopy(default_config)
 
     if name in config:

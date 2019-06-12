@@ -4,7 +4,7 @@ from unittest import TestCase, mock
 
 from mock import mock_open
 
-from substra.commands.config import Config, default_config
+from substra.commands.config import Config, default_config, ConfigException
 
 empty_file = mock_open(
     read_data=json.dumps({}))
@@ -65,19 +65,11 @@ class TestConfig(TestCase):
 
     def test_init_config_corrupt(self):
         with mock.patch('substra.commands.config.open', corrupt_file, create=True):
-            res = Config({
-                '<url>': 'http://toto.com',
-                '<version>': '1.0',
-            }).run()
-
-            self.assertEqual(res, {
-                'default': {
-                    'url': 'http://toto.com',
-                    'version': '1.0',
-                    'insecure': False,
-                    'auth': False
-                }
-            })
+            with self.assertRaises(ConfigException):
+                Config({
+                    '<url>': 'http://toto.com',
+                    '<version>': '1.0',
+                }).run()
 
     def test_init_config_basic_auth(self):
         with mock.patch('substra.commands.config.open', empty_file, create=True):
