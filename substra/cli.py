@@ -74,30 +74,36 @@ Help:
     https://github.com/SubstraFoundation/substra-cli
 """
 
-
-from inspect import getmembers, isclass
-
 from docopt import docopt
 
+from . import commands
 from . import __version__ as VERSION
 
-COMMANDS = ('Add', 'Register', 'BulkUpdate', 'Config', 'Get', 'List', 'Update', 'RunLocal')
+COMMANDS_MAPPER = {
+    'add': commands.Add,
+    'register': commands.Register,
+    'bulk_update': commands.BulkUpdate,
+    'config': commands.Config,
+    'get': commands.Get,
+    'list': commands.List,
+    'update': commands.Update,
+    'run_local': commands.RunLocal,
+}
+
+
+def _find_command(options):
+    for k, v in options.items():
+        if k in COMMANDS_MAPPER.keys:
+            return COMMANDS_MAPPER[k]
+    raise ValueError('Command not found')
 
 
 def main():
     """Main CLI entrypoint."""
-    import substra.commands
     options = docopt(__doc__, version=VERSION)
-
-    # Here we'll try to dynamically match the command the user is trying to run
-    # with a pre-defined command class we've already created.
-    for (k, v) in options.items():
-        if hasattr(substra.commands, k) and v:
-            module = getattr(substra.commands, k)
-            substra.commands = getmembers(module, isclass)
-            command = [command_class for (command_name, command_class) in substra.commands if command_name in COMMANDS][0]
-            command = command(options)
-            try:
-                command.run()
-            except Exception as e:
-                command.handle_exception(e)
+    command_class = _find_command(options)
+    command = command_class(options)
+    try:
+        command.run()
+    except Exception as e:
+        command.handle_exception(e)
