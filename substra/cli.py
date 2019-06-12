@@ -91,11 +91,18 @@ COMMANDS_MAPPER = {
 }
 
 
-def _find_command(options):
-    for k, v in options.items():
+def _find_command(ctx):
+    for k, v in ctx.items():
         if k in COMMANDS_MAPPER.keys:
             return COMMANDS_MAPPER[k]
     raise ValueError('Command not found')
+
+
+def _handle_exception(ctx, exception):
+    verbose = ctx.get('--verbose', False)
+    if verbose:
+        raise exception
+    print(str(exception))
 
 
 def main():
@@ -106,4 +113,4 @@ def main():
     try:
         command.run()
     except Exception as e:
-        command.handle_exception(e)
+        _handle_exception(options, e)
