@@ -3,20 +3,23 @@ import json
 from substra_sdk_py import exceptions
 from substra.utils import load_json_from_args
 
-from .api import Api, DATA_SAMPLE_ASSET, DATASET_ASSET, DATA_MANAGER_ASSET, OBJECTIVE_ASSET
+from .. import assets
+from .api import Api
 
 
 class Register(Api):
     """Register asset"""
 
-    ACCEPTED_ASSETS = [DATA_SAMPLE_ASSET, DATASET_ASSET, OBJECTIVE_ASSET]
+    ACCEPTED_ASSETS = [assets.DATA_SAMPLE,
+                       assets.DATASET,
+                       assets.OBJECTIVE]
 
     def _add_objective(self, data, dryrun):
         print('adding objective')
-        asset = OBJECTIVE_ASSET
+        asset = assets.OBJECTIVE
         # add objective, do not fail on conflict
         try:
-            res = self.client.add(OBJECTIVE_ASSET, data, dryrun)
+            res = self.client.add(assets.OBJECTIVE, data, dryrun)
         except exceptions.HTTPError as e:
             if e.response.status_code != 409:
                 try:
@@ -32,7 +35,7 @@ class Register(Api):
 
     def _add_data_manager(self, data, dryrun):
         print('adding data manager')
-        asset = DATA_MANAGER_ASSET
+        asset = assets.DATA_MANAGER
         # add data manager, do not fail on conflict
         try:
             res = self.client.add(asset, data, dryrun)
@@ -51,7 +54,7 @@ class Register(Api):
 
     def _register_data_sample(self, data, dryrun):
         print('registering data sample')
-        asset = DATA_SAMPLE_ASSET
+        asset = assets.DATA_SAMPLE
         try:
             res = self.client.register(asset, data, dryrun)
         except exceptions.HTTPError as e:
@@ -75,10 +78,10 @@ class Register(Api):
         asset = self.get_asset_option()
         dryrun = self.options.get('--dry-run', False)
 
-        if asset == DATA_SAMPLE_ASSET:
+        if asset == assets.DATA_SAMPLE:
             self._register_data_sample(data, dryrun)
 
-        elif asset == DATASET_ASSET:
+        elif asset == assets.DATASET:
             data_manager_data = data['data_manager']
             data_manager_key = self._add_data_manager(data_manager_data,
                                                       dryrun)
@@ -86,7 +89,7 @@ class Register(Api):
             data['data_samples']['data_manager_keys'] = [data_manager_key]
             self._register_data_sample(data['data_samples'], dryrun)
 
-        elif asset == OBJECTIVE_ASSET:
+        elif asset == assets.OBJECTIVE:
             data_manager_key = self._add_data_manager(data['data_manager'],
                                                       dryrun)
 

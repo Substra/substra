@@ -1,19 +1,9 @@
+from substra_sdk_py import Client
+
 from .config import config_path
 from .config import load_profile
 from .base import Base
-
-from substra_sdk_py import Client
-
-ALGO_ASSET = 'algo'
-OBJECTIVE_ASSET = 'objective'
-DATA_SAMPLE_ASSET = 'data_sample'
-DATA_MANAGER_ASSET = 'data_manager'
-DATASET_ASSET = 'dataset'
-MODEL_ASSET = 'model'
-TESTTUPLE_ASSET = 'testtuple'
-TRAINTUPLE_ASSET = 'traintuple'
-
-ALL_ASSETS = [ALGO_ASSET, OBJECTIVE_ASSET, DATA_SAMPLE_ASSET, DATA_MANAGER_ASSET, MODEL_ASSET, TESTTUPLE_ASSET, TRAINTUPLE_ASSET]
+from .. import assets
 
 
 class InvalidAssetException(Exception):
@@ -28,7 +18,7 @@ class InvalidAssetException(Exception):
 
 
 class Api(Base):
-    ACCEPTED_ASSETS = ALL_ASSETS
+    ACCEPTED_ASSETS = assets.get_all()
 
     def run(self):
         # load config

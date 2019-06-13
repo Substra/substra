@@ -3,9 +3,9 @@ import json
 import logging
 import os
 
-from .base import Base
-
 from substra_sdk_py.config import default_config
+
+from .base import Base
 
 config_path = os.path.expanduser('~/.substra')
 logger = logging.getLogger(__name__)

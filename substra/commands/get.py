@@ -2,14 +2,21 @@ import json
 
 from substra_sdk_py import exceptions
 
-from .api import Api, ALGO_ASSET, OBJECTIVE_ASSET, DATA_MANAGER_ASSET, MODEL_ASSET, TESTTUPLE_ASSET, \
-    TRAINTUPLE_ASSET
+from .. import assets
+from .api import Api
 
 
 class Get(Api):
     """Get asset"""
 
-    ACCEPTED_ASSETS = [ALGO_ASSET, OBJECTIVE_ASSET, DATA_MANAGER_ASSET, MODEL_ASSET, TESTTUPLE_ASSET, TRAINTUPLE_ASSET]
+    ACCEPTED_ASSETS = [
+        assets.ALGO,
+        assets.OBJECTIVE,
+        assets.DATA_MANAGER,
+        assets.MODEL,
+        assets.TESTTUPLE,
+        assets.TRAINTUPLE,
+    ]
 
     def run(self):
         super(Get, self).run()

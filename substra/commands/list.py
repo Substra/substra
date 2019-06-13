@@ -1,12 +1,12 @@
+import itertools
 import json
 
 from substra_sdk_py import exceptions
 
-import itertools
+from .. import assets
+from .api import Api
 
-from .api import Api, ALGO_ASSET, OBJECTIVE_ASSET, DATA_MANAGER_ASSET, MODEL_ASSET, TRAINTUPLE_ASSET, TESTTUPLE_ASSET
-
-SIMPLE_ASSETS = [TRAINTUPLE_ASSET, TESTTUPLE_ASSET]
+SIMPLE_ASSETS = [assets.TRAINTUPLE, assets.TESTTUPLE]
 
 
 def flatten(list_of_list):
@@ -20,7 +20,14 @@ def flatten(list_of_list):
 class List(Api):
     '''Get asset'''
 
-    ACCEPTED_ASSETS = [ALGO_ASSET, OBJECTIVE_ASSET, DATA_MANAGER_ASSET, MODEL_ASSET, TESTTUPLE_ASSET, TRAINTUPLE_ASSET]
+    ACCEPTED_ASSETS = [
+        assets.ALGO,
+        assets.OBJECTIVE,
+        assets.DATA_MANAGER,
+        assets.MODEL,
+        assets.TESTTUPLE,
+        assets.TRAINTUPLE,
+    ]
 
     def run(self):
         super(List, self).run()

@@ -2,9 +2,10 @@ import json
 import ntpath
 
 from substra_sdk_py import exceptions
-from substra.utils import load_json_from_args
-from .api import Api, ALGO_ASSET, OBJECTIVE_ASSET, DATA_MANAGER_ASSET, TRAINTUPLE_ASSET, TESTTUPLE_ASSET, \
-    DATA_SAMPLE_ASSET
+
+from ..utils import load_json_from_args
+from .. import assets
+from .api import Api
 
 
 class LoadDataException(Exception):
@@ -19,8 +20,17 @@ def path_leaf(path):
 class Add(Api):
     """Add asset"""
 
-    ACCEPTED_ASSETS = [ALGO_ASSET, OBJECTIVE_ASSET, DATA_SAMPLE_ASSET, DATA_MANAGER_ASSET, TESTTUPLE_ASSET, TRAINTUPLE_ASSET]
-    ACCEPTED_REMOTE_ASSETS = [DATA_SAMPLE_ASSET]
+    ACCEPTED_ASSETS = [
+        assets.ALGO,
+        assets.OBJECTIVE,
+        assets.DATA_SAMPLE,
+        assets.DATA_MANAGER,
+        assets.TESTTUPLE,
+        assets.TRAINTUPLE,
+    ]
+    ACCEPTED_REMOTE_ASSETS = [
+        assets.DATA_SAMPLE,
+    ]
 
     def run(self):
         super(Add, self).run()
