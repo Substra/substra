@@ -11,6 +11,7 @@ from substra.commands.config import load_profile
 
 
 def get_client(config_path, profile_name):
+    """Initialize substra client from config file and profile name."""
     profile = load_profile(config_path, profile_name)
     client = sb.Client()
     client.create_config(profile=profile_name, **profile)
@@ -19,8 +20,17 @@ def get_client(config_path, profile_name):
 
 
 def load_json(path):
+    """Load dict from JSON file."""
     with open(path, 'rb') as fp:
         return json.load(fp)
+
+
+def dict_append_to_optional_field(data, key, value):
+    """Append value to a list that may be null."""
+    if key in data:
+        data[key].append(value)
+    else:
+        data[key] = [value]
 
 
 def display(res):
@@ -139,10 +149,26 @@ def add(ctx):
 @click.argument('path')
 @click.pass_context
 def add_algo(ctx, config, profile, dry_run, path):
-    """Add algo asset."""
+    """Add algo."""
     client = get_client(config, profile)
     data = load_json(path)
     res = client.add('algo', data, dry_run)
+    display(res)
+
+
+@add.command('dataset')
+@option_config
+@option_profile
+@click.option('--dry-run', is_flag=True)
+@click.option('--objective-key')
+@click.argument('path')
+@click.pass_context
+def add_dataset(ctx, config, profile, dry_run, objective_key, path):
+    """Add dataset."""
+    client = get_client(config, profile)
+    data = load_json(path)
+    dict_append_to_optional_field(data, 'objective_keys', objective_key)
+    res = client.add('data_manager', data, dry_run)
     display(res)
 
 
