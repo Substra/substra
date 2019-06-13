@@ -16,6 +16,7 @@ class BulkUpdate(Api):
         super(BulkUpdate, self).run()
 
         asset = self.get_asset_option()
+        asset = assets.to_server_name(asset)
         args = self.options['<args>']
         data = load_json_from_args(args)
 

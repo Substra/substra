@@ -23,7 +23,7 @@ class List(Api):
     ACCEPTED_ASSETS = [
         assets.ALGO,
         assets.OBJECTIVE,
-        assets.DATA_MANAGER,
+        assets.DATASET,
         assets.MODEL,
         assets.TESTTUPLE,
         assets.TRAINTUPLE,
@@ -33,6 +33,7 @@ class List(Api):
         super(List, self).run()
 
         asset = self.get_asset_option()
+        asset = assets.to_server_name(asset)
         filters = self.options.get('<filters>', None)
         is_complex = self.options.get('--is-complex', False)
 

@@ -11,13 +11,14 @@ class Update(Api):
     """Update asset"""
 
     ACCEPTED_ASSETS = [
-        assets.DATA_MANAGER,
+        assets.DATASET,
     ]
 
     def run(self):
         super(Update, self).run()
 
         asset = self.get_asset_option()
+        asset = assets.to_server_name(asset)
         args = self.options['<args>']
         data = load_json_from_args(args)
         pkhash = self.options['<pkhash>']

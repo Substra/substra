@@ -24,7 +24,7 @@ class Add(Api):
         assets.ALGO,
         assets.OBJECTIVE,
         assets.DATA_SAMPLE,
-        assets.DATA_MANAGER,
+        assets.DATASET,
         assets.TESTTUPLE,
         assets.TRAINTUPLE,
     ]
@@ -44,8 +44,9 @@ class Add(Api):
         if remote and asset not in self.ACCEPTED_REMOTE_ASSETS:
             raise Exception(f"Cannot add remote asset {asset}")
 
-        method = self.client.register if remote else self.client.add
+        asset = assets.to_server_name(asset)
 
+        method = self.client.register if remote else self.client.add
         try:
             res = method(asset, data, dryrun)
         except (exceptions.ConnectionError, exceptions.Timeout) as e:

@@ -12,7 +12,7 @@ class Get(Api):
     ACCEPTED_ASSETS = [
         assets.ALGO,
         assets.OBJECTIVE,
-        assets.DATA_MANAGER,
+        assets.DATASET,
         assets.MODEL,
         assets.TESTTUPLE,
         assets.TRAINTUPLE,
@@ -22,6 +22,7 @@ class Get(Api):
         super(Get, self).run()
 
         asset = self.get_asset_option()
+        asset = assets.to_server_name(asset)
         pkhash = self.options['<pkhash>']
 
         try:
