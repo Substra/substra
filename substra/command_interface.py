@@ -52,7 +52,7 @@ def option_config(f):
     """Add config option to command."""
     return click.option(
         '--config',
-        type=click.Path(),
+        type=click.Path(exists=True, resolve_path=True),
         default=os.path.expanduser('~/.substra'),
         help='Config path (default ~/.substra)')(f)
 
@@ -169,6 +169,48 @@ def add_dataset(ctx, config, profile, dry_run, objective_key, path):
     data = load_json(path)
     dict_append_to_optional_field(data, 'objective_keys', objective_key)
     res = client.add('data_manager', data, dry_run)
+    display(res)
+
+
+@add.command('objective')
+@option_config
+@option_profile
+@click.option('--dry-run', is_flag=True)
+@click.option('--dataset-key')
+@click.option('--data-samples-path',
+              type=click.Path(exists=True, resolve_path=True))
+@click.argument('path')
+@click.pass_context
+def add_objective(ctx, config, profile, dry_run, dataset_key,
+                  data_samples_path, path):
+    """Add objective."""
+    client = get_client(config, profile)
+    data = load_json(path)
+    data['test_data_manager_key'] = dataset_key
+    # TODO what is the format of data samples path?
+    data['test_data_sample_keys'] = load_json(data_samples_path)
+    res = client.add('data_manager', data, dry_run)
+    display(res)
+
+
+@add.command('data-sample')
+@option_config
+@option_profile
+@click.option('--dry-run', is_flag=True)
+@click.option('--local/--remote', 'local', is_flag=True, default=True)
+@click.option('--test-only', is_flag=True, default=False)
+@click.argument('path')
+@click.pass_context
+def add_data_sample(ctx, config, profile, dry_run, local, test_only, path):
+    """Add data sample."""
+    client = get_client(config, profile)
+    data = {
+        'path': path,
+    }
+    if test_only:
+        data['test_only'] = True
+    method = client.register if not local else client.add
+    res = method('data_sample', data, dry_run)
     display(res)
 
 
