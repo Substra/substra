@@ -214,5 +214,53 @@ def add_data_sample(ctx, config, profile, dry_run, local, test_only, path):
     display(res)
 
 
+@add.command('traintuple')
+@option_config
+@option_profile
+@click.option('--dry-run', is_flag=True)
+@click.option('--objective-key')
+@click.option('--algo-key')
+@click.option('--dataset-key')
+@click.option('--data-samples-path',
+              type=click.Path(exists=True, resolve_path=True))
+@click.pass_context
+def add_traintuple(ctx, config, profile, dry_run, objective_key, algo_key,
+                   dataset_key, data_samples_path):
+    """Add traintuple."""
+    client = get_client(config, profile)
+    data = {
+        'algo_key': algo_key,
+        'objective_key': objective_key,
+        'data_manager_key': dataset_key,
+        # TODO what is the format of data samples path?
+        'train_data_sample_keys': load_json(data_samples_path),
+    }
+    res = client.add('traintuple', data, dry_run)
+    display(res)
+
+
+@add.command('testtuple')
+@option_config
+@option_profile
+@click.option('--dry-run', is_flag=True)
+@click.option('--dataset-key')
+@click.option('--traintuple-key')
+@click.option('--data-samples-path',
+              type=click.Path(exists=True, resolve_path=True))
+@click.pass_context
+def add_testtuple(ctx, config, profile, dry_run, dataset_key, traintuple_key,
+                  data_samples_path):
+    """Add testtuple."""
+    client = get_client(config, profile)
+    data = {
+        'data_manager_key': dataset_key,
+        'traintuple_key': traintuple_key,
+        # TODO what is the format of data samples path?
+        'test_data_sample_keys': load_json(data_samples_path),
+    }
+    res = client.add('testtuple', data, dry_run)
+    display(res)
+
+
 if __name__ == '__main__':
     cli()
