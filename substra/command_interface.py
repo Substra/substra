@@ -100,8 +100,8 @@ def cli(ctx):
 
 
 @cli.command('config')
+@click.argument('url')
 @option_config
-@option_profile
 @click.option('--profile', default='default',
               help='Profile name to add')
 @click.option('--insecure', '-k', is_flag=True,
@@ -109,9 +109,8 @@ def cli(ctx):
 @click.option('--version', '-v', default='0.0')
 @click.option('--user', '-u')
 @click.option('--password', '-p')
-@click.argument('url')
-def add_profile_to_config(config, profile, insecure, version, user, password,
-                          url):
+def add_profile_to_config(url, config, profile, insecure, version, user,
+                          password):
     """Add profile to config file."""
     data = {
         'url': url,
@@ -128,20 +127,22 @@ def add_profile_to_config(config, profile, insecure, version, user, password,
 
 
 @cli.command()
-@click.option('--train-opener')
-@click.option('--test-opener')
-@click.option('--metrics')
-@click.option('--rank', type=click.INT, default=0)
-@click.option('--train-data-samples')
-@click.option('--test-data-samples')
-@click.option('--inmodels', default=[])
-@click.option('--outmodel')
-@click.option('--fake-data-samples', is_flag=True)
 @click.argument('algo_path')
-def run_local(train_opener, test_opener, metrics, rank,
-              train_data_samples, test_data_samples, inmodels, outmodel,
-              fake_data_samples, algo_path):
+# TODO add helper for parameters
+@click.option('--train-opener', type=click.Path(exists=True))
+@click.option('--test-opener', type=click.Path(exists=True))
+@click.option('--metrics', type=click.Path(exists=True))
+@click.option('--rank', type=click.INT, default=0)
+@click.option('--train-data-samples', type=click.Path(exists=True))
+@click.option('--test-data-samples', type=click.Path(exists=True))
+@click.option('--inmodel', type=click.Path(exists=True), multiple=True)
+@click.option('--outmodel', type=click.Path())
+@click.option('--fake-data-samples', is_flag=True)
+def run_local(algo_path, train_opener, test_opener, metrics, rank,
+              train_data_samples, test_data_samples, inmodel, outmodel,
+              fake_data_samples):
     """Run local."""
+    inmodels = inmodel  # multiple option
     # TODO merge runner.setup and runner.compute methods
     config = runner.setup(algo_path,
                           train_opener,
@@ -154,8 +155,6 @@ def run_local(train_opener, test_opener, metrics, rank,
 
 
 @cli.command()
-@option_config
-@option_profile
 @click.argument('asset-name', type=click.Choice([
     assets.ALGO,
     assets.DATASET,
@@ -166,9 +165,11 @@ def run_local(train_opener, test_opener, metrics, rank,
 ]))
 @click.argument('asset-key')
 @click.option('--expand', is_flag=True)
+@option_config
+@option_profile
 @click.pass_context
 @catch_exceptions
-def get(ctx, config, profile, asset_name, asset_key, expand):
+def get(ctx, asset_name, asset_key, expand, config, profile):
     """Get asset by key."""
     expand_valid_assets = (assets.DATASET, assets.TRAINTUPLE)
     if expand and asset_name not in expand_valid_assets:  # fail fast
@@ -196,10 +197,6 @@ def get(ctx, config, profile, asset_name, asset_key, expand):
 
 
 @cli.command('list')
-@option_config
-@option_profile
-@click.option('--is-complex', is_flag=True)
-# TODO explain what's the role of is_complex
 @click.argument('asset-name', type=click.Choice([
     assets.ALGO,
     assets.DATA_SAMPLE,
@@ -210,8 +207,12 @@ def get(ctx, config, profile, asset_name, asset_key, expand):
     assets.TRAINTUPLE,
 ]))
 @click.argument('filters', required=False)
+@click.option('--is-complex', is_flag=True)
+# TODO explain what's the role of is_complex
+@option_config
+@option_profile
 @click.pass_context
-def _list(ctx, config, profile, asset_name, filters, is_complex):
+def _list(ctx, asset_name, filters, is_complex, config, profile):
     """List asset."""
     client = get_client(config, profile)
     res = client.list(asset_name, filters, is_complex)
@@ -226,12 +227,12 @@ def add(ctx):
 
 
 @add.command('algo')
+@click.argument('path', type=click.Path(exists=True))
+@click.option('--dry-run', is_flag=True)
 @option_config
 @option_profile
-@click.option('--dry-run', is_flag=True)
-@click.argument('path')
 @click.pass_context
-def add_algo(ctx, config, profile, dry_run, path):
+def add_algo(ctx, path, dry_run, config, profile):
     """Add algo."""
     client = get_client(config, profile)
     data = load_json(path)
@@ -240,13 +241,13 @@ def add_algo(ctx, config, profile, dry_run, path):
 
 
 @add.command('dataset')
+@click.argument('path', type=click.Path(exists=True))
+@click.option('--objective-key')
+@click.option('--dry-run', is_flag=True)
 @option_config
 @option_profile
-@click.option('--dry-run', is_flag=True)
-@click.option('--objective-key')
-@click.argument('path')
 @click.pass_context
-def add_dataset(ctx, config, profile, dry_run, objective_key, path):
+def add_dataset(ctx, path, objective_key, dry_run, config, profile):
     """Add dataset."""
     client = get_client(config, profile)
     data = load_json(path)
@@ -256,16 +257,16 @@ def add_dataset(ctx, config, profile, dry_run, objective_key, path):
 
 
 @add.command('objective')
-@option_config
-@option_profile
-@click.option('--dry-run', is_flag=True)
+@click.argument('path', type=click.Path(exists=True))
 @click.option('--dataset-key')
 @click.option('--data-samples-path',
               type=click.Path(exists=True, resolve_path=True))
-@click.argument('path')
+@click.option('--dry-run', is_flag=True)
+@option_config
+@option_profile
 @click.pass_context
-def add_objective(ctx, config, profile, dry_run, dataset_key,
-                  data_samples_path, path):
+def add_objective(ctx, path, dataset_key, data_samples_path, dry_run, config,
+                  profile):
     """Add objective."""
     client = get_client(config, profile)
     data = load_json(path)
@@ -276,14 +277,14 @@ def add_objective(ctx, config, profile, dry_run, dataset_key,
 
 
 @add.command('data_sample')
-@option_config
-@option_profile
-@click.option('--dry-run', is_flag=True)
+@click.argument('path', type=click.Path(exists=True))
 @click.option('--local/--remote', 'local', is_flag=True, default=True)
 @click.option('--test-only', is_flag=True, default=False)
-@click.argument('path')
+@click.option('--dry-run', is_flag=True)
+@option_config
+@option_profile
 @click.pass_context
-def add_data_sample(ctx, config, profile, dry_run, local, test_only, path):
+def add_data_sample(ctx, path, local, test_only, dry_run, config, profile):
     """Add data sample."""
     client = get_client(config, profile)
     # TODO allow directory of datasamples and path to datasample directly
@@ -297,17 +298,17 @@ def add_data_sample(ctx, config, profile, dry_run, local, test_only, path):
 
 
 @add.command('traintuple')
-@option_config
-@option_profile
-@click.option('--dry-run', is_flag=True)
 @click.option('--objective-key')
 @click.option('--algo-key')
 @click.option('--dataset-key')
 @click.option('--data-samples-path',
               type=click.Path(exists=True, resolve_path=True))
+@click.option('--dry-run', is_flag=True)
+@option_config
+@option_profile
 @click.pass_context
-def add_traintuple(ctx, config, profile, dry_run, objective_key, algo_key,
-                   dataset_key, data_samples_path):
+def add_traintuple(ctx, objective_key, algo_key, dataset_key,
+                   data_samples_path, dry_run, config, profile):
     """Add traintuple."""
     client = get_client(config, profile)
     data = {
@@ -321,16 +322,16 @@ def add_traintuple(ctx, config, profile, dry_run, objective_key, algo_key,
 
 
 @add.command('testtuple')
-@option_config
-@option_profile
-@click.option('--dry-run', is_flag=True)
 @click.option('--dataset-key')
 @click.option('--traintuple-key')
 @click.option('--data-samples-path',
               type=click.Path(exists=True, resolve_path=True))
+@click.option('--dry-run', is_flag=True)
+@option_config
+@option_profile
 @click.pass_context
-def add_testtuple(ctx, config, profile, dry_run, dataset_key, traintuple_key,
-                  data_samples_path):
+def add_testtuple(ctx, dataset_key, traintuple_key,
+                  data_samples_path, dry_run, config, profile):
     """Add testtuple."""
     client = get_client(config, profile)
     data = {
@@ -350,12 +351,12 @@ def update(ctx):
 
 
 @update.command('dataset')
-@option_config
-@option_profile
 @click.argument('dataset-key')
 @click.argument('objective-key')
+@option_config
+@option_profile
 @click.pass_context
-def update_dataset(ctx, config, profile, dataset_key, objective_key):
+def update_dataset(ctx, dataset_key, objective_key, config, profile):
     """Update dataset."""
     client = get_client(config, profile)
     data = {
@@ -366,12 +367,12 @@ def update_dataset(ctx, config, profile, dataset_key, objective_key):
 
 
 @update.command('data-sample')
+@click.argument('data-samples-path', type=click.Path(exists=True))
+@click.argument('dataset-key')
 @option_config
 @option_profile
-@click.argument('data-samples-path')
-@click.argument('dataset-key')
 @click.pass_context
-def update_data_sample(ctx, config, profile, data_samples_path, dataset_key):
+def update_data_sample(ctx, data_samples_path, dataset_key, config, profile):
     """Update data samples."""
     client = get_client(config, profile)
     data = {
