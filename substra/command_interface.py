@@ -7,12 +7,12 @@ import substra_sdk_py as sb
 
 from substra import __version__
 from substra import assets
-from substra.commands.config import load_profile
+from substra import config as configuration
 
 
 def get_client(config_path, profile_name):
     """Initialize substra client from config file and profile name."""
-    profile = load_profile(config_path, profile_name)
+    profile = configuration.load_profile(config_path, profile_name)
     client = sb.Client()
     client.create_config(profile=profile_name, **profile)
     client.set_config(profile_name)
@@ -97,6 +97,32 @@ def cli(ctx):
     https://github.com/SubstraFoundation/substra-cli
     """
     pass
+
+
+@cli.command('config')
+@option_config
+@option_profile
+@click.option('--insecure', '-k', is_flag=True,
+              help='Do not verify SSL certificates')
+@click.option('--version', '-v', default='0.0')
+@click.option('--user', '-u')
+@click.option('--password', '-p')
+@click.argument('url')
+def add_profile_to_config(config, profile, insecure, version, user, password,
+                          url):
+    """Add profile to config file."""
+    data = {
+        'url': url,
+        'version': version,
+        'insecure': insecure,
+        'auth': False,
+    }
+    if user and password:
+        data['auth'] = {
+            'user': user,
+            'password': password,
+        }
+    configuration.add_profile(config, profile, data)
 
 
 @cli.command()
@@ -321,11 +347,13 @@ def update_data_sample(ctx, config, profile, data_samples_path, dataset_key):
     client = get_client(config, profile)
     data = {
         'data_manager_keys': [dataset_key],
-        # TODO what is the format of data samples path?
-        'data_sample_keys': load_json(data_samples_path),
+        'data_sample_keys': load_data_samples_json(data_samples_path),
     }
     res = client.bulk_update(assets.DATA_SAMPLE, data)
     display(res)
+
+
+# TODO add missing commands config and run-local
 
 
 if __name__ == '__main__':
