@@ -222,6 +222,26 @@ def _list(ctx, asset_name, filters, is_complex, config, profile):
     display(res)
 
 
+@cli.command()
+@click.argument('asset-name', type=click.Choice([
+    assets.ALGO,
+    assets.DATASET,
+    assets.MODEL,
+    assets.OBJECTIVE,
+]))
+@click.argument('key')
+@click.option('--folder', type=click.Path(), help='destination folder',
+              default='.')
+@click_option_config
+@click_option_profile
+@click.pass_context
+def download(ctx, asset_name, key, folder, config, profile):
+    """Download asset."""
+    client = get_client(config, profile)
+    res = client.download(asset_name, key, folder)
+    display(res)
+
+
 @cli.group()
 @click.pass_context
 def add(ctx):
