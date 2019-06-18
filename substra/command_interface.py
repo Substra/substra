@@ -203,7 +203,6 @@ def get(ctx, asset_name, asset_key, expand, config, profile):
     assets.ALGO,
     assets.DATA_SAMPLE,
     assets.DATASET,
-    assets.MODEL,
     assets.OBJECTIVE,
     assets.TESTTUPLE,
     assets.TRAINTUPLE,
@@ -225,7 +224,6 @@ def _list(ctx, asset_name, filters, is_complex, config, profile):
 @click.argument('asset-name', type=click.Choice([
     assets.ALGO,
     assets.DATASET,
-    assets.MODEL,
     assets.OBJECTIVE,
 ]))
 @click.argument('key')
