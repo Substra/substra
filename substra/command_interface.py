@@ -161,7 +161,6 @@ def run_local(algo_path, train_opener, test_opener, metrics, rank,
 @click.argument('asset-name', type=click.Choice([
     assets.ALGO,
     assets.DATASET,
-    assets.MODEL,
     assets.OBJECTIVE,
     assets.TESTTUPLE,
     assets.TRAINTUPLE,
