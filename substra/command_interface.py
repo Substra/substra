@@ -142,7 +142,7 @@ def run_local(train_opener, test_opener, metrics, rank,
               train_data_samples, test_data_samples, inmodels, outmodel,
               fake_data_samples, algo_path):
     """Run local."""
-
+    # TODO merge runner.setup and runner.compute methods
     config = runner.setup(algo_path,
                           train_opener,
                           test_opener,
