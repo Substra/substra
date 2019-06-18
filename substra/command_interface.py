@@ -6,7 +6,7 @@ import click
 import substra_sdk_py as sb
 
 from substra import __version__
-from substra import assets
+from substra import assets, runner
 from substra import config as configuration
 
 
@@ -125,6 +125,32 @@ def add_profile_to_config(config, profile, insecure, version, user, password,
             'password': password,
         }
     configuration.add_profile(config, profile, data)
+
+
+@cli.command()
+@click.option('--train-opener')
+@click.option('--test-opener')
+@click.option('--metrics')
+@click.option('--rank', type=click.INT, default=0)
+@click.option('--train-data-samples')
+@click.option('--test-data-samples')
+@click.option('--inmodels', default=[])
+@click.option('--outmodel')
+@click.option('--fake-data-samples', is_flag=True)
+@click.argument('algo_path')
+def run_local(train_opener, test_opener, metrics, rank,
+              train_data_samples, test_data_samples, inmodels, outmodel,
+              fake_data_samples, algo_path):
+    """Run local."""
+
+    config = runner.setup(algo_path,
+                          train_opener,
+                          test_opener,
+                          metrics,
+                          train_data_samples,
+                          test_data_samples,
+                          outmodel)
+    runner.compute(config, rank, inmodels, dry_run=fake_data_samples)
 
 
 @cli.command()
