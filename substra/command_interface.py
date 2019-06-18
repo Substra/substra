@@ -25,6 +25,12 @@ def load_json(path):
         return json.load(fp)
 
 
+def load_data_samples_json(path):
+    """Load data sample keys from JSON file."""
+    data = load_json(path)
+    return data['data_sample_keys']
+
+
 def dict_append_to_optional_field(data, key, value):
     """Append value to a list that may be null."""
     if key in data:
@@ -209,8 +215,7 @@ def add_objective(ctx, config, profile, dry_run, dataset_key,
     client = get_client(config, profile)
     data = load_json(path)
     data['test_data_manager_key'] = dataset_key
-    # TODO what is the format of data samples path?
-    data['test_data_sample_keys'] = load_json(data_samples_path)
+    data['test_data_sample_keys'] = load_data_samples_json(data_samples_path)
     res = client.add('data_manager', data, dry_run)
     display(res)
 
@@ -254,8 +259,7 @@ def add_traintuple(ctx, config, profile, dry_run, objective_key, algo_key,
         'algo_key': algo_key,
         'objective_key': objective_key,
         'data_manager_key': dataset_key,
-        # TODO what is the format of data samples path?
-        'train_data_sample_keys': load_json(data_samples_path),
+        'train_data_sample_keys': load_data_samples_json(data_samples_path),
     }
     res = client.add('traintuple', data, dry_run)
     display(res)
@@ -277,8 +281,7 @@ def add_testtuple(ctx, config, profile, dry_run, dataset_key, traintuple_key,
     data = {
         'data_manager_key': dataset_key,
         'traintuple_key': traintuple_key,
-        # TODO what is the format of data samples path?
-        'test_data_sample_keys': load_json(data_samples_path),
+        'test_data_sample_keys': load_data_samples_json(data_samples_path),
     }
     res = client.add(assets.TESTTUPLE, data, dry_run)
     display(res)
