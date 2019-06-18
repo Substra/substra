@@ -51,7 +51,7 @@ def option_profile(f):
     return click.option(
         '--profile',
         default='default',
-        help='Create/use a (new) profile')(f)
+        help='Profile name to use')(f)
 
 
 def option_config(f):
@@ -102,6 +102,8 @@ def cli(ctx):
 @cli.command('config')
 @option_config
 @option_profile
+@click.option('--profile', default='default',
+              help='Profile name to add')
 @click.option('--insecure', '-k', is_flag=True,
               help='Do not verify SSL certificates')
 @click.option('--version', '-v', default='0.0')
@@ -130,9 +132,9 @@ def add_profile_to_config(config, profile, insecure, version, user, password,
 @option_profile
 @click.argument('asset-name', type=click.Choice([
     assets.ALGO,
-    assets.OBJECTIVE,
     assets.DATASET,
     assets.MODEL,
+    assets.OBJECTIVE,
     assets.TESTTUPLE,
     assets.TRAINTUPLE,
 ]))
@@ -171,12 +173,13 @@ def get(ctx, config, profile, asset_name, asset_key, expand):
 @option_config
 @option_profile
 @click.option('--is-complex', is_flag=True)
+# TODO explain what's the role of is_complex
 @click.argument('asset-name', type=click.Choice([
     assets.ALGO,
-    assets.OBJECTIVE,
-    assets.DATASET,
     assets.DATA_SAMPLE,
+    assets.DATASET,
     assets.MODEL,
+    assets.OBJECTIVE,
     assets.TESTTUPLE,
     assets.TRAINTUPLE,
 ]))
@@ -246,7 +249,7 @@ def add_objective(ctx, config, profile, dry_run, dataset_key,
     display(res)
 
 
-@add.command('data-sample')
+@add.command('data_sample')
 @option_config
 @option_profile
 @click.option('--dry-run', is_flag=True)
@@ -351,9 +354,6 @@ def update_data_sample(ctx, config, profile, data_samples_path, dataset_key):
     }
     res = client.bulk_update(assets.DATA_SAMPLE, data)
     display(res)
-
-
-# TODO add missing commands config and run-local
 
 
 if __name__ == '__main__':
