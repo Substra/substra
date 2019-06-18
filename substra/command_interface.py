@@ -46,7 +46,7 @@ def display(res):
     print(res)
 
 
-def option_profile(f):
+def click_option_profile(f):
     """Add profile option to command."""
     return click.option(
         '--profile',
@@ -54,7 +54,7 @@ def option_profile(f):
         help='Profile name to use')(f)
 
 
-def option_config(f):
+def click_option_config(f):
     """Add config option to command."""
     return click.option(
         '--config',
@@ -87,6 +87,9 @@ def catch_exceptions(f):
     return new_func
 
 
+# TODO patch client to use asset server name
+
+
 @click.group()
 @click.version_option(__version__)
 @click.pass_context
@@ -101,7 +104,7 @@ def cli(ctx):
 
 @cli.command('config')
 @click.argument('url')
-@option_config
+@click_option_config
 @click.option('--profile', default='default',
               help='Profile name to add')
 @click.option('--insecure', '-k', is_flag=True,
@@ -165,8 +168,8 @@ def run_local(algo_path, train_opener, test_opener, metrics, rank,
 ]))
 @click.argument('asset-key')
 @click.option('--expand', is_flag=True)
-@option_config
-@option_profile
+@click_option_config
+@click_option_profile
 @click.pass_context
 @catch_exceptions
 def get(ctx, asset_name, asset_key, expand, config, profile):
@@ -209,8 +212,8 @@ def get(ctx, asset_name, asset_key, expand, config, profile):
 @click.argument('filters', required=False)
 @click.option('--is-complex', is_flag=True)
 # TODO explain what's the role of is_complex
-@option_config
-@option_profile
+@click_option_config
+@click_option_profile
 @click.pass_context
 def _list(ctx, asset_name, filters, is_complex, config, profile):
     """List asset."""
@@ -229,8 +232,8 @@ def add(ctx):
 @add.command('algo')
 @click.argument('path', type=click.Path(exists=True))
 @click.option('--dry-run', is_flag=True)
-@option_config
-@option_profile
+@click_option_config
+@click_option_profile
 @click.pass_context
 def add_algo(ctx, path, dry_run, config, profile):
     """Add algo."""
@@ -244,8 +247,8 @@ def add_algo(ctx, path, dry_run, config, profile):
 @click.argument('path', type=click.Path(exists=True))
 @click.option('--objective-key')
 @click.option('--dry-run', is_flag=True)
-@option_config
-@option_profile
+@click_option_config
+@click_option_profile
 @click.pass_context
 def add_dataset(ctx, path, objective_key, dry_run, config, profile):
     """Add dataset."""
@@ -262,8 +265,8 @@ def add_dataset(ctx, path, objective_key, dry_run, config, profile):
 @click.option('--data-samples-path',
               type=click.Path(exists=True, resolve_path=True))
 @click.option('--dry-run', is_flag=True)
-@option_config
-@option_profile
+@click_option_config
+@click_option_profile
 @click.pass_context
 def add_objective(ctx, path, dataset_key, data_samples_path, dry_run, config,
                   profile):
@@ -281,8 +284,8 @@ def add_objective(ctx, path, dataset_key, data_samples_path, dry_run, config,
 @click.option('--local/--remote', 'local', is_flag=True, default=True)
 @click.option('--test-only', is_flag=True, default=False)
 @click.option('--dry-run', is_flag=True)
-@option_config
-@option_profile
+@click_option_config
+@click_option_profile
 @click.pass_context
 def add_data_sample(ctx, path, local, test_only, dry_run, config, profile):
     """Add data sample."""
@@ -304,8 +307,8 @@ def add_data_sample(ctx, path, local, test_only, dry_run, config, profile):
 @click.option('--data-samples-path',
               type=click.Path(exists=True, resolve_path=True))
 @click.option('--dry-run', is_flag=True)
-@option_config
-@option_profile
+@click_option_config
+@click_option_profile
 @click.pass_context
 def add_traintuple(ctx, objective_key, algo_key, dataset_key,
                    data_samples_path, dry_run, config, profile):
@@ -327,8 +330,8 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key,
 @click.option('--data-samples-path',
               type=click.Path(exists=True, resolve_path=True))
 @click.option('--dry-run', is_flag=True)
-@option_config
-@option_profile
+@click_option_config
+@click_option_profile
 @click.pass_context
 def add_testtuple(ctx, dataset_key, traintuple_key,
                   data_samples_path, dry_run, config, profile):
@@ -353,8 +356,8 @@ def update(ctx):
 @update.command('dataset')
 @click.argument('dataset-key')
 @click.argument('objective-key')
-@option_config
-@option_profile
+@click_option_config
+@click_option_profile
 @click.pass_context
 def update_dataset(ctx, dataset_key, objective_key, config, profile):
     """Update dataset."""
@@ -369,8 +372,8 @@ def update_dataset(ctx, dataset_key, objective_key, config, profile):
 @update.command('data-sample')
 @click.argument('data-samples-path', type=click.Path(exists=True))
 @click.argument('dataset-key')
-@option_config
-@option_profile
+@click_option_config
+@click_option_profile
 @click.pass_context
 def update_data_sample(ctx, data_samples_path, dataset_key, config, profile):
     """Update data samples."""
