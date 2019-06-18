@@ -184,13 +184,14 @@ def get(ctx, asset_name, asset_key, expand, config, profile):
     if expand:
         if asset_name == assets.DATASET:
             # TODO what should we add?
+            # add all datasample associated with dataset
+            # route exists in substrabac
             pass
 
         elif asset_name == assets.TRAINTUPLE:
-            # TODO to get the associated testtuples we could use the
-            #      command get model <traintuple_key> but in this case
-            #      what's the goal of the get model command?
-            res['testtuples'] = None
+            # get traintuple associated testtuples
+            res['testtuples'] = client.get(
+                assets.MODEL, asset_key)['testtuples']
 
         else:
             raise AssertionError  # checked previously

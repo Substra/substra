@@ -61,7 +61,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'substra=substra.command_interface:cli',
+            'substra=substra.cli.interface:cli',
         ],
     },
     cmdclass={'test': RunTests},
