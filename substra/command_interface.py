@@ -96,7 +96,7 @@ def cli(ctx):
 @cli.command()
 @option_config
 @option_profile
-@click.argument('asset', type=click.Choice([
+@click.argument('asset-name', type=click.Choice([
     assets.ALGO,
     assets.OBJECTIVE,
     assets.DATASET,
@@ -104,13 +104,34 @@ def cli(ctx):
     assets.TESTTUPLE,
     assets.TRAINTUPLE,
 ]))
-@click.argument('pkhash')
+@click.argument('asset-key')
+@click.option('--expand', is_flag=True)
 @click.pass_context
 @catch_exceptions
-def get(ctx, config, profile, asset, pkhash):
-    """Get asset by pkhash."""
+def get(ctx, config, profile, asset_name, asset_key, expand):
+    """Get asset by key."""
+    expand_valid_assets = (assets.DATASET, assets.TRAINTUPLE)
+    if expand and asset_name not in expand_valid_assets:  # fail fast
+        raise click.UsageError(
+            f'--expand option is available with assets {expand_valid_assets}')
+
     client = get_client(config, profile)
-    res = client.get(asset, pkhash)
+    res = client.get(asset_name, asset_key)
+
+    if expand:
+        if asset_name == assets.DATASET:
+            # TODO what should we add?
+            pass
+
+        elif asset_name == assets.TRAINTUPLE:
+            # TODO to get the associated testtuples we could use the
+            #      command get model <traintuple_key> but in this case
+            #      what's the goal of the get model command?
+            res['testtuples'] = None
+
+        else:
+            raise AssertionError  # checked previously
+
     display(res)
 
 
@@ -118,20 +139,21 @@ def get(ctx, config, profile, asset, pkhash):
 @option_config
 @option_profile
 @click.option('--is-complex', is_flag=True)
-@click.argument('asset', type=click.Choice([
+@click.argument('asset-name', type=click.Choice([
     assets.ALGO,
     assets.OBJECTIVE,
     assets.DATASET,
+    assets.DATA_SAMPLE,
     assets.MODEL,
     assets.TESTTUPLE,
     assets.TRAINTUPLE,
 ]))
 @click.argument('filters', required=False)
 @click.pass_context
-def _list(ctx, config, profile, asset, filters, is_complex):
+def _list(ctx, config, profile, asset_name, filters, is_complex):
     """List asset."""
     client = get_client(config, profile)
-    res = client.list(asset, filters, is_complex)
+    res = client.list(asset_name, filters, is_complex)
     display(res)
 
 
@@ -204,9 +226,9 @@ def add_objective(ctx, config, profile, dry_run, dataset_key,
 def add_data_sample(ctx, config, profile, dry_run, local, test_only, path):
     """Add data sample."""
     client = get_client(config, profile)
-    data = {
-        'path': path,
-    }
+    # TODO allow directory of datasamples and path to datasample directly
+    # TODO what is the format of data samples path?
+    data = load_json(path)
     if test_only:
         data['test_only'] = True
     method = client.register if not local else client.add
@@ -258,7 +280,48 @@ def add_testtuple(ctx, config, profile, dry_run, dataset_key, traintuple_key,
         # TODO what is the format of data samples path?
         'test_data_sample_keys': load_json(data_samples_path),
     }
-    res = client.add('testtuple', data, dry_run)
+    res = client.add(assets.TESTTUPLE, data, dry_run)
+    display(res)
+
+
+@cli.group()
+@click.pass_context
+def update(ctx):
+    """Update asset."""
+    pass
+
+
+@update.command('dataset')
+@option_config
+@option_profile
+@click.argument('dataset-key')
+@click.argument('objective-key')
+@click.pass_context
+def update_dataset(ctx, config, profile, dataset_key, objective_key):
+    """Update dataset."""
+    client = get_client(config, profile)
+    data = {
+        'objective_keys': [objective_key],
+    }
+    res = client.update('data_manager', dataset_key, data)
+    display(res)
+
+
+@update.command('data-sample')
+@option_config
+@option_profile
+@click.argument('data-samples-path')
+@click.argument('dataset-key')
+@click.pass_context
+def update_data_sample(ctx, config, profile, data_samples_path, dataset_key):
+    """Update data samples."""
+    client = get_client(config, profile)
+    data = {
+        'data_manager_keys': [dataset_key],
+        # TODO what is the format of data samples path?
+        'data_sample_keys': load_json(data_samples_path),
+    }
+    res = client.bulk_update(assets.DATA_SAMPLE, data)
     display(res)
 
 

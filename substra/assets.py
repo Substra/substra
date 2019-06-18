@@ -3,7 +3,7 @@ DATA_SAMPLE = 'data_sample'
 DATASET = 'dataset'
 MODEL = 'model'
 OBJECTIVE = 'objective'
-TESTTUPLE = 'testuple'
+TESTTUPLE = 'testtuple'
 TRAINTUPLE = 'traintuple'
 
 _SERVER_MAPPER = {
