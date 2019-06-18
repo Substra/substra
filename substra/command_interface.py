@@ -51,7 +51,7 @@ def click_option_profile(f):
     return click.option(
         '--profile',
         default='default',
-        help='Profile name to use')(f)
+        help='Profile name to use.')(f)
 
 
 def click_option_config(f):
@@ -60,7 +60,7 @@ def click_option_config(f):
         '--config',
         type=click.Path(exists=True, resolve_path=True),
         default=os.path.expanduser('~/.substra'),
-        help='Config path (default ~/.substra)')(f)
+        help='Config path (default ~/.substra).')(f)
 
 
 def catch_exceptions(f):
