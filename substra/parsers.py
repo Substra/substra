@@ -3,19 +3,42 @@ import json
 import requests
 from substra_sdk_py.config import requests_get_params
 
-from substra.commands.api import ALGO_ASSET
+from substra.commands.api import ALGO_ASSET, OBJECTIVE_ASSET, DATASET_ASSET, DATA_MANAGER_ASSET, TRAINTUPLE_ASSET, \
+    TESTTUPLE_ASSET
 
 
-class JsonOnlyParser:
-    @classmethod
-    def print(cls, data, raw):
-        print(json.dumps(data, indent=2))
+def get_recursive(obj, key):
+    def _inner(o, keys):
+        k, *keys = keys
+        if keys:
+            return _inner(o.get(k, {}), keys)
+        return o.get(k, None)
+    return _inner(obj, key.split('.'))
 
 
-class BaseListParser:
+def handle_raw_option(method):
+    def print_raw(*args):
+        self, data, raw = args
+        if raw:
+            print(json.dumps(data, indent=2))
+        else:
+            method(self, data)
+    return print_raw
+
+
+class BaseParser:
     asset = ''
-    item_title = ''
-    item_props = ()
+    title_prop = 'name'
+    key_prop = 'key'
+    description_prop = 'description'
+
+    list_props = ()
+    asset_props = (
+
+    )
+
+    def __init__(self, client):
+        self.client = client
 
     def _print_hr_count(self, items):
         n = len(items)
@@ -28,80 +51,97 @@ class BaseListParser:
         else:
             print(f'{n} {self.asset}s found.')
 
-    def _print_hr_item(self, item):
-        print(f'* {item.get(self.item_title)}')
-        for prop in self.item_props:
-            prop_name, prop_key = prop
-            print(f'  {prop_name}: {item.get(prop_key)}')
-
-    def _print_hr(self, items):
+    @handle_raw_option
+    def print_list(self, items):
         self._print_hr_count(items)
         for item in items:
-            self._print_hr_item(item)
+            print(f'* {get_recursive(item, self.title_prop)}')
+            print(f'  Key: {get_recursive(item, self.key_prop)}')
+            for prop in self.list_props:
+                prop_name, prop_key = prop
+                print(f'  {prop_name}: {get_recursive(item, prop_key)}')
 
-    def print(self, items, raw):
-        if raw:
-            print(json.dumps(items, indent=2))
-        else:
-            self._print_hr(items)
-
-
-class AlgoListParser(BaseListParser):
-    asset = 'Algo'
-    item_title = 'name'
-    item_props = (
-        ('Key', 'key'),
-    )
-
-
-class BaseAssetParser:
-    asset = ''
-    item_props = ()
-    description_key = None
-
-    def __init__(self, client):
-        self.client = client
-
-    def _print_hr(self, item):
-        for prop in self.item_props:
+    @handle_raw_option
+    def print_asset(self, item):
+        print(f'KEY: {get_recursive(item, self.key_prop)}')
+        for prop in self.asset_props:
             name, key = prop
-            print(f'{name.upper()}: {item.get(key)}')
-        if self.description_key:
-            desc = item.get(self.description_key)
+            value = get_recursive(item, key)
+            if isinstance(value, list):
+                if value:
+                    print(f'{name.upper()}:')
+                    for v in value:
+                        print(f'  * {v}')
+                else:
+                    print(f'{name.upper()}: None')
+            else:
+                print(f'{name.upper()}: {value}')
+        if self.description_prop:
+            desc = get_recursive(item, self.description_prop)
             url = desc.get('storageAddress')
             kwargs, headers = requests_get_params(self.client.config)
             r = requests.get(url, headers=headers, **kwargs)
             print('DESCRIPTION:')
             print(r.text)
 
-    def print(self, item, raw):
-        if raw:
-            print(json.dumps(item, indent=2))
-        else:
-            self._print_hr(item)
+
+class JsonOnlyParser:
+    @staticmethod
+    def _print(data):
+        print(json.dumps(data, indent=2))
+
+    def print_list(self, items, raw):
+        self._print(items)
+
+    def print_asset(self, item, raw):
+        self._print(item)
 
 
-class AlgoAssetParser(BaseAssetParser):
+class AlgoParser(BaseParser):
     asset = 'Algo'
-    item_props = (
+    asset_props = (
         ('Name', 'name'),
-        ('Key', 'pkhash'),
     )
-    description_key = 'description'
 
 
-LIST_PARSERS = {
-    ALGO_ASSET: AlgoListParser,
+class ObjectiveParser(BaseParser):
+    asset = 'Objective'
+    list_props = (
+        ('Metrics', 'metrics.name'),
+    )
+    asset_props = (
+        ('Metrics', 'metrics.name'),
+        ('Metrics script', 'metrics.storageAddress'),
+    )
+
+
+class DatasetParser(BaseParser):
+    asset = 'Dataset'
+    asset_props = (
+        ('Opener', 'opener.storageAddress'),
+        ('Train data sample keys', 'trainDataSampleKeys'),
+        ('Test data sample keys', 'testDataSampleKeys'),
+    )
+
+
+class TraintupleParser(BaseParser):
+    asset = 'Traintuple'
+
+
+class TesttupleParser(BaseParser):
+    asset = 'Testtuple'
+
+
+PARSERS = {
+    ALGO_ASSET: AlgoParser,
+    OBJECTIVE_ASSET: ObjectiveParser,
+    DATA_MANAGER_ASSET: DatasetParser,
+    TRAINTUPLE_ASSET: TraintupleParser,
+    TESTTUPLE_ASSET: TesttupleParser,
 }
 
-ASSET_PARSERS = {
-    ALGO_ASSET: AlgoAssetParser,
-}
+
+def get_parser(asset, client):
+    return PARSERS[asset](client) if asset in PARSERS else JsonOnlyParser()
 
 
-def get_list_parser(asset):
-    return LIST_PARSERS[asset]() if asset in LIST_PARSERS else JsonOnlyParser()
-
-
-def get_asset_parser(asset, client):
-    return ASSET_PARSERS[asset](client) if asset in ASSET_PARSERS else JsonOnlyParser()
