@@ -110,7 +110,7 @@ class BaseParser:
         max_prop_length = max([len(x) for x in props])
         return max_prop_length + 1
 
-    def _print_asset_props(self, item, prop_length):
+    def _print_single_props(self, item, prop_length):
         print(f'{"KEY".ljust(prop_length)} {get_prop_value(item, self.key_prop)}')
         for prop in self.asset_props:
             prop_name, prop_key = prop
@@ -140,9 +140,9 @@ class BaseParser:
             self._print_markdown(r.text, indent=prop_length)
 
     @handle_raw_option
-    def print_asset(self, item):
+    def print_single(self, item):
         prop_length = self._get_asset_prop_length()
-        self._print_asset_props(item, prop_length)
+        self._print_single_props(item, prop_length)
         self._print_description(item, prop_length)
 
 
@@ -154,7 +154,7 @@ class JsonOnlyParser:
     def print_list(self, items, raw):
         self._print(items)
 
-    def print_asset(self, item, raw):
+    def print_single(self, item, raw):
         self._print(item)
 
 
