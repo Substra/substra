@@ -76,20 +76,27 @@ class BaseParser:
             else:
                 print()
 
+    def _print_list_title(self, item):
+        title = get_prop_value(item, self.title_prop)
+        print()
+        print(title)
+        print('='*len(title))
+
+    def _print_list_props(self, item, prop_length):
+        props = (('Key', self.key_prop),) + self.list_props
+        for prop in props:
+            prop_name, prop_key = prop
+            name = prop_name.upper().ljust(prop_length)
+            value = get_prop_value(item, prop_key)
+            print(f'{name} {value}')
+
     @handle_raw_option
     def print_list(self, items):
         prop_length = self._get_list_prop_length()
         self._print_hr_count(items)
-
         for item in items:
-            title = get_prop_value(item, self.title_prop)
-            print()
-            print(title)
-            print('='*len(title))
-            print(f'{"KEY".ljust(prop_length)} {get_prop_value(item, self.key_prop)}')
-            for prop in self.list_props:
-                prop_name, prop_key = prop
-                print(f'{prop_name.upper().ljust(prop_length)} {get_prop_value(item, prop_key)}')
+            self._print_list_title(item)
+            self._print_list_props(item, prop_length)
 
     def _get_list_prop_length(self):
         props = ['key'] + [prop for prop, _ in self.list_props]
@@ -100,17 +107,18 @@ class BaseParser:
         props = ['key'] + [prop for prop, _ in self.asset_props]
         if self.description_prop:
             props.append('description')
-        max_prop_length = max(map(lambda x: len(x), props))
+        max_prop_length = max([len(x) for x in props])
         return max_prop_length + 1
 
     def _print_asset_props(self, item, prop_length):
         print(f'{"KEY".ljust(prop_length)} {get_prop_value(item, self.key_prop)}')
         for prop in self.asset_props:
-            name, key = prop
-            value = get_prop_value(item, key)
+            prop_name, prop_key = prop
+            name = prop_name.upper().ljust(prop_length)
+            value = get_prop_value(item, prop_key)
             if isinstance(value, list):
                 if value:
-                    print(f'{name.upper().ljust(prop_length)}', end='')
+                    print(name, end='')
                     padding = ' ' * prop_length
                     for i, v in enumerate(value):
                         if i == 0:
@@ -118,9 +126,9 @@ class BaseParser:
                         else:
                             print(f'{padding}- {v}')
                 else:
-                    print(f'{name.upper().ljust(prop_length)} None')
+                    print(f'{name} None')
             else:
-                print(f'{name.upper().ljust(prop_length)} {value}')
+                print(f'{name} {value}')
 
     def _print_description(self, item, prop_length):
         if self.description_prop:
