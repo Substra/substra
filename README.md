@@ -33,6 +33,18 @@ Usage
 
 	$ substra --help
 
+Documentation
+-------------
+
+The markdown documentation is generated from the client commands help messages.
+To generate the doc run the following command:
+
+```bash
+python doc/generate_cli_documentation.py
+```
+
+Documentation will be available at *doc/README.md*.
+
 Autocompletion
 --------------
 
