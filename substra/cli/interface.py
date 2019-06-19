@@ -276,7 +276,7 @@ def add_algo(ctx, path, dry_run, config, profile):
     """
     client = get_client(config, profile)
     data = load_json(path)
-    res = client.add('algo', data, dry_run)
+    res = client.add(assets.ALGO, data, dry_run)
     display(res)
 
 
@@ -312,7 +312,7 @@ def add_dataset(ctx, path, objective_key, dry_run, config, profile):
     client = get_client(config, profile)
     data = load_json(path)
     dict_append_to_optional_field(data, 'objective_keys', objective_key)
-    res = client.add('data_manager', data, dry_run)
+    res = client.add(assets.DATASET, data, dry_run)
     display(res)
 
 
@@ -363,7 +363,7 @@ def add_objective(ctx, path, dataset_key, data_samples_path, dry_run, config,
     data = load_json(path)
     data['test_data_manager_key'] = dataset_key
     data['test_data_sample_keys'] = load_data_samples_json(data_samples_path)
-    res = client.add('data_manager', data, dry_run)
+    res = client.add(assets.DATASET, data, dry_run)
     display(res)
 
 
@@ -395,7 +395,7 @@ def add_data_sample(ctx, path, local, test_only, dry_run, config, profile):
     if test_only:
         data['test_only'] = True
     method = client.register if not local else client.add
-    res = method('data_sample', data, dry_run)
+    res = method(assets.DATA_SAMPLE, data, dry_run)
     display(res)
 
 
@@ -433,7 +433,7 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key,
         'data_manager_key': dataset_key,
         'train_data_sample_keys': load_data_samples_json(data_samples_path),
     }
-    res = client.add('traintuple', data, dry_run)
+    res = client.add(assets.TRAINTUPLE, data, dry_run)
     display(res)
 
 
@@ -494,7 +494,7 @@ def update_dataset(ctx, dataset_key, objective_key, config, profile):
     data = {
         'objective_keys': [objective_key],
     }
-    res = client.update('data_manager', dataset_key, data)
+    res = client.update(assets.DATASET, dataset_key, data)
     display(res)
 
 
