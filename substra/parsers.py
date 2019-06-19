@@ -16,6 +16,12 @@ def get_recursive(obj, key):
     return _inner(obj, key.split('.'))
 
 
+def get_prop_value(obj, key):
+    if callable(key):
+        return key(obj)
+    return get_recursive(obj, key)
+
+
 def handle_raw_option(method):
     def print_raw(*args):
         self, data, raw = args
@@ -55,18 +61,18 @@ class BaseParser:
     def print_list(self, items):
         self._print_hr_count(items)
         for item in items:
-            print(f'* {get_recursive(item, self.title_prop)}')
-            print(f'  Key: {get_recursive(item, self.key_prop)}')
+            print(f'* {get_prop_value(item, self.title_prop)}')
+            print(f'  Key: {get_prop_value(item, self.key_prop)}')
             for prop in self.list_props:
                 prop_name, prop_key = prop
-                print(f'  {prop_name}: {get_recursive(item, prop_key)}')
+                print(f'  {prop_name}: {get_prop_value(item, prop_key)}')
 
     @handle_raw_option
     def print_asset(self, item):
-        print(f'KEY: {get_recursive(item, self.key_prop)}')
+        print(f'KEY: {get_prop_value(item, self.key_prop)}')
         for prop in self.asset_props:
             name, key = prop
-            value = get_recursive(item, key)
+            value = get_prop_value(item, key)
             if isinstance(value, list):
                 if value:
                     print(f'{name.upper()}:')
@@ -77,7 +83,7 @@ class BaseParser:
             else:
                 print(f'{name.upper()}: {value}')
         if self.description_prop:
-            desc = get_recursive(item, self.description_prop)
+            desc = get_prop_value(item, self.description_prop)
             url = desc.get('storageAddress')
             kwargs, headers = requests_get_params(self.client.config)
             r = requests.get(url, headers=headers, **kwargs)
@@ -126,10 +132,40 @@ class DatasetParser(BaseParser):
 
 class TraintupleParser(BaseParser):
     asset = 'Traintuple'
+    title_prop = lambda _, item: f'{get_recursive(item, "algo.name")}-{get_recursive(item, "key")[:4]}'
+    description_prop = None
+    list_props = (
+        ('Status', 'status'),
+        ('Score', 'dataset.perf')
+    )
+    asset_props = (
+        ('Model key', 'outModel.hash'),
+        ('Algo key', 'algo.hash'),
+        ('Objective key', 'objective.hash'),
+        ('Status', 'status'),
+        ('Score', 'dataset.perf'),
+        ('Train data sample keys', 'dataset.keys'),
+    )
 
 
 class TesttupleParser(BaseParser):
     asset = 'Testtuple'
+    title_prop = lambda _, item: f'{get_recursive(item, "algo.name")}-{get_recursive(item, "model.traintupleKey")[:4]}'
+    description_prop = None
+    list_props = (
+        ('Certified', 'certified'),
+        ('Status', 'status'),
+        ('Score', 'dataset.perf')
+    )
+    asset_props = (
+        ('Traintuple key', 'model.traintupleKey'),
+        ('Algo key', 'algo.hash'),
+        ('Objective key', 'objective.hash'),
+        ('Certified', 'certified'),
+        ('Status', 'status'),
+        ('Score', 'dataset.perf'),
+        ('Test data sample keys', 'dataset.keys'),
+    )
 
 
 PARSERS = {
