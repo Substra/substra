@@ -13,6 +13,10 @@ class JsonOnlyParser:
 
 
 class BaseListParser:
+    asset = ''
+    item_title = ''
+    item_props = ()
+
     def _print_hr_count(self, items):
         n = len(items)
         if n == 0:
@@ -51,6 +55,10 @@ class AlgoListParser(BaseListParser):
 
 
 class BaseAssetParser:
+    asset = ''
+    item_props = ()
+    description_key = None
+
     def __init__(self, client):
         self.client = client
 
@@ -63,7 +71,7 @@ class BaseAssetParser:
             url = desc.get('storageAddress')
             kwargs, headers = requests_get_params(self.client.config)
             r = requests.get(url, headers=headers, **kwargs)
-            print('DESCRIPTION')
+            print('DESCRIPTION:')
             print(r.text)
 
     def print(self, item, raw):
@@ -89,11 +97,6 @@ LIST_PARSERS = {
 ASSET_PARSERS = {
     ALGO_ASSET: AlgoAssetParser,
 }
-
-
-class ParserNotFound(Exception):
-    def __init__(self, asset, command):
-        super().__init__(f'Could not find parser for asset "{asset}" and command "{command}"')
 
 
 def get_list_parser(asset):
