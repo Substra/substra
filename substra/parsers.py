@@ -14,7 +14,7 @@ def get_recursive(obj, key):
     def _inner(o, keys):
         k, *keys = keys
         if keys:
-            return _inner(o.get(k, {}), keys)
+            return _inner(o.get(k) or {}, keys)
         return o.get(k, None)
     return _inner(obj, key.split('.'))
 
