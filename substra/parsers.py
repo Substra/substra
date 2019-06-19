@@ -3,7 +3,7 @@ import json
 import requests
 from substra_sdk_py.config import requests_get_params
 
-from substra.commands.api import ALGO_ASSET, OBJECTIVE_ASSET, DATASET_ASSET, DATA_MANAGER_ASSET, TRAINTUPLE_ASSET, \
+from substra.commands.api import ALGO_ASSET, OBJECTIVE_ASSET, DATA_MANAGER_ASSET, TRAINTUPLE_ASSET, \
     TESTTUPLE_ASSET
 
 
