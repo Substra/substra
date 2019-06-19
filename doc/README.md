@@ -24,6 +24,21 @@ Usage: substra add algo [OPTIONS] PATH
 
   Add algo.
 
+  The path must point to a valid JSON file with the following schema:
+
+  {
+      "name": str [required],
+      "description": path [required],
+      "file": path [required],
+      "objective_key": str,
+  }
+
+  Where:
+  - name: defines name of the algorithm
+  - description: path to a markdown file describing the algo
+  - file: path to tar.gz archive containing the algorithm python script and
+    its Dockerfile
+
 Options:
   --dry-run
   --config PATH   Config path (default ~/.substra).

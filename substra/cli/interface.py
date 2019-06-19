@@ -254,7 +254,26 @@ def add(ctx):
 @click_option_profile
 @click.pass_context
 def add_algo(ctx, path, dry_run, config, profile):
-    """Add algo."""
+    """Add algo.
+
+    The path must point to a valid JSON file with the following schema:
+
+    \b
+    {
+        "name": str [required],
+        "description": path [required],
+        "file": path [required],
+        "objective_key": str,
+    }
+
+    \b
+    Where:
+    - name: name of the algorithm
+    - description: path to a markdown file describing the algo
+    - file: path to tar.gz archive containing the algorithm python script and
+      its Dockerfile
+    - objective_key: optional objective key
+    """
     client = get_client(config, profile)
     data = load_json(path)
     res = client.add('algo', data, dry_run)
