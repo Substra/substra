@@ -1,11 +1,6 @@
 import json
 import math
-
-import requests
 import textwrap
-
-from substra_sdk_py.config import requests_get_params
-
 from substra.commands.api import ALGO_ASSET, OBJECTIVE_ASSET, DATA_MANAGER_ASSET, TRAINTUPLE_ASSET, \
     TESTTUPLE_ASSET
 
@@ -16,6 +11,7 @@ def get_recursive(obj, key):
         if keys:
             return _inner(o.get(k) or {}, keys)
         return o.get(k, None)
+
     return _inner(obj, key.split('.'))
 
 
@@ -32,6 +28,7 @@ def handle_raw_option(method):
             print(json.dumps(data, indent=2))
         else:
             method(self, data)
+
     return print_raw
 
 
@@ -39,19 +36,18 @@ class BaseParser:
     asset = ''
     title_prop = 'name'
     key_prop = 'key'
-    description_prop = 'description'
+
+    download_message = None
+    has_description = True
 
     list_props = ()
     asset_props = ()
-
-    def __init__(self, client):
-        self.client = client
 
     @staticmethod
     def _print_markdown(text, indent):
         paragraphs = text.splitlines()
         # first paragraph
-        wrapper = textwrap.TextWrapper(subsequent_indent=' ' * indent, width=70+indent)
+        wrapper = textwrap.TextWrapper(subsequent_indent=' ' * indent, width=70 + indent)
         lines = wrapper.wrap(paragraphs[0])
         for line in lines:
             print(line)
@@ -69,7 +65,7 @@ class BaseParser:
     @handle_raw_option
     def print_list(self, items):
         columns = []
-        props = (('Name', self.title_prop), ('Key', self.key_prop)) + self.list_props
+        props = (('Key', self.key_prop), ('Name', self.title_prop)) + self.list_props
         for prop in props:
             column = []
             prop_name, prop_key = prop
@@ -81,7 +77,7 @@ class BaseParser:
         column_widths = []
         for column in columns:
             width = max([len(x) for x in column])
-            width = (math.ceil(width/4)+1) * 4;
+            width = (math.ceil(width / 4) + 1) * 4
             column_widths.append(width)
 
         for row_index in range(len(items) + 1):
@@ -91,14 +87,13 @@ class BaseParser:
 
     def _get_asset_prop_length(self):
         props = ['key'] + [prop for prop, _ in self.asset_props]
-        if self.description_prop:
-            props.append('description')
         max_prop_length = max([len(x) for x in props])
-        return max_prop_length + 1
+        prop_length = (math.ceil(max_prop_length / 4) + 1) * 4
+        return prop_length
 
     def _print_single_props(self, item, prop_length):
-        print(f'{"KEY".ljust(prop_length)} {get_prop_value(item, self.key_prop)}')
-        for prop in self.asset_props:
+        props = (('key', self.key_prop), ('name', self.title_prop)) + self.asset_props
+        for prop in props:
             prop_name, prop_key = prop
             name = prop_name.upper().ljust(prop_length)
             value = get_prop_value(item, prop_key)
@@ -114,22 +109,24 @@ class BaseParser:
                 else:
                     print(f'{name} None')
             else:
-                print(f'{name} {value}')
-
-    def _print_description(self, item, prop_length):
-        if self.description_prop:
-            desc = get_prop_value(item, self.description_prop)
-            url = desc.get('storageAddress')
-            kwargs, headers = requests_get_params(self.client.config)
-            r = requests.get(url, headers=headers, **kwargs)
-            print('DESCRIPTION'.ljust(prop_length), end='')
-            self._print_markdown(r.text, indent=prop_length)
+                print(f'{name}{value}')
 
     @handle_raw_option
     def print_single(self, item):
         prop_length = self._get_asset_prop_length()
         self._print_single_props(item, prop_length)
-        self._print_description(item, prop_length)
+
+        key = get_prop_value(item, self.key_prop)
+
+        if self.download_message:
+            print()
+            print(self.download_message)
+            print(f'    substra download {self.asset} {key}')
+
+        if self.has_description:
+            print()
+            print('Display this asset description:')
+            print(f'    substra describe {self.asset} {key}')
 
 
 class JsonOnlyParser:
@@ -146,35 +143,41 @@ class JsonOnlyParser:
 
 class AlgoParser(BaseParser):
     asset = 'Algo'
-    asset_props = (
-        ('Name', 'name'),
-    )
+
+    download_message = 'Download this algorithm\'s code:'
 
 
 class ObjectiveParser(BaseParser):
-    asset = 'Objective'
+    asset = 'objective'
     list_props = (
         ('Metrics', 'metrics.name'),
     )
     asset_props = (
         ('Metrics', 'metrics.name'),
-        ('Metrics script', 'metrics.storageAddress'),
+        ('Test dataset', 'testDataset.dataManagerKey'),
+        ('Test data samples', 'testDataset.dataSampleKeys'),
     )
+    download_message = 'Download this objective\'s metric:'
 
 
-class DatasetParser(BaseParser):
-    asset = 'Dataset'
+class DataManagerParser(BaseParser):
+    asset = 'data_manager'
+    list_props = (
+        ('Type', 'type'),
+    )
     asset_props = (
+        ('Objective key', 'objectiveKey'),
+        ('Type', 'type'),
         ('Opener', 'opener.storageAddress'),
         ('Train data sample keys', 'trainDataSampleKeys'),
         ('Test data sample keys', 'testDataSampleKeys'),
     )
+    download_message = 'Download this data manager\'s opener:'
 
 
 class TraintupleParser(BaseParser):
-    asset = 'Traintuple'
+    asset = 'traintuple'
     title_prop = lambda _, item: f'{get_recursive(item, "algo.name")}-{get_recursive(item, "key")[:4]}'
-    description_prop = None
     list_props = (
         ('Status', 'status'),
         ('Score', 'dataset.perf')
@@ -186,13 +189,16 @@ class TraintupleParser(BaseParser):
         ('Status', 'status'),
         ('Score', 'dataset.perf'),
         ('Train data sample keys', 'dataset.keys'),
+        ('Rank', 'rank'),
+        ('FL Task', 'fltask'),
+        ('Tag', 'tag'),
     )
+    has_description = False
 
 
 class TesttupleParser(BaseParser):
-    asset = 'Testtuple'
+    asset = 'testtuple'
     title_prop = lambda _, item: f'{get_recursive(item, "algo.name")}-{get_recursive(item, "model.traintupleKey")[:4]}'
-    description_prop = None
     list_props = (
         ('Certified', 'certified'),
         ('Status', 'status'),
@@ -206,19 +212,19 @@ class TesttupleParser(BaseParser):
         ('Status', 'status'),
         ('Score', 'dataset.perf'),
         ('Test data sample keys', 'dataset.keys'),
+        ('Tag', 'tag'),
     )
+    has_description = False
 
 
 PARSERS = {
     ALGO_ASSET: AlgoParser,
     OBJECTIVE_ASSET: ObjectiveParser,
-    DATA_MANAGER_ASSET: DatasetParser,
+    DATA_MANAGER_ASSET: DataManagerParser,
     TRAINTUPLE_ASSET: TraintupleParser,
     TESTTUPLE_ASSET: TesttupleParser,
 }
 
 
-def get_parser(asset, client):
-    return PARSERS[asset](client) if asset in PARSERS else JsonOnlyParser()
-
-
+def get_parser(asset):
+    return PARSERS[asset]() if asset in PARSERS else JsonOnlyParser()
