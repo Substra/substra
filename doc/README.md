@@ -1,4 +1,23 @@
-# Command substra add algo
+# Summary
+
+- [substra add algo](#substra-add-algo)
+- [substra add data_sample](#substra-add-data_sample)
+- [substra add dataset](#substra-add-dataset)
+- [substra add objective](#substra-add-objective)
+- [substra add testtuple](#substra-add-testtuple)
+- [substra add traintuple](#substra-add-traintuple)
+- [substra config](#substra-config)
+- [substra download](#substra-download)
+- [substra get](#substra-get)
+- [substra list](#substra-list)
+- [substra run-local](#substra-run-local)
+- [substra update data-sample](#substra-update-data-sample)
+- [substra update dataset](#substra-update-dataset)
+
+
+# Commands
+
+## substra add algo
 
 ```bash
 Usage: substra add algo [OPTIONS] PATH
@@ -12,7 +31,7 @@ Options:
   --help          Show this message and exit.
 ```
 
-# Command substra add data_sample
+## substra add data_sample
 
 ```bash
 Usage: substra add data_sample [OPTIONS] PATH
@@ -28,7 +47,7 @@ Options:
   --help              Show this message and exit.
 ```
 
-# Command substra add dataset
+## substra add dataset
 
 ```bash
 Usage: substra add dataset [OPTIONS] PATH
@@ -43,7 +62,7 @@ Options:
   --help                Show this message and exit.
 ```
 
-# Command substra add objective
+## substra add objective
 
 ```bash
 Usage: substra add objective [OPTIONS] PATH
@@ -59,7 +78,7 @@ Options:
   --help                    Show this message and exit.
 ```
 
-# Command substra add testtuple
+## substra add testtuple
 
 ```bash
 Usage: substra add testtuple [OPTIONS]
@@ -76,7 +95,7 @@ Options:
   --help                    Show this message and exit.
 ```
 
-# Command substra add traintuple
+## substra add traintuple
 
 ```bash
 Usage: substra add traintuple [OPTIONS]
@@ -94,7 +113,7 @@ Options:
   --help                    Show this message and exit.
 ```
 
-# Command substra config
+## substra config
 
 ```bash
 Usage: substra config [OPTIONS] URL
@@ -111,7 +130,7 @@ Options:
   --help               Show this message and exit.
 ```
 
-# Command substra download
+## substra download
 
 ```bash
 Usage: substra download [OPTIONS] [algo|dataset|objective] KEY
@@ -125,7 +144,7 @@ Options:
   --help          Show this message and exit.
 ```
 
-# Command substra get
+## substra get
 
 ```bash
 Usage: substra get [OPTIONS] [algo|dataset|objective|testtuple|traintuple]
@@ -140,7 +159,7 @@ Options:
   --help          Show this message and exit.
 ```
 
-# Command substra list
+## substra list
 
 ```bash
 Usage: substra list [OPTIONS]
@@ -156,7 +175,7 @@ Options:
   --help          Show this message and exit.
 ```
 
-# Command substra run-local
+## substra run-local
 
 ```bash
 Usage: substra run-local [OPTIONS] ALGO_PATH
@@ -176,7 +195,7 @@ Options:
   --help                     Show this message and exit.
 ```
 
-# Command substra update data-sample
+## substra update data-sample
 
 ```bash
 Usage: substra update data-sample [OPTIONS] DATA_SAMPLES_PATH DATASET_KEY
@@ -189,7 +208,7 @@ Options:
   --help          Show this message and exit.
 ```
 
-# Command substra update dataset
+## substra update dataset
 
 ```bash
 Usage: substra update dataset [OPTIONS] DATASET_KEY OBJECTIVE_KEY

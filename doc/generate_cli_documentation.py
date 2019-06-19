@@ -30,13 +30,26 @@ def click_get_commands(name, command):
 
 
 def generate_help(commands, fh):
+    fh.write(f"# Summary\n\n")
+
+    def _create_anchor(command):
+        return "#{}".format(command.replace(' ', '-'))
+
     for command in sorted(commands):
+        anchor = _create_anchor(command)
+        fh.write(f"- [{command}]({anchor})\n")
+
+    fh.write("\n\n")
+    fh.write(f"# Commands\n\n")
+
+    for command in sorted(commands):
+        anchor = _create_anchor(command)
         command_args = command.split(' ')
         command_args.append('--help')
         command_helper = subprocess.check_output(command_args)
         command_helper = command_helper.decode('utf-8')
 
-        fh.write(f"# Command {command}\n\n")
+        fh.write(f"## {command}\n\n")
         fh.write("```bash\n")
         fh.write(command_helper)
         fh.write("```\n\n")
