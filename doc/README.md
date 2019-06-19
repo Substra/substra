@@ -27,18 +27,18 @@ Usage: substra add algo [OPTIONS] PATH
   The path must point to a valid JSON file with the following schema:
 
   {
-      "name": str [required],
-      "description": path [required],
-      "file": path [required],
-      "objective_key": str,
+      "name": str,
+      "description": path,
+      "file": path,
+      "objective_key": str [optional],
   }
 
   Where:
   - name: name of the algorithm
   - description: path to a markdown file describing the algo
-  - file: path to tar.gz archive containing the algorithm python script and
-    its Dockerfile
-  - objective_key: optional objective key
+  - file: path to tar.gz or zip archive containing the algorithm python
+    script and its Dockerfile
+  - objective_key: objective key
 
 Options:
   --dry-run

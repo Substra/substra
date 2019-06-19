@@ -260,19 +260,19 @@ def add_algo(ctx, path, dry_run, config, profile):
 
     \b
     {
-        "name": str [required],
-        "description": path [required],
-        "file": path [required],
-        "objective_key": str,
+        "name": str,
+        "description": path,
+        "file": path,
+        "objective_key": str [optional],
     }
 
     \b
     Where:
     - name: name of the algorithm
     - description: path to a markdown file describing the algo
-    - file: path to tar.gz archive containing the algorithm python script and
-      its Dockerfile
-    - objective_key: optional objective key
+    - file: path to tar.gz or zip archive containing the algorithm python
+      script and its Dockerfile
+    - objective_key: objective key
     """
     client = get_client(config, profile)
     data = load_json(path)
