@@ -89,11 +89,6 @@ class BaseParser:
                 print(column[row_index].ljust(column_widths[col_index]), end='')
             print()
 
-    def _get_list_prop_length(self):
-        props = ['key'] + [prop for prop, _ in self.list_props]
-        max_prop_length = max(map(lambda x: len(x), props))
-        return max_prop_length
-
     def _get_asset_prop_length(self):
         props = ['key'] + [prop for prop, _ in self.asset_props]
         if self.description_prop:
