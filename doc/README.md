@@ -34,10 +34,11 @@ Usage: substra add algo [OPTIONS] PATH
   }
 
   Where:
-  - name: defines name of the algorithm
+  - name: name of the algorithm
   - description: path to a markdown file describing the algo
   - file: path to tar.gz archive containing the algorithm python script and
     its Dockerfile
+  - objective_key: optional objective key
 
 Options:
   --dry-run
