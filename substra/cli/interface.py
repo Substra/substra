@@ -263,7 +263,7 @@ def add_algo(ctx, path, dry_run, config, profile):
         "name": str,
         "description": path,
         "file": path,
-        "objective_key": str [optional],
+        "objective_key": str (optional),
     }
 
     \b
@@ -288,7 +288,27 @@ def add_algo(ctx, path, dry_run, config, profile):
 @click_option_profile
 @click.pass_context
 def add_dataset(ctx, path, objective_key, dry_run, config, profile):
-    """Add dataset."""
+    """Add dataset.
+
+    The path must point to a valid JSON file with the following schema:
+
+    \b
+    {
+        "name": str,
+        "description": path,
+        "type": str,
+        "data_opener": path,
+    }
+
+    \b
+    Where:
+    - name: name of the dataset
+    - description: path to a markdown file describing the dataset
+    - type: short description of the type of data that will be attached to this
+      dataset (common values are 'Images', 'Tabular', 'Time series',
+      'Spatial time series' and 'Hierarchical images')
+    - data_opener: path to the opener python script
+    """
     client = get_client(config, profile)
     data = load_json(path)
     dict_append_to_optional_field(data, 'objective_keys', objective_key)
@@ -300,14 +320,45 @@ def add_dataset(ctx, path, objective_key, dry_run, config, profile):
 @click.argument('path', type=click.Path(exists=True))
 @click.option('--dataset-key')
 @click.option('--data-samples-path',
-              type=click.Path(exists=True, resolve_path=True))
+              type=click.Path(exists=True, resolve_path=True),
+              help='test data samples')
 @click.option('--dry-run', is_flag=True)
 @click_option_config
 @click_option_profile
 @click.pass_context
 def add_objective(ctx, path, dataset_key, data_samples_path, dry_run, config,
                   profile):
-    """Add objective."""
+    """Add objective.
+
+    The path must point to a valid JSON file with the following schema:
+
+    \b
+    {
+        "name": str,
+        "description": path,
+        "metrics_name": str,
+        "metrics": path,
+    }
+
+    \b
+    Where:
+    - name: name of the objective
+    - description: path to a markdown file describing the objective
+    - metrics_name: name of the metrics
+    - metrics: path to the metrics python script
+
+    The data samples path must point to a valid JSON file with the following
+    schema:
+
+    \b
+    {
+        "keys": list[str],
+    }
+
+    \b
+    Where:
+    - keys: list of data sample keys
+    """
     client = get_client(config, profile)
     data = load_json(path)
     data['test_data_manager_key'] = dataset_key
@@ -325,10 +376,21 @@ def add_objective(ctx, path, dataset_key, data_samples_path, dry_run, config,
 @click_option_profile
 @click.pass_context
 def add_data_sample(ctx, path, local, test_only, dry_run, config, profile):
-    """Add data sample."""
+    """Add data sample.
+
+    The path must point to a valid JSON file with the following schema:
+
+    \b
+    {
+        "paths": list[path],
+    }
+
+    \b
+    Where:
+    - paths: list of paths pointing to data sample archives (if local option)
+      or to data sample directories (if remote option)
+    """
     client = get_client(config, profile)
-    # TODO allow directory of datasamples and path to datasample directly
-    # TODO what is the format of data samples path?
     data = load_json(path)
     if test_only:
         data['test_only'] = True
@@ -338,10 +400,10 @@ def add_data_sample(ctx, path, local, test_only, dry_run, config, profile):
 
 
 @add.command('traintuple')
-@click.option('--objective-key')
-@click.option('--algo-key')
-@click.option('--dataset-key')
-@click.option('--data-samples-path',
+@click.option('--objective-key', required=True)
+@click.option('--algo-key', required=True)
+@click.option('--dataset-key', required=True)
+@click.option('--data-samples-path', required=True,
               type=click.Path(exists=True, resolve_path=True))
 @click.option('--dry-run', is_flag=True)
 @click_option_config
@@ -349,7 +411,21 @@ def add_data_sample(ctx, path, local, test_only, dry_run, config, profile):
 @click.pass_context
 def add_traintuple(ctx, objective_key, algo_key, dataset_key,
                    data_samples_path, dry_run, config, profile):
-    """Add traintuple."""
+    """Add traintuple.
+
+    The data samples path must point to a valid JSON file with the following
+    schema:
+
+    \b
+    {
+        "keys": list[str],
+    }
+
+    \b
+    Where:
+    - keys: list of data sample keys
+    """
+    # TODO add missing inmodel keys?
     client = get_client(config, profile)
     data = {
         'algo_key': algo_key,
@@ -363,7 +439,7 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key,
 
 @add.command('testtuple')
 @click.option('--dataset-key')
-@click.option('--traintuple-key')
+@click.option('--traintuple-key', required=True)
 @click.option('--data-samples-path',
               type=click.Path(exists=True, resolve_path=True))
 @click.option('--dry-run', is_flag=True)
@@ -372,7 +448,20 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key,
 @click.pass_context
 def add_testtuple(ctx, dataset_key, traintuple_key,
                   data_samples_path, dry_run, config, profile):
-    """Add testtuple."""
+    """Add testtuple.
+
+    The data samples path must point to a valid JSON file with the following
+    schema:
+
+    \b
+    {
+        "keys": list[str],
+    }
+
+    \b
+    Where:
+    - keys: list of data sample keys
+    """
     client = get_client(config, profile)
     data = {
         'data_manager_key': dataset_key,
@@ -397,7 +486,10 @@ def update(ctx):
 @click_option_profile
 @click.pass_context
 def update_dataset(ctx, dataset_key, objective_key, config, profile):
-    """Update dataset."""
+    """Update dataset.
+
+    Link dataset with obective.
+    """
     client = get_client(config, profile)
     data = {
         'objective_keys': [objective_key],
@@ -413,7 +505,22 @@ def update_dataset(ctx, dataset_key, objective_key, config, profile):
 @click_option_profile
 @click.pass_context
 def update_data_sample(ctx, data_samples_path, dataset_key, config, profile):
-    """Update data samples."""
+    """Update data samples.
+
+    Link data samples with a dataset through thier keys.
+
+    The data samples path must point to a valid JSON file with the following
+    schema:
+
+    \b
+    {
+        "keys": list[str],
+    }
+
+    \b
+    Where:
+    - keys: list of data sample keys
+    """
     client = get_client(config, profile)
     data = {
         'data_manager_keys': [dataset_key],

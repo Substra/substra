@@ -30,7 +30,7 @@ Usage: substra add algo [OPTIONS] PATH
       "name": str,
       "description": path,
       "file": path,
-      "objective_key": str [optional],
+      "objective_key": str (optional),
   }
 
   Where:
@@ -54,6 +54,16 @@ Usage: substra add data_sample [OPTIONS] PATH
 
   Add data sample.
 
+  The path must point to a valid JSON file with the following schema:
+
+  {
+      "paths": list[path],
+  }
+
+  Where:
+  - paths: list of paths pointing to data sample archives (if local option)
+    or to data sample directories (if remote option)
+
 Options:
   --local / --remote
   --test-only
@@ -70,6 +80,23 @@ Usage: substra add dataset [OPTIONS] PATH
 
   Add dataset.
 
+  The path must point to a valid JSON file with the following schema:
+
+  {
+      "name": str,
+      "description": path,
+      "type": str,
+      "data_opener": path,
+  }
+
+  Where:
+  - name: name of the dataset
+  - description: path to a markdown file describing the dataset
+  - type: short description of the type of data that will be attached to this
+    dataset (common values are 'Images', 'Tabular', 'Time series',
+    'Spatial time series' and 'Hierarchical images')
+  - data_opener: path to the opener python script
+
 Options:
   --objective-key TEXT
   --dry-run
@@ -85,9 +112,34 @@ Usage: substra add objective [OPTIONS] PATH
 
   Add objective.
 
+  The path must point to a valid JSON file with the following schema:
+
+  {
+      "name": str,
+      "description": path,
+      "metrics_name": str,
+      "metrics": path,
+  }
+
+  Where:
+  - name: name of the objective
+  - description: path to a markdown file describing the objective
+  - metrics_name: name of the metrics
+  - metrics: path to the metrics python script
+
+  The data samples path must point to a valid JSON file with the following
+  schema:
+
+  {
+      "keys": list[str],
+  }
+
+  Where:
+  - keys: list of data sample keys
+
 Options:
   --dataset-key TEXT
-  --data-samples-path PATH
+  --data-samples-path PATH  test data samples
   --dry-run
   --config PATH             Config path (default ~/.substra).
   --profile TEXT            Profile name to use.
@@ -101,9 +153,19 @@ Usage: substra add testtuple [OPTIONS]
 
   Add testtuple.
 
+  The data samples path must point to a valid JSON file with the following
+  schema:
+
+  {
+      "keys": list[str],
+  }
+
+  Where:
+  - keys: list of data sample keys
+
 Options:
   --dataset-key TEXT
-  --traintuple-key TEXT
+  --traintuple-key TEXT     [required]
   --data-samples-path PATH
   --dry-run
   --config PATH             Config path (default ~/.substra).
@@ -118,11 +180,21 @@ Usage: substra add traintuple [OPTIONS]
 
   Add traintuple.
 
+  The data samples path must point to a valid JSON file with the following
+  schema:
+
+  {
+      "keys": list[str],
+  }
+
+  Where:
+  - keys: list of data sample keys
+
 Options:
-  --objective-key TEXT
-  --algo-key TEXT
-  --dataset-key TEXT
-  --data-samples-path PATH
+  --objective-key TEXT      [required]
+  --algo-key TEXT           [required]
+  --dataset-key TEXT        [required]
+  --data-samples-path PATH  [required]
   --dry-run
   --config PATH             Config path (default ~/.substra).
   --profile TEXT            Profile name to use.
@@ -218,6 +290,18 @@ Usage: substra update data-sample [OPTIONS] DATA_SAMPLES_PATH DATASET_KEY
 
   Update data samples.
 
+  Link data samples with a dataset through thier keys.
+
+  The data samples path must point to a valid JSON file with the following
+  schema:
+
+  {
+      "keys": list[str],
+  }
+
+  Where:
+  - keys: list of data sample keys
+
 Options:
   --config PATH   Config path (default ~/.substra).
   --profile TEXT  Profile name to use.
@@ -230,6 +314,8 @@ Options:
 Usage: substra update dataset [OPTIONS] DATASET_KEY OBJECTIVE_KEY
 
   Update dataset.
+
+  Link dataset with obective.
 
 Options:
   --config PATH   Config path (default ~/.substra).
