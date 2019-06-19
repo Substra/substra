@@ -1,4 +1,5 @@
 import json
+import math
 
 import requests
 import textwrap
@@ -46,17 +47,6 @@ class BaseParser:
     def __init__(self, client):
         self.client = client
 
-    def _print_hr_count(self, items):
-        n = len(items)
-        if n == 0:
-            print(f'No {self.asset}s found.')
-            return
-
-        if n == 1:
-            print(f'1 {self.asset} found.')
-        else:
-            print(f'{n} {self.asset}s found.')
-
     @staticmethod
     def _print_markdown(text, indent):
         paragraphs = text.splitlines()
@@ -76,27 +66,28 @@ class BaseParser:
             else:
                 print()
 
-    def _print_list_title(self, item):
-        title = get_prop_value(item, self.title_prop)
-        print()
-        print(title)
-        print('='*len(title))
-
-    def _print_list_props(self, item, prop_length):
-        props = (('Key', self.key_prop),) + self.list_props
-        for prop in props:
-            prop_name, prop_key = prop
-            name = prop_name.upper().ljust(prop_length)
-            value = get_prop_value(item, prop_key)
-            print(f'{name} {value}')
-
     @handle_raw_option
     def print_list(self, items):
-        prop_length = self._get_list_prop_length()
-        self._print_hr_count(items)
-        for item in items:
-            self._print_list_title(item)
-            self._print_list_props(item, prop_length)
+        columns = []
+        props = (('Name', self.title_prop), ('Key', self.key_prop)) + self.list_props
+        for prop in props:
+            column = []
+            prop_name, prop_key = prop
+            column.append(prop_name.upper())
+            for item in items:
+                column.append(str(get_prop_value(item, prop_key)))
+            columns.append(column)
+
+        column_widths = []
+        for column in columns:
+            width = max([len(x) for x in column])
+            width = (math.ceil(width/4)+1) * 4;
+            column_widths.append(width)
+
+        for row_index in range(len(items) + 1):
+            for col_index, column in enumerate(columns):
+                print(column[row_index].ljust(column_widths[col_index]), end='')
+            print()
 
     def _get_list_prop_length(self):
         props = ['key'] + [prop for prop, _ in self.list_props]
