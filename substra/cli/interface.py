@@ -41,6 +41,8 @@ def dict_append_to_optional_field(data, key, value):
 
 def display(res):
     """Display result."""
+    if res is None:
+        return
     if isinstance(res, dict) or isinstance(res, list):
         res = json.dumps(res, indent=2)
     print(res)
@@ -181,20 +183,25 @@ def get(ctx, asset_name, asset_key, expand, config, profile):
     client = get_client(config, profile)
     res = client.get(asset_name, asset_key)
 
-    if expand:
-        if asset_name == assets.DATASET:
-            # TODO what should we add?
-            # add all datasample associated with dataset
-            # route exists in substrabac
-            pass
+    if asset_name == assets.DATASET:
+        if not expand:
+            # remove datasamples associated with dataset
+            # TODO becomes deprecated with the human readable view
+            del res['trainDataSampleKeys']
+            del res['testDataSampleKeys']
 
-        elif asset_name == assets.TRAINTUPLE:
+    elif asset_name == assets.TRAINTUPLE:
+        if expand:
             # get traintuple associated testtuples
-            res['testtuples'] = client.get(
-                assets.MODEL, asset_key)['testtuples']
+            # TODO should we also get non certified testtuples?
+            model = client.get(
+                assets.MODEL, asset_key)
+            testtuple = model.get('testtuple')
+            if testtuple:
+                res['testtuples'] = [testtuple]
 
-        else:
-            raise AssertionError  # checked previously
+    else:
+        raise AssertionError  # checked previously
 
     display(res)
 
