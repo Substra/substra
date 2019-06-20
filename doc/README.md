@@ -65,6 +65,7 @@ Usage: substra add data_sample [OPTIONS] PATH
     or to data sample directories (if remote option)
 
 Options:
+  --dataset-key TEXT  [required]
   --local / --remote
   --test-only
   --dry-run
@@ -138,7 +139,7 @@ Usage: substra add objective [OPTIONS] PATH
   - keys: list of data sample keys
 
 Options:
-  --dataset-key TEXT
+  --dataset-key TEXT        [required]
   --data-samples-path PATH  test data samples
   --dry-run
   --config PATH             Config path (default ~/.substra).

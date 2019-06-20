@@ -89,9 +89,6 @@ def catch_exceptions(f):
     return new_func
 
 
-# TODO patch client to use asset server name
-
-
 @click.group()
 @click.version_option(__version__)
 @click.pass_context
