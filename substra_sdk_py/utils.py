@@ -10,6 +10,8 @@ from urllib.parse import quote
 
 import ntpath
 
+from . import assets
+
 
 class LoadDataException(Exception):
     pass
@@ -23,11 +25,11 @@ def path_leaf(path):
 @contextlib.contextmanager
 def extract_files(asset, data, extract_data_sample=True):
     data = copy.deepcopy(data)
-    if asset == 'data_manager':
+    if asset == assets.DATASET:
         attributes = ['data_opener', 'description']
-    elif asset == 'objective':
+    elif asset == assets.OBJECTIVE:
         attributes = ['metrics', 'description']
-    elif asset == 'algo':
+    elif asset == assets.ALGO:
         attributes = ['file', 'description']
     else:
         attributes = []
