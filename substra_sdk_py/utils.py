@@ -6,6 +6,7 @@ import json
 import logging
 import time
 import os
+import re
 from urllib.parse import quote
 
 import ntpath
@@ -111,3 +112,16 @@ def retry_on_exception(exceptions, timeout=False):
 
         return wrapper
     return _retry
+
+
+def response_get_destination_filename(response):
+    """Get filename from content-disposition header."""
+    disposition = response.headers.get('content-disposition')
+    if not disposition:
+        return None
+    filenames = re.findall("filename=(.+)", disposition)
+    if not filenames:
+        return None
+    filename = filenames[0]
+    filename = filename.strip('\'"')
+    return filename

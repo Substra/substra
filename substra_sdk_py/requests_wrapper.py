@@ -37,23 +37,32 @@ def _req(fn, config, url, **kwargs):
 
         raise exceptions.HTTPError(e)
 
+    return r
+
+
+def _jsonreq(fn, config, url, **kwargs):
+    response = _req(fn, config, url, **kwargs)
     try:
-        result = r.json()
+        result = response.json()
     except ValueError as e:
         # we always expect JSON response from the server
         msg = f"Cannot parse response to JSON: {e}"
-        raise exceptions.InvalidResponse(r, msg)
+        raise exceptions.InvalidResponse(response, msg)
 
     return result
 
 
 def post(config, url, data, **kwargs):
-    return _req(requests.post, config, url, data=data, **kwargs)
+    return _jsonreq(requests.post, config, url, data=data, **kwargs)
 
 
 def get(config, url, **kwargs):
-    return _req(requests.get, config, url, **kwargs)
+    return _jsonreq(requests.get, config, url, **kwargs)
 
 
 def options(config, url, **kwargs):
-    return _req(requests.options, config, url, **kwargs)
+    return _jsonreq(requests.options, config, url, **kwargs)
+
+
+def raw_get(config, url, **kwargs):
+    return _req(requests.get, config, url, **kwargs)

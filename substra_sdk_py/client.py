@@ -1,5 +1,6 @@
 from copy import deepcopy
 import logging
+import os
 
 from .config import ConfigManager
 from . import requests_wrapper, utils, exceptions, assets
@@ -142,3 +143,68 @@ class Client(object):
         """Update several assets."""
         url = self._get_asset_url(asset, 'bulk_update')
         return requests_wrapper.post(self.config, url, data)
+
+    def _download(self, url, destination_folder, default_filename):
+        """Download request content in destination file.
+
+        Destination folder must exist.
+        """
+        r = requests_wrapper.raw_get(self.config, url, stream=True)
+
+        destination_filename = utils.response_get_destination_filename(r)
+        if not destination_filename:
+            destination_filename = default_filename
+        destination_path = os.path.join(destination_folder,
+                                        destination_filename)
+
+        chunk_size = 1024
+        with open(destination_path, 'wb') as f:
+            for chunk in r.iter_content(chunk_size):
+                f.write(chunk)
+        return destination_path
+
+    def download_dataset(self, pkhash, destination_folder):
+        """Download data manager resource.
+
+        Download opener script in destination folder.
+        """
+        data = self.get(assets.DATASET, pkhash)
+        # download opener file
+        default_filename = 'opener.py'
+        url = data['opener']['storageAddress']
+        self._download(url, destination_folder, default_filename)
+
+    def download_algo(self, pkhash, destination_folder):
+        """Download algo resource.
+
+        Download algo package in destination folder.
+        """
+        data = self.get(assets.ALGO, pkhash)
+        # download algo package
+        default_filename = 'algo.tar.gz'
+        url = data['content']['storageAddress']
+        self._download(url, destination_folder, default_filename)
+
+    def download_objective(self, pkhash, destination_folder):
+        """Download objective resource.
+
+        Download metrics script in destination folder.
+        """
+        data = self.get(assets.OBJECTIVE, pkhash)
+        # download metrics script
+        default_filename = 'metrics.py'
+        url = data['metrics']['storageAddress']
+        self._download(url, destination_folder, default_filename)
+
+    def download(self, asset, pkhash, destination_folder='.'):
+        """Download asset."""
+        methods_mapper = {
+            assets.OBJECTIVE: self.download_objective,
+            assets.DATASET: self.download_dataset,
+            assets.ALGO: self.download_algo,
+        }
+        try:
+            method = methods_mapper[asset]
+        except KeyError:
+            raise ValueError(f"Asset {asset} not handled.")
+        return method(pkhash, destination_folder)
