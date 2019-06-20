@@ -8,6 +8,7 @@ import substra_sdk_py as sb
 from substra import __version__
 from substra import assets, runner
 from substra import config as configuration
+from substra.cli import parsers
 
 
 def get_client(config_path, profile_name):
@@ -61,6 +62,15 @@ def click_option_config(f):
         type=click.Path(exists=True, resolve_path=True),
         default=os.path.expanduser('~/.substra'),
         help='Config path (default ~/.substra).')(f)
+
+
+def click_option_json(f):
+    """Add json option to command."""
+    return click.option(
+        '--json', 'json_output',
+        is_flag=True,
+        help='Display output as json'
+    )(f)
 
 
 def catch_exceptions(f):
@@ -167,11 +177,12 @@ def run_local(algo_path, train_opener, test_opener, metrics, rank,
 ]))
 @click.argument('asset-key')
 @click.option('--expand', is_flag=True)
+@click_option_json
 @click_option_config
 @click_option_profile
 @click.pass_context
 @catch_exceptions
-def get(ctx, asset_name, asset_key, expand, config, profile):
+def get(ctx, asset_name, asset_key, expand, json_output, config, profile):
     """Get asset by key."""
     expand_valid_assets = (assets.DATASET, assets.TRAINTUPLE)
     if expand and asset_name not in expand_valid_assets:  # fail fast
@@ -196,7 +207,8 @@ def get(ctx, asset_name, asset_key, expand, config, profile):
         else:
             raise AssertionError  # checked previously
 
-    display(res)
+    parser = parsers.get_parser(asset_name)
+    parser.print_single(res, json_output)
 
 
 @cli.command('list')
@@ -211,14 +223,16 @@ def get(ctx, asset_name, asset_key, expand, config, profile):
 @click.argument('filters', required=False)
 @click.option('--is-complex', is_flag=True)
 # TODO explain what's the role of is_complex
+@click_option_json
 @click_option_config
 @click_option_profile
 @click.pass_context
-def _list(ctx, asset_name, filters, is_complex, config, profile):
+def _list(ctx, asset_name, filters, is_complex, json_output, config, profile):
     """List asset."""
     client = get_client(config, profile)
     res = client.list(asset_name, filters, is_complex)
-    display(res)
+    parser = parsers.get_parser(asset_name)
+    parser.print_list(res, json_output)
 
 
 @cli.command()

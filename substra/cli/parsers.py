@@ -1,8 +1,7 @@
 import json
 import math
 import textwrap
-from substra.commands.api import ALGO_ASSET, OBJECTIVE_ASSET, DATA_MANAGER_ASSET, TRAINTUPLE_ASSET, \
-    TESTTUPLE_ASSET
+from substra import assets
 
 
 def get_recursive(obj, key):
@@ -160,8 +159,8 @@ class ObjectiveParser(BaseParser):
     download_message = 'Download this objective\'s metric:'
 
 
-class DataManagerParser(BaseParser):
-    asset = 'data_manager'
+class DatasetParser(BaseParser):
+    asset = 'dataset'
     list_props = (
         ('Type', 'type'),
     )
@@ -218,11 +217,11 @@ class TesttupleParser(BaseParser):
 
 
 PARSERS = {
-    ALGO_ASSET: AlgoParser,
-    OBJECTIVE_ASSET: ObjectiveParser,
-    DATA_MANAGER_ASSET: DataManagerParser,
-    TRAINTUPLE_ASSET: TraintupleParser,
-    TESTTUPLE_ASSET: TesttupleParser,
+    assets.ALGO: AlgoParser,
+    assets.OBJECTIVE: ObjectiveParser,
+    assets.DATASET: DatasetParser,
+    assets.TRAINTUPLE: TraintupleParser,
+    assets.TESTTUPLE: TesttupleParser,
 }
 
 
