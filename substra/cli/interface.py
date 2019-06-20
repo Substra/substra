@@ -209,9 +209,6 @@ def get(ctx, asset_name, asset_key, expand, json_output, config, profile):
             if testtuple:
                 res['testtuples'] = [testtuple]
 
-    else:
-        raise AssertionError  # checked previously
-
     parser = parsers.get_parser(asset_name)
     parser.print_single(res, json_output)
 
