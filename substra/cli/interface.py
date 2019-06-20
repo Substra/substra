@@ -28,7 +28,7 @@ def load_json(path):
 def load_data_samples_json(path):
     """Load data sample keys from JSON file."""
     data = load_json(path)
-    return data['data_sample_keys']
+    return data['keys']
 
 
 def dict_append_to_optional_field(data, key, value):
@@ -325,7 +325,7 @@ def add_dataset(ctx, path, objective_key, dry_run, config, profile):
 
 @add.command('objective')
 @click.argument('path', type=click.Path(exists=True))
-@click.option('--dataset-key')
+@click.option('--dataset-key', required=True)
 @click.option('--data-samples-path',
               type=click.Path(exists=True, resolve_path=True),
               help='test data samples')
@@ -368,21 +368,29 @@ def add_objective(ctx, path, dataset_key, data_samples_path, dry_run, config,
     """
     client = get_client(config, profile)
     data = load_json(path)
-    data['test_data_manager_key'] = dataset_key
-    data['test_data_sample_keys'] = load_data_samples_json(data_samples_path)
-    res = client.add(assets.DATASET, data, dry_run)
+
+    if dataset_key:
+        data['test_data_manager_key'] = dataset_key
+
+    if data_samples_path:
+        data_sample_keys = load_data_samples_json(data_samples_path)
+        data['test_data_sample_keys'] = data_sample_keys
+
+    res = client.add(assets.OBJECTIVE, data, dry_run)
     display(res)
 
 
 @add.command('data_sample')
 @click.argument('path', type=click.Path(exists=True))
+@click.option('--dataset-key', required=True)
 @click.option('--local/--remote', 'local', is_flag=True, default=True)
 @click.option('--test-only', is_flag=True, default=False)
 @click.option('--dry-run', is_flag=True)
 @click_option_config
 @click_option_profile
 @click.pass_context
-def add_data_sample(ctx, path, local, test_only, dry_run, config, profile):
+def add_data_sample(ctx, path, dataset_key, local, test_only, dry_run, config,
+                    profile):
     """Add data sample.
 
     The path must point to a valid JSON file with the following schema:
@@ -399,6 +407,7 @@ def add_data_sample(ctx, path, local, test_only, dry_run, config, profile):
     """
     client = get_client(config, profile)
     data = load_json(path)
+    data['data_manager_keys'] = [dataset_key]
     if test_only:
         data['test_only'] = True
     method = client.register if not local else client.add
@@ -438,8 +447,11 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key,
         'algo_key': algo_key,
         'objective_key': objective_key,
         'data_manager_key': dataset_key,
-        'train_data_sample_keys': load_data_samples_json(data_samples_path),
     }
+
+    if data_samples_path:
+        data_sample_keys = load_data_samples_json(data_samples_path)
+        data['train_data_sample_keys'] = data_sample_keys
     res = client.add(assets.TRAINTUPLE, data, dry_run)
     display(res)
 
@@ -473,8 +485,11 @@ def add_testtuple(ctx, dataset_key, traintuple_key,
     data = {
         'data_manager_key': dataset_key,
         'traintuple_key': traintuple_key,
-        'test_data_sample_keys': load_data_samples_json(data_samples_path),
     }
+
+    if data_samples_path:
+        data_sample_keys = load_data_samples_json(data_samples_path)
+        data['test_data_sample_keys'] = data_sample_keys
     res = client.add(assets.TESTTUPLE, data, dry_run)
     display(res)
 
@@ -499,7 +514,7 @@ def update_dataset(ctx, dataset_key, objective_key, config, profile):
     """
     client = get_client(config, profile)
     data = {
-        'objective_keys': [objective_key],
+        'objective_key': objective_key,
     }
     res = client.update(assets.DATASET, dataset_key, data)
     display(res)
