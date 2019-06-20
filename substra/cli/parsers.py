@@ -1,6 +1,7 @@
 import json
 import math
 import textwrap
+from functools import wraps
 from substra import assets
 
 
@@ -21,6 +22,7 @@ def get_prop_value(obj, key):
 
 
 def handle_raw_option(method):
+    @wraps(method)
     def print_raw(*args):
         self, data, raw = args
         if raw:
