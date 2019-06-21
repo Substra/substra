@@ -7,6 +7,7 @@
 - [substra add testtuple](#substra-add-testtuple)
 - [substra add traintuple](#substra-add-traintuple)
 - [substra config](#substra-config)
+- [substra describe](#substra-describe)
 - [substra download](#substra-download)
 - [substra get](#substra-get)
 - [substra list](#substra-list)
@@ -30,7 +31,7 @@ Usage: substra add algo [OPTIONS] PATH
       "name": str,
       "description": path,
       "file": path,
-      "objective_key": str (optional),
+      "permissions": str,
   }
 
   Where:
@@ -38,7 +39,7 @@ Usage: substra add algo [OPTIONS] PATH
   - description: path to a markdown file describing the algo
   - file: path to tar.gz or zip archive containing the algorithm python
     script and its Dockerfile
-  - objective_key: objective key
+  - permissions: define asset access permissions
 
 Options:
   --dry-run
@@ -88,6 +89,7 @@ Usage: substra add dataset [OPTIONS] PATH
       "description": path,
       "type": str,
       "data_opener": path,
+      "permissions": str,
   }
 
   Where:
@@ -97,6 +99,7 @@ Usage: substra add dataset [OPTIONS] PATH
     dataset (common values are 'Images', 'Tabular', 'Time series',
     'Spatial time series' and 'Hierarchical images')
   - data_opener: path to the opener python script
+  - permissions: define asset access permissions
 
 Options:
   --objective-key TEXT
@@ -120,6 +123,7 @@ Usage: substra add objective [OPTIONS] PATH
       "description": path,
       "metrics_name": str,
       "metrics": path,
+      "permissions": str,
   }
 
   Where:
@@ -127,6 +131,7 @@ Usage: substra add objective [OPTIONS] PATH
   - description: path to a markdown file describing the objective
   - metrics_name: name of the metrics
   - metrics: path to the metrics python script
+  - permissions: define asset access permissions
 
   The data samples path must point to a valid JSON file with the following
   schema:
@@ -219,6 +224,19 @@ Options:
   --help               Show this message and exit.
 ```
 
+## substra describe
+
+```bash
+Usage: substra describe [OPTIONS] [algo|dataset|objective] ASSET_KEY
+
+  Download and print asset description
+
+Options:
+  --config PATH   Config path (default ~/.substra).
+  --profile TEXT  Profile name to use.
+  --help          Show this message and exit.
+```
+
 ## substra download
 
 ```bash
@@ -243,6 +261,7 @@ Usage: substra get [OPTIONS] [algo|dataset|objective|testtuple|traintuple]
 
 Options:
   --expand
+  --json          Display output as json
   --config PATH   Config path (default ~/.substra).
   --profile TEXT  Profile name to use.
   --help          Show this message and exit.
@@ -259,6 +278,7 @@ Usage: substra list [OPTIONS]
 
 Options:
   --is-complex
+  --json          Display output as json
   --config PATH   Config path (default ~/.substra).
   --profile TEXT  Profile name to use.
   --help          Show this message and exit.
