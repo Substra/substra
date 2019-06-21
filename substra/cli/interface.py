@@ -299,7 +299,7 @@ def add_algo(ctx, path, dry_run, config, profile):
         "name": str,
         "description": path,
         "file": path,
-        "objective_key": str (optional),
+        "permissions": str,
     }
 
     \b
@@ -308,7 +308,7 @@ def add_algo(ctx, path, dry_run, config, profile):
     - description: path to a markdown file describing the algo
     - file: path to tar.gz or zip archive containing the algorithm python
       script and its Dockerfile
-    - objective_key: objective key
+    - permissions: define asset access permissions
     """
     client = get_client(config, profile)
     data = load_json(path)
@@ -334,6 +334,7 @@ def add_dataset(ctx, path, objective_key, dry_run, config, profile):
         "description": path,
         "type": str,
         "data_opener": path,
+        "permissions": str,
     }
 
     \b
@@ -344,6 +345,7 @@ def add_dataset(ctx, path, objective_key, dry_run, config, profile):
       dataset (common values are 'Images', 'Tabular', 'Time series',
       'Spatial time series' and 'Hierarchical images')
     - data_opener: path to the opener python script
+    - permissions: define asset access permissions
     """
     client = get_client(config, profile)
     data = load_json(path)
@@ -374,6 +376,7 @@ def add_objective(ctx, path, dataset_key, data_samples_path, dry_run, config,
         "description": path,
         "metrics_name": str,
         "metrics": path,
+        "permissions": str,
     }
 
     \b
@@ -382,6 +385,7 @@ def add_objective(ctx, path, dataset_key, data_samples_path, dry_run, config,
     - description: path to a markdown file describing the objective
     - metrics_name: name of the metrics
     - metrics: path to the metrics python script
+    - permissions: define asset access permissions
 
     The data samples path must point to a valid JSON file with the following
     schema:
