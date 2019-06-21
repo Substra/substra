@@ -143,7 +143,7 @@ class JsonOnlyParser:
 
 
 class AlgoParser(BaseParser):
-    asset = 'Algo'
+    asset = 'algo'
 
     download_message = 'Download this algorithm\'s code:'
 
@@ -169,7 +169,6 @@ class DatasetParser(BaseParser):
     asset_props = (
         ('Objective key', 'objectiveKey'),
         ('Type', 'type'),
-        ('Opener', 'opener.storageAddress'),
         ('Train data sample keys', 'trainDataSampleKeys'),
         ('Test data sample keys', 'testDataSampleKeys'),
     )

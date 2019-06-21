@@ -3,6 +3,7 @@ import functools
 import os
 
 import click
+import consolemd
 import substra_sdk_py as sb
 
 from substra import __version__
@@ -213,6 +214,26 @@ def get(ctx, asset_name, asset_key, expand, json_output, config, profile):
 
     parser = parsers.get_parser(asset_name)
     parser.print_single(res, json_output)
+
+
+@cli.command()
+@click.argument('asset-name', type=click.Choice([
+    assets.ALGO,
+    assets.DATASET,
+    assets.OBJECTIVE,
+]))
+@click.argument('asset-key')
+@click_option_config
+@click_option_profile
+@click.pass_context
+@catch_exceptions
+def describe(ctx, asset_name, asset_key, config, profile):
+    """Download and print asset description"""
+
+    client = get_client(config, profile)
+    description = client.describe(asset_name, asset_key)
+    renderer = consolemd.Renderer()
+    renderer.render(description)
 
 
 @cli.command('list')

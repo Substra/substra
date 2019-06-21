@@ -55,7 +55,7 @@ setup(
     ],
     keywords=['cli', 'substra'],
     packages=find_packages(exclude=['docs', 'tests*']),
-    install_requires=['click', 'requests', 'docker', 'substra-sdk-py'],
+    install_requires=['click', 'requests', 'docker', 'substra-sdk-py', 'consolemd'],
     extras_require={
         'test': ['coverage', 'pytest', 'pytest-cov', 'mock'],
     },
