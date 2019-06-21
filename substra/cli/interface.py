@@ -226,8 +226,7 @@ def get(ctx, asset_name, asset_key, expand, json_output, config, profile):
 @click.pass_context
 @catch_exceptions
 def describe(ctx, asset_name, asset_key, config, profile):
-    """Download and print asset description"""
-
+    """Download and print asset description."""
     client = get_client(config, profile)
     description = client.describe(asset_name, asset_key)
     renderer = consolemd.Renderer()
@@ -357,7 +356,7 @@ def add_dataset(ctx, path, objective_key, dry_run, config, profile):
 
 @add.command('objective')
 @click.argument('path', type=click.Path(exists=True))
-@click.option('--dataset-key', required=True)
+@click.option('--dataset-key')
 @click.option('--data-samples-path',
               type=click.Path(exists=True, resolve_path=True),
               help='test data samples')
@@ -398,7 +397,7 @@ def add_objective(ctx, path, dataset_key, data_samples_path, dry_run, config,
 
     \b
     Where:
-    - keys: list of data sample keys
+    - keys: list of test only data sample keys
     """
     client = get_client(config, profile)
     data = load_json(path)
@@ -456,11 +455,12 @@ def add_data_sample(ctx, path, dataset_key, local, test_only, dry_run, config,
 @click.option('--data-samples-path', required=True,
               type=click.Path(exists=True, resolve_path=True))
 @click.option('--dry-run', is_flag=True)
+@click.option('--tag', is_flag=True)
 @click_option_config
 @click_option_profile
 @click.pass_context
 def add_traintuple(ctx, objective_key, algo_key, dataset_key,
-                   data_samples_path, dry_run, config, profile):
+                   data_samples_path, dry_run, tag, config, profile):
     """Add traintuple.
 
     The data samples path must point to a valid JSON file with the following
@@ -486,6 +486,9 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key,
     if data_samples_path:
         data_sample_keys = load_data_samples_json(data_samples_path)
         data['train_data_sample_keys'] = data_sample_keys
+
+    if tag:
+        data['tag'] = tag
     res = client.add(assets.TRAINTUPLE, data, dry_run)
     display(res)
 
@@ -496,11 +499,12 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key,
 @click.option('--data-samples-path',
               type=click.Path(exists=True, resolve_path=True))
 @click.option('--dry-run', is_flag=True)
+@click.option('--tag', is_flag=True)
 @click_option_config
 @click_option_profile
 @click.pass_context
 def add_testtuple(ctx, dataset_key, traintuple_key,
-                  data_samples_path, dry_run, config, profile):
+                  data_samples_path, dry_run, tag, config, profile):
     """Add testtuple.
 
     The data samples path must point to a valid JSON file with the following
@@ -524,6 +528,9 @@ def add_testtuple(ctx, dataset_key, traintuple_key,
     if data_samples_path:
         data_sample_keys = load_data_samples_json(data_samples_path)
         data['test_data_sample_keys'] = data_sample_keys
+
+    if tag:
+        data['tag'] = tag
     res = client.add(assets.TESTTUPLE, data, dry_run)
     display(res)
 

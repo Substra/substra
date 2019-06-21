@@ -141,10 +141,10 @@ Usage: substra add objective [OPTIONS] PATH
   }
 
   Where:
-  - keys: list of data sample keys
+  - keys: list of test only data sample keys
 
 Options:
-  --dataset-key TEXT        [required]
+  --dataset-key TEXT
   --data-samples-path PATH  test data samples
   --dry-run
   --config PATH             Config path (default ~/.substra).
@@ -174,6 +174,7 @@ Options:
   --traintuple-key TEXT     [required]
   --data-samples-path PATH
   --dry-run
+  --tag
   --config PATH             Config path (default ~/.substra).
   --profile TEXT            Profile name to use.
   --help                    Show this message and exit.
@@ -202,6 +203,7 @@ Options:
   --dataset-key TEXT        [required]
   --data-samples-path PATH  [required]
   --dry-run
+  --tag
   --config PATH             Config path (default ~/.substra).
   --profile TEXT            Profile name to use.
   --help                    Show this message and exit.
@@ -229,7 +231,7 @@ Options:
 ```bash
 Usage: substra describe [OPTIONS] [algo|dataset|objective] ASSET_KEY
 
-  Download and print asset description
+  Download and print asset description.
 
 Options:
   --config PATH   Config path (default ~/.substra).
