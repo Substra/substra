@@ -208,3 +208,9 @@ class Client(object):
         except KeyError:
             raise ValueError(f"Asset {asset} not handled.")
         return method(pkhash, destination_folder)
+
+    def describe(self, asset, pkhash):
+        data = self.get(asset, pkhash)
+        url = data['description']['storageAddress']
+        r = requests_wrapper.raw_get(self.config, url)
+        return r.text
