@@ -231,7 +231,7 @@ Options:
 ```bash
 Usage: substra describe [OPTIONS] [algo|dataset|objective] ASSET_KEY
 
-  Download and print asset description.
+  Display asset description.
 
 Options:
   --config PATH   Config path (default ~/.substra).
@@ -244,7 +244,7 @@ Options:
 ```bash
 Usage: substra download [OPTIONS] [algo|dataset|objective] KEY
 
-  Download asset.
+  Download asset implementation.
 
 Options:
   --folder PATH   destination folder
@@ -259,7 +259,7 @@ Options:
 Usage: substra get [OPTIONS] [algo|dataset|objective|testtuple|traintuple]
                    ASSET_KEY
 
-  Get asset by key.
+  Get asset definition.
 
 Options:
   --expand
@@ -276,7 +276,7 @@ Usage: substra list [OPTIONS]
                     [algo|data_sample|dataset|objective|testtuple|traintuple]
                     [FILTERS]
 
-  List asset.
+  List assets.
 
 Options:
   --is-complex
@@ -311,9 +311,7 @@ Options:
 ```bash
 Usage: substra update data-sample [OPTIONS] DATA_SAMPLES_PATH DATASET_KEY
 
-  Update data samples.
-
-  Link data samples with a dataset through thier keys.
+  Link data samples with dataset.
 
   The data samples path must point to a valid JSON file with the following
   schema:
@@ -336,9 +334,7 @@ Options:
 ```bash
 Usage: substra update dataset [OPTIONS] DATASET_KEY OBJECTIVE_KEY
 
-  Update dataset.
-
-  Link dataset with obective.
+  Link dataset with objective.
 
 Options:
   --config PATH   Config path (default ~/.substra).

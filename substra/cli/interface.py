@@ -183,7 +183,7 @@ def run_local(algo_path, train_opener, test_opener, metrics, rank,
 @click.pass_context
 @catch_exceptions
 def get(ctx, asset_name, asset_key, expand, json_output, config, profile):
-    """Get asset by key."""
+    """Get asset definition."""
     expand_valid_assets = (assets.DATASET, assets.TRAINTUPLE)
     if expand and asset_name not in expand_valid_assets:  # fail fast
         raise click.UsageError(
@@ -226,7 +226,7 @@ def get(ctx, asset_name, asset_key, expand, json_output, config, profile):
 @click.pass_context
 @catch_exceptions
 def describe(ctx, asset_name, asset_key, config, profile):
-    """Download and print asset description."""
+    """Display asset description."""
     client = get_client(config, profile)
     description = client.describe(asset_name, asset_key)
     renderer = consolemd.Renderer()
@@ -250,7 +250,7 @@ def describe(ctx, asset_name, asset_key, config, profile):
 @click_option_profile
 @click.pass_context
 def _list(ctx, asset_name, filters, is_complex, json_output, config, profile):
-    """List asset."""
+    """List assets."""
     client = get_client(config, profile)
     res = client.list(asset_name, filters, is_complex)
     parser = parsers.get_parser(asset_name)
@@ -270,7 +270,7 @@ def _list(ctx, asset_name, filters, is_complex, json_output, config, profile):
 @click_option_profile
 @click.pass_context
 def download(ctx, asset_name, key, folder, config, profile):
-    """Download asset."""
+    """Download asset implementation."""
     client = get_client(config, profile)
     res = client.download(asset_name, key, folder)
     display(res)
@@ -549,10 +549,7 @@ def update(ctx):
 @click_option_profile
 @click.pass_context
 def update_dataset(ctx, dataset_key, objective_key, config, profile):
-    """Update dataset.
-
-    Link dataset with obective.
-    """
+    """Link dataset with objective."""
     client = get_client(config, profile)
     data = {
         'objective_key': objective_key,
@@ -561,16 +558,14 @@ def update_dataset(ctx, dataset_key, objective_key, config, profile):
     display(res)
 
 
-@update.command('data-sample')
+@update.command('data_sample')
 @click.argument('data-samples-path', type=click.Path(exists=True))
 @click.argument('dataset-key')
 @click_option_config
 @click_option_profile
 @click.pass_context
 def update_data_sample(ctx, data_samples_path, dataset_key, config, profile):
-    """Update data samples.
-
-    Link data samples with a dataset through thier keys.
+    """Link data samples with dataset.
 
     The data samples path must point to a valid JSON file with the following
     schema:
