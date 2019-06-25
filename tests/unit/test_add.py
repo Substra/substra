@@ -34,7 +34,7 @@ class TestAdd(TestBase):
         with open(self.data_manager_file_path, 'r') as f:
             data = json.loads(f.read())
 
-        res = self.client.add('data_manager', data)
+        res = self.client.add('dataset', data)
 
         self.assertEqual(res, data_manager)
         self.assertEqual(len(mock_get.call_args_list), 1)
@@ -43,7 +43,7 @@ class TestAdd(TestBase):
     @mock.patch('substra_sdk_py.requests_wrapper.requests.post', side_effect=mocked_requests_post_data_manager)
     def test_add_data_manager_invalid_args(self, mock_get):
         try:
-            self.client.add('data_manager', {})
+            self.client.add('dataset', {})
         except Exception as e:
             print(e)
             self.assertEqual(str(e), "The 'data_opener' attribute is missing.")
