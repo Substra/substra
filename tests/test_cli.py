@@ -71,31 +71,26 @@ def test_command_config(workdir):
     assert list(cfg.keys()) == expected_profiles
 
 
-@pytest.fixture
-def mock_substra_list(mocker):
+def mock_client_call(mocker, method_name, response):
+    return mocker.patch(f'substra.cli.interface.sb.Client.{method_name}',
+                        return_value=response)
+
+
+def test_command_list(workdir, mocker):
     response = [datastore.OBJECTIVE]
-    with mocker.patch('substra.cli.interface.sb.Client.list',
-                      return_value=response) as m:
-        yield m
-
-
-def test_command_list(workdir, mock_substra_list):
-    output = command_client_runner(workdir, [
-        'list', 'objective',
-    ])
+    with mock_client_call(mocker, 'list', response) as m:
+        output = command_client_runner(workdir, [
+            'list', 'objective',
+        ])
+    assert m.is_called()
     assert datastore.OBJECTIVE['key'] in output
 
 
-@pytest.fixture
-def mock_substra_get(mocker):
+def test_command_get(workdir, mocker):
     response = datastore.OBJECTIVE
-    with mocker.patch('substra.cli.interface.sb.Client.get',
-                      return_value=response) as m:
-        yield m
-
-
-def test_command_get(workdir, mock_substra_get):
-    output = command_client_runner(workdir, [
-        'get', 'objective', 'fakekey'
-    ])
+    with mock_client_call(mocker, 'get', response) as m:
+        output = command_client_runner(workdir, [
+            'get', 'objective', 'fakekey'
+        ])
+    assert m.is_called()
     assert datastore.OBJECTIVE['key'] in output
