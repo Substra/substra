@@ -279,7 +279,7 @@ def download(ctx, asset_name, key, folder, config, profile):
 @cli.group()
 @click.pass_context
 def add(ctx):
-    """Add asset."""
+    """Add new asset to Substra platform."""
     pass
 
 
