@@ -71,7 +71,7 @@ def test_command_config(workdir):
     assert list(cfg.keys()) == expected_profiles
 
 
-def mock_client_call(mocker, method_name, response):
+def mock_client_call(mocker, method_name, response=""):
     return mocker.patch(f'substra.cli.interface.sb.Client.{method_name}',
                         return_value=response)
 
@@ -80,9 +80,7 @@ def mock_client_call(mocker, method_name, response):
 def test_command_list(asset_name, workdir, mocker):
     item = getattr(datastore, asset_name.upper())
     with mock_client_call(mocker, 'list', [item]) as m:
-        output = client_execute(workdir, [
-            'list', asset_name,
-        ])
+        output = client_execute(workdir, ['list', asset_name])
     assert m.is_called()
     assert item['key'] in output
 
@@ -91,8 +89,40 @@ def test_command_list(asset_name, workdir, mocker):
 def test_command_get(asset_name, workdir, mocker):
     item = getattr(datastore, asset_name.upper())
     with mock_client_call(mocker, 'get', item) as m:
-        output = client_execute(workdir, [
-            'get', asset_name, 'fakekey'
-        ])
+        output = client_execute(workdir, ['get', asset_name, 'fakekey'])
     assert m.is_called()
     assert item['key'] in output
+
+
+def test_command_describe(workdir, mocker):
+    response = "My description."
+    with mock_client_call(mocker, 'describe', response) as m:
+        output = client_execute(workdir, ['describe', 'objective', 'fakekey'])
+    assert m.is_called()
+    assert response in output
+
+
+def test_command_download(workdir, mocker):
+    with mock_client_call(mocker, 'download') as m:
+        client_execute(workdir, ['download', 'objective', 'fakekey'])
+    assert m.is_called()
+
+
+def test_command_update_dataset(workdir, mocker):
+    with mock_client_call(mocker, 'update') as m:
+        client_execute(workdir, ['update', 'dataset', 'key1', 'key2'])
+    assert m.is_called()
+
+
+def test_command_update_data_sample(workdir, mocker):
+    data_samples = {
+        'keys': ['key1', 'key2'],
+    }
+    data_samples_path = workdir / 'data_samples.json'
+    with data_samples_path.open(mode='w') as fp:
+        json.dump(data_samples, fp)
+
+    with mock_client_call(mocker, 'bulk_update') as m:
+        client_execute(
+            workdir, ['update', 'data_sample', str(data_samples_path), 'key1'])
+    assert m.is_called()
