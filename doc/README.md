@@ -12,7 +12,7 @@
 - [substra get](#substra-get)
 - [substra list](#substra-list)
 - [substra run-local](#substra-run-local)
-- [substra update data-sample](#substra-update-data-sample)
+- [substra update data_sample](#substra-update-data_sample)
 - [substra update dataset](#substra-update-dataset)
 
 
@@ -306,10 +306,10 @@ Options:
   --help                     Show this message and exit.
 ```
 
-## substra update data-sample
+## substra update data_sample
 
 ```bash
-Usage: substra update data-sample [OPTIONS] DATA_SAMPLES_PATH DATASET_KEY
+Usage: substra update data_sample [OPTIONS] DATA_SAMPLES_PATH DATASET_KEY
 
   Link data samples with dataset.
 
