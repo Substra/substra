@@ -76,21 +76,23 @@ def mock_client_call(mocker, method_name, response):
                         return_value=response)
 
 
-def test_command_list(workdir, mocker):
-    response = [datastore.OBJECTIVE]
-    with mock_client_call(mocker, 'list', response) as m:
+@pytest.mark.parametrize('asset_name', ['objective', 'dataset'])
+def test_command_list(asset_name, workdir, mocker):
+    item = getattr(datastore, asset_name.upper())
+    with mock_client_call(mocker, 'list', [item]) as m:
         output = client_execute(workdir, [
-            'list', 'objective',
+            'list', asset_name,
         ])
     assert m.is_called()
-    assert datastore.OBJECTIVE['key'] in output
+    assert item['key'] in output
 
 
-def test_command_get(workdir, mocker):
-    response = datastore.OBJECTIVE
-    with mock_client_call(mocker, 'get', response) as m:
+@pytest.mark.parametrize('asset_name', ['objective', 'dataset'])
+def test_command_get(asset_name, workdir, mocker):
+    item = getattr(datastore, asset_name.upper())
+    with mock_client_call(mocker, 'get', item) as m:
         output = client_execute(workdir, [
-            'get', 'objective', 'fakekey'
+            'get', asset_name, 'fakekey'
         ])
     assert m.is_called()
-    assert datastore.OBJECTIVE['key'] in output
+    assert item['key'] in output
