@@ -114,7 +114,9 @@ def cli(ctx):
 
 @cli.command('config')
 @click.argument('url')
-@click_option_config
+@click.option('--config', type=click.Path(),
+              default=os.path.expanduser('~/.substra'),
+              help='Config path (default ~/.substra).')
 @click.option('--profile', default='default',
               help='Profile name to add')
 @click.option('--insecure', '-k', is_flag=True,

@@ -1,40 +1,25 @@
 """Packaging settings."""
-
 from codecs import open
-from os.path import abspath, dirname, join
-from subprocess import call
+import os
 
-from setuptools import Command, find_packages, setup
+from setuptools import setup, find_packages
 
 from substra import __version__
 
-this_dir = abspath(dirname(__file__))
-with open(join(this_dir, 'README.md'), encoding='utf-8') as file:
-    long_description = file.read()
+current_dir = os.path.abspath(os.path.dirname(__file__))
 
 
-class RunTests(Command):
-    """Run all tests."""
-    description = 'run tests'
-    user_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        """Run all tests!"""
-        errno = call(['py.test', '--cov=substra', '--cov-report=term-missing', '--ignore=tests/e2e'])
-        raise SystemExit(errno)
+def read_readme_file():
+    path = os.path.join(current_dir, 'README.md')
+    with open(path, encoding='utf-8') as fp:
+        return fp.read()
 
 
 setup(
     name='substra',
     version=__version__,
     description='Substra CLI for interacting with substrabac',
-    long_description=long_description,
+    long_description=read_readme_file(),
     url='https://github.com/SubstraFoundation/substra-cli',
     author='Owkin, Substra team',
     author_email='substra@owkin.com',
@@ -56,13 +41,11 @@ setup(
     keywords=['cli', 'substra'],
     packages=find_packages(exclude=['docs', 'tests*']),
     install_requires=['click', 'requests', 'docker', 'substra-sdk-py', 'consolemd'],
-    extras_require={
-        'test': ['coverage', 'pytest', 'pytest-cov', 'mock'],
-    },
+    setup_requires=["pytest-runner"],
+    tests_require=["pytest", "pytest-cov"],
     entry_points={
         'console_scripts': [
             'substra=substra.cli.interface:cli',
         ],
     },
-    cmdclass={'test': RunTests},
 )

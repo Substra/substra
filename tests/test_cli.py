@@ -1,53 +1,59 @@
-"""Tests for our main substra CLI module."""
 import json
-import os
-from subprocess import PIPE, Popen as popen
-from unittest import TestCase
+
+from click.testing import CliRunner
+import pytest
+
+import substra
+from substra.cli.interface import cli
 
 
-from substra import __version__ as VERSION
+def mock_substra():
+    pass
 
 
-class TestHelp(TestCase):
-    def test_returns_usage_information(self):
-        output = popen(['substra', '-h'], stdout=PIPE).communicate()[0]
-        print(output.decode('utf-8'))
-        self.assertTrue('Usage:' in output.decode('utf-8'))
-
-        output = popen(['substra', '--help'], stdout=PIPE).communicate()[0]
-        self.assertTrue('Usage:' in output.decode('utf-8'))
+@pytest.fixture
+def workdir(tmp_path):
+    d = tmp_path / "substra-cli"
+    d.mkdir()
+    return d
 
 
-class TestVersion(TestCase):
-    def test_returns_version_information(self):
-        output = popen(['substra', '--version'], stdout=PIPE).communicate()[0]
-        self.assertEqual(output.decode('utf-8').strip(), VERSION)
+def command_runner(command, exit_code=0):
+    runner = CliRunner()
+    result = runner.invoke(cli, command)
+    print(result.output)
+    assert result.exit_code == exit_code
+    return result.output
 
 
-class TestCommand(TestCase):
-    def setUp(self):
-        with open('/tmp/.substra2', 'w+') as fh:
-            json.dump({
-                'default': {
-                    'url': 'http://localhost',
-                    'version': '0.0',
-                    'insecure': False,
-                }
-            }, fh)
+def test_command_help():
+    output = command_runner(['--help'])
+    assert 'Usage:' in output
 
-    def tearDown(self):
-        try:
-            os.remove('/tmp/.substra2')
-        except Exception:
-            pass
 
-    def test_returns_command(self):
-        output = popen([
-            'substra',
-            'list',
-            'objective',
-            '--config=/tmp/.substra2'], stdout=PIPE).communicate()[0]
+def test_command_version():
+    output = command_runner(['--version'])
+    assert substra.__version__ in output
 
-        print(output.decode('utf-8').strip())
 
-        self.assertTrue('Failed to list objective' in output.decode('utf-8').strip())
+def test_command_config(workdir):
+    cfgfile = workdir / "cli.cfg"
+
+    assert cfgfile.exists() is False
+
+    new_url = 'http://toto'
+    new_profile = 'toto'
+    command_runner([
+        'config',
+        new_url,
+        '--profile', new_profile,
+        '--config', str(cfgfile),
+    ])
+    assert cfgfile.exists()
+
+    # check new profile has been created, check also that default profile
+    # has been created
+    with cfgfile.open() as fp:
+        cfg = json.load(fp)
+    expected_profiles = ['default', 'toto']
+    assert list(cfg.keys()) == expected_profiles
