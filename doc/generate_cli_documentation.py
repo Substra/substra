@@ -1,5 +1,7 @@
+import argparse
 import os
 import subprocess
+import sys
 
 import click
 
@@ -55,8 +57,22 @@ def generate_help(commands, fh):
         fh.write("```\n\n")
 
 
-if __name__ == '__main__':
-    output_path = os.path.join(localdir, 'README.md')
+def write_help(path):
     commands = click_get_commands('substra', cli)
-    with open(output_path, 'w') as fh:
+    with open(path, 'w') as fh:
         generate_help(commands, fh)
+
+
+if __name__ == '__main__':
+
+    def _cb(args):
+        write_help(args.output_path)
+
+    default_path = os.path.join(localdir, 'README.md')
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--output-path', type=str, default=default_path, required=False)
+    parser.set_defaults(func=_cb)
+
+    args = parser.parse_args(sys.argv[1:])
+    args.func(args)
