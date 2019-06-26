@@ -194,13 +194,17 @@ def get(ctx, asset_name, asset_key, expand, json_output, config, profile):
     client = get_client(config, profile)
     res = client.get(asset_name, asset_key)
 
-    def _get_asset_count(n, asset_type):
-        return f'{n} {asset_type}' if n == 1 else f'{n} {asset_type}s'
+    def _count_data_sample(items):
+        key = 'data sample key'
+        n = len(items)
+        return f'{n} {key}' if n == 1 else f'{n} {key}s'
 
     if asset_name == assets.DATASET:
         if not expand:
-            res['trainDataSampleKeys'] = _get_asset_count(len(res['trainDataSampleKeys']), 'data sample key')
-            res['testDataSampleKeys'] = _get_asset_count(len(res['testDataSampleKeys']), 'data sample key')
+            res['trainDataSampleKeys'] = _count_data_sample(
+                res['trainDataSampleKeys'])
+            res['testDataSampleKeys'] = _count_data_sample(
+                res['testDataSampleKeys'])
 
     elif asset_name == assets.TRAINTUPLE:
         if expand:

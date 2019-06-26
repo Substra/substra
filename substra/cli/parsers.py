@@ -177,7 +177,8 @@ class DatasetParser(BaseParser):
 
 class TraintupleParser(BaseParser):
     asset = 'traintuple'
-    title_prop = lambda _, item: f'{get_recursive(item, "algo.name")}-{get_recursive(item, "key")[:4]}'
+    title_prop = lambda _, item: f'{get_recursive(item, "algo.name")}-{get_recursive(item, "key")[:4]}'  # noqa: E731, E501
+
     list_props = (
         ('Status', 'status'),
         ('Score', 'dataset.perf')
@@ -198,7 +199,7 @@ class TraintupleParser(BaseParser):
 
 class TesttupleParser(BaseParser):
     asset = 'testtuple'
-    title_prop = lambda _, item: f'{get_recursive(item, "algo.name")}-{get_recursive(item, "model.traintupleKey")[:4]}'
+    title_prop = lambda _, item: f'{get_recursive(item, "algo.name")}-{get_recursive(item, "model.traintupleKey")[:4]}'  # noqa: E731, E501
     list_props = (
         ('Certified', 'certified'),
         ('Status', 'status'),

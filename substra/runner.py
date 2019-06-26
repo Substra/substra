@@ -78,7 +78,9 @@ def setup(algo_path,
     for key in config.keys():
         path = config[key]
         if path and not os.path.exists(path):
-            raise Exception(f"Cannot launch local run: {key.replace('_', ' ')} {path} doesn't exist")
+            key_name = key.replace('_', ' ')
+            raise Exception(f"Cannot launch local run: {key_name} {path} "
+                            f"doesn't exist")
 
     # sandbox
     run_local_path = _get_abspath(compute_path)
@@ -200,7 +202,8 @@ def compute(config, rank, inmodels, dry_run=False):
 
     _docker_build(docker_client, METRICS_PATH, docker_metrics_tag, rm=True)
 
-    print(f'Evaluating performance - compute metrics with {train_pred_path} predictions against {train_data_path_str} labels')
+    print(f'Evaluating performance - compute metrics with {train_pred_path} '
+          f'predictions against {train_data_path_str} labels')
 
     volumes = {train_pred_path: VOLUME_PRED,
                metrics_file: VOLUME_METRICS,
@@ -216,7 +219,8 @@ def compute(config, rank, inmodels, dry_run=False):
         perf = json.load(perf_file)
     train_perf = perf['all']
 
-    print(f'Successfully train model {outmodel_file} with a score of {train_perf} on train data')
+    print(f'Successfully train model {outmodel_file} with a score of '
+          f'{train_perf} on train data')
 
     print('Testing starts')
 
@@ -225,7 +229,8 @@ def compute(config, rank, inmodels, dry_run=False):
     print('Testing model')
 
     test_data_path_str = test_data_path or 'fake'
-    print(f'Testing model on {test_data_path_str} labels with {model_key} saved in {test_pred_path}')
+    print(f'Testing model on {test_data_path_str} labels with {model_key} '
+          f'saved in {test_pred_path}')
 
     volumes = {outmodel_path: VOLUME_OUTPUT_MODEL,
                test_pred_path: VOLUME_PRED,
@@ -241,7 +246,8 @@ def compute(config, rank, inmodels, dry_run=False):
 
     _docker_build(docker_client, METRICS_PATH, docker_metrics_tag)
 
-    print(f'Evaluating performance - compute metric with {test_pred_path} predictions against {test_data_path_str} labels')
+    print(f'Evaluating performance - compute metric with {test_pred_path} '
+          f'predictions against {test_data_path_str} labels')
 
     volumes = {test_pred_path: VOLUME_PRED,
                metrics_file: VOLUME_METRICS,
