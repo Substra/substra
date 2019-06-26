@@ -47,6 +47,8 @@ pipeline {
 
         dir("substra-cli") {
           checkout scm
+          pip install flake8
+          flake8 substra
           sh "pip install -e .[test]"
           sh "python setup.py test"
         }
