@@ -1,16 +1,16 @@
 # Summary
 
-- [substra add algo](#substra-add-algo)
+- [substra config](#substra-config)
 - [substra add data_sample](#substra-add-data_sample)
 - [substra add dataset](#substra-add-dataset)
 - [substra add objective](#substra-add-objective)
-- [substra add testtuple](#substra-add-testtuple)
+- [substra add algo](#substra-add-algo)
 - [substra add traintuple](#substra-add-traintuple)
-- [substra config](#substra-config)
-- [substra describe](#substra-describe)
-- [substra download](#substra-download)
+- [substra add testtuple](#substra-add-testtuple)
 - [substra get](#substra-get)
 - [substra list](#substra-list)
+- [substra describe](#substra-describe)
+- [substra download](#substra-download)
 - [substra run-local](#substra-run-local)
 - [substra update data_sample](#substra-update-data_sample)
 - [substra update dataset](#substra-update-dataset)
@@ -18,34 +18,21 @@
 
 # Commands
 
-## substra add algo
+## substra config
 
 ```bash
-Usage: substra add algo [OPTIONS] PATH
+Usage: substra config [OPTIONS] URL
 
-  Add algo.
-
-  The path must point to a valid JSON file with the following schema:
-
-  {
-      "name": str,
-      "description": path,
-      "file": path,
-      "permissions": str,
-  }
-
-  Where:
-  - name: name of the algorithm
-  - description: path to a markdown file describing the algo
-  - file: path to tar.gz or zip archive containing the algorithm python
-    script and its Dockerfile
-  - permissions: define asset access permissions
+  Add profile to config file.
 
 Options:
-  --dry-run
-  --config PATH   Config path (default ~/.substra).
-  --profile TEXT  Profile name to use.
-  --help          Show this message and exit.
+  --config PATH        Config path (default ~/.substra).
+  --profile TEXT       Profile name to add
+  -k, --insecure       Do not verify SSL certificates
+  -v, --version TEXT
+  -u, --user TEXT
+  -p, --password TEXT
+  --help               Show this message and exit.
 ```
 
 ## substra add data_sample
@@ -152,32 +139,34 @@ Options:
   --help                    Show this message and exit.
 ```
 
-## substra add testtuple
+## substra add algo
 
 ```bash
-Usage: substra add testtuple [OPTIONS]
+Usage: substra add algo [OPTIONS] PATH
 
-  Add testtuple.
+  Add algo.
 
-  The data samples path must point to a valid JSON file with the following
-  schema:
+  The path must point to a valid JSON file with the following schema:
 
   {
-      "keys": list[str],
+      "name": str,
+      "description": path,
+      "file": path,
+      "permissions": str,
   }
 
   Where:
-  - keys: list of data sample keys
+  - name: name of the algorithm
+  - description: path to a markdown file describing the algo
+  - file: path to tar.gz or zip archive containing the algorithm python
+    script and its Dockerfile
+  - permissions: define asset access permissions
 
 Options:
-  --dataset-key TEXT
-  --traintuple-key TEXT     [required]
-  --data-samples-path PATH
   --dry-run
-  --tag
-  --config PATH             Config path (default ~/.substra).
-  --profile TEXT            Profile name to use.
-  --help                    Show this message and exit.
+  --config PATH   Config path (default ~/.substra).
+  --profile TEXT  Profile name to use.
+  --help          Show this message and exit.
 ```
 
 ## substra add traintuple
@@ -209,48 +198,32 @@ Options:
   --help                    Show this message and exit.
 ```
 
-## substra config
+## substra add testtuple
 
 ```bash
-Usage: substra config [OPTIONS] URL
+Usage: substra add testtuple [OPTIONS]
 
-  Add profile to config file.
+  Add testtuple.
 
-Options:
-  --config PATH        Config path (default ~/.substra).
-  --profile TEXT       Profile name to add
-  -k, --insecure       Do not verify SSL certificates
-  -v, --version TEXT
-  -u, --user TEXT
-  -p, --password TEXT
-  --help               Show this message and exit.
-```
+  The data samples path must point to a valid JSON file with the following
+  schema:
 
-## substra describe
+  {
+      "keys": list[str],
+  }
 
-```bash
-Usage: substra describe [OPTIONS] [algo|dataset|objective] ASSET_KEY
-
-  Display asset description.
+  Where:
+  - keys: list of data sample keys
 
 Options:
-  --config PATH   Config path (default ~/.substra).
-  --profile TEXT  Profile name to use.
-  --help          Show this message and exit.
-```
-
-## substra download
-
-```bash
-Usage: substra download [OPTIONS] [algo|dataset|objective] KEY
-
-  Download asset implementation.
-
-Options:
-  --folder PATH   destination folder
-  --config PATH   Config path (default ~/.substra).
-  --profile TEXT  Profile name to use.
-  --help          Show this message and exit.
+  --dataset-key TEXT
+  --traintuple-key TEXT     [required]
+  --data-samples-path PATH
+  --dry-run
+  --tag
+  --config PATH             Config path (default ~/.substra).
+  --profile TEXT            Profile name to use.
+  --help                    Show this message and exit.
 ```
 
 ## substra get
@@ -281,6 +254,33 @@ Usage: substra list [OPTIONS]
 Options:
   --is-complex
   --json          Display output as json
+  --config PATH   Config path (default ~/.substra).
+  --profile TEXT  Profile name to use.
+  --help          Show this message and exit.
+```
+
+## substra describe
+
+```bash
+Usage: substra describe [OPTIONS] [algo|dataset|objective] ASSET_KEY
+
+  Display asset description.
+
+Options:
+  --config PATH   Config path (default ~/.substra).
+  --profile TEXT  Profile name to use.
+  --help          Show this message and exit.
+```
+
+## substra download
+
+```bash
+Usage: substra download [OPTIONS] [algo|dataset|objective] KEY
+
+  Download asset implementation.
+
+Options:
+  --folder PATH   destination folder
   --config PATH   Config path (default ~/.substra).
   --profile TEXT  Profile name to use.
   --help          Show this message and exit.

@@ -16,7 +16,9 @@ def _click_parse_node(name, command, parent, callback):
         callback(ctx.command_path)
         return
 
-    for c in sorted(ctx.command.commands.values(), key=lambda x: x.name):
+    # command definitions are sorted in the python script as required for the
+    # documentation
+    for k, c in ctx.command.commands.items():
         _click_parse_node(c.name, c, ctx, callback)
 
 
@@ -39,14 +41,15 @@ def generate_help(commands, fh):
     def _create_anchor(command):
         return "#{}".format(command.replace(' ', '-'))
 
-    for command in sorted(commands):
+    # XXX order when iterating on commands items must be consistent
+    for command in commands:
         anchor = _create_anchor(command)
         fh.write(f"- [{command}]({anchor})\n")
 
     fh.write("\n\n")
     fh.write(f"# Commands\n\n")
 
-    for command in sorted(commands):
+    for command in commands:
         anchor = _create_anchor(command)
         command_args = command.split(' ')
         command_args.append('--help')

@@ -141,147 +141,6 @@ def add_profile_to_config(url, config, profile, insecure, version, user,
     configuration.add_profile(config, profile, data)
 
 
-@cli.command()
-@click.argument('algo_path')
-# TODO add helper for parameters
-@click.option('--train-opener', type=click.Path(exists=True))
-@click.option('--test-opener', type=click.Path(exists=True))
-@click.option('--metrics', type=click.Path(exists=True))
-@click.option('--rank', type=click.INT, default=0)
-@click.option('--train-data-samples', type=click.Path(exists=True))
-@click.option('--test-data-samples', type=click.Path(exists=True))
-@click.option('--inmodel', type=click.Path(exists=True), multiple=True)
-@click.option('--outmodel', type=click.Path())
-@click.option('--fake-data-samples', is_flag=True)
-def run_local(algo_path, train_opener, test_opener, metrics, rank,
-              train_data_samples, test_data_samples, inmodel, outmodel,
-              fake_data_samples):
-    """Run local."""
-    inmodels = inmodel  # multiple option
-    # TODO merge runner.setup and runner.compute methods
-    config = runner.setup(algo_path,
-                          train_opener,
-                          test_opener,
-                          metrics,
-                          train_data_samples,
-                          test_data_samples,
-                          outmodel)
-    runner.compute(config, rank, inmodels, dry_run=fake_data_samples)
-
-
-@cli.command()
-@click.argument('asset-name', type=click.Choice([
-    assets.ALGO,
-    assets.DATASET,
-    assets.OBJECTIVE,
-    assets.TESTTUPLE,
-    assets.TRAINTUPLE,
-]))
-@click.argument('asset-key')
-@click.option('--expand', is_flag=True)
-@click_option_json
-@click_option_config
-@click_option_profile
-@click.pass_context
-@catch_exceptions
-def get(ctx, asset_name, asset_key, expand, json_output, config, profile):
-    """Get asset definition."""
-    expand_valid_assets = (assets.DATASET, assets.TRAINTUPLE)
-    if expand and asset_name not in expand_valid_assets:  # fail fast
-        raise click.UsageError(
-            f'--expand option is available with assets {expand_valid_assets}')
-
-    client = get_client(config, profile)
-    res = client.get(asset_name, asset_key)
-
-    def _count_data_sample(items):
-        key = 'data sample key'
-        n = len(items)
-        return f'{n} {key}' if n == 1 else f'{n} {key}s'
-
-    if asset_name == assets.DATASET:
-        if not expand:
-            res['trainDataSampleKeys'] = _count_data_sample(
-                res['trainDataSampleKeys'])
-            res['testDataSampleKeys'] = _count_data_sample(
-                res['testDataSampleKeys'])
-
-    elif asset_name == assets.TRAINTUPLE:
-        if expand:
-            # get traintuple associated testtuples
-            # TODO should we also get non certified testtuples?
-            model = client.get(
-                assets.MODEL, asset_key)
-            testtuple = model.get('testtuple')
-            if testtuple:
-                res['testtuples'] = [testtuple]
-
-    parser = parsers.get_parser(asset_name)
-    parser.print_single(res, json_output)
-
-
-@cli.command()
-@click.argument('asset-name', type=click.Choice([
-    assets.ALGO,
-    assets.DATASET,
-    assets.OBJECTIVE,
-]))
-@click.argument('asset-key')
-@click_option_config
-@click_option_profile
-@click.pass_context
-@catch_exceptions
-def describe(ctx, asset_name, asset_key, config, profile):
-    """Display asset description."""
-    client = get_client(config, profile)
-    description = client.describe(asset_name, asset_key)
-    renderer = consolemd.Renderer()
-    renderer.render(description)
-
-
-@cli.command('list')
-@click.argument('asset-name', type=click.Choice([
-    assets.ALGO,
-    assets.DATA_SAMPLE,
-    assets.DATASET,
-    assets.OBJECTIVE,
-    assets.TESTTUPLE,
-    assets.TRAINTUPLE,
-]))
-@click.argument('filters', required=False)
-@click.option('--is-complex', is_flag=True)
-# TODO explain what's the role of is_complex
-@click_option_json
-@click_option_config
-@click_option_profile
-@click.pass_context
-def _list(ctx, asset_name, filters, is_complex, json_output, config, profile):
-    """List assets."""
-    client = get_client(config, profile)
-    res = client.list(asset_name, filters, is_complex)
-    parser = parsers.get_parser(asset_name)
-    parser.print_list(res, json_output)
-
-
-@cli.command()
-@click.argument('asset-name', type=click.Choice([
-    assets.ALGO,
-    assets.DATASET,
-    assets.OBJECTIVE,
-]))
-@click.argument('key')
-@click.option('--folder', type=click.Path(), help='destination folder',
-              default='.')
-@click_option_config
-@click_option_profile
-@click.pass_context
-def download(ctx, asset_name, key, folder, config, profile):
-    """Download asset implementation."""
-    client = get_client(config, profile)
-    res = client.download(asset_name, key, folder)
-    display(res)
-
-
 @cli.group()
 @click.pass_context
 def add(ctx):
@@ -289,36 +148,38 @@ def add(ctx):
     pass
 
 
-@add.command('algo')
+@add.command('data_sample')
 @click.argument('path', type=click.Path(exists=True))
+@click.option('--dataset-key', required=True)
+@click.option('--local/--remote', 'local', is_flag=True, default=True)
+@click.option('--test-only', is_flag=True, default=False)
 @click.option('--dry-run', is_flag=True)
 @click_option_config
 @click_option_profile
 @click.pass_context
-def add_algo(ctx, path, dry_run, config, profile):
-    """Add algo.
+def add_data_sample(ctx, path, dataset_key, local, test_only, dry_run, config,
+                    profile):
+    """Add data sample.
 
     The path must point to a valid JSON file with the following schema:
 
     \b
     {
-        "name": str,
-        "description": path,
-        "file": path,
-        "permissions": str,
+        "paths": list[path],
     }
 
     \b
     Where:
-    - name: name of the algorithm
-    - description: path to a markdown file describing the algo
-    - file: path to tar.gz or zip archive containing the algorithm python
-      script and its Dockerfile
-    - permissions: define asset access permissions
+    - paths: list of paths pointing to data sample archives (if local option)
+      or to data sample directories (if remote option)
     """
     client = get_client(config, profile)
     data = load_json(path)
-    res = client.add(assets.ALGO, data, dry_run)
+    data['data_manager_keys'] = [dataset_key]
+    if test_only:
+        data['test_only'] = True
+    method = client.register if not local else client.add
+    res = method(assets.DATA_SAMPLE, data, dry_run)
     display(res)
 
 
@@ -419,38 +280,36 @@ def add_objective(ctx, path, dataset_key, data_samples_path, dry_run, config,
     display(res)
 
 
-@add.command('data_sample')
+@add.command('algo')
 @click.argument('path', type=click.Path(exists=True))
-@click.option('--dataset-key', required=True)
-@click.option('--local/--remote', 'local', is_flag=True, default=True)
-@click.option('--test-only', is_flag=True, default=False)
 @click.option('--dry-run', is_flag=True)
 @click_option_config
 @click_option_profile
 @click.pass_context
-def add_data_sample(ctx, path, dataset_key, local, test_only, dry_run, config,
-                    profile):
-    """Add data sample.
+def add_algo(ctx, path, dry_run, config, profile):
+    """Add algo.
 
     The path must point to a valid JSON file with the following schema:
 
     \b
     {
-        "paths": list[path],
+        "name": str,
+        "description": path,
+        "file": path,
+        "permissions": str,
     }
 
     \b
     Where:
-    - paths: list of paths pointing to data sample archives (if local option)
-      or to data sample directories (if remote option)
+    - name: name of the algorithm
+    - description: path to a markdown file describing the algo
+    - file: path to tar.gz or zip archive containing the algorithm python
+      script and its Dockerfile
+    - permissions: define asset access permissions
     """
     client = get_client(config, profile)
     data = load_json(path)
-    data['data_manager_keys'] = [dataset_key]
-    if test_only:
-        data['test_only'] = True
-    method = client.register if not local else client.add
-    res = method(assets.DATA_SAMPLE, data, dry_run)
+    res = client.add(assets.ALGO, data, dry_run)
     display(res)
 
 
@@ -541,27 +400,152 @@ def add_testtuple(ctx, dataset_key, traintuple_key,
     display(res)
 
 
+@cli.command()
+@click.argument('asset-name', type=click.Choice([
+    assets.ALGO,
+    assets.DATASET,
+    assets.OBJECTIVE,
+    assets.TESTTUPLE,
+    assets.TRAINTUPLE,
+]))
+@click.argument('asset-key')
+@click.option('--expand', is_flag=True)
+@click_option_json
+@click_option_config
+@click_option_profile
+@click.pass_context
+@catch_exceptions
+def get(ctx, asset_name, asset_key, expand, json_output, config, profile):
+    """Get asset definition."""
+    expand_valid_assets = (assets.DATASET, assets.TRAINTUPLE)
+    if expand and asset_name not in expand_valid_assets:  # fail fast
+        raise click.UsageError(
+            f'--expand option is available with assets {expand_valid_assets}')
+
+    client = get_client(config, profile)
+    res = client.get(asset_name, asset_key)
+
+    def _count_data_sample(items):
+        key = 'data sample key'
+        n = len(items)
+        return f'{n} {key}' if n == 1 else f'{n} {key}s'
+
+    if asset_name == assets.DATASET:
+        if not expand:
+            res['trainDataSampleKeys'] = _count_data_sample(
+                res['trainDataSampleKeys'])
+            res['testDataSampleKeys'] = _count_data_sample(
+                res['testDataSampleKeys'])
+
+    elif asset_name == assets.TRAINTUPLE:
+        if expand:
+            # get traintuple associated testtuples
+            # TODO should we also get non certified testtuples?
+            model = client.get(
+                assets.MODEL, asset_key)
+            testtuple = model.get('testtuple')
+            if testtuple:
+                res['testtuples'] = [testtuple]
+
+    parser = parsers.get_parser(asset_name)
+    parser.print_single(res, json_output)
+
+
+@cli.command('list')
+@click.argument('asset-name', type=click.Choice([
+    assets.ALGO,
+    assets.DATA_SAMPLE,
+    assets.DATASET,
+    assets.OBJECTIVE,
+    assets.TESTTUPLE,
+    assets.TRAINTUPLE,
+]))
+@click.argument('filters', required=False)
+@click.option('--is-complex', is_flag=True)
+# TODO explain what's the role of is_complex
+@click_option_json
+@click_option_config
+@click_option_profile
+@click.pass_context
+def _list(ctx, asset_name, filters, is_complex, json_output, config, profile):
+    """List assets."""
+    client = get_client(config, profile)
+    res = client.list(asset_name, filters, is_complex)
+    parser = parsers.get_parser(asset_name)
+    parser.print_list(res, json_output)
+
+
+@cli.command()
+@click.argument('asset-name', type=click.Choice([
+    assets.ALGO,
+    assets.DATASET,
+    assets.OBJECTIVE,
+]))
+@click.argument('asset-key')
+@click_option_config
+@click_option_profile
+@click.pass_context
+@catch_exceptions
+def describe(ctx, asset_name, asset_key, config, profile):
+    """Display asset description."""
+    client = get_client(config, profile)
+    description = client.describe(asset_name, asset_key)
+    renderer = consolemd.Renderer()
+    renderer.render(description)
+
+
+@cli.command()
+@click.argument('asset-name', type=click.Choice([
+    assets.ALGO,
+    assets.DATASET,
+    assets.OBJECTIVE,
+]))
+@click.argument('key')
+@click.option('--folder', type=click.Path(), help='destination folder',
+              default='.')
+@click_option_config
+@click_option_profile
+@click.pass_context
+def download(ctx, asset_name, key, folder, config, profile):
+    """Download asset implementation."""
+    client = get_client(config, profile)
+    res = client.download(asset_name, key, folder)
+    display(res)
+
+
+@cli.command()
+@click.argument('algo_path')
+# TODO add helper for parameters
+@click.option('--train-opener', type=click.Path(exists=True))
+@click.option('--test-opener', type=click.Path(exists=True))
+@click.option('--metrics', type=click.Path(exists=True))
+@click.option('--rank', type=click.INT, default=0)
+@click.option('--train-data-samples', type=click.Path(exists=True))
+@click.option('--test-data-samples', type=click.Path(exists=True))
+@click.option('--inmodel', type=click.Path(exists=True), multiple=True)
+@click.option('--outmodel', type=click.Path())
+@click.option('--fake-data-samples', is_flag=True)
+def run_local(algo_path, train_opener, test_opener, metrics, rank,
+              train_data_samples, test_data_samples, inmodel, outmodel,
+              fake_data_samples):
+    """Run local."""
+    inmodels = inmodel  # multiple option
+    # TODO merge runner.setup and runner.compute methods
+    config = runner.setup(algo_path,
+                          train_opener,
+                          test_opener,
+                          metrics,
+                          train_data_samples,
+                          test_data_samples,
+                          outmodel)
+    runner.compute(config, rank, inmodels, dry_run=fake_data_samples)
+
+
 @cli.group()
 @click.pass_context
 def update(ctx):
     """Update asset."""
     pass
-
-
-@update.command('dataset')
-@click.argument('dataset-key')
-@click.argument('objective-key')
-@click_option_config
-@click_option_profile
-@click.pass_context
-def update_dataset(ctx, dataset_key, objective_key, config, profile):
-    """Link dataset with objective."""
-    client = get_client(config, profile)
-    data = {
-        'objective_key': objective_key,
-    }
-    res = client.update(assets.DATASET, dataset_key, data)
-    display(res)
 
 
 @update.command('data_sample')
@@ -591,6 +575,22 @@ def update_data_sample(ctx, data_samples_path, dataset_key, config, profile):
         'data_sample_keys': load_data_samples_json(data_samples_path),
     }
     res = client.bulk_update(assets.DATA_SAMPLE, data)
+    display(res)
+
+
+@update.command('dataset')
+@click.argument('dataset-key')
+@click.argument('objective-key')
+@click_option_config
+@click_option_profile
+@click.pass_context
+def update_dataset(ctx, dataset_key, objective_key, config, profile):
+    """Link dataset with objective."""
+    client = get_client(config, profile)
+    data = {
+        'objective_key': objective_key,
+    }
+    res = client.update(assets.DATASET, dataset_key, data)
     display(res)
 
 
