@@ -409,7 +409,10 @@ def add_testtuple(ctx, dataset_key, traintuple_key,
     assets.TRAINTUPLE,
 ]))
 @click.argument('asset-key')
-@click.option('--expand', is_flag=True)
+@click.option(
+    '--expand', is_flag=True,
+    help="Display associated assets (available for dataset and traintuple)."
+)
 @click_option_json
 @click_option_config
 @click_option_profile
@@ -507,7 +510,13 @@ def describe(ctx, asset_name, asset_key, config, profile):
 @click_option_profile
 @click.pass_context
 def download(ctx, asset_name, key, folder, config, profile):
-    """Download asset implementation."""
+    """Download asset implementation.
+
+    \b
+    - algo: the algo and its dependencies
+    - dataset: the opener script
+    - objective: the metrics script
+    """
     client = get_client(config, profile)
     res = client.download(asset_name, key, folder)
     display(res)
