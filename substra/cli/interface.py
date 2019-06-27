@@ -464,8 +464,14 @@ def get(ctx, asset_name, asset_key, expand, json_output, config, profile):
     assets.TRAINTUPLE,
 ]))
 @click.argument('filters', required=False)
-@click.option('--is-complex', is_flag=True)
-# TODO explain what's the role of is_complex
+@click.option(
+    '--is-complex', is_flag=True,
+    help=(
+        "When using filters the server will return a list of assets for "
+        "each filter item. By default these lists are merged into a single "
+        "list. When set, this option disabled the lists aggregation."
+    ),
+)
 @click_option_json
 @click_option_config
 @click_option_profile
