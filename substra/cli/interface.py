@@ -543,7 +543,19 @@ def download(ctx, asset_name, key, folder, config, profile):
 def run_local(algo_path, train_opener, test_opener, metrics, rank,
               train_data_samples, test_data_samples, inmodel, outmodel,
               fake_data_samples):
-    """Run local."""
+    """Run local.
+
+    This command can be used to check that objective, dataset and algo assets
+    implementations are compatible.
+
+    It will execute sequentially 4 tasks in docker:
+
+    \b
+    - train algo using train data samples
+    - get model perf
+    - test model using test data samples
+    - get model perf
+    """
     inmodels = inmodel  # multiple option
     # TODO merge runner.setup and runner.compute methods
     config = runner.setup(algo_path,
