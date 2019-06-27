@@ -1,1 +1,2 @@
 requests==2.21.0
+pydoc-markdown==2.0.5

@@ -15,8 +15,9 @@ class RunTests(Command):
 
     def run(self):
         """Run all tests!"""
-        errno = call(['py.test', '--ignore=tests/e2e'])
+        errno = call(['py.test', 'tests/unit'])
         raise SystemExit(errno)
+
 
 setup(
     name='substra-sdk-py',
@@ -36,4 +37,3 @@ setup(
     },
     cmdclass={'test': RunTests}
 )
-
