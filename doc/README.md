@@ -235,7 +235,8 @@ Usage: substra get [OPTIONS] [algo|dataset|objective|testtuple|traintuple]
   Get asset definition.
 
 Options:
-  --expand
+  --expand        Display associated assets (available for dataset and
+                  traintuple).
   --json          Display output as json
   --config PATH   Config path (default ~/.substra).
   --profile TEXT  Profile name to use.
@@ -252,7 +253,10 @@ Usage: substra list [OPTIONS]
   List assets.
 
 Options:
-  --is-complex
+  --is-complex    When using filters the server will return a list of assets
+                  for each filter item. By default these lists are merged into
+                  a single list. When set, this option disabled the lists
+                  aggregation.
   --json          Display output as json
   --config PATH   Config path (default ~/.substra).
   --profile TEXT  Profile name to use.
@@ -279,6 +283,10 @@ Usage: substra download [OPTIONS] [algo|dataset|objective] KEY
 
   Download asset implementation.
 
+  - algo: the algo and its dependencies
+  - dataset: the opener script
+  - objective: the metrics script
+
 Options:
   --folder PATH   destination folder
   --config PATH   Config path (default ~/.substra).
@@ -292,6 +300,16 @@ Options:
 Usage: substra run-local [OPTIONS] ALGO_PATH
 
   Run local.
+
+  This command can be used to check that objective, dataset and algo assets
+  implementations are compatible.
+
+  It will execute sequentially 4 tasks in docker:
+
+  - train algo using train data samples
+  - get model perf
+  - test model using test data samples
+  - get model perf
 
 Options:
   --train-opener PATH
