@@ -255,7 +255,7 @@ Usage: substra list [OPTIONS]
 Options:
   --is-complex    When using filters the server will return a list of assets
                   for each filter item. By default these lists are merged into
-                  a single list. When set, this option disabled the lists
+                  a single list. When set, this option disables the lists
                   aggregation.
   --json          Display output as json
   --config PATH   Config path (default ~/.substra).

@@ -469,7 +469,7 @@ def get(ctx, asset_name, asset_key, expand, json_output, config, profile):
     help=(
         "When using filters the server will return a list of assets for "
         "each filter item. By default these lists are merged into a single "
-        "list. When set, this option disabled the lists aggregation."
+        "list. When set, this option disables the lists aggregation."
     ),
 )
 @click_option_json
