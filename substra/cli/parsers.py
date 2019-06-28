@@ -4,14 +4,14 @@ import math
 from substra import assets
 
 
-def find_dict_composite_key_value(obj, composite_key):
+def find_dict_composite_key_value(asset_dict, composite_key):
     def _recursive_find(o, keys):
         value = o.get(keys[0])
         if len(keys) == 1:
             return value
         return _recursive_find(value or {}, keys[1:])
 
-    return _recursive_find(obj, composite_key.split('.'))
+    return _recursive_find(asset_dict, composite_key.split('.'))
 
 
 class BaseParser:
@@ -95,12 +95,12 @@ class BaseParser:
         if self.download_message:
             print()
             print(self.download_message)
-            print(f'    substra download {self.asset_name} {key_value}')
+            print(f'\tsubstra download {self.asset_name} {key_value}')
 
         if self.has_description:
             print()
             print('Display this asset description:')
-            print(f'    substra describe {self.asset_name} {key_value}')
+            print(f'\tsubstra describe {self.asset_name} {key_value}')
 
 
 class JsonOnlyParser:
