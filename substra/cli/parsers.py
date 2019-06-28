@@ -5,8 +5,8 @@ from substra import assets
 
 
 def find_dict_composite_key_value(asset_dict, composite_key):
-    def _recursive_find(o, keys):
-        value = o.get(keys[0])
+    def _recursive_find(d, keys):
+        value = d.get(keys[0])
         if len(keys) == 1:
             return value
         return _recursive_find(value or {}, keys[1:])
