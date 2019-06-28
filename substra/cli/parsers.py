@@ -1,78 +1,47 @@
 import json
 import math
-import textwrap
-from functools import wraps
+
 from substra import assets
 
 
-def get_recursive(obj, key):
-    def _inner(o, keys):
-        k, *keys = keys
-        if keys:
-            return _inner(o.get(k) or {}, keys)
-        return o.get(k, None)
+def find_dict_composite_key_value(obj, composite_key):
+    def _recursive_find(o, keys):
+        value = o.get(keys[0])
+        if len(keys) == 1:
+            return value
+        return _recursive_find(value or {}, keys[1:])
 
-    return _inner(obj, key.split('.'))
-
-
-def get_prop_value(obj, key):
-    if callable(key):
-        return key(obj)
-    return get_recursive(obj, key)
-
-
-def handle_raw_option(method):
-    @wraps(method)
-    def print_raw(*args):
-        self, data, raw = args
-        if raw:
-            print(json.dumps(data, indent=2))
-        else:
-            method(self, data)
-
-    return print_raw
+    return _recursive_find(obj, composite_key.split('.'))
 
 
 class BaseParser:
-    asset = ''
-    title_prop = 'name'
-    key_prop = 'key'
+    asset_name = None
+
+    key_field = 'key'
+    many_fields = ()
+    single_fields = ()
 
     download_message = None
     has_description = True
 
-    list_props = ()
-    asset_props = ()
+    def print_list(self, items, raw):
+        """Display many items."""
 
-    @staticmethod
-    def _print_markdown(text, indent):
-        paragraphs = text.splitlines()
-        # first paragraph
-        wrapper = textwrap.TextWrapper(subsequent_indent=' ' * indent, width=70 + indent)
-        lines = wrapper.wrap(paragraphs[0])
-        for line in lines:
-            print(line)
+        if raw:
+            print(json.dumps(items, indent=2))
+            return
 
-        # other paragraphs
-        wrapper.initial_indent = ' ' * indent
-        for paragraph in paragraphs[1:]:
-            if paragraph:
-                lines = wrapper.wrap(paragraph)
-                for line in lines:
-                    print(line)
-            else:
-                print()
-
-    @handle_raw_option
-    def print_list(self, items):
         columns = []
-        props = (('Key', self.key_prop), ('Name', self.title_prop)) + self.list_props
-        for prop in props:
-            column = []
-            prop_name, prop_key = prop
-            column.append(prop_name.upper())
-            for item in items:
-                column.append(str(get_prop_value(item, prop_key)))
+        field_items = (('Key', self.key_field),) + self.many_fields
+        for field_name, field_ref in field_items:
+            values = [
+                str(find_dict_composite_key_value(item, field_ref))
+                for item in items
+            ]
+
+            column = [field_name.upper()]
+            column.extend(values)
+
             columns.append(column)
 
         column_widths = []
@@ -86,22 +55,21 @@ class BaseParser:
                 print(column[row_index].ljust(column_widths[col_index]), end='')
             print()
 
-    def _get_asset_prop_length(self):
-        props = ['key'] + [prop for prop, _ in self.asset_props]
-        max_prop_length = max([len(x) for x in props])
-        prop_length = (math.ceil(max_prop_length / 4) + 1) * 4
-        return prop_length
+    def _get_asset_field_length(self):
+        fields = ['key'] + [field for field, _ in self.single_fields]
+        max_field_length = max([len(x) for x in fields])
+        field_length = (math.ceil(max_field_length / 4) + 1) * 4
+        return field_length
 
-    def _print_single_props(self, item, prop_length):
-        props = (('key', self.key_prop), ('name', self.title_prop)) + self.asset_props
-        for prop in props:
-            prop_name, prop_key = prop
-            name = prop_name.upper().ljust(prop_length)
-            value = get_prop_value(item, prop_key)
+    def _print_single_fields(self, item, field_length):
+        field_items = (('key', self.key_field), ) + self.single_fields
+        for field_name, field_ref in field_items:
+            name = field_name.upper().ljust(field_length)
+            value = find_dict_composite_key_value(item, field_ref)
             if isinstance(value, list):
                 if value:
                     print(name, end='')
-                    padding = ' ' * prop_length
+                    padding = ' ' * field_length
                     for i, v in enumerate(value):
                         if i == 0:
                             print(f'- {v}')
@@ -112,22 +80,27 @@ class BaseParser:
             else:
                 print(f'{name}{value}')
 
-    @handle_raw_option
-    def print_single(self, item):
-        prop_length = self._get_asset_prop_length()
-        self._print_single_props(item, prop_length)
+    def print_single(self, item, raw):
+        """Display single item."""
 
-        key = get_prop_value(item, self.key_prop)
+        if raw:
+            print(json.dumps(item, indent=2))
+            return
+
+        field_length = self._get_asset_field_length()
+        self._print_single_fields(item, field_length)
+
+        key_value = find_dict_composite_key_value(item, self.key_field)
 
         if self.download_message:
             print()
             print(self.download_message)
-            print(f'    substra download {self.asset} {key}')
+            print(f'    substra download {self.asset_name} {key_value}')
 
         if self.has_description:
             print()
             print('Display this asset description:')
-            print(f'    substra describe {self.asset} {key}')
+            print(f'    substra describe {self.asset_name} {key_value}')
 
 
 class JsonOnlyParser:
@@ -143,17 +116,27 @@ class JsonOnlyParser:
 
 
 class AlgoParser(BaseParser):
-    asset = 'algo'
+    asset_name = 'algo'
+
+    many_fields = (
+        ('Name', 'name'),
+    )
+    single_fields = (
+        ('Name', 'name'),
+    )
 
     download_message = 'Download this algorithm\'s code:'
 
 
 class ObjectiveParser(BaseParser):
-    asset = 'objective'
-    list_props = (
+    asset_name = 'objective'
+
+    many_fields = (
+        ('Name', 'name'),
         ('Metrics', 'metrics.name'),
     )
-    asset_props = (
+    single_fields = (
+        ('Name', 'name'),
         ('Metrics', 'metrics.name'),
         ('Test dataset', 'testDataset.dataManagerKey'),
         ('Test data samples', 'testDataset.dataSampleKeys'),
@@ -162,11 +145,14 @@ class ObjectiveParser(BaseParser):
 
 
 class DatasetParser(BaseParser):
-    asset = 'dataset'
-    list_props = (
+    asset_name = 'dataset'
+
+    many_fields = (
+        ('Name', 'name'),
         ('Type', 'type'),
     )
-    asset_props = (
+    single_fields = (
+        ('Name', 'name'),
         ('Objective key', 'objectiveKey'),
         ('Type', 'type'),
         ('Train data sample keys', 'trainDataSampleKeys'),
@@ -176,16 +162,17 @@ class DatasetParser(BaseParser):
 
 
 class TraintupleParser(BaseParser):
-    asset = 'traintuple'
-    title_prop = lambda _, item: f'{get_recursive(item, "algo.name")}-{get_recursive(item, "key")[:4]}'  # noqa: E731, E501
+    asset_name = 'traintuple'
 
-    list_props = (
+    many_fields = (
+        ('Algo name', 'algo.name'),
         ('Status', 'status'),
-        ('Score', 'dataset.perf')
+        ('Score', 'dataset.perf'),
     )
-    asset_props = (
+    single_fields = (
         ('Model key', 'outModel.hash'),
         ('Algo key', 'algo.hash'),
+        ('Algo name', 'algo.name'),
         ('Objective key', 'objective.hash'),
         ('Status', 'status'),
         ('Score', 'dataset.perf'),
@@ -198,16 +185,18 @@ class TraintupleParser(BaseParser):
 
 
 class TesttupleParser(BaseParser):
-    asset = 'testtuple'
-    title_prop = lambda _, item: f'{get_recursive(item, "algo.name")}-{get_recursive(item, "model.traintupleKey")[:4]}'  # noqa: E731, E501
-    list_props = (
+    asset_name = 'testtuple'
+
+    many_fields = (
+        ('Algo name', 'algo.name'),
         ('Certified', 'certified'),
         ('Status', 'status'),
         ('Score', 'dataset.perf')
     )
-    asset_props = (
+    single_fields = (
         ('Traintuple key', 'model.traintupleKey'),
         ('Algo key', 'algo.hash'),
+        ('Algo name', 'algo.name'),
         ('Objective key', 'objective.hash'),
         ('Certified', 'certified'),
         ('Status', 'status'),
