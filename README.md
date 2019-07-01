@@ -9,4 +9,4 @@ Python SDK for interacting with the substrabac project.
 
 Use the following command to generate the client sdk documentation
 
-```pydocmd simple substra_sdk_py+ substra_sdk_py.Client+ > doc/api.md```
+```pydocmd simple substra_sdk_py+ substra_sdk_py.Client+ > docs/api.md```
