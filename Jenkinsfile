@@ -37,6 +37,8 @@ pipeline {
         sh "pip install -r requirements.txt"
         sh "pip install -e .[test]"
         sh "python setup.py test"
+        sh "pydocmd simple substra_sdk_py+ substra_sdk_py.Client+ > docs/api.md.tmp  && cmp --silent docs/api.md docs/api.md.tmp"
+        sh "rm -rf docs/api.md.tmp"
       }
     }
   }
