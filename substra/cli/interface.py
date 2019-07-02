@@ -151,31 +151,40 @@ def add(ctx):
 @add.command('data_sample')
 @click.argument('path', type=click.Path(exists=True))
 @click.option('--dataset-key', required=True)
-@click.option('--local/--remote', 'local', is_flag=True, default=True)
-@click.option('--test-only', is_flag=True, default=False)
+@click.option('--local/--remote', 'local', is_flag=True, default=True,
+              help='Data sample(s) location.')
+@click.option('--multiple', is_flag=True, default=False,
+              help='Add multiple data samples at once.')
+@click.option('--test-only', is_flag=True, default=False,
+              help='Data sample(s) used as test data only.')
 @click.option('--dry-run', is_flag=True)
 @click_option_config
 @click_option_profile
 @click.pass_context
-def add_data_sample(ctx, path, dataset_key, local, test_only, dry_run, config,
-                    profile):
-    """Add data sample.
+def add_data_sample(ctx, path, dataset_key, local, multiple, test_only,
+                    dry_run, config, profile):
+    """Add data sample(s).
 
-    The path must point to a valid JSON file with the following schema:
 
-    \b
-    {
-        "paths": list[path],
-    }
-
-    \b
-    Where:
-    - paths: list of paths pointing to data sample archives (if local option)
-      or to data sample directories (if remote option)
+    The path is either a directory reprensenting a data sample or a parent
+    directory containing data samples directories (if --multiple option is
+    set).
     """
     client = get_client(config, profile)
-    data = load_json(path)
-    data['data_manager_keys'] = [dataset_key]
+    if multiple and local:
+        subdirs = next(os.walk(path))[1]
+        paths = [os.path.join(path, s) for s in subdirs]
+        if not paths:
+            raise click.UsageError(f'No data sample directory in {path}')
+
+    else:
+        paths = [path]
+
+    data = {
+        'paths': paths,
+        'data_manager_keys': [dataset_key],
+        'multiple': multiple,
+    }
     if test_only:
         data['test_only'] = True
     method = client.register if not local else client.add
