@@ -40,22 +40,17 @@ Options:
 ```bash
 Usage: substra add data_sample [OPTIONS] PATH
 
-  Add data sample.
+  Add data sample(s).
 
-  The path must point to a valid JSON file with the following schema:
-
-  {
-      "paths": list[path],
-  }
-
-  Where:
-  - paths: list of paths pointing to data sample archives (if local option)
-    or to data sample directories (if remote option)
+  The path is either a directory reprensenting a data sample or a parent
+  directory containing data samples directories (if --multiple option is
+  set).
 
 Options:
   --dataset-key TEXT  [required]
-  --local / --remote
-  --test-only
+  --local / --remote  Data sample(s) location.
+  --multiple          Add multiple data samples at once.
+  --test-only         Data sample(s) used as test data only.
   --dry-run
   --config PATH       Config path (default ~/.substra).
   --profile TEXT      Profile name to use.
