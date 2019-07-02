@@ -94,7 +94,6 @@ def test_command_get(asset_name, workdir, mocker):
     assert item['key'] in output
 
 
-@pytest.mark.skip(reason="not implemented in sdk")
 def test_command_describe(workdir, mocker):
     response = "My description."
     with mock_client_call(mocker, 'describe', response) as m:
@@ -103,7 +102,6 @@ def test_command_describe(workdir, mocker):
     assert response in output
 
 
-@pytest.mark.skip(reason="not implemented in sdk")
 def test_command_download(workdir, mocker):
     with mock_client_call(mocker, 'download') as m:
         client_execute(workdir, ['download', 'objective', 'fakekey'])
