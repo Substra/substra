@@ -1,7 +1,7 @@
 import json
 import math
 
-from substra import assets
+from substra.sdk import assets
 
 
 def find_dict_composite_key_value(asset_dict, composite_key):

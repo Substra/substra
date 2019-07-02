@@ -6,7 +6,7 @@ Substra CLI and SDK for interacting with substra platform
 To install the command line interface and the python sdk, run the following command:
 
 ```sh
-python setup.py install
+pip install .
 ```
 
 ## Usage

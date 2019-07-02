@@ -3,7 +3,7 @@ import json
 import logging
 import os
 
-from substra_sdk_py.config import default_config
+from substra.sdk.config import default_config
 
 
 logger = logging.getLogger(__name__)

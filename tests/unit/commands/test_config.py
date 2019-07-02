@@ -34,13 +34,13 @@ class TestConfig(TestCase):
     def test_init_config(self):
         with mock.patch('substra.commands.config.open', loaded_file, create=True):
             res = Config({
-                '<url>': 'http://toto.com',
+                '<url>': 'http://foo.com',
                 '<version>': '1.0',
             }).run()
 
             self.assertEqual(res, {
                 'default': {
-                    'url': 'http://toto.com',
+                    'url': 'http://foo.com',
                     'version': '1.0',
                     'insecure': False,
                     'auth': False
@@ -67,14 +67,14 @@ class TestConfig(TestCase):
         with mock.patch('substra.commands.config.open', corrupt_file, create=True):
             with self.assertRaises(ConfigException):
                 Config({
-                    '<url>': 'http://toto.com',
+                    '<url>': 'http://foo.com',
                     '<version>': '1.0',
                 }).run()
 
     def test_init_config_basic_auth(self):
         with mock.patch('substra.commands.config.open', empty_file, create=True):
             res = Config({
-                '<url>': 'http://toto.com',
+                '<url>': 'http://foo.com',
                 '<version>': '0.1',
                 '<user>': 'foo',
                 '<password>': 'bar'
@@ -82,7 +82,7 @@ class TestConfig(TestCase):
 
             self.assertEqual(res, {
                 'default': {
-                    'url': 'http://toto.com',
+                    'url': 'http://foo.com',
                     'version': '0.1',
                     'insecure': False,
                     'auth': {
@@ -110,7 +110,7 @@ class TestConfigOverride(TestCase):
 
     def test_add_profile(self):
         res = Config({
-            '<url>': 'http://toto.com',
+            '<url>': 'http://foo.com',
             '<version>': '1.0',
             '--profile': 'test',
             '--config': '/tmp/.substra_config'
@@ -122,7 +122,7 @@ class TestConfigOverride(TestCase):
                 'version': '0.0',
             },
             'test': {
-                'url': 'http://toto.com',
+                'url': 'http://foo.com',
                 'version': '1.0',
                 'insecure': False,
                 'auth': False,

@@ -130,7 +130,7 @@ class TestList(TestBase):
     @mock.patch('substra_sdk_py.requests_wrapper.requests.get', side_effect=mocked_requests_get_objective_filtered)
     def test_returns_objective_list_bad_filters(self, mock_get):
         try:
-            self.client.list('objective', 'toto')
+            self.client.list('objective', 'foo')
         except Exception as e:
             self.assertEqual(str(e), 'Cannot load filters. Please review the documentation.')
             self.assertEqual(len(mock_get.call_args_list), 0)

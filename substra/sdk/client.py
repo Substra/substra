@@ -2,8 +2,8 @@ from copy import deepcopy
 import logging
 import os
 
-from .config import ConfigManager
-from . import requests_wrapper, utils, exceptions, assets
+from substra.sdk.config import ConfigManager
+from substra.sdk import requests_wrapper, utils, exceptions, assets
 
 logger = logging.getLogger(__name__)
 SIMPLE_ASSETS = [assets.DATA_SAMPLE, assets.TRAINTUPLE, assets.TESTTUPLE]

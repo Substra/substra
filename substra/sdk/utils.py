@@ -11,7 +11,7 @@ from urllib.parse import quote
 
 import ntpath
 
-from . import assets
+from substra.sdk import assets
 
 
 class LoadDataException(Exception):

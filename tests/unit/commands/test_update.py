@@ -22,7 +22,7 @@ class TestUpdate(TestCase):
         with mock.patch('substra.commands.config.config_path', '/tmp/.substra',
                         create=True):
             Config({
-                '<url>': 'http://toto.com',
+                '<url>': 'http://foo.com',
                 '<version>': '1.0',
             }).run()
 

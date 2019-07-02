@@ -53,7 +53,7 @@ class TestAdd(TestCase):
 
         with mock.patch('substra.commands.config.config_path', '/tmp/.substra', create=True):
             Config({
-                '<url>': 'http://toto.com',
+                '<url>': 'http://foo.com',
                 '<version>': '1.0',
             }).run()
 
@@ -196,7 +196,7 @@ class TestAddConfigBasicAuth(TestCase):
 
         with mock.patch('substra.commands.config.config_path', '/tmp/.substra', create=True):
             Config({
-                '<url>': 'http://toto.com',
+                '<url>': 'http://foo.com',
                 '<version>': '1.0',
                 '<user>': 'foo',
                 '<password>': 'bar'
@@ -231,7 +231,7 @@ class TestAddConfigInsecure(TestCase):
 
         with mock.patch('substra.commands.config.config_path', '/tmp/.substra', create=True):
             Config({
-                '<url>': 'http://toto.com',
+                '<url>': 'http://foo.com',
                 '<version>': '1.0',
                 '<user>': 'foo',
                 '<password>': 'bar',

@@ -1,7 +1,7 @@
 import requests
 
-from . import exceptions
-from .config import requests_get_params
+from substra.sdk import exceptions
+from substra.sdk.config import requests_get_params
 
 
 def _req(fn, config, url, **kwargs):
