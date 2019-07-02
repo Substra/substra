@@ -263,8 +263,8 @@ def add_objective(ctx, path, dataset_key, data_samples_path, dry_run, config,
     - metrics: path to the metrics python script
     - permissions: define asset access permissions
 
-    The data samples path must point to a valid JSON file with the following
-    schema:
+    The option --data-samples-path must point to a valid JSON file with the
+    following schema:
 
     \b
     {
@@ -337,8 +337,8 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key,
                    data_samples_path, dry_run, tag, config, profile):
     """Add traintuple.
 
-    The data samples path must point to a valid JSON file with the following
-    schema:
+    The option --data-samples-path must point to a valid JSON file with the
+    following schema:
 
     \b
     {
@@ -381,8 +381,9 @@ def add_testtuple(ctx, dataset_key, traintuple_key,
                   data_samples_path, dry_run, tag, config, profile):
     """Add testtuple.
 
-    The data samples path must point to a valid JSON file with the following
-    schema:
+
+    The option --data-samples-path must point to a valid JSON file with the
+    following schema:
 
     \b
     {

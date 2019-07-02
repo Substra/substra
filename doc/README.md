@@ -115,8 +115,8 @@ Usage: substra add objective [OPTIONS] PATH
   - metrics: path to the metrics python script
   - permissions: define asset access permissions
 
-  The data samples path must point to a valid JSON file with the following
-  schema:
+  The option --data-samples-path must point to a valid JSON file with the
+  following schema:
 
   {
       "keys": list[str],
@@ -171,8 +171,8 @@ Usage: substra add traintuple [OPTIONS]
 
   Add traintuple.
 
-  The data samples path must point to a valid JSON file with the following
-  schema:
+  The option --data-samples-path must point to a valid JSON file with the
+  following schema:
 
   {
       "keys": list[str],
@@ -200,8 +200,8 @@ Usage: substra add testtuple [OPTIONS]
 
   Add testtuple.
 
-  The data samples path must point to a valid JSON file with the following
-  schema:
+  The option --data-samples-path must point to a valid JSON file with the
+  following schema:
 
   {
       "keys": list[str],
