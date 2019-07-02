@@ -1,7 +1,7 @@
 import os
 from unittest import TestCase
 
-from substra_sdk_py.config import ConfigManager
+from substra.sdk.config import ConfigManager
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 

@@ -28,7 +28,7 @@ def mocked_requests_add_objective_fail(*args, **kwargs):
 
 class TestAdd(TestBase):
 
-    @mock.patch('substra_sdk_py.requests_wrapper.requests.post', side_effect=mocked_requests_post_data_manager)
+    @mock.patch('substra.sdk.requests_wrapper.requests.post', side_effect=mocked_requests_post_data_manager)
     def test_add_data_manager(self, mock_get):
         # open data_manager file
         with open(self.data_manager_file_path, 'r') as f:
@@ -40,7 +40,7 @@ class TestAdd(TestBase):
         self.assertEqual(len(mock_get.call_args_list), 1)
         self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
 
-    @mock.patch('substra_sdk_py.requests_wrapper.requests.post', side_effect=mocked_requests_post_data_manager)
+    @mock.patch('substra.sdk.requests_wrapper.requests.post', side_effect=mocked_requests_post_data_manager)
     def test_add_data_manager_invalid_args(self, mock_get):
         try:
             self.client.add('dataset', {})
@@ -49,7 +49,7 @@ class TestAdd(TestBase):
             self.assertEqual(str(e), "The 'data_opener' attribute is missing.")
         self.assertEqual(len(mock_get.call_args_list), 0)
 
-    @mock.patch('substra_sdk_py.requests_wrapper.requests.post', side_effect=mocked_requests_post_objective)
+    @mock.patch('substra.sdk.requests_wrapper.requests.post', side_effect=mocked_requests_post_objective)
     def test_add_objective(self, mock_get):
         # open objective file
         with open(self.objective_file_path, 'r') as f:
@@ -61,7 +61,7 @@ class TestAdd(TestBase):
             self.assertEqual(len(mock_get.call_args_list), 1)
             self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
 
-    @mock.patch('substra_sdk_py.requests_wrapper.requests.post', side_effect=mocked_requests_post_algo)
+    @mock.patch('substra.sdk.requests_wrapper.requests.post', side_effect=mocked_requests_post_algo)
     def test_add_algo(self, mock_get):
         # open algo file
         with open(self.algo_file_path, 'r') as f:
@@ -73,7 +73,7 @@ class TestAdd(TestBase):
             self.assertEqual(len(mock_get.call_args_list), 1)
             self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
 
-    @mock.patch('substra_sdk_py.requests_wrapper.requests.post', side_effect=mocked_requests_post_data_sample)
+    @mock.patch('substra.sdk.requests_wrapper.requests.post', side_effect=mocked_requests_post_data_sample)
     def test_add_data(self, mock_get):
         # open algo file
         with open(self.data_sample_file_path, 'r') as f:
@@ -84,7 +84,7 @@ class TestAdd(TestBase):
             self.assertEqual(res, data_sample)
             self.assertEqual(len(mock_get.call_args_list), 1)
 
-    @mock.patch('substra_sdk_py.requests_wrapper.requests.post', side_effect=mocked_requests_add_objective_fail)
+    @mock.patch('substra.sdk.requests_wrapper.requests.post', side_effect=mocked_requests_add_objective_fail)
     def test_returns_objective_list_fail(self, mock_get):
         with open(self.objective_file_path, 'r') as f:
             data = json.loads(f.read())

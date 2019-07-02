@@ -2,7 +2,7 @@ from unittest import TestCase, mock
 
 import requests
 
-from substra_sdk_py import Client
+from substra.sdk import Client
 
 data_manager = {
     "objectiveKey": "",

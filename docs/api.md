@@ -1,4 +1,4 @@
-# substra_sdk_py
+# substra.sdk
 
 # Client
 ```python

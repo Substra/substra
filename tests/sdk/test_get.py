@@ -18,7 +18,7 @@ def mocked_requests_get_objective_fail(*args, **kwargs):
 
 class TestGet(TestBase):
 
-    @mock.patch('substra_sdk_py.requests_wrapper.requests.get', side_effect=mocked_requests_get_objective)
+    @mock.patch('substra.sdk.requests_wrapper.requests.get', side_effect=mocked_requests_get_objective)
     def test_returns_objective_list(self, mock_get):
         res = self.client.get(
             'objective',
@@ -27,7 +27,7 @@ class TestGet(TestBase):
         self.assertEqual(res, objective)
         self.assertEqual(len(mock_get.call_args_list), 1)
 
-    @mock.patch('substra_sdk_py.requests_wrapper.requests.get', side_effect=mocked_requests_get_objective_fail)
+    @mock.patch('substra.sdk.requests_wrapper.requests.get', side_effect=mocked_requests_get_objective_fail)
     def test_returns_objective_list_fail(self, mock_get):
         try:
             self.client.get(
@@ -39,7 +39,7 @@ class TestGet(TestBase):
 
         self.assertEqual(len(mock_get.call_args_list), 1)
 
-    @mock.patch('substra_sdk_py.requests_wrapper.requests.get', side_effect=mocked_requests_get_data_manager)
+    @mock.patch('substra.sdk.requests_wrapper.requests.get', side_effect=mocked_requests_get_data_manager)
     def test_returns_data_manager_list(self, mock_get):
         res = self.client.get(
             'data_manager',

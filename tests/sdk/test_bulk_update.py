@@ -19,7 +19,7 @@ def mocked_requests_post_data_sample(*args, **kwargs):
 
 class TestBulkUpdate(TestBase):
 
-    @mock.patch('substra_sdk_py.requests_wrapper.requests.post', side_effect=mocked_requests_post_data_sample)
+    @mock.patch('substra.sdk.requests_wrapper.requests.post', side_effect=mocked_requests_post_data_sample)
     def test_bulk_update_data(self, mock_get):
         with open(self.data_samples_file_path, 'r') as f:
             content = json.loads(f.read())

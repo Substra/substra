@@ -79,7 +79,7 @@ def mocked_requests_get_model(*args, **kwargs):
 
 class TestPath(TestBase):
 
-    @mock.patch('substra_sdk_py.requests_wrapper.requests.get', side_effect=mocked_requests_get_model)
+    @mock.patch('substra.sdk.requests_wrapper.requests.get', side_effect=mocked_requests_get_model)
     def test_returns_objective_list(self, mock_get):
         res = self.client.path(
             'model',

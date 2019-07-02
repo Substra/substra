@@ -61,7 +61,7 @@ python bin/generate_cli_documentation.py
 Use the following command to generate the python sdk documentation:
 
 ```sh
-pydocmd simple substra_sdk_py+ substra_sdk_py.Client+ > docs/api.md
+pydocmd simple substra.sdk+ substra.sdk.Client+ > docs/sdk.md
 ```
 
 Documentation will be available in *docs/* directory.

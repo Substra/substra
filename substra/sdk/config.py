@@ -31,7 +31,9 @@ class ConfigManager(object):
     def get(self, profile):
         if profile in self.config:
             return self.config[profile]
-        raise Exception(f'{profile} config does not exist, please create it or use the default one.')
+        raise Exception(
+            f'{profile} config does not exist, please create it or use the default one.'
+        )
 
 
 def requests_get_params(config):
