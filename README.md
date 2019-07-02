@@ -6,9 +6,9 @@ substra-cli
 Getting started
 ---------------
 
-The substra cli depends on `substra-sdk-py`, this package is private and you will have to update your `pip.conf` for handling it.  
-For this you need to have access to `https://substra-pypi.owkin.com/simple/`  
-Ask our current Substra Pypi Server Manager for getting an account.  
+The substra cli depends on `substra-sdk-py`, this package is private and you will have to update your `pip.conf` for handling it.
+For this you need to have access to `https://substra-pypi.owkin.com/simple/`
+Ask our current Substra Pypi Server Manager for getting an account.
 You will then need to put in your newly created virtualenv path, a `pip.conf` file containing:
 ```
 [global]
@@ -43,7 +43,11 @@ To generate the doc run the following command:
 python doc/generate_cli_documentation.py
 ```
 
-Documentation will be available at *doc/README.md*.
+Use the following command to generate the client sdk documentation
+
+```pydocmd simple substra_sdk_py+ substra_sdk_py.Client+ > docs/api.md```
+
+Documentation will be available at *doc/README.md*. #TODO: to be changed
 
 Autocompletion
 --------------

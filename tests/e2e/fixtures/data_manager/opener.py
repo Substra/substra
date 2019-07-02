@@ -11,6 +11,12 @@ PREFIX_Y = "LABEL_"
 SUFFIX_Y = ".csv"
 PRED_FILE = "pred.csv"
 
+# Data Description
+SIZE_X = 450
+SIZE_Y = 600
+SIZE_Z = 3
+CLASSES = 7
+
 
 def check_existing_files(folder, files):
     """check if files from a list of files are located in folder"""
@@ -47,6 +53,11 @@ def get_X(folder):
     return np.array(X)
 
 
+def fake_X(n_sample=10):
+    """Make and return the ISIC like features data as np arrays."""
+    return np.random.randint(low=0, high=256, size=(n_sample, SIZE_X, SIZE_Y, SIZE_Z)).astype('uint8')
+
+
 def get_y(folder):
     """Format and return the ISIC labels as np arrays."""
     print('Finding label files...')
@@ -57,7 +68,12 @@ def get_y(folder):
         with open(os.path.join(folder, f)) as open_f:
             str_y = open_f.readline().split(',')
         y.append([float(yy) for yy in str_y])
-    return np.array(y)
+    return np.array(y, dtype=np.float)
+
+
+def fake_y(n_sample=10):
+    """Make and return the ISIC like labels as np arrays."""
+    return np.eye(CLASSES)[np.arange(n_sample) % CLASSES].astype('uint8')
 
 
 def save_pred(y_pred, folder):
@@ -72,5 +88,4 @@ def get_pred(folder):
     with open(os.path.join(folder, PRED_FILE), "r") as f:
         pred_iter = csv.reader(f)
         pred = [y for y in pred_iter]
-
-    return np.array(pred, copy=False)
+    return np.array(pred, copy=False, dtype=np.float)
