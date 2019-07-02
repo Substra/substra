@@ -7,7 +7,7 @@ import click
 
 from substra.cli.interface import cli
 
-localdir = os.path.dirname(os.path.abspath(__file__))
+local_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 def _click_parse_node(name, command, parent, callback):
@@ -73,7 +73,8 @@ if __name__ == '__main__':
     def _cb(args):
         write_help(args.output_path)
 
-    default_path = os.path.join(localdir, 'README.md')
+    doc_dir = os.path.join(local_dir, '../docs')
+    default_path = os.path.join(doc_dir, 'cli.md')
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--output-path', type=str, default=default_path, required=False)

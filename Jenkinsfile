@@ -38,7 +38,6 @@ pipeline {
         dir("substra-cli") {
           checkout scm
           sh "pip install -r requirements.txt"
-          sh "pip install ."
           sh "pip install flake8"
           sh "flake8 substra"
           sh "pip install -e .[test]"
