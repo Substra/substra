@@ -167,7 +167,7 @@ class TraintupleParser(BaseParser):
     many_fields = (
         ('Algo name', 'algo.name'),
         ('Status', 'status'),
-        ('Score', 'dataset.perf'),
+        ('Perf', 'dataset.perf'),
     )
     single_fields = (
         ('Model key', 'outModel.hash'),
@@ -175,11 +175,12 @@ class TraintupleParser(BaseParser):
         ('Algo name', 'algo.name'),
         ('Objective key', 'objective.hash'),
         ('Status', 'status'),
-        ('Score', 'dataset.perf'),
+        ('Perf', 'dataset.perf'),
         ('Train data sample keys', 'dataset.keys'),
         ('Rank', 'rank'),
         ('FL Task', 'fltask'),
         ('Tag', 'tag'),
+        ('Log', 'log'),
     )
     has_description = False
 
@@ -191,7 +192,7 @@ class TesttupleParser(BaseParser):
         ('Algo name', 'algo.name'),
         ('Certified', 'certified'),
         ('Status', 'status'),
-        ('Score', 'dataset.perf')
+        ('Perf', 'dataset.perf')
     )
     single_fields = (
         ('Traintuple key', 'model.traintupleKey'),
@@ -200,9 +201,10 @@ class TesttupleParser(BaseParser):
         ('Objective key', 'objective.hash'),
         ('Certified', 'certified'),
         ('Status', 'status'),
-        ('Score', 'dataset.perf'),
+        ('Perf', 'dataset.perf'),
         ('Test data sample keys', 'dataset.keys'),
         ('Tag', 'tag'),
+        ('Log', 'log'),
     )
     has_description = False
 
