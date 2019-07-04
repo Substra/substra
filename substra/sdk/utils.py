@@ -11,8 +11,6 @@ from urllib.parse import quote
 
 import ntpath
 
-from substra.sdk import assets
-
 
 class LoadDataException(Exception):
     pass
@@ -24,35 +22,44 @@ def path_leaf(path):
 
 
 @contextlib.contextmanager
-def extract_files(asset, data, extract_data_sample=True):
+def extract_files(data, file_attributes):
     data = copy.deepcopy(data)
-    if asset == assets.DATASET:
-        attributes = ['data_opener', 'description']
-    elif asset == assets.OBJECTIVE:
-        attributes = ['metrics', 'description']
-    elif asset == assets.ALGO:
-        attributes = ['file', 'description']
-    else:
-        attributes = []
 
     paths = {}
-    for attr in attributes:
+    for attr in file_attributes:
         try:
             paths[attr] = data[attr]
         except KeyError:
             raise LoadDataException(f"The '{attr}' attribute is missing.")
         del data[attr]
 
-    # handle data sample specific case; paths and path cases
-    if extract_data_sample and asset == 'data_sample':
-        if data.get('path'):
-            attr = 'path'
-            paths[attr] = data[attr]
-            del data[attr]
+    files = {}
+    for k, f in paths.items():
+        if not os.path.exists(f):
+            raise LoadDataException(f"The '{k}' attribute file ({f}) does not exit.")
+        files[k] = open(f, 'rb')
 
-        for p in list(data.get('paths', [])):
-            paths[path_leaf(p)] = p
-            data['paths'].remove(p)
+    try:
+        yield (data, files)
+    finally:
+        for f in files.values():
+            f.close()
+
+
+@contextlib.contextmanager
+def extract_data_sample_files(data):
+    # handle data sample specific case; paths and path cases
+    data = copy.deepcopy(data)
+
+    paths = {}
+    if data.get('path'):
+        attr = 'path'
+        paths[attr] = data[attr]
+        del data[attr]
+
+    for p in list(data.get('paths', [])):
+        paths[path_leaf(p)] = p
+        data['paths'].remove(p)
 
     files = {}
     for k, f in paths.items():

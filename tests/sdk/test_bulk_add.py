@@ -15,8 +15,8 @@ class TestBulkAdd(TestBase):
     def test_bulk_add_data(self, mock_get):
         # open data file
         with open(self.bulk_data_samples_file_path, 'r') as f:
-            content = json.loads(f.read())
+            data = json.loads(f.read())
 
-        res = self.client.add('data_sample', content)
+        res = self.client.add_data_sample(data)
         self.assertEqual(res, bulk_data_samples)
         self.assertEqual(len(mock_get.call_args_list), 1)

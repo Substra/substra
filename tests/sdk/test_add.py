@@ -34,7 +34,7 @@ class TestAdd(TestBase):
         with open(self.data_manager_file_path, 'r') as f:
             data = json.loads(f.read())
 
-        res = self.client.add('dataset', data)
+        res = self.client.add_dataset(data)
 
         self.assertEqual(res, data_manager)
         self.assertEqual(len(mock_get.call_args_list), 1)
@@ -43,7 +43,7 @@ class TestAdd(TestBase):
     @mock.patch('substra.sdk.requests_wrapper.requests.post', side_effect=mocked_requests_post_data_manager)
     def test_add_data_manager_invalid_args(self, mock_get):
         try:
-            self.client.add('dataset', {})
+            self.client.add_dataset({})
         except Exception as e:
             print(e)
             self.assertEqual(str(e), "The 'data_opener' attribute is missing.")
@@ -55,7 +55,7 @@ class TestAdd(TestBase):
         with open(self.objective_file_path, 'r') as f:
             data = json.loads(f.read())
 
-            res = self.client.add('objective', data)
+            res = self.client.add_objective(data)
 
             self.assertEqual(res, objective)
             self.assertEqual(len(mock_get.call_args_list), 1)
@@ -67,7 +67,7 @@ class TestAdd(TestBase):
         with open(self.algo_file_path, 'r') as f:
             data = json.loads(f.read())
 
-            res = self.client.add('algo', data)
+            res = self.client.add_algo(data)
 
             self.assertEqual(res, algo)
             self.assertEqual(len(mock_get.call_args_list), 1)
@@ -79,7 +79,7 @@ class TestAdd(TestBase):
         with open(self.data_sample_file_path, 'r') as f:
             content = json.loads(f.read())
 
-            res = self.client.add('data_sample', content)
+            res = self.client.add_data_sample(content)
 
             self.assertEqual(res, data_sample)
             self.assertEqual(len(mock_get.call_args_list), 1)
@@ -89,7 +89,7 @@ class TestAdd(TestBase):
         with open(self.objective_file_path, 'r') as f:
             data = json.loads(f.read())
             try:
-                self.client.add('objective', data)
+                self.client.add_objective(data)
             except Exception as e:
                 print(str(e))
                 self.assertEqual(str(e), '500')

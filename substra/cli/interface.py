@@ -156,12 +156,12 @@ def add(ctx):
               help='Add multiple data samples at once.')
 @click.option('--test-only', is_flag=True, default=False,
               help='Data sample(s) used as test data only.')
-@click.option('--dry-run', is_flag=True)
+@click.option('--dry-run', 'dryrun', is_flag=True)
 @click_option_config
 @click_option_profile
 @click.pass_context
 def add_data_sample(ctx, path, dataset_key, local, multiple, test_only,
-                    dry_run, config, profile):
+                    dryrun, config, profile):
     """Add data sample(s).
 
 
@@ -186,19 +186,18 @@ def add_data_sample(ctx, path, dataset_key, local, multiple, test_only,
     }
     if test_only:
         data['test_only'] = True
-    method = client.register if not local else client.add
-    res = method(assets.DATA_SAMPLE, data, dry_run)
+    res = client.add_data_sample(data, local=local, dryrun=dryrun)
     display(res)
 
 
 @add.command('dataset')
 @click.argument('path', type=click.Path(exists=True))
 @click.option('--objective-key')
-@click.option('--dry-run', is_flag=True)
+@click.option('--dry-run', 'dryrun', is_flag=True)
 @click_option_config
 @click_option_profile
 @click.pass_context
-def add_dataset(ctx, path, objective_key, dry_run, config, profile):
+def add_dataset(ctx, path, objective_key, dryrun, config, profile):
     """Add dataset.
 
     The path must point to a valid JSON file with the following schema:
@@ -225,7 +224,7 @@ def add_dataset(ctx, path, objective_key, dry_run, config, profile):
     client = get_client(config, profile)
     data = load_json(path)
     dict_append_to_optional_field(data, 'objective_keys', objective_key)
-    res = client.add(assets.DATASET, data, dry_run)
+    res = client.add_dataset(data, dryrun=dryrun)
     display(res)
 
 
@@ -235,11 +234,11 @@ def add_dataset(ctx, path, objective_key, dry_run, config, profile):
 @click.option('--data-samples-path',
               type=click.Path(exists=True, resolve_path=True),
               help='test data samples')
-@click.option('--dry-run', is_flag=True)
+@click.option('--dry-run', 'dryrun', is_flag=True)
 @click_option_config
 @click_option_profile
 @click.pass_context
-def add_objective(ctx, path, dataset_key, data_samples_path, dry_run, config,
+def add_objective(ctx, path, dataset_key, data_samples_path, dryrun, config,
                   profile):
     """Add objective.
 
@@ -284,17 +283,17 @@ def add_objective(ctx, path, dataset_key, data_samples_path, dry_run, config,
         data_sample_keys = load_data_samples_json(data_samples_path)
         data['test_data_sample_keys'] = data_sample_keys
 
-    res = client.add(assets.OBJECTIVE, data, dry_run)
+    res = client.add_objective(data, dryrun=dryrun)
     display(res)
 
 
 @add.command('algo')
 @click.argument('path', type=click.Path(exists=True))
-@click.option('--dry-run', is_flag=True)
+@click.option('--dry-run', 'dryrun', is_flag=True)
 @click_option_config
 @click_option_profile
 @click.pass_context
-def add_algo(ctx, path, dry_run, config, profile):
+def add_algo(ctx, path, dryrun, config, profile):
     """Add algo.
 
     The path must point to a valid JSON file with the following schema:
@@ -317,7 +316,7 @@ def add_algo(ctx, path, dry_run, config, profile):
     """
     client = get_client(config, profile)
     data = load_json(path)
-    res = client.add(assets.ALGO, data, dry_run)
+    res = client.add_algo(data, dryrun=dryrun)
     display(res)
 
 
@@ -327,13 +326,13 @@ def add_algo(ctx, path, dry_run, config, profile):
 @click.option('--dataset-key', required=True)
 @click.option('--data-samples-path', required=True,
               type=click.Path(exists=True, resolve_path=True))
-@click.option('--dry-run', is_flag=True)
+@click.option('--dry-run', 'dryrun', is_flag=True)
 @click.option('--tag', is_flag=True)
 @click_option_config
 @click_option_profile
 @click.pass_context
 def add_traintuple(ctx, objective_key, algo_key, dataset_key,
-                   data_samples_path, dry_run, tag, config, profile):
+                   data_samples_path, dryrun, tag, config, profile):
     """Add traintuple.
 
     The option --data-samples-path must point to a valid JSON file with the
@@ -362,7 +361,7 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key,
 
     if tag:
         data['tag'] = tag
-    res = client.add(assets.TRAINTUPLE, data, dry_run)
+    res = client.add_traintuple(data, dryrun=dryrun)
     display(res)
 
 
@@ -371,13 +370,13 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key,
 @click.option('--traintuple-key', required=True)
 @click.option('--data-samples-path',
               type=click.Path(exists=True, resolve_path=True))
-@click.option('--dry-run', is_flag=True)
+@click.option('--dry-run', 'dryrun', is_flag=True)
 @click.option('--tag', is_flag=True)
 @click_option_config
 @click_option_profile
 @click.pass_context
 def add_testtuple(ctx, dataset_key, traintuple_key,
-                  data_samples_path, dry_run, tag, config, profile):
+                  data_samples_path, dryrun, tag, config, profile):
     """Add testtuple.
 
 
@@ -405,7 +404,7 @@ def add_testtuple(ctx, dataset_key, traintuple_key,
 
     if tag:
         data['tag'] = tag
-    res = client.add(assets.TESTTUPLE, data, dry_run)
+    res = client.add_testtuple(data, dryrun=dryrun)
     display(res)
 
 

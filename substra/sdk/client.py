@@ -75,9 +75,10 @@ class Client(object):
 
         return res
 
-    def add(self, asset, data, dryrun=False, timeout=False):
+    def _add(self, asset, data, files=None, dryrun=False, timeout=False):
         """Add asset."""
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
+        files = files or {}
         if 'permissions' not in data:
             data['permissions'] = 'all'
 
@@ -85,24 +86,45 @@ class Client(object):
             data['dryrun'] = True
 
         url = self._get_asset_url(asset)
+        return self._post(asset, url, data, files, timeout)
 
-        with utils.extract_files(asset, data) as (data, files):
-            return self._post(asset, url, data, files, timeout)
+    def add_data_sample(self, data, local=True, dryrun=False, timeout=False):
+        """Create new data sample asset(s)."""
+        if not local:
+            return self._add(assets.DATA_SAMPLE, data, dryrun=dryrun, timeout=timeout)
 
-    def register(self, asset, data, dryrun=False, timeout=False):
-        """Register asset."""
-        data = deepcopy(data)  # make a deep copy for avoiding modification by reference
-        if 'permissions' not in data:
-            data['permissions'] = 'all'
+        with utils.extract_data_sample_files(data) as (data, files):
+            return self._add(
+                assets.DATASET, data, files=files, dryrun=dryrun, timeout=timeout)
 
-        if dryrun:
-            data['dryrun'] = True
+    def add_dataset(self, data, dryrun=False, timeout=False):
+        """Create new dataset asset."""
+        attributes = ['data_opener', 'description']
+        with utils.extract_files(data, attributes) as (data, files):
+            return self._add(
+                assets.DATASET, data, files=files, dryrun=dryrun, timeout=timeout)
 
-        url = self._get_asset_url(asset)
+    def add_objective(self, data, dryrun=False, timeout=False):
+        """Create new objective asset."""
+        attributes = ['metrics', 'description']
+        with utils.extract_files(data, attributes) as (data, files):
+            return self._add(
+                assets.OBJECTIVE, data, files=files, dryrun=dryrun, timeout=timeout)
 
-        with utils.extract_files(asset, data, extract_data_sample=False) \
-                as (data, files):
-            return self._post(asset, url, data, files, timeout)
+    def add_algo(self, data, dryrun=False, timeout=False):
+        """Create new algo asset."""
+        attributes = ['file', 'description']
+        with utils.extract_files(data, attributes) as (data, files):
+            return self._add(
+                assets.ALGO, data, files=files, dryrun=dryrun, timeout=timeout)
+
+    def add_traintuple(self, data, dryrun=False, timeout=False):
+        """Create new traintuple asset."""
+        return self._add(assets.TRAINTUPLE, data, dryrun=dryrun, timeout=timeout)
+
+    def add_testtuple(self, data, dryrun=False, timeout=False):
+        """Create new testtuple asset."""
+        return self._add(assets.TESTTUPLE, data, dryrun=dryrun, timeout=timeout)
 
     def get(self, asset, pkhash):
         """Get asset by key."""
