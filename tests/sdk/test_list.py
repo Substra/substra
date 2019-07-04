@@ -87,7 +87,7 @@ class TestList(TestBase):
     @mock.patch('substra.sdk.requests_wrapper.requests.get', side_effect=mocked_requests_get_objective)
     def test_returns_objective_list(self, mock_get):
 
-        res = self.client.list('objective')
+        res = self.client.list_objective()
 
         self.assertEqual(res, flatten(objective))
         self.assertEqual(len(mock_get.call_args_list), 1)
@@ -95,7 +95,7 @@ class TestList(TestBase):
     @mock.patch('substra.sdk.requests_wrapper.requests.get', side_effect=mocked_requests_list_objective_fail)
     def test_returns_objective_list_fail(self, mock_get):
         try:
-            self.client.list('objective')
+            self.client.list_objective()
         except Exception as e:
             self.assertEqual(str(e), '500')
 
@@ -104,7 +104,7 @@ class TestList(TestBase):
     @mock.patch('substra.sdk.requests_wrapper.requests.get', side_effect=mocked_requests_get_data_manager)
     def test_returns_data_manager_list(self, mock_get):
 
-        res = self.client.list('data_manager')
+        res = self.client.list_dataset()
 
         self.assertEqual(res, flatten(data_manager))
         self.assertEqual(len(mock_get.call_args_list), 1)
@@ -112,7 +112,7 @@ class TestList(TestBase):
     @mock.patch('substra.sdk.requests_wrapper.requests.get', side_effect=mocked_requests_get_data_manager_no_json)
     def test_returns_data_manager_list_no_json(self, mock_get):
         try:
-            self.client.list('data_manager')
+            self.client.list_dataset()
         except Exception as e:
             self.assertEqual(str(e), 'Can\'t decode response value from server to json.')
         self.assertEqual(len(mock_get.call_args_list), 1)
@@ -120,8 +120,7 @@ class TestList(TestBase):
     @mock.patch('substra.sdk.requests_wrapper.requests.get', side_effect=mocked_requests_get_objective_filtered)
     def test_returns_objective_list_filters(self, mock_get):
 
-        res = self.client.list(
-            'objective',
+        res = self.client.list_objective(
             '["objective:name:Skin Lesion Classification Challenge", "OR", "data_manager:name:Simplified ISIC 2018"]')
 
         self.assertEqual(res, flatten(objective))
@@ -130,7 +129,7 @@ class TestList(TestBase):
     @mock.patch('substra.sdk.requests_wrapper.requests.get', side_effect=mocked_requests_get_objective_filtered)
     def test_returns_objective_list_bad_filters(self, mock_get):
         try:
-            self.client.list('objective', 'foo')
+            self.client.list_objective('foo')
         except Exception as e:
             self.assertEqual(str(e), 'Cannot load filters. Please review the documentation.')
             self.assertEqual(len(mock_get.call_args_list), 0)

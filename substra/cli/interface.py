@@ -434,7 +434,9 @@ def get(ctx, asset_name, asset_key, expand, json_output, config, profile):
             f'--expand option is available with assets {expand_valid_assets}')
 
     client = get_client(config, profile)
-    res = client.get(asset_name, asset_key)
+    # method must exist in sdk
+    method = getattr(client, f'get_{asset_name.lower()}')
+    res = method(asset_key)
 
     def _count_data_sample(items):
         key = 'data sample key'
@@ -487,7 +489,9 @@ def get(ctx, asset_name, asset_key, expand, json_output, config, profile):
 def _list(ctx, asset_name, filters, is_complex, json_output, config, profile):
     """List assets."""
     client = get_client(config, profile)
-    res = client.list(asset_name, filters, is_complex)
+    # method must exist in sdk
+    method = getattr(client, f'list_{asset_name.lower()}')
+    res = method(asset_name, filters, is_complex)
     parser = parsers.get_parser(asset_name)
     parser.print_list(res, json_output)
 
@@ -506,7 +510,9 @@ def _list(ctx, asset_name, filters, is_complex, json_output, config, profile):
 def describe(ctx, asset_name, asset_key, config, profile):
     """Display asset description."""
     client = get_client(config, profile)
-    description = client.describe(asset_name, asset_key)
+    # method must exist in sdk
+    method = getattr(client, f'describe_{asset_name.lower()}')
+    description = method(asset_name, asset_key)
     renderer = consolemd.Renderer()
     renderer.render(description)
 
@@ -532,7 +538,9 @@ def download(ctx, asset_name, key, folder, config, profile):
     - objective: the metrics script
     """
     client = get_client(config, profile)
-    res = client.download(asset_name, key, folder)
+    # method must exist in sdk
+    method = getattr(client, f'download_{asset_name.lower()}')
+    res = method(asset_name, key, folder)
     display(res)
 
 
@@ -605,11 +613,8 @@ def update_data_sample(ctx, data_samples_path, dataset_key, config, profile):
     - keys: list of data sample keys
     """
     client = get_client(config, profile)
-    data = {
-        'data_manager_keys': [dataset_key],
-        'data_sample_keys': load_data_samples_json(data_samples_path),
-    }
-    res = client.bulk_update(assets.DATA_SAMPLE, data)
+    data_sample_keys = load_data_samples_json(data_samples_path)
+    res = client.link_dataset_with_data_samples(dataset_key, data_sample_keys)
     display(res)
 
 
@@ -622,10 +627,7 @@ def update_data_sample(ctx, data_samples_path, dataset_key, config, profile):
 def update_dataset(ctx, dataset_key, objective_key, config, profile):
     """Link dataset with objective."""
     client = get_client(config, profile)
-    data = {
-        'objective_key': objective_key,
-    }
-    res = client.update(assets.DATASET, dataset_key, data)
+    res = client.link_dataset_with_objective(dataset_key, objective_key)
     display(res)
 
 
