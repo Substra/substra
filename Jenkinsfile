@@ -47,8 +47,11 @@ pipeline {
 
         dir("substra-cli") {
           checkout scm
+          sh "pip install flake8"
+          sh "flake8 substra"
           sh "pip install -e .[test]"
           sh "python setup.py test"
+          sh "python doc/generate_cli_documentation.py --output-path doc/README.md.tmp && cmp --silent doc/README.md doc/README.md.tmp"
         }
       }
     }

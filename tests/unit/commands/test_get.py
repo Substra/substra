@@ -4,7 +4,7 @@ from unittest import TestCase, mock
 
 from substra.commands import Get, Config
 
-data_manager = {
+dataset = {
     "objectiveKeys": [],
     "description": {
         "hash": "7a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
@@ -80,22 +80,22 @@ class TestGet(TestCase):
         self.assertEqual(len(mock_get.call_args_list), 1)
 
     @mock.patch('substra.commands.api.Client.get',
-                return_value=mocked_client_get_asset(data_manager, 200))
-    def test_returns_data_manager_get(self, mock_get):
+                return_value=mocked_client_get_asset(dataset, 200))
+    def test_returns_dataset_get(self, mock_get):
         res = Get({
-            '<asset>': 'data_manager',
+            '<asset>': 'dataset',
             '<pkhash>': 'ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994',
         }).run()
 
         self.assertEqual(json.loads(res)['status_code'], 200)
-        self.assertEqual(json.loads(res)['result'], data_manager)
+        self.assertEqual(json.loads(res)['result'], dataset)
         self.assertEqual(len(mock_get.call_args_list), 1)
 
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
 class TestGetConfigBasicAuth(TestCase):
     def setUp(self):
-        self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
+        self.dataset_file_path = './tests/assets/data_manager/data_manager.json'
 
         with mock.patch('substra.commands.config.config_path', '/tmp/.substra',
                         create=True):
@@ -128,7 +128,7 @@ class TestGetConfigBasicAuth(TestCase):
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
 class TestGetConfigInsecure(TestCase):
     def setUp(self):
-        self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
+        self.dataset_file_path = './tests/assets/data_manager/data_manager.json'
 
         with mock.patch('substra.commands.config.config_path', '/tmp/.substra',
                         create=True):

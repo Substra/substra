@@ -5,7 +5,7 @@ from unittest import TestCase, mock
 from substra.commands import List, Config
 from substra.commands.list import flatten
 
-data_manager = [
+dataset = [
     [
         {
             "objectiveKeys": [],
@@ -102,21 +102,21 @@ class TestList(TestCase):
 
         self.assertEqual(len(mock_list.call_args_list), 1)
 
-    @mock.patch('substra.commands.api.Client.list', return_value=mocked_client_list_asset(data_manager, 200))
-    def test_returns_data_manager_list(self, mock_list):
+    @mock.patch('substra.commands.api.Client.list', return_value=mocked_client_list_asset(dataset, 200))
+    def test_returns_dataset_list(self, mock_list):
 
         res = List({
-            '<asset>': 'data_manager'
+            '<asset>': 'dataset'
         }).run()
 
         self.assertEqual(json.loads(res)['status_code'], 200)
-        self.assertEqual(json.loads(res)['result'], flatten(data_manager))
+        self.assertEqual(json.loads(res)['result'], flatten(dataset))
         self.assertEqual(len(mock_list.call_args_list), 1)
 
     @mock.patch('substra.commands.api.Client.list', side_effect=Exception('fail'))
-    def test_returns_data_manager_list_no_json(self, mock_list):
+    def test_returns_dataset_list_no_json(self, mock_list):
         with self.assertRaises(Exception) as e:
-            List({'<asset>': 'data_manager'}).run()
+            List({'<asset>': 'dataset'}).run()
             self.assertTrue(str(e) == 'Can\'t decode response value from server to json.')
         self.assertEqual(len(mock_list.call_args_list), 1)
 
@@ -136,7 +136,7 @@ class TestList(TestCase):
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
 class TestListConfigBasicAuth(TestCase):
     def setUp(self):
-        self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
+        self.dataset_file_path = './tests/assets/data_manager/data_manager.json'
 
         with mock.patch('substra.commands.config.config_path', '/tmp/.substra', create=True):
             Config({
@@ -167,7 +167,7 @@ class TestListConfigBasicAuth(TestCase):
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
 class TestListConfigInsecure(TestCase):
     def setUp(self):
-        self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
+        self.dataset_file_path = './tests/assets/data_manager/data_manager.json'
 
         with mock.patch('substra.commands.config.config_path', '/tmp/.substra', create=True):
             Config({

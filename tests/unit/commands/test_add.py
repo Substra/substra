@@ -6,8 +6,9 @@ import sys
 from unittest import TestCase, mock
 
 from substra.commands import Add, Config
+from substra.commands.config import ConfigException
 
-data_manager = {
+dataset = {
     "objectiveKey": "",
     "description": {"hash": "7a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
                     "storageAddress": "http://127.0.0.1:8001/data_manager/ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994/description/"},
@@ -45,7 +46,7 @@ def mocked_client_add(asset, st):
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
 class TestAdd(TestCase):
     def setUp(self):
-        self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
+        self.dataset_file_path = './tests/assets/data_manager/data_manager.json'
         self.objective_file_path = './tests/assets/objective/objective.json'
         self.algo_file_path = './tests/assets/algo/algo.json'
         self.data_sample_file_path = './tests/assets/data/data_sample.json'
@@ -62,38 +63,38 @@ class TestAdd(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.api.Client.add', return_value=mocked_client_add(data_manager, 201))
-    def test_add_data_manager(self, mock_add):
-        # open data_manager file
-        with open(self.data_manager_file_path, 'r') as f:
+    @mock.patch('substra.commands.api.Client.add', return_value=mocked_client_add(dataset, 201))
+    def test_add_dataset(self, mock_add):
+        # open dataset file
+        with open(self.dataset_file_path, 'r') as f:
             data = f.read()
 
             res = Add({
-                '<asset>': 'data_manager',
+                '<asset>': 'dataset',
                 '<args>': data,
             }).run()
 
             self.assertEqual(json.loads(res)['status_code'], 201)
-            self.assertEqual(json.loads(res)['result'], data_manager)
+            self.assertEqual(json.loads(res)['result'], dataset)
             self.assertEqual(len(mock_add.call_args_list), 1)
 
-    @mock.patch('substra.commands.api.Client.add', return_value=mocked_client_add(data_manager, 201))
-    def test_add_data_manager_from_file(self, mock_add):
+    @mock.patch('substra.commands.api.Client.add', return_value=mocked_client_add(dataset, 201))
+    def test_add_dataset_from_file(self, mock_add):
 
         res = Add({
-            '<asset>': 'data_manager',
-            '<args>': self.data_manager_file_path,
+            '<asset>': 'dataset',
+            '<args>': self.dataset_file_path,
         }).run()
 
         self.assertEqual(json.loads(res)['status_code'], 201)
-        self.assertEqual(json.loads(res)['result'], data_manager)
+        self.assertEqual(json.loads(res)['result'], dataset)
         self.assertEqual(len(mock_add.call_args_list), 1)
 
-    @mock.patch('substra.commands.api.Client.add', return_value=mocked_client_add(data_manager, 201))
-    def test_add_data_manager_invalid_args(self, mock_add):
+    @mock.patch('substra.commands.api.Client.add', return_value=mocked_client_add(dataset, 201))
+    def test_add_dataset_invalid_args(self, mock_add):
         with self.assertRaises(Exception) as e:
             Add({
-                '<asset>': 'data_manager',
+                '<asset>': 'dataset',
                 '<args>': 'test',
             }).run()
             self.assertEqual(str(e), 'Invalid args. Please review help')
@@ -164,34 +165,26 @@ class TestAdd(TestCase):
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
 class TestAddNoConfig(TestCase):
     def setUp(self):
-        self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
+        self.dataset_file_path = './tests/assets/data_manager/data_manager.json'
         try:
             os.remove('/tmp/.substra')
         except:
             pass
 
-    @mock.patch('substra.commands.api.Client.add', return_value=mocked_client_add(data_manager, 201))
-    def test_add_data_manager(self, mock_add):
-        # open data_manager file
-        with open(self.data_manager_file_path, 'r') as f:
+    @mock.patch('substra.commands.api.Client.add', return_value=mocked_client_add(dataset, 201))
+    def test_add_dataset(self, mock_add):
+        # open dataset file
+        with open(self.dataset_file_path, 'r') as f:
             data = f.read()
-
-            saved_stdout = sys.stdout
 
             out = StringIO()
             sys.stdout = out
 
-            with self.assertRaises(SystemExit) as se:
+            with self.assertRaises(ConfigException):
                 Add({
-                    '<asset>': 'data_manager',
+                    '<asset>': 'dataset',
                     '<args>': data,
                 }).run()
-
-                self.assertEqual(se.exception.code, 1)
-
-            e = out.getvalue().strip()
-            sys.stdout = saved_stdout
-            self.assertEqual(str(e), 'No config file "/tmp/.substra" found, please run "substra config <url> [<version>] [--profile=<profile>] [--config=<configuration_file_path>]"')
 
             self.assertEqual(len(mock_add.call_args_list), 0)
 
@@ -199,7 +192,7 @@ class TestAddNoConfig(TestCase):
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
 class TestAddConfigBasicAuth(TestCase):
     def setUp(self):
-        self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
+        self.dataset_file_path = './tests/assets/data_manager/data_manager.json'
 
         with mock.patch('substra.commands.config.config_path', '/tmp/.substra', create=True):
             Config({
@@ -215,26 +208,26 @@ class TestAddConfigBasicAuth(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.api.Client.add', return_value=mocked_client_add(data_manager, 201))
-    def test_add_data_manager(self, mock_add):
-        # open data_manager file
-        with open(self.data_manager_file_path, 'r') as f:
+    @mock.patch('substra.commands.api.Client.add', return_value=mocked_client_add(dataset, 201))
+    def test_add_dataset(self, mock_add):
+        # open dataset file
+        with open(self.dataset_file_path, 'r') as f:
             data = f.read()
 
             res = Add({
-                '<asset>': 'data_manager',
+                '<asset>': 'dataset',
                 '<args>': data,
             }).run()
 
             self.assertEqual(json.loads(res)['status_code'], 201)
-            self.assertEqual(json.loads(res)['result'], data_manager)
+            self.assertEqual(json.loads(res)['result'], dataset)
             self.assertEqual(len(mock_add.call_args_list), 1)
 
 
 @mock.patch('substra.commands.api.config_path', '/tmp/.substra', create=True)
 class TestAddConfigInsecure(TestCase):
     def setUp(self):
-        self.data_manager_file_path = './tests/assets/data_manager/data_manager.json'
+        self.dataset_file_path = './tests/assets/data_manager/data_manager.json'
 
         with mock.patch('substra.commands.config.config_path', '/tmp/.substra', create=True):
             Config({
@@ -251,17 +244,17 @@ class TestAddConfigInsecure(TestCase):
         except:
             pass
 
-    @mock.patch('substra.commands.api.Client.add', return_value=mocked_client_add(data_manager, 201))
-    def test_add_data_manager(self, mock_add):
-        # open data_manager file
-        with open(self.data_manager_file_path, 'r') as f:
+    @mock.patch('substra.commands.api.Client.add', return_value=mocked_client_add(dataset, 201))
+    def test_add_dataset(self, mock_add):
+        # open dataset file
+        with open(self.dataset_file_path, 'r') as f:
             data = f.read()
 
             res = Add({
-                '<asset>': 'data_manager',
+                '<asset>': 'dataset',
                 '<args>': data,
             }).run()
 
             self.assertEqual(json.loads(res)['status_code'], 201)
-            self.assertEqual(json.loads(res)['result'], data_manager)
+            self.assertEqual(json.loads(res)['result'], dataset)
             self.assertEqual(len(mock_add.call_args_list), 1)
