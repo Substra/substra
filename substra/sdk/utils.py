@@ -1,5 +1,6 @@
 import contextlib
 import copy
+import io
 import itertools
 import functools
 import json
@@ -8,6 +9,7 @@ import time
 import os
 import re
 from urllib.parse import quote
+import zipfile
 
 import ntpath
 
@@ -46,26 +48,41 @@ def extract_files(data, file_attributes):
             f.close()
 
 
+def zip_folder(fp, path):
+    zipf = zipfile.ZipFile(fp, 'w', zipfile.ZIP_DEFLATED)
+    for root, dirs, files in os.walk(path):
+        for f in files:
+            zipf.write(os.path.join(root, f))
+    zipf.close()
+
+
+def zip_folder_in_memory(path):
+    fp = io.BytesIO()
+    zip_folder(fp, path)
+    fp.seek(0)
+    return fp
+
+
 @contextlib.contextmanager
 def extract_data_sample_files(data):
     # handle data sample specific case; paths and path cases
     data = copy.deepcopy(data)
 
-    paths = {}
+    folders = {}
     if data.get('path'):
         attr = 'path'
-        paths[attr] = data[attr]
+        folders[attr] = data[attr]
         del data[attr]
 
     for p in list(data.get('paths', [])):
-        paths[path_leaf(p)] = p
+        folders[path_leaf(p)] = p
         data['paths'].remove(p)
 
     files = {}
-    for k, f in paths.items():
-        if not os.path.exists(f):
-            raise LoadDataException(f"The '{k}' attribute file ({f}) does not exit.")
-        files[k] = open(f, 'rb')
+    for k, f in folders.items():
+        if not os.path.isdir(f):
+            raise LoadDataException(f"Paths '{f}' is not an existing directory")
+        files[k] = zip_folder_in_memory(f)
 
     try:
         yield (data, files)
