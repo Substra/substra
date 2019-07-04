@@ -144,6 +144,10 @@ class ObjectiveParser(BaseParser):
     download_message = 'Download this objective\'s metric:'
 
 
+class DataSampleParser(BaseParser):
+    asset_name = 'data sample'
+
+
 class DatasetParser(BaseParser):
     asset_name = 'dataset'
 
@@ -213,6 +217,7 @@ PARSERS = {
     assets.ALGO: AlgoParser,
     assets.OBJECTIVE: ObjectiveParser,
     assets.DATASET: DatasetParser,
+    assets.DATA_SAMPLE: DataSampleParser,
     assets.TRAINTUPLE: TraintupleParser,
     assets.TESTTUPLE: TesttupleParser,
 }
