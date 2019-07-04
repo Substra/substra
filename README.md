@@ -65,3 +65,12 @@ pydocmd simple substra.sdk+ substra.sdk.Client+ > docs/sdk.md
 ```
 
 Documentation will be available in *docs/* directory.
+
+
+### Deploy
+
+```sh
+rm -rf dist/*
+python3 setup.py sdist bdist_wheel
+twine upload dist/* --repository-url https://substra-pypi.owkin.com/ --verbose
+```
