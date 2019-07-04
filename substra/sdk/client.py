@@ -95,7 +95,7 @@ class Client(object):
 
         with utils.extract_data_sample_files(data) as (data, files):
             return self._add(
-                assets.DATASET, data, files=files, dryrun=dryrun, timeout=timeout)
+                assets.DATA_SAMPLE, data, files=files, dryrun=dryrun, timeout=timeout)
 
     def add_dataset(self, data, dryrun=False, timeout=False):
         """Create new dataset asset."""
@@ -230,7 +230,7 @@ class Client(object):
 
         Download opener script in destination folder.
         """
-        data = self.get(assets.DATASET, asset_key)
+        data = self.get_dataset(asset_key)
         # download opener file
         default_filename = 'opener.py'
         url = data['opener']['storageAddress']
@@ -241,7 +241,7 @@ class Client(object):
 
         Download algo package in destination folder.
         """
-        data = self.get(assets.ALGO, asset_key)
+        data = self.get_algo(asset_key)
         # download algo package
         default_filename = 'algo.tar.gz'
         url = data['content']['storageAddress']
@@ -252,7 +252,7 @@ class Client(object):
 
         Download metrics script in destination folder.
         """
-        data = self.get(assets.OBJECTIVE, asset_key)
+        data = self.get_objective(asset_key)
         # download metrics script
         default_filename = 'metrics.py'
         url = data['metrics']['storageAddress']
@@ -260,7 +260,7 @@ class Client(object):
 
     def _describe(self, asset, asset_key):
         """Get asset description."""
-        data = self.get(asset, asset_key)
+        data = self._get(asset, asset_key)
         url = data['description']['storageAddress']
         r = requests_wrapper.raw_get(self.config, url)
         return r.text

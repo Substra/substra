@@ -491,7 +491,7 @@ def _list(ctx, asset_name, filters, is_complex, json_output, config, profile):
     client = get_client(config, profile)
     # method must exist in sdk
     method = getattr(client, f'list_{asset_name.lower()}')
-    res = method(asset_name, filters, is_complex)
+    res = method(filters, is_complex)
     parser = parsers.get_parser(asset_name)
     parser.print_list(res, json_output)
 
@@ -512,7 +512,7 @@ def describe(ctx, asset_name, asset_key, config, profile):
     client = get_client(config, profile)
     # method must exist in sdk
     method = getattr(client, f'describe_{asset_name.lower()}')
-    description = method(asset_name, asset_key)
+    description = method(asset_key)
     renderer = consolemd.Renderer()
     renderer.render(description)
 
@@ -540,7 +540,7 @@ def download(ctx, asset_name, key, folder, config, profile):
     client = get_client(config, profile)
     # method must exist in sdk
     method = getattr(client, f'download_{asset_name.lower()}')
-    res = method(asset_name, key, folder)
+    res = method(key, folder)
     display(res)
 
 
