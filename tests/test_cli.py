@@ -28,7 +28,7 @@ def client_execute(tmpdir, command, exit_code=0):
     if '--config' not in command:
         cfgpath = tmpdir / 'substra.cfg'
         profile = {
-            'url': 'http://toto',
+            'url': 'http://foo',
             'version': '0.0',
             'insecure': False,
             'auth': False,
@@ -53,8 +53,8 @@ def test_command_config(workdir):
 
     assert cfgfile.exists() is False
 
-    new_url = 'http://toto'
-    new_profile = 'toto'
+    new_url = 'http://foo'
+    new_profile = 'foo'
     execute([
         'config',
         new_url,
@@ -67,12 +67,12 @@ def test_command_config(workdir):
     # has been created
     with cfgfile.open() as fp:
         cfg = json.load(fp)
-    expected_profiles = ['default', 'toto']
+    expected_profiles = ['default', 'foo']
     assert list(cfg.keys()) == expected_profiles
 
 
 def mock_client_call(mocker, method_name, response=""):
-    return mocker.patch(f'substra.cli.interface.sb.Client.{method_name}',
+    return mocker.patch(f'substra.cli.interface.sdk.Client.{method_name}',
                         return_value=response)
 
 
@@ -94,7 +94,6 @@ def test_command_get(asset_name, workdir, mocker):
     assert item['key'] in output
 
 
-@pytest.mark.skip(reason="not implemented in sdk")
 def test_command_describe(workdir, mocker):
     response = "My description."
     with mock_client_call(mocker, 'describe', response) as m:
@@ -103,7 +102,6 @@ def test_command_describe(workdir, mocker):
     assert response in output
 
 
-@pytest.mark.skip(reason="not implemented in sdk")
 def test_command_download(workdir, mocker):
     with mock_client_call(mocker, 'download') as m:
         client_execute(workdir, ['download', 'objective', 'fakekey'])

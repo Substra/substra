@@ -1,63 +1,76 @@
-substra-cli
-===========
+# Substra
 
-*Substra CLI for interacting with substrabac*
+Substra CLI and SDK for interacting with substra platform
 
-Getting started
----------------
+## Getting started
+To install the command line interface and the python sdk, run the following command:
 
-The substra cli depends on `substra-sdk-py`, this package is private and you will have to update your `pip.conf` for handling it.  
-For this you need to have access to `https://substra-pypi.owkin.com/simple/`  
-Ask our current Substra Pypi Server Manager for getting an account.  
-You will then need to put in your newly created virtualenv path, a `pip.conf` file containing:
-```
-[global]
-index-url = https://<user>:<pass>@substra-pypi.owkin.com/simple/
+```sh
+pip install .
 ```
 
+## Usage
 
-If you've cloned this project, and want to install the library (*and
-all development dependencies*), the command you'll want to run is:
-
-    $ pip install -e .[test]
-
-If you'd like to run all tests for this project, you would run the following command:
-
-    $ python setup.py test
-
-This will trigger [py.test](http://pytest.org/latest/), along with its
-popular [coverage](https://pypi.python.org/pypi/pytest-cov) plugin.
-
-Usage
------
-
-	$ substra --help
-
-Documentation
--------------
-
-The markdown documentation is generated from the client commands help messages.
-To generate the doc run the following command:
-
-```bash
-python doc/generate_cli_documentation.py
+```sh
+substra --help
 ```
 
-Documentation will be available at *doc/README.md*.
+## Documentation
 
-Autocompletion
---------------
+- [Command line interface](docs/cli.md)
+- [SDK](docs/sdk.md)
 
+## Autocompletion
 To enable Bash completion, you need to put into your .bashrc:
 
-```bash
+```sh
 eval "$(_SUBSTRA_COMPLETE=source substra)"
 ```
 
 For zsh users add this to your .zshrc:
 
-```bash
+```sh
 eval "$(_SUBSTRA_COMPLETE=source_zsh substra)"
 ```
 
-From this point onwards, substra client will have autocompletion enabled.
+From this point onwards, substra command line interface will have autocompletion enabled.
+
+## Contributing
+### Setup
+
+To setup the project in development mode, run:
+
+```sh
+pip install -e .[test]
+```
+
+To run all tests, use the following command:
+
+```sh
+python setup.py test
+```
+
+### Documentation
+
+To generate the command line interface documentation, run the following command:
+
+```sh
+python bin/generate_cli_documentation.py
+```
+
+Use the following command to generate the python sdk documentation:
+
+```sh
+pydocmd simple substra.sdk+ substra.sdk.Client+ > docs/sdk.md
+```
+
+Documentation will be available in *docs/* directory.
+
+
+### Deploy
+
+```sh
+rm -rf dist/*
+python3 setup.py sdist bdist_wheel
+twine upload dist/* --repository-url https://substra-pypi.owkin.com/ --verbose
+```

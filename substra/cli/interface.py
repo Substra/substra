@@ -4,18 +4,17 @@ import os
 
 import click
 import consolemd
-import substra_sdk_py as sb
 
-from substra import __version__
-from substra import assets, runner
+from substra import __version__, runner, sdk
 from substra import config as configuration
 from substra.cli import parsers
+from substra.sdk import assets
 
 
 def get_client(config_path, profile_name):
     """Initialize substra client from config file and profile name."""
     profile = configuration.load_profile(config_path, profile_name)
-    client = sb.Client()
+    client = sdk.Client()
     client.create_config(profile=profile_name, **profile)
     client.set_config(profile_name)
     return client
@@ -86,10 +85,10 @@ def catch_exceptions(f):
         except click.ClickException:
             raise
 
-        except (sb.exceptions.ConnectionError, sb.exceptions.Timeout) as e:
+        except (sdk.exceptions.ConnectionError, sdk.exceptions.Timeout) as e:
             raise click.ClickException(str(e))
 
-        except sb.exceptions.HTTPError as e:
+        except sdk.exceptions.HTTPError as e:
             try:
                 error = e.response.json()
             except ValueError:

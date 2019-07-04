@@ -11,6 +11,7 @@ PREFIX_Y = "LABEL_"
 SUFFIX_Y = ".csv"
 PRED_FILE = "pred.csv"
 
+
 def check_existing_files(folder, files):
     """check if files from a list of files are located in folder"""
     for fname in files:
@@ -71,4 +72,5 @@ def get_pred(folder):
     with open(os.path.join(folder, PRED_FILE), "r") as f:
         pred_iter = csv.reader(f)
         pred = [y for y in pred_iter]
+
     return np.array(pred, copy=False)

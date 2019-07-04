@@ -1,9 +1,10 @@
 import os
 import json
-import docker
 import time
 import shutil
 import hashlib
+
+import docker
 
 METRICS_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                             './run_local_materials/metrics')
