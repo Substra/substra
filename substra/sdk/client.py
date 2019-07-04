@@ -143,11 +143,6 @@ class Client(object):
             result = utils.flatten(result)
         return result
 
-    def path(self, asset, pkhash, path):
-        """Get asset path."""
-        url = self._get_asset_url(asset, pkhash, path)
-        return requests_wrapper.get(self.config, url)
-
     def update(self, asset, pkhash, data):
         """Update asset by key."""
         url = self._get_asset_url(asset, pkhash, 'update_ledger')
