@@ -1,1 +1,0 @@
-# Create project default objective description
