@@ -20,10 +20,10 @@ substra --help
 ### SDK
 
 ```python
-import substra as sb
+import substra
 
-client = sb.Client()
-...
+client = substra.Client()
+# enjoy...
 ```
 
 ## Documentation
