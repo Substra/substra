@@ -4,22 +4,23 @@ import os
 
 from setuptools import setup, find_packages
 
-from substra import __version__
-
-current_dir = os.path.abspath(os.path.dirname(__file__))
+here = os.path.abspath(os.path.dirname(__file__))
 
 
-def read_readme_file():
-    path = os.path.join(current_dir, 'README.md')
-    with open(path, encoding='utf-8') as fp:
-        return fp.read()
+with open(os.path.join(here, 'README.md'), 'r', 'utf-8') as fp:
+    readme = fp.read()
+
+
+about = {}
+with open(os.path.join(here, 'substra', '__version__.py'), 'r', 'utf-8') as fp:
+    exec(fp.read(), about)
 
 
 setup(
     name='substra',
-    version=__version__,
+    version=about['__version__'],
     description='Substra CLI for interacting with substrabac',
-    long_description=read_readme_file(),
+    long_description=readme,
     url='https://github.com/SubstraFoundation/substra-cli',
     author='Owkin, Substra team',
     author_email='substra@owkin.com',
