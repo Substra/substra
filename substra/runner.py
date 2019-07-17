@@ -39,7 +39,7 @@ def setup(algo_path,
           metrics_file_path,
           train_data_samples_path,
           test_data_samples_path,
-          outmodel_path,
+          outmodel_path='model',
           compute_path='./sandbox',
           local_path='local'):
 
@@ -59,8 +59,6 @@ def setup(algo_path,
         _get_relpath(algo_path, '../dataset/data-samples/')
     test_data_samples_path = test_data_samples_path or \
         _get_relpath(algo_path, '../objective/data-samples/')
-    outmodel_path = outmodel_path or \
-        _get_relpath(algo_path, '')
 
     def _get_abspath(path):
         if path:  # path may be None
@@ -174,6 +172,7 @@ def compute(config, rank, inmodels, dry_run=False):
                train_pred_path: VOLUME_PRED,
                local_path: VOLUME_LOCAL,
                train_opener_file: VOLUME_OPENER}
+
     if not dry_run:
         volumes[train_data_path] = VOLUME_DATA
 

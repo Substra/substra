@@ -547,10 +547,9 @@ def download(ctx, asset_name, key, folder, config, profile):
 @click.option('--train-data-samples', type=click.Path(exists=True))
 @click.option('--test-data-samples', type=click.Path(exists=True))
 @click.option('--inmodel', type=click.Path(exists=True), multiple=True)
-@click.option('--outmodel', type=click.Path())
 @click.option('--fake-data-samples', is_flag=True)
 def run_local(algo_path, train_opener, test_opener, metrics, rank,
-              train_data_samples, test_data_samples, inmodel, outmodel,
+              train_data_samples, test_data_samples, inmodel,
               fake_data_samples):
     """Run local.
 
@@ -564,6 +563,14 @@ def run_local(algo_path, train_opener, test_opener, metrics, rank,
     - get model perf
     - test model using test data samples
     - get model perf
+
+    \b
+    It will create several output files:
+    - sandbox/model/model
+    - sandbox/pred_train/perf.json
+    - sandbox/pred_train/pred
+    - sandbox/pred_test/perf.json
+    - sandbox/pred_test/pred
     """
     inmodels = inmodel  # multiple option
     # TODO merge runner.setup and runner.compute methods
@@ -572,8 +579,7 @@ def run_local(algo_path, train_opener, test_opener, metrics, rank,
                           test_opener,
                           metrics,
                           train_data_samples,
-                          test_data_samples,
-                          outmodel)
+                          test_data_samples)
     runner.compute(config, rank, inmodels, dry_run=fake_data_samples)
 
 
