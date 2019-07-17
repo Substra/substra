@@ -9,3 +9,5 @@ prune build
 prune dist
 recursive-exclude *.egg-info *
 recursive-include tests *
+
+include substra/run_local_materials *
