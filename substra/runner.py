@@ -189,12 +189,16 @@ def compute(config, rank, inmodels, dry_run=False):
 
         for inmodel in inmodels:
             src = os.path.abspath(inmodel)
-            model_hash = hashlib.sha256(src)
+            model_hash = hashlib.sha256(src.encode()).hexdigest()
             dst = os.path.join(outmodel_path, model_hash)
-            os.symlink(src, dst)
+            os.link(src, dst)
+            print(f"Creating model symlink from {src} to {dst}")
             model_keys.append(model_hash)
 
-        command += ' '.join(model_keys)
+        if model_keys:
+            models_command = ' '.join(model_keys)
+            command += f" {models_command}"
+
     _docker_run(docker_client, docker_algo_tag, command=command,
                 volumes=volumes)
 
