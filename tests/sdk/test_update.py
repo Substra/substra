@@ -20,8 +20,7 @@ class TestUpdate(TestBase):
         with open(self.data_manager_file_path, 'r') as f:
             content = json.loads(f.read())
 
-        res = self.client.update(
-            'data_manager',
+        res = self.client.update_dataset(
             '62fb3263208d62c7235a046ee1d80e25512fe782254b730a9e566276b8c0ef3a',
             content)
 

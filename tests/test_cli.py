@@ -79,7 +79,8 @@ def mock_client_call(mocker, method_name, response=""):
 @pytest.mark.parametrize('asset_name', ['objective', 'dataset'])
 def test_command_list(asset_name, workdir, mocker):
     item = getattr(datastore, asset_name.upper())
-    with mock_client_call(mocker, 'list', [item]) as m:
+    method_name = f'list_{asset_name}'
+    with mock_client_call(mocker, method_name, [item]) as m:
         output = client_execute(workdir, ['list', asset_name])
     assert m.is_called()
     assert item['key'] in output
@@ -88,7 +89,8 @@ def test_command_list(asset_name, workdir, mocker):
 @pytest.mark.parametrize('asset_name', ['objective', 'dataset'])
 def test_command_get(asset_name, workdir, mocker):
     item = getattr(datastore, asset_name.upper())
-    with mock_client_call(mocker, 'get', item) as m:
+    method_name = f'get_{asset_name}'
+    with mock_client_call(mocker, method_name, item) as m:
         output = client_execute(workdir, ['get', asset_name, 'fakekey'])
     assert m.is_called()
     assert item['key'] in output
@@ -96,20 +98,20 @@ def test_command_get(asset_name, workdir, mocker):
 
 def test_command_describe(workdir, mocker):
     response = "My description."
-    with mock_client_call(mocker, 'describe', response) as m:
+    with mock_client_call(mocker, 'describe_objective', response) as m:
         output = client_execute(workdir, ['describe', 'objective', 'fakekey'])
     assert m.is_called()
     assert response in output
 
 
 def test_command_download(workdir, mocker):
-    with mock_client_call(mocker, 'download') as m:
+    with mock_client_call(mocker, 'download_objective') as m:
         client_execute(workdir, ['download', 'objective', 'fakekey'])
     assert m.is_called()
 
 
 def test_command_update_dataset(workdir, mocker):
-    with mock_client_call(mocker, 'update') as m:
+    with mock_client_call(mocker, 'update_dataset') as m:
         client_execute(workdir, ['update', 'dataset', 'key1', 'key2'])
     assert m.is_called()
 
@@ -122,7 +124,7 @@ def test_command_update_data_sample(workdir, mocker):
     with data_samples_path.open(mode='w') as fp:
         json.dump(data_samples, fp)
 
-    with mock_client_call(mocker, 'bulk_update') as m:
+    with mock_client_call(mocker, 'link_dataset_with_data_samples') as m:
         client_execute(
             workdir, ['update', 'data_sample', str(data_samples_path), 'key1'])
     assert m.is_called()
