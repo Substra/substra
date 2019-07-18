@@ -11,8 +11,19 @@ pip install .
 
 ## Usage
 
+### CLI
+
 ```sh
 substra --help
+```
+
+### SDK
+
+```python
+import substra
+
+client = substra.Client()
+# enjoy...
 ```
 
 ## Documentation
