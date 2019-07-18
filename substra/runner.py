@@ -9,7 +9,7 @@ import docker
 
 METRICS_PATH = pkg_resources.resource_filename(
     'substra',
-    'run_local_materials/metrics/Dockerfile')
+    'run_local_materials/metrics')
 
 USER = os.getuid()
 
