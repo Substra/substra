@@ -52,7 +52,9 @@ def zip_folder(fp, path):
     zipf = zipfile.ZipFile(fp, 'w', zipfile.ZIP_DEFLATED)
     for root, dirs, files in os.walk(path):
         for f in files:
-            zipf.write(os.path.join(root, f))
+            abspath = os.path.join(root, f)
+            archive_path = os.path.relpath(abspath, start=path)
+            zipf.write(abspath, arcname=archive_path)
     zipf.close()
 
 
