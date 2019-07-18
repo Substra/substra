@@ -306,6 +306,13 @@ Usage: substra run-local [OPTIONS] ALGO_PATH
   - test model using test data samples
   - get model perf
 
+  It will create several output files:
+  - sandbox/model/model
+  - sandbox/pred_train/perf.json
+  - sandbox/pred_train/pred
+  - sandbox/pred_test/perf.json
+  - sandbox/pred_test/pred
+
 Options:
   --train-opener PATH
   --test-opener PATH
@@ -314,7 +321,6 @@ Options:
   --train-data-samples PATH
   --test-data-samples PATH
   --inmodel PATH
-  --outmodel PATH
   --fake-data-samples
   --help                     Show this message and exit.
 ```
