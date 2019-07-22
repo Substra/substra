@@ -41,6 +41,7 @@ setup(
     ],
     keywords=['cli', 'substra'],
     packages=find_packages(exclude=['docs', 'tests*']),
+    include_package_data=True,
     install_requires=['click', 'requests', 'docker', 'consolemd'],
     setup_requires=['pytest-runner'],
     tests_require=['pytest', 'pytest-cov', 'pytest-mock'],
@@ -49,4 +50,5 @@ setup(
             'substra=substra.cli.interface:cli',
         ],
     },
+    zip_safe=False,
 )

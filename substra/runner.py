@@ -1,13 +1,15 @@
 import os
 import json
-import time
 import shutil
+import pkg_resources
+import time
 import hashlib
 
 import docker
 
-METRICS_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                            './run_local_materials/metrics')
+METRICS_PATH = pkg_resources.resource_filename(
+    'substra',
+    'run_local_materials/metrics')
 
 USER = os.getuid()
 
