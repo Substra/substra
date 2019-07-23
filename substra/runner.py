@@ -75,14 +75,6 @@ def setup(algo_path,
     config['test_data_path'] = _get_abspath(test_data_samples_path)
     config['metrics_file'] = _get_abspath(metrics_file_path)
 
-    # check config values
-    for key in config.keys():
-        path = config[key]
-        if path and not os.path.exists(path):
-            key_name = key.replace('_', ' ')
-            raise Exception(f"Cannot launch local run: {key_name} {path} "
-                            f"doesn't exist")
-
     # sandbox
     run_local_path = _get_abspath(compute_path)
 
