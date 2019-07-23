@@ -13,8 +13,8 @@ METRICS_PATH = pkg_resources.resource_filename(
 
 USER = os.getuid()
 
-METRICS_NO_DRY_RUN = 0
-METRICS_FAKE_Y = 1
+METRICS_NO_DRY_RUN = "DISABLED"
+METRICS_FAKE_Y = "FAKE_Y"
 
 VOLUME_OUTPUT_MODEL = {'bind': '/sandbox/model', 'mode': 'rw'}
 VOLUME_OPENER = {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}
@@ -32,7 +32,7 @@ def _create_directory(directory):
 
 def _get_metrics_command(dry_run=False):
     mode = METRICS_FAKE_Y if dry_run else METRICS_NO_DRY_RUN
-    return f'-c "import substratools as tools; tools.metrics.execute(dry_run={mode})"'
+    return f"metrics/__init__.py --dry-run-mode {mode}"
 
 
 def setup(algo_path,

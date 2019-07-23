@@ -1,9 +1,3 @@
-FROM eu.gcr.io/substra-208412/substratools
-
-RUN mkdir -p /sandbox
-RUN mkdir -p /sandbox/opener
-RUN mkdir -p /sandbox/metrics
+FROM eu.gcr.io/substra-208412/substratools:0.0.1
 WORKDIR /sandbox
-
 ENTRYPOINT ["python3"]
-CMD ["-c", "import substratools as tools; tools.metrics.execute()"]
