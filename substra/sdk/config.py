@@ -34,16 +34,3 @@ class ConfigManager(object):
         raise Exception(
             f'{profile} config does not exist, please create it or use the default one.'
         )
-
-
-def requests_get_params(config):
-    """Return requests kwargs and params based on user config."""
-    kwargs = {}
-    if config['auth']:
-        kwargs.update({'auth': (config['auth']['user'], config['auth']['password'])})
-    if config['insecure']:
-        kwargs.update({'verify': False})
-
-    headers = {'Accept': 'application/json;version=%s' % config['version']}
-
-    return kwargs, headers

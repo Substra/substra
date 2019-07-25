@@ -3,16 +3,16 @@ import logging
 import os
 
 from substra.sdk.config import ConfigManager
-from substra.sdk import requests_wrapper, utils, exceptions, assets
+from substra.sdk import utils, assets, rest_client
 
 logger = logging.getLogger(__name__)
-SIMPLE_ASSETS = [assets.DATA_SAMPLE, assets.TRAINTUPLE, assets.TESTTUPLE]
 
 
 class Client(object):
     def __init__(self):
         self._configManager = ConfigManager()
         self.config = self._configManager.get('default')
+        self.client = rest_client.Client(self.config)
 
     def create_config(self, profile, url='http://127.0.0.1:8000',
                       version='0.0', auth=False, insecure=False):
@@ -32,49 +32,6 @@ class Client(object):
         """Get current config profile."""
         return self.config
 
-    def _get_url(self, *parts):
-        """Build url from config and list of strings."""
-        url_parts = [self.config['url']]
-        url_parts.extend(parts)
-        url = '/'.join(url_parts)
-        return f'{url}/'  # django requires a suffix /
-
-    def _get_asset_url(self, asset_name, *parts):
-        """Build url from config and list of strings."""
-        asset_name = assets.to_server_name(asset_name)
-        parts = list(parts)
-        parts.insert(0, asset_name)
-        return self._get_url(*parts)
-
-    def _post(self, asset, url, data, files, timeout):
-        """Helper to do a POST request to the backend.
-
-        In case of timeout, block till object is created.
-        """
-        try:
-            res = requests_wrapper.post(self.config, url, data, files=files)
-
-        except exceptions.RequestTimeout as e:
-            # XXX could be handled directly by the backend (async create)
-            logger.warning(
-                'Request timeout, will block till asset is available')
-            key = e.pkhash
-            is_many = isinstance(key, list)
-            if not timeout or is_many:
-                # FIXME timeout on many objects is too complicated to handle.
-                #       avoid operation on many objects:
-                #       https://github.com/SubstraFoundation/substra-sdk-py/issues/25
-                raise e
-            # TODO retry only on NotFound exceptions when backend has been fixed:
-            #      https://github.com/SubstraFoundation/substrabac/issues/196
-            retry = utils.retry_on_exception(
-                exceptions=(exceptions.NotFound, exceptions.InvalidRequest),
-                timeout=float(timeout),
-            )
-            res = retry(self.get)(asset, key)
-
-        return res
-
     def _add(self, asset, data, files=None, dryrun=False, timeout=False):
         """Add asset."""
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
@@ -85,8 +42,7 @@ class Client(object):
         if dryrun:
             data['dryrun'] = True
 
-        url = self._get_asset_url(asset)
-        return self._post(asset, url, data, files, timeout)
+        return self.client.add(asset, retry_timeout=timeout, data=data, files=files)
 
     def add_data_sample(self, data, local=True, dryrun=False, timeout=False):
         """Create new data sample asset(s)."""
@@ -126,71 +82,58 @@ class Client(object):
         """Create new testtuple asset."""
         return self._add(assets.TESTTUPLE, data, dryrun=dryrun, timeout=timeout)
 
-    def _get(self, asset, asset_key):
-        """Get asset by key."""
-        url = self._get_asset_url(asset, asset_key)
-        return requests_wrapper.get(self.config, url)
-
     def get_algo(self, algo_key):
         """Get algo by key."""
-        return self._get(assets.ALGO, algo_key)
+        return self.client.get(assets.ALGO, algo_key)
 
     def get_dataset(self, dataset_key):
         """Get dataset by key."""
-        return self._get(assets.DATASET, dataset_key)
+        return self.client.get(assets.DATASET, dataset_key)
 
     def get_objective(self, objective_key):
         """Get objective by key."""
-        return self._get(assets.OBJECTIVE, objective_key)
+        return self.client.get(assets.OBJECTIVE, objective_key)
 
     def get_testtuple(self, testtuple_key):
         """Get testtuple by key."""
-        return self._get(assets.TESTTUPLE, testtuple_key)
+        return self.client.get(assets.TESTTUPLE, testtuple_key)
 
     def get_traintuple(self, traintuple_key):
         """Get traintuple by key."""
-        return self._get(assets.TRAINTUPLE, traintuple_key)
-
-    def _list(self, asset, filters=None, is_complex=False):
-        """List assets."""
-        kwargs = {}
-        if filters:
-            kwargs['params'] = utils.parse_filters(filters)
-
-        url = self._get_asset_url(asset)
-        result = requests_wrapper.get(self.config, url, **kwargs)
-        if not is_complex and asset not in SIMPLE_ASSETS:
-            result = utils.flatten(result)
-        return result
+        return self.client.get(assets.TRAINTUPLE, traintuple_key)
 
     def list_algo(self, filters=None, is_complex=False):
         """List algos."""
-        return self._list(assets.ALGO, filters=filters, is_complex=is_complex)
+        return self.client.list(assets.ALGO, filters=filters)
 
     def list_data_sample(self, filters=None, is_complex=False):
         """List data samples."""
-        return self._list(assets.DATA_SAMPLE, filters=filters, is_complex=is_complex)
+        return self.client.list(assets.DATA_SAMPLE, filters=filters)
 
     def list_dataset(self, filters=None, is_complex=False):
         """List datasets."""
-        return self._list(assets.DATASET, filters=filters, is_complex=is_complex)
+        return self.client.list(assets.DATASET, filters=filters)
 
     def list_objective(self, filters=None, is_complex=False):
         """List objectives."""
-        return self._list(assets.OBJECTIVE, filters=filters, is_complex=is_complex)
+        return self.client.list(assets.OBJECTIVE, filters=filters)
 
     def list_testtuple(self, filters=None, is_complex=False):
         """List testtuples."""
-        return self._list(assets.TESTTUPLE, filters=filters, is_complex=is_complex)
+        return self.client.list(assets.TESTTUPLE, filters=filters)
 
     def list_traintuple(self, filters=None, is_complex=False):
         """List traintuples."""
-        return self._list(assets.TRAINTUPLE, filters=filters, is_complex=is_complex)
+        return self.client.list(assets.TRAINTUPLE, filters=filters)
 
     def update_dataset(self, dataset_key, data):
         """Update dataset."""
-        url = self._get_asset_url(assets.DATASET, dataset_key, 'update_ledger')
-        return requests_wrapper.post(self.config, url, data)
+        return self.client.request(
+            'post',
+            assets.DATASET,
+            path=f"{dataset_key}/update_ledger/",
+            data=data,
+        )
 
     def link_dataset_with_objective(self, dataset_key, objective_key):
         """Link dataset with objective."""
@@ -199,21 +142,25 @@ class Client(object):
 
     def link_dataset_with_data_samples(self, dataset_key, data_sample_keys):
         """Link dataset with data samples."""
-        url = self._get_asset_url(assets.DATA_SAMPLE, 'bulk_update')
         data = {
             'data_manager_keys': [dataset_key],
             'data_sample_keys': data_sample_keys,
         }
-        return requests_wrapper.post(self.config, url, data)
+        return self.client.request(
+            'post',
+            assets.DATA_SAMPLE,
+            path="bulk_update/",
+            data=data,
+        )
 
     def _download(self, url, destination_folder, default_filename):
         """Download request content in destination file.
 
         Destination folder must exist.
         """
-        r = requests_wrapper.raw_get(self.config, url, stream=True)
+        response = self.client.get_data(url, stream=True)
 
-        destination_filename = utils.response_get_destination_filename(r)
+        destination_filename = utils.response_get_destination_filename(response)
         if not destination_filename:
             destination_filename = default_filename
         destination_path = os.path.join(destination_folder,
@@ -221,7 +168,7 @@ class Client(object):
 
         chunk_size = 1024
         with open(destination_path, 'wb') as f:
-            for chunk in r.iter_content(chunk_size):
+            for chunk in response.iter_content(chunk_size):
                 f.write(chunk)
         return destination_path
 
@@ -260,9 +207,9 @@ class Client(object):
 
     def _describe(self, asset, asset_key):
         """Get asset description."""
-        data = self._get(asset, asset_key)
+        data = self.client.get(asset, asset_key)
         url = data['description']['storageAddress']
-        r = requests_wrapper.raw_get(self.config, url)
+        r = self.client.get_data(url)
         return r.text
 
     def describe_algo(self, asset_key):
