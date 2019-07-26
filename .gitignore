@@ -12,3 +12,7 @@ sdist/
 .cache
 .coverage
 .pytest_cache/
+
+# Developer environments
+.idea
+.vscode
