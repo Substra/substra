@@ -27,13 +27,8 @@ def client_execute(tmpdir, command, exit_code=0):
     # force using a new config file and a new profile
     if '--config' not in command:
         cfgpath = tmpdir / 'substra.cfg'
-        profile = {
-            'url': 'http://foo',
-            'version': '0.0',
-            'insecure': False,
-            'auth': False,
-        }
-        substra.config.add_profile(str(cfgpath), 'default', profile)
+        substra.sdk.config.Manager(str(cfgpath)).add_profile(
+            'default', url='http://foo')
         command.extend(['--config', str(cfgpath)])
     return execute(command, exit_code=exit_code)
 

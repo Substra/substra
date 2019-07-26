@@ -6,17 +6,26 @@ import click
 import consolemd
 
 from substra import __version__, runner, sdk
-from substra import config as configuration
 from substra.cli import parsers
 from substra.sdk import assets
+from substra.sdk import config as configuration
 
 
 def get_client(config_path, profile_name):
     """Initialize substra client from config file and profile name."""
-    profile = configuration.load_profile(config_path, profile_name)
-    client = sdk.Client()
-    client.create_config(profile=profile_name, **profile)
-    client.set_config(profile_name)
+    help_command = "substra config <url> ..."
+
+    try:
+        client = sdk.Client(config_path, profile_name)
+
+    except FileNotFoundError:
+        raise click.ClickException(
+            f"Config file '{config_path}' not found. Please run '{help_command}'.")
+
+    except configuration.ProfileNotFoundError:
+        raise click.ClickException(
+            f"Profile '{profile_name}' not found. Please run '{help_command}'.")
+
     return client
 
 
@@ -114,30 +123,25 @@ def cli(ctx):
 @cli.command('config')
 @click.argument('url')
 @click.option('--config', type=click.Path(),
-              default=os.path.expanduser('~/.substra'),
+              default=configuration.DEFAULT_PATH,
               help='Config path (default ~/.substra).')
 @click.option('--profile', default='default',
               help='Profile name to add')
 @click.option('--insecure', '-k', is_flag=True,
               help='Do not verify SSL certificates')
-@click.option('--version', '-v', default='0.0')
+@click.option('--version', '-v', default=configuration.DEFAULT_VERSION)
 @click.option('--user', '-u')
 @click.option('--password', '-p')
-def add_profile_to_config(url, config, profile, insecure, version, user,
-                          password):
+def add_profile_to_config(url, config, profile, insecure, version, user, password):
     """Add profile to config file."""
-    data = {
-        'url': url,
-        'version': version,
-        'insecure': insecure,
-        'auth': False,
-    }
-    if user and password:
-        data['auth'] = {
-            'user': user,
-            'password': password,
-        }
-    configuration.add_profile(config, profile, data)
+    configuration.Manager(config).add_profile(
+        profile,
+        url,
+        version=version,
+        insecure=insecure,
+        user=user,
+        password=password,
+    )
 
 
 @cli.group()

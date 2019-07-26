@@ -11,7 +11,16 @@ DEFAULT_RETRY_TIMEOUT = 5 * 60
 class Client():
     """REST Client to communicate with Substra server."""
 
-    def __init__(self, config):
+    def __init__(self, config=None):
+        self._headers = {}
+        self._default_kwargs = {}
+        self._base_url = None
+
+        if config:
+            self.set_config(config)
+
+    def set_config(self, config):
+        """Reset internal attributes from config."""
         # get default requests keyword arguments from config
         kwargs = {}
         if config['auth']:

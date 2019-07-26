@@ -1,26 +1,29 @@
-import os
-from unittest import TestCase
+import pytest
 
-from substra.sdk.config import ConfigManager
-
-dir_path = os.path.dirname(os.path.realpath(__file__))
+import substra.sdk.config as configuration
 
 
-class TestConfig(TestCase):
+def test_add_load_profile(tmpdir):
+    path = tmpdir / 'substra.cfg'
+    manager = configuration.Manager(str(path))
 
-    def setUp(self):
-        pass
+    profile_1 = manager.add_profile(
+        'owkin',
+        url='http://owkin.substrabac:8000',
+        version='0.0')
 
-    def tearDown(self):
-        pass
+    profile_2 = manager.load_profile('owkin')
+    assert profile_1 == profile_2
 
-    def test_create_config(self):
-        configManager = ConfigManager()
-        conf = configManager.create('owkin', url='http://owkin.substrabac:8000', version='0.0')
-        self.assertTrue(len(configManager.config) >= 2)
-        self.assertEqual(configManager.get('owkin'), conf)
 
-    def test_get_config(self):
-        configManager = ConfigManager()
-        conf = configManager.get('owkin')
-        self.assertEqual(configManager.get('owkin'), conf)
+def test_load_profile_fail(tmpdir):
+    path = tmpdir / 'substra.cfg'
+    manager = configuration.Manager(str(path))
+
+    with pytest.raises(FileNotFoundError):
+        manager.load_profile('notfound')
+
+    manager.add_profile('default')
+
+    with pytest.raises(configuration.ProfileNotFoundError):
+        manager.load_profile('notfound')

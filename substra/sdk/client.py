@@ -2,35 +2,55 @@ from copy import deepcopy
 import logging
 import os
 
-from substra.sdk.config import ConfigManager
 from substra.sdk import utils, assets, rest_client
+import substra.sdk.config as cfg
 
 logger = logging.getLogger(__name__)
 
 
 class Client(object):
-    def __init__(self):
-        self._configManager = ConfigManager()
-        self.config = self._configManager.get('default')
-        self.client = rest_client.Client(self.config)
 
-    def create_config(self, profile, url='http://127.0.0.1:8000',
-                      version='0.0', auth=False, insecure=False):
-        """Create new config profile."""
-        return self._configManager.create(profile=profile,
-                                          url=url,
-                                          version=version,
-                                          auth=auth,
-                                          insecure=insecure)
+    def __init__(self, config_path=None, profile_name=None):
+        self._cfg_manager = cfg.Manager(config_path or cfg.DEFAULT_PATH)
+        self._current_profile = None
+        self._profiles = {}
+        self.client = rest_client.Client()
 
-    def set_config(self, profile='default'):
-        """Set config profile."""
-        self.config = self._configManager.get(profile)
-        return self.config
+        if profile_name:
+            self.set_profile(profile_name)
 
-    def get_config(self):
-        """Get current config profile."""
-        return self.config
+    def _set_current_profile(self, profile_name, profile):
+        """Set client current profile."""
+        self._profiles[profile_name] = profile
+        self._current_profile = profile
+        self.client.set_config(self._current_profile)
+        return profile
+
+    def set_profile(self, profile_name):
+        """Set profile from profile name.
+
+        If profiles has not been defined through the `add_profile` method, it is loaded
+        from the config file.
+        """
+        try:
+            profile = self._profiles[profile_name]
+        except KeyError:
+            profile = self._cfg_manager.load_profile(profile_name)
+
+        return self._set_current_profile(profile_name, profile)
+
+    def add_profile(self, profile_name, url, version='0.0', insecure=False,
+                    user=None, password=None):
+        """Add new profile (in-memory only)."""
+        profile = cfg.create_profile(
+            name=profile_name,
+            url=url,
+            version=version,
+            insecure=insecure,
+            user=user,
+            password=password,
+        )
+        return self._set_current_profile(profile_name, profile)
 
     def _add(self, asset, data, files=None, dryrun=False, timeout=False):
         """Add asset."""
