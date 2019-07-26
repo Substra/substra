@@ -6,6 +6,10 @@ pipeline {
     skipDefaultCheckout true
   }
 
+  parameters {
+    booleanParam(name: 'E2E', defaultValue: false, description: 'Launch E2E test')
+  }
+
   agent none
 
   stages {
@@ -50,6 +54,9 @@ pipeline {
     }
 
     stage('Test with substra-network') {
+      when {
+        expression { return params.E2E }
+      }
       steps {
         build job: 'substra-network/PR-82', parameters: [string(name: 'CLI', value: env.CHANGE_BRANCH)], propagate: true
       }
