@@ -71,7 +71,9 @@ def mock_client_call(mocker, method_name, response=""):
                         return_value=response)
 
 
-@pytest.mark.parametrize('asset_name', ['objective', 'dataset'])
+@pytest.mark.parametrize(
+    'asset_name', ['objective', 'dataset', 'algo', 'testtuple', 'traintuple']
+)
 def test_command_list(asset_name, workdir, mocker):
     item = getattr(datastore, asset_name.upper())
     method_name = f'list_{asset_name}'
@@ -81,7 +83,9 @@ def test_command_list(asset_name, workdir, mocker):
     assert item['key'] in output
 
 
-@pytest.mark.parametrize('asset_name', ['objective', 'dataset'])
+@pytest.mark.parametrize(
+    'asset_name', ['objective', 'dataset', 'algo', 'testtuple', 'traintuple']
+)
 def test_command_get(asset_name, workdir, mocker):
     item = getattr(datastore, asset_name.upper())
     method_name = f'get_{asset_name}'
