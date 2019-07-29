@@ -30,3 +30,89 @@ DATASET = {
     "trainDataSampleKeys": [],
     "testDataSampleKeys": [],
 }
+
+ALGO = {
+    "key": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
+    "name": "Logistic regression",
+    "content": {
+      "hash": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
+      "storageAddress": ""
+    },
+    "description": {
+      "hash": "124a0425b746d7072282d167b53cb6aab3a31bf1946dae89135c15b0126ebec3",
+      "storageAddress": ""
+    },
+    "owner": "ab75010bacbd1a4b826dc2e9ead6f1e4e1c4feade2d62a8b708fdde48fb0edea",
+    "permissions": "all",
+    "pkhash": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5"
+}
+
+TRAINTUPLE = {
+    "key": "06207faf17854fa9422099a50dcee064753d6c3425a077f097e91622f3199be5",
+    "algo": {
+        "name": "Neural Network",
+        "hash": "0acc5180e09b6a6ac250f4e3c172e2893f617aa1c22ef1f379019d20fe44142f",
+        "storageAddress": ""
+    },
+    "creator": "e75db4df2532dc1313ebb5c2462e1eb813b94c3e67de29f6e4b2272ae60385f5",
+    "dataset": {
+        "worker": "e75db4df2532dc1313ebb5c2462e1eb813b94c3e67de29f6e4b2272ae60385f5",
+        "keys": [
+            "31510dc1d8be788f7c5d28d05714f7efb9edb667762966b9adc02eadeaacebe9",
+            "03a1f878768ea8624942d46a3b438c37992e626c2cf655023bcc3bed69d485d1"
+        ],
+        "openerHash": "8dd01465003a9b1e01c99c904d86aa518b3a5dd9dc8d40fe7d075c726ac073ca",
+        "perf": 0
+    },
+    "fltask": "",
+    "inModels": None,
+    "log": "[00-01-0032-d415995]",
+    "objective": {
+        "hash": "3d70ab46d710dacb0f48cb42db4874fac14e048a0d415e266aad38c09591ee71",
+        "metrics": {
+            "hash": "c42dca31fbc2ebb5705643e3bb6ee666bbfd956de13dd03727f825ad8445b4d7",
+            "storageAddress": ""
+        }
+    },
+    "outModel": None,
+    "permissions": "all",
+    "rank": 0,
+    "status": "failed",
+    "tag": "My super tag"
+}
+
+TESTTUPLE = {
+    "key": "97b53511e94cab17ea8b1c31982e0b0d8b9311e10d35f82bdafab4ea429b7414",
+    "algo": {
+        "name": "Logistic regression",
+        "hash": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
+        "storageAddress": "",
+    },
+    "certified": True,
+    "creator": "e75db4df2532dc1313ebb5c2462e1eb813b94c3e67de29f6e4b2272ae60385f5",
+    "dataset": {
+        "worker": "ab75010bacbd1a4b826dc2e9ead6f1e4e1c4feade2d62a8b708fdde48fb0edea",
+        "keys": [
+            "17d58b67ae2028018108c9bf555fa58b2ddcfe560e0117294196e79d26140b2a",
+            "8bf3bf4f753a32f27d18c86405e7a406a83a55610d91abcca9acc525061b8ecf"
+        ],
+        "openerHash": "ce9f292c72e9b82697445117f9c2d1d18ce0f8ed07ff91dadb17d668bddf8932",
+        "perf": 0
+    },
+    "log": "Test - CPU:90.07 % - Mem:0.13 GB - GPU:0.00 % - GPU Mem:0.00 GB;",
+    "model": {
+        "traintupleKey": "593b8c8a94cf5d372f239c79ac2a4089f7ba4717cda8dc4753599a078e86493d",
+        "hash": "523882e8aaa3fd65bfd5f4bd0153ad6a21487f55c50b922bbf26015c6e975965",
+        "storageAddress": "",
+    },
+    "objective": {
+        "hash": "3d70ab46d710dacb0f48cb42db4874fac14e048a0d415e266aad38c09591ee71",
+        "metrics": {
+            "hash": "c42dca31fbc2ebb5705643e3bb6ee666bbfd956de13dd03727f825ad8445b4d7",
+            "storageAddress": "",
+          }
+    },
+    "permissions": "all",
+    "status": "done",
+    "tag": ""
+}

@@ -2,24 +2,23 @@
 
 # Client
 ```python
-Client(self)
+Client(self, config_path=None, profile_name=None)
 ```
 
-## create_config
+## set_profile
 ```python
-Client.create_config(self, profile, url='http://127.0.0.1:8000', version='0.0', auth=False, insecure=False)
+Client.set_profile(self, profile_name)
 ```
-Create new config profile.
-## set_config
+Set profile from profile name.
+
+If profiles has not been defined through the `add_profile` method, it is loaded
+from the config file.
+
+## add_profile
 ```python
-Client.set_config(self, profile='default')
+Client.add_profile(self, profile_name, url, version='0.0', insecure=False, user=None, password=None)
 ```
-Set config profile.
-## get_config
-```python
-Client.get_config(self)
-```
-Get current config profile.
+Add new profile (in-memory only).
 ## add_data_sample
 ```python
 Client.add_data_sample(self, data, local=True, dryrun=False, timeout=False)

@@ -1,97 +1,62 @@
-import json
+import pytest
+import substra
 
-from unittest import mock
-
-from .test_base import data_manager, objective, algo, data_sample
-from .test_base import TestBase, mock_success_response, mock_fail_response
-
-
-def mocked_requests_post_data_manager(*args, **kwargs):
-    return mock_success_response(data=data_manager)
+from .. import datastore
+from .utils import mock_requests
 
 
-def mocked_requests_post_objective(*args, **kwargs):
-    return mock_success_response(data=objective)
+def test_add_dataset(client, dataset_query, mocker):
+    m = mock_requests(mocker, "post", response=datastore.DATASET)
+    response = client.add_dataset(dataset_query)
+
+    assert response == datastore.DATASET
+    assert m.is_called()
 
 
-def mocked_requests_post_algo(*args, **kwargs):
-    return mock_success_response(data=algo)
+def test_add_dataset_invalid_args(client, dataset_query, mocker):
+    mock_requests(mocker, "post", response=datastore.DATASET)
+    del dataset_query['data_opener']
+
+    with pytest.raises(substra.sdk.utils.LoadDataException):
+        client.add_dataset(dataset_query)
 
 
-def mocked_requests_post_data_sample(*args, **kwargs):
-    return mock_success_response(data=data_sample)
+def test_add_dataset_response_failure_500(client, dataset_query, mocker):
+    mock_requests(mocker, "post", status=500)
+
+    with pytest.raises(substra.sdk.exceptions.InternalServerError):
+        client.add_dataset(dataset_query)
 
 
-def mocked_requests_add_objective_fail(*args, **kwargs):
-    return mock_fail_response()
+def test_add_dataset_response_failure_409(client, dataset_query, mocker):
+    mock_requests(mocker, "post", response={"pkhash": "42"}, status=409)
+
+    with pytest.raises(substra.sdk.exceptions.AlreadyExists) as exc_info:
+        client.add_dataset(dataset_query)
+
+    assert exc_info.value.pkhash == "42"
 
 
-class TestAdd(TestBase):
+def test_add_objective(client, objective_query, mocker):
+    m = mock_requests(mocker, "post", response=datastore.OBJECTIVE)
+    response = client.add_objective(objective_query)
 
-    @mock.patch('substra.sdk.requests_wrapper.requests.post', side_effect=mocked_requests_post_data_manager)
-    def test_add_data_manager(self, mock_get):
-        # open data_manager file
-        with open(self.data_manager_file_path, 'r') as f:
-            data = json.loads(f.read())
+    assert response == datastore.OBJECTIVE
+    assert m.is_called()
 
-        res = self.client.add_dataset(data)
 
-        self.assertEqual(res, data_manager)
-        self.assertEqual(len(mock_get.call_args_list), 1)
-        self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
+def test_add_algo(client, algo_query, mocker):
+    m = mock_requests(mocker, "post", response=datastore.ALGO)
+    response = client.add_algo(algo_query)
 
-    @mock.patch('substra.sdk.requests_wrapper.requests.post', side_effect=mocked_requests_post_data_manager)
-    def test_add_data_manager_invalid_args(self, mock_get):
-        try:
-            self.client.add_dataset({})
-        except Exception as e:
-            print(e)
-            self.assertEqual(str(e), "The 'data_opener' attribute is missing.")
-        self.assertEqual(len(mock_get.call_args_list), 0)
+    assert response == datastore.ALGO
+    assert m.is_called()
 
-    @mock.patch('substra.sdk.requests_wrapper.requests.post', side_effect=mocked_requests_post_objective)
-    def test_add_objective(self, mock_get):
-        # open objective file
-        with open(self.objective_file_path, 'r') as f:
-            data = json.loads(f.read())
 
-            res = self.client.add_objective(data)
+def test_add_data_sample(client, data_sample_query, mocker):
+    data_sample_response = {"key": "42"}
+    m = mock_requests(mocker, "post", response=data_sample_response)
+    response = client.add_data_sample(data_sample_query)
 
-            self.assertEqual(res, objective)
-            self.assertEqual(len(mock_get.call_args_list), 1)
-            self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
-
-    @mock.patch('substra.sdk.requests_wrapper.requests.post', side_effect=mocked_requests_post_algo)
-    def test_add_algo(self, mock_get):
-        # open algo file
-        with open(self.algo_file_path, 'r') as f:
-            data = json.loads(f.read())
-
-            res = self.client.add_algo(data)
-
-            self.assertEqual(res, algo)
-            self.assertEqual(len(mock_get.call_args_list), 1)
-            self.assertEqual(mock_get.call_args[1].get('data').get('permissions'), 'all')
-
-    @mock.patch('substra.sdk.requests_wrapper.requests.post', side_effect=mocked_requests_post_data_sample)
-    def test_add_data(self, mock_get):
-        # open algo file
-        with open(self.data_sample_file_path, 'r') as f:
-            content = json.loads(f.read())
-
-            res = self.client.add_data_sample(content)
-
-            self.assertEqual(res, data_sample)
-            self.assertEqual(len(mock_get.call_args_list), 1)
-
-    @mock.patch('substra.sdk.requests_wrapper.requests.post', side_effect=mocked_requests_add_objective_fail)
-    def test_returns_objective_list_fail(self, mock_get):
-        with open(self.objective_file_path, 'r') as f:
-            data = json.loads(f.read())
-            try:
-                self.client.add_objective(data)
-            except Exception as e:
-                print(str(e))
-                self.assertEqual(str(e), '500')
-
-            self.assertEqual(len(mock_get.call_args_list), 1)
+    assert response == data_sample_response
+    assert m.is_called()

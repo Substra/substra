@@ -1,46 +1,27 @@
-from unittest import mock
+import pytest
+import substra
 
-from .test_base import data_manager, objective
-from .test_base import TestBase, mock_success_response, mock_fail_response
-
-
-def mocked_requests_get_objective(*args, **kwargs):
-    return mock_success_response(data=objective)
+from .. import datastore
+from .utils import mock_requests
 
 
-def mocked_requests_get_dataset(*args, **kwargs):
-    return mock_success_response(data=data_manager)
+@pytest.mark.parametrize(
+    'asset_name', ['objective', 'dataset', 'algo', 'testtuple', 'traintuple']
+)
+def test_get_asset(asset_name, client, mocker):
+    item = getattr(datastore, asset_name.upper())
+    method = getattr(client, f'get_{asset_name}')
+
+    m = mock_requests(mocker, "get", response=item)
+
+    response = method("magic-key")
+
+    assert response == item
+    assert m.is_called()
 
 
-def mocked_requests_get_objective_fail(*args, **kwargs):
-    return mock_fail_response()
+def test_get_asset_not_found(client, mocker):
+    mock_requests(mocker, "get", status=404)
 
-
-class TestGet(TestBase):
-
-    @mock.patch('substra.sdk.requests_wrapper.requests.get', side_effect=mocked_requests_get_objective)
-    def test_returns_objective_list(self, mock_get):
-        res = self.client.get_objective(
-            'd5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f')
-
-        self.assertEqual(res, objective)
-        self.assertEqual(len(mock_get.call_args_list), 1)
-
-    @mock.patch('substra.sdk.requests_wrapper.requests.get', side_effect=mocked_requests_get_objective_fail)
-    def test_returns_objective_list_fail(self, mock_get):
-        try:
-            self.client.get_objective(
-                'd5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f')
-        except Exception as e:
-            print(str(e))
-            self.assertEqual(str(e), '500')
-
-        self.assertEqual(len(mock_get.call_args_list), 1)
-
-    @mock.patch('substra.sdk.requests_wrapper.requests.get', side_effect=mocked_requests_get_dataset)
-    def test_returns_dataset_list(self, mock_get):
-        res = self.client.get_dataset(
-            'ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994')
-
-        self.assertEqual(res, data_manager)
-        self.assertEqual(len(mock_get.call_args_list), 1)
+    with pytest.raises(substra.sdk.exceptions.NotFound):
+        client.get_dataset("magic-key")
