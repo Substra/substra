@@ -21,34 +21,58 @@ Client.add_profile(self, profile_name, url, version='0.0', insecure=False, user=
 Add new profile (in-memory only).
 ## add_data_sample
 ```python
-Client.add_data_sample(self, data, local=True, dryrun=False, timeout=False)
+Client.add_data_sample(self, data, local=True, dryrun=False, timeout=False, exist_ok=False)
 ```
 Create new data sample asset(s).
+
+If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
+existing asset will be returned.
+
 ## add_dataset
 ```python
-Client.add_dataset(self, data, dryrun=False, timeout=False)
+Client.add_dataset(self, data, dryrun=False, timeout=False, exist_ok=False)
 ```
 Create new dataset asset.
+
+If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
+existing asset will be returned.
+
 ## add_objective
 ```python
-Client.add_objective(self, data, dryrun=False, timeout=False)
+Client.add_objective(self, data, dryrun=False, timeout=False, exist_ok=False)
 ```
 Create new objective asset.
+
+If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
+existing asset will be returned.
+
 ## add_algo
 ```python
-Client.add_algo(self, data, dryrun=False, timeout=False)
+Client.add_algo(self, data, dryrun=False, timeout=False, exist_ok=False)
 ```
 Create new algo asset.
+
+If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
+existing asset will be returned.
+
 ## add_traintuple
 ```python
-Client.add_traintuple(self, data, dryrun=False, timeout=False)
+Client.add_traintuple(self, data, dryrun=False, timeout=False, exist_ok=False)
 ```
 Create new traintuple asset.
+
+If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
+existing asset will be returned.
+
 ## add_testtuple
 ```python
-Client.add_testtuple(self, data, dryrun=False, timeout=False)
+Client.add_testtuple(self, data, dryrun=False, timeout=False, exist_ok=False)
 ```
 Create new testtuple asset.
+
+If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
+existing asset will be returned.
+
 ## get_algo
 ```python
 Client.get_algo(self, algo_key)

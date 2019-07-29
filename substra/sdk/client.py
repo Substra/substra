@@ -52,7 +52,7 @@ class Client(object):
         )
         return self._set_current_profile(profile_name, profile)
 
-    def _add(self, asset, data, files=None, dryrun=False, timeout=False):
+    def _add(self, asset, data, files=None, dryrun=False, timeout=False, exist_ok=False):
         """Add asset."""
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
         files = files or {}
@@ -62,45 +62,83 @@ class Client(object):
         if dryrun:
             data['dryrun'] = True
 
-        return self.client.add(asset, retry_timeout=timeout, data=data, files=files)
+        return self.client.add(
+            asset,
+            retry_timeout=timeout,
+            exist_ok=exist_ok,
+            data=data,
+            files=files,
+        )
 
-    def add_data_sample(self, data, local=True, dryrun=False, timeout=False):
-        """Create new data sample asset(s)."""
+    def add_data_sample(self, data, local=True, dryrun=False, timeout=False,
+                        exist_ok=False):
+        """Create new data sample asset(s).
+
+        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
+        existing asset will be returned.
+        """
         if not local:
-            return self._add(assets.DATA_SAMPLE, data, dryrun=dryrun, timeout=timeout)
+            return self._add(assets.DATA_SAMPLE, data, dryrun=dryrun, timeout=timeout,
+                             exist_ok=exist_ok)
 
         with utils.extract_data_sample_files(data) as (data, files):
             return self._add(
-                assets.DATA_SAMPLE, data, files=files, dryrun=dryrun, timeout=timeout)
+                assets.DATA_SAMPLE, data, files=files, dryrun=dryrun, timeout=timeout,
+                exist_ok=exist_ok)
 
-    def add_dataset(self, data, dryrun=False, timeout=False):
-        """Create new dataset asset."""
+    def add_dataset(self, data, dryrun=False, timeout=False, exist_ok=False):
+        """Create new dataset asset.
+
+        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
+        existing asset will be returned.
+        """
         attributes = ['data_opener', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             return self._add(
-                assets.DATASET, data, files=files, dryrun=dryrun, timeout=timeout)
+                assets.DATASET, data, files=files, dryrun=dryrun, timeout=timeout,
+                exist_ok=exist_ok)
 
-    def add_objective(self, data, dryrun=False, timeout=False):
-        """Create new objective asset."""
+    def add_objective(self, data, dryrun=False, timeout=False, exist_ok=False):
+        """Create new objective asset.
+
+        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
+        existing asset will be returned.
+        """
         attributes = ['metrics', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             return self._add(
-                assets.OBJECTIVE, data, files=files, dryrun=dryrun, timeout=timeout)
+                assets.OBJECTIVE, data, files=files, dryrun=dryrun, timeout=timeout,
+                exist_ok=exist_ok)
 
-    def add_algo(self, data, dryrun=False, timeout=False):
-        """Create new algo asset."""
+    def add_algo(self, data, dryrun=False, timeout=False, exist_ok=False):
+        """Create new algo asset.
+
+        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
+        existing asset will be returned.
+        """
         attributes = ['file', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             return self._add(
-                assets.ALGO, data, files=files, dryrun=dryrun, timeout=timeout)
+                assets.ALGO, data, files=files, dryrun=dryrun, timeout=timeout,
+                exist_ok=exist_ok)
 
-    def add_traintuple(self, data, dryrun=False, timeout=False):
-        """Create new traintuple asset."""
-        return self._add(assets.TRAINTUPLE, data, dryrun=dryrun, timeout=timeout)
+    def add_traintuple(self, data, dryrun=False, timeout=False, exist_ok=False):
+        """Create new traintuple asset.
 
-    def add_testtuple(self, data, dryrun=False, timeout=False):
-        """Create new testtuple asset."""
-        return self._add(assets.TESTTUPLE, data, dryrun=dryrun, timeout=timeout)
+        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
+        existing asset will be returned.
+        """
+        return self._add(assets.TRAINTUPLE, data, dryrun=dryrun, timeout=timeout,
+                         exist_ok=exist_ok)
+
+    def add_testtuple(self, data, dryrun=False, timeout=False, exist_ok=False):
+        """Create new testtuple asset.
+
+        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
+        existing asset will be returned.
+        """
+        return self._add(assets.TESTTUPLE, data, dryrun=dryrun, timeout=timeout,
+                         exist_ok=exist_ok)
 
     def get_algo(self, algo_key):
         """Get algo by key."""

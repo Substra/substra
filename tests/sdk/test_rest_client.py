@@ -37,6 +37,6 @@ CONFIGS = [CONFIG, CONFIG_SECURE, CONFIG_INSECURE]
 
 @pytest.mark.parametrize("config", CONFIGS)
 def test_post_success(mocker, config):
-    m = mock_requests(mocker, "post")
+    m = mock_requests(mocker, "post", response={})
     rest_client.Client(config).add('http://foo', {})
     assert len(m.call_args_list) == 1
