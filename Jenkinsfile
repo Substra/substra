@@ -8,6 +8,8 @@ pipeline {
 
   parameters {
     booleanParam(name: 'E2E', defaultValue: false, description: 'Launch E2E test')
+    string(name: 'CHAINCODE', defaultValue: 'dev', description: 'chaincode branch')
+    string(name: 'BACKEND', defaultValue: 'jenkins', description: 'substrabac branch')
   }
 
   agent none
@@ -58,7 +60,9 @@ pipeline {
         expression { return params.E2E }
       }
       steps {
-        build job: 'substra-network/PR-82', parameters: [string(name: 'CLI', value: env.CHANGE_BRANCH)], propagate: true
+        build job: 'substra-network/dev', parameters: [string(name: 'CLI', value: env.CHANGE_BRANCH),
+                                                       string(name: 'BACKEND', value: params.BACKEND),
+                                                       string(name: 'CHAINCODE', value: params.CHAINCODE)], propagate: true
       }
     }
 
