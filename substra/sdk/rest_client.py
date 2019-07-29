@@ -143,7 +143,7 @@ class Client():
         existing asset will be returned.
         """
         try:
-            item = self.request(
+            return self.request(
                 'post',
                 name,
                 **request_kwargs,
@@ -175,10 +175,6 @@ class Client():
 
             logger.warning(f"{name} already exists: key='{key}'")
             return self.get(name, key)
-
-        key = item.get('pkhash')
-        logger.info(f"{name} has been created: key='{key}'")
-        return item
 
     def get_data(self, address, **request_kwargs):
         """Get asset data."""
