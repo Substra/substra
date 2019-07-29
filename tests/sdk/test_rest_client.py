@@ -70,3 +70,13 @@ def test_add_timeout_with_retry(mocker):
     assert len(m_post.call_args_list) == 1
     assert len(m_get.call_args_list) == 1
     assert asset == {"pkhash": "a-key"}
+
+
+def test_add_exist_ok(mocker):
+    asset_name = "traintuple"
+    m_post = mock_requests(mocker, "post", response={"pkhash": "a-key"}, status=409)
+    m_get = mock_requests(mocker, "get", response={"pkhash": "a-key"})
+    asset = rest_client.Client(CONFIG).add(asset_name, exist_ok=True)
+    assert len(m_post.call_args_list) == 1
+    assert len(m_get.call_args_list) == 1
+    assert asset == {"pkhash": "a-key"}
