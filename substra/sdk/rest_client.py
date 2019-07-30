@@ -82,7 +82,7 @@ class Client():
 
         return r
 
-    def request(self, request_name, asset_name, path=None, json=True,
+    def request(self, request_name, asset_name, path=None, json_response=True,
                 **request_kwargs):
         """Base request."""
 
@@ -97,7 +97,7 @@ class Client():
             **request_kwargs,
         )
 
-        if not json:
+        if not json_response:
             return response
 
         try:
@@ -181,6 +181,6 @@ class Client():
         return self._request(
             'get',
             address,
-            json=False,
+            json_response=False,
             **request_kwargs,
         )

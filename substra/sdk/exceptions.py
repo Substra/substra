@@ -1,3 +1,8 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 class SDKException(Exception):
     pass
 
@@ -42,6 +47,7 @@ class InvalidRequest(HTTPError):
     def __init__(self, request_exception, msg=None):
         error = request_exception.response.json()
         message = error.get('message', None)
+        logger.debug(f"Invalid request: error='{error}'")
         super(InvalidRequest, self).__init__(request_exception, message)
 
 
