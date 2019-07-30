@@ -112,7 +112,8 @@ Usage: substra add objective [OPTIONS] PATH
   - name: name of the objective
   - description: path to a markdown file describing the objective
   - metrics_name: name of the metrics
-  - metrics: path to the metrics python script
+  - metrics: path to tar.gz or zip archive containing the metrics python
+    script and its Dockerfile
   - permissions: define asset access permissions
 
   The option --data-samples-path must point to a valid JSON file with the
@@ -280,7 +281,7 @@ Usage: substra download [OPTIONS] [algo|dataset|objective] KEY
 
   - algo: the algo and its dependencies
   - dataset: the opener script
-  - objective: the metrics script
+  - objective: the metrics and its dependencies
 
 Options:
   --folder PATH   destination folder

@@ -1,5 +1,3 @@
 include setup.cfg README.md
 
-recursive-include substra/run_local_materials *
-
 recursive-include tests *

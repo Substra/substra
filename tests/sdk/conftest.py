@@ -30,8 +30,8 @@ def dataset_query(tmpdir):
 
 @pytest.fixture
 def objective_query(tmpdir):
-    metrics_path = tmpdir / "metrics.py"
-    metrics_path.write_text("raise ValueError()", encoding="utf-8")
+    metrics_path = tmpdir / "metrics.zip"
+    metrics_path.write_text("foo archive", encoding="utf-8")
 
     desc_path = tmpdir / "description.md"
     desc_path.write_text("#Hello world", encoding="utf-8")

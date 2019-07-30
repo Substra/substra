@@ -1,15 +1,10 @@
 import os
 import json
 import shutil
-import pkg_resources
 import time
 import hashlib
 
 import docker
-
-METRICS_PATH = pkg_resources.resource_filename(
-    'substra',
-    'run_local_materials/metrics')
 
 USER = os.getuid()
 
@@ -18,7 +13,6 @@ METRICS_FAKE_Y = "FAKE_Y"
 
 VOLUME_OUTPUT_MODEL = {'bind': '/sandbox/model', 'mode': 'rw'}
 VOLUME_OPENER = {'bind': '/sandbox/opener/__init__.py', 'mode': 'ro'}
-VOLUME_METRICS = {'bind': '/sandbox/metrics/__init__.py', 'mode': 'ro'}
 VOLUME_PRED = {'bind': '/sandbox/pred', 'mode': 'rw'}
 VOLUME_DATA = {'bind': '/sandbox/data', 'mode': 'ro'}
 VOLUME_LOCAL = {'bind': '/sandbox/local', 'mode': 'rw'}
@@ -32,13 +26,13 @@ def _create_directory(directory):
 
 def _get_metrics_command(dry_run=False):
     mode = METRICS_FAKE_Y if dry_run else METRICS_NO_DRY_RUN
-    return f"metrics/__init__.py --dry-run-mode {mode}"
+    return f"--dry-run-mode {mode}"
 
 
 def setup(algo_path,
           train_opener_path,
           test_opener_path,
-          metrics_file_path,
+          metrics_path,
           train_data_samples_path,
           test_data_samples_path,
           outmodel_path='model',
@@ -55,8 +49,8 @@ def setup(algo_path,
         _get_relpath(algo_path, '../dataset/opener.py')
     test_opener_path = test_opener_path or \
         _get_relpath(algo_path, '../objective/opener.py')
-    metrics_file_path = metrics_file_path or \
-        _get_relpath(algo_path, '../objective/metrics.py')
+    metrics_path = metrics_path or \
+        _get_relpath(algo_path, '../objective/')
     train_data_samples_path = train_data_samples_path or \
         _get_relpath(algo_path, '../dataset/data-samples/')
     test_data_samples_path = test_data_samples_path or \
@@ -73,7 +67,7 @@ def setup(algo_path,
     config['test_opener_file'] = _get_abspath(test_opener_path)
     config['train_data_path'] = _get_abspath(train_data_samples_path)
     config['test_data_path'] = _get_abspath(test_data_samples_path)
-    config['metrics_file'] = _get_abspath(metrics_file_path)
+    config['metrics_path'] = _get_abspath(metrics_path)
 
     # sandbox
     run_local_path = _get_abspath(compute_path)
@@ -142,7 +136,7 @@ def compute(config, rank, inmodels, dry_run=False):
     algo_path = config['algo_path']
     local_path = config['local_path']
     train_opener_file = config['train_opener_file']
-    metrics_file = config['metrics_file']
+    metrics_path = config['metrics_path']
     test_pred_path = config['test_pred_path']
     test_opener_file = config['test_opener_file']
     test_data_path = config['test_data_path']
@@ -198,13 +192,12 @@ def compute(config, rank, inmodels, dry_run=False):
     if not os.path.exists(outmodel_file):
         raise Exception(f"Model {outmodel_file} doesn't exist")
 
-    _docker_build(docker_client, METRICS_PATH, docker_metrics_tag, rm=True)
+    _docker_build(docker_client, metrics_path, docker_metrics_tag, rm=True)
 
     print(f'Evaluating performance - compute metrics with {train_pred_path} '
           f'predictions against {train_data_path_str} labels')
 
     volumes = {train_pred_path: VOLUME_PRED,
-               metrics_file: VOLUME_METRICS,
                train_opener_file: VOLUME_OPENER}
     if not dry_run:
         volumes[train_data_path] = VOLUME_DATA
@@ -242,13 +235,12 @@ def compute(config, rank, inmodels, dry_run=False):
     _docker_run(docker_client, docker_algo_tag, command=command,
                 volumes=volumes)
 
-    _docker_build(docker_client, METRICS_PATH, docker_metrics_tag)
+    _docker_build(docker_client, metrics_path, docker_metrics_tag)
 
     print(f'Evaluating performance - compute metric with {test_pred_path} '
           f'predictions against {test_data_path_str} labels')
 
     volumes = {test_pred_path: VOLUME_PRED,
-               metrics_file: VOLUME_METRICS,
                test_opener_file: VOLUME_OPENER}
     if not dry_run:
         volumes[test_data_path] = VOLUME_DATA
