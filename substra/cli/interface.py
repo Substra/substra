@@ -262,7 +262,8 @@ def add_objective(ctx, path, dataset_key, data_samples_path, dryrun, config,
     - name: name of the objective
     - description: path to a markdown file describing the objective
     - metrics_name: name of the metrics
-    - metrics: path to the metrics python script
+    - metrics: path to tar.gz or zip archive containing the metrics python
+      script and its Dockerfile
     - permissions: define asset access permissions
 
     The option --data-samples-path must point to a valid JSON file with the
@@ -539,7 +540,7 @@ def download(ctx, asset_name, key, folder, config, profile):
     \b
     - algo: the algo and its dependencies
     - dataset: the opener script
-    - objective: the metrics script
+    - objective: the metrics and its dependencies
     """
     client = get_client(config, profile)
     # method must exist in sdk
