@@ -52,7 +52,8 @@ class Client(object):
         )
         return self._set_current_profile(profile_name, profile)
 
-    def _add(self, asset, data, files=None, dryrun=False, timeout=False, exist_ok=False):
+    def _add(self, asset, data, files=None, dryrun=False, timeout=False, exist_ok=False,
+             json_encoding=False):
         """Add asset."""
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
         files = files or {}
@@ -62,13 +63,19 @@ class Client(object):
         if dryrun:
             data['dryrun'] = True
 
+        requests_kwargs = {}
+        if files:
+            requests_kwargs['files'] = files
+        if json_encoding:
+            requests_kwargs['json'] = data
+        else:
+            requests_kwargs['data'] = data
+
         return self.client.add(
             asset,
             retry_timeout=timeout,
             exist_ok=exist_ok,
-            data=data,
-            files=files,
-        )
+            **requests_kwargs)
 
     def add_data_sample(self, data, local=True, dryrun=False, timeout=False,
                         exist_ok=False):
@@ -139,6 +146,35 @@ class Client(object):
         """
         return self._add(assets.TESTTUPLE, data, dryrun=dryrun, timeout=timeout,
                          exist_ok=exist_ok)
+
+    def add_compute_plan(self, data, timeout=False):
+        """Create compute plan.
+
+        Data is a dict object with the following schema:
+
+```
+        {
+            "algo_key": str,
+            "objective_key": str,
+            "traintuples": list[{
+                "data_manager_key": str,
+                "train_data_sample_keys": list[str],
+                "traintuple_id": str,
+                "in_models_ids": list[str],
+                "tag": str,
+            }],
+            "testtuples": list[{
+                "data_manager_key": str,
+                "test_data_sample_keys": list[str],
+                "testtuple_id": str,
+                "traintuple_id": str,
+                "tag": str,
+            }]
+        }
+```
+
+        """
+        return self._add(assets.COMPUTE_PLAN, data, timeout=timeout, json_encoding=True)
 
     def get_algo(self, algo_key):
         """Get algo by key."""
