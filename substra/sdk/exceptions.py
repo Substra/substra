@@ -40,7 +40,9 @@ class HTTPError(RequestException):
 
 
 class InternalServerError(HTTPError):
-    pass
+    def __init__(self, request_exception, msg=None):
+        super(InternalServerError, self).__init__(request_exception, msg=msg)
+        logger.debug(request_exception.response.text)
 
 
 class InvalidRequest(HTTPError):
