@@ -3,6 +3,8 @@ class SDKException(Exception):
 
 
 class RequestException(SDKException):
+    # TODO add factory method to create exception from request exception to have
+    #      a simpler constructor
     def __init__(self, request_exception, msg=None):
         self.exception = request_exception
         if msg is None:

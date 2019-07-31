@@ -1,0 +1,11 @@
+# .coveragerc to control coverage.py
+
+[report]
+# Regexes for lines to exclude from consideration
+exclude_lines =
+
+    # Don't complain if tests don't hit defensive assertion code:
+    raise AssertionError
+    raise NotImplementedError
+
+show_missing = True
