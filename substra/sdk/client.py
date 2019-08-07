@@ -70,21 +70,39 @@ class Client(object):
             files=files,
         )
 
+    def _add_data_samples(self, data, local=True, dryrun=False, timeout=False,
+                          exist_ok=False):
+        """Create new data sample(s) asset."""
+        if not local:
+            return self._add(
+                assets.DATA_SAMPLE, data,
+                dryrun=dryrun, timeout=timeout, exist_ok=exist_ok)
+        with utils.extract_data_sample_files(data) as (data, files):
+            return self._add(
+                assets.DATA_SAMPLE, data,
+                files=files, dryrun=dryrun, timeout=timeout, exist_ok=exist_ok)
+
     def add_data_sample(self, data, local=True, dryrun=False, timeout=False,
                         exist_ok=False):
-        """Create new data sample asset(s).
+        """Create new data sample asset.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        if not local:
-            return self._add(assets.DATA_SAMPLE, data, dryrun=dryrun, timeout=timeout,
-                             exist_ok=exist_ok)
+        if 'paths' in data or 'path' not in data:
+            raise ValueError('data must contain a `path` field')
+        data_samples = self._add_data_samples(
+            data, local=local, dryrun=dryrun, timeout=timeout, exist_ok=exist_ok)
+        # there is currently a single route in the backend to add a single or many
+        # datasamples, this route always returned a list of created data sample keys
+        return data_samples[0]
 
-        with utils.extract_data_sample_files(data) as (data, files):
-            return self._add(
-                assets.DATA_SAMPLE, data, files=files, dryrun=dryrun, timeout=timeout,
-                exist_ok=exist_ok)
+    def add_data_samples(self, data, local=True, dryrun=False, timeout=False):
+        """Create many data sample assets."""
+        if 'path' in data or 'paths' not in data:
+            raise ValueError('data must contain a `paths` field')
+        return self._add_data_samples(
+            data, local=local, dryrun=dryrun, timeout=timeout)
 
     def add_dataset(self, data, dryrun=False, timeout=False, exist_ok=False):
         """Create new dataset asset.

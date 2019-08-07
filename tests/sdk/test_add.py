@@ -54,9 +54,18 @@ def test_add_algo(client, algo_query, mocker):
 
 
 def test_add_data_sample(client, data_sample_query, mocker):
-    data_sample_response = {"key": "42"}
-    m = mock_requests(mocker, "post", response=data_sample_response)
+    server_response = [{"key": "42"}]
+    m = mock_requests(mocker, "post", response=server_response)
     response = client.add_data_sample(data_sample_query)
 
-    assert response == data_sample_response
+    assert response == server_response[0]
+    assert m.is_called()
+
+
+def test_add_data_samples(client, data_samples_query, mocker):
+    server_response = [{"key": "42"}]
+    m = mock_requests(mocker, "post", response=server_response)
+    response = client.add_data_samples(data_samples_query)
+
+    assert response == server_response
     assert m.is_called()

@@ -190,7 +190,7 @@ def add_data_sample(ctx, path, dataset_key, local, multiple, test_only,
     }
     if test_only:
         data['test_only'] = True
-    res = client.add_data_sample(data, local=local, dryrun=dryrun)
+    res = client.add_data_samples(data, local=local, dryrun=dryrun)
     display(res)
 
 
