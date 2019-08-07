@@ -25,6 +25,15 @@ Client.add_data_sample(self, data, local=True, dryrun=False, timeout=False, exis
 ```
 Create new data sample asset.
 
+`data` is a dict object with the following schema:
+
+```
+{
+    "path": str,
+    "data_manager_keys": list[str],
+}
+```
+
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
@@ -33,11 +42,34 @@ existing asset will be returned.
 Client.add_data_samples(self, data, local=True, dryrun=False, timeout=False)
 ```
 Create many data sample assets.
+
+`data` is a dict object with the following schema:
+
+```
+{
+    "paths": list[str],
+    "data_manager_keys": list[str],
+}
+```
+
 ## add_dataset
 ```python
 Client.add_dataset(self, data, dryrun=False, timeout=False, exist_ok=False)
 ```
 Create new dataset asset.
+
+`data` is a dict object with the following schema:
+
+```
+{
+    "name": str,
+    "description": str,
+    "type": str,
+    "data_opener": str,
+    "permissions": str,
+    "objective_keys": list[str],
+}
+```
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
@@ -48,6 +80,19 @@ Client.add_objective(self, data, dryrun=False, timeout=False, exist_ok=False)
 ```
 Create new objective asset.
 
+`data` is a dict object with the following schema:
+
+```
+{
+    "name": str,
+    "description": str,
+    "metrics_name": str,
+    "metrics": str,
+    "test_data_manager_key": str,
+    "test_data_sample_keys": list[str],
+}
+```
+
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
@@ -56,6 +101,16 @@ existing asset will be returned.
 Client.add_algo(self, data, dryrun=False, timeout=False, exist_ok=False)
 ```
 Create new algo asset.
+
+`data` is a dict object with the following schema:
+
+```
+{
+    "name": str,
+    "description": str,
+    "file": str,
+}
+```
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
@@ -66,6 +121,19 @@ Client.add_traintuple(self, data, dryrun=False, timeout=False, exist_ok=False)
 ```
 Create new traintuple asset.
 
+`data` is a dict object with the following schema:
+
+```
+{
+    "algo_key": str,
+    "objective_key": str,
+    "data_manager_key": str,
+    "train_data_sample_keys": list[str],
+    "in_models_keys": list[str],
+    "tag": str,
+}
+```
+
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
@@ -74,6 +142,17 @@ existing asset will be returned.
 Client.add_testtuple(self, data, dryrun=False, timeout=False, exist_ok=False)
 ```
 Create new testtuple asset.
+
+`data` is a dict object with the following schema:
+
+```
+{
+    "data_manager_key": str,
+    "traintuple_key": str,
+    "test_data_sample_keys": list[str],
+    "tag": str,
+}
+```
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
