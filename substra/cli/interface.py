@@ -7,7 +7,7 @@ import consolemd
 
 from substra import __version__, runner, sdk
 from substra.cli import parsers
-from substra.sdk import assets
+from substra.sdk import assets, exceptions
 from substra.sdk import config as configuration
 
 
@@ -84,28 +84,25 @@ def click_option_json(f):
     )(f)
 
 
-def catch_exceptions(f):
-    """Wrapper to properly catch expected exceptions and display it."""
-    @functools.wraps(f)
-    def new_func(ctx, *args, **kwargs):
+def error_printer(fn):
+    """Command decorator to pretty print a few selected exceptions from sdk."""
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
         try:
-            return f(ctx, *args, **kwargs)
+            return fn(*args, **kwargs)
 
-        except click.ClickException:
-            raise
-
-        except (sdk.exceptions.ConnectionError, sdk.exceptions.Timeout) as e:
-            raise click.ClickException(str(e))
-
-        except sdk.exceptions.HTTPError as e:
+        except exceptions.HTTPError as e:
             try:
                 error = e.response.json()
             except ValueError:
                 error = e.response.content
-
             raise click.ClickException(f"Request failed: {e}:\n{error}")
 
-    return new_func
+        except (exceptions.ConnectionError,
+                exceptions.InvalidResponse) as e:
+            raise click.ClickException(str(e))
+
+    return wrapper
 
 
 @click.group()
@@ -164,6 +161,7 @@ def add(ctx):
 @click_option_config
 @click_option_profile
 @click.pass_context
+@error_printer
 def add_data_sample(ctx, path, dataset_key, local, multiple, test_only,
                     dryrun, config, profile):
     """Add data sample(s).
@@ -201,6 +199,7 @@ def add_data_sample(ctx, path, dataset_key, local, multiple, test_only,
 @click_option_config
 @click_option_profile
 @click.pass_context
+@error_printer
 def add_dataset(ctx, path, objective_key, dryrun, config, profile):
     """Add dataset.
 
@@ -242,6 +241,7 @@ def add_dataset(ctx, path, objective_key, dryrun, config, profile):
 @click_option_config
 @click_option_profile
 @click.pass_context
+@error_printer
 def add_objective(ctx, path, dataset_key, data_samples_path, dryrun, config,
                   profile):
     """Add objective.
@@ -298,6 +298,7 @@ def add_objective(ctx, path, dataset_key, data_samples_path, dryrun, config,
 @click_option_config
 @click_option_profile
 @click.pass_context
+@error_printer
 def add_algo(ctx, path, dryrun, config, profile):
     """Add algo.
 
@@ -336,6 +337,7 @@ def add_algo(ctx, path, dryrun, config, profile):
 @click_option_config
 @click_option_profile
 @click.pass_context
+@error_printer
 def add_traintuple(ctx, objective_key, algo_key, dataset_key,
                    data_samples_path, dryrun, tag, config, profile):
     """Add traintuple.
@@ -380,6 +382,7 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key,
 @click_option_config
 @click_option_profile
 @click.pass_context
+@error_printer
 def add_testtuple(ctx, dataset_key, traintuple_key,
                   data_samples_path, dryrun, tag, config, profile):
     """Add testtuple.
@@ -430,7 +433,7 @@ def add_testtuple(ctx, dataset_key, traintuple_key,
 @click_option_config
 @click_option_profile
 @click.pass_context
-@catch_exceptions
+@error_printer
 def get(ctx, asset_name, asset_key, expand, json_output, config, profile):
     """Get asset definition."""
     expand_valid_assets = (assets.DATASET, assets.TRAINTUPLE)
@@ -491,6 +494,7 @@ def get(ctx, asset_name, asset_key, expand, json_output, config, profile):
 @click_option_config
 @click_option_profile
 @click.pass_context
+@error_printer
 def _list(ctx, asset_name, filters, is_complex, json_output, config, profile):
     """List assets."""
     client = get_client(config, profile)
@@ -511,7 +515,7 @@ def _list(ctx, asset_name, filters, is_complex, json_output, config, profile):
 @click_option_config
 @click_option_profile
 @click.pass_context
-@catch_exceptions
+@error_printer
 def describe(ctx, asset_name, asset_key, config, profile):
     """Display asset description."""
     client = get_client(config, profile)
@@ -534,6 +538,7 @@ def describe(ctx, asset_name, asset_key, config, profile):
 @click_option_config
 @click_option_profile
 @click.pass_context
+@error_printer
 def download(ctx, asset_name, key, folder, config, profile):
     """Download asset implementation.
 
@@ -608,6 +613,7 @@ def update(ctx):
 @click_option_config
 @click_option_profile
 @click.pass_context
+@error_printer
 def update_data_sample(ctx, data_samples_path, dataset_key, config, profile):
     """Link data samples with dataset.
 
@@ -635,6 +641,7 @@ def update_data_sample(ctx, data_samples_path, dataset_key, config, profile):
 @click_option_config
 @click_option_profile
 @click.pass_context
+@error_printer
 def update_dataset(ctx, dataset_key, objective_key, config, profile):
     """Link dataset with objective."""
     client = get_client(config, profile)
