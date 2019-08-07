@@ -58,6 +58,10 @@ def display(res):
     print(res)
 
 
+# TODO profile, config, json and verbose options should be handled in a single
+#      decorator to populate a GlobalOption object stored in the context
+
+
 def click_option_profile(f):
     """Add profile option to command."""
     return click.option(
@@ -80,7 +84,16 @@ def click_option_json(f):
     return click.option(
         '--json', 'json_output',
         is_flag=True,
-        help='Display output as json'
+        help='Display output as json.'
+    )(f)
+
+
+def click_option_verbose(f):
+    """Add verbose option to command."""
+    return click.option(
+        '--verbose',
+        is_flag=True,
+        help='Enable verbose mode.'
     )(f)
 
 
@@ -88,6 +101,11 @@ def error_printer(fn):
     """Command decorator to pretty print a few selected exceptions from sdk."""
     @functools.wraps(fn)
     def wrapper(*args, **kwargs):
+        ctx = click.get_current_context()
+        if ctx.params.get('verbose', False):
+            # disable pretty print of errors if verbose mode is activated
+            return fn(*args, **kwargs)
+
         try:
             return fn(*args, **kwargs)
 
@@ -160,10 +178,11 @@ def add(ctx):
 @click.option('--dry-run', 'dryrun', is_flag=True)
 @click_option_config
 @click_option_profile
+@click_option_verbose
 @click.pass_context
 @error_printer
 def add_data_sample(ctx, path, dataset_key, local, multiple, test_only,
-                    dryrun, config, profile):
+                    dryrun, config, profile, verbose):
     """Add data sample(s).
 
 
@@ -198,9 +217,10 @@ def add_data_sample(ctx, path, dataset_key, local, multiple, test_only,
 @click.option('--dry-run', 'dryrun', is_flag=True)
 @click_option_config
 @click_option_profile
+@click_option_verbose
 @click.pass_context
 @error_printer
-def add_dataset(ctx, path, objective_key, dryrun, config, profile):
+def add_dataset(ctx, path, objective_key, dryrun, config, profile, verbose):
     """Add dataset.
 
     The path must point to a valid JSON file with the following schema:
@@ -240,10 +260,11 @@ def add_dataset(ctx, path, objective_key, dryrun, config, profile):
 @click.option('--dry-run', 'dryrun', is_flag=True)
 @click_option_config
 @click_option_profile
+@click_option_verbose
 @click.pass_context
 @error_printer
 def add_objective(ctx, path, dataset_key, data_samples_path, dryrun, config,
-                  profile):
+                  profile, verbose):
     """Add objective.
 
     The path must point to a valid JSON file with the following schema:
@@ -297,9 +318,10 @@ def add_objective(ctx, path, dataset_key, data_samples_path, dryrun, config,
 @click.option('--dry-run', 'dryrun', is_flag=True)
 @click_option_config
 @click_option_profile
+@click_option_verbose
 @click.pass_context
 @error_printer
-def add_algo(ctx, path, dryrun, config, profile):
+def add_algo(ctx, path, dryrun, config, profile, verbose):
     """Add algo.
 
     The path must point to a valid JSON file with the following schema:
@@ -336,10 +358,11 @@ def add_algo(ctx, path, dryrun, config, profile):
 @click.option('--tag', is_flag=True)
 @click_option_config
 @click_option_profile
+@click_option_verbose
 @click.pass_context
 @error_printer
 def add_traintuple(ctx, objective_key, algo_key, dataset_key,
-                   data_samples_path, dryrun, tag, config, profile):
+                   data_samples_path, dryrun, tag, config, profile, verbose):
     """Add traintuple.
 
     The option --data-samples-path must point to a valid JSON file with the
@@ -381,10 +404,11 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key,
 @click.option('--tag', is_flag=True)
 @click_option_config
 @click_option_profile
+@click_option_verbose
 @click.pass_context
 @error_printer
 def add_testtuple(ctx, dataset_key, traintuple_key,
-                  data_samples_path, dryrun, tag, config, profile):
+                  data_samples_path, dryrun, tag, config, profile, verbose):
     """Add testtuple.
 
 
@@ -432,9 +456,10 @@ def add_testtuple(ctx, dataset_key, traintuple_key,
 @click_option_json
 @click_option_config
 @click_option_profile
+@click_option_verbose
 @click.pass_context
 @error_printer
-def get(ctx, asset_name, asset_key, expand, json_output, config, profile):
+def get(ctx, asset_name, asset_key, expand, json_output, config, profile, verbose):
     """Get asset definition."""
     expand_valid_assets = (assets.DATASET, assets.TRAINTUPLE)
     if expand and asset_name not in expand_valid_assets:  # fail fast
@@ -493,9 +518,10 @@ def get(ctx, asset_name, asset_key, expand, json_output, config, profile):
 @click_option_json
 @click_option_config
 @click_option_profile
+@click_option_verbose
 @click.pass_context
 @error_printer
-def _list(ctx, asset_name, filters, is_complex, json_output, config, profile):
+def _list(ctx, asset_name, filters, is_complex, json_output, config, profile, verbose):
     """List assets."""
     client = get_client(config, profile)
     # method must exist in sdk
@@ -514,9 +540,10 @@ def _list(ctx, asset_name, filters, is_complex, json_output, config, profile):
 @click.argument('asset-key')
 @click_option_config
 @click_option_profile
+@click_option_verbose
 @click.pass_context
 @error_printer
-def describe(ctx, asset_name, asset_key, config, profile):
+def describe(ctx, asset_name, asset_key, config, profile, verbose):
     """Display asset description."""
     client = get_client(config, profile)
     # method must exist in sdk
@@ -537,9 +564,10 @@ def describe(ctx, asset_name, asset_key, config, profile):
               default='.')
 @click_option_config
 @click_option_profile
+@click_option_verbose
 @click.pass_context
 @error_printer
-def download(ctx, asset_name, key, folder, config, profile):
+def download(ctx, asset_name, key, folder, config, profile, verbose):
     """Download asset implementation.
 
     \b
@@ -612,9 +640,10 @@ def update(ctx):
 @click.argument('dataset-key')
 @click_option_config
 @click_option_profile
+@click_option_verbose
 @click.pass_context
 @error_printer
-def update_data_sample(ctx, data_samples_path, dataset_key, config, profile):
+def update_data_sample(ctx, data_samples_path, dataset_key, config, profile, verbose):
     """Link data samples with dataset.
 
     The data samples path must point to a valid JSON file with the following
@@ -640,9 +669,10 @@ def update_data_sample(ctx, data_samples_path, dataset_key, config, profile):
 @click.argument('objective-key')
 @click_option_config
 @click_option_profile
+@click_option_verbose
 @click.pass_context
 @error_printer
-def update_dataset(ctx, dataset_key, objective_key, config, profile):
+def update_dataset(ctx, dataset_key, objective_key, config, profile, verbose):
     """Link dataset with objective."""
     client = get_client(config, profile)
     res = client.link_dataset_with_objective(dataset_key, objective_key)

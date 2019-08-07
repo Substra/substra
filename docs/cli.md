@@ -54,6 +54,7 @@ Options:
   --dry-run
   --config PATH       Config path (default ~/.substra).
   --profile TEXT      Profile name to use.
+  --verbose           Enable verbose mode.
   --help              Show this message and exit.
 ```
 
@@ -88,6 +89,7 @@ Options:
   --dry-run
   --config PATH         Config path (default ~/.substra).
   --profile TEXT        Profile name to use.
+  --verbose             Enable verbose mode.
   --help                Show this message and exit.
 ```
 
@@ -132,6 +134,7 @@ Options:
   --dry-run
   --config PATH             Config path (default ~/.substra).
   --profile TEXT            Profile name to use.
+  --verbose                 Enable verbose mode.
   --help                    Show this message and exit.
 ```
 
@@ -162,6 +165,7 @@ Options:
   --dry-run
   --config PATH   Config path (default ~/.substra).
   --profile TEXT  Profile name to use.
+  --verbose       Enable verbose mode.
   --help          Show this message and exit.
 ```
 
@@ -191,6 +195,7 @@ Options:
   --tag
   --config PATH             Config path (default ~/.substra).
   --profile TEXT            Profile name to use.
+  --verbose                 Enable verbose mode.
   --help                    Show this message and exit.
 ```
 
@@ -219,6 +224,7 @@ Options:
   --tag
   --config PATH             Config path (default ~/.substra).
   --profile TEXT            Profile name to use.
+  --verbose                 Enable verbose mode.
   --help                    Show this message and exit.
 ```
 
@@ -233,9 +239,10 @@ Usage: substra get [OPTIONS] [algo|dataset|objective|testtuple|traintuple]
 Options:
   --expand        Display associated assets (available for dataset and
                   traintuple).
-  --json          Display output as json
+  --json          Display output as json.
   --config PATH   Config path (default ~/.substra).
   --profile TEXT  Profile name to use.
+  --verbose       Enable verbose mode.
   --help          Show this message and exit.
 ```
 
@@ -253,9 +260,10 @@ Options:
                   for each filter item. By default these lists are merged into
                   a single list. When set, this option disables the lists
                   aggregation.
-  --json          Display output as json
+  --json          Display output as json.
   --config PATH   Config path (default ~/.substra).
   --profile TEXT  Profile name to use.
+  --verbose       Enable verbose mode.
   --help          Show this message and exit.
 ```
 
@@ -269,6 +277,7 @@ Usage: substra describe [OPTIONS] [algo|dataset|objective] ASSET_KEY
 Options:
   --config PATH   Config path (default ~/.substra).
   --profile TEXT  Profile name to use.
+  --verbose       Enable verbose mode.
   --help          Show this message and exit.
 ```
 
@@ -287,6 +296,7 @@ Options:
   --folder PATH   destination folder
   --config PATH   Config path (default ~/.substra).
   --profile TEXT  Profile name to use.
+  --verbose       Enable verbose mode.
   --help          Show this message and exit.
 ```
 
@@ -346,6 +356,7 @@ Usage: substra update data_sample [OPTIONS] DATA_SAMPLES_PATH DATASET_KEY
 Options:
   --config PATH   Config path (default ~/.substra).
   --profile TEXT  Profile name to use.
+  --verbose       Enable verbose mode.
   --help          Show this message and exit.
 ```
 
@@ -359,6 +370,7 @@ Usage: substra update dataset [OPTIONS] DATASET_KEY OBJECTIVE_KEY
 Options:
   --config PATH   Config path (default ~/.substra).
   --profile TEXT  Profile name to use.
+  --verbose       Enable verbose mode.
   --help          Show this message and exit.
 ```
 
