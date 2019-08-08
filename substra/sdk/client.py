@@ -2,7 +2,7 @@ from copy import deepcopy
 import logging
 import os
 
-from substra.sdk import utils, assets, rest_client
+from substra.sdk import utils, assets, rest_client, exceptions
 import substra.sdk.config as cfg
 
 logger = logging.getLogger(__name__)
@@ -70,17 +70,16 @@ class Client(object):
             files=files,
         )
 
-    def _add_data_samples(self, data, local=True, dryrun=False, timeout=False,
-                          exist_ok=False):
+    def _add_data_samples(self, data, local=True, dryrun=False, timeout=False):
         """Create new data sample(s) asset."""
         if not local:
             return self._add(
                 assets.DATA_SAMPLE, data,
-                dryrun=dryrun, timeout=timeout, exist_ok=exist_ok)
+                dryrun=dryrun, timeout=timeout, exist_ok=False)
         with utils.extract_data_sample_files(data) as (data, files):
             return self._add(
                 assets.DATA_SAMPLE, data,
-                files=files, dryrun=dryrun, timeout=timeout, exist_ok=exist_ok)
+                files=files, dryrun=dryrun, timeout=timeout, exist_ok=False)
 
     def add_data_sample(self, data, local=True, dryrun=False, timeout=False,
                         exist_ok=False):
@@ -91,8 +90,17 @@ class Client(object):
         """
         if 'paths' in data or 'path' not in data:
             raise ValueError('data must contain a `path` field')
-        data_samples = self._add_data_samples(
-            data, local=local, dryrun=dryrun, timeout=timeout, exist_ok=exist_ok)
+        try:
+            data_samples = self._add_data_samples(
+                data, local=local, dryrun=dryrun, timeout=timeout)
+        except exceptions.AlreadyExists as e:
+            # exist_ok option must be handle separately for data samples as a get action
+            # is not allowed on data samples
+            if not exist_ok:
+                raise
+            key = e.pkhash[0]
+            logger.warning(f"data_sample already exists: key='{key}'")
+            data_samples = [{'pkhash': key}]
         # there is currently a single route in the backend to add a single or many
         # datasamples, this route always returned a list of created data sample keys
         return data_samples[0]

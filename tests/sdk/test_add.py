@@ -62,6 +62,14 @@ def test_add_data_sample(client, data_sample_query, mocker):
     assert m.is_called()
 
 
+def test_add_data_sample_failure_409(client, data_sample_query, mocker):
+    m = mock_requests(mocker, "post", response=[{"pkhash": "42"}], status=409)
+    response = client.add_data_sample(data_sample_query, exist_ok=True)
+
+    assert response == {"pkhash": "42"}
+    assert m.is_called()
+
+
 def test_add_data_samples(client, data_samples_query, mocker):
     server_response = [{"key": "42"}]
     m = mock_requests(mocker, "post", response=server_response)
