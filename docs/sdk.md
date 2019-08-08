@@ -31,6 +31,7 @@ Create new data sample asset.
 {
     "path": str,
     "data_manager_keys": list[str],
+    "permissions": str,
 }
 ```
 
@@ -49,6 +50,7 @@ Create many data sample assets.
 {
     "paths": list[str],
     "data_manager_keys": list[str],
+    "permissions": str,
 }
 ```
 
@@ -66,8 +68,8 @@ Create new dataset asset.
     "description": str,
     "type": str,
     "data_opener": str,
-    "permissions": str,
     "objective_keys": list[str],
+    "permissions": str,
 }
 ```
 
@@ -90,6 +92,7 @@ Create new objective asset.
     "metrics": str,
     "test_data_manager_key": str,
     "test_data_sample_keys": list[str],
+    "permissions": str,
 }
 ```
 
@@ -109,6 +112,7 @@ Create new algo asset.
     "name": str,
     "description": str,
     "file": str,
+    "permissions": str,
 }
 ```
 
