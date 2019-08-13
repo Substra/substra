@@ -5,6 +5,7 @@ MODEL = 'model'
 OBJECTIVE = 'objective'
 TESTTUPLE = 'testtuple'
 TRAINTUPLE = 'traintuple'
+COMPUTE_PLAN = 'compute_plan'
 
 _SERVER_MAPPER = {
     DATASET: 'data_manager',
@@ -20,6 +21,7 @@ def get_all():
         OBJECTIVE,
         TESTTUPLE,
         TRAINTUPLE,
+        COMPUTE_PLAN,
     )
 
 

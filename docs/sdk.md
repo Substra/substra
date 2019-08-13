@@ -73,6 +73,36 @@ Create new testtuple asset.
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
+## add_compute_plan
+```python
+Client.add_compute_plan(self, data, timeout=False)
+```
+Create compute plan.
+
+Data is a dict object with the following schema:
+
+```
+{
+    "algo_key": str,
+    "objective_key": str,
+    "traintuples": list[{
+        "data_manager_key": str,
+        "train_data_sample_keys": list[str],
+        "traintuple_id": str,
+        "in_models_ids": list[str],
+        "tag": str,
+    }],
+    "testtuples": list[{
+        "data_manager_key": str,
+        "test_data_sample_keys": list[str],
+        "testtuple_id": str,
+        "traintuple_id": str,
+        "tag": str,
+    }]
+}
+```
+
+
 ## get_algo
 ```python
 Client.get_algo(self, algo_key)
