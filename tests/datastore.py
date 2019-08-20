@@ -64,7 +64,7 @@ TRAINTUPLE = {
         "openerHash": "8dd01465003a9b1e01c99c904d86aa518b3a5dd9dc8d40fe7d075c726ac073ca",
         "perf": 0
     },
-    "fltask": "",
+    "computePlanID": "",
     "inModels": None,
     "log": "[00-01-0032-d415995]",
     "objective": {

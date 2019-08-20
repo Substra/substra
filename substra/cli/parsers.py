@@ -182,7 +182,7 @@ class TraintupleParser(BaseParser):
         ('Perf', 'dataset.perf'),
         ('Train data sample keys', 'dataset.keys'),
         ('Rank', 'rank'),
-        ('FL Task', 'fltask'),
+        ('Compute Plan Id', 'computePlanID'),
         ('Tag', 'tag'),
         ('Log', 'log'),
     )
