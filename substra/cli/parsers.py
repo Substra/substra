@@ -138,8 +138,8 @@ class ObjectiveParser(BaseParser):
     single_fields = (
         ('Name', 'name'),
         ('Metrics', 'metrics.name'),
-        ('Test dataset', 'testDataset.dataManagerKey'),
-        ('Test data samples', 'testDataset.dataSampleKeys'),
+        ('Test dataset key', 'testDataset.dataManagerKey'),
+        ('Test data sample keys', 'testDataset.dataSampleKeys'),
     )
     download_message = 'Download this objective\'s metric:'
 

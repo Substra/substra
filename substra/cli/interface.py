@@ -461,7 +461,7 @@ def add_testtuple(ctx, dataset_key, traintuple_key,
 @error_printer
 def get(ctx, asset_name, asset_key, expand, json_output, config, profile, verbose):
     """Get asset definition."""
-    expand_valid_assets = (assets.DATASET, assets.TRAINTUPLE, assets.OBJECTIVE)
+    expand_valid_assets = (assets.DATASET, assets.TRAINTUPLE, assets.OBJECTIVE, assets.TESTTUPLE)
     if expand and asset_name not in expand_valid_assets:  # fail fast
         raise click.UsageError(
             f'--expand option is available with assets {expand_valid_assets}')
@@ -476,26 +476,20 @@ def get(ctx, asset_name, asset_key, expand, json_output, config, profile, verbos
         n = len(items)
         return f'{n} {key}' if n == 1 else f'{n} {key}s'
 
-    if asset_name == assets.DATASET:
-        if not expand:
+    if not expand and not json_output:
+        if asset_name == assets.DATASET:
             res['trainDataSampleKeys'] = _count_data_sample(
                 res['trainDataSampleKeys'])
             res['testDataSampleKeys'] = _count_data_sample(
                 res['testDataSampleKeys'])
 
-    elif asset_name == assets.TRAINTUPLE:
-        if expand:
-            # get traintuple associated testtuples
-            # TODO should we also get non certified testtuples?
-            model = client.get(
-                assets.MODEL, asset_key)
-            testtuple = model.get('testtuple')
-            if testtuple:
-                res['testtuples'] = [testtuple]
+        elif asset_name == assets.OBJECTIVE:
+            if res['testDataset']:
+                res['testDataset']['dataSampleKeys'] = _count_data_sample(res['testDataset']['dataSampleKeys'])
 
-    elif asset_name == assets.OBJECTIVE:
-        if not expand and res['testDataset']:
-            res['testDataset']['dataSampleKeys'] = _count_data_sample(res['testDataset']['dataSampleKeys'])
+        elif asset_name == assets.TESTTUPLE or asset_name == assets.TRAINTUPLE:
+            if res['dataset']:
+                res['dataset']['keys'] = _count_data_sample(res['dataset']['keys'])
 
     parser = parsers.get_parser(asset_name)
     parser.print_single(res, json_output)
