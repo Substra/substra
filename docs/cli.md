@@ -72,7 +72,10 @@ Usage: substra add dataset [OPTIONS] PATH
       "description": path,
       "type": str,
       "data_opener": path,
-      "permissions": str,
+      "permissions": {
+          "download": str or list[str],
+          "process": str of list[str],
+      },
   }
 
   Where:
@@ -82,7 +85,8 @@ Usage: substra add dataset [OPTIONS] PATH
     dataset (common values are 'Images', 'Tabular', 'Time series',
     'Spatial time series' and 'Hierarchical images')
   - data_opener: path to the opener python script
-  - permissions: define asset access permissions
+  - permissions: define asset download and process permissions
+    (either "all", [] or a list of node IDs)
 
 Options:
   --objective-key TEXT
@@ -107,7 +111,10 @@ Usage: substra add objective [OPTIONS] PATH
       "description": path,
       "metrics_name": str,
       "metrics": path,
-      "permissions": str,
+      "permissions": {
+          "download": str or list[str],
+          "process": str of list[str],
+      },
   }
 
   Where:
@@ -116,7 +123,8 @@ Usage: substra add objective [OPTIONS] PATH
   - metrics_name: name of the metrics
   - metrics: path to tar.gz or zip archive containing the metrics python
     script and its Dockerfile
-  - permissions: define asset access permissions
+  - permissions: define asset download and process permissions
+    (either "all", [] or a list of node IDs)
 
   The option --data-samples-path must point to a valid JSON file with the
   following schema:
@@ -151,7 +159,10 @@ Usage: substra add algo [OPTIONS] PATH
       "name": str,
       "description": path,
       "file": path,
-      "permissions": str,
+      "permissions": {
+          "download": str or list[str],
+          "process": str of list[str],
+      },
   }
 
   Where:
@@ -159,7 +170,8 @@ Usage: substra add algo [OPTIONS] PATH
   - description: path to a markdown file describing the algo
   - file: path to tar.gz or zip archive containing the algorithm python
     script and its Dockerfile
-  - permissions: define asset access permissions
+  - permissions: define asset download and process permissions
+    (either "all", [] or a list of node IDs)
 
 Options:
   --dry-run
