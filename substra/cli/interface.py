@@ -461,7 +461,7 @@ def add_testtuple(ctx, dataset_key, traintuple_key,
 @error_printer
 def get(ctx, asset_name, asset_key, expand, json_output, config, profile, verbose):
     """Get asset definition."""
-    expand_valid_assets = (assets.DATASET, assets.TRAINTUPLE)
+    expand_valid_assets = (assets.DATASET, assets.TRAINTUPLE, assets.OBJECTIVE)
     if expand and asset_name not in expand_valid_assets:  # fail fast
         raise click.UsageError(
             f'--expand option is available with assets {expand_valid_assets}')
@@ -492,6 +492,10 @@ def get(ctx, asset_name, asset_key, expand, json_output, config, profile, verbos
             testtuple = model.get('testtuple')
             if testtuple:
                 res['testtuples'] = [testtuple]
+
+    elif asset_name == assets.OBJECTIVE:
+        if not expand and res['testDataset']:
+            res['testDataset']['dataSampleKeys'] = _count_data_sample(res['testDataset']['dataSampleKeys'])
 
     parser = parsers.get_parser(asset_name)
     parser.print_single(res, json_output)
