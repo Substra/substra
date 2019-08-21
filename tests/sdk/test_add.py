@@ -62,7 +62,7 @@ def test_add_data_sample(client, data_sample_query, mocker):
     assert m.is_called()
 
 
-def test_add_data_sample_failure_409(client, data_sample_query, mocker):
+def test_add_data_sample_already_exists(client, data_sample_query, mocker):
     m = mock_requests(mocker, "post", response=[{"pkhash": "42"}], status=409)
     response = client.add_data_sample(data_sample_query, exist_ok=True)
 
