@@ -485,9 +485,10 @@ def get(ctx, asset_name, asset_key, expand, json_output, config, profile, verbos
 
         elif asset_name == assets.OBJECTIVE:
             if res['testDataset']:
-                res['testDataset']['dataSampleKeys'] = _count_data_sample(res['testDataset']['dataSampleKeys'])
+                res['testDataset']['dataSampleKeys'] = _count_data_sample(
+                    res['testDataset']['dataSampleKeys'])
 
-        elif asset_name == assets.TESTTUPLE or asset_name == assets.TRAINTUPLE:
+        elif asset_name in (assets.TESTTUPLE, assets.TRAINTUPLE):
             if res['dataset']:
                 res['dataset']['keys'] = _count_data_sample(res['dataset']['keys'])
 
