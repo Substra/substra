@@ -14,12 +14,12 @@ def find_dict_composite_key_value(asset_dict, composite_key):
     return _recursive_find(asset_dict, composite_key.split('.'))
 
 
-class BaseFieldParser:
+class Field:
     def __init__(self, field_name, field_ref):
         self.field_name = field_name
         self.field_ref = field_ref
 
-    def _print(self, name, value, field_length):
+    def print_single_name_value(self, name, value, field_length):
         if isinstance(value, list):
             if value:
                 print(name, end='')
@@ -34,16 +34,19 @@ class BaseFieldParser:
         else:
             print(f'{name}{value}')
 
-    def print(self, item, field_length):
+    def get_value(self, item):
+        return find_dict_composite_key_value(item, self.field_ref)
+
+    def print_single(self, item, field_length):
         name = self.field_name.upper().ljust(field_length)
-        value = find_dict_composite_key_value(item, self.field_ref)
-        self._print(name, value, field_length)
+        value = self.get_value(item)
+        self.print_single_name_value(name, value, field_length)
 
 
-class PermissionsFieldParser(BaseFieldParser):
-    def _print(self, name, value, field_length):
+class PermissionField(Field):
+    def print_single_name_value(self, name, value, field_length):
         value = 'owner only' if value == [] else value
-        super()._print(name, value, field_length)
+        super().print_single_name_value(name, value, field_length)
 
 
 class BaseAssetParser:
@@ -64,14 +67,13 @@ class BaseAssetParser:
             return
 
         columns = []
-        field_items = (('Key', self.key_field),) + self.many_fields
-        for field_name, field_ref in field_items:
+        for field in self._get_many_fields():
             values = [
-                str(find_dict_composite_key_value(item, field_ref))
+                str(field.get_value(item))
                 for item in items
             ]
 
-            column = [field_name.upper()]
+            column = [field.field_name.upper()]
             column.extend(values)
 
             columns.append(column)
@@ -87,14 +89,14 @@ class BaseAssetParser:
                 print(column[row_index].ljust(column_widths[col_index]), end='')
             print()
 
-    def _get_single_fields_parsers(self):
-        return [BaseFieldParser('key', self.key_field)] + [
-            field_parser if isinstance(field_parser, BaseFieldParser)
-            else BaseFieldParser(*field_parser)
-            for field_parser in self.single_fields]
+    def _get_many_fields(self):
+        return (Field('key', self.key_field), ) + self.many_fields
+
+    def _get_single_fields(self):
+        return (Field('key', self.key_field), ) + self.single_fields
 
     def _get_asset_field_length(self):
-        fields = [parser.field_name for parser in self._get_single_fields_parsers()]
+        fields = [field.field_name for field in self._get_single_fields()]
         max_field_length = max([len(x) for x in fields])
         field_length = (math.ceil(max_field_length / 4) + 1) * 4
         return field_length
@@ -107,8 +109,8 @@ class BaseAssetParser:
             return
 
         field_length = self._get_asset_field_length()
-        for field_parser in self._get_single_fields_parsers():
-            field_parser.print(item, field_length)
+        for field in self._get_single_fields():
+            field.print_single(item, field_length)
 
         key_value = find_dict_composite_key_value(item, self.key_field)
 
@@ -139,12 +141,12 @@ class AlgoParser(BaseAssetParser):
     asset_name = 'algo'
 
     many_fields = (
-        ('Name', 'name'),
+        Field('Name', 'name'),
     )
     single_fields = (
-        ('Name', 'name'),
-        PermissionsFieldParser('Processable by', 'permissions.process'),
-        PermissionsFieldParser('Downloadable by', 'permissions.download'),
+        Field('Name', 'name'),
+        PermissionField('Processable by', 'permissions.process'),
+        PermissionField('Downloadable by', 'permissions.download'),
     )
 
     download_message = 'Download this algorithm\'s code:'
@@ -154,16 +156,16 @@ class ObjectiveParser(BaseAssetParser):
     asset_name = 'objective'
 
     many_fields = (
-        ('Name', 'name'),
-        ('Metrics', 'metrics.name'),
+        Field('Name', 'name'),
+        Field('Metrics', 'metrics.name'),
     )
     single_fields = (
-        ('Name', 'name'),
-        ('Metrics', 'metrics.name'),
-        ('Test dataset key', 'testDataset.dataManagerKey'),
-        ('Test data sample keys', 'testDataset.dataSampleKeys'),
-        PermissionsFieldParser('Processable by', 'permissions.process'),
-        PermissionsFieldParser('Downloadable by', 'permissions.download'),
+        Field('Name', 'name'),
+        Field('Metrics', 'metrics.name'),
+        Field('Test dataset key', 'testDataset.dataManagerKey'),
+        Field('Test data sample keys', 'testDataset.dataSampleKeys'),
+        PermissionField('Processable by', 'permissions.process'),
+        PermissionField('Downloadable by', 'permissions.download'),
     )
     download_message = 'Download this objective\'s metric:'
 
@@ -176,17 +178,17 @@ class DatasetParser(BaseAssetParser):
     asset_name = 'dataset'
 
     many_fields = (
-        ('Name', 'name'),
-        ('Type', 'type'),
+        Field('Name', 'name'),
+        Field('Type', 'type'),
     )
     single_fields = (
-        ('Name', 'name'),
-        ('Objective key', 'objectiveKey'),
-        ('Type', 'type'),
-        ('Train data sample keys', 'trainDataSampleKeys'),
-        ('Test data sample keys', 'testDataSampleKeys'),
-        PermissionsFieldParser('Processable by', 'permissions.process'),
-        PermissionsFieldParser('Downloadable by', 'permissions.download'),
+        Field('Name', 'name'),
+        Field('Objective key', 'objectiveKey'),
+        Field('Type', 'type'),
+        Field('Train data sample keys', 'trainDataSampleKeys'),
+        Field('Test data sample keys', 'testDataSampleKeys'),
+        PermissionField('Processable by', 'permissions.process'),
+        PermissionField('Downloadable by', 'permissions.download'),
     )
     download_message = 'Download this data manager\'s opener:'
 
@@ -195,24 +197,24 @@ class TraintupleParser(BaseAssetParser):
     asset_name = 'traintuple'
 
     many_fields = (
-        ('Algo name', 'algo.name'),
-        ('Status', 'status'),
-        ('Perf', 'dataset.perf'),
+        Field('Algo name', 'algo.name'),
+        Field('Status', 'status'),
+        Field('Perf', 'dataset.perf'),
     )
     single_fields = (
-        ('Model key', 'outModel.hash'),
-        ('Algo key', 'algo.hash'),
-        ('Algo name', 'algo.name'),
-        ('Objective key', 'objective.hash'),
-        ('Status', 'status'),
-        ('Perf', 'dataset.perf'),
-        ('Train data sample keys', 'dataset.keys'),
-        ('Rank', 'rank'),
-        ('Compute Plan Id', 'computePlanID'),
-        ('Tag', 'tag'),
-        ('Log', 'log'),
-        PermissionsFieldParser('Processable by', 'permissions.process'),
-        PermissionsFieldParser('Downloadable by', 'permissions.download'),
+        Field('Model key', 'outModel.hash'),
+        Field('Algo key', 'algo.hash'),
+        Field('Algo name', 'algo.name'),
+        Field('Objective key', 'objective.hash'),
+        Field('Status', 'status'),
+        Field('Perf', 'dataset.perf'),
+        Field('Train data sample keys', 'dataset.keys'),
+        Field('Rank', 'rank'),
+        Field('Compute Plan Id', 'computePlanID'),
+        Field('Tag', 'tag'),
+        Field('Log', 'log'),
+        PermissionField('Processable by', 'permissions.process'),
+        PermissionField('Downloadable by', 'permissions.download'),
     )
     has_description = False
 
@@ -221,24 +223,24 @@ class TesttupleParser(BaseAssetParser):
     asset_name = 'testtuple'
 
     many_fields = (
-        ('Algo name', 'algo.name'),
-        ('Certified', 'certified'),
-        ('Status', 'status'),
-        ('Perf', 'dataset.perf')
+        Field('Algo name', 'algo.name'),
+        Field('Certified', 'certified'),
+        Field('Status', 'status'),
+        Field('Perf', 'dataset.perf')
     )
     single_fields = (
-        ('Traintuple key', 'model.traintupleKey'),
-        ('Algo key', 'algo.hash'),
-        ('Algo name', 'algo.name'),
-        ('Objective key', 'objective.hash'),
-        ('Certified', 'certified'),
-        ('Status', 'status'),
-        ('Perf', 'dataset.perf'),
-        ('Test data sample keys', 'dataset.keys'),
-        ('Tag', 'tag'),
-        ('Log', 'log'),
-        PermissionsFieldParser('Processable by', 'permissions.process'),
-        PermissionsFieldParser('Downloadable by', 'permissions.download'),
+        Field('Traintuple key', 'model.traintupleKey'),
+        Field('Algo key', 'algo.hash'),
+        Field('Algo name', 'algo.name'),
+        Field('Objective key', 'objective.hash'),
+        Field('Certified', 'certified'),
+        Field('Status', 'status'),
+        Field('Perf', 'dataset.perf'),
+        Field('Test data sample keys', 'dataset.keys'),
+        Field('Tag', 'tag'),
+        Field('Log', 'log'),
+        PermissionField('Processable by', 'permissions.process'),
+        PermissionField('Downloadable by', 'permissions.download'),
     )
     has_description = False
 
