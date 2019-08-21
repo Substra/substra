@@ -88,8 +88,10 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        if 'paths' in data or 'path' not in data:
-            raise ValueError('data must contain a `path` field')
+        if 'paths' in data:
+            raise ValueError("data: invalid 'paths' field")
+        if 'path' not in data:
+            raise ValueError("data: missing 'path' field")
         try:
             data_samples = self._add_data_samples(
                 data, local=local, dryrun=dryrun, timeout=timeout)
@@ -107,8 +109,10 @@ class Client(object):
 
     def add_data_samples(self, data, local=True, dryrun=False, timeout=False):
         """Create many data sample assets."""
-        if 'path' in data or 'paths' not in data:
-            raise ValueError('data must contain a `paths` field')
+        if 'path' in data:
+            raise ValueError("data: invalid 'path' field")
+        if 'paths' not in data:
+            raise ValueError("data: missing 'paths' field")
         return self._add_data_samples(
             data, local=local, dryrun=dryrun, timeout=timeout)
 
