@@ -8,10 +8,7 @@ OBJECTIVE = {
     },
     "name": "Skin Lesion Classification Challenge",
     "owner": "c657699f8b03c19e6eadc7b474c23f26dd83454395266a673406f2cf44de2ca2",
-    "permissions": {
-        "download": "all",
-        "process": "all"
-    },
+    "permissions": "all",
     "testDataset": {
         "dataManagerKey": "ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994",
         "dataSampleKeys": [
@@ -30,10 +27,7 @@ DATASET = {
     "name": "ISIC 2018",
     "openerStorageAddress": "",
     "owner": "c657699f8b03c19e6eadc7b474c23f26dd83454395266a673406f2cf44de2ca2",
-    "permissions": {
-        "download": "all",
-        "process": "all"
-    },
+    "permissions": "all",
     "size": 100,
     "type": "Images",
     "trainDataSampleKeys": [],
@@ -52,10 +46,7 @@ ALGO = {
       "storageAddress": ""
     },
     "owner": "ab75010bacbd1a4b826dc2e9ead6f1e4e1c4feade2d62a8b708fdde48fb0edea",
-    "permissions": {
-        "download": "all",
-        "process": "all"
-    },
+    "permissions": "all",
     "pkhash": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5"
 }
 
@@ -87,10 +78,7 @@ TRAINTUPLE = {
         }
     },
     "outModel": None,
-    "permissions": {
-        "download": "all",
-        "process": "all"
-    },
+    "permissions": "all",
     "rank": 0,
     "status": "failed",
     "tag": "My super tag"
@@ -127,10 +115,7 @@ TESTTUPLE = {
             "storageAddress": "",
           }
     },
-    "permissions": {
-        "download": "all",
-        "process": "all"
-    },
+    "permissions": "all",
     "status": "done",
     "tag": ""
 }

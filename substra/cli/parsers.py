@@ -145,8 +145,7 @@ class AlgoParser(BaseAssetParser):
     )
     single_fields = (
         Field('Name', 'name'),
-        PermissionField('Processable by', 'permissions.process'),
-        PermissionField('Downloadable by', 'permissions.download'),
+        PermissionField('Permissions', 'permissions'),
     )
 
     download_message = 'Download this algorithm\'s code:'
@@ -164,8 +163,7 @@ class ObjectiveParser(BaseAssetParser):
         Field('Metrics', 'metrics.name'),
         Field('Test dataset key', 'testDataset.dataManagerKey'),
         Field('Test data sample keys', 'testDataset.dataSampleKeys'),
-        PermissionField('Processable by', 'permissions.process'),
-        PermissionField('Downloadable by', 'permissions.download'),
+        PermissionField('Permissions', 'permissions'),
     )
     download_message = 'Download this objective\'s metric:'
 
@@ -187,8 +185,7 @@ class DatasetParser(BaseAssetParser):
         Field('Type', 'type'),
         Field('Train data sample keys', 'trainDataSampleKeys'),
         Field('Test data sample keys', 'testDataSampleKeys'),
-        PermissionField('Processable by', 'permissions.process'),
-        PermissionField('Downloadable by', 'permissions.download'),
+        PermissionField('Permissions', 'permissions'),
     )
     download_message = 'Download this data manager\'s opener:'
 
@@ -213,8 +210,7 @@ class TraintupleParser(BaseAssetParser):
         Field('Compute Plan Id', 'computePlanID'),
         Field('Tag', 'tag'),
         Field('Log', 'log'),
-        PermissionField('Processable by', 'permissions.process'),
-        PermissionField('Downloadable by', 'permissions.download'),
+        PermissionField('Permissions', 'permissions'),
     )
     has_description = False
 
@@ -239,8 +235,7 @@ class TesttupleParser(BaseAssetParser):
         Field('Test data sample keys', 'dataset.keys'),
         Field('Tag', 'tag'),
         Field('Log', 'log'),
-        PermissionField('Processable by', 'permissions.process'),
-        PermissionField('Downloadable by', 'permissions.download'),
+        PermissionField('Permissions', 'permissions'),
     )
     has_description = False
 
