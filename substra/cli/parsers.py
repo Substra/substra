@@ -15,11 +15,17 @@ def find_dict_composite_key_value(asset_dict, composite_key):
 
 
 class Field:
-    def __init__(self, field_name, field_ref):
-        self.field_name = field_name
-        self.field_ref = field_ref
+    def __init__(self, name, ref):
+        self.name = name
+        self.ref = ref
 
-    def print_single_name_value(self, name, value, field_length, expand):
+    def get_value(self, item, expand=False):
+        return find_dict_composite_key_value(item, self.ref)
+
+    def print_single(self, item, field_length, expand):
+        name = self.name.upper().ljust(field_length)
+        value = self.get_value(item, expand)
+
         if isinstance(value, list):
             if value:
                 print(name, end='')
@@ -34,28 +40,20 @@ class Field:
         else:
             print(f'{name}{value}')
 
-    def get_value(self, item):
-        return find_dict_composite_key_value(item, self.field_ref)
-
-    def print_single(self, item, field_length, expand):
-        name = self.field_name.upper().ljust(field_length)
-        value = self.get_value(item)
-        self.print_single_name_value(name, value, field_length, expand)
-
 
 class PermissionField(Field):
-    def print_single_name_value(self, name, value, field_length, expand):
-        value = 'owner only' if value == [] else value
-        super().print_single_name_value(name, value, field_length, expand)
+    def get_value(self, item, expand=False):
+        value = super().get_value(item, expand)
+        return 'owner only' if value == [] else value
 
 
 class DataSampleKeysField(Field):
-    def print_single_name_value(self, name, value, field_length, expand):
+    def get_value(self, item, expand=False):
+        value = super().get_value(item, expand)
         if not expand:
             n = len(value)
             value = f'{n} data sample key' if n == 1 else f'{n} data sample keys'
-
-        super().print_single_name_value(name, value, field_length, expand)
+        return value
 
 
 class BaseAssetParser:
@@ -77,12 +75,9 @@ class BaseAssetParser:
 
         columns = []
         for field in self._get_many_fields():
-            values = [
-                str(field.get_value(item))
-                for item in items
-            ]
+            values = [str(field.get_value(item)) for item in items]
 
-            column = [field.field_name.upper()]
+            column = [field.name.upper()]
             column.extend(values)
 
             columns.append(column)
@@ -105,7 +100,7 @@ class BaseAssetParser:
         return (Field('key', self.key_field), ) + self.single_fields
 
     def _get_asset_field_length(self):
-        fields = [field.field_name for field in self._get_single_fields()]
+        fields = [field.name for field in self._get_single_fields()]
         max_field_length = max([len(x) for x in fields])
         field_length = (math.ceil(max_field_length / 4) + 1) * 4
         return field_length
