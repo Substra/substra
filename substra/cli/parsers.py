@@ -19,7 +19,7 @@ class Field:
         self.field_name = field_name
         self.field_ref = field_ref
 
-    def print_single_name_value(self, name, value, field_length):
+    def print_single_name_value(self, name, value, field_length, expand):
         if isinstance(value, list):
             if value:
                 print(name, end='')
@@ -37,16 +37,25 @@ class Field:
     def get_value(self, item):
         return find_dict_composite_key_value(item, self.field_ref)
 
-    def print_single(self, item, field_length):
+    def print_single(self, item, field_length, expand):
         name = self.field_name.upper().ljust(field_length)
         value = self.get_value(item)
-        self.print_single_name_value(name, value, field_length)
+        self.print_single_name_value(name, value, field_length, expand)
 
 
 class PermissionField(Field):
-    def print_single_name_value(self, name, value, field_length):
+    def print_single_name_value(self, name, value, field_length, expand):
         value = 'owner only' if value == [] else value
-        super().print_single_name_value(name, value, field_length)
+        super().print_single_name_value(name, value, field_length, expand)
+
+
+class DataSampleKeysField(Field):
+    def print_single_name_value(self, name, value, field_length, expand):
+        if not expand:
+            n = len(value)
+            value = f'{n} data sample key' if n == 1 else f'{n} data sample keys'
+
+        super().print_single_name_value(name, value, field_length, expand)
 
 
 class BaseAssetParser:
@@ -101,7 +110,7 @@ class BaseAssetParser:
         field_length = (math.ceil(max_field_length / 4) + 1) * 4
         return field_length
 
-    def print_single(self, item, raw):
+    def print_single(self, item, raw, expand):
         """Display single item."""
 
         if raw:
@@ -110,7 +119,7 @@ class BaseAssetParser:
 
         field_length = self._get_asset_field_length()
         for field in self._get_single_fields():
-            field.print_single(item, field_length)
+            field.print_single(item, field_length, expand)
 
         key_value = find_dict_composite_key_value(item, self.key_field)
 
@@ -162,7 +171,7 @@ class ObjectiveParser(BaseAssetParser):
         Field('Name', 'name'),
         Field('Metrics', 'metrics.name'),
         Field('Test dataset key', 'testDataset.dataManagerKey'),
-        Field('Test data sample keys', 'testDataset.dataSampleKeys'),
+        DataSampleKeysField('Test data sample keys', 'testDataset.dataSampleKeys'),
         PermissionField('Permissions', 'permissions'),
     )
     download_message = 'Download this objective\'s metric:'
@@ -183,8 +192,8 @@ class DatasetParser(BaseAssetParser):
         Field('Name', 'name'),
         Field('Objective key', 'objectiveKey'),
         Field('Type', 'type'),
-        Field('Train data sample keys', 'trainDataSampleKeys'),
-        Field('Test data sample keys', 'testDataSampleKeys'),
+        DataSampleKeysField('Train data sample keys', 'trainDataSampleKeys'),
+        DataSampleKeysField('Test data sample keys', 'testDataSampleKeys'),
         PermissionField('Permissions', 'permissions'),
     )
     download_message = 'Download this data manager\'s opener:'
@@ -205,7 +214,7 @@ class TraintupleParser(BaseAssetParser):
         Field('Objective key', 'objective.hash'),
         Field('Status', 'status'),
         Field('Perf', 'dataset.perf'),
-        Field('Train data sample keys', 'dataset.keys'),
+        DataSampleKeysField('Train data sample keys', 'dataset.keys'),
         Field('Rank', 'rank'),
         Field('Compute Plan Id', 'computePlanID'),
         Field('Tag', 'tag'),
@@ -232,7 +241,7 @@ class TesttupleParser(BaseAssetParser):
         Field('Certified', 'certified'),
         Field('Status', 'status'),
         Field('Perf', 'dataset.perf'),
-        Field('Test data sample keys', 'dataset.keys'),
+        DataSampleKeysField('Test data sample keys', 'dataset.keys'),
         Field('Tag', 'tag'),
         Field('Log', 'log'),
         PermissionField('Permissions', 'permissions'),
