@@ -23,11 +23,16 @@ Add new profile (in-memory only).
 ```python
 Client.add_data_sample(self, data, local=True, dryrun=False, timeout=False, exist_ok=False)
 ```
-Create new data sample asset(s).
+Create new data sample asset.
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
+## add_data_samples
+```python
+Client.add_data_samples(self, data, local=True, dryrun=False, timeout=False)
+```
+Create many data sample assets.
 ## add_dataset
 ```python
 Client.add_dataset(self, data, dryrun=False, timeout=False, exist_ok=False)

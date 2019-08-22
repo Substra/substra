@@ -2,7 +2,7 @@ from copy import deepcopy
 import logging
 import os
 
-from substra.sdk import utils, assets, rest_client
+from substra.sdk import utils, assets, rest_client, exceptions
 import substra.sdk.config as cfg
 
 logger = logging.getLogger(__name__)
@@ -77,21 +77,51 @@ class Client(object):
             exist_ok=exist_ok,
             **requests_kwargs)
 
+    def _add_data_samples(self, data, local=True, dryrun=False, timeout=False):
+        """Create new data sample(s) asset."""
+        if not local:
+            return self._add(
+                assets.DATA_SAMPLE, data,
+                dryrun=dryrun, timeout=timeout, exist_ok=False)
+        with utils.extract_data_sample_files(data) as (data, files):
+            return self._add(
+                assets.DATA_SAMPLE, data,
+                files=files, dryrun=dryrun, timeout=timeout, exist_ok=False)
+
     def add_data_sample(self, data, local=True, dryrun=False, timeout=False,
                         exist_ok=False):
-        """Create new data sample asset(s).
+        """Create new data sample asset.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        if not local:
-            return self._add(assets.DATA_SAMPLE, data, dryrun=dryrun, timeout=timeout,
-                             exist_ok=exist_ok)
+        if 'paths' in data:
+            raise ValueError("data: invalid 'paths' field")
+        if 'path' not in data:
+            raise ValueError("data: missing 'path' field")
+        try:
+            data_samples = self._add_data_samples(
+                data, local=local, dryrun=dryrun, timeout=timeout)
+        except exceptions.AlreadyExists as e:
+            # exist_ok option must be handle separately for data samples as a get action
+            # is not allowed on data samples
+            if not exist_ok:
+                raise
+            key = e.pkhash[0]
+            logger.warning(f"data_sample already exists: key='{key}'")
+            data_samples = [{'pkhash': key}]
+        # there is currently a single route in the backend to add a single or many
+        # datasamples, this route always returned a list of created data sample keys
+        return data_samples[0]
 
-        with utils.extract_data_sample_files(data) as (data, files):
-            return self._add(
-                assets.DATA_SAMPLE, data, files=files, dryrun=dryrun, timeout=timeout,
-                exist_ok=exist_ok)
+    def add_data_samples(self, data, local=True, dryrun=False, timeout=False):
+        """Create many data sample assets."""
+        if 'path' in data:
+            raise ValueError("data: invalid 'path' field")
+        if 'paths' not in data:
+            raise ValueError("data: missing 'paths' field")
+        return self._add_data_samples(
+            data, local=local, dryrun=dryrun, timeout=timeout)
 
     def add_dataset(self, data, dryrun=False, timeout=False, exist_ok=False):
         """Create new dataset asset.

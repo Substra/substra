@@ -62,6 +62,18 @@ def algo_query(tmpdir):
 
 @pytest.fixture
 def data_sample_query(tmpdir):
+    data_sample_dir_path = tmpdir / f"data_sample_0"
+    data_sample_file_path = data_sample_dir_path / "data.txt"
+    data_sample_file_path.write_text(f"Hello world 0", encoding="utf-8", ensure=True)
+
+    return {
+        "path": str(data_sample_dir_path),
+        "data_manager_keys": ["42"],
+    }
+
+
+@pytest.fixture
+def data_samples_query(tmpdir):
     nb = 3
     paths = []
     for i in range(nb):
