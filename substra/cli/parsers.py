@@ -59,7 +59,7 @@ class DataSampleKeysField(Field):
 class BaseAssetParser:
     asset_name = None
 
-    key_field = 'key'
+    key_field = Field('key', 'key')
     many_fields = ()
     single_fields = ()
 
@@ -94,10 +94,10 @@ class BaseAssetParser:
             print()
 
     def _get_many_fields(self):
-        return (Field('key', self.key_field), ) + self.many_fields
+        return (self.key_field, ) + self.many_fields
 
     def _get_single_fields(self):
-        return (Field('key', self.key_field), ) + self.single_fields
+        return (self.key_field, ) + self.single_fields
 
     def _get_asset_field_length(self):
         fields = [field.name for field in self._get_single_fields()]
@@ -116,7 +116,7 @@ class BaseAssetParser:
         for field in self._get_single_fields():
             field.print_single(item, field_length, expand)
 
-        key_value = find_dict_composite_key_value(item, self.key_field)
+        key_value = self.key_field.get_value(item)
 
         if self.download_message:
             print()
