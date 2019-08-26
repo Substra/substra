@@ -107,7 +107,22 @@ def parse_filters(filters):
     except ValueError:
         raise ValueError(
             'Cannot load filters. Please review the documentation.')
-    filters = map(lambda x: '-OR-' if x == 'OR' else x, filters)
+
+    def _escape_filter(f):
+        # handle OR
+        if f == 'OR':
+            return '-OR-'
+
+        # handle filter value that contains ":"
+        try:
+            asset, field, *value = f.split(':')
+        except ValueError:
+            return f
+
+        return ':'.join([asset, field, quote(quote(':'.join(value)))])
+
+    filters = map(_escape_filter, filters)
+
     # requests uses quote_plus to escape the params, but we want to use
     # quote
     # we're therefore passing a string (won't be escaped again) instead
