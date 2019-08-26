@@ -57,8 +57,6 @@ class Client(object):
         """Add asset."""
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
         files = files or {}
-        if 'permissions' not in data:
-            data['permissions'] = 'all'
 
         if dryrun:
             data['dryrun'] = True

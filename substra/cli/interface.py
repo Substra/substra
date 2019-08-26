@@ -471,29 +471,8 @@ def get(ctx, asset_name, asset_key, expand, json_output, config, profile, verbos
     method = getattr(client, f'get_{asset_name.lower()}')
     res = method(asset_key)
 
-    def _count_data_sample(items):
-        key = 'data sample key'
-        n = len(items)
-        return f'{n} {key}' if n == 1 else f'{n} {key}s'
-
-    if not expand and not json_output:
-        if asset_name == assets.DATASET:
-            res['trainDataSampleKeys'] = _count_data_sample(
-                res['trainDataSampleKeys'])
-            res['testDataSampleKeys'] = _count_data_sample(
-                res['testDataSampleKeys'])
-
-        elif asset_name == assets.OBJECTIVE:
-            if res['testDataset']:
-                res['testDataset']['dataSampleKeys'] = _count_data_sample(
-                    res['testDataset']['dataSampleKeys'])
-
-        elif asset_name in (assets.TESTTUPLE, assets.TRAINTUPLE):
-            if res['dataset']:
-                res['dataset']['keys'] = _count_data_sample(res['dataset']['keys'])
-
     parser = parsers.get_parser(asset_name)
-    parser.print_single(res, json_output)
+    parser.print_single(res, json_output, expand)
 
 
 @cli.command('list')

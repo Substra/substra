@@ -14,10 +14,52 @@ def find_dict_composite_key_value(asset_dict, composite_key):
     return _recursive_find(asset_dict, composite_key.split('.'))
 
 
-class BaseParser:
+class Field:
+    def __init__(self, name, ref):
+        self.name = name
+        self.ref = ref
+
+    def get_value(self, item, expand=False):
+        return find_dict_composite_key_value(item, self.ref)
+
+    def print_single(self, item, field_length, expand):
+        name = self.name.upper().ljust(field_length)
+        value = self.get_value(item, expand)
+
+        if isinstance(value, list):
+            if value:
+                print(name, end='')
+                padding = ' ' * field_length
+                for i, v in enumerate(value):
+                    if i == 0:
+                        print(f'- {v}')
+                    else:
+                        print(f'{padding}- {v}')
+            else:
+                print(f'{name} None')
+        else:
+            print(f'{name}{value}')
+
+
+class PermissionField(Field):
+    def get_value(self, item, expand=False):
+        value = super().get_value(item, expand)
+        return 'owner only' if value == [] else value
+
+
+class DataSampleKeysField(Field):
+    def get_value(self, item, expand=False):
+        value = super().get_value(item, expand)
+        if not expand:
+            n = len(value)
+            value = f'{n} data sample key' if n == 1 else f'{n} data sample keys'
+        return value
+
+
+class BaseAssetParser:
     asset_name = None
 
-    key_field = 'key'
+    key_field = Field('key', 'key')
     many_fields = ()
     single_fields = ()
 
@@ -32,14 +74,10 @@ class BaseParser:
             return
 
         columns = []
-        field_items = (('Key', self.key_field),) + self.many_fields
-        for field_name, field_ref in field_items:
-            values = [
-                str(find_dict_composite_key_value(item, field_ref))
-                for item in items
-            ]
+        for field in self._get_many_fields():
+            values = [str(field.get_value(item)) for item in items]
 
-            column = [field_name.upper()]
+            column = [field.name.upper()]
             column.extend(values)
 
             columns.append(column)
@@ -55,32 +93,19 @@ class BaseParser:
                 print(column[row_index].ljust(column_widths[col_index]), end='')
             print()
 
+    def _get_many_fields(self):
+        return (self.key_field, ) + self.many_fields
+
+    def _get_single_fields(self):
+        return (self.key_field, ) + self.single_fields
+
     def _get_asset_field_length(self):
-        fields = ['key'] + [field for field, _ in self.single_fields]
+        fields = [field.name for field in self._get_single_fields()]
         max_field_length = max([len(x) for x in fields])
         field_length = (math.ceil(max_field_length / 4) + 1) * 4
         return field_length
 
-    def _print_single_fields(self, item, field_length):
-        field_items = (('key', self.key_field), ) + self.single_fields
-        for field_name, field_ref in field_items:
-            name = field_name.upper().ljust(field_length)
-            value = find_dict_composite_key_value(item, field_ref)
-            if isinstance(value, list):
-                if value:
-                    print(name, end='')
-                    padding = ' ' * field_length
-                    for i, v in enumerate(value):
-                        if i == 0:
-                            print(f'- {v}')
-                        else:
-                            print(f'{padding}- {v}')
-                else:
-                    print(f'{name} None')
-            else:
-                print(f'{name}{value}')
-
-    def print_single(self, item, raw):
+    def print_single(self, item, raw, expand):
         """Display single item."""
 
         if raw:
@@ -88,9 +113,10 @@ class BaseParser:
             return
 
         field_length = self._get_asset_field_length()
-        self._print_single_fields(item, field_length)
+        for field in self._get_single_fields():
+            field.print_single(item, field_length, expand)
 
-        key_value = find_dict_composite_key_value(item, self.key_field)
+        key_value = self.key_field.get_value(item)
 
         if self.download_message:
             print()
@@ -115,100 +141,105 @@ class JsonOnlyParser:
         self._print(item)
 
 
-class AlgoParser(BaseParser):
+class AlgoParser(BaseAssetParser):
     asset_name = 'algo'
 
     many_fields = (
-        ('Name', 'name'),
+        Field('Name', 'name'),
     )
     single_fields = (
-        ('Name', 'name'),
+        Field('Name', 'name'),
+        PermissionField('Permissions', 'permissions'),
     )
 
     download_message = 'Download this algorithm\'s code:'
 
 
-class ObjectiveParser(BaseParser):
+class ObjectiveParser(BaseAssetParser):
     asset_name = 'objective'
 
     many_fields = (
-        ('Name', 'name'),
-        ('Metrics', 'metrics.name'),
+        Field('Name', 'name'),
+        Field('Metrics', 'metrics.name'),
     )
     single_fields = (
-        ('Name', 'name'),
-        ('Metrics', 'metrics.name'),
-        ('Test dataset key', 'testDataset.dataManagerKey'),
-        ('Test data sample keys', 'testDataset.dataSampleKeys'),
+        Field('Name', 'name'),
+        Field('Metrics', 'metrics.name'),
+        Field('Test dataset key', 'testDataset.dataManagerKey'),
+        DataSampleKeysField('Test data sample keys', 'testDataset.dataSampleKeys'),
+        PermissionField('Permissions', 'permissions'),
     )
     download_message = 'Download this objective\'s metric:'
 
 
-class DataSampleParser(BaseParser):
+class DataSampleParser(BaseAssetParser):
     asset_name = 'data sample'
 
 
-class DatasetParser(BaseParser):
+class DatasetParser(BaseAssetParser):
     asset_name = 'dataset'
 
     many_fields = (
-        ('Name', 'name'),
-        ('Type', 'type'),
+        Field('Name', 'name'),
+        Field('Type', 'type'),
     )
     single_fields = (
-        ('Name', 'name'),
-        ('Objective key', 'objectiveKey'),
-        ('Type', 'type'),
-        ('Train data sample keys', 'trainDataSampleKeys'),
-        ('Test data sample keys', 'testDataSampleKeys'),
+        Field('Name', 'name'),
+        Field('Objective key', 'objectiveKey'),
+        Field('Type', 'type'),
+        DataSampleKeysField('Train data sample keys', 'trainDataSampleKeys'),
+        DataSampleKeysField('Test data sample keys', 'testDataSampleKeys'),
+        PermissionField('Permissions', 'permissions'),
     )
     download_message = 'Download this data manager\'s opener:'
 
 
-class TraintupleParser(BaseParser):
+class TraintupleParser(BaseAssetParser):
     asset_name = 'traintuple'
 
     many_fields = (
-        ('Algo name', 'algo.name'),
-        ('Status', 'status'),
-        ('Perf', 'dataset.perf'),
+        Field('Algo name', 'algo.name'),
+        Field('Status', 'status'),
+        Field('Perf', 'dataset.perf'),
     )
     single_fields = (
-        ('Model key', 'outModel.hash'),
-        ('Algo key', 'algo.hash'),
-        ('Algo name', 'algo.name'),
-        ('Objective key', 'objective.hash'),
-        ('Status', 'status'),
-        ('Perf', 'dataset.perf'),
-        ('Train data sample keys', 'dataset.keys'),
-        ('Rank', 'rank'),
-        ('Compute Plan Id', 'computePlanID'),
-        ('Tag', 'tag'),
-        ('Log', 'log'),
+        Field('Model key', 'outModel.hash'),
+        Field('Algo key', 'algo.hash'),
+        Field('Algo name', 'algo.name'),
+        Field('Objective key', 'objective.hash'),
+        Field('Status', 'status'),
+        Field('Perf', 'dataset.perf'),
+        DataSampleKeysField('Train data sample keys', 'dataset.keys'),
+        Field('Rank', 'rank'),
+        Field('Compute Plan Id', 'computePlanID'),
+        Field('Tag', 'tag'),
+        Field('Log', 'log'),
+        PermissionField('Permissions', 'permissions'),
     )
     has_description = False
 
 
-class TesttupleParser(BaseParser):
+class TesttupleParser(BaseAssetParser):
     asset_name = 'testtuple'
 
     many_fields = (
-        ('Algo name', 'algo.name'),
-        ('Certified', 'certified'),
-        ('Status', 'status'),
-        ('Perf', 'dataset.perf')
+        Field('Algo name', 'algo.name'),
+        Field('Certified', 'certified'),
+        Field('Status', 'status'),
+        Field('Perf', 'dataset.perf')
     )
     single_fields = (
-        ('Traintuple key', 'model.traintupleKey'),
-        ('Algo key', 'algo.hash'),
-        ('Algo name', 'algo.name'),
-        ('Objective key', 'objective.hash'),
-        ('Certified', 'certified'),
-        ('Status', 'status'),
-        ('Perf', 'dataset.perf'),
-        ('Test data sample keys', 'dataset.keys'),
-        ('Tag', 'tag'),
-        ('Log', 'log'),
+        Field('Traintuple key', 'model.traintupleKey'),
+        Field('Algo key', 'algo.hash'),
+        Field('Algo name', 'algo.name'),
+        Field('Objective key', 'objective.hash'),
+        Field('Certified', 'certified'),
+        Field('Status', 'status'),
+        Field('Perf', 'dataset.perf'),
+        DataSampleKeysField('Test data sample keys', 'dataset.keys'),
+        Field('Tag', 'tag'),
+        Field('Log', 'log'),
+        PermissionField('Permissions', 'permissions'),
     )
     has_description = False
 
