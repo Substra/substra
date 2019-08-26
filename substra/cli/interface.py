@@ -231,7 +231,7 @@ def add_dataset(ctx, path, objective_key, dryrun, config, profile, verbose):
         "description": path,
         "type": str,
         "data_opener": path,
-        "permissions": str or list[str],
+        "permissions": str,
     }
 
     \b
@@ -242,7 +242,7 @@ def add_dataset(ctx, path, objective_key, dryrun, config, profile, verbose):
       dataset (common values are 'Images', 'Tabular', 'Time series',
       'Spatial time series' and 'Hierarchical images')
     - data_opener: path to the opener python script
-    - permissions: define asset access policy (either "all", [] or a list of node IDs)
+    - permissions: define asset access permissions
     """
     client = get_client(config, profile)
     data = load_json(path)
@@ -275,7 +275,7 @@ def add_objective(ctx, path, dataset_key, data_samples_path, dryrun, config,
         "description": path,
         "metrics_name": str,
         "metrics": path,
-        "permissions": str or list[str],
+        "permissions": str,
     }
 
     \b
@@ -285,7 +285,7 @@ def add_objective(ctx, path, dataset_key, data_samples_path, dryrun, config,
     - metrics_name: name of the metrics
     - metrics: path to tar.gz or zip archive containing the metrics python
       script and its Dockerfile
-    - permissions: define asset access policy (either "all", [] or a list of node IDs)
+    - permissions: define asset access permissions
 
     The option --data-samples-path must point to a valid JSON file with the
     following schema:
@@ -331,7 +331,7 @@ def add_algo(ctx, path, dryrun, config, profile, verbose):
         "name": str,
         "description": path,
         "file": path,
-        "permissions": str or list[str],
+        "permissions": str,
     }
 
     \b
@@ -340,7 +340,7 @@ def add_algo(ctx, path, dryrun, config, profile, verbose):
     - description: path to a markdown file describing the algo
     - file: path to tar.gz or zip archive containing the algorithm python
       script and its Dockerfile
-    - permissions: define asset access policy (either "all", [] or a list of node IDs)
+    - permissions: define asset access permissions
     """
     client = get_client(config, profile)
     data = load_json(path)
