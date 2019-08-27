@@ -1,6 +1,8 @@
 import os
 import zipfile
 
+import pytest
+
 from substra.sdk import utils
 
 
@@ -41,3 +43,36 @@ def test_zip_folder(tmp_path):
         path = destination_dir / name
         assert os.path.exists(str(path))
         assert path.read_text() == content
+
+
+@pytest.mark.parametrize('raw, parsed', [
+    (['foo'], ['foo']),
+    (['foo', 'bar'], ['foo,bar']),
+    (['foo', '-OR-', 'bar'], ['foo', '-OR-', 'bar']),
+    (['foo', 'bar', '-OR-', 'baz'], ['foo,bar', '-OR-', 'baz']),
+    (['foo', 'bar', '-OR-', 'baz', 'qux'], ['foo,bar', '-OR-', 'baz,qux']),
+    (['foo', '-OR-', 'bar', 'baz', 'qux'], ['foo', '-OR-', 'bar,baz,qux']),
+    (['foo', '-OR-', 'bar', '-OR-', 'baz'], ['foo', '-OR-', 'bar', '-OR-', 'baz']),
+    (['foo', 'bar', '-OR-', 'baz', 'qux', '-OR-', 'quux', 'corge'],
+     ['foo,bar', '-OR-', 'baz,qux', '-OR-', 'quux,corge']),
+])
+def test_join_and_groups(raw, parsed):
+    assert utils._join_and_groups(raw) == parsed
+
+
+@pytest.mark.parametrize('raw,parsed,exception', [
+    ('["foo", "OR", "bar"]', 'search=foo-OR-bar', None),
+    ('["foo:bar:baz"]', 'search=foo%3Abar%3Abaz', None),
+    ('["foo:bar:baz qux"]', 'search=foo%3Abar%3Abaz%252520qux', None),
+    ('["foo:bar:baz:qux"]', 'search=foo%3Abar%3Abaz%25253Aqux', None),
+    ('["foo", "bar"]', 'search=foo%2Cbar', None),
+    ('', None, ValueError),
+    ('foo', None, ValueError),
+    ('{}', None, ValueError),
+])
+def test_parse_filters(raw, parsed, exception):
+    if exception:
+        with pytest.raises(exception):
+            utils.parse_filters(raw)
+    else:
+        assert utils.parse_filters(raw) == parsed

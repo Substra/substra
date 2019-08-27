@@ -101,13 +101,49 @@ def flatten(list_of_list):
     return res
 
 
+def _join_and_groups(items):
+    """
+    "-OR-" items separate the items that have to be grouped with an "AND" clause
+    This function groups items from a same "AND group" with commas
+    """
+    indexes = [k for k, v in enumerate(items) if v == '-OR-']
+    next_group = 0
+    groups = []
+    for i in indexes:
+        groups.append(','.join(items[next_group:i]))
+        groups.append('-OR-')
+        next_group = i + 1
+    groups.append(','.join(items[next_group:]))
+    return groups
+
+
+def _escape_filter(f):
+    # handle OR
+    if f == 'OR':
+        return '-OR-'
+
+    # handle filter value that contains ":"
+    try:
+        asset, field, *value = f.split(':')
+    except ValueError:
+        return f
+
+    return ':'.join([asset, field, quote(quote(':'.join(value)))])
+
+
 def parse_filters(filters):
     try:
         filters = json.loads(filters)
     except ValueError:
         raise ValueError(
             'Cannot load filters. Please review the documentation.')
-    filters = map(lambda x: '-OR-' if x == 'OR' else x, filters)
+
+    if not isinstance(filters, list):
+        raise ValueError('Cannot load filters. Please review the documentation')
+
+    filters = [_escape_filter(f) for f in filters]
+    filters = _join_and_groups(filters)
+
     # requests uses quote_plus to escape the params, but we want to use
     # quote
     # we're therefore passing a string (won't be escaped again) instead
