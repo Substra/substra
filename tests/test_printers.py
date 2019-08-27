@@ -1,6 +1,6 @@
 import unittest
 
-from substra.cli.parsers import find_dict_composite_key_value
+from substra.cli.printers import find_dict_composite_key_value
 
 
 class TestHelperMethods(unittest.TestCase):

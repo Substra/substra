@@ -50,13 +50,13 @@ class PermissionField(Field):
 class DataSampleKeysField(Field):
     def get_value(self, item, expand=False):
         value = super().get_value(item, expand)
-        if not expand:
+        if not expand and value:
             n = len(value)
             value = f'{n} data sample key' if n == 1 else f'{n} data sample keys'
         return value
 
 
-class BaseAssetParser:
+class BasePrinter:
     asset_name = None
 
     key_field = Field('key', 'key')
@@ -129,7 +129,7 @@ class BaseAssetParser:
             print(f'\tsubstra describe {self.asset_name} {key_value}')
 
 
-class JsonOnlyParser:
+class JsonOnlyPrinter:
     @staticmethod
     def _print(data):
         print(json.dumps(data, indent=2))
@@ -141,7 +141,7 @@ class JsonOnlyParser:
         self._print(item)
 
 
-class AlgoParser(BaseAssetParser):
+class AlgoPrinter(BasePrinter):
     asset_name = 'algo'
 
     many_fields = (
@@ -155,7 +155,7 @@ class AlgoParser(BaseAssetParser):
     download_message = 'Download this algorithm\'s code:'
 
 
-class ObjectiveParser(BaseAssetParser):
+class ObjectivePrinter(BasePrinter):
     asset_name = 'objective'
 
     many_fields = (
@@ -172,11 +172,11 @@ class ObjectiveParser(BaseAssetParser):
     download_message = 'Download this objective\'s metric:'
 
 
-class DataSampleParser(BaseAssetParser):
+class DataSamplePrinter(BasePrinter):
     asset_name = 'data sample'
 
 
-class DatasetParser(BaseAssetParser):
+class DatasetPrinter(BasePrinter):
     asset_name = 'dataset'
 
     many_fields = (
@@ -194,7 +194,7 @@ class DatasetParser(BaseAssetParser):
     download_message = 'Download this data manager\'s opener:'
 
 
-class TraintupleParser(BaseAssetParser):
+class TraintuplePrinter(BasePrinter):
     asset_name = 'traintuple'
 
     many_fields = (
@@ -219,7 +219,7 @@ class TraintupleParser(BaseAssetParser):
     has_description = False
 
 
-class TesttupleParser(BaseAssetParser):
+class TesttuplePrinter(BasePrinter):
     asset_name = 'testtuple'
 
     many_fields = (
@@ -244,15 +244,15 @@ class TesttupleParser(BaseAssetParser):
     has_description = False
 
 
-PARSERS = {
-    assets.ALGO: AlgoParser,
-    assets.OBJECTIVE: ObjectiveParser,
-    assets.DATASET: DatasetParser,
-    assets.DATA_SAMPLE: DataSampleParser,
-    assets.TRAINTUPLE: TraintupleParser,
-    assets.TESTTUPLE: TesttupleParser,
+PRINTERS = {
+    assets.ALGO: AlgoPrinter,
+    assets.OBJECTIVE: ObjectivePrinter,
+    assets.DATASET: DatasetPrinter,
+    assets.DATA_SAMPLE: DataSamplePrinter,
+    assets.TRAINTUPLE: TraintuplePrinter,
+    assets.TESTTUPLE: TesttuplePrinter,
 }
 
 
-def get_parser(asset):
-    return PARSERS[asset]() if asset in PARSERS else JsonOnlyParser()
+def get_printer(asset):
+    return PRINTERS[asset]() if asset in PRINTERS else JsonOnlyPrinter()
