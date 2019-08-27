@@ -106,18 +106,15 @@ def _join_and_groups(items):
     "-OR-" items separate the items that have to be grouped with an "AND" clause
     This function groups items from a same "AND group" with commas
     """
-    res = []
-    start = 0
-
-    while True:
-        try:
-            idx = items.index('-OR-', start)
-        except ValueError:
-            res.append(','.join(items[start:]))
-            return res
-        res.append(','.join(items[start:idx]))
-        res.append('-OR-')
-        start = idx + 1
+    indexes = [k for k, v in enumerate(items) if v == '-OR-']
+    next_group = 0
+    groups = []
+    for i in indexes:
+        groups.append(','.join(items[next_group:i]))
+        groups.append('-OR-')
+        next_group = i + 1
+    groups.append(','.join(items[next_group:]))
+    return groups
 
 
 def _escape_filter(f):
