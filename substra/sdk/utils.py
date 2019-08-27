@@ -108,6 +108,9 @@ def parse_filters(filters):
         raise ValueError(
             'Cannot load filters. Please review the documentation.')
 
+    if not isinstance(filters, list):
+        raise ValueError('Cannot load filters. Please review the documentation')
+
     def _escape_filter(f):
         # handle OR
         if f == 'OR':
