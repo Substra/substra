@@ -6,7 +6,7 @@ import click
 import consolemd
 
 from substra import __version__, runner, sdk
-from substra.cli import parsers
+from substra.cli import printers
 from substra.sdk import assets, exceptions
 from substra.sdk import config as configuration
 
@@ -471,8 +471,8 @@ def get(ctx, asset_name, asset_key, expand, json_output, config, profile, verbos
     method = getattr(client, f'get_{asset_name.lower()}')
     res = method(asset_key)
 
-    parser = parsers.get_parser(asset_name)
-    parser.print_single(res, json_output, expand)
+    printer = printers.get_printer(asset_name)
+    printer.print_single(res, json_output, expand)
 
 
 @cli.command('list')
@@ -505,8 +505,8 @@ def _list(ctx, asset_name, filters, is_complex, json_output, config, profile, ve
     # method must exist in sdk
     method = getattr(client, f'list_{asset_name.lower()}')
     res = method(filters, is_complex)
-    parser = parsers.get_parser(asset_name)
-    parser.print_list(res, json_output)
+    printer = printers.get_printer(asset_name)
+    printer.print_list(res, json_output)
 
 
 @cli.command()
