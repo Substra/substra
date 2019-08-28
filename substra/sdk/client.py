@@ -345,3 +345,7 @@ class Client(object):
     def describe_objective(self, asset_key):
         """Get objective description."""
         return self._describe(assets.OBJECTIVE, asset_key)
+
+    def leaderboard(self, objective_key):
+        """Get objective leaderboard"""
+        return self.client.request('get', assets.OBJECTIVE, f'{objective_key}/leaderboard')

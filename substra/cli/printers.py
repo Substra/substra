@@ -105,6 +105,24 @@ class BasePrinter:
         field_length = (math.ceil(max_field_length / 4) + 1) * 4
         return field_length
 
+    def print_download_message(self, item):
+        if self.download_message:
+            key_value = self.key_field.get_value(item)
+            print()
+            print(self.download_message)
+            print(f'\tsubstra download {self.asset_name} {key_value}')
+
+    def print_description_message(self, item):
+        if self.has_description:
+            key_value = self.key_field.get_value(item)
+            print()
+            print(f'Display this {self.asset_name}\'s description:')
+            print(f'\tsubstra describe {self.asset_name} {key_value}')
+
+    def print_messages(self, item):
+        self.print_download_message(item)
+        self.print_description_message(item)
+
     def print_single(self, item, raw, expand):
         """Display single item."""
 
@@ -116,17 +134,7 @@ class BasePrinter:
         for field in self._get_single_fields():
             field.print_single(item, field_length, expand)
 
-        key_value = self.key_field.get_value(item)
-
-        if self.download_message:
-            print()
-            print(self.download_message)
-            print(f'\tsubstra download {self.asset_name} {key_value}')
-
-        if self.has_description:
-            print()
-            print('Display this asset description:')
-            print(f'\tsubstra describe {self.asset_name} {key_value}')
+        self.print_messages(item)
 
 
 class JsonOnlyPrinter:
@@ -170,6 +178,16 @@ class ObjectivePrinter(BasePrinter):
         PermissionField('Permissions', 'permissions'),
     )
     download_message = 'Download this objective\'s metric:'
+
+    def print_leaderboard_message(self, item):
+        key_value = self.key_field.get_value(item)
+        print()
+        print('Display this objective\'s leaderboard:')
+        print(f'\tsubstra leaderboard {key_value}')
+
+    def print_messages(self, item):
+        super().print_messages(item)
+        self.print_leaderboard_message(item)
 
 
 class DataSamplePrinter(BasePrinter):

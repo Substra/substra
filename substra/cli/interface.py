@@ -561,6 +561,20 @@ def download(ctx, asset_name, key, folder, config, profile, verbose):
 
 
 @cli.command()
+@click.argument('objective_key')
+@click_option_config
+@click_option_profile
+@click_option_verbose
+@click.pass_context
+@error_printer
+def leaderboard(ctx, objective_key, config, profile, verbose):
+    """Display objective leaderboard"""
+    client = get_client(config, profile)
+    res = client.leaderboard(objective_key)
+    print(res)
+
+
+@cli.command()
 @click.argument('algo_path')
 # TODO add helper for parameters
 @click.option('--train-opener', type=click.Path(exists=True))
