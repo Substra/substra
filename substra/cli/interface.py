@@ -477,8 +477,8 @@ def get(ctx, asset_name, asset_key, expand, json_output, config, profile, verbos
     method = getattr(client, f'get_{asset_name.lower()}')
     res = method(asset_key)
 
-    printer = printers.get_printer(asset_name)
-    printer.print_single(res, json_output, expand)
+    printer = printers.get_printer(asset_name, json_output)
+    printer.print_single(res, expand)
 
 
 @cli.command('list')
@@ -511,8 +511,8 @@ def _list(ctx, asset_name, filters, is_complex, json_output, config, profile, ve
     # method must exist in sdk
     method = getattr(client, f'list_{asset_name.lower()}')
     res = method(filters, is_complex)
-    printer = printers.get_printer(asset_name)
-    printer.print_list(res, json_output)
+    printer = printers.get_printer(asset_name, json_output)
+    printer.print_list(res)
 
 
 @cli.command()
@@ -579,8 +579,8 @@ def leaderboard(ctx, objective_key, json_output, expand, config, profile, verbos
     """Display objective leaderboard"""
     client = get_client(config, profile)
     leaderboard = client.leaderboard(objective_key)
-    printer = printers.LeaderBoardPrinter()
-    printer.print(leaderboard, json_output, expand)
+    printer = printers.LeaderBoardPrinter() if not json_output else printers.JsonOnlyPrinter()
+    printer.print(leaderboard, expand)
 
 
 @cli.command()

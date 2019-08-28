@@ -98,10 +98,6 @@ class BasePrinter:
         for field in fields:
             field.print_single(item, field_length, expand)
 
-    @staticmethod
-    def print_raw(data):
-        print(json.dumps(data, indent=2))
-
 
 class AssetPrinter(BasePrinter):
     asset_name = None
@@ -113,13 +109,8 @@ class AssetPrinter(BasePrinter):
     download_message = None
     has_description = True
 
-    def print_list(self, items, raw):
+    def print_list(self, items):
         """Display list of items."""
-
-        if raw:
-            self.print_raw(items)
-            return
-
         self.print_table(items, self._get_list_fields())
 
     def _get_list_fields(self):
@@ -146,24 +137,25 @@ class AssetPrinter(BasePrinter):
         self.print_download_message(item)
         self.print_description_message(item)
 
-    def print_single(self, item, raw, expand):
+    def print_single(self, item, expand):
         """Display single item."""
-
-        if raw:
-            self.print_raw(item)
-            return
-
         self.print_details(item, self._get_single_fields(), expand)
-
         self.print_messages(item)
 
 
 class JsonOnlyPrinter(BasePrinter):
-    def print_list(self, items, raw):
-        self.print_raw(items)
+    @staticmethod
+    def _print_raw(data):
+        print(json.dumps(data, indent=2))
 
-    def print_single(self, item, raw):
-        self.print_raw(item)
+    def print_list(self, data, *args):
+        self._print_raw(data)
+
+    def print_single(self, data, *args):
+        self._print_raw(data)
+
+    def print(self, data, *args):
+        self._print_raw(data)
 
 
 class AlgoPrinter(AssetPrinter):
@@ -287,11 +279,7 @@ class LeaderBoardPrinter(BasePrinter):
         Field('Traintuple key', 'model.traintupleKey'),
     )
 
-    def print(self, leaderboard, raw, expand):
-        if raw:
-            self.print_raw(leaderboard)
-            return
-
+    def print(self, leaderboard, expand):
         objective = leaderboard['objective']
         testtuples = leaderboard['testtuples']
 
@@ -312,5 +300,5 @@ PRINTERS = {
 }
 
 
-def get_printer(asset):
-    return PRINTERS[asset]() if asset in PRINTERS else JsonOnlyPrinter()
+def get_printer(asset, json_output):
+    return PRINTERS[asset]() if asset in PRINTERS and not json_output else JsonOnlyPrinter()
