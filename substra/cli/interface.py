@@ -570,15 +570,20 @@ def download(ctx, asset_name, key, folder, config, profile, verbose):
 @click.argument('objective_key')
 @click_option_expand
 @click_option_json
+@click.option('--sort',
+              type=click.Choice(['asc', 'desc']),
+              default='desc',
+              show_default=True,
+              help='Sort models by highest to lowest perf or vice versa')
 @click_option_config
 @click_option_profile
 @click_option_verbose
 @click.pass_context
 @error_printer
-def leaderboard(ctx, objective_key, json_output, expand, config, profile, verbose):
+def leaderboard(ctx, objective_key, json_output, expand, sort, config, profile, verbose):
     """Display objective leaderboard"""
     client = get_client(config, profile)
-    leaderboard = client.leaderboard(objective_key)
+    leaderboard = client.leaderboard(objective_key, sort=sort)
     printer = printers.LeaderBoardPrinter() if not json_output else printers.JsonOnlyPrinter()
     printer.print(leaderboard, expand=expand)
 

@@ -346,6 +346,6 @@ class Client(object):
         """Get objective description."""
         return self._describe(assets.OBJECTIVE, asset_key)
 
-    def leaderboard(self, objective_key):
+    def leaderboard(self, objective_key, sort='desc'):
         """Get objective leaderboard"""
-        return self.client.request('get', assets.OBJECTIVE, f'{objective_key}/leaderboard')
+        return self.client.request('get', assets.OBJECTIVE, f'{objective_key}/leaderboard', params={'sort': sort})

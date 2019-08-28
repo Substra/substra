@@ -143,7 +143,7 @@ class AssetPrinter(BasePrinter):
 
 class JsonOnlyPrinter:
     @staticmethod
-    def print(data, *args):
+    def print(data, *args, **kwargs):
         print(json.dumps(data, indent=2))
 
 
