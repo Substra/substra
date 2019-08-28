@@ -22,7 +22,7 @@ class Field:
     def get_value(self, item, expand=False):
         return find_dict_composite_key_value(item, self.ref)
 
-    def print_single(self, item, field_length, expand):
+    def print_details(self, item, field_length, expand):
         name = self.name.upper().ljust(field_length)
         value = self.get_value(item, expand)
 
@@ -36,7 +36,7 @@ class Field:
                     else:
                         print(f'{padding}- {v}')
             else:
-                print(f'{name} None')
+                print(f'{name}None')
         else:
             print(f'{name}{value}')
 
@@ -96,7 +96,7 @@ class BasePrinter:
     def print_details(self, item, fields, expand):
         field_length = self._get_field_name_length(fields)
         for field in fields:
-            field.print_single(item, field_length, expand)
+            field.print_details(item, field_length, expand)
 
 
 class AssetPrinter(BasePrinter):
@@ -108,10 +108,6 @@ class AssetPrinter(BasePrinter):
 
     download_message = None
     has_description = True
-
-    def print_list(self, items):
-        """Display list of items."""
-        self.print_table(items, self._get_list_fields())
 
     def _get_list_fields(self):
         return (self.key_field, ) + self.list_fields
@@ -137,25 +133,18 @@ class AssetPrinter(BasePrinter):
         self.print_download_message(item)
         self.print_description_message(item)
 
-    def print_single(self, item, expand):
-        """Display single item."""
-        self.print_details(item, self._get_single_fields(), expand)
-        self.print_messages(item)
+    def print(self, data, expand=False, is_list=False):
+        if is_list:
+            self.print_table(data, self._get_list_fields())
+        else:
+            self.print_details(data, self._get_single_fields(), expand)
+            self.print_messages(data)
 
 
-class JsonOnlyPrinter(BasePrinter):
+class JsonOnlyPrinter:
     @staticmethod
-    def _print_raw(data):
+    def print(data, *args):
         print(json.dumps(data, indent=2))
-
-    def print_list(self, data, *args):
-        self._print_raw(data)
-
-    def print_single(self, data, *args):
-        self._print_raw(data)
-
-    def print(self, data, *args):
-        self._print_raw(data)
 
 
 class AlgoPrinter(AssetPrinter):

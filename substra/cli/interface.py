@@ -478,7 +478,7 @@ def get(ctx, asset_name, asset_key, expand, json_output, config, profile, verbos
     res = method(asset_key)
 
     printer = printers.get_printer(asset_name, json_output)
-    printer.print_single(res, expand)
+    printer.print(res, expand=expand)
 
 
 @cli.command('list')
@@ -512,7 +512,7 @@ def _list(ctx, asset_name, filters, is_complex, json_output, config, profile, ve
     method = getattr(client, f'list_{asset_name.lower()}')
     res = method(filters, is_complex)
     printer = printers.get_printer(asset_name, json_output)
-    printer.print_list(res)
+    printer.print(res, is_list=True)
 
 
 @cli.command()
@@ -580,7 +580,7 @@ def leaderboard(ctx, objective_key, json_output, expand, config, profile, verbos
     client = get_client(config, profile)
     leaderboard = client.leaderboard(objective_key)
     printer = printers.LeaderBoardPrinter() if not json_output else printers.JsonOnlyPrinter()
-    printer.print(leaderboard, expand)
+    printer.print(leaderboard, expand=expand)
 
 
 @cli.command()
