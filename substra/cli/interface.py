@@ -79,6 +79,15 @@ def click_option_config(f):
         help='Config path (default ~/.substra).')(f)
 
 
+def click_option_expand(f):
+    """Add expand option to command."""
+    return click.option(
+        '--expand',
+        is_flag=True,
+        help="Display associated assets details"
+    )(f)
+
+
 def click_option_json(f):
     """Add json option to command."""
     return click.option(
@@ -449,10 +458,7 @@ def add_testtuple(ctx, dataset_key, traintuple_key,
     assets.TRAINTUPLE,
 ]))
 @click.argument('asset-key')
-@click.option(
-    '--expand', is_flag=True,
-    help="Display associated assets (available for dataset and traintuple)."
-)
+@click_option_expand
 @click_option_json
 @click_option_config
 @click_option_profile
@@ -562,16 +568,19 @@ def download(ctx, asset_name, key, folder, config, profile, verbose):
 
 @cli.command()
 @click.argument('objective_key')
+@click_option_expand
+@click_option_json
 @click_option_config
 @click_option_profile
 @click_option_verbose
 @click.pass_context
 @error_printer
-def leaderboard(ctx, objective_key, config, profile, verbose):
+def leaderboard(ctx, objective_key, json_output, expand, config, profile, verbose):
     """Display objective leaderboard"""
     client = get_client(config, profile)
-    res = client.leaderboard(objective_key)
-    print(res)
+    leaderboard = client.leaderboard(objective_key)
+    printer = printers.LeaderBoardPrinter()
+    printer.print(leaderboard, json_output, expand)
 
 
 @cli.command()
