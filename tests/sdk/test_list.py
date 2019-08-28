@@ -33,7 +33,7 @@ def test_list_asset_with_filters(client, mocker):
     items = [datastore.ALGO]
     m = mock_requests(mocker, "get", response=[items])
 
-    filters = '["algo:name:ABC", "OR", "data_manager:name:EFG"]'
+    filters = ["algo:name:ABC", "OR", "data_manager:name:EFG"]
     response = client.list_algo(filters)
 
     assert response == items
