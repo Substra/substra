@@ -11,6 +11,7 @@
 - [substra list](#substra-list)
 - [substra describe](#substra-describe)
 - [substra download](#substra-download)
+- [substra leaderboard](#substra-leaderboard)
 - [substra run-local](#substra-run-local)
 - [substra update data_sample](#substra-update-data_sample)
 - [substra update dataset](#substra-update-dataset)
@@ -237,8 +238,7 @@ Usage: substra get [OPTIONS] [algo|dataset|objective|testtuple|traintuple]
   Get asset definition.
 
 Options:
-  --expand        Display associated assets (available for dataset and
-                  traintuple).
+  --expand        Display associated assets details
   --json          Display output as json.
   --config PATH   Config path (default ~/.substra).
   --profile TEXT  Profile name to use.
@@ -298,6 +298,24 @@ Options:
   --profile TEXT  Profile name to use.
   --verbose       Enable verbose mode.
   --help          Show this message and exit.
+```
+
+## substra leaderboard
+
+```bash
+Usage: substra leaderboard [OPTIONS] OBJECTIVE_KEY
+
+  Display objective leaderboard
+
+Options:
+  --expand           Display associated assets details
+  --json             Display output as json.
+  --sort [asc|desc]  Sort models by highest to lowest perf or vice versa
+                     [default: desc]
+  --config PATH      Config path (default ~/.substra).
+  --profile TEXT     Profile name to use.
+  --verbose          Enable verbose mode.
+  --help             Show this message and exit.
 ```
 
 ## substra run-local
