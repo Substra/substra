@@ -107,9 +107,9 @@ class Manager():
             name,
             url,
             version=DEFAULT_VERSION,
-            insecure=False,
-            user=None,
-            password=None,
+            insecure=insecure,
+            user=user,
+            password=password,
         )
         return config[name]
 
