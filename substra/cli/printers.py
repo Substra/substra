@@ -282,9 +282,9 @@ class TesttuplePrinter(AssetPrinter):
 class LeaderBoardPrinter(BasePrinter):
     objective_fields = (Field('Key', 'key'), ) + ObjectivePrinter.single_fields
     testtuple_fields = (
-        Field('Key', 'hash'),
-        Field('Algo name', 'algo.name'),
         Field('Perf', 'perf'),
+        Field('Algo name', 'algo.name'),
+        Field('Traintuple key', 'model.traintupleKey'),
     )
 
     def print(self, leaderboard, raw, expand):
