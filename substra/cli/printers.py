@@ -76,7 +76,7 @@ class BasePrinter:
             width = max([len(x) for x in column])
             width = (math.ceil(width / 4) + 1) * 4
             column_widths.append(width)
-        return  column_widths
+        return column_widths
 
     def print_table(self, items, fields):
         columns = self._get_columns(items, fields)
