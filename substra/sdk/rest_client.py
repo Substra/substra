@@ -181,6 +181,5 @@ class Client():
         return self._request(
             'get',
             address,
-            json_response=False,
             **request_kwargs,
         )
