@@ -97,6 +97,7 @@ class Client(object):
             "path": str,
             "data_manager_keys": list[str],
             "permissions": str,
+            "test_only": bool,
         }
 ```
 
@@ -132,6 +133,7 @@ class Client(object):
             "paths": list[str],
             "data_manager_keys": list[str],
             "permissions": str,
+            "test_only": bool,
         }
 ```
         """
@@ -229,6 +231,7 @@ class Client(object):
             "train_data_sample_keys": list[str],
             "in_models_keys": list[str],
             "tag": str,
+            "compute_plan_id": str,
         }
 ```
 
@@ -249,6 +252,7 @@ class Client(object):
             "traintuple_key": str,
             "test_data_sample_keys": list[str],
             "tag": str,
+            "compute_plan_id": str,
         }
 ```
 

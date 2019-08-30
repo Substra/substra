@@ -32,6 +32,7 @@ Create new data sample asset.
     "path": str,
     "data_manager_keys": list[str],
     "permissions": str,
+    "test_only": bool,
 }
 ```
 
@@ -51,6 +52,7 @@ Create many data sample assets.
     "paths": list[str],
     "data_manager_keys": list[str],
     "permissions": str,
+    "test_only": bool,
 }
 ```
 
@@ -135,6 +137,7 @@ Create new traintuple asset.
     "train_data_sample_keys": list[str],
     "in_models_keys": list[str],
     "tag": str,
+    "compute_plan_id": str,
 }
 ```
 
@@ -155,6 +158,7 @@ Create new testtuple asset.
     "traintuple_key": str,
     "test_data_sample_keys": list[str],
     "tag": str,
+    "compute_plan_id": str,
 }
 ```
 
