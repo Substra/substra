@@ -251,20 +251,27 @@ Options:
 ```bash
 Usage: substra list [OPTIONS]
                     [algo|data_sample|dataset|objective|testtuple|traintuple]
-                    [FILTERS]
 
   List assets.
 
 Options:
-  --is-complex    When using filters the server will return a list of assets
-                  for each filter item. By default these lists are merged into
-                  a single list. When set, this option disables the lists
-                  aggregation.
-  --json          Display output as json.
-  --config PATH   Config path (default ~/.substra).
-  --profile TEXT  Profile name to use.
-  --verbose       Enable verbose mode.
-  --help          Show this message and exit.
+  -f, --filter TEXT        Only display assets that exactly match this filter.
+                           Valid syntax is: <asset>:<property>:<value>
+  --and                    Combine filters using logical ANDs
+  --or                     Combine filters using logical ORs
+  --advanced-filters TEXT  Filter results using a complex search (must be a
+                           JSON array of valid filters). Incompatible with the
+                           --filter option
+  --is-complex             When using filters using 'OR', the server will
+                           return a list of matching assets for each operand.
+                           By default these lists are merged into a single
+                           list. When set, this option disables the lists
+                           aggregation.
+  --json                   Display output as json.
+  --config PATH            Config path (default ~/.substra).
+  --profile TEXT           Profile name to use.
+  --verbose                Enable verbose mode.
+  --help                   Show this message and exit.
 ```
 
 ## substra describe

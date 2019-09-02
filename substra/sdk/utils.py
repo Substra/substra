@@ -3,7 +3,6 @@ import copy
 import io
 import itertools
 import functools
-import json
 import logging
 import time
 import os
@@ -132,12 +131,6 @@ def _escape_filter(f):
 
 
 def parse_filters(filters):
-    try:
-        filters = json.loads(filters)
-    except ValueError:
-        raise ValueError(
-            'Cannot load filters. Please review the documentation.')
-
     if not isinstance(filters, list):
         raise ValueError('Cannot load filters. Please review the documentation')
 

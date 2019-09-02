@@ -97,6 +97,17 @@ def click_option_verbose(f):
     )(f)
 
 
+def validate_json(ctx, param, value):
+    if not value:
+        return value
+
+    try:
+        data = json.loads(value)
+    except ValueError:
+        raise click.BadParameter('must be valid JSON')
+    return data
+
+
 def error_printer(fn):
     """Command decorator to pretty print a few selected exceptions from sdk."""
     @functools.wraps(fn)
@@ -484,13 +495,27 @@ def get(ctx, asset_name, asset_key, expand, json_output, config, profile, verbos
     assets.TESTTUPLE,
     assets.TRAINTUPLE,
 ]))
-@click.argument('filters', required=False)
+@click.option('-f', '--filter', 'filters',
+              help='Only display assets that exactly match this filter. Valid syntax is: '
+                   '<asset>:<property>:<value>',
+              multiple=True)
+@click.option('--and', 'filters_logical_clause',
+              help='Combine filters using logical ANDs',
+              flag_value='and',
+              default=True)
+@click.option('--or', 'filters_logical_clause',
+              help='Combine filters using logical ORs',
+              flag_value='or')
+@click.option('--advanced-filters',
+              callback=validate_json,
+              help='Filter results using a complex search (must be a JSON array of valid filters). '
+                   'Incompatible with the --filter option')
 @click.option(
     '--is-complex', is_flag=True,
     help=(
-        "When using filters the server will return a list of assets for "
-        "each filter item. By default these lists are merged into a single "
-        "list. When set, this option disables the lists aggregation."
+        "When using filters using 'OR', the server will return a list of matching assets for each "
+        "operand. By default these lists are merged into a single list. When set, this option "
+        "disables the lists aggregation."
     ),
 )
 @click_option_json
@@ -499,11 +524,24 @@ def get(ctx, asset_name, asset_key, expand, json_output, config, profile, verbos
 @click_option_verbose
 @click.pass_context
 @error_printer
-def _list(ctx, asset_name, filters, is_complex, json_output, config, profile, verbose):
+def _list(ctx, asset_name, filters, filters_logical_clause, advanced_filters, is_complex,
+          json_output, config, profile, verbose):
     """List assets."""
     client = get_client(config, profile)
     # method must exist in sdk
     method = getattr(client, f'list_{asset_name.lower()}')
+    # handle filters
+    if advanced_filters and filters:
+        raise click.UsageError('The --filter and --advanced-filters options are mutually exclusive')
+    elif filters:
+        filters = list(filters)
+        if filters_logical_clause == 'or':
+            # insert 'OR' between each filter
+            n = len(filters)
+            for i in range(n-1):
+                filters.insert(i+1, 'OR')
+    elif advanced_filters:
+        filters = advanced_filters
     res = method(filters, is_complex)
     printer = printers.get_printer(asset_name)
     printer.print_list(res, json_output)
