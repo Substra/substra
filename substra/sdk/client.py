@@ -348,4 +348,5 @@ class Client(object):
 
     def leaderboard(self, objective_key, sort='desc'):
         """Get objective leaderboard"""
-        return self.client.request('get', assets.OBJECTIVE, f'{objective_key}/leaderboard', params={'sort': sort})
+        return self.client.request('get', assets.OBJECTIVE, f'{objective_key}/leaderboard',
+                                   params={'sort': sort})
