@@ -230,7 +230,6 @@ class TesttuplePrinter(BasePrinter):
         Field('Status', 'status'),
         Field('Perf', 'dataset.perf'),
         Field('Tag', 'tag'),
-        Field('Compute Plan Id', 'computePlanID'),
     )
     single_fields = (
         Field('Traintuple key', 'model.traintupleKey'),
@@ -242,7 +241,6 @@ class TesttuplePrinter(BasePrinter):
         Field('Perf', 'dataset.perf'),
         DataSampleKeysField('Test data sample keys', 'dataset.keys'),
         Field('Tag', 'tag'),
-        Field('Compute Plan Id', 'computePlanID'),
         Field('Log', 'log'),
         PermissionField('Permissions', 'permissions'),
     )
