@@ -1,5 +1,5 @@
-from .__version__ import __version__
-from .sdk import Client, exceptions
+from substra.__version__ import __version__
+from substra.sdk import Client, exceptions
 
 
 __all__ = [
