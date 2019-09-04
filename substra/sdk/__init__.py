@@ -1,3 +1,3 @@
-from .client import Client
+from substra.sdk.client import Client
 
 __all__ = ['Client']
