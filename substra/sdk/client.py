@@ -58,7 +58,7 @@ class Client(object):
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
         files = files or {}
         if 'permissions' not in data:
-            data['permissions'] = 'all'
+            data['permissions'] = {'public': False, 'authorized_ids': []}
 
         if dryrun:
             data['dryrun'] = True
