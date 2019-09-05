@@ -57,8 +57,16 @@ class Client(object):
         """Add asset."""
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
         files = files or {}
+
+        # XXX workaround because backend accepts only Form Data body. This is due to the
+        #     fact that backend expects both file objects and payload in the same request
         if 'permissions' not in data:
-            data['permissions'] = {'public': False, 'authorized_ids': []}
+            data['permissions_public'] = False
+            data['permissions_authorized_ids'] = []
+        else:
+            data['permissions_public'] = data['permissions']['public']
+            data['permissions_authorized_ids'] = data['permissions'].get('authorized_ids', [])
+            del data['permissions']
 
         if dryrun:
             data['dryrun'] = True
