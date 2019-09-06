@@ -304,3 +304,8 @@ Get dataset description.
 Client.describe_objective(self, asset_key)
 ```
 Get objective description.
+## leaderboard
+```python
+Client.leaderboard(self, objective_key, sort='desc')
+```
+Get objective leaderboard

@@ -79,6 +79,15 @@ def click_option_config(f):
         help='Config path (default ~/.substra).')(f)
 
 
+def click_option_expand(f):
+    """Add expand option to command."""
+    return click.option(
+        '--expand',
+        is_flag=True,
+        help="Display associated assets details"
+    )(f)
+
+
 def click_option_json(f):
     """Add json option to command."""
     return click.option(
@@ -460,10 +469,7 @@ def add_testtuple(ctx, dataset_key, traintuple_key,
     assets.TRAINTUPLE,
 ]))
 @click.argument('asset-key')
-@click.option(
-    '--expand', is_flag=True,
-    help="Display associated assets (available for dataset and traintuple)."
-)
+@click_option_expand
 @click_option_json
 @click_option_config
 @click_option_profile
@@ -482,8 +488,8 @@ def get(ctx, asset_name, asset_key, expand, json_output, config, profile, verbos
     method = getattr(client, f'get_{asset_name.lower()}')
     res = method(asset_key)
 
-    printer = printers.get_printer(asset_name)
-    printer.print_single(res, json_output, expand)
+    printer = printers.get_printer(asset_name, json_output)
+    printer.print(res, expand=expand)
 
 
 @cli.command('list')
@@ -543,8 +549,8 @@ def _list(ctx, asset_name, filters, filters_logical_clause, advanced_filters, is
     elif advanced_filters:
         filters = advanced_filters
     res = method(filters, is_complex)
-    printer = printers.get_printer(asset_name)
-    printer.print_list(res, json_output)
+    printer = printers.get_printer(asset_name, json_output)
+    printer.print(res, is_list=True)
 
 
 @cli.command()
@@ -596,6 +602,28 @@ def download(ctx, asset_name, key, folder, config, profile, verbose):
     method = getattr(client, f'download_{asset_name.lower()}')
     res = method(key, folder)
     display(res)
+
+
+@cli.command()
+@click.argument('objective_key')
+@click_option_expand
+@click_option_json
+@click.option('--sort',
+              type=click.Choice(['asc', 'desc']),
+              default='desc',
+              show_default=True,
+              help='Sort models by highest to lowest perf or vice versa')
+@click_option_config
+@click_option_profile
+@click_option_verbose
+@click.pass_context
+@error_printer
+def leaderboard(ctx, objective_key, json_output, expand, sort, config, profile, verbose):
+    """Display objective leaderboard"""
+    client = get_client(config, profile)
+    leaderboard = client.leaderboard(objective_key, sort=sort)
+    printer = printers.LeaderBoardPrinter() if not json_output else printers.JsonOnlyPrinter()
+    printer.print(leaderboard, expand=expand)
 
 
 @cli.command()

@@ -22,7 +22,7 @@ class Field:
     def get_value(self, item, expand=False):
         return find_dict_composite_key_value(item, self.ref)
 
-    def print_single(self, item, field_length, expand):
+    def print_details(self, item, field_length, expand):
         name = self.name.upper().ljust(field_length)
         value = self.get_value(item, expand)
 
@@ -36,7 +36,7 @@ class Field:
                     else:
                         print(f'{padding}- {v}')
             else:
-                print(f'{name} None')
+                print(f'{name}None')
         else:
             print(f'{name}{value}')
 
@@ -57,94 +57,100 @@ class DataSampleKeysField(Field):
 
 
 class BasePrinter:
-    asset_name = None
-
-    key_field = Field('key', 'key')
-    many_fields = ()
-    single_fields = ()
-
-    download_message = None
-    has_description = True
-
-    def print_list(self, items, raw):
-        """Display many items."""
-
-        if raw:
-            print(json.dumps(items, indent=2))
-            return
-
+    @staticmethod
+    def _get_columns(items, fields):
         columns = []
-        for field in self._get_many_fields():
+        for field in fields:
             values = [str(field.get_value(item)) for item in items]
 
             column = [field.name.upper()]
             column.extend(values)
 
             columns.append(column)
+        return columns
 
+    @staticmethod
+    def _get_column_widths(columns):
         column_widths = []
         for column in columns:
             width = max([len(x) for x in column])
             width = (math.ceil(width / 4) + 1) * 4
             column_widths.append(width)
+        return column_widths
+
+    def print_table(self, items, fields):
+        columns = self._get_columns(items, fields)
+        column_widths = self._get_column_widths(columns)
 
         for row_index in range(len(items) + 1):
             for col_index, column in enumerate(columns):
                 print(column[row_index].ljust(column_widths[col_index]), end='')
             print()
 
-    def _get_many_fields(self):
-        return (self.key_field, ) + self.many_fields
+    @staticmethod
+    def _get_field_name_length(fields):
+        max_length = max([len(field.name) for field in fields])
+        length = (math.ceil(max_length / 4) + 1) * 4
+        return length
+
+    def print_details(self, item, fields, expand):
+        field_length = self._get_field_name_length(fields)
+        for field in fields:
+            field.print_details(item, field_length, expand)
+
+
+class AssetPrinter(BasePrinter):
+    asset_name = None
+
+    key_field = Field('key', 'key')
+    list_fields = ()
+    single_fields = ()
+
+    download_message = None
+    has_description = True
+
+    def _get_list_fields(self):
+        return (self.key_field, ) + self.list_fields
 
     def _get_single_fields(self):
         return (self.key_field, ) + self.single_fields
 
-    def _get_asset_field_length(self):
-        fields = [field.name for field in self._get_single_fields()]
-        max_field_length = max([len(x) for x in fields])
-        field_length = (math.ceil(max_field_length / 4) + 1) * 4
-        return field_length
-
-    def print_single(self, item, raw, expand):
-        """Display single item."""
-
-        if raw:
-            print(json.dumps(item, indent=2))
-            return
-
-        field_length = self._get_asset_field_length()
-        for field in self._get_single_fields():
-            field.print_single(item, field_length, expand)
-
-        key_value = self.key_field.get_value(item)
-
+    def print_download_message(self, item):
         if self.download_message:
+            key_value = self.key_field.get_value(item)
             print()
             print(self.download_message)
             print(f'\tsubstra download {self.asset_name} {key_value}')
 
+    def print_description_message(self, item):
         if self.has_description:
+            key_value = self.key_field.get_value(item)
             print()
-            print('Display this asset description:')
+            print(f'Display this {self.asset_name}\'s description:')
             print(f'\tsubstra describe {self.asset_name} {key_value}')
+
+    def print_messages(self, item):
+        self.print_download_message(item)
+        self.print_description_message(item)
+
+    def print(self, data, expand=False, is_list=False):
+        if is_list:
+            self.print_table(data, self._get_list_fields())
+        else:
+            self.print_details(data, self._get_single_fields(), expand)
+            self.print_messages(data)
 
 
 class JsonOnlyPrinter:
     @staticmethod
-    def _print(data):
+    def print(data, *args, **kwargs):
         print(json.dumps(data, indent=2))
 
-    def print_list(self, items, raw):
-        self._print(items)
 
-    def print_single(self, item, raw):
-        self._print(item)
-
-
-class AlgoPrinter(BasePrinter):
+class AlgoPrinter(AssetPrinter):
     asset_name = 'algo'
 
-    many_fields = (
+    list_fields = (
         Field('Name', 'name'),
     )
     single_fields = (
@@ -155,10 +161,10 @@ class AlgoPrinter(BasePrinter):
     download_message = 'Download this algorithm\'s code:'
 
 
-class ObjectivePrinter(BasePrinter):
+class ObjectivePrinter(AssetPrinter):
     asset_name = 'objective'
 
-    many_fields = (
+    list_fields = (
         Field('Name', 'name'),
         Field('Metrics', 'metrics.name'),
     )
@@ -171,15 +177,25 @@ class ObjectivePrinter(BasePrinter):
     )
     download_message = 'Download this objective\'s metric:'
 
+    def print_leaderboard_message(self, item):
+        key_value = self.key_field.get_value(item)
+        print()
+        print('Display this objective\'s leaderboard:')
+        print(f'\tsubstra leaderboard {key_value}')
 
-class DataSamplePrinter(BasePrinter):
+    def print_messages(self, item):
+        super().print_messages(item)
+        self.print_leaderboard_message(item)
+
+
+class DataSamplePrinter(AssetPrinter):
     asset_name = 'data sample'
 
 
-class DatasetPrinter(BasePrinter):
+class DatasetPrinter(AssetPrinter):
     asset_name = 'dataset'
 
-    many_fields = (
+    list_fields = (
         Field('Name', 'name'),
         Field('Type', 'type'),
     )
@@ -194,10 +210,10 @@ class DatasetPrinter(BasePrinter):
     download_message = 'Download this data manager\'s opener:'
 
 
-class TraintuplePrinter(BasePrinter):
+class TraintuplePrinter(AssetPrinter):
     asset_name = 'traintuple'
 
-    many_fields = (
+    list_fields = (
         Field('Algo name', 'algo.name'),
         Field('Status', 'status'),
         Field('Perf', 'dataset.perf'),
@@ -221,10 +237,10 @@ class TraintuplePrinter(BasePrinter):
     has_description = False
 
 
-class TesttuplePrinter(BasePrinter):
+class TesttuplePrinter(AssetPrinter):
     asset_name = 'testtuple'
 
-    many_fields = (
+    list_fields = (
         Field('Algo name', 'algo.name'),
         Field('Certified', 'certified'),
         Field('Status', 'status'),
@@ -247,6 +263,25 @@ class TesttuplePrinter(BasePrinter):
     has_description = False
 
 
+class LeaderBoardPrinter(BasePrinter):
+    objective_fields = (Field('Key', 'key'), ) + ObjectivePrinter.single_fields
+    testtuple_fields = (
+        Field('Perf', 'perf'),
+        Field('Algo name', 'algo.name'),
+        Field('Traintuple key', 'model.traintupleKey'),
+    )
+
+    def print(self, leaderboard, expand):
+        objective = leaderboard['objective']
+        testtuples = leaderboard['testtuples']
+
+        print('========== OBJECTIVE ==========')
+        self.print_details(objective, self.objective_fields, expand)
+        print()
+        print('========= LEADERBOARD =========')
+        self.print_table(testtuples, self.testtuple_fields)
+
+
 PRINTERS = {
     assets.ALGO: AlgoPrinter,
     assets.OBJECTIVE: ObjectivePrinter,
@@ -257,5 +292,5 @@ PRINTERS = {
 }
 
 
-def get_printer(asset):
-    return PRINTERS[asset]() if asset in PRINTERS else JsonOnlyPrinter()
+def get_printer(asset, json_output):
+    return PRINTERS[asset]() if asset in PRINTERS and not json_output else JsonOnlyPrinter()
