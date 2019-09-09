@@ -1,6 +1,8 @@
 import json
 import math
 
+import yaml
+
 from substra.sdk import assets
 
 
@@ -145,6 +147,12 @@ class JsonOnlyPrinter:
     @staticmethod
     def print(data, *args, **kwargs):
         print(json.dumps(data, indent=2))
+
+
+class YamlOnlyPrinter:
+    @staticmethod
+    def print(data, *args, **kwargs):
+        print(yaml.dump(data, default_flow_style=False))
 
 
 class AlgoPrinter(AssetPrinter):
@@ -292,5 +300,12 @@ PRINTERS = {
 }
 
 
-def get_printer(asset, json_output):
-    return PRINTERS[asset]() if asset in PRINTERS and not json_output else JsonOnlyPrinter()
+def get_raw_printer(raw_ouput):
+    if raw_ouput == 'yaml':
+        return YamlOnlyPrinter()
+    return JsonOnlyPrinter()
+
+
+def get_printer(asset, raw_output):
+    return PRINTERS[asset]() if asset in PRINTERS and not raw_output \
+        else get_raw_printer(raw_output)
