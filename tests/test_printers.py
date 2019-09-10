@@ -1,32 +1,41 @@
-import unittest
+import pytest
 
-from substra.cli.printers import find_dict_composite_key_value, get_leaderboard_printer, \
-    get_asset_printer, JsonPrinter, YamlPrinter, LeaderBoardPrinter, AssetPrinter
+from substra.cli import printers
 
 
-class TestHelperMethods(unittest.TestCase):
+@pytest.mark.parametrize('obj,path,res', [
+    ({}, 'a', None),
+    ({}, 'a.b', None),
+    ({'a': None}, 'a.b', None),
+    ({'a': 'a'}, 'a', 'a'),
+    ({'a': {'b': 'b'}}, 'a.b', 'b'),
+])
+def test_find_dict_composite_key_value(obj, path, res):
+    assert printers.find_dict_composite_key_value(obj, path) == res
 
-    def test_find_dict_composite_key_value(self):
-        self.assertIsNone(find_dict_composite_key_value({}, 'a'))
-        self.assertIsNone(find_dict_composite_key_value({}, 'a.b'))
-        self.assertIsNone(find_dict_composite_key_value({'a': None}, 'a.b'))
-        with self.assertRaises(AttributeError):
-            self.assertIsNone(find_dict_composite_key_value({'a': 'b'}, 'a.b'))
 
-        self.assertEqual(find_dict_composite_key_value({'a': 'a'}, 'a'), 'a')
-        self.assertEqual(find_dict_composite_key_value({'a': {'b': 'b'}}, 'a.b'), 'b')
+def test_find_dict_composite_key_value_fails():
+    with pytest.raises(AttributeError):
+        printers.find_dict_composite_key_value({'a': 'b'}, 'a.b')
 
-    def test_get_asset_printer(self):
-        self.assertIsInstance(get_asset_printer('algo', 'pretty'), AssetPrinter)
-        self.assertIsInstance(get_asset_printer('algo', 'json'), JsonPrinter)
-        self.assertIsInstance(get_asset_printer('algo', 'yaml'), YamlPrinter)
 
-        self.assertIsInstance(get_asset_printer('foo', 'pretty'), JsonPrinter)
-        self.assertIsInstance(get_asset_printer('foo', 'json'), JsonPrinter)
-        self.assertIsInstance(get_asset_printer('foo', 'yaml'), YamlPrinter)
+@pytest.mark.parametrize('asset,output_format,printer_cls', [
+    ('algo', 'pretty', printers.AssetPrinter),
+    ('algo', 'json', printers.JsonPrinter),
+    ('algo', 'yaml', printers.YamlPrinter),
+    ('foo', 'pretty', printers.JsonPrinter),
+    ('foo', 'json', printers.JsonPrinter),
+    ('foo', 'yaml', printers.YamlPrinter),
+])
+def test_get_asset_printer(asset, output_format, printer_cls):
+    assert isinstance(printers.get_asset_printer(asset, output_format), printer_cls)
 
-    def test_get_leaderboard_printer(self):
-        self.assertIsInstance(get_leaderboard_printer('json'), JsonPrinter)
-        self.assertIsInstance(get_leaderboard_printer('yaml'), YamlPrinter)
-        self.assertIsInstance(get_leaderboard_printer('pretty'), LeaderBoardPrinter)
-        self.assertIsInstance(get_leaderboard_printer('foo'), JsonPrinter)
+
+@pytest.mark.parametrize('output_format,printer_cls', [
+    ('json', printers.JsonPrinter),
+    ('yaml', printers.YamlPrinter),
+    ('pretty', printers.LeaderBoardPrinter),
+    ('foo', printers.JsonPrinter),
+])
+def test_get_leaderboard_printer(output_format, printer_cls):
+    assert isinstance(printers.get_leaderboard_printer(output_format), printer_cls)
