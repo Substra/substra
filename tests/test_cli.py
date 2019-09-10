@@ -1,10 +1,11 @@
 import json
 
+import click
 from click.testing import CliRunner
 import pytest
 
 import substra
-from substra.cli.interface import cli
+from substra.cli.interface import cli, click_option_output_format
 
 from . import datastore
 
@@ -127,3 +128,21 @@ def test_command_update_data_sample(workdir, mocker):
         client_execute(
             workdir, ['update', 'data_sample', str(data_samples_path), 'key1'])
     assert m.is_called()
+
+
+@pytest.mark.parametrize('params,output', [
+    ([], 'pretty\n'),
+    (['--pretty'], 'pretty\n'),
+    (['--json'], 'json\n'),
+    (['--yaml'], 'yaml\n'),
+])
+def test_option_output_format(params, output):
+    @click.command()
+    @click_option_output_format
+    def foo(output_format):
+        click.echo(output_format)
+
+    runner = CliRunner()
+
+    res = runner.invoke(foo, params)
+    assert res.output == output

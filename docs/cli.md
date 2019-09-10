@@ -239,7 +239,9 @@ Usage: substra get [OPTIONS] [algo|dataset|objective|testtuple|traintuple]
 
 Options:
   --expand        Display associated assets details
+  --yaml          Display output as yaml.
   --json          Display output as json.
+  --pretty        Pretty print output  [default: True]
   --config PATH   Config path (default ~/.substra).
   --profile TEXT  Profile name to use.
   --verbose       Enable verbose mode.
@@ -267,7 +269,9 @@ Options:
                            By default these lists are merged into a single
                            list. When set, this option disables the lists
                            aggregation.
+  --yaml                   Display output as yaml.
   --json                   Display output as json.
+  --pretty                 Pretty print output  [default: True]
   --config PATH            Config path (default ~/.substra).
   --profile TEXT           Profile name to use.
   --verbose                Enable verbose mode.
@@ -316,7 +320,9 @@ Usage: substra leaderboard [OPTIONS] OBJECTIVE_KEY
 
 Options:
   --expand           Display associated assets details
+  --yaml             Display output as yaml.
   --json             Display output as json.
+  --pretty           Pretty print output  [default: True]
   --sort [asc|desc]  Sort models by highest to lowest perf or vice versa
                      [default: desc]
   --config PATH      Config path (default ~/.substra).
