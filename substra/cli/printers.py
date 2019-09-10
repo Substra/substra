@@ -43,11 +43,11 @@ class Field:
 
 class PermissionField(Field):
     def get_value(self, item, expand=False):
-        is_public = find_dict_composite_key_value(item, 'permissions.process.public')
+        is_public = find_dict_composite_key_value(item, f'{self.ref}.process.public')
         if is_public:
             return 'Processable by anyone'
 
-        authorized_ids = find_dict_composite_key_value(item, 'permissions.process.authorizedIDs')
+        authorized_ids = find_dict_composite_key_value(item, f'{self.ref}.process.authorizedIDs')
         if not authorized_ids:
             return 'Processable by its owner only'
 
