@@ -45,8 +45,26 @@ class Field:
 
 class PermissionField(Field):
     def get_value(self, item, expand=False):
-        value = super().get_value(item, expand)
-        return 'owner only' if value == [] else value
+        is_public = find_dict_composite_key_value(item, f'{self.ref}.process.public')
+        if is_public:
+            return 'Processable by anyone'
+
+        authorized_ids = find_dict_composite_key_value(item, f'{self.ref}.process.authorizedIDs')
+        if not authorized_ids:
+            return 'Processable by its owner only'
+
+        return authorized_ids
+
+    def print_details(self, item, field_length, expand):
+        value = self.get_value(item, expand)
+        if isinstance(value, list):
+            name = self.name.upper().ljust(field_length)
+            padding = ' ' * field_length
+            print(f'{name}Processable by:')
+            for v in value:
+                print(f'{padding}- {v}')
+        else:
+            super().print_details(item, field_length, expand)
 
 
 class DataSampleKeysField(Field):
@@ -163,6 +181,7 @@ class AlgoPrinter(AssetPrinter):
     )
     single_fields = (
         Field('Name', 'name'),
+        Field('Owner', 'owner'),
         PermissionField('Permissions', 'permissions'),
     )
 
@@ -181,6 +200,7 @@ class ObjectivePrinter(AssetPrinter):
         Field('Metrics', 'metrics.name'),
         Field('Test dataset key', 'testDataset.dataManagerKey'),
         DataSampleKeysField('Test data sample keys', 'testDataset.dataSampleKeys'),
+        Field('Owner', 'owner'),
         PermissionField('Permissions', 'permissions'),
     )
     download_message = 'Download this objective\'s metric:'
@@ -213,6 +233,7 @@ class DatasetPrinter(AssetPrinter):
         Field('Type', 'type'),
         DataSampleKeysField('Train data sample keys', 'trainDataSampleKeys'),
         DataSampleKeysField('Test data sample keys', 'testDataSampleKeys'),
+        Field('Owner', 'owner'),
         PermissionField('Permissions', 'permissions'),
     )
     download_message = 'Download this data manager\'s opener:'
@@ -240,6 +261,7 @@ class TraintuplePrinter(AssetPrinter):
         Field('Compute Plan Id', 'computePlanID'),
         Field('Tag', 'tag'),
         Field('Log', 'log'),
+        Field('Owner', 'owner'),
         PermissionField('Permissions', 'permissions'),
     )
     has_description = False
@@ -266,6 +288,7 @@ class TesttuplePrinter(AssetPrinter):
         DataSampleKeysField('Test data sample keys', 'dataset.keys'),
         Field('Tag', 'tag'),
         Field('Log', 'log'),
+        Field('Owner', 'owner'),
         PermissionField('Permissions', 'permissions'),
     )
     has_description = False
