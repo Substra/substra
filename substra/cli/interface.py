@@ -88,16 +88,23 @@ def click_option_expand(f):
     )(f)
 
 
-def click_option_raw_output(f):
+def click_option_output_format(f):
     """Add json option to command."""
     flags = [
         click.option(
-            '--json', 'raw_output',
+            '--pretty', 'output_format',
+            flag_value='pretty',
+            default=True,
+            show_default=True,
+            help='Pretty print output'
+        ),
+        click.option(
+            '--json', 'output_format',
             flag_value='json',
             help='Display output as json.'
         ),
         click.option(
-            '--yaml', 'raw_output',
+            '--yaml', 'output_format',
             flag_value='yaml',
             help='Display output as yaml.'
         )
@@ -480,13 +487,13 @@ def add_testtuple(ctx, dataset_key, traintuple_key,
 ]))
 @click.argument('asset-key')
 @click_option_expand
-@click_option_raw_output
+@click_option_output_format
 @click_option_config
 @click_option_profile
 @click_option_verbose
 @click.pass_context
 @error_printer
-def get(ctx, asset_name, asset_key, expand, raw_output, config, profile, verbose):
+def get(ctx, asset_name, asset_key, expand, output_format, config, profile, verbose):
     """Get asset definition."""
     expand_valid_assets = (assets.DATASET, assets.TRAINTUPLE, assets.OBJECTIVE, assets.TESTTUPLE)
     if expand and asset_name not in expand_valid_assets:  # fail fast
@@ -497,7 +504,7 @@ def get(ctx, asset_name, asset_key, expand, raw_output, config, profile, verbose
     # method must exist in sdk
     method = getattr(client, f'get_{asset_name.lower()}')
     res = method(asset_key)
-    printer = printers.get_printer(asset_name, raw_output)
+    printer = printers.get_asset_printer(asset_name, output_format)
     printer.print(res, expand=expand)
 
 
@@ -533,14 +540,14 @@ def get(ctx, asset_name, asset_key, expand, raw_output, config, profile, verbose
         "disables the lists aggregation."
     ),
 )
-@click_option_raw_output
+@click_option_output_format
 @click_option_config
 @click_option_profile
 @click_option_verbose
 @click.pass_context
 @error_printer
 def _list(ctx, asset_name, filters, filters_logical_clause, advanced_filters, is_complex,
-          raw_output, config, profile, verbose):
+          output_format, config, profile, verbose):
     """List assets."""
     client = get_client(config, profile)
     # method must exist in sdk
@@ -558,7 +565,7 @@ def _list(ctx, asset_name, filters, filters_logical_clause, advanced_filters, is
     elif advanced_filters:
         filters = advanced_filters
     res = method(filters, is_complex)
-    printer = printers.get_printer(asset_name, raw_output)
+    printer = printers.get_asset_printer(asset_name, output_format)
     printer.print(res, is_list=True)
 
 
@@ -616,7 +623,7 @@ def download(ctx, asset_name, key, folder, config, profile, verbose):
 @cli.command()
 @click.argument('objective_key')
 @click_option_expand
-@click_option_raw_output
+@click_option_output_format
 @click.option('--sort',
               type=click.Choice(['asc', 'desc']),
               default='desc',
@@ -627,12 +634,11 @@ def download(ctx, asset_name, key, folder, config, profile, verbose):
 @click_option_verbose
 @click.pass_context
 @error_printer
-def leaderboard(ctx, objective_key, raw_output, expand, sort, config, profile, verbose):
+def leaderboard(ctx, objective_key, output_format, expand, sort, config, profile, verbose):
     """Display objective leaderboard"""
     client = get_client(config, profile)
     leaderboard = client.leaderboard(objective_key, sort=sort)
-    printer = printers.LeaderBoardPrinter() if not raw_output \
-        else printers.get_raw_printer(raw_output)
+    printer = printers.get_leaderboard_printer(output_format)
     printer.print(leaderboard, expand=expand)
 
 

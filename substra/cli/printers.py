@@ -143,13 +143,13 @@ class AssetPrinter(BasePrinter):
             self.print_messages(data)
 
 
-class JsonOnlyPrinter:
+class JsonPrinter:
     @staticmethod
     def print(data, *args, **kwargs):
         print(json.dumps(data, indent=2))
 
 
-class YamlOnlyPrinter:
+class YamlPrinter:
     @staticmethod
     def print(data, *args, **kwargs):
         print(yaml.dump(data, default_flow_style=False))
@@ -300,12 +300,21 @@ PRINTERS = {
 }
 
 
-def get_raw_printer(raw_ouput):
-    if raw_ouput == 'yaml':
-        return YamlOnlyPrinter()
-    return JsonOnlyPrinter()
+def get_asset_printer(asset, output_format):
+    if output_format == 'pretty' and asset in PRINTERS:
+        return PRINTERS[asset]()
+
+    if output_format == 'yaml':
+        return YamlPrinter()
+
+    return JsonPrinter()
 
 
-def get_printer(asset, raw_output):
-    return PRINTERS[asset]() if asset in PRINTERS and not raw_output \
-        else get_raw_printer(raw_output)
+def get_leaderboard_printer(output_format):
+    if output_format == 'pretty':
+        return LeaderBoardPrinter()
+
+    if output_format == 'yaml':
+        return YamlPrinter()
+
+    return JsonPrinter()
