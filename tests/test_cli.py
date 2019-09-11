@@ -68,7 +68,7 @@ def test_command_config(workdir):
 
 
 def mock_client_call(mocker, method_name, response=""):
-    return mocker.patch(f'substra.cli.interface.sdk.Client.{method_name}',
+    return mocker.patch(f'substra.cli.interface.Client.{method_name}',
                         return_value=response)
 
 
