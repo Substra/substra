@@ -82,12 +82,17 @@ class Client():
 
         return r
 
+    def _get_base_url(self):
+        if self._base_url.endswith('/'):
+            return self._base_url[:-1]
+        return self._base_url
+
     def request(self, request_name, asset_name, path=None, json_response=True,
                 **request_kwargs):
         """Base request."""
 
         path = path or ''
-        url = f"{self._base_url}/{assets.to_server_name(asset_name)}/{path}"
+        url = f"{self._get_base_url()}/{assets.to_server_name(asset_name)}/{path}"
         if not url.endswith("/"):
             url = url + "/"  # server requires a suffix /
 
