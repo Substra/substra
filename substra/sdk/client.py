@@ -3,7 +3,7 @@ import logging
 import os
 
 from substra.sdk import utils, assets, rest_client, exceptions
-import substra.sdk.config as cfg
+from substra.sdk import config as cfg
 
 logger = logging.getLogger(__name__)
 

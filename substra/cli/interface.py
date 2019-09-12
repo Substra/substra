@@ -5,10 +5,11 @@ import os
 import click
 import consolemd
 
-from substra import __version__, runner, sdk
+from substra import __version__, runner
 from substra.cli import printers
 from substra.sdk import assets, exceptions
 from substra.sdk import config as configuration
+from substra.sdk.client import Client
 
 
 def get_client(config_path, profile_name):
@@ -16,7 +17,7 @@ def get_client(config_path, profile_name):
     help_command = "substra config <url> ..."
 
     try:
-        client = sdk.Client(config_path, profile_name)
+        client = Client(config_path, profile_name)
 
     except FileNotFoundError:
         raise click.ClickException(
