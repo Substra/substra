@@ -296,6 +296,11 @@ class TesttuplePrinter(AssetPrinter):
     has_description = False
 
 
+class NodePrinter(AssetPrinter):
+    asset_name = 'node'
+    key_field = Field('Node ID', 'node_id')
+
+
 class LeaderBoardPrinter(BasePrinter):
     objective_fields = (Field('Key', 'key'), ) + ObjectivePrinter.single_fields
     testtuple_fields = (

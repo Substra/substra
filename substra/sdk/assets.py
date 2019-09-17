@@ -6,9 +6,11 @@ OBJECTIVE = 'objective'
 TESTTUPLE = 'testtuple'
 TRAINTUPLE = 'traintuple'
 COMPUTE_PLAN = 'compute_plan'
+NODE = 'node'
 
 _SERVER_MAPPER = {
     DATASET: 'data_manager',
+    NODE: 'permission_node'
 }
 
 
@@ -22,6 +24,7 @@ def get_all():
         TESTTUPLE,
         TRAINTUPLE,
         COMPUTE_PLAN,
+        NODE,
     )
 
 

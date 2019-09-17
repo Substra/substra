@@ -527,6 +527,7 @@ def get(ctx, asset_name, asset_key, expand, output_format, config, profile, verb
     assets.OBJECTIVE,
     assets.TESTTUPLE,
     assets.TRAINTUPLE,
+    assets.NODE,
 ]))
 @click.option('-f', '--filter', 'filters',
               help='Only display assets that exactly match this filter. Valid syntax is: '
