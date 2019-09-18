@@ -18,6 +18,8 @@ import os
 
 from substra.sdk import utils, assets, rest_client, exceptions
 from substra.sdk import config as cfg
+from substra.sdk import user as usr
+from substra.sdk.user import UserException
 
 logger = logging.getLogger(__name__)
 
@@ -28,14 +30,29 @@ def get_asset_key(data):
 
 class Client(object):
 
-    def __init__(self, config_path=None, profile_name=None):
+    def __init__(self, config_path=None, profile_name=None, user_path=None):
         self._cfg_manager = cfg.Manager(config_path or cfg.DEFAULT_PATH)
+        self._usr_manager = usr.Manager(user_path or usr.DEFAULT_PATH)
         self._current_profile = None
         self._profiles = {}
         self.client = rest_client.Client()
 
         if profile_name:
             self.set_profile(profile_name)
+
+        # set current logged user if exists
+        self.set_user()
+
+    def login(self):
+        res = self.client.login()
+        cookies = dict(res.cookies.items())
+        jwt = '' if 'header.payload' not in cookies else cookies['header.payload']
+        self._current_profile.update({
+            'cookies': cookies,
+            'jwt': jwt
+        })
+        self.client.set_config(self._current_profile)
+        return cookies, jwt
 
     def _set_current_profile(self, profile_name, profile):
         """Set client current profile."""
@@ -57,15 +74,27 @@ class Client(object):
 
         return self._set_current_profile(profile_name, profile)
 
+    def set_user(self):
+        try:
+            user = self._usr_manager.load_user()
+        except (UserException, FileNotFoundError):
+            pass
+        else:
+            if self._current_profile is not None:
+                self._current_profile.update({
+                    'cookies': user['cookies'],
+                    'jwt': user['jwt']
+                })
+                self.client.set_config(self._current_profile)
+
     def add_profile(self, profile_name, url, version='0.0', insecure=False,
-                    user=None, password=None):
+                    username=None, password=None):
         """Add new profile (in-memory only)."""
         profile = cfg.create_profile(
-            name=profile_name,
             url=url,
             version=version,
             insecure=insecure,
-            user=user,
+            username=username,
             password=password,
         )
         return self._set_current_profile(profile_name, profile)

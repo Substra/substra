@@ -2,7 +2,7 @@
 
 # Client
 ```python
-Client(self, config_path=None, profile_name=None)
+Client(self, config_path=None, profile_name=None, user_path=None)
 ```
 
 ## set_profile
@@ -16,7 +16,7 @@ from the config file.
 
 ## add_profile
 ```python
-Client.add_profile(self, profile_name, url, version='0.0', insecure=False, user=None, password=None)
+Client.add_profile(self, profile_name, url, version='0.0', insecure=False, username=None, password=None)
 ```
 Add new profile (in-memory only).
 ## add_data_sample

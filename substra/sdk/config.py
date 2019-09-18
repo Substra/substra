@@ -55,11 +55,11 @@ def _write_config(path, config):
         json.dump(config, fh, indent=2, sort_keys=True)
 
 
-def create_profile(name, url, version, insecure, user, password):
+def create_profile(url, version, insecure, username, password):
     """Create profile object."""
-    if user and password:
+    if username and password:
         auth = {
-            'user': user,
+            'username': username,
             'password': password,
         }
     else:
@@ -73,7 +73,7 @@ def create_profile(name, url, version, insecure, user, password):
     }
 
 
-def _add_profile(path, name, url, version, insecure, user=None, password=None):
+def _add_profile(path, name, url, version, insecure, username=None, password=None):
     """Add profile to config file on disk."""
     # read config file
     try:
@@ -82,7 +82,7 @@ def _add_profile(path, name, url, version, insecure, user=None, password=None):
         config = copy.deepcopy(DEFAULT_CONFIG)
 
     # create profile
-    profile = create_profile(name, url, version, insecure, user, password)
+    profile = create_profile(url, version, insecure, username, password)
 
     # update config file
     if name in config:
@@ -114,15 +114,15 @@ class Manager():
         self.path = path
 
     def add_profile(self, name, url=DEFAULT_URL, version=DEFAULT_VERSION,
-                    insecure=False, user=None, password=None):
+                    insecure=False, username=None, password=None):
         """Add profile to config file on disk."""
         config = _add_profile(
             self.path,
             name,
             url,
-            version=DEFAULT_VERSION,
+            version=version,
             insecure=insecure,
-            user=user,
+            username=username,
             password=password,
         )
         return config[name]

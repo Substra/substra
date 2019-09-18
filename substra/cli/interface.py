@@ -18,20 +18,22 @@ import os
 
 import click
 import consolemd
+from substra.sdk.user import DEFAULT_PATH
 
 from substra import __version__, runner
 from substra.cli import printers
 from substra.sdk import assets, exceptions
 from substra.sdk import config as configuration
 from substra.sdk.client import Client
+from substra.sdk import user as usr
 
 
-def get_client(config_path, profile_name):
-    """Initialize substra client from config file and profile name."""
+def get_client(config_path, profile_name, user_path):
+    """Initialize substra client from config file, profile name and user file."""
     help_command = "substra config <url> ..."
 
     try:
-        client = Client(config_path, profile_name)
+        client = Client(config_path, profile_name, user_path)
 
     except FileNotFoundError:
         raise click.ClickException(
@@ -83,6 +85,15 @@ def click_option_profile(f):
         '--profile',
         default='default',
         help='Profile name to use.')(f)
+
+
+def click_option_user(f):
+    """Add user option to command."""
+    return click.option(
+        '--user',
+        type=click.Path(resolve_path=True),
+        default=DEFAULT_PATH,
+        help=f'User file path to use (default {DEFAULT_PATH}).')(f)
 
 
 def click_option_config(f):
@@ -196,18 +207,35 @@ def cli(ctx):
 @click.option('--insecure', '-k', is_flag=True,
               help='Do not verify SSL certificates')
 @click.option('--version', '-v', default=configuration.DEFAULT_VERSION)
-@click.option('--user', '-u')
+@click.option('--username', '-u')
 @click.option('--password', '-p')
-def add_profile_to_config(url, config, profile, insecure, version, user, password):
+def add_profile_to_config(url, config, profile, insecure, version, username, password):
     """Add profile to config file."""
     configuration.Manager(config).add_profile(
         profile,
         url,
         version=version,
         insecure=insecure,
-        user=user,
+        username=username,
         password=password,
     )
+
+
+@cli.command('login')
+@click_option_config
+@click_option_profile
+@click_option_user
+def login(config, profile, user):
+    """Login to the Substra platform."""
+    client = get_client(config, profile, user)
+    try:
+        cookies, jwt = client.login()
+    except Exception as e:
+        # TODO display error
+        print(e)
+    else:
+        # create temporary user data
+        usr.Manager(user).add_user(cookies, jwt)
 
 
 @cli.group()
@@ -228,11 +256,12 @@ def add(ctx):
               help='Data sample(s) used as test data only.')
 @click_option_config
 @click_option_profile
+@click_option_user
 @click_option_verbose
 @click.pass_context
 @error_printer
 def add_data_sample(ctx, path, dataset_key, local, multiple, test_only,
-                    config, profile, verbose):
+                    config, profile, user, verbose):
     """Add data sample(s).
 
 
@@ -240,7 +269,7 @@ def add_data_sample(ctx, path, dataset_key, local, multiple, test_only,
     directory containing data samples directories (if --multiple option is
     set).
     """
-    client = get_client(config, profile)
+    client = get_client(config, profile, user)
     if multiple and local:
         subdirs = next(os.walk(path))[1]
         paths = [os.path.join(path, s) for s in subdirs]
@@ -268,10 +297,11 @@ def add_data_sample(ctx, path, dataset_key, local, multiple, test_only,
 @click_option_output_format
 @click_option_config
 @click_option_profile
+@click_option_user
 @click_option_verbose
 @click.pass_context
 @error_printer
-def add_dataset(ctx, data, objective_key, output_format, config, profile, verbose):
+def add_dataset(ctx, data, objective_key, output_format, config, profile, user, verbose):
     """Add dataset.
 
     The path must point to a valid JSON file with the following schema:
@@ -298,7 +328,7 @@ def add_dataset(ctx, data, objective_key, output_format, config, profile, verbos
     - data_opener: path to the opener python script
     - permissions: define asset access permissions
     """
-    client = get_client(config, profile)
+    client = get_client(config, profile, user)
     dict_append_to_optional_field(data, 'objective_keys', objective_key)
     res = client.add_dataset(data)
     printer = printers.get_asset_printer(assets.DATASET, output_format)
@@ -315,10 +345,12 @@ def add_dataset(ctx, data, objective_key, output_format, config, profile, verbos
 @click_option_output_format
 @click_option_config
 @click_option_profile
+@click_option_user
 @click_option_verbose
 @click.pass_context
 @error_printer
-def add_objective(ctx, data, dataset_key, data_samples, output_format, config, profile, verbose):
+def add_objective(ctx, data, dataset_key, data_samples, output_format, config,
+                  profile, user, verbose):
     """Add objective.
 
     The path must point to a valid JSON file with the following schema:
@@ -356,7 +388,7 @@ def add_objective(ctx, data, dataset_key, data_samples, output_format, config, p
     Where:
     - keys: list of test only data sample keys
     """
-    client = get_client(config, profile)
+    client = get_client(config, profile, user)
 
     if dataset_key:
         data['test_data_manager_key'] = dataset_key
@@ -375,10 +407,11 @@ def add_objective(ctx, data, dataset_key, data_samples, output_format, config, p
 @click_option_output_format
 @click_option_config
 @click_option_profile
+@click_option_user
 @click_option_verbose
 @click.pass_context
 @error_printer
-def add_algo(ctx, data, output_format, config, profile, verbose):
+def add_algo(ctx, data, output_format, config, profile, user, verbose):
     """Add algo.
 
     The path must point to a valid JSON file with the following schema:
@@ -402,7 +435,7 @@ def add_algo(ctx, data, output_format, config, profile, verbose):
       script and its Dockerfile
     - permissions: define asset access permissions
     """
-    client = get_client(config, profile)
+    client = get_client(config, profile, user)
     res = client.add_algo(data)
     printer = printers.get_asset_printer(assets.ALGO, output_format)
     printer.print(res, is_list=False)
@@ -419,11 +452,12 @@ def add_algo(ctx, data, output_format, config, profile, verbose):
 @click_option_output_format
 @click_option_config
 @click_option_profile
+@click_option_user
 @click_option_verbose
 @click.pass_context
 @error_printer
 def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, tag, output_format,
-                   config, profile, verbose):
+                   config, profile, user, verbose):
     """Add traintuple.
 
     The option --data-samples-path must point to a valid JSON file with the
@@ -439,7 +473,7 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, tag,
     - keys: list of data sample keys
     """
     # TODO add missing inmodel keys?
-    client = get_client(config, profile)
+    client = get_client(config, profile, user)
     data = {
         'algo_key': algo_key,
         'objective_key': objective_key,
@@ -466,11 +500,12 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, tag,
 @click_option_output_format
 @click_option_config
 @click_option_profile
+@click_option_user
 @click_option_verbose
 @click.pass_context
 @error_printer
 def add_testtuple(ctx, dataset_key, traintuple_key, data_samples, tag,
-                  output_format, config, profile, verbose):
+                  output_format, config, profile, user, verbose):
     """Add testtuple.
 
     The option --data-samples-path must point to a valid JSON file with the
@@ -485,7 +520,7 @@ def add_testtuple(ctx, dataset_key, traintuple_key, data_samples, tag,
     Where:
     - keys: list of data sample keys
     """
-    client = get_client(config, profile)
+    client = get_client(config, profile, user)
     data = {
         'data_manager_key': dataset_key,
         'traintuple_key': traintuple_key,
@@ -514,17 +549,18 @@ def add_testtuple(ctx, dataset_key, traintuple_key, data_samples, tag,
 @click_option_output_format
 @click_option_config
 @click_option_profile
+@click_option_user
 @click_option_verbose
 @click.pass_context
 @error_printer
-def get(ctx, asset_name, asset_key, expand, output_format, config, profile, verbose):
+def get(ctx, asset_name, asset_key, expand, output_format, config, profile, user, verbose):
     """Get asset definition."""
     expand_valid_assets = (assets.DATASET, assets.TRAINTUPLE, assets.OBJECTIVE, assets.TESTTUPLE)
     if expand and asset_name not in expand_valid_assets:  # fail fast
         raise click.UsageError(
             f'--expand option is available with assets {expand_valid_assets}')
 
-    client = get_client(config, profile)
+    client = get_client(config, profile, user)
     # method must exist in sdk
     method = getattr(client, f'get_{asset_name.lower()}')
     res = method(asset_key)
@@ -568,13 +604,14 @@ def get(ctx, asset_name, asset_key, expand, output_format, config, profile, verb
 @click_option_output_format
 @click_option_config
 @click_option_profile
+@click_option_user
 @click_option_verbose
 @click.pass_context
 @error_printer
 def list_(ctx, asset_name, filters, filters_logical_clause, advanced_filters, is_complex,
-          output_format, config, profile, verbose):
+          output_format, config, profile, user, verbose):
     """List assets."""
-    client = get_client(config, profile)
+    client = get_client(config, profile, user)
     # method must exist in sdk
     method = getattr(client, f'list_{asset_name.lower()}')
     # handle filters
@@ -603,12 +640,13 @@ def list_(ctx, asset_name, filters, filters_logical_clause, advanced_filters, is
 @click.argument('asset-key')
 @click_option_config
 @click_option_profile
+@click_option_user
 @click_option_verbose
 @click.pass_context
 @error_printer
-def describe(ctx, asset_name, asset_key, config, profile, verbose):
+def describe(ctx, asset_name, asset_key, config, profile, user, verbose):
     """Display asset description."""
-    client = get_client(config, profile)
+    client = get_client(config, profile, user)
     # method must exist in sdk
     method = getattr(client, f'describe_{asset_name.lower()}')
     description = method(asset_key)
@@ -627,10 +665,11 @@ def describe(ctx, asset_name, asset_key, config, profile, verbose):
               default='.')
 @click_option_config
 @click_option_profile
+@click_option_user
 @click_option_verbose
 @click.pass_context
 @error_printer
-def download(ctx, asset_name, key, folder, config, profile, verbose):
+def download(ctx, asset_name, key, folder, config, profile, user, verbose):
     """Download asset implementation.
 
     \b
@@ -638,7 +677,7 @@ def download(ctx, asset_name, key, folder, config, profile, verbose):
     - dataset: the opener script
     - objective: the metrics and its dependencies
     """
-    client = get_client(config, profile)
+    client = get_client(config, profile, user)
     # method must exist in sdk
     method = getattr(client, f'download_{asset_name.lower()}')
     res = method(key, folder)
@@ -656,12 +695,13 @@ def download(ctx, asset_name, key, folder, config, profile, verbose):
               help='Sort models by highest to lowest perf or vice versa')
 @click_option_config
 @click_option_profile
+@click_option_user
 @click_option_verbose
 @click.pass_context
 @error_printer
-def leaderboard(ctx, objective_key, output_format, expand, sort, config, profile, verbose):
+def leaderboard(ctx, objective_key, output_format, expand, sort, config, profile, user, verbose):
     """Display objective leaderboard"""
-    client = get_client(config, profile)
+    client = get_client(config, profile, user)
     leaderboard = client.leaderboard(objective_key, sort=sort)
     printer = printers.get_leaderboard_printer(output_format)
     printer.print(leaderboard, expand=expand)
@@ -764,10 +804,11 @@ def update(ctx):
 @click.option('--dataset-key', required=True)
 @click_option_config
 @click_option_profile
+@click_option_user
 @click_option_verbose
 @click.pass_context
 @error_printer
-def update_data_sample(ctx, data_samples, dataset_key, config, profile, verbose):
+def update_data_sample(ctx, data_samples, dataset_key, config, profile, user, verbose):
     """Link data samples with dataset.
 
     The data samples path must point to a valid JSON file with the following
@@ -782,7 +823,7 @@ def update_data_sample(ctx, data_samples, dataset_key, config, profile, verbose)
     Where:
     - keys: list of data sample keys
     """
-    client = get_client(config, profile)
+    client = get_client(config, profile, user)
     res = client.link_dataset_with_data_samples(dataset_key, data_samples['keys'])
     display(res)
 
@@ -792,12 +833,13 @@ def update_data_sample(ctx, data_samples, dataset_key, config, profile, verbose)
 @click.argument('objective-key')
 @click_option_config
 @click_option_profile
+@click_option_user
 @click_option_verbose
 @click.pass_context
 @error_printer
-def update_dataset(ctx, dataset_key, objective_key, config, profile, verbose):
+def update_dataset(ctx, dataset_key, objective_key, config, profile, user, verbose):
     """Link dataset with objective."""
-    client = get_client(config, profile)
+    client = get_client(config, profile, user)
     res = client.link_dataset_with_objective(dataset_key, objective_key)
     display(res)
 

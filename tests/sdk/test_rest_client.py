@@ -31,7 +31,7 @@ CONFIG_SECURE = {
     'url': 'http://foo.com',
     'version': '1.0',
     'auth': {
-        'user': 'foo',
+        'username': 'foo',
         'password': 'bar',
     },
     'insecure': False,
@@ -41,7 +41,7 @@ CONFIG_INSECURE = {
     'url': 'http://foo.com',
     'version': '1.0',
     'auth': {
-        'user': 'foo',
+        'username': 'foo',
         'password': 'bar',
     },
     'insecure': True,

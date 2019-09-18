@@ -29,27 +29,48 @@ class Client():
         self._headers = {}
         self._default_kwargs = {}
         self._base_url = None
+        self._auth = {}
 
         if config:
             self.set_config(config)
+
+    def login(self):
+        res = requests.post(f'{self._base_url}/user/login/', data=self._auth, headers=self._headers)
+        if res.status_code != 200:
+            raise Exception(f'cannot login {res.content}')
+        return res
 
     def set_config(self, config):
         """Reset internal attributes from config."""
         # get default requests keyword arguments from config
         kwargs = {}
-        if config['auth']:
-            user, password = config['auth']['user'], config['auth']['password']
-            kwargs['auth'] = (user, password)
 
         if config['insecure']:
             kwargs['verify'] = False
 
         # get default HTTP headers from config
-        headers = {'Accept': 'application/json;version={}'.format(config['version'])}
+        headers = {
+            'Accept': 'application/json;version={}'.format(config['version']),
+        }
+
+        # TODO rework
+        if 'jwt' in config:
+            headers.update({
+                'Authorization': f"JWT {config['jwt']}"
+            })
+
+        if 'cookies' in config:
+            kwargs.update({'cookies': config['cookies']})
 
         self._headers = headers
         self._default_kwargs = kwargs
         self._base_url = config['url'][:-1] if config['url'].endswith('/') else config['url']
+
+        if config['auth']:
+            self._auth = {
+                'username': config['auth']['username'],
+                'password': config['auth']['password']
+            }
 
     def _request(self, request_name, url, **request_kwargs):
         """Base request helper."""
