@@ -193,7 +193,7 @@ Options:
   --dataset-key TEXT        [required]
   --data-samples-path PATH  [required]
   --dry-run
-  --tag
+  --tag TEXT
   --config PATH             Config path (default ~/.substra).
   --profile TEXT            Profile name to use.
   --verbose                 Enable verbose mode.
@@ -222,7 +222,7 @@ Options:
   --traintuple-key TEXT     [required]
   --data-samples-path PATH
   --dry-run
-  --tag
+  --tag TEXT
   --config PATH             Config path (default ~/.substra).
   --profile TEXT            Profile name to use.
   --verbose                 Enable verbose mode.
