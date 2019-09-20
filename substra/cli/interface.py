@@ -393,7 +393,7 @@ def add_algo(ctx, path, dryrun, config, profile, verbose):
 @click.option('--data-samples-path', required=True,
               type=click.Path(exists=True, resolve_path=True))
 @click.option('--dry-run', 'dryrun', is_flag=True)
-@click.option('--tag', is_flag=True)
+@click.option('--tag')
 @click_option_config
 @click_option_profile
 @click_option_verbose
@@ -439,7 +439,7 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key,
 @click.option('--data-samples-path',
               type=click.Path(exists=True, resolve_path=True))
 @click.option('--dry-run', 'dryrun', is_flag=True)
-@click.option('--tag', is_flag=True)
+@click.option('--tag')
 @click_option_config
 @click_option_profile
 @click_option_verbose
