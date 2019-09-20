@@ -84,6 +84,18 @@ def test_command_list(asset_name, workdir, mocker):
     assert item['key'] in output
 
 
+def test_command_list_node(workdir, mocker):
+    response = [
+        {'nodeID': 'foo', 'isCurrent': False},
+        {'nodeID': 'bar', 'isCurrent': True},
+    ]
+    with mock_client_call(mocker, 'list_node', response):
+        output = client_execute(workdir, ['list', 'node'])
+    assert output == ('NODE ID                         \n'
+                      'foo                             \n'
+                      'bar         (current node)      \n')
+
+
 @pytest.mark.parametrize(
     'asset_name', ['objective', 'dataset', 'algo', 'testtuple', 'traintuple']
 )

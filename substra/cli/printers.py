@@ -76,6 +76,14 @@ class DataSampleKeysField(Field):
         return value
 
 
+class CurrentNodeField(Field):
+    def get_value(self, item, expand=False):
+        value = super().get_value(item, expand)
+        if value:
+            return '(current node)'
+        return ''
+
+
 class BasePrinter:
     @staticmethod
     def _get_columns(items, fields):
@@ -298,7 +306,10 @@ class TesttuplePrinter(AssetPrinter):
 
 class NodePrinter(AssetPrinter):
     asset_name = 'node'
-    key_field = Field('Node ID', 'node_id')
+    key_field = Field('Node ID', 'nodeID')
+    list_fields = (
+        CurrentNodeField('', 'isCurrent'),
+    )
 
 
 class LeaderBoardPrinter(BasePrinter):
@@ -327,6 +338,7 @@ PRINTERS = {
     assets.DATA_SAMPLE: DataSamplePrinter,
     assets.TRAINTUPLE: TraintuplePrinter,
     assets.TESTTUPLE: TesttuplePrinter,
+    assets.NODE: NodePrinter,
 }
 
 
