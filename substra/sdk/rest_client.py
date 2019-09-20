@@ -35,7 +35,7 @@ class Client():
 
         self._headers = headers
         self._default_kwargs = kwargs
-        self._base_url = config['url']
+        self._base_url = config['url'][:-1] if config['url'].endswith('/') else config['url']
 
     def _request(self, request_name, url, **request_kwargs):
         """Base request helper."""
