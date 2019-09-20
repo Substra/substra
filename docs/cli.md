@@ -266,8 +266,8 @@ Options:
 ## substra list
 
 ```bash
-Usage: substra list [OPTIONS]
-                    [algo|data_sample|dataset|objective|testtuple|traintuple]
+Usage: substra list [OPTIONS] [algo|data_sample|dataset|objective|testtuple|tr
+                    aintuple|node]
 
   List assets.
 

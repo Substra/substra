@@ -250,6 +250,11 @@ List testtuples.
 Client.list_traintuple(self, filters=None, is_complex=False)
 ```
 List traintuples.
+## list_node
+```python
+Client.list_node(self, *args, **kwargs)
+```
+List nodes.
 ## update_dataset
 ```python
 Client.update_dataset(self, dataset_key, data)

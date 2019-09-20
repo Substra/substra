@@ -365,7 +365,7 @@ class Client(object):
         return self.client.list(assets.TRAINTUPLE, filters=filters)
 
     def list_node(self, *args, **kwargs):
-        """List traintuples."""
+        """List nodes."""
         return self.client.list(assets.NODE)
 
     def update_dataset(self, dataset_key, data):
