@@ -80,7 +80,7 @@ class CurrentNodeField(Field):
     def get_value(self, item, expand=False):
         value = super().get_value(item, expand)
         if value:
-            return '(current node)'
+            return '(current)'
         return ''
 
 

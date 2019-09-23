@@ -85,15 +85,11 @@ def test_command_list(asset_name, workdir, mocker):
 
 
 def test_command_list_node(workdir, mocker):
-    response = [
-        {'nodeID': 'foo', 'isCurrent': False},
-        {'nodeID': 'bar', 'isCurrent': True},
-    ]
-    with mock_client_call(mocker, 'list_node', response):
+    with mock_client_call(mocker, 'list_node', datastore.NODES):
         output = client_execute(workdir, ['list', 'node'])
-    assert output == ('NODE ID                         \n'
-                      'foo                             \n'
-                      'bar         (current node)      \n')
+    assert output == ('NODE ID                     \n'
+                      'foo                         \n'
+                      'bar         (current)       \n')
 
 
 @pytest.mark.parametrize(
