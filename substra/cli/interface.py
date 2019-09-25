@@ -93,7 +93,7 @@ def click_option_user(f):
         '--user',
         type=click.Path(resolve_path=True),
         default=DEFAULT_PATH,
-        help=f'User file path to use (default {DEFAULT_PATH}).')(f)
+        help='User file path to use (default ~/.substra-user).')(f)
 
 
 def click_option_config(f):
