@@ -253,12 +253,13 @@ def add_data_sample(ctx, path, dataset_key, local, multiple, test_only,
 @click.argument('path', type=click.Path(exists=True))
 @click.option('--objective-key')
 @click.option('--dry-run', 'dryrun', is_flag=True)
+@click_option_output_format
 @click_option_config
 @click_option_profile
 @click_option_verbose
 @click.pass_context
 @error_printer
-def add_dataset(ctx, path, objective_key, dryrun, config, profile, verbose):
+def add_dataset(ctx, path, objective_key, dryrun, output_format, config, profile, verbose):
     """Add dataset.
 
     The path must point to a valid JSON file with the following schema:
@@ -286,7 +287,8 @@ def add_dataset(ctx, path, objective_key, dryrun, config, profile, verbose):
     data = load_json(path)
     dict_append_to_optional_field(data, 'objective_keys', objective_key)
     res = client.add_dataset(data, dryrun=dryrun)
-    display(res)
+    printer = printers.get_asset_printer(assets.DATASET, output_format)
+    printer.print(res, is_list=False)
 
 
 @add.command('objective')
@@ -296,12 +298,13 @@ def add_dataset(ctx, path, objective_key, dryrun, config, profile, verbose):
               type=click.Path(exists=True, resolve_path=True),
               help='test data samples')
 @click.option('--dry-run', 'dryrun', is_flag=True)
+@click_option_output_format
 @click_option_config
 @click_option_profile
 @click_option_verbose
 @click.pass_context
 @error_printer
-def add_objective(ctx, path, dataset_key, data_samples_path, dryrun, config,
+def add_objective(ctx, path, dataset_key, data_samples_path, dryrun, output_format, config,
                   profile, verbose):
     """Add objective.
 
@@ -348,18 +351,20 @@ def add_objective(ctx, path, dataset_key, data_samples_path, dryrun, config,
         data['test_data_sample_keys'] = data_sample_keys
 
     res = client.add_objective(data, dryrun=dryrun)
-    display(res)
+    printer = printers.get_asset_printer(assets.OBJECTIVE, output_format)
+    printer.print(res, is_list=False)
 
 
 @add.command('algo')
 @click.argument('path', type=click.Path(exists=True))
 @click.option('--dry-run', 'dryrun', is_flag=True)
+@click_option_output_format
 @click_option_config
 @click_option_profile
 @click_option_verbose
 @click.pass_context
 @error_printer
-def add_algo(ctx, path, dryrun, config, profile, verbose):
+def add_algo(ctx, path, dryrun, output_format, config, profile, verbose):
     """Add algo.
 
     The path must point to a valid JSON file with the following schema:
@@ -383,7 +388,8 @@ def add_algo(ctx, path, dryrun, config, profile, verbose):
     client = get_client(config, profile)
     data = load_json(path)
     res = client.add_algo(data, dryrun=dryrun)
-    display(res)
+    printer = printers.get_asset_printer(assets.ALGO, output_format)
+    printer.print(res, is_list=False)
 
 
 @add.command('traintuple')
@@ -394,13 +400,14 @@ def add_algo(ctx, path, dryrun, config, profile, verbose):
               type=click.Path(exists=True, resolve_path=True))
 @click.option('--dry-run', 'dryrun', is_flag=True)
 @click.option('--tag')
+@click_option_output_format
 @click_option_config
 @click_option_profile
 @click_option_verbose
 @click.pass_context
 @error_printer
 def add_traintuple(ctx, objective_key, algo_key, dataset_key,
-                   data_samples_path, dryrun, tag, config, profile, verbose):
+                   data_samples_path, dryrun, tag, output_format, config, profile, verbose):
     """Add traintuple.
 
     The option --data-samples-path must point to a valid JSON file with the
@@ -430,7 +437,8 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key,
     if tag:
         data['tag'] = tag
     res = client.add_traintuple(data, dryrun=dryrun)
-    display(res)
+    printer = printers.get_asset_printer(assets.TRAINTUPLE, output_format)
+    printer.print(res, is_list=False)
 
 
 @add.command('testtuple')
@@ -440,13 +448,14 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key,
               type=click.Path(exists=True, resolve_path=True))
 @click.option('--dry-run', 'dryrun', is_flag=True)
 @click.option('--tag')
+@click_option_output_format
 @click_option_config
 @click_option_profile
 @click_option_verbose
 @click.pass_context
 @error_printer
 def add_testtuple(ctx, dataset_key, traintuple_key,
-                  data_samples_path, dryrun, tag, config, profile, verbose):
+                  data_samples_path, dryrun, tag, output_format, config, profile, verbose):
     """Add testtuple.
 
 
@@ -475,7 +484,8 @@ def add_testtuple(ctx, dataset_key, traintuple_key,
     if tag:
         data['tag'] = tag
     res = client.add_testtuple(data, dryrun=dryrun)
-    display(res)
+    printer = printers.get_asset_printer(assets.TESTTUPLE, output_format)
+    printer.print(res, is_list=False)
 
 
 @cli.command()
@@ -547,7 +557,7 @@ def get(ctx, asset_name, asset_key, expand, output_format, config, profile, verb
 @click_option_verbose
 @click.pass_context
 @error_printer
-def _list(ctx, asset_name, filters, filters_logical_clause, advanced_filters, is_complex,
+def list_(ctx, asset_name, filters, filters_logical_clause, advanced_filters, is_complex,
           output_format, config, profile, verbose):
     """List assets."""
     client = get_client(config, profile)
