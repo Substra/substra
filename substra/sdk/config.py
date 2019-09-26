@@ -17,6 +17,8 @@ import json
 import logging
 import os
 
+import keyring
+
 logger = logging.getLogger(__name__)
 
 DEFAULT_PATH = os.path.expanduser('~/.substra')
@@ -28,7 +30,9 @@ DEFAULT_CONFIG = {
     'default': {
         'url': 'http://127.0.0.1:8000',
         'version': '0.0',
-        'auth': False,
+        'auth': {
+            'username': 'foo'
+        },
         'insecure': False,
     }
 }
@@ -55,25 +59,19 @@ def _write_config(path, config):
         json.dump(config, fh, indent=2, sort_keys=True)
 
 
-def create_profile(url, version, insecure, username, password):
+def create_profile(url, version, insecure, username):
     """Create profile object."""
-    if username and password:
-        auth = {
-            'username': username,
-            'password': password,
-        }
-    else:
-        auth = False
-
     return {
         'url': url,
         'version': version,
         'insecure': insecure,
-        'auth': auth,
+        'auth': {
+            'username': username,
+        },
     }
 
 
-def _add_profile(path, name, url, version, insecure, username=None, password=None):
+def _add_profile(path, name, url, username, version, insecure):
     """Add profile to config file on disk."""
     # read config file
     try:
@@ -82,7 +80,7 @@ def _add_profile(path, name, url, version, insecure, username=None, password=Non
         config = copy.deepcopy(DEFAULT_CONFIG)
 
     # create profile
-    profile = create_profile(url, version, insecure, username, password)
+    profile = create_profile(url, version, insecure, username)
 
     # update config file
     if name in config:
@@ -113,18 +111,18 @@ class Manager():
     def __init__(self, path=DEFAULT_PATH):
         self.path = path
 
-    def add_profile(self, name, url=DEFAULT_URL, version=DEFAULT_VERSION,
-                    insecure=False, username=None, password=None):
+    def add_profile(self, name, username, password, url=DEFAULT_URL,
+                    version=DEFAULT_VERSION, insecure=False):
         """Add profile to config file on disk."""
         config = _add_profile(
             self.path,
             name,
             url,
+            username,
             version=version,
             insecure=insecure,
-            username=username,
-            password=password,
         )
+        keyring.set_password(name, username, password)
         return config[name]
 
     def load_profile(self, name):

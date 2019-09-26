@@ -207,17 +207,17 @@ def cli(ctx):
 @click.option('--insecure', '-k', is_flag=True,
               help='Do not verify SSL certificates')
 @click.option('--version', '-v', default=configuration.DEFAULT_VERSION)
-@click.option('--username', '-u')
-@click.option('--password', '-p')
+@click.option('--username', '-u', required=True)
+@click.option('--password', '-p', required=True)
 def add_profile_to_config(url, config, profile, insecure, version, username, password):
     """Add profile to config file."""
     configuration.Manager(config).add_profile(
         profile,
+        username,
+        password,
         url,
         version=version,
         insecure=insecure,
-        username=username,
-        password=password,
     )
 
 

@@ -36,6 +36,8 @@ locally.
 
 ## Usage
 
+Credentials are required for using this tool.
+
 ### CLI
 
 ```sh

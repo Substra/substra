@@ -16,6 +16,8 @@ from copy import deepcopy
 import logging
 import os
 
+import keyring
+
 from substra.sdk import utils, assets, rest_client, exceptions
 from substra.sdk import config as cfg
 from substra.sdk import user as usr
@@ -36,8 +38,10 @@ class Client(object):
         self._current_profile = None
         self._profiles = {}
         self.client = rest_client.Client()
+        self._profile_name = 'default'
 
         if profile_name:
+            self._profile_name = profile_name
             self.set_profile(profile_name)
 
         # set current logged user if exists
@@ -51,14 +55,14 @@ class Client(object):
             'cookies': cookies,
             'jwt': jwt
         })
-        self.client.set_config(self._current_profile)
+        self.client.set_config(self._current_profile, self._profile_name)
         return cookies, jwt
 
     def _set_current_profile(self, profile_name, profile):
         """Set client current profile."""
         self._profiles[profile_name] = profile
         self._current_profile = profile
-        self.client.set_config(self._current_profile)
+        self.client.set_config(self._current_profile, profile_name)
         return profile
 
     def set_profile(self, profile_name):
@@ -85,18 +89,17 @@ class Client(object):
                     'cookies': user['cookies'],
                     'jwt': user['jwt']
                 })
-                self.client.set_config(self._current_profile)
+                self.client.set_config(self._current_profile, self._profile_name)
 
-    def add_profile(self, profile_name, url, version='0.0', insecure=False,
-                    username=None, password=None):
+    def add_profile(self, profile_name, username, password, url, version='0.0', insecure=False):
         """Add new profile (in-memory only)."""
         profile = cfg.create_profile(
             url=url,
             version=version,
             insecure=insecure,
             username=username,
-            password=password,
         )
+        keyring.set_password(profile_name, username, password)
         return self._set_current_profile(profile_name, profile)
 
     def _add(self, asset, data, files=None, timeout=False, exist_ok=False,

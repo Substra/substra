@@ -23,7 +23,9 @@ from .utils import mock_requests
 CONFIG = {
     'url': 'http://foo.com',
     'version': '1.0',
-    'auth': False,
+    'auth': {
+        'username': 'foo',
+    },
     'insecure': False,
 }
 
@@ -32,7 +34,6 @@ CONFIG_SECURE = {
     'version': '1.0',
     'auth': {
         'username': 'foo',
-        'password': 'bar',
     },
     'insecure': False,
 }
@@ -42,7 +43,6 @@ CONFIG_INSECURE = {
     'version': '1.0',
     'auth': {
         'username': 'foo',
-        'password': 'bar',
     },
     'insecure': True,
 }
