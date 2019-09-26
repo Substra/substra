@@ -6,11 +6,13 @@ from .utils import mock_requests
 
 
 def test_add_dataset(client, dataset_query, mocker):
-    m = mock_requests(mocker, "post", response=datastore.DATASET)
+    m_post = mock_requests(mocker, "post", response=datastore.DATASET)
+    m_get = mock_requests(mocker, "get", response=datastore.DATASET)
     response = client.add_dataset(dataset_query)
 
     assert response == datastore.DATASET
-    assert m.is_called()
+    assert m_post.is_called()
+    assert m_get.is_called()
 
 
 def test_add_dataset_invalid_args(client, dataset_query, mocker):
@@ -38,19 +40,23 @@ def test_add_dataset_response_failure_409(client, dataset_query, mocker):
 
 
 def test_add_objective(client, objective_query, mocker):
-    m = mock_requests(mocker, "post", response=datastore.OBJECTIVE)
+    m_post = mock_requests(mocker, "post", response=datastore.OBJECTIVE)
+    m_get = mock_requests(mocker, "get", response=datastore.OBJECTIVE)
     response = client.add_objective(objective_query)
 
     assert response == datastore.OBJECTIVE
-    assert m.is_called()
+    assert m_post.is_called()
+    assert m_get.is_called()
 
 
 def test_add_algo(client, algo_query, mocker):
-    m = mock_requests(mocker, "post", response=datastore.ALGO)
+    m_post = mock_requests(mocker, "post", response=datastore.ALGO)
+    m_get = mock_requests(mocker, "get", response=datastore.ALGO)
     response = client.add_algo(algo_query)
 
     assert response == datastore.ALGO
-    assert m.is_called()
+    assert m_post.is_called()
+    assert m_get.is_called()
 
 
 def test_add_data_sample(client, data_sample_query, mocker):
