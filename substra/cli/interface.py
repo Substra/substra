@@ -229,13 +229,13 @@ def login(config, profile, user):
     """Login to the Substra platform."""
     client = get_client(config, profile, user)
     try:
-        cookies, jwt = client.login()
+        token = client.login()
     except Exception as e:
         # TODO display error
         print(e)
     else:
         # create temporary user data
-        usr.Manager(user).add_user(cookies, jwt)
+        usr.Manager(user).add_user(token)
 
 
 @cli.group()

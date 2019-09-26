@@ -23,11 +23,10 @@ class Manager():
     def __init__(self, path=DEFAULT_PATH):
         self.path = path
 
-    def add_user(self, cookies, jwt):
+    def add_user(self, token):
         # create profile
         user = {
-            'cookies': cookies,
-            'jwt': jwt
+            'token': token,
         }
 
         self._write_user(self.path, user)

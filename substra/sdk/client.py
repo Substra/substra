@@ -49,14 +49,12 @@ class Client(object):
 
     def login(self):
         res = self.client.login()
-        cookies = dict(res.cookies.items())
-        jwt = '' if 'header.payload' not in cookies else cookies['header.payload']
+        token = res.json()['token']
         self._current_profile.update({
-            'cookies': cookies,
-            'jwt': jwt
+            'token': token,
         })
         self.client.set_config(self._current_profile, self._profile_name)
-        return cookies, jwt
+        return token
 
     def _set_current_profile(self, profile_name, profile):
         """Set client current profile."""
@@ -86,8 +84,7 @@ class Client(object):
         else:
             if self._current_profile is not None:
                 self._current_profile.update({
-                    'cookies': user['cookies'],
-                    'jwt': user['jwt']
+                    'token': user['token'],
                 })
                 self.client.set_config(self._current_profile, self._profile_name)
 

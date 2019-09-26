@@ -37,7 +37,7 @@ class Client():
             self.set_config(config)
 
     def login(self):
-        res = requests.post(f'{self._base_url}/user/login/', data=self._auth, headers=self._headers)
+        res = requests.post(f'{self._base_url}/api-token-auth/', data=self._auth, headers=self._headers)
         if res.status_code != 200:
             raise Exception(f'cannot login {res.content}')
         return res
@@ -55,13 +55,10 @@ class Client():
             'Accept': 'application/json;version={}'.format(config['version']),
         }
 
-        if 'jwt' in config:
+        if 'token' in config:
             headers.update({
-                'Authorization': f"JWT {config['jwt']}"
+                'Authorization': f"Token {config['token']}"
             })
-
-        if 'cookies' in config:
-            kwargs.update({'cookies': config['cookies']})
 
         self._headers = headers
         self._default_kwargs = kwargs
