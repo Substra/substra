@@ -180,7 +180,3 @@ def response_get_destination_filename(response):
     filename = filenames[0]
     filename = filename.strip('\'"')
     return filename
-
-
-def get_key(res):
-    return res.get('pkhash') or res.get('key')

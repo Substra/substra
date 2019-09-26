@@ -8,6 +8,10 @@ from substra.sdk import config as cfg
 logger = logging.getLogger(__name__)
 
 
+def get_asset_key(data):
+    return data.get('pkhash') or data.get('key')
+
+
 class Client(object):
 
     def __init__(self, config_path=None, profile_name=None):
@@ -180,7 +184,7 @@ class Client(object):
                 exist_ok=exist_ok)
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
-        return self.get_dataset(utils.get_key(res))
+        return self.get_dataset(get_asset_key(res))
 
     def add_objective(self, data, dryrun=False, timeout=False, exist_ok=False):
         """Create new objective asset.
@@ -209,7 +213,7 @@ class Client(object):
                 exist_ok=exist_ok)
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
-        return self.get_objective(utils.get_key(res))
+        return self.get_objective(get_asset_key(res))
 
     def add_algo(self, data, dryrun=False, timeout=False, exist_ok=False):
         """Create new algo asset.
@@ -235,7 +239,7 @@ class Client(object):
                 exist_ok=exist_ok)
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
-        return self.get_algo(utils.get_key(res))
+        return self.get_algo(get_asset_key(res))
 
     def add_traintuple(self, data, dryrun=False, timeout=False, exist_ok=False):
         """Create new traintuple asset.
@@ -261,7 +265,7 @@ class Client(object):
                         exist_ok=exist_ok)
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
-        return self.get_traintuple(utils.get_key(res))
+        return self.get_traintuple(get_asset_key(res))
 
     def add_testtuple(self, data, dryrun=False, timeout=False, exist_ok=False):
         """Create new testtuple asset.
@@ -285,7 +289,7 @@ class Client(object):
                         exist_ok=exist_ok)
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
-        return self.get_testtuple(utils.get_key(res))
+        return self.get_testtuple(get_asset_key(res))
 
     def add_compute_plan(self, data, timeout=False):
         """Create compute plan.
