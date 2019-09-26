@@ -39,6 +39,10 @@ class HTTPError(RequestException):
     pass
 
 
+class LoadDataException(RequestException):
+    pass
+
+
 class InternalServerError(HTTPError):
     def __init__(self, request_exception, msg=None):
         super(InternalServerError, self).__init__(request_exception, msg=msg)
