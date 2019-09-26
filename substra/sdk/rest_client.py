@@ -37,7 +37,8 @@ class Client():
             self.set_config(config)
 
     def login(self):
-        res = requests.post(f'{self._base_url}/api-token-auth/', data=self._auth, headers=self._headers)
+        res = requests.post(f'{self._base_url}/api-token-auth/',
+                            data=self._auth, headers=self._headers)
         if res.status_code != 200:
             raise Exception(f'cannot login {res.content}')
         return res
