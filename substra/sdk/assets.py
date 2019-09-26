@@ -10,7 +10,6 @@ NODE = 'node'
 
 _SERVER_MAPPER = {
     DATASET: 'data_manager',
-    NODE: 'permission_node'
 }
 
 
