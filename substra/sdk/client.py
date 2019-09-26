@@ -8,6 +8,10 @@ from substra.sdk import config as cfg
 logger = logging.getLogger(__name__)
 
 
+def get_asset_key(data):
+    return data.get('pkhash') or data.get('key')
+
+
 class Client(object):
 
     def __init__(self, config_path=None, profile_name=None):
@@ -175,9 +179,12 @@ class Client(object):
         """
         attributes = ['data_opener', 'description']
         with utils.extract_files(data, attributes) as (data, files):
-            return self._add(
+            res = self._add(
                 assets.DATASET, data, files=files, dryrun=dryrun, timeout=timeout,
                 exist_ok=exist_ok)
+        # The backend has inconsistent API responses when getting or adding an asset (with much
+        # less data when responding to adds). A second GET request hides the discrepancies.
+        return self.get_dataset(get_asset_key(res))
 
     def add_objective(self, data, dryrun=False, timeout=False, exist_ok=False):
         """Create new objective asset.
@@ -201,9 +208,12 @@ class Client(object):
         """
         attributes = ['metrics', 'description']
         with utils.extract_files(data, attributes) as (data, files):
-            return self._add(
+            res = self._add(
                 assets.OBJECTIVE, data, files=files, dryrun=dryrun, timeout=timeout,
                 exist_ok=exist_ok)
+        # The backend has inconsistent API responses when getting or adding an asset (with much
+        # less data when responding to adds). A second GET request hides the discrepancies.
+        return self.get_objective(get_asset_key(res))
 
     def add_algo(self, data, dryrun=False, timeout=False, exist_ok=False):
         """Create new algo asset.
@@ -224,9 +234,12 @@ class Client(object):
         """
         attributes = ['file', 'description']
         with utils.extract_files(data, attributes) as (data, files):
-            return self._add(
+            res = self._add(
                 assets.ALGO, data, files=files, dryrun=dryrun, timeout=timeout,
                 exist_ok=exist_ok)
+        # The backend has inconsistent API responses when getting or adding an asset (with much
+        # less data when responding to adds). A second GET request hides the discrepancies.
+        return self.get_algo(get_asset_key(res))
 
     def add_traintuple(self, data, dryrun=False, timeout=False, exist_ok=False):
         """Create new traintuple asset.
@@ -248,8 +261,11 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        return self._add(assets.TRAINTUPLE, data, dryrun=dryrun, timeout=timeout,
-                         exist_ok=exist_ok)
+        res = self._add(assets.TRAINTUPLE, data, dryrun=dryrun, timeout=timeout,
+                        exist_ok=exist_ok)
+        # The backend has inconsistent API responses when getting or adding an asset (with much
+        # less data when responding to adds). A second GET request hides the discrepancies.
+        return self.get_traintuple(get_asset_key(res))
 
     def add_testtuple(self, data, dryrun=False, timeout=False, exist_ok=False):
         """Create new testtuple asset.
@@ -269,8 +285,11 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        return self._add(assets.TESTTUPLE, data, dryrun=dryrun, timeout=timeout,
-                         exist_ok=exist_ok)
+        res = self._add(assets.TESTTUPLE, data, dryrun=dryrun, timeout=timeout,
+                        exist_ok=exist_ok)
+        # The backend has inconsistent API responses when getting or adding an asset (with much
+        # less data when responding to adds). A second GET request hides the discrepancies.
+        return self.get_testtuple(get_asset_key(res))
 
     def add_compute_plan(self, data, timeout=False):
         """Create compute plan.
