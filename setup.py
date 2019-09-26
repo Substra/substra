@@ -58,7 +58,7 @@ setup(
     include_package_data=True,
     install_requires=['click', 'requests', 'docker', 'consolemd', 'pyyaml', 'keyring'],
     setup_requires=['pytest-runner'],
-    tests_require=['pytest', 'pytest-cov', 'pytest-mock'],
+    tests_require=['pytest', 'pytest-cov', 'pytest-mock', 'keyrings.alt'],
     entry_points={
         'console_scripts': [
             'substra=substra.cli.interface:cli',
