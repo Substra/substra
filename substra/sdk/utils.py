@@ -12,9 +12,18 @@ import zipfile
 
 import ntpath
 
+import click
 
-class LoadDataException(Exception):
-    pass
+
+class LoadDataException(click.UsageError):
+    exit_code = 2
+
+    def __init__(self, message):
+        click.UsageError.__init__(self, message)
+        self.message = message
+
+    def format_message(self):
+        return self.message
 
 
 def path_leaf(path):
