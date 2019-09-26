@@ -32,8 +32,8 @@ Options:
   --profile TEXT       Profile name to add
   -k, --insecure       Do not verify SSL certificates
   -v, --version TEXT
-  -u, --username TEXT
-  -p, --password TEXT
+  -u, --username TEXT  [required]
+  -p, --password TEXT  [required]
   --help               Show this message and exit.
 ```
 

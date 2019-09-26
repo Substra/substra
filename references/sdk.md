@@ -16,7 +16,7 @@ from the config file.
 
 ## add_profile
 ```python
-Client.add_profile(self, profile_name, url, version='0.0', insecure=False, username=None, password=None)
+Client.add_profile(self, profile_name, username, password, url, version='0.0', insecure=False)
 ```
 Add new profile (in-memory only).
 ## add_data_sample
