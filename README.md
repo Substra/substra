@@ -1,13 +1,38 @@
-# Substra
+# ![Substra](./substra-logo.svg)
 
-Substra CLI and SDK for interacting with substra platform
+CLI and SDK for interacting with Substra platform.
 
-## Getting started
+## Table of contents
+
+- [Install](#install)
+- [Usage](#usage)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+
+## Install
+
 To install the command line interface and the python sdk, run the following command:
 
 ```sh
 pip install .
 ```
+
+To enable Bash completion, you need to put into your .bashrc:
+
+```sh
+eval "$(_SUBSTRA_COMPLETE=source substra)"
+```
+
+For zsh users add this to your .zshrc:
+
+```sh
+eval "$(_SUBSTRA_COMPLETE=source_zsh substra)"
+```
+
+From this point onwards, substra command line interface will have autocompletion enabled.
+
+See the [local install guide](./docs/local_install.md) if you need to run a full instance of the Substra platform 
+locally.
 
 ## Usage
 
@@ -28,25 +53,29 @@ client = substra.Client()
 
 ## Documentation
 
-- [Command line interface](docs/cli.md)
-- [SDK](docs/sdk.md)
+References:
 
-## Autocompletion
-To enable Bash completion, you need to put into your .bashrc:
+- [Command line interface](./docs/cli.md)
+- [SDK](./docs/sdk.md)
+- [Objective base class](https://github.com/SubstraFoundation/substratools/blob/dev/docs/api.md#metrics)
+- [Dataset base class](https://github.com/SubstraFoundation/substratools/blob/dev/docs/api.md#opener)
+- [Algo base class](https://github.com/SubstraFoundation/substratools/blob/dev/docs/api.md#algo)
 
-```sh
-eval "$(_SUBSTRA_COMPLETE=source substra)"
-```
+Learning about the Substra platform:
 
-For zsh users add this to your .zshrc:
+- [Concepts](./docs/concepts.md)
+- [Machine Learning tasks](./docs/ml_tasks.md)
+- [Adding a full pipeline](./docs/full_pipeline_workflow.md)
 
-```sh
-eval "$(_SUBSTRA_COMPLETE=source_zsh substra)"
-```
+## Examples
 
-From this point onwards, substra command line interface will have autocompletion enabled.
+- [Prerequisites](./examples/prerequisites.md)
+- [Titanic](./examples/titanic/README.md) 
+- [Cross-validation](./examples/cross_val/README.md)
+- [Compute plan](./examples/compute_plan/README.md)
 
 ## Contributing
+
 ### Setup
 
 To setup the project in development mode, run:
