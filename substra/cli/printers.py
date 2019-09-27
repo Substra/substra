@@ -306,7 +306,7 @@ class TesttuplePrinter(AssetPrinter):
 
 class NodePrinter(AssetPrinter):
     asset_name = 'node'
-    key_field = Field('ID', 'id')
+    key_field = Field('NODE ID', 'id')
     list_fields = (
         CurrentNodeField('', 'isCurrent'),
     )

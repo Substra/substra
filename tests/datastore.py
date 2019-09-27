@@ -126,6 +126,6 @@ TESTTUPLE = {
 }
 
 NODES = [
-    {'nodeID': 'foo', 'isCurrent': False},
-    {'nodeID': 'bar', 'isCurrent': True},
+    {'id': 'foo', 'isCurrent': False},
+    {'id': 'bar', 'isCurrent': True},
 ]
