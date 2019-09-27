@@ -76,6 +76,17 @@ class DataSampleKeysField(Field):
         return value
 
 
+class InModelTraintupleKeysField(Field):
+    def get_value(self, item, expand=False):
+        value = super().get_value(item, expand)
+        if not expand and value:
+            n = len(value)
+            value = f'{n} in model traintuple key' if n == 1 else f'{n} in model traintuple keys'
+        elif value:
+            value = [v.get('traintupleKey') for v in value]
+        return value
+
+
 class CurrentNodeField(Field):
     def get_value(self, item, expand=False):
         value = super().get_value(item, expand)
@@ -266,6 +277,7 @@ class TraintuplePrinter(AssetPrinter):
         Field('Perf', 'dataset.perf'),
         Field('Dataset key', 'dataset.openerHash'),
         DataSampleKeysField('Train data sample keys', 'dataset.keys'),
+        InModelTraintupleKeysField('In model traintuple keys', 'inModels'),
         Field('Rank', 'rank'),
         Field('Compute Plan Id', 'computePlanID'),
         Field('Tag', 'tag'),
