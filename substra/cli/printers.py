@@ -262,7 +262,8 @@ class TraintuplePrinter(AssetPrinter):
         Field('Compute Plan Id', 'computePlanID'),
         Field('Tag', 'tag'),
         Field('Log', 'log'),
-        Field('Owner', 'owner'),
+        Field('Creator', 'creator'),
+        Field('Worker', 'dataset.worker'),
         PermissionField('Permissions', 'permissions'),
     )
     has_description = False
@@ -290,7 +291,8 @@ class TesttuplePrinter(AssetPrinter):
         DataSampleKeysField('Test data sample keys', 'dataset.keys'),
         Field('Tag', 'tag'),
         Field('Log', 'log'),
-        Field('Owner', 'owner'),
+        Field('Creator', 'creator'),
+        Field('Worker', 'dataset.worker'),
         PermissionField('Permissions', 'permissions'),
     )
     has_description = False
