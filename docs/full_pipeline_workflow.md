@@ -11,11 +11,11 @@ In order to add a full pipeline, you'll have to follow these steps **in this ord
    3. write and push a [json description of the dataset](./cli.md#substra-add-dataset)
 3. [Add the prepared data assets](./cli.md#substra-add-data_sample)
 4. Add objective
-   1. write a metrics file following [the requirements](./api.md#metrics)
+   1. write a metrics file following [the requirements](https://github.com/SubstraFoundation/substratools/blob/dev/docs/api.md#metrics)
    2. write a text describing the objective and how it's evaluated
    3. write and push [json description of the objective](./cli.md#substra-add-objective)
 5. Add algo
-   1. write your algorithm script following [the requirements](./api.md#algo)
+   1. write your algorithm script following [the requirements](https://github.com/SubstraFoundation/substratools/blob/dev/docs/api.md#algo)
    2. write a targz archive with Dockerfile and algo script
    3. write a text describing the algo
    4. write and push a [json description of the algorithm](./cli.md#substra-add-algo)

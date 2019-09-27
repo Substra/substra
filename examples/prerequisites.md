@@ -4,7 +4,7 @@ In order to run the examples, you'll need to:
 
 * use Python 3
 * have [Docker](https://www.docker.com/) installed
-* [install the `substra` cli](https://github.com/substrafoundation/substra-cli)
+* [install the `substra` cli](../README.md#install)
 * [install the `substratools` library](https://github.com/substrafoundation/substratools)
 * [pull the `substratools` docker images](https://github.com/substrafoundation/substratools#pull-from-private-docker-registry)
 
