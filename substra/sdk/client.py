@@ -182,6 +182,10 @@ class Client(object):
             res = self._add(
                 assets.DATASET, data, files=files, dryrun=dryrun, timeout=timeout,
                 exist_ok=exist_ok)
+
+        if dryrun:
+            return res
+
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_dataset(get_asset_key(res))
@@ -211,6 +215,10 @@ class Client(object):
             res = self._add(
                 assets.OBJECTIVE, data, files=files, dryrun=dryrun, timeout=timeout,
                 exist_ok=exist_ok)
+
+        if dryrun:
+            return res
+
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_objective(get_asset_key(res))
@@ -237,6 +245,10 @@ class Client(object):
             res = self._add(
                 assets.ALGO, data, files=files, dryrun=dryrun, timeout=timeout,
                 exist_ok=exist_ok)
+
+        if dryrun:
+            return res
+
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_algo(get_asset_key(res))
@@ -263,6 +275,10 @@ class Client(object):
         """
         res = self._add(assets.TRAINTUPLE, data, dryrun=dryrun, timeout=timeout,
                         exist_ok=exist_ok)
+
+        if dryrun:
+            return res
+
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_traintuple(get_asset_key(res))
@@ -287,6 +303,10 @@ class Client(object):
         """
         res = self._add(assets.TESTTUPLE, data, dryrun=dryrun, timeout=timeout,
                         exist_ok=exist_ok)
+
+        if dryrun:
+            return res
+
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_testtuple(get_asset_key(res))
