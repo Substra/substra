@@ -1,9 +1,12 @@
 # Substra documentation
 
-References:
+Interacting with the Substra platform:
 
 - [Command line interface](./cli.md)
 - [SDK](./sdk.md)
+
+Implementing your assets in python:
+
 - [Objective base class](https://github.com/SubstraFoundation/substratools/blob/dev/docs/api.md#metrics)
 - [Dataset base class](https://github.com/SubstraFoundation/substratools/blob/dev/docs/api.md#opener)
 - [Algo base class](https://github.com/SubstraFoundation/substratools/blob/dev/docs/api.md#algo)
