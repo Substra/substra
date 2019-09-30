@@ -124,3 +124,8 @@ TESTTUPLE = {
     "status": "done",
     "tag": ""
 }
+
+NODES = [
+    {'id': 'foo', 'isCurrent': False},
+    {'id': 'bar', 'isCurrent': True},
+]
