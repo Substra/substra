@@ -2,8 +2,8 @@
 
 Interacting with the Substra platform:
 
-- [Command line interface](./cli.md)
-- [SDK](./sdk.md)
+- [Command line interface](../references/cli.md)
+- [SDK](../references/sdk.md)
 
 Implementing your assets in python:
 

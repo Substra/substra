@@ -55,8 +55,8 @@ client = substra.Client()
 
 Interacting with the Substra platform:
 
-- [Command line interface](./docs/cli.md)
-- [SDK](./docs/sdk.md)
+- [Command line interface](./references/cli.md)
+- [SDK](./references/sdk.md)
 
 Implementing your assets in python:
 
