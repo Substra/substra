@@ -67,13 +67,23 @@ class PermissionField(Field):
             super().print_details(item, field_length, expand)
 
 
-class DataSampleKeysField(Field):
+class KeysField(Field):
+    def _get_key(self, v):
+        return v
+
     def get_value(self, item, expand=False):
         value = super().get_value(item, expand)
         if not expand and value:
             n = len(value)
-            value = f'{n} data sample key' if n == 1 else f'{n} data sample keys'
+            value = f'{n} key' if n == 1 else f'{n} keys'
+        elif value:
+            value = [self._get_key(v) for v in value]
         return value
+
+
+class InModelTraintupleKeysField(KeysField):
+    def _get_key(self, v):
+        return v.get('traintupleKey')
 
 
 class CurrentNodeField(Field):
@@ -207,7 +217,7 @@ class ObjectivePrinter(AssetPrinter):
         Field('Name', 'name'),
         Field('Metrics', 'metrics.name'),
         Field('Test dataset key', 'testDataset.dataManagerKey'),
-        DataSampleKeysField('Test data sample keys', 'testDataset.dataSampleKeys'),
+        KeysField('Test data sample keys', 'testDataset.dataSampleKeys'),
         Field('Owner', 'owner'),
         PermissionField('Permissions', 'permissions'),
     )
@@ -239,8 +249,8 @@ class DatasetPrinter(AssetPrinter):
         Field('Name', 'name'),
         Field('Objective key', 'objectiveKey'),
         Field('Type', 'type'),
-        DataSampleKeysField('Train data sample keys', 'trainDataSampleKeys'),
-        DataSampleKeysField('Test data sample keys', 'testDataSampleKeys'),
+        KeysField('Train data sample keys', 'trainDataSampleKeys'),
+        KeysField('Test data sample keys', 'testDataSampleKeys'),
         Field('Owner', 'owner'),
         PermissionField('Permissions', 'permissions'),
     )
@@ -265,7 +275,8 @@ class TraintuplePrinter(AssetPrinter):
         Field('Status', 'status'),
         Field('Perf', 'dataset.perf'),
         Field('Dataset key', 'dataset.openerHash'),
-        DataSampleKeysField('Train data sample keys', 'dataset.keys'),
+        KeysField('Train data sample keys', 'dataset.keys'),
+        InModelTraintupleKeysField('In model traintuple keys', 'inModels'),
         Field('Rank', 'rank'),
         Field('Compute Plan Id', 'computePlanID'),
         Field('Tag', 'tag'),
@@ -296,7 +307,7 @@ class TesttuplePrinter(AssetPrinter):
         Field('Status', 'status'),
         Field('Perf', 'dataset.perf'),
         Field('Dataset key', 'dataset.openerHash'),
-        DataSampleKeysField('Test data sample keys', 'dataset.keys'),
+        KeysField('Test data sample keys', 'dataset.keys'),
         Field('Tag', 'tag'),
         Field('Log', 'log'),
         Field('Creator', 'creator'),
