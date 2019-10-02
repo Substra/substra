@@ -48,6 +48,7 @@ class Client(object):
         self.set_user()
 
     def login(self):
+        """Login."""
         res = self.client.login()
         token = res.json()['token']
         self._current_profile.update({
