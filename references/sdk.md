@@ -5,6 +5,11 @@
 Client(self, config_path=None, profile_name=None, user_path=None)
 ```
 
+## login
+```python
+Client.login(self)
+```
+Login.
 ## set_profile
 ```python
 Client.set_profile(self, profile_name)
