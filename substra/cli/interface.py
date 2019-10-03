@@ -226,9 +226,13 @@ def add_profile_to_config(url, config, profile, insecure, version, username, pas
 @click_option_user
 def login(config, profile, user):
     """Login to the Substra platform."""
+    usr.Manager(user).clear_user()
     client = get_client(config, profile, user)
     try:
         token = client.login()
+    except exceptions.BadLoginException:
+        raise click.ClickException(
+            "Login failed: No active account found with the given credentials.")
     except Exception as e:
         # TODO display error
         print(e)

@@ -32,6 +32,12 @@ class Manager():
         self._write_user(self.path, user)
         return user
 
+    def clear_user(self):
+        try:
+            os.remove(self.path)
+        except OSError:  # file doesn't exist
+            pass
+
     def load_user(self):
         """Load user from user file on disk.
         """
