@@ -220,6 +220,8 @@ def add(ctx):
 def add_data_sample(ctx, path, dataset_key, local, multiple, test_only,
                     config, profile, verbose):
     """Add data sample(s).
+
+
     The path is either a directory reprensenting a data sample or a parent
     directory containing data samples directories (if --multiple option is
     set).
@@ -257,7 +259,9 @@ def add_data_sample(ctx, path, dataset_key, local, multiple, test_only,
 @error_printer
 def add_dataset(ctx, data, objective_key, output_format, config, profile, verbose):
     """Add dataset.
+
     The path must point to a valid JSON file with the following schema:
+
     \b
     {
         "name": str,
@@ -266,6 +270,7 @@ def add_dataset(ctx, data, objective_key, output_format, config, profile, verbos
         "data_opener": path,
         "permissions": str,
     }
+
     \b
     Where:
     - name: name of the dataset
@@ -298,7 +303,9 @@ def add_dataset(ctx, data, objective_key, output_format, config, profile, verbos
 @error_printer
 def add_objective(ctx, data, dataset_key, data_samples, output_format, config, profile, verbose):
     """Add objective.
+
     The path must point to a valid JSON file with the following schema:
+
     \b
     {
         "name": str,
@@ -307,6 +314,7 @@ def add_objective(ctx, data, dataset_key, data_samples, output_format, config, p
         "metrics": path,
         "permissions": str,
     }
+
     \b
     Where:
     - name: name of the objective
@@ -317,10 +325,12 @@ def add_objective(ctx, data, dataset_key, data_samples, output_format, config, p
     - permissions: define asset access permissions
     The option --data-samples-path must point to a valid JSON file with the
     following schema:
+
     \b
     {
         "keys": list[str],
     }
+
     \b
     Where:
     - keys: list of test only data sample keys
@@ -349,7 +359,9 @@ def add_objective(ctx, data, dataset_key, data_samples, output_format, config, p
 @error_printer
 def add_algo(ctx, data, output_format, config, profile, verbose):
     """Add algo.
+
     The path must point to a valid JSON file with the following schema:
+
     \b
     {
         "name": str,
@@ -357,6 +369,7 @@ def add_algo(ctx, data, output_format, config, profile, verbose):
         "file": path,
         "permissions": str,
     }
+
     \b
     Where:
     - name: name of the algorithm
@@ -388,12 +401,15 @@ def add_algo(ctx, data, output_format, config, profile, verbose):
 def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, tag, output_format,
                    config, profile, verbose):
     """Add traintuple.
+
     The option --data-samples-path must point to a valid JSON file with the
     following schema:
+
     \b
     {
         "keys": list[str],
     }
+
     \b
     Where:
     - keys: list of data sample keys
@@ -432,12 +448,15 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, tag,
 def add_testtuple(ctx, dataset_key, traintuple_key, data_samples, tag,
                   output_format, config, profile, verbose):
     """Add testtuple.
+
     The option --data-samples-path must point to a valid JSON file with the
     following schema:
+
     \b
     {
         "keys": list[str],
     }
+
     \b
     Where:
     - keys: list of data sample keys
@@ -589,6 +608,7 @@ def describe(ctx, asset_name, asset_key, config, profile, verbose):
 @error_printer
 def download(ctx, asset_name, key, folder, config, profile, verbose):
     """Download asset implementation.
+
     \b
     - algo: the algo and its dependencies
     - dataset: the opener script
@@ -638,14 +658,18 @@ def run_local(algo_path, train_opener, test_opener, metrics, rank,
               train_data_samples, test_data_samples, inmodel,
               fake_data_samples):
     """Run local.
+
     This command can be used to check that objective, dataset and algo assets
     implementations are compatible.
+
     It will execute sequentially 4 tasks in docker:
+
     \b
     - train algo using train data samples
     - get model perf
     - test model using test data samples
     - get model perf
+
     \b
     It will create several output files:
     - sandbox/model/model
@@ -683,12 +707,15 @@ def update(ctx):
 @error_printer
 def update_data_sample(ctx, data_samples, dataset_key, config, profile, verbose):
     """Link data samples with dataset.
+
     The data samples path must point to a valid JSON file with the following
     schema:
+
     \b
     {
         "keys": list[str],
     }
+
     \b
     Where:
     - keys: list of data sample keys
