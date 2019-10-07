@@ -1,4 +1,5 @@
 import json
+import re
 
 import click
 from click.testing import CliRunner
@@ -84,12 +85,72 @@ def test_command_list(asset_name, workdir, mocker):
     assert item['key'] in output
 
 
-def test_command_list_node(workdir, mocker):
-    with mock_client_call(mocker, 'list_node', datastore.NODES):
-        output = client_execute(workdir, ['list', 'node'])
-    assert output == ('NODE ID                     \n'
-                      'foo                         \n'
-                      'bar         (current)       \n')
+@pytest.mark.parametrize('asset_name,params', [
+    ('dataset', []),
+    ('algo', []),
+    ('traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
+                    '--data-samples-path']),
+    ('testtuple', ['--traintuple-key', 'foo', '--data-samples-path'])]
+)
+def test_command_add(asset_name, params, workdir, mocker):
+    method_name = f'add_{asset_name}'
+
+    file = workdir / "test.json"
+    json_data = {"keys": []}
+
+    with open(str(file), 'w') as fp:
+        json.dump(json_data, fp)
+
+    md_file = workdir / "hello.md"
+    md_file.write_text('foo')
+
+    with mock_client_call(mocker, method_name, response={}) as m:
+        client_execute(workdir, ['add', asset_name] + params + [str(file)])
+    assert m.is_called()
+
+    res = client_execute(workdir, ['add', asset_name] + params + ['test.txt'], exit_code=2)
+    assert re.search(r'File ".*" does not exist\.', res)
+
+    res = client_execute(workdir, ['add', asset_name] + params + [str(md_file)], exit_code=2)
+    assert re.search(r'File ".*" is not a valid JSON file\.', res)
+
+
+def test_command_add_objective(workdir, mocker):
+    file = workdir / "test.json"
+    json_data = {"keys": []}
+
+    with open(str(file), 'w') as fp:
+        json.dump(json_data, fp)
+
+    md_file = workdir / "hello.md"
+    md_file.write_text('foo')
+
+    with mock_client_call(mocker, 'add_objective', response={}) as m:
+        client_execute(workdir, ['add', 'objective', str(file), '--dataset-key', 'foo',
+                                 '--data-samples-path', str(file)])
+    assert m.is_called()
+
+    res = client_execute(workdir, ['add', 'objective', 'test.txt', '--dataset-key', 'foo',
+                                   '--data-samples-path', str(file)], exit_code=2)
+    assert re.search(r'File ".*" does not exist\.', res)
+
+    res = client_execute(workdir, ['add', 'objective', str(md_file), '--dataset-key', 'foo',
+                                   '--data-samples-path', str(file)], exit_code=2)
+    assert re.search(r'File ".*" is not a valid JSON file\.', res)
+
+
+def test_command_add_data_sample(tmp_path, workdir, mocker):
+    temp_dir = tmp_path / "test_dir"
+    temp_dir.mkdir()
+
+    with mock_client_call(mocker, 'add_data_samples') as m:
+        client_execute(workdir, ['add', 'data_sample', str(temp_dir), '--dataset-key', 'foo',
+                                 '--test-only'])
+    assert m.is_called()
+
+    res = client_execute(workdir, ['add', 'data_sample', 'dir', '--dataset-key', 'foo'],
+                         exit_code=2)
+    assert re.search(r'Directory ".*" does not exist\.', res)
 
 
 @pytest.mark.parametrize(
@@ -129,13 +190,20 @@ def test_command_update_data_sample(workdir, mocker):
         'keys': ['key1', 'key2'],
     }
     data_samples_path = workdir / 'data_samples.json'
+    data_samples_path_invalid = workdir / 'data_samples.md'
+
     with data_samples_path.open(mode='w') as fp:
         json.dump(data_samples, fp)
 
     with mock_client_call(mocker, 'link_dataset_with_data_samples') as m:
         client_execute(
-            workdir, ['update', 'data_sample', str(data_samples_path), 'key1'])
+            workdir, ['update', 'data_sample', str(data_samples_path), '--dataset-key', 'foo'])
     assert m.is_called()
+
+    res = client_execute(workdir, ['update', 'data_sample', str(data_samples_path_invalid),
+                                   '--dataset-key', 'foo'],
+                         exit_code=2)
+    assert re.search(r'File ".*" does not exist\.', res)
 
 
 @pytest.mark.parametrize('params,output', [

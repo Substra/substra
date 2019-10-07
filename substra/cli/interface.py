@@ -30,16 +30,13 @@ def get_client(config_path, profile_name):
     return client
 
 
-def load_json(path):
-    """Load dict from JSON file."""
-    with open(path, 'rb') as fp:
-        return json.load(fp)
-
-
-def load_data_samples_json(path):
-    """Load data sample keys from JSON file."""
-    data = load_json(path)
-    return data['keys']
+def load_json_from_path(ctx, param, value):
+    with open(value, 'rb') as fp:
+        try:
+            json_file = json.load(fp)
+        except json.decoder.JSONDecodeError:
+            raise click.BadParameter(f'File "{value}" is not a valid JSON file.')
+    return json_file
 
 
 def dict_append_to_optional_field(data, key, value):
@@ -169,7 +166,6 @@ def error_printer(fn):
 @click.pass_context
 def cli(ctx):
     """Substra Command Line Interface.
-
     For help using this tool, please open an issue on the Github repository:
     https://github.com/SubstraFoundation/substra-cli
     """
@@ -208,7 +204,7 @@ def add(ctx):
 
 
 @add.command('data_sample')
-@click.argument('path', type=click.Path(exists=True))
+@click.argument('path', type=click.Path(exists=True, file_okay=False))
 @click.option('--dataset-key', required=True)
 @click.option('--local/--remote', 'local', is_flag=True, default=True,
               help='Data sample(s) location.')
@@ -224,8 +220,6 @@ def add(ctx):
 def add_data_sample(ctx, path, dataset_key, local, multiple, test_only,
                     config, profile, verbose):
     """Add data sample(s).
-
-
     The path is either a directory reprensenting a data sample or a parent
     directory containing data samples directories (if --multiple option is
     set).
@@ -252,7 +246,8 @@ def add_data_sample(ctx, path, dataset_key, local, multiple, test_only,
 
 
 @add.command('dataset')
-@click.argument('path', type=click.Path(exists=True))
+@click.argument('data', type=click.Path(exists=True, dir_okay=False), callback=load_json_from_path,
+                metavar="PATH")
 @click.option('--objective-key')
 @click_option_output_format
 @click_option_config
@@ -260,11 +255,9 @@ def add_data_sample(ctx, path, dataset_key, local, multiple, test_only,
 @click_option_verbose
 @click.pass_context
 @error_printer
-def add_dataset(ctx, path, objective_key, output_format, config, profile, verbose):
+def add_dataset(ctx, data, objective_key, output_format, config, profile, verbose):
     """Add dataset.
-
     The path must point to a valid JSON file with the following schema:
-
     \b
     {
         "name": str,
@@ -273,7 +266,6 @@ def add_dataset(ctx, path, objective_key, output_format, config, profile, verbos
         "data_opener": path,
         "permissions": str,
     }
-
     \b
     Where:
     - name: name of the dataset
@@ -285,7 +277,6 @@ def add_dataset(ctx, path, objective_key, output_format, config, profile, verbos
     - permissions: define asset access permissions
     """
     client = get_client(config, profile)
-    data = load_json(path)
     dict_append_to_optional_field(data, 'objective_keys', objective_key)
     res = client.add_dataset(data)
     printer = printers.get_asset_printer(assets.DATASET, output_format)
@@ -293,23 +284,21 @@ def add_dataset(ctx, path, objective_key, output_format, config, profile, verbos
 
 
 @add.command('objective')
-@click.argument('path', type=click.Path(exists=True))
+@click.argument('data', type=click.Path(exists=True, dir_okay=False), callback=load_json_from_path,
+                metavar="PATH")
 @click.option('--dataset-key')
-@click.option('--data-samples-path',
-              type=click.Path(exists=True, resolve_path=True),
-              help='test data samples')
+@click.option('--data-samples-path', 'data_samples',
+              type=click.Path(exists=True, resolve_path=True, dir_okay=False),
+              callback=load_json_from_path, help='test data samples')
 @click_option_output_format
 @click_option_config
 @click_option_profile
 @click_option_verbose
 @click.pass_context
 @error_printer
-def add_objective(ctx, path, dataset_key, data_samples_path, output_format, config,
-                  profile, verbose):
+def add_objective(ctx, data, dataset_key, data_samples, output_format, config, profile, verbose):
     """Add objective.
-
     The path must point to a valid JSON file with the following schema:
-
     \b
     {
         "name": str,
@@ -318,7 +307,6 @@ def add_objective(ctx, path, dataset_key, data_samples_path, output_format, conf
         "metrics": path,
         "permissions": str,
     }
-
     \b
     Where:
     - name: name of the objective
@@ -327,28 +315,23 @@ def add_objective(ctx, path, dataset_key, data_samples_path, output_format, conf
     - metrics: path to tar.gz or zip archive containing the metrics python
       script and its Dockerfile
     - permissions: define asset access permissions
-
     The option --data-samples-path must point to a valid JSON file with the
     following schema:
-
     \b
     {
         "keys": list[str],
     }
-
     \b
     Where:
     - keys: list of test only data sample keys
     """
     client = get_client(config, profile)
-    data = load_json(path)
 
     if dataset_key:
         data['test_data_manager_key'] = dataset_key
 
-    if data_samples_path:
-        data_sample_keys = load_data_samples_json(data_samples_path)
-        data['test_data_sample_keys'] = data_sample_keys
+    if data_samples:
+        data['test_data_sample_keys'] = data_samples['keys']
 
     res = client.add_objective(data)
     printer = printers.get_asset_printer(assets.OBJECTIVE, output_format)
@@ -356,18 +339,17 @@ def add_objective(ctx, path, dataset_key, data_samples_path, output_format, conf
 
 
 @add.command('algo')
-@click.argument('path', type=click.Path(exists=True))
+@click.argument('data', type=click.Path(exists=True, dir_okay=False), callback=load_json_from_path,
+                metavar="PATH")
 @click_option_output_format
 @click_option_config
 @click_option_profile
 @click_option_verbose
 @click.pass_context
 @error_printer
-def add_algo(ctx, path, output_format, config, profile, verbose):
+def add_algo(ctx, data, output_format, config, profile, verbose):
     """Add algo.
-
     The path must point to a valid JSON file with the following schema:
-
     \b
     {
         "name": str,
@@ -375,7 +357,6 @@ def add_algo(ctx, path, output_format, config, profile, verbose):
         "file": path,
         "permissions": str,
     }
-
     \b
     Where:
     - name: name of the algorithm
@@ -385,7 +366,6 @@ def add_algo(ctx, path, output_format, config, profile, verbose):
     - permissions: define asset access permissions
     """
     client = get_client(config, profile)
-    data = load_json(path)
     res = client.add_algo(data)
     printer = printers.get_asset_printer(assets.ALGO, output_format)
     printer.print(res, is_list=False)
@@ -395,8 +375,9 @@ def add_algo(ctx, path, output_format, config, profile, verbose):
 @click.option('--objective-key', required=True)
 @click.option('--algo-key', required=True)
 @click.option('--dataset-key', required=True)
-@click.option('--data-samples-path', required=True,
-              type=click.Path(exists=True, resolve_path=True))
+@click.option('--data-samples-path', 'data_samples', required=True,
+              type=click.Path(exists=True, resolve_path=True, dir_okay=False),
+              callback=load_json_from_path)
 @click.option('--tag')
 @click_option_output_format
 @click_option_config
@@ -404,18 +385,15 @@ def add_algo(ctx, path, output_format, config, profile, verbose):
 @click_option_verbose
 @click.pass_context
 @error_printer
-def add_traintuple(ctx, objective_key, algo_key, dataset_key,
-                   data_samples_path, tag, output_format, config, profile, verbose):
+def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, tag, output_format,
+                   config, profile, verbose):
     """Add traintuple.
-
     The option --data-samples-path must point to a valid JSON file with the
     following schema:
-
     \b
     {
         "keys": list[str],
     }
-
     \b
     Where:
     - keys: list of data sample keys
@@ -428,9 +406,8 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key,
         'data_manager_key': dataset_key,
     }
 
-    if data_samples_path:
-        data_sample_keys = load_data_samples_json(data_samples_path)
-        data['train_data_sample_keys'] = data_sample_keys
+    if data_samples:
+        data['train_data_sample_keys'] = data_samples['keys']
 
     if tag:
         data['tag'] = tag
@@ -442,8 +419,9 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key,
 @add.command('testtuple')
 @click.option('--dataset-key')
 @click.option('--traintuple-key', required=True)
-@click.option('--data-samples-path',
-              type=click.Path(exists=True, resolve_path=True))
+@click.option('--data-samples-path', 'data_samples',
+              type=click.Path(exists=True, resolve_path=True, dir_okay=False),
+              callback=load_json_from_path)
 @click.option('--tag')
 @click_option_output_format
 @click_option_config
@@ -451,19 +429,15 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key,
 @click_option_verbose
 @click.pass_context
 @error_printer
-def add_testtuple(ctx, dataset_key, traintuple_key,
-                  data_samples_path, tag, output_format, config, profile, verbose):
+def add_testtuple(ctx, dataset_key, traintuple_key, data_samples, tag,
+                  output_format, config, profile, verbose):
     """Add testtuple.
-
-
     The option --data-samples-path must point to a valid JSON file with the
     following schema:
-
     \b
     {
         "keys": list[str],
     }
-
     \b
     Where:
     - keys: list of data sample keys
@@ -474,9 +448,8 @@ def add_testtuple(ctx, dataset_key, traintuple_key,
         'traintuple_key': traintuple_key,
     }
 
-    if data_samples_path:
-        data_sample_keys = load_data_samples_json(data_samples_path)
-        data['test_data_sample_keys'] = data_sample_keys
+    if data_samples:
+        data['test_data_sample_keys'] = data_samples['keys']
 
     if tag:
         data['tag'] = tag
@@ -616,7 +589,6 @@ def describe(ctx, asset_name, asset_key, config, profile, verbose):
 @error_printer
 def download(ctx, asset_name, key, folder, config, profile, verbose):
     """Download asset implementation.
-
     \b
     - algo: the algo and its dependencies
     - dataset: the opener script
@@ -666,18 +638,14 @@ def run_local(algo_path, train_opener, test_opener, metrics, rank,
               train_data_samples, test_data_samples, inmodel,
               fake_data_samples):
     """Run local.
-
     This command can be used to check that objective, dataset and algo assets
     implementations are compatible.
-
     It will execute sequentially 4 tasks in docker:
-
     \b
     - train algo using train data samples
     - get model perf
     - test model using test data samples
     - get model perf
-
     \b
     It will create several output files:
     - sandbox/model/model
@@ -705,31 +673,28 @@ def update(ctx):
 
 
 @update.command('data_sample')
-@click.argument('data-samples-path', type=click.Path(exists=True))
-@click.argument('dataset-key')
+@click.argument('data_samples', type=click.Path(exists=True, dir_okay=False),
+                callback=load_json_from_path, metavar="DATA_SAMPLES_PATH")
+@click.option('--dataset-key', required=True)
 @click_option_config
 @click_option_profile
 @click_option_verbose
 @click.pass_context
 @error_printer
-def update_data_sample(ctx, data_samples_path, dataset_key, config, profile, verbose):
+def update_data_sample(ctx, data_samples, dataset_key, config, profile, verbose):
     """Link data samples with dataset.
-
     The data samples path must point to a valid JSON file with the following
     schema:
-
     \b
     {
         "keys": list[str],
     }
-
     \b
     Where:
     - keys: list of data sample keys
     """
     client = get_client(config, profile)
-    data_sample_keys = load_data_samples_json(data_samples_path)
-    res = client.link_dataset_with_data_samples(dataset_key, data_sample_keys)
+    res = client.link_dataset_with_data_samples(dataset_key, data_samples['keys'])
     display(res)
 
 
