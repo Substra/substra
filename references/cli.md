@@ -41,11 +41,9 @@ Options:
 ```bash
 Usage: substra add data_sample [OPTIONS] PATH
 
-  Add data sample(s).
-
-  The path is either a directory reprensenting a data sample or a parent
-  directory containing data samples directories (if --multiple option is
-  set).
+  Add data sample(s). The path is either a directory reprensenting a data
+  sample or a parent directory containing data samples directories (if
+  --multiple option is set).
 
 Options:
   --dataset-key TEXT  [required]
@@ -63,26 +61,14 @@ Options:
 ```bash
 Usage: substra add dataset [OPTIONS] PATH
 
-  Add dataset.
-
-  The path must point to a valid JSON file with the following schema:
-
-  {
-      "name": str,
-      "description": path,
-      "type": str,
-      "data_opener": path,
-      "permissions": str,
-  }
-
-  Where:
-  - name: name of the dataset
-  - description: path to a markdown file describing the dataset
-  - type: short description of the type of data that will be attached to this
-    dataset (common values are 'Images', 'Tabular', 'Time series',
-    'Spatial time series' and 'Hierarchical images')
-  - data_opener: path to the opener python script
-  - permissions: define asset access permissions
+  Add dataset. The path must point to a valid JSON file with the following
+  schema:  {     "name": str,     "description": path,     "type": str,
+  "data_opener": path,     "permissions": str, }  Where: - name: name of
+  the dataset - description: path to a markdown file describing the dataset
+  - type: short description of the type of data that will be attached to
+  this   dataset (common values are 'Images', 'Tabular', 'Time series',
+  'Spatial time series' and 'Hierarchical images') - data_opener: path to
+  the opener python script - permissions: define asset access permissions
 
 Options:
   --objective-key TEXT
@@ -100,39 +86,19 @@ Options:
 ```bash
 Usage: substra add objective [OPTIONS] PATH
 
-  Add objective.
-
-  The path must point to a valid JSON file with the following schema:
-
-  {
-      "name": str,
-      "description": path,
-      "metrics_name": str,
-      "metrics": path,
-      "permissions": str,
-  }
-
-  Where:
-  - name: name of the objective
-  - description: path to a markdown file describing the objective
-  - metrics_name: name of the metrics
-  - metrics: path to tar.gz or zip archive containing the metrics python
-    script and its Dockerfile
-  - permissions: define asset access permissions
-
-  The option --data-samples-path must point to a valid JSON file with the
-  following schema:
-
-  {
-      "keys": list[str],
-  }
-
-  Where:
-  - keys: list of test only data sample keys
+  Add objective. The path must point to a valid JSON file with the following
+  schema:  {     "name": str,     "description": path,     "metrics_name":
+  str,     "metrics": path,     "permissions": str, }  Where: - name: name
+  of the objective - description: path to a markdown file describing the
+  objective - metrics_name: name of the metrics - metrics: path to tar.gz or
+  zip archive containing the metrics python   script and its Dockerfile -
+  permissions: define asset access permissions The option --data-samples-
+  path must point to a valid JSON file with the following schema:  {
+  "keys": list[str], }  Where: - keys: list of test only data sample keys
 
 Options:
   --dataset-key TEXT
-  --data-samples-path PATH  test data samples
+  --data-samples-path FILE  test data samples
   --yaml                    Display output as yaml.
   --json                    Display output as json.
   --pretty                  Pretty print output  [default: True]
@@ -147,23 +113,12 @@ Options:
 ```bash
 Usage: substra add algo [OPTIONS] PATH
 
-  Add algo.
-
-  The path must point to a valid JSON file with the following schema:
-
-  {
-      "name": str,
-      "description": path,
-      "file": path,
-      "permissions": str,
-  }
-
-  Where:
-  - name: name of the algorithm
-  - description: path to a markdown file describing the algo
-  - file: path to tar.gz or zip archive containing the algorithm python
-    script and its Dockerfile
-  - permissions: define asset access permissions
+  Add algo. The path must point to a valid JSON file with the following
+  schema:  {     "name": str,     "description": path,     "file": path,
+  "permissions": str, }  Where: - name: name of the algorithm -
+  description: path to a markdown file describing the algo - file: path to
+  tar.gz or zip archive containing the algorithm python   script and its
+  Dockerfile - permissions: define asset access permissions
 
 Options:
   --yaml          Display output as yaml.
@@ -180,23 +135,15 @@ Options:
 ```bash
 Usage: substra add traintuple [OPTIONS]
 
-  Add traintuple.
-
-  The option --data-samples-path must point to a valid JSON file with the
-  following schema:
-
-  {
-      "keys": list[str],
-  }
-
-  Where:
-  - keys: list of data sample keys
+  Add traintuple. The option --data-samples-path must point to a valid JSON
+  file with the following schema:  {     "keys": list[str], }  Where: -
+  keys: list of data sample keys
 
 Options:
   --objective-key TEXT      [required]
   --algo-key TEXT           [required]
   --dataset-key TEXT        [required]
-  --data-samples-path PATH  [required]
+  --data-samples-path FILE  [required]
   --tag TEXT
   --yaml                    Display output as yaml.
   --json                    Display output as json.
@@ -212,22 +159,14 @@ Options:
 ```bash
 Usage: substra add testtuple [OPTIONS]
 
-  Add testtuple.
-
-  The option --data-samples-path must point to a valid JSON file with the
-  following schema:
-
-  {
-      "keys": list[str],
-  }
-
-  Where:
-  - keys: list of data sample keys
+  Add testtuple. The option --data-samples-path must point to a valid JSON
+  file with the following schema:  {     "keys": list[str], }  Where: -
+  keys: list of data sample keys
 
 Options:
   --dataset-key TEXT
   --traintuple-key TEXT     [required]
-  --data-samples-path PATH
+  --data-samples-path FILE
   --tag TEXT
   --yaml                    Display output as yaml.
   --json                    Display output as json.
@@ -306,11 +245,8 @@ Options:
 ```bash
 Usage: substra download [OPTIONS] [algo|dataset|objective] KEY
 
-  Download asset implementation.
-
-  - algo: the algo and its dependencies
-  - dataset: the opener script
-  - objective: the metrics and its dependencies
+  Download asset implementation.  - algo: the algo and its dependencies -
+  dataset: the opener script - objective: the metrics and its dependencies
 
 Options:
   --folder PATH   destination folder
@@ -345,24 +281,13 @@ Options:
 ```bash
 Usage: substra run-local [OPTIONS] ALGO_PATH
 
-  Run local.
-
-  This command can be used to check that objective, dataset and algo assets
-  implementations are compatible.
-
-  It will execute sequentially 4 tasks in docker:
-
-  - train algo using train data samples
-  - get model perf
-  - test model using test data samples
-  - get model perf
-
-  It will create several output files:
-  - sandbox/model/model
-  - sandbox/pred_train/perf.json
-  - sandbox/pred_train/pred
-  - sandbox/pred_test/perf.json
-  - sandbox/pred_test/pred
+  Run local. This command can be used to check that objective, dataset and
+  algo assets implementations are compatible. It will execute sequentially 4
+  tasks in docker:  - train algo using train data samples - get model perf
+  - test model using test data samples - get model perf  It will create
+  several output files: - sandbox/model/model - sandbox/pred_train/perf.json
+  - sandbox/pred_train/pred - sandbox/pred_test/perf.json -
+  sandbox/pred_test/pred
 
 Options:
   --train-opener PATH
@@ -379,25 +304,18 @@ Options:
 ## substra update data_sample
 
 ```bash
-Usage: substra update data_sample [OPTIONS] DATA_SAMPLES_PATH DATASET_KEY
+Usage: substra update data_sample [OPTIONS] DATA_SAMPLES_PATH
 
-  Link data samples with dataset.
-
-  The data samples path must point to a valid JSON file with the following
-  schema:
-
-  {
-      "keys": list[str],
-  }
-
-  Where:
-  - keys: list of data sample keys
+  Link data samples with dataset. The data samples path must point to a
+  valid JSON file with the following schema:  {     "keys": list[str], } 
+  Where: - keys: list of data sample keys
 
 Options:
-  --config PATH   Config path (default ~/.substra).
-  --profile TEXT  Profile name to use.
-  --verbose       Enable verbose mode.
-  --help          Show this message and exit.
+  --dataset-key TEXT  [required]
+  --config PATH       Config path (default ~/.substra).
+  --profile TEXT      Profile name to use.
+  --verbose           Enable verbose mode.
+  --help              Show this message and exit.
 ```
 
 ## substra update dataset
