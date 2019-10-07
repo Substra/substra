@@ -119,6 +119,7 @@ Usage: substra add objective [OPTIONS] PATH
   - metrics: path to tar.gz or zip archive containing the metrics python
     script and its Dockerfile
   - permissions: define asset access permissions
+
   The option --data-samples-path must point to a valid JSON file with the
   following schema:
 

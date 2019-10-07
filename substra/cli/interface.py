@@ -31,7 +31,7 @@ def get_client(config_path, profile_name):
 
 
 def load_json_from_path(ctx, param, value):
-    with open(value, 'rb') as fp:
+    with open(value, 'r') as fp:
         try:
             json_file = json.load(fp)
         except json.decoder.JSONDecodeError:
@@ -166,6 +166,7 @@ def error_printer(fn):
 @click.pass_context
 def cli(ctx):
     """Substra Command Line Interface.
+
     For help using this tool, please open an issue on the Github repository:
     https://github.com/SubstraFoundation/substra-cli
     """
@@ -323,6 +324,7 @@ def add_objective(ctx, data, dataset_key, data_samples, output_format, config, p
     - metrics: path to tar.gz or zip archive containing the metrics python
       script and its Dockerfile
     - permissions: define asset access permissions
+
     The option --data-samples-path must point to a valid JSON file with the
     following schema:
 
