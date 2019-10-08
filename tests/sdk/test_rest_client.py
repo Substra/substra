@@ -1,4 +1,5 @@
 import pytest
+import requests
 
 from substra.sdk import rest_client, exceptions
 
@@ -64,6 +65,13 @@ def test_request_http_errors(mocker, status_code, http_response, sdk_exception):
     with pytest.raises(sdk_exception):
         rest_client.Client(CONFIG).add('http://foo', {})
     assert len(m.call_args_list) == 1
+
+
+def test_request_connection_error(mocker):
+    with mocker.patch('substra.sdk.rest_client.requests.post',
+                      side_effect=requests.exceptions.ConnectionError):
+        with pytest.raises(exceptions.ConnectionError):
+            rest_client.Client(CONFIG).add('foo', {})
 
 
 def test_add_timeout_with_retry(mocker):
