@@ -104,53 +104,49 @@ def test_command_list_node(workdir, mocker):
 def test_command_add(asset_name, params, workdir, mocker):
     method_name = f'add_{asset_name}'
 
-    file = tempfile.NamedTemporaryFile(suffix='.json')
-    json_data = {"keys": []}
-    with open(file.name, 'w') as fp:
-        json.dump(json_data, fp)
+    with tempfile.NamedTemporaryFile(suffix='.json') as file:
+        json_data = {"keys": []}
+        with open(file.name, 'w') as fp:
+            json.dump(json_data, fp)
+        with mock_client_call(mocker, method_name, response={}) as m:
+            client_execute(workdir, ['add', asset_name] + params + [file.name])
+        assert m.is_called()
 
-    md_file = tempfile.NamedTemporaryFile(suffix='.md')
-
-    with mock_client_call(mocker, method_name, response={}) as m:
-        client_execute(workdir, ['add', asset_name] + params + [file.name])
-    assert m.is_called()
+    with tempfile.NamedTemporaryFile(suffix='.md') as file:
+        res = client_execute(workdir, ['add', asset_name] + params + [file.name], exit_code=2)
+        assert re.search(r'File ".*" is not a valid JSON file\.', res)
 
     res = client_execute(workdir, ['add', asset_name] + params + ['non_existing_file.txt'],
                          exit_code=2)
     assert re.search(r'File ".*" does not exist\.', res)
 
-    res = client_execute(workdir, ['add', asset_name] + params + [md_file.name], exit_code=2)
-    assert re.search(r'File ".*" is not a valid JSON file\.', res)
-
 
 def test_command_add_objective(workdir, mocker):
-    file = tempfile.NamedTemporaryFile(suffix='.json')
-    json_data = {"keys": []}
-    with open(file.name, 'w') as fp:
-        json.dump(json_data, fp)
+    with tempfile.NamedTemporaryFile(suffix='.json') as file:
+        json_data = {"keys": []}
+        with open(file.name, 'w') as fp:
+            json.dump(json_data, fp)
+        with mock_client_call(mocker, 'add_objective', response={}) as m:
+            client_execute(workdir, ['add', 'objective', file.name, '--dataset-key', 'foo',
+                                     '--data-samples-path', file.name])
+        assert m.is_called()
 
-    md_file = tempfile.NamedTemporaryFile(suffix='.md')
+        res = client_execute(workdir, ['add', 'objective', 'non_existing_file.txt', '--dataset-key',
+                                       'foo', '--data-samples-path', file.name], exit_code=2)
+        assert re.search(r'File ".*" does not exist\.', res)
 
-    with mock_client_call(mocker, 'add_objective', response={}) as m:
-        client_execute(workdir, ['add', 'objective', file.name, '--dataset-key', 'foo',
-                                 '--data-samples-path', file.name])
-    assert m.is_called()
+        res = client_execute(workdir, ['add', 'objective', file.name, '--dataset-key', 'foo',
+                                       '--data-samples-path', 'non_existing_file.txt'], exit_code=2)
+        assert re.search(r'File ".*" does not exist\.', res)
 
-    res = client_execute(workdir, ['add', 'objective', 'non_existing_file.txt', '--dataset-key',
-                                   'foo', '--data-samples-path', file.name], exit_code=2)
-    assert re.search(r'File ".*" does not exist\.', res)
+        with tempfile.NamedTemporaryFile(suffix='.md') as md_file:
+            res = client_execute(workdir, ['add', 'objective', md_file.name, '--dataset-key', 'foo',
+                                           '--data-samples-path', file.name], exit_code=2)
+            assert re.search(r'File ".*" is not a valid JSON file\.', res)
 
-    res = client_execute(workdir, ['add', 'objective', md_file.name, '--dataset-key', 'foo',
-                                   '--data-samples-path', file.name], exit_code=2)
-    assert re.search(r'File ".*" is not a valid JSON file\.', res)
-
-    res = client_execute(workdir, ['add', 'objective', file.name, '--dataset-key', 'foo',
-                                   '--data-samples-path', 'non_existing_file.txt'], exit_code=2)
-    assert re.search(r'File ".*" does not exist\.', res)
-
-    res = client_execute(workdir, ['add', 'objective', file.name, '--dataset-key', 'foo',
-                                   '--data-samples-path', md_file.name], exit_code=2)
-    assert re.search(r'File ".*" is not a valid JSON file\.', res)
+            res = client_execute(workdir, ['add', 'objective', file.name, '--dataset-key', 'foo',
+                                           '--data-samples-path', md_file.name], exit_code=2)
+            assert re.search(r'File ".*" is not a valid JSON file\.', res)
 
 
 def test_command_add_data_sample(workdir, mocker):
@@ -203,26 +199,24 @@ def test_command_update_data_sample(workdir, mocker):
         'keys': ['key1', 'key2'],
     }
 
-    data_samples_path = tempfile.NamedTemporaryFile(suffix='.json')
+    with tempfile.NamedTemporaryFile(suffix='.json') as data_samples_path:
+        with open(data_samples_path.name, 'w') as fp:
+            json.dump(data_samples, fp)
+        with mock_client_call(mocker, 'link_dataset_with_data_samples') as m:
+            client_execute(workdir,
+                           ['update', 'data_sample', data_samples_path.name, '--dataset-key',
+                            'foo'])
+        assert m.is_called()
 
-    data_samples_path_content = tempfile.NamedTemporaryFile(suffix='.json')
-    data_samples_path_content.write(b'test')
-
-    with open(data_samples_path.name, 'w') as fp:
-        json.dump(data_samples, fp)
-
-    with mock_client_call(mocker, 'link_dataset_with_data_samples') as m:
-        client_execute(workdir, ['update', 'data_sample', data_samples_path.name, '--dataset-key',
-                                 'foo'])
-    assert m.is_called()
+    with tempfile.NamedTemporaryFile(suffix='.json') as data_samples_path_content:
+        data_samples_path_content.write(b'test')
+        res = client_execute(workdir, ['update', 'data_sample', data_samples_path_content.name,
+                                       '--dataset-key', 'foo'], exit_code=2)
+        assert re.search(r'File ".*" is not a valid JSON file\.', res)
 
     res = client_execute(workdir, ['update', 'data_sample', 'non_existing_file.txt',
                                    '--dataset-key', 'foo'], exit_code=2)
     assert re.search(r'File ".*" does not exist\.', res)
-
-    res = client_execute(workdir, ['update', 'data_sample', data_samples_path_content.name,
-                                   '--dataset-key', 'foo'], exit_code=2)
-    assert re.search(r'File ".*" is not a valid JSON file\.', res)
 
 
 @pytest.mark.parametrize('params,output', [
