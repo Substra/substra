@@ -7,6 +7,10 @@ class SDKException(Exception):
     pass
 
 
+class LoadDataException(SDKException):
+    pass
+
+
 class RequestException(SDKException):
     # TODO add factory method to create exception from request exception to have
     #      a simpler constructor

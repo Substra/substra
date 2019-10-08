@@ -12,9 +12,7 @@ import zipfile
 
 import ntpath
 
-
-class LoadDataException(Exception):
-    pass
+from substra.sdk import exceptions
 
 
 def path_leaf(path):
@@ -31,13 +29,13 @@ def extract_files(data, file_attributes):
         try:
             paths[attr] = data[attr]
         except KeyError:
-            raise LoadDataException(f"The '{attr}' attribute is missing.")
+            raise exceptions.LoadDataException(f"The '{attr}' attribute is missing.")
         del data[attr]
 
     files = {}
     for k, f in paths.items():
         if not os.path.exists(f):
-            raise LoadDataException(f"The '{k}' attribute file ({f}) does not exit.")
+            raise exceptions.LoadDataException(f"The '{k}' attribute file ({f}) does not exit.")
         files[k] = open(f, 'rb')
 
     try:
@@ -82,7 +80,7 @@ def extract_data_sample_files(data):
     files = {}
     for k, f in folders.items():
         if not os.path.isdir(f):
-            raise LoadDataException(f"Paths '{f}' is not an existing directory")
+            raise exceptions.LoadDataException(f"Paths '{f}' is not an existing directory")
         files[k] = zip_folder_in_memory(f)
 
     try:

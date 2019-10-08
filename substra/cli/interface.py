@@ -158,6 +158,9 @@ def error_printer(fn):
                 exceptions.InvalidResponse) as e:
             raise click.ClickException(str(e))
 
+        except exceptions.LoadDataException as e:
+            raise click.ClickException(str(e))
+
     return wrapper
 
 
