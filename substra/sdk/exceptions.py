@@ -12,27 +12,25 @@ class LoadDataException(SDKException):
 
 
 class RequestException(SDKException):
-    # TODO add factory method to create exception from request exception to have
-    #      a simpler constructor
-    def __init__(self, request_exception, msg=None):
-        self.exception = request_exception
+    def __init__(self, msg, status_code):
+        self.msg = msg
+        self.status_code = status_code
+        super().__init__(msg)
+
+    @classmethod
+    def from_request_exception(cls, request_exception, msg=None):
         if msg is None:
             msg = str(request_exception)
         else:
             msg = f"{request_exception}: {msg}"
-        super(RequestException, self).__init__(msg)
-
-    @property
-    def response(self):
-        return self.exception.response
-
-    @property
-    def status_code(self):
-        return self.response.status_code
+        return cls(msg, request_exception.response.status_code)
 
 
 class ConnectionError(RequestException):
-    pass
+    @classmethod
+    def from_request_exception(cls, request_exception, msg=None):
+        msg = str(request_exception)
+        return cls(msg, None)
 
 
 class Timeout(RequestException):
@@ -44,17 +42,21 @@ class HTTPError(RequestException):
 
 
 class InternalServerError(HTTPError):
-    def __init__(self, request_exception, msg=None):
-        super(InternalServerError, self).__init__(request_exception, msg=msg)
-        logger.debug(request_exception.response.text)
+    def __init__(self, msg, status_code):
+        super().__init__(msg, status_code)
+        logger.debug(f"Internal server error: error='{msg}'")
 
 
 class InvalidRequest(HTTPError):
-    def __init__(self, request_exception, msg=None):
+    def __init__(self, msg, status_code):
+        super().__init__(msg, status_code)
+        logger.debug(f"Invalid request: error='{msg}'")
+
+    @classmethod
+    def from_request_exception(cls, request_exception):
         error = request_exception.response.json()
-        message = error.get('message', None)
-        logger.debug(f"Invalid request: error='{error}'")
-        super(InvalidRequest, self).__init__(request_exception, message)
+        msg = error.get('message', None)
+        return super().from_request_exception(request_exception, msg)
 
 
 class NotFound(HTTPError):
@@ -62,7 +64,13 @@ class NotFound(HTTPError):
 
 
 class RequestTimeout(HTTPError):
-    def __init__(self, request_exception):
+    def __init__(self, pkhash, status_code):
+        self.pkhash = pkhash
+        msg = f"Operation on object with key(s) '{pkhash}' timed out."
+        super().__init__(msg, status_code)
+
+    @classmethod
+    def from_request_exception(cls, request_exception):
         # parse response and fetch pkhash
         r = request_exception.response.json()
 
@@ -73,15 +81,17 @@ class RequestTimeout(HTTPError):
             #     data manager for instance
             pkhash = None
 
-        self.pkhash = pkhash
-
-        msg = f"Operation on object with key(s) '{pkhash}' timed out."
-
-        super(RequestTimeout, self).__init__(request_exception, msg=msg)
+        return cls(pkhash, request_exception.response.status_code)
 
 
 class AlreadyExists(HTTPError):
-    def __init__(self, request_exception):
+    def __init__(self, pkhash, status_code):
+        self.pkhash = pkhash
+        msg = f"Object with key(s) '{pkhash}' already exists."
+        super().__init__(msg, status_code)
+
+    @classmethod
+    def from_request_exception(cls, request_exception):
         # parse response and fetch pkhash
         r = request_exception.response.json()
         # XXX support list of pkhashes; this could be the case when adding
@@ -91,11 +101,7 @@ class AlreadyExists(HTTPError):
         else:
             pkhash = r['pkhash']
 
-        self.pkhash = pkhash
-
-        msg = f"Object with key(s) '{pkhash}' already exists."
-
-        super(AlreadyExists, self).__init__(request_exception, msg=msg)
+        return cls(pkhash, request_exception.response.status_code)
 
 
 class InvalidResponse(SDKException):

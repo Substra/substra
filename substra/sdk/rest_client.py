@@ -57,34 +57,34 @@ class Client():
             r.raise_for_status()
 
         except requests.exceptions.ConnectionError as e:
-            raise exceptions.ConnectionError(e)
+            raise exceptions.ConnectionError.from_request_exception(e)
 
         except requests.exceptions.Timeout as e:
-            raise exceptions.Timeout(e)
+            raise exceptions.Timeout.from_request_exception(e)
 
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 400:
-                raise exceptions.InvalidRequest(e)
+                raise exceptions.InvalidRequest.from_request_exception(e)
 
             if e.response.status_code == 401:
-                raise exceptions.AuthenticationError(e)
+                raise exceptions.AuthenticationError.from_request_exception(e)
 
             if e.response.status_code == 403:
-                raise exceptions.AuthorizationError(e)
+                raise exceptions.AuthorizationError.from_request_exception(e)
 
             if e.response.status_code == 404:
-                raise exceptions.NotFound(e)
+                raise exceptions.NotFound.from_request_exception(e)
 
             if e.response.status_code == 408:
-                raise exceptions.RequestTimeout(e)
+                raise exceptions.RequestTimeout.from_request_exception(e)
 
             if e.response.status_code == 409:
-                raise exceptions.AlreadyExists(e)
+                raise exceptions.AlreadyExists.from_request_exception(e)
 
             if e.response.status_code == 500:
-                raise exceptions.InternalServerError(e)
+                raise exceptions.InternalServerError.from_request_exception(e)
 
-            raise exceptions.HTTPError(e)
+            raise exceptions.HTTPError.from_request_exception(e)
 
         return r
 
