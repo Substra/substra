@@ -26,7 +26,7 @@ def _create_directory(directory):
 
 def _get_metrics_command(fake_data_samples=False):
     mode = METRICS_FAKE_Y if fake_data_samples else METRICS_NO_FAKE_Y
-    return f"--dry-run-mode {mode}"
+    return f"--fake-data-mode {mode}"
 
 
 def setup(algo_path,
@@ -166,7 +166,7 @@ def compute(config, rank, inmodels, fake_data_samples=False):
 
     command = 'train'
     if fake_data_samples:
-        command += " --dry-run"
+        command += " --fake-data"
 
     if rank is not None:
         command += f" --rank {rank}"
@@ -231,7 +231,7 @@ def compute(config, rank, inmodels, fake_data_samples=False):
 
     command = f"predict {model_key}"
     if fake_data_samples:
-        command += " --dry-run"
+        command += " --fake-data"
     _docker_run(docker_client, docker_algo_tag, command=command,
                 volumes=volumes)
 
