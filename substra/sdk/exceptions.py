@@ -23,14 +23,17 @@ class RequestException(SDKException):
             msg = str(request_exception)
         else:
             msg = f"{request_exception}: {msg}"
-        return cls(msg, request_exception.response.status_code)
+
+        try:
+            status_code = request_exception.response.status_code
+        except AttributeError:
+            status_code = None
+
+        return cls(msg, status_code)
 
 
 class ConnectionError(RequestException):
-    @classmethod
-    def from_request_exception(cls, request_exception, msg=None):
-        msg = str(request_exception)
-        return cls(msg, None)
+    pass
 
 
 class Timeout(RequestException):
