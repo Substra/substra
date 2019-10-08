@@ -21,7 +21,7 @@ Client.add_profile(self, profile_name, url, version='0.0', insecure=False, user=
 Add new profile (in-memory only).
 ## add_data_sample
 ```python
-Client.add_data_sample(self, data, local=True, dryrun=False, timeout=False, exist_ok=False)
+Client.add_data_sample(self, data, local=True, timeout=False, exist_ok=False)
 ```
 Create new data sample asset.
 
@@ -41,7 +41,7 @@ existing asset will be returned.
 
 ## add_data_samples
 ```python
-Client.add_data_samples(self, data, local=True, dryrun=False, timeout=False)
+Client.add_data_samples(self, data, local=True, timeout=False)
 ```
 Create many data sample assets.
 
@@ -58,7 +58,7 @@ Create many data sample assets.
 
 ## add_dataset
 ```python
-Client.add_dataset(self, data, dryrun=False, timeout=False, exist_ok=False)
+Client.add_dataset(self, data, timeout=False, exist_ok=False)
 ```
 Create new dataset asset.
 
@@ -80,7 +80,7 @@ existing asset will be returned.
 
 ## add_objective
 ```python
-Client.add_objective(self, data, dryrun=False, timeout=False, exist_ok=False)
+Client.add_objective(self, data, timeout=False, exist_ok=False)
 ```
 Create new objective asset.
 
@@ -103,7 +103,7 @@ existing asset will be returned.
 
 ## add_algo
 ```python
-Client.add_algo(self, data, dryrun=False, timeout=False, exist_ok=False)
+Client.add_algo(self, data, timeout=False, exist_ok=False)
 ```
 Create new algo asset.
 
@@ -123,7 +123,7 @@ existing asset will be returned.
 
 ## add_traintuple
 ```python
-Client.add_traintuple(self, data, dryrun=False, timeout=False, exist_ok=False)
+Client.add_traintuple(self, data, timeout=False, exist_ok=False)
 ```
 Create new traintuple asset.
 
@@ -146,7 +146,7 @@ existing asset will be returned.
 
 ## add_testtuple
 ```python
-Client.add_testtuple(self, data, dryrun=False, timeout=False, exist_ok=False)
+Client.add_testtuple(self, data, timeout=False, exist_ok=False)
 ```
 Create new testtuple asset.
 

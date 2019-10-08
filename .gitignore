@@ -16,3 +16,5 @@ sdist/
 # Developer environments
 .idea
 .vscode
+.env
+.venv

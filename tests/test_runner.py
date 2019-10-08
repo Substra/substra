@@ -72,7 +72,7 @@ def test_runner(cwdir, docker_api):
         test_data_samples_path,
     )
 
-    runner.compute(config, rank=0, inmodels=[], dry_run=False)
+    runner.compute(config, rank=0, inmodels=[])
 
     paths = (
         'sandbox/model/model',

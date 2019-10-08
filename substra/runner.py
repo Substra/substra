@@ -8,7 +8,7 @@ import docker
 
 USER = os.getuid()
 
-METRICS_NO_DRY_RUN = "DISABLED"
+METRICS_NO_FAKE_Y = "DISABLED"
 METRICS_FAKE_Y = "FAKE_Y"
 
 VOLUME_OUTPUT_MODEL = {'bind': '/sandbox/model', 'mode': 'rw'}
@@ -24,9 +24,9 @@ def _create_directory(directory):
         os.makedirs(directory)
 
 
-def _get_metrics_command(dry_run=False):
-    mode = METRICS_FAKE_Y if dry_run else METRICS_NO_DRY_RUN
-    return f"--dry-run-mode {mode}"
+def _get_metrics_command(fake_data_samples=False):
+    mode = METRICS_FAKE_Y if fake_data_samples else METRICS_NO_FAKE_Y
+    return f"--fake-data-mode {mode}"
 
 
 def setup(algo_path,
@@ -126,7 +126,7 @@ def _docker_run(docker_client, name, command, volumes, remove=True):
     print(f'(duration {elaps:.2f} s )')
 
 
-def compute(config, rank, inmodels, dry_run=False):
+def compute(config, rank, inmodels, fake_data_samples=False):
     docker_client = docker.from_env()
     docker_algo_tag = 'algo_run_local'
     docker_metrics_tag = 'metrics_run_local'
@@ -151,7 +151,7 @@ def compute(config, rank, inmodels, dry_run=False):
 
     _docker_build(docker_client, algo_path, docker_algo_tag)
 
-    if not dry_run:
+    if not fake_data_samples:
         print(f'Training algo on {train_data_path}')
     else:
         print('Training algo fake data samples')
@@ -161,12 +161,12 @@ def compute(config, rank, inmodels, dry_run=False):
                local_path: VOLUME_LOCAL,
                train_opener_file: VOLUME_OPENER}
 
-    if not dry_run:
+    if not fake_data_samples:
         volumes[train_data_path] = VOLUME_DATA
 
     command = 'train'
-    if dry_run:
-        command += " --dry-run"
+    if fake_data_samples:
+        command += " --fake-data"
 
     if rank is not None:
         command += f" --rank {rank}"
@@ -199,9 +199,9 @@ def compute(config, rank, inmodels, dry_run=False):
 
     volumes = {train_pred_path: VOLUME_PRED,
                train_opener_file: VOLUME_OPENER}
-    if not dry_run:
+    if not fake_data_samples:
         volumes[train_data_path] = VOLUME_DATA
-    command = _get_metrics_command(dry_run)
+    command = _get_metrics_command(fake_data_samples)
     _docker_run(docker_client, docker_metrics_tag, command=command,
                 volumes=volumes)
 
@@ -226,12 +226,12 @@ def compute(config, rank, inmodels, dry_run=False):
     volumes = {outmodel_path: VOLUME_OUTPUT_MODEL,
                test_pred_path: VOLUME_PRED,
                test_opener_file: VOLUME_OPENER}
-    if not dry_run:
+    if not fake_data_samples:
         volumes[test_data_path] = VOLUME_DATA
 
     command = f"predict {model_key}"
-    if dry_run:
-        command += " --dry-run"
+    if fake_data_samples:
+        command += " --fake-data"
     _docker_run(docker_client, docker_algo_tag, command=command,
                 volumes=volumes)
 
@@ -242,10 +242,10 @@ def compute(config, rank, inmodels, dry_run=False):
 
     volumes = {test_pred_path: VOLUME_PRED,
                test_opener_file: VOLUME_OPENER}
-    if not dry_run:
+    if not fake_data_samples:
         volumes[test_data_path] = VOLUME_DATA
 
-    command = _get_metrics_command(dry_run)
+    command = _get_metrics_command(fake_data_samples)
     _docker_run(docker_client, docker_metrics_tag, command=command,
                 volumes=volumes)
 

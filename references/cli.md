@@ -52,7 +52,6 @@ Options:
   --local / --remote  Data sample(s) location.
   --multiple          Add multiple data samples at once.
   --test-only         Data sample(s) used as test data only.
-  --dry-run
   --config PATH       Config path (default ~/.substra).
   --profile TEXT      Profile name to use.
   --verbose           Enable verbose mode.
@@ -87,7 +86,6 @@ Usage: substra add dataset [OPTIONS] PATH
 
 Options:
   --objective-key TEXT
-  --dry-run
   --yaml                Display output as yaml.
   --json                Display output as json.
   --pretty              Pretty print output  [default: True]
@@ -135,7 +133,6 @@ Usage: substra add objective [OPTIONS] PATH
 Options:
   --dataset-key TEXT
   --data-samples-path PATH  test data samples
-  --dry-run
   --yaml                    Display output as yaml.
   --json                    Display output as json.
   --pretty                  Pretty print output  [default: True]
@@ -169,7 +166,6 @@ Usage: substra add algo [OPTIONS] PATH
   - permissions: define asset access permissions
 
 Options:
-  --dry-run
   --yaml          Display output as yaml.
   --json          Display output as json.
   --pretty        Pretty print output  [default: True]
@@ -201,7 +197,6 @@ Options:
   --algo-key TEXT           [required]
   --dataset-key TEXT        [required]
   --data-samples-path PATH  [required]
-  --dry-run
   --tag TEXT
   --yaml                    Display output as yaml.
   --json                    Display output as json.
@@ -233,7 +228,6 @@ Options:
   --dataset-key TEXT
   --traintuple-key TEXT     [required]
   --data-samples-path PATH
-  --dry-run
   --tag TEXT
   --yaml                    Display output as yaml.
   --json                    Display output as json.

@@ -56,7 +56,7 @@ class Client(object):
         )
         return self._set_current_profile(profile_name, profile)
 
-    def _add(self, asset, data, files=None, dryrun=False, timeout=False, exist_ok=False,
+    def _add(self, asset, data, files=None, timeout=False, exist_ok=False,
              json_encoding=False):
         """Add asset."""
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
@@ -72,9 +72,6 @@ class Client(object):
             data['permissions_authorized_ids'] = data['permissions'].get('authorized_ids', [])
             del data['permissions']
 
-        if dryrun:
-            data['dryrun'] = True
-
         requests_kwargs = {}
         if files:
             requests_kwargs['files'] = files
@@ -89,18 +86,18 @@ class Client(object):
             exist_ok=exist_ok,
             **requests_kwargs)
 
-    def _add_data_samples(self, data, local=True, dryrun=False, timeout=False):
+    def _add_data_samples(self, data, local=True, timeout=False):
         """Create new data sample(s) asset."""
         if not local:
             return self._add(
                 assets.DATA_SAMPLE, data,
-                dryrun=dryrun, timeout=timeout, exist_ok=False)
+                timeout=timeout, exist_ok=False)
         with utils.extract_data_sample_files(data) as (data, files):
             return self._add(
                 assets.DATA_SAMPLE, data,
-                files=files, dryrun=dryrun, timeout=timeout, exist_ok=False)
+                files=files, timeout=timeout, exist_ok=False)
 
-    def add_data_sample(self, data, local=True, dryrun=False, timeout=False,
+    def add_data_sample(self, data, local=True, timeout=False,
                         exist_ok=False):
         """Create new data sample asset.
 
@@ -124,7 +121,7 @@ class Client(object):
             raise ValueError("data: missing 'path' field")
         try:
             data_samples = self._add_data_samples(
-                data, local=local, dryrun=dryrun, timeout=timeout)
+                data, local=local, timeout=timeout)
         except exceptions.AlreadyExists as e:
             # exist_ok option must be handle separately for data samples as a get action
             # is not allowed on data samples
@@ -137,7 +134,7 @@ class Client(object):
         # datasamples, this route always returned a list of created data sample keys
         return data_samples[0]
 
-    def add_data_samples(self, data, local=True, dryrun=False, timeout=False):
+    def add_data_samples(self, data, local=True, timeout=False):
         """Create many data sample assets.
 
         `data` is a dict object with the following schema:
@@ -156,9 +153,9 @@ class Client(object):
         if 'paths' not in data:
             raise ValueError("data: missing 'paths' field")
         return self._add_data_samples(
-            data, local=local, dryrun=dryrun, timeout=timeout)
+            data, local=local, timeout=timeout)
 
-    def add_dataset(self, data, dryrun=False, timeout=False, exist_ok=False):
+    def add_dataset(self, data, timeout=False, exist_ok=False):
         """Create new dataset asset.
 
         `data` is a dict object with the following schema:
@@ -180,17 +177,14 @@ class Client(object):
         attributes = ['data_opener', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(
-                assets.DATASET, data, files=files, dryrun=dryrun, timeout=timeout,
+                assets.DATASET, data, files=files, timeout=timeout,
                 exist_ok=exist_ok)
-
-        if dryrun:
-            return res
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_dataset(get_asset_key(res))
 
-    def add_objective(self, data, dryrun=False, timeout=False, exist_ok=False):
+    def add_objective(self, data, timeout=False, exist_ok=False):
         """Create new objective asset.
 
         `data` is a dict object with the following schema:
@@ -213,17 +207,14 @@ class Client(object):
         attributes = ['metrics', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(
-                assets.OBJECTIVE, data, files=files, dryrun=dryrun, timeout=timeout,
+                assets.OBJECTIVE, data, files=files, timeout=timeout,
                 exist_ok=exist_ok)
-
-        if dryrun:
-            return res
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_objective(get_asset_key(res))
 
-    def add_algo(self, data, dryrun=False, timeout=False, exist_ok=False):
+    def add_algo(self, data, timeout=False, exist_ok=False):
         """Create new algo asset.
 
         `data` is a dict object with the following schema:
@@ -243,17 +234,14 @@ class Client(object):
         attributes = ['file', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(
-                assets.ALGO, data, files=files, dryrun=dryrun, timeout=timeout,
+                assets.ALGO, data, files=files, timeout=timeout,
                 exist_ok=exist_ok)
-
-        if dryrun:
-            return res
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_algo(get_asset_key(res))
 
-    def add_traintuple(self, data, dryrun=False, timeout=False, exist_ok=False):
+    def add_traintuple(self, data, timeout=False, exist_ok=False):
         """Create new traintuple asset.
 
         `data` is a dict object with the following schema:
@@ -273,17 +261,14 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        res = self._add(assets.TRAINTUPLE, data, dryrun=dryrun, timeout=timeout,
+        res = self._add(assets.TRAINTUPLE, data, timeout=timeout,
                         exist_ok=exist_ok)
-
-        if dryrun:
-            return res
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_traintuple(get_asset_key(res))
 
-    def add_testtuple(self, data, dryrun=False, timeout=False, exist_ok=False):
+    def add_testtuple(self, data, timeout=False, exist_ok=False):
         """Create new testtuple asset.
 
         `data` is a dict object with the following schema:
@@ -301,11 +286,8 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        res = self._add(assets.TESTTUPLE, data, dryrun=dryrun, timeout=timeout,
+        res = self._add(assets.TESTTUPLE, data, timeout=timeout,
                         exist_ok=exist_ok)
-
-        if dryrun:
-            return res
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
