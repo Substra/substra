@@ -73,7 +73,7 @@ if __name__ == '__main__':
     def _cb(args):
         write_help(args.output_path)
 
-    doc_dir = os.path.join(local_dir, '../docs')
+    doc_dir = os.path.join(local_dir, '../references')
     default_path = os.path.join(doc_dir, 'cli.md')
 
     parser = argparse.ArgumentParser()

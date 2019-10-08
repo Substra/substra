@@ -7,7 +7,7 @@ pyclean:
 
 doc:
 	python bin/generate_cli_documentation.py
-	pydocmd simple substra.sdk+ substra.sdk.Client+ > docs/sdk.md
+	pydocmd simple substra.sdk+ substra.sdk.Client+ > references/sdk.md
 
 test: pyclean
 	python setup.py test
