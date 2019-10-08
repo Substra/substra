@@ -66,6 +66,12 @@ class Client():
             if e.response.status_code == 400:
                 raise exceptions.InvalidRequest(e)
 
+            if e.response.status_code == 401:
+                raise exceptions.AuthenticationError(e)
+
+            if e.response.status_code == 403:
+                raise exceptions.AuthorizationError(e)
+
             if e.response.status_code == 404:
                 raise exceptions.NotFound(e)
 

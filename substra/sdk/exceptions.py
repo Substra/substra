@@ -102,3 +102,11 @@ class InvalidResponse(SDKException):
     def __init__(self, response, msg):
         self.response = response
         super(InvalidResponse, self).__init__(msg)
+
+
+class AuthenticationError(HTTPError):
+    pass
+
+
+class AuthorizationError(HTTPError):
+    pass
