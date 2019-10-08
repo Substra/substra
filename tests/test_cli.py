@@ -4,6 +4,7 @@ import re
 import click
 from click.testing import CliRunner
 import pytest
+import tempfile
 
 import substra
 from substra.cli.interface import cli, click_option_output_format
@@ -103,64 +104,60 @@ def test_command_list_node(workdir, mocker):
 def test_command_add(asset_name, params, workdir, mocker):
     method_name = f'add_{asset_name}'
 
-    file = workdir / "non_existing_file.json"
+    file = tempfile.NamedTemporaryFile(suffix='.json')
     json_data = {"keys": []}
-
-    with open(str(file), 'w') as fp:
+    with open(file.name, 'w') as fp:
         json.dump(json_data, fp)
 
-    md_file = workdir / "non_existing_file.md"
-    md_file.write_text('foo')
+    md_file = tempfile.NamedTemporaryFile(suffix='.md')
 
     with mock_client_call(mocker, method_name, response={}) as m:
-        client_execute(workdir, ['add', asset_name] + params + [str(file)])
+        client_execute(workdir, ['add', asset_name] + params + [file.name])
     assert m.is_called()
 
-    res = client_execute(workdir, ['add', asset_name] + params + ['test.txt'], exit_code=2)
+    res = client_execute(workdir, ['add', asset_name] + params + ['non_existing_file.txt'],
+                         exit_code=2)
     assert re.search(r'File ".*" does not exist\.', res)
 
-    res = client_execute(workdir, ['add', asset_name] + params + [str(md_file)], exit_code=2)
+    res = client_execute(workdir, ['add', asset_name] + params + [md_file.name], exit_code=2)
     assert re.search(r'File ".*" is not a valid JSON file\.', res)
 
 
 def test_command_add_objective(workdir, mocker):
-    file = workdir / "non_existing_file.json"
+    file = tempfile.NamedTemporaryFile(suffix='.json')
     json_data = {"keys": []}
-
-    with open(str(file), 'w') as fp:
+    with open(file.name, 'w') as fp:
         json.dump(json_data, fp)
 
-    md_file = workdir / "non_existing_file.md"
-    md_file.write_text('foo')
+    md_file = tempfile.NamedTemporaryFile(suffix='.md')
 
     with mock_client_call(mocker, 'add_objective', response={}) as m:
-        client_execute(workdir, ['add', 'objective', str(file), '--dataset-key', 'foo',
-                                 '--data-samples-path', str(file)])
+        client_execute(workdir, ['add', 'objective', file.name, '--dataset-key', 'foo',
+                                 '--data-samples-path', file.name])
     assert m.is_called()
 
     res = client_execute(workdir, ['add', 'objective', 'non_existing_file.txt', '--dataset-key',
-                                   'foo', '--data-samples-path', str(file)], exit_code=2)
+                                   'foo', '--data-samples-path', file.name], exit_code=2)
     assert re.search(r'File ".*" does not exist\.', res)
 
-    res = client_execute(workdir, ['add', 'objective', str(md_file), '--dataset-key', 'foo',
-                                   '--data-samples-path', str(file)], exit_code=2)
+    res = client_execute(workdir, ['add', 'objective', md_file.name, '--dataset-key', 'foo',
+                                   '--data-samples-path', file.name], exit_code=2)
     assert re.search(r'File ".*" is not a valid JSON file\.', res)
 
-    res = client_execute(workdir, ['add', 'objective', str(file), '--dataset-key', 'foo',
+    res = client_execute(workdir, ['add', 'objective', file.name, '--dataset-key', 'foo',
                                    '--data-samples-path', 'non_existing_file.txt'], exit_code=2)
     assert re.search(r'File ".*" does not exist\.', res)
 
-    res = client_execute(workdir, ['add', 'objective', str(file), '--dataset-key', 'foo',
-                                   '--data-samples-path', str(md_file)], exit_code=2)
+    res = client_execute(workdir, ['add', 'objective', file.name, '--dataset-key', 'foo',
+                                   '--data-samples-path', md_file.name], exit_code=2)
     assert re.search(r'File ".*" is not a valid JSON file\.', res)
 
 
-def test_command_add_data_sample(tmp_path, workdir, mocker):
-    temp_dir = tmp_path / "test_dir"
-    temp_dir.mkdir()
+def test_command_add_data_sample(workdir, mocker):
+    temp_dir = tempfile.mkdtemp()
 
     with mock_client_call(mocker, 'add_data_samples') as m:
-        client_execute(workdir, ['add', 'data_sample', str(temp_dir), '--dataset-key', 'foo',
+        client_execute(workdir, ['add', 'data_sample', temp_dir, '--dataset-key', 'foo',
                                  '--test-only'])
     assert m.is_called()
 
@@ -206,25 +203,24 @@ def test_command_update_data_sample(workdir, mocker):
         'keys': ['key1', 'key2'],
     }
 
-    data_samples_path = workdir / 'non_existing_file.json'
-    data_samples_path_content = workdir / 'invalid_content.json'
-    data_samples_path_invalid = workdir / 'non_existing_file.md'
+    data_samples_path = tempfile.NamedTemporaryFile(suffix='.json')
 
-    with data_samples_path.open(mode='w') as fp:
+    data_samples_path_content = tempfile.NamedTemporaryFile(suffix='.json')
+    data_samples_path_content.write(b'test')
+
+    with open(data_samples_path.name, 'w') as fp:
         json.dump(data_samples, fp)
 
-    data_samples_path_content.write_text('test')
-
     with mock_client_call(mocker, 'link_dataset_with_data_samples') as m:
-        client_execute(
-            workdir, ['update', 'data_sample', str(data_samples_path), '--dataset-key', 'foo'])
+        client_execute(workdir, ['update', 'data_sample', data_samples_path.name, '--dataset-key',
+                                 'foo'])
     assert m.is_called()
 
-    res = client_execute(workdir, ['update', 'data_sample', str(data_samples_path_invalid),
+    res = client_execute(workdir, ['update', 'data_sample', 'non_existing_file.txt',
                                    '--dataset-key', 'foo'], exit_code=2)
     assert re.search(r'File ".*" does not exist\.', res)
 
-    res = client_execute(workdir, ['update', 'data_sample', str(data_samples_path_content),
+    res = client_execute(workdir, ['update', 'data_sample', data_samples_path_content.name,
                                    '--dataset-key', 'foo'], exit_code=2)
     assert re.search(r'File ".*" is not a valid JSON file\.', res)
 
