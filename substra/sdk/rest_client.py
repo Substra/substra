@@ -63,6 +63,8 @@ class Client():
             raise exceptions.Timeout.from_request_exception(e)
 
         except requests.exceptions.HTTPError as e:
+            logger.error(f"Requests error status {e.response.status_code}: {e.response.text}")
+
             if e.response.status_code == 400:
                 raise exceptions.InvalidRequest.from_request_exception(e)
 
