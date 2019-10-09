@@ -104,12 +104,12 @@ def test_command_list_node(workdir, mocker):
 def test_command_add(asset_name, params, workdir, mocker):
     method_name = f'add_{asset_name}'
 
-    with tempfile.NamedTemporaryFile(suffix='.json') as file:
-        json_data = {"keys": []}
-        with open(file.name, 'w') as fp:
-            json.dump(json_data, fp)
-        with mock_client_call(mocker, method_name, response={}) as m:
-            client_execute(workdir, ['add', asset_name] + params + [file.name])
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json') as file,\
+            mock_client_call(mocker, method_name, response={}) as m:
+        json.dump({}, file)
+        file.seek(0)
+
+        client_execute(workdir, ['add', asset_name] + params + [file.name])
         assert m.is_called()
 
     with tempfile.NamedTemporaryFile(suffix='.md') as file:
@@ -122,14 +122,14 @@ def test_command_add(asset_name, params, workdir, mocker):
 
 
 def test_command_add_objective(workdir, mocker):
-    with tempfile.NamedTemporaryFile(suffix='.json') as file:
-        json_data = {"keys": []}
-        with open(file.name, 'w') as fp:
-            json.dump(json_data, fp)
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json') as file:
+        json.dump({}, file)
+        file.seek(0)
+
         with mock_client_call(mocker, 'add_objective', response={}) as m:
             client_execute(workdir, ['add', 'objective', file.name, '--dataset-key', 'foo',
                                      '--data-samples-path', file.name])
-        assert m.is_called()
+            assert m.is_called()
 
         res = client_execute(workdir, ['add', 'objective', 'non_existing_file.txt', '--dataset-key',
                                        'foo', '--data-samples-path', file.name], exit_code=2)
@@ -155,7 +155,7 @@ def test_command_add_data_sample(workdir, mocker):
     with mock_client_call(mocker, 'add_data_samples') as m:
         client_execute(workdir, ['add', 'data_sample', temp_dir, '--dataset-key', 'foo',
                                  '--test-only'])
-    assert m.is_called()
+        assert m.is_called()
 
     res = client_execute(workdir, ['add', 'data_sample', 'dir', '--dataset-key', 'foo'],
                          exit_code=2)
@@ -199,18 +199,18 @@ def test_command_update_data_sample(workdir, mocker):
         'keys': ['key1', 'key2'],
     }
 
-    with tempfile.NamedTemporaryFile(suffix='.json') as data_samples_path:
-        with open(data_samples_path.name, 'w') as fp:
-            json.dump(data_samples, fp)
-        with mock_client_call(mocker, 'link_dataset_with_data_samples') as m:
-            client_execute(workdir,
-                           ['update', 'data_sample', data_samples_path.name, '--dataset-key',
-                            'foo'])
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json') as file,\
+            mock_client_call(mocker, 'link_dataset_with_data_samples') as m:
+        json.dump(data_samples, file)
+        file.seek(0)
+
+        client_execute(workdir, ['update', 'data_sample', file.name,
+                                 '--dataset-key', 'foo'])
         assert m.is_called()
 
-    with tempfile.NamedTemporaryFile(suffix='.json') as data_samples_path_content:
-        data_samples_path_content.write(b'test')
-        res = client_execute(workdir, ['update', 'data_sample', data_samples_path_content.name,
+    with tempfile.NamedTemporaryFile(suffix='.json') as file:
+        file.write(b'test')
+        res = client_execute(workdir, ['update', 'data_sample', file.name,
                                        '--dataset-key', 'foo'], exit_code=2)
         assert re.search(r'File ".*" is not a valid JSON file\.', res)
 
