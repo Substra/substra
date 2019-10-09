@@ -25,6 +25,7 @@ from substra.sdk import assets, exceptions
 from substra.sdk import config as configuration
 from substra.sdk.client import Client
 from substra.sdk import user as usr
+from substra.sdk.exceptions import BadConfiguration
 
 
 def get_client(config_path, profile_name, user_path):
@@ -227,18 +228,22 @@ def add_profile_to_config(url, config, profile, insecure, version, username, pas
 def login(config, profile, user):
     """Login to the Substra platform."""
     usr.Manager(user).clear_user()
-    client = get_client(config, profile, user)
     try:
-        token = client.login()
-    except exceptions.BadLoginException:
-        raise click.ClickException(
-            "Login failed: No active account found with the given credentials.")
-    except Exception as e:
-        # TODO display error
-        print(e)
+        client = get_client(config, profile, user)
+    except BadConfiguration as e:
+        print(e)  # TODO, display error correctly
     else:
-        # create temporary user data
-        usr.Manager(user).add_user(token)
+        try:
+            token = client.login()
+        except exceptions.BadLoginException:
+            raise click.ClickException(
+                "Login failed: No active account found with the given credentials.")
+        except Exception as e:
+            # TODO display error correctly
+            print(e)
+        else:
+            # create temporary user data
+            usr.Manager(user).add_user(token)
 
 
 @cli.group()

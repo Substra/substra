@@ -49,6 +49,7 @@ class Client(object):
 
     def login(self):
         """Login."""
+
         res = self.client.login()
         token = res.json()['token']
         self._current_profile.update({
@@ -62,6 +63,7 @@ class Client(object):
         self._profiles[profile_name] = profile
         self._current_profile = profile
         self.client.set_config(self._current_profile, profile_name)
+
         return profile
 
     def set_profile(self, profile_name):
