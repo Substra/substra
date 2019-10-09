@@ -1,10 +1,10 @@
 import json
 import re
+import tempfile
 
 import click
 from click.testing import CliRunner
 import pytest
-import tempfile
 
 import substra
 from substra.cli.interface import cli, click_option_output_format
