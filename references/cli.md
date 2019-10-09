@@ -132,7 +132,7 @@ Usage: substra add objective [OPTIONS] PATH
 
 Options:
   --dataset-key TEXT
-  --data-samples-path PATH  test data samples
+  --data-samples-path FILE  test data samples
   --yaml                    Display output as yaml.
   --json                    Display output as json.
   --pretty                  Pretty print output  [default: True]
@@ -196,7 +196,7 @@ Options:
   --objective-key TEXT      [required]
   --algo-key TEXT           [required]
   --dataset-key TEXT        [required]
-  --data-samples-path PATH  [required]
+  --data-samples-path FILE  [required]
   --tag TEXT
   --yaml                    Display output as yaml.
   --json                    Display output as json.
@@ -227,7 +227,7 @@ Usage: substra add testtuple [OPTIONS]
 Options:
   --dataset-key TEXT
   --traintuple-key TEXT     [required]
-  --data-samples-path PATH
+  --data-samples-path FILE
   --tag TEXT
   --yaml                    Display output as yaml.
   --json                    Display output as json.
@@ -379,7 +379,7 @@ Options:
 ## substra update data_sample
 
 ```bash
-Usage: substra update data_sample [OPTIONS] DATA_SAMPLES_PATH DATASET_KEY
+Usage: substra update data_sample [OPTIONS] DATA_SAMPLES_PATH
 
   Link data samples with dataset.
 
@@ -394,10 +394,11 @@ Usage: substra update data_sample [OPTIONS] DATA_SAMPLES_PATH DATASET_KEY
   - keys: list of data sample keys
 
 Options:
-  --config PATH   Config path (default ~/.substra).
-  --profile TEXT  Profile name to use.
-  --verbose       Enable verbose mode.
-  --help          Show this message and exit.
+  --dataset-key TEXT  [required]
+  --config PATH       Config path (default ~/.substra).
+  --profile TEXT      Profile name to use.
+  --verbose           Enable verbose mode.
+  --help              Show this message and exit.
 ```
 
 ## substra update dataset
