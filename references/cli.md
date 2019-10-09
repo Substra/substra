@@ -377,7 +377,7 @@ Options:
   --train-data-samples DIRECTORY  directory of data samples directories to use
                                   during training
   --test-data-samples DIRECTORY   directory of data samples directories to use
-                                  during training
+                                  during testing
   --inmodel FILE                  model to use as input during training
   --fake-data-samples             use fake data samples during both training
                                   and testing

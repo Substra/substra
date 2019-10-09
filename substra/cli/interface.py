@@ -675,7 +675,7 @@ def leaderboard(ctx, objective_key, output_format, expand, sort, config, profile
               help='directory of data samples directories to use during training')
 @click.option('--test-data-samples',
               type=click.Path(exists=True, file_okay=False),
-              help='directory of data samples directories to use during training')
+              help='directory of data samples directories to use during testing')
 @click.option('--inmodel', 'inmodels',
               type=click.Path(exists=True, dir_okay=False),
               multiple=True,
