@@ -17,6 +17,10 @@ VOLUME_PRED = {'bind': '/sandbox/pred', 'mode': 'rw'}
 VOLUME_DATA = {'bind': '/sandbox/data', 'mode': 'ro'}
 VOLUME_LOCAL = {'bind': '/sandbox/local', 'mode': 'rw'}
 
+DOCKER_ALGO_TAG = 'algo_run_local'
+DOCKER_METRICS_TAG = 'metrics_run_local'
+MODEL_KEY = 'model'
+
 
 def _create_directory(directory):
     if not os.path.exists(directory):
@@ -29,54 +33,25 @@ def _get_metrics_command(fake_data_samples=False):
     return f"--fake-data-mode {mode}"
 
 
-def setup(algo_path,
-          train_opener_path,
-          test_opener_path,
-          metrics_path,
-          train_data_samples_path,
-          test_data_samples_path,
-          outmodel_path='model',
-          compute_path='./sandbox',
-          local_path='local'):
+def _get_abspath(path):
+    if path:  # path may be None
+        path = os.path.abspath(path)
+    return path
 
-    config = {}
 
-    def _get_abspath(path):
-        if path:  # path may be None
-            path = os.path.abspath(path)
-        return path
-
-    # setup config
-    config['algo_path'] = _get_abspath(algo_path)
-    config['train_opener_file'] = _get_abspath(train_opener_path)
-    config['test_opener_file'] = _get_abspath(test_opener_path)
-    config['train_data_path'] = _get_abspath(train_data_samples_path)
-    config['test_data_path'] = _get_abspath(test_data_samples_path)
-    config['metrics_path'] = _get_abspath(metrics_path)
-
-    # sandbox
-    run_local_path = _get_abspath(compute_path)
-
-    print(f'Run local results will be in sandbox : {run_local_path}')
-    print(f'Clean run local sandbox {run_local_path}')
+def clean_sandbox(compute_path, local_path, train_pred_path, test_pred_path, outmodel_path):
+    print(f'Clean run local sandbox {compute_path}')
 
     try:
-        shutil.rmtree(run_local_path)
+        shutil.rmtree(compute_path)
     except FileNotFoundError:
         pass
 
-    config['local_path'] = os.path.join(run_local_path, local_path)
-    config['train_pred_path'] = os.path.join(run_local_path, 'pred_train')
-    config['test_pred_path'] = os.path.join(run_local_path, 'pred_test')
-    config['outmodel_path'] = os.path.join(run_local_path, outmodel_path)
-
-    _create_directory(run_local_path)
-    _create_directory(config['local_path'])
-    _create_directory(config['train_pred_path'])
-    _create_directory(config['test_pred_path'])
-    _create_directory(config['outmodel_path'])
-
-    return config
+    _create_directory(compute_path)
+    _create_directory(local_path)
+    _create_directory(train_pred_path)
+    _create_directory(test_pred_path)
+    _create_directory(outmodel_path)
 
 
 def _docker_build(docker_client, dockerfile_path, name, rm=False):
@@ -111,30 +86,13 @@ def _docker_run(docker_client, name, command, volumes, remove=True):
     print(f'(duration {elaps:.2f} s )')
 
 
-def compute(config, rank, inmodels, fake_data_samples=False):
-    docker_client = docker.from_env()
-    docker_algo_tag = 'algo_run_local'
-    docker_metrics_tag = 'metrics_run_local'
-
-    outmodel_path = config['outmodel_path']
-    train_pred_path = config['train_pred_path']
-    algo_path = config['algo_path']
-    local_path = config['local_path']
-    train_opener_file = config['train_opener_file']
-    metrics_path = config['metrics_path']
-    test_pred_path = config['test_pred_path']
-    test_opener_file = config['test_opener_file']
-    test_data_path = config['test_data_path']
-    train_data_path = config['train_data_path']
-
-    train_data_path_str = train_data_path or 'fake'
-
-    model_key = 'model'
-    outmodel_file = os.path.join(outmodel_path, model_key)
+def compute_train(docker_client, train_data_path, algo_path, fake_data_samples, outmodel_path,
+                  train_pred_path, local_path, train_opener_file, rank, inmodels, outmodel_file,
+                  metrics_path):
 
     print('Training starts')
 
-    _docker_build(docker_client, algo_path, docker_algo_tag)
+    _docker_build(docker_client, algo_path, DOCKER_ALGO_TAG)
 
     if not fake_data_samples:
         print(f'Training algo on {train_data_path}')
@@ -171,41 +129,25 @@ def compute(config, rank, inmodels, fake_data_samples=False):
             models_command = ' '.join(model_keys)
             command += f" {models_command}"
 
-    _docker_run(docker_client, docker_algo_tag, command=command,
+    _docker_run(docker_client, DOCKER_ALGO_TAG, command=command,
                 volumes=volumes)
 
     if not os.path.exists(outmodel_file):
         raise Exception(f"Model {outmodel_file} doesn't exist")
 
-    _docker_build(docker_client, metrics_path, docker_metrics_tag, rm=True)
+    _docker_build(docker_client, metrics_path, DOCKER_METRICS_TAG, rm=True)
 
-    print(f'Evaluating performance - compute metrics with {train_pred_path} '
-          f'predictions against {train_data_path_str} labels')
 
-    volumes = {train_pred_path: VOLUME_PRED,
-               train_opener_file: VOLUME_OPENER}
-    if not fake_data_samples:
-        volumes[train_data_path] = VOLUME_DATA
-    command = _get_metrics_command(fake_data_samples)
-    _docker_run(docker_client, docker_metrics_tag, command=command,
-                volumes=volumes)
-
-    # load performance
-    with open(os.path.join(train_pred_path, 'perf.json'), 'r') as perf_file:
-        perf = json.load(perf_file)
-    train_perf = perf['all']
-
-    print(f'Successfully train model {outmodel_file} with a score of '
-          f'{train_perf} on train data')
-
+def compute_test(docker_client, algo_path, test_data_path, test_pred_path, outmodel_path,
+                 test_opener_file, fake_data_samples, metrics_path):
     print('Testing starts')
 
-    _docker_build(docker_client, algo_path, docker_algo_tag)
+    _docker_build(docker_client, algo_path, DOCKER_METRICS_TAG)
 
     print('Testing model')
 
     test_data_path_str = test_data_path or 'fake'
-    print(f'Testing model on {test_data_path_str} labels with {model_key} '
+    print(f'Testing model on {test_data_path_str} labels with {MODEL_KEY} '
           f'saved in {test_pred_path}')
 
     volumes = {outmodel_path: VOLUME_OUTPUT_MODEL,
@@ -214,29 +156,102 @@ def compute(config, rank, inmodels, fake_data_samples=False):
     if not fake_data_samples:
         volumes[test_data_path] = VOLUME_DATA
 
-    command = f"predict {model_key}"
+    command = f"predict {MODEL_KEY}"
     if fake_data_samples:
         command += " --fake-data"
-    _docker_run(docker_client, docker_algo_tag, command=command,
+    _docker_run(docker_client, DOCKER_ALGO_TAG, command=command,
                 volumes=volumes)
 
-    _docker_build(docker_client, metrics_path, docker_metrics_tag)
+    _docker_build(docker_client, metrics_path, DOCKER_METRICS_TAG)
 
-    print(f'Evaluating performance - compute metric with {test_pred_path} '
-          f'predictions against {test_data_path_str} labels')
 
-    volumes = {test_pred_path: VOLUME_PRED,
-               test_opener_file: VOLUME_OPENER}
+def compute_perf(pred_path, opener_file, fake_data_samples, data_path, docker_client):
+    volumes = {pred_path: VOLUME_PRED,
+               opener_file: VOLUME_OPENER}
     if not fake_data_samples:
-        volumes[test_data_path] = VOLUME_DATA
+        volumes[data_path] = VOLUME_DATA
 
     command = _get_metrics_command(fake_data_samples)
-    _docker_run(docker_client, docker_metrics_tag, command=command,
+    _docker_run(docker_client, DOCKER_METRICS_TAG, command=command,
                 volumes=volumes)
 
-    # load performance
-    with open(os.path.join(test_pred_path, 'perf.json'), 'r') as perf_file:
+    with open(os.path.join(pred_path, 'perf.json'), 'r') as perf_file:
         perf = json.load(perf_file)
-    test_perf = perf['all']
 
+    return perf['all']
+
+
+def compute(algo_path,
+            train_opener_file,
+            test_opener_file,
+            metrics_path,
+            train_data_path,
+            test_data_path,
+            fake_data_samples,
+            rank,
+            inmodels,
+            outmodel_path='model',
+            compute_path='./sandbox',
+            local_path='local'):
+
+    # assets absolute paths
+    algo_path = _get_abspath(algo_path)
+    train_opener_file = _get_abspath(train_opener_file)
+    test_opener_file = _get_abspath(test_opener_file)
+    train_data_path = _get_abspath(train_data_path)
+    test_data_path = _get_abspath(test_data_path)
+    metrics_path = _get_abspath(metrics_path)
+
+    # substra/docker absolute paths
+    compute_path = _get_abspath(compute_path)
+    local_path = os.path.join(compute_path, local_path)
+    train_pred_path = os.path.join(compute_path, 'pred_train')
+    test_pred_path = os.path.join(compute_path, 'pred_test')
+    outmodel_path = os.path.join(compute_path, outmodel_path)
+    outmodel_file = os.path.join(outmodel_path, MODEL_KEY)
+
+    print(f'Run local results will be in sandbox : {compute_path}')
+
+    clean_sandbox(compute_path, local_path, train_pred_path, test_pred_path, outmodel_path)
+
+    docker_client = docker.from_env()
+
+    compute_train(docker_client,
+                  train_data_path,
+                  algo_path,
+                  fake_data_samples,
+                  outmodel_path,
+                  train_pred_path,
+                  local_path,
+                  train_opener_file,
+                  rank,
+                  inmodels,
+                  outmodel_file,
+                  metrics_path)
+
+    print(f'Evaluating performance - compute metrics with {train_pred_path} '
+          f'predictions against {train_data_path or "fake"} labels')
+    train_perf = compute_perf(pred_path=train_pred_path,
+                              opener_file=train_opener_file,
+                              fake_data_samples=fake_data_samples,
+                              data_path=train_data_path,
+                              docker_client=docker_client)
+    print(f'Successfully train model {outmodel_file} with a score of {train_perf} on train data')
+
+    compute_test(docker_client,
+                 algo_path,
+                 test_data_path,
+                 test_pred_path,
+                 outmodel_path,
+                 test_opener_file,
+                 fake_data_samples,
+                 metrics_path)
+
+    print(f'Evaluating performance - compute metric with {test_pred_path} '
+          f'predictions against {test_data_path or "fake"} labels')
+    test_perf = compute_perf(pred_path=test_pred_path,
+                             opener_file=test_opener_file,
+                             fake_data_samples=fake_data_samples,
+                             data_path=test_data_path,
+                             docker_client=docker_client)
     print(f'Successfully test model {outmodel_file} with a score of {test_perf} on test data')

@@ -718,14 +718,15 @@ def run_local(algo, train_opener, test_opener, metrics, rank,
         raise click.BadOptionUsage('--train-data-samples',
                                    'Missing option --train-data-samples')
 
-    # TODO merge runner.setup and runner.compute methods
-    config = runner.setup(algo,
-                          train_opener,
-                          test_opener,
-                          metrics,
-                          train_data_samples,
-                          test_data_samples)
-    runner.compute(config, rank, inmodels, fake_data_samples=fake_data_samples)
+    runner.compute(algo_path=algo,
+                   train_opener_file=train_opener,
+                   test_opener_file=test_opener,
+                   metrics_path=metrics,
+                   train_data_path=train_data_samples,
+                   test_data_path=test_data_samples,
+                   fake_data_samples=fake_data_samples,
+                   rank=rank,
+                   inmodels=inmodels)
 
 
 @cli.group()
