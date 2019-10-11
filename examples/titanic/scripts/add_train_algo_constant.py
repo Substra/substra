@@ -8,7 +8,7 @@ import substra
 current_directory = os.path.dirname(__file__)
 assets_directory = os.path.join(current_directory, '../assets')
 
-with open(os.path.join(current_directory, "config.yaml"), 'r') as yaml_config:
+with open(os.path.join(current_directory, "../../config.yaml"), 'r') as yaml_config:
     config = yaml.safe_load(yaml_config)
 
 client = substra.Client()

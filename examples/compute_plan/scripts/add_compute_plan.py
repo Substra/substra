@@ -2,17 +2,20 @@ import json
 import os
 import uuid
 import zipfile
+import yaml
 
 import substra
-
-USER, PASSWORD = ('admin', 'admin')
-client = substra.Client()
-client.add_profile('owkin', 'http://owkin.substrabac:8000', '0.0',
-                   user=USER, password=PASSWORD)
 
 current_directory = os.path.dirname(__file__)
 assets_keys_path = os.path.join(current_directory, '../../titanic/assets_keys.json')
 compute_plan_keys_path = os.path.join(current_directory, '../compute_plan_keys.json')
+
+with open(os.path.join(current_directory, "../../config.yaml"), 'r') as yaml_config:
+    config = yaml.safe_load(yaml_config)
+
+client = substra.Client()
+client.add_profile(config['profile_name'], config['url'], '0.0',
+                   user=config['user'], password=config['password'])
 
 print(f'Loading existing asset keys from {os.path.abspath(assets_keys_path)}...')
 with open(assets_keys_path, 'r') as f:
