@@ -6,7 +6,7 @@ import substra
 
 USER, PASSWORD = ('admin', 'admin')
 client = substra.Client()
-client.add_profile('owkin', 'http://owkin.substrabac:8000', '0.0',
+client.add_profile('owkin', 'http://substrabac.node-1', '0.0',
                    user=USER, password=PASSWORD)
 
 current_directory = os.path.dirname(__file__)
@@ -25,7 +25,7 @@ ALGO_DOCKERFILE_FILES = [
 #       Build archive
 ########################################################
 
-archive_path = 'algo_constant.zip'
+archive_path = os.path.join(current_directory, 'algo_constant.zip')
 with zipfile.ZipFile(archive_path, 'w') as z:
     for filepath in ALGO_DOCKERFILE_FILES:
         z.write(filepath, arcname=os.path.basename(filepath))

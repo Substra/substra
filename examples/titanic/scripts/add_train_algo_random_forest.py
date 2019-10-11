@@ -27,7 +27,7 @@ ALGO_DOCKERFILE_FILES = [
 #       Build archive
 ########################################################
 
-archive_path = 'algo_random_forest.zip'
+archive_path =  os.path.join(current_directory, 'algo_random_forest.zip')
 with zipfile.ZipFile(archive_path, 'w') as z:
     for filepath in ALGO_DOCKERFILE_FILES:
         z.write(filepath, arcname=os.path.basename(filepath))
