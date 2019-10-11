@@ -29,7 +29,10 @@ DATASET = {
     },
     "key": "ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994",
     "name": "ISIC 2018",
-    "openerStorageAddress": "",
+    "opener": {
+        "hash": "7a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
+        "storageAddress": "",
+    },
     "owner": "c657699f8b03c19e6eadc7b474c23f26dd83454395266a673406f2cf44de2ca2",
     "permissions_public": False,
     "permissions_authorized_ids": [],
