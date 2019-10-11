@@ -51,15 +51,33 @@ the train and predict tasks but also a lot of data preprocessing.
 #### Training task
 
 ```sh
-python assets/algo_random_forest/algo.py train --debug --opener-path assets/dataset/opener.py --data-samples-path assets/train_data_samples --output-predictions-path assets/pred-train.csv
-python assets/objective/metrics.py --debug --opener-path assets/dataset/opener.py --data-samples-path assets/train_data_samples --input-predictions-path assets/pred-train.csv
+python assets/algo_random_forest/algo.py train \
+  --debug \
+  --opener-path assets/dataset/opener.py \
+  --data-samples-path assets/train_data_samples \
+  --output-predictions-path assets/pred-train.csv
+  
+python assets/objective/metrics.py \
+  --debug \
+  --opener-path assets/dataset/opener.py \
+  --data-samples-path assets/train_data_samples \
+  --input-predictions-path assets/pred-train.csv
  ```
 
 #### Testing task
 
 ```sh
-python assets/algo_random_forest/algo.py predict --debug --opener-path assets/dataset/opener.py --data-samples-path assets/test_data_samples --output-predictions-path assets/pred-test.csv model
-python assets/objective/metrics.py --debug --opener-path assets/dataset/opener.py --data-samples-path assets/test_data_samples --input-predictions-path assets/pred-test.csv
+python assets/algo_random_forest/algo.py predict \
+  --debug \
+  --opener-path assets/dataset/opener.py \
+  --data-samples-path assets/test_data_samples \
+  --output-predictions-path assets/pred-test.csv model
+  
+python assets/objective/metrics.py \
+  --debug \
+  --opener-path assets/dataset/opener.py \
+  --data-samples-path assets/test_data_samples \
+  --input-predictions-path assets/pred-test.csv
 ```
 
 ### Using substra cli
@@ -71,7 +89,12 @@ To test the assets, we'll use `substra run-local`, passing it paths to our algor
 the metrics and to the data samples we want to use.
 
 ```sh
-substra run-local assets/algo_random_forest --train-opener=assets/dataset/opener.py --test-opener=assets/dataset/opener.py --metrics=assets/objective/ --train-data-samples=assets/train_data_samples --test-data-samples=assets/test_data_samples
+substra run-local assets/algo_random_forest \
+  --train-opener=assets/dataset/opener.py \
+  --test-opener=assets/dataset/opener.py \
+  --metrics=assets/objective/ \
+  --train-data-samples=assets/train_data_samples \
+  --test-data-samples=assets/test_data_samples
 ```
 
 At the end of this step, you'll find in the newly created `sandbox/model` folder a `model` file that contains your 
@@ -136,7 +159,11 @@ but they help identify the related assets).
 Now we can launch the `run-local` using fake data:
 
 ```sh
-substra run-local assets/algo_constant --train-opener=assets/dataset/opener.py --test-opener=assets/dataset/opener.py --metrics=assets/objective/ --fake-data-samples
+substra run-local assets/algo_constant \
+  --train-opener=assets/dataset/opener.py \
+  --test-opener=assets/dataset/opener.py \
+  --metrics=assets/objective/ \
+  --fake-data-samples
 ```
 
 Once again, we can use the `logging` module to debug.
