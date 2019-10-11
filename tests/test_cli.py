@@ -82,16 +82,16 @@ def test_command_list(asset_name, workdir, mocker):
     method_name = f'list_{asset_name}'
     with mock_client_call(mocker, method_name, [item]) as m:
         output = client_execute(workdir, ['list', asset_name])
-        assert m.is_called()
-        assert item['key'] in output
+    assert m.is_called()
+    assert item['key'] in output
 
 
 def test_command_list_node(workdir, mocker):
     with mock_client_call(mocker, 'list_node', datastore.NODES):
         output = client_execute(workdir, ['list', 'node'])
-        assert output == ('NODE ID                     \n'
-                          'foo                         \n'
-                          'bar         (current)       \n')
+    assert output == ('NODE ID                     \n'
+                      'foo                         \n'
+                      'bar         (current)       \n')
 
 
 @pytest.mark.parametrize('asset_name,params', [
@@ -110,7 +110,7 @@ def test_command_add(asset_name, params, workdir, mocker):
         file.seek(0)
 
         client_execute(workdir, ['add', asset_name] + params + [file.name])
-        assert m.is_called()
+    assert m.is_called()
 
     with tempfile.NamedTemporaryFile(suffix='.md') as file:
         res = client_execute(workdir, ['add', asset_name] + params + [file.name], exit_code=2)
@@ -129,7 +129,7 @@ def test_command_add_objective(workdir, mocker):
         with mock_client_call(mocker, 'add_objective', response={}) as m:
             client_execute(workdir, ['add', 'objective', file.name, '--dataset-key', 'foo',
                                      '--data-samples-path', file.name])
-            assert m.is_called()
+        assert m.is_called()
 
         res = client_execute(workdir, ['add', 'objective', 'non_existing_file.txt', '--dataset-key',
                                        'foo', '--data-samples-path', file.name], exit_code=2)
@@ -155,7 +155,7 @@ def test_command_add_data_sample(workdir, mocker):
     with mock_client_call(mocker, 'add_data_samples') as m:
         client_execute(workdir, ['add', 'data_sample', temp_dir, '--dataset-key', 'foo',
                                  '--test-only'])
-        assert m.is_called()
+    assert m.is_called()
 
     res = client_execute(workdir, ['add', 'data_sample', 'dir', '--dataset-key', 'foo'],
                          exit_code=2)
@@ -170,28 +170,28 @@ def test_command_get(asset_name, workdir, mocker):
     method_name = f'get_{asset_name}'
     with mock_client_call(mocker, method_name, item) as m:
         output = client_execute(workdir, ['get', asset_name, 'fakekey'])
-        assert m.is_called()
-        assert item['key'] in output
+    assert m.is_called()
+    assert item['key'] in output
 
 
 def test_command_describe(workdir, mocker):
     response = "My description."
     with mock_client_call(mocker, 'describe_objective', response) as m:
         output = client_execute(workdir, ['describe', 'objective', 'fakekey'])
-        assert m.is_called()
-        assert response in output
+    assert m.is_called()
+    assert response in output
 
 
 def test_command_download(workdir, mocker):
     with mock_client_call(mocker, 'download_objective') as m:
         client_execute(workdir, ['download', 'objective', 'fakekey'])
-        assert m.is_called()
+    assert m.is_called()
 
 
 def test_command_update_dataset(workdir, mocker):
     with mock_client_call(mocker, 'update_dataset') as m:
         client_execute(workdir, ['update', 'dataset', 'key1', 'key2'])
-        assert m.is_called()
+    assert m.is_called()
 
 
 def test_command_update_data_sample(workdir, mocker):
@@ -206,7 +206,7 @@ def test_command_update_data_sample(workdir, mocker):
 
         client_execute(workdir, ['update', 'data_sample', file.name,
                                  '--dataset-key', 'foo'])
-        assert m.is_called()
+    assert m.is_called()
 
     with tempfile.NamedTemporaryFile(suffix='.json') as file:
         file.write(b'test')
