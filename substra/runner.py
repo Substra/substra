@@ -1,8 +1,12 @@
+import contextlib
 import os
 import json
 import shutil
+import tarfile
+import tempfile
 import time
 import hashlib
+import zipfile
 
 import docker
 
@@ -188,18 +192,39 @@ def compute_perf(pred_path, opener_file, fake_data_samples, data_path, docker_cl
     return perf['all']
 
 
-def compute(algo_path,
-            train_opener_file,
-            test_opener_file,
-            metrics_path,
-            train_data_path,
-            test_data_path,
-            fake_data_samples,
-            rank,
-            inmodels,
-            outmodel_path='model',
-            compute_path='./sandbox',
-            local_path='local'):
+def _extract_archive(archive_path, to_directory):
+    if zipfile.is_zipfile(archive_path):
+        with zipfile.ZipFile(archive_path, 'r') as zf:
+            zf.extractall(to_directory)
+    elif tarfile.is_tarfile(archive_path):
+        with tarfile.open(archive_path, 'r:*') as tf:
+            tf.extractall(to_directory)
+    else:
+        raise Exception('Archive must be zip or tar.gz')
+
+
+@contextlib.contextmanager
+def extract_archive_if_needed(path):
+    if os.path.isdir(path):
+        yield path
+    else:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            _extract_archive(path, tmp_dir)
+            yield tmp_dir
+
+
+def _compute(algo_path,
+             train_opener_file,
+             test_opener_file,
+             metrics_path,
+             train_data_path,
+             test_data_path,
+             fake_data_samples,
+             rank,
+             inmodels,
+             outmodel_path='model',
+             compute_path='./sandbox',
+             local_path='local'):
 
     # assets absolute paths
     algo_path = _get_abspath(algo_path)
@@ -262,3 +287,32 @@ def compute(algo_path,
                              data_path=test_data_path,
                              docker_client=docker_client)
     print(f'Successfully test model {outmodel_file} with a score of {test_perf} on test data')
+
+
+def compute(algo_path,
+            train_opener_file,
+            test_opener_file,
+            metrics_path,
+            train_data_path,
+            test_data_path,
+            fake_data_samples,
+            rank,
+            inmodels,
+            outmodel_path='model',
+            compute_path='./sandbox',
+            local_path='local'):
+
+    with extract_archive_if_needed(algo_path) as algo_path, \
+            extract_archive_if_needed(metrics_path) as metrics_path:
+        _compute(algo_path,
+                 train_opener_file,
+                 test_opener_file,
+                 metrics_path,
+                 train_data_path,
+                 test_data_path,
+                 fake_data_samples,
+                 rank,
+                 inmodels,
+                 outmodel_path,
+                 compute_path,
+                 local_path)

@@ -347,7 +347,7 @@ Usage: substra run-local [OPTIONS] ALGO
 
   Run local.
 
-  Train and test the algo located in ALGO locally.
+  Train and test the algo located in ALGO (directory or archive) locally.
 
   This command can be used to check that objective, dataset and algo assets
   implementations are compatible.
@@ -371,8 +371,8 @@ Options:
                                   [required]
   --test-opener FILE              opener.py file to use during testing.
                                   [required]
-  --metrics DIRECTORY             metrics directory to use during both
-                                  training and testing.  [required]
+  --metrics PATH                  metrics directory or archive to use during
+                                  both training and testing.  [required]
   --rank INTEGER                  will be passed to the algo during training.
   --train-data-samples DIRECTORY  directory of data samples directories to use
                                   during training.
