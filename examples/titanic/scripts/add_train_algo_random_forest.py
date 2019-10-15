@@ -1,19 +1,13 @@
 import json
 import os
 import zipfile
-import yaml
 
 import substra
 
 current_directory = os.path.dirname(__file__)
 assets_directory = os.path.join(current_directory, '../assets')
 
-with open(os.path.join(current_directory, "../../config.yaml"), 'r') as yaml_config:
-    config = yaml.safe_load(yaml_config)
-
-client = substra.Client()
-client.add_profile(config['profile_name'], config['url'], '0.0',
-                   user=config['user'], password=config['password'])
+client = substra.Client(os.path.join(current_directory, '../../config.json'), 'owkin')
 
 ALGO_KEYS_JSON_FILENAME = 'algo_random_forest_keys.json'
 

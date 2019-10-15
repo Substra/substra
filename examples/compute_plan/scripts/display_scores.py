@@ -1,19 +1,13 @@
 import json
 import math
 import os
-import yaml
 
 import substra
 
 current_directory = os.path.dirname(__file__)
 compute_plan_keys_path = os.path.join(current_directory, '../compute_plan_keys.json')
 
-with open(os.path.join(current_directory, "../../config.yaml"), 'r') as yaml_config:
-    config = yaml.safe_load(yaml_config)
-
-client = substra.Client()
-client.add_profile(config['profile_name'], config['url'], '0.0',
-                   user=config['user'], password=config['password'])
+client = substra.Client(os.path.join(current_directory, '../../config.json'), 'owkin')
 
 with open(compute_plan_keys_path, 'r') as f:
     compute_plan_keys = json.load(f)

@@ -1,7 +1,6 @@
 import hashlib
 import os
 import json
-import yaml
 
 import substra
 
@@ -9,12 +8,7 @@ current_directory = os.path.dirname(__file__)
 assets_keys_path = os.path.join(current_directory, '../../titanic/assets_keys.json')
 folds_keys_path = os.path.join(current_directory, '../folds_keys.json')
 
-with open(os.path.join(current_directory, "../../config.yaml"), 'r') as yaml_config:
-    config = yaml.safe_load(yaml_config)
-
-client = substra.Client()
-client.add_profile(config['profile_name'], config['url'], '0.0',
-                   user=config['user'], password=config['password'])
+client = substra.Client(os.path.join(current_directory, '../../config.json'), 'owkin')
 
 print(f'Loading existing asset keys from {os.path.abspath(assets_keys_path)}...')
 with open(assets_keys_path, 'r') as f:
