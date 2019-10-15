@@ -4,6 +4,16 @@
 
 In this example, we'll see how to setup an objective with cross-validation in mind and how to train algorithms.
 
+## Prerequisites
+
+In order to run this example, you'll need to:
+
+* use Python 3
+* have [Docker](https://www.docker.com/) installed
+* [install the `substra` cli](../../README.md#install)
+* [install the `substratools` library](https://github.com/substrafoundation/substratools)
+* [pull the `substratools` docker images](https://github.com/substrafoundation/substratools#pull-from-private-docker-registry)
+
 ## Data preparation
 
 The first step will be to generate train and test data samples from the 
