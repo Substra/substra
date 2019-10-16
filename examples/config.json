@@ -1,13 +1,12 @@
 {
   "owkin":
   {
-    "url": "http://owkin.substra-backend:8000",
+    "url": "http://substra-backend.owkin.xyz:8000",
     "version": "0.0",
     "insecure": false,
     "auth":
     {
-        "user": "admin",
-        "password": "admin"
+        "user": "admin"
     }
   }
 }
