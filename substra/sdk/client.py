@@ -48,7 +48,16 @@ class Client(object):
         self.set_user()
 
     def login(self):
-        """Login."""
+        """Login.
+
+        Allow to login to a remote server.
+
+        After setting your configuration with `substra config` using `-u` and `-p`
+        Launch `substra login`
+        You will get a token which will be stored by default in `~/.substra-user`
+        You can change that thanks to the --user option (works like the --profile option)
+
+        """
 
         res = self.client.login()
         token = res.json()['token']

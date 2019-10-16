@@ -18,6 +18,12 @@ import zipfile
 
 import substra
 
+<<<<<<< HEAD
+=======
+USER, PASSWORD = ('admin', 'admin')
+client = substra.Client()
+client.add_profile(USER, PASSWORD, 'owkin', 'http://substrabac.owkin.xyz:8000', '0.0')
+
 current_directory = os.path.dirname(__file__)
 assets_directory = os.path.join(current_directory, '../assets')
 
