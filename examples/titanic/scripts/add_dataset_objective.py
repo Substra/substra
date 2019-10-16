@@ -28,16 +28,10 @@ def progress_bar(length):
         substra_logger.removeHandler(progress_handler)
         substra_logger.addHandler(default_stream_handler)
 
-
-USER, PASSWORD = ('admin', 'admin')
-
-client = substra.Client()
-client.add_profile('owkin', 'http://owkin.substrabac:8000', '0.0',
-                   user=USER, password=PASSWORD)
-
-
 current_directory = os.path.dirname(__file__)
 assets_directory = os.path.join(current_directory, '../assets')
+
+client = substra.Client(os.path.join(current_directory, '../../config.json'), 'owkin')
 
 DATASET = {
     'name': 'Titanic',

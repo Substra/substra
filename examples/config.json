@@ -1,0 +1,13 @@
+{
+  "owkin":
+  {
+    "url": "http://owkin.substrabac:8000",
+    "version": "0.0",
+    "insecure": false,
+    "auth":
+    {
+        "user": "admin",
+        "password": "admin"    
+    }
+  }
+}

@@ -4,14 +4,11 @@ import json
 
 import substra
 
-USER, PASSWORD = ('admin', 'admin')
-client = substra.Client()
-client.add_profile('owkin', 'http://owkin.substrabac:8000', '0.0',
-                   user=USER, password=PASSWORD)
-
 current_directory = os.path.dirname(__file__)
 assets_keys_path = os.path.join(current_directory, '../../titanic/assets_keys.json')
 folds_keys_path = os.path.join(current_directory, '../folds_keys.json')
+
+client = substra.Client(os.path.join(current_directory, '../../config.json'), 'owkin')
 
 print(f'Loading existing asset keys from {os.path.abspath(assets_keys_path)}...')
 with open(assets_keys_path, 'r') as f:

@@ -4,13 +4,10 @@ import os
 
 import substra
 
-USER, PASSWORD = ('admin', 'admin')
-client = substra.Client()
-client.add_profile('owkin', 'http://owkin.substrabac:8000', '0.0',
-                   user=USER, password=PASSWORD)
-
 current_directory = os.path.dirname(__file__)
 compute_plan_keys_path = os.path.join(current_directory, '../compute_plan_keys.json')
+
+client = substra.Client(os.path.join(current_directory, '../../config.json'), 'owkin')
 
 with open(compute_plan_keys_path, 'r') as f:
     compute_plan_keys = json.load(f)

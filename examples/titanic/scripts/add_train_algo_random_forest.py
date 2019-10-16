@@ -4,13 +4,10 @@ import zipfile
 
 import substra
 
-USER, PASSWORD = ('admin', 'admin')
-client = substra.Client()
-client.add_profile('owkin', 'http://owkin.substrabac:8000', '0.0',
-                   user=USER, password=PASSWORD)
-
 current_directory = os.path.dirname(__file__)
 assets_directory = os.path.join(current_directory, '../assets')
+
+client = substra.Client(os.path.join(current_directory, '../../config.json'), 'owkin')
 
 ALGO_KEYS_JSON_FILENAME = 'algo_random_forest_keys.json'
 
