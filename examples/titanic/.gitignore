@@ -12,4 +12,8 @@ assets/train_data_samples
 assets/test_data_samples
 assets/model
 assets/sandbox
+assets/pred-test.csv
+assets/pred-train.csv
 sandbox
+model/model
+pred/perf.json
