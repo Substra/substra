@@ -6,7 +6,7 @@
     "insecure": false,
     "auth":
     {
-        "user": "admin"
+        "username": "admin"
     }
   }
 }
