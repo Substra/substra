@@ -23,7 +23,7 @@ which one should be used for test.
 To generate 4 folds from existing keys, run:
  
 ```sh
-pip install scripts/requirements.txt
+pip install -r scripts/requirements.txt
 python scripts/generate_folds.py
 ```
 

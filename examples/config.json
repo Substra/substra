@@ -1,12 +1,6 @@
 {
-  "owkin":
-  {
-    "url": "http://substra-backend.owkin.xyz:8000",
-    "version": "0.0",
-    "insecure": false,
-    "auth":
-    {
-        "username": "admin"
-    }
-  }
+  "profile_name": "owkin",
+  "url": "http://substra-backend.owkin.xyz:8000",
+  "username": "substra",
+  "password": "p@$swr0d44"
 }
