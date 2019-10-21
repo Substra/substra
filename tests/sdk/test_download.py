@@ -1,5 +1,3 @@
-import tempfile
-
 import pytest
 
 import substra
@@ -11,12 +9,13 @@ from .utils import mock_requests, mock_requests_response
 @pytest.mark.parametrize(
     'asset_name', ['dataset', 'algo', 'objective']
 )
-def test_download_asset(asset_name, client, mocker):
-    temp_dir = tempfile.mkdtemp()
+def test_download_asset(asset_name, tmp_path, client, mocker):
+    temp_dir = tmp_path / "temp"
+    temp_dir.mkdir()
     item = getattr(datastore, asset_name.upper())
     asset_response = mock_requests_response(item)
 
-    description_response = mock_requests_response('foo', headers={})
+    description_response = mock_requests_response('foo')
 
     m = mocker.patch('substra.sdk.rest_client.requests.get',
                      side_effect=[asset_response, description_response])
@@ -30,8 +29,9 @@ def test_download_asset(asset_name, client, mocker):
 @pytest.mark.parametrize(
     'asset_name', ['dataset', 'algo', 'objective']
 )
-def test_download_asset_not_found(asset_name, client, mocker):
-    temp_dir = tempfile.mkdtemp()
+def test_download_asset_not_found(asset_name, tmp_path, client, mocker):
+    temp_dir = tmp_path / "temp"
+    temp_dir.mkdir()
     m = mock_requests(mocker, "get", status=404)
 
     with pytest.raises(substra.sdk.exceptions.NotFound):
@@ -44,8 +44,9 @@ def test_download_asset_not_found(asset_name, client, mocker):
 @pytest.mark.parametrize(
     'asset_name', ['dataset', 'algo', 'objective']
 )
-def test_download_content_not_found(asset_name, client, mocker):
-    temp_dir = tempfile.mkdtemp()
+def test_download_content_not_found(asset_name, tmp_path, client, mocker):
+    temp_dir = tmp_path / "temp"
+    temp_dir.mkdir()
     item = getattr(datastore, asset_name.upper())
     asset_response = mock_requests_response(item)
 

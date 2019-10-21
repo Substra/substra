@@ -4,6 +4,7 @@ import requests
 
 
 def mock_requests_response(response=None, status=200, headers=None):
+    headers = headers or {}
     m = mock.MagicMock(spec=requests.Response)
     m.status_code = status
     m.headers = headers
