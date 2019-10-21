@@ -110,7 +110,7 @@ def test_command_add(asset_name, params, workdir, mocker):
         file.seek(0)
 
         client_execute(workdir, ['add', asset_name] + params + [file.name])
-        assert m.is_called()
+    assert m.is_called()
 
     with tempfile.NamedTemporaryFile(suffix='.md') as file:
         res = client_execute(workdir, ['add', asset_name] + params + [file.name], exit_code=2)
@@ -129,7 +129,7 @@ def test_command_add_objective(workdir, mocker):
         with mock_client_call(mocker, 'add_objective', response={}) as m:
             client_execute(workdir, ['add', 'objective', file.name, '--dataset-key', 'foo',
                                      '--data-samples-path', file.name])
-            assert m.is_called()
+        assert m.is_called()
 
         res = client_execute(workdir, ['add', 'objective', 'non_existing_file.txt', '--dataset-key',
                                        'foo', '--data-samples-path', file.name], exit_code=2)
@@ -155,7 +155,7 @@ def test_command_add_data_sample(workdir, mocker):
     with mock_client_call(mocker, 'add_data_samples') as m:
         client_execute(workdir, ['add', 'data_sample', temp_dir, '--dataset-key', 'foo',
                                  '--test-only'])
-        assert m.is_called()
+    assert m.is_called()
 
     res = client_execute(workdir, ['add', 'data_sample', 'dir', '--dataset-key', 'foo'],
                          exit_code=2)
@@ -206,7 +206,7 @@ def test_command_update_data_sample(workdir, mocker):
 
         client_execute(workdir, ['update', 'data_sample', file.name,
                                  '--dataset-key', 'foo'])
-        assert m.is_called()
+    assert m.is_called()
 
     with tempfile.NamedTemporaryFile(suffix='.json') as file:
         file.write(b'test')
