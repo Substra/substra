@@ -63,16 +63,17 @@ def test_runner(cwdir, docker_api):
     train_data_samples_path = create_dir('train_data_samples')
     test_data_samples_path = create_dir('test_data_samples_path')
 
-    config = runner.setup(
-        algo_path,
-        train_opener_path,
-        test_opener_path,
-        metrics_path,
-        train_data_samples_path,
-        test_data_samples_path,
+    runner.compute(
+        algo_path=algo_path,
+        train_opener_file=train_opener_path,
+        test_opener_file=test_opener_path,
+        metrics_path=metrics_path,
+        train_data_path=train_data_samples_path,
+        test_data_path=test_data_samples_path,
+        rank=0,
+        inmodels=[],
+        fake_data_samples=False
     )
-
-    runner.compute(config, rank=0, inmodels=[])
 
     paths = (
         'sandbox/model/model',
