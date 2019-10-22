@@ -19,7 +19,7 @@ VOLUME_LOCAL = {'bind': '/sandbox/local', 'mode': 'rw'}
 
 DOCKER_ALGO_TAG = 'algo_run_local'
 DOCKER_METRICS_TAG = 'metrics_run_local'
-MODEL_KEY = 'model'
+MODEL_FILENAME = 'model'
 
 
 def _create_directory(directory):
@@ -147,7 +147,7 @@ def compute_test(docker_client, algo_path, test_data_path, test_pred_path, outmo
     print('Testing model')
 
     test_data_path_str = test_data_path or 'fake'
-    print(f'Testing model on {test_data_path_str} labels with {MODEL_KEY} '
+    print(f'Testing model on {test_data_path_str} labels with {MODEL_FILENAME} '
           f'saved in {test_pred_path}')
 
     volumes = {outmodel_path: VOLUME_OUTPUT_MODEL,
@@ -156,7 +156,7 @@ def compute_test(docker_client, algo_path, test_data_path, test_pred_path, outmo
     if not fake_data_samples:
         volumes[test_data_path] = VOLUME_DATA
 
-    command = f"predict {MODEL_KEY}"
+    command = f"predict {MODEL_FILENAME}"
     if fake_data_samples:
         command += " --fake-data"
     _docker_run(docker_client, DOCKER_ALGO_TAG, command=command,
@@ -208,7 +208,7 @@ def compute(algo_path,
     train_pred_path = os.path.join(compute_path, 'pred_train')
     test_pred_path = os.path.join(compute_path, 'pred_test')
     outmodel_path = os.path.join(compute_path, outmodel_path)
-    outmodel_file = os.path.join(outmodel_path, MODEL_KEY)
+    outmodel_file = os.path.join(outmodel_path, MODEL_FILENAME)
 
     print(f'Run local results will be in sandbox : {compute_path}')
 
