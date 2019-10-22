@@ -343,9 +343,11 @@ Options:
 ## substra run-local
 
 ```bash
-Usage: substra run-local [OPTIONS] ALGO_PATH
+Usage: substra run-local [OPTIONS] ALGO
 
   Run local.
+
+  Train and test the algo located in ALGO locally.
 
   This command can be used to check that objective, dataset and algo assets
   implementations are compatible.
@@ -365,15 +367,21 @@ Usage: substra run-local [OPTIONS] ALGO_PATH
   - sandbox/pred_test/pred
 
 Options:
-  --train-opener PATH
-  --test-opener PATH
-  --metrics PATH
-  --rank INTEGER
-  --train-data-samples PATH
-  --test-data-samples PATH
-  --inmodel PATH
-  --fake-data-samples
-  --help                     Show this message and exit.
+  --train-opener FILE             opener.py file to use during training.
+                                  [required]
+  --test-opener FILE              opener.py file to use during testing.
+                                  [required]
+  --metrics DIRECTORY             metrics directory to use during both
+                                  training and testing.  [required]
+  --rank INTEGER                  will be passed to the algo during training.
+  --train-data-samples DIRECTORY  directory of data samples directories to use
+                                  during training.
+  --test-data-samples DIRECTORY   directory of data samples directories to use
+                                  during testing.
+  --inmodel FILE                  model to use as input during training.
+  --fake-data-samples             use fake data samples during both training
+                                  and testing.
+  --help                          Show this message and exit.
 ```
 
 ## substra update data_sample

@@ -41,21 +41,6 @@ def setup(algo_path,
 
     config = {}
 
-    def _get_relpath(base_path, relpath):
-        return os.path.abspath(os.path.join(base_path, relpath))
-
-    # default values
-    train_opener_path = train_opener_path or \
-        _get_relpath(algo_path, '../dataset/opener.py')
-    test_opener_path = test_opener_path or \
-        _get_relpath(algo_path, '../objective/opener.py')
-    metrics_path = metrics_path or \
-        _get_relpath(algo_path, '../objective/')
-    train_data_samples_path = train_data_samples_path or \
-        _get_relpath(algo_path, '../dataset/data-samples/')
-    test_data_samples_path = test_data_samples_path or \
-        _get_relpath(algo_path, '../objective/data-samples/')
-
     def _get_abspath(path):
         if path:  # path may be None
             path = os.path.abspath(path)

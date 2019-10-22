@@ -646,20 +646,43 @@ def leaderboard(ctx, objective_key, output_format, expand, sort, config, profile
 
 
 @cli.command()
-@click.argument('algo_path')
-# TODO add helper for parameters
-@click.option('--train-opener', type=click.Path(exists=True))
-@click.option('--test-opener', type=click.Path(exists=True))
-@click.option('--metrics', type=click.Path(exists=True))
-@click.option('--rank', type=click.INT, default=0)
-@click.option('--train-data-samples', type=click.Path(exists=True))
-@click.option('--test-data-samples', type=click.Path(exists=True))
-@click.option('--inmodel', type=click.Path(exists=True), multiple=True)
-@click.option('--fake-data-samples', is_flag=True)
-def run_local(algo_path, train_opener, test_opener, metrics, rank,
-              train_data_samples, test_data_samples, inmodel,
+@click.argument('algo',
+                type=click.Path(exists=True, file_okay=False))
+@click.option('--train-opener',
+              type=click.Path(exists=True, dir_okay=False),
+              required=True,
+              help='opener.py file to use during training.')
+@click.option('--test-opener',
+              type=click.Path(exists=True, dir_okay=False),
+              required=True,
+              help='opener.py file to use during testing.')
+@click.option('--metrics',
+              type=click.Path(exists=True, file_okay=False),
+              required=True,
+              help='metrics directory to use during both training and testing.')
+@click.option('--rank',
+              type=click.INT,
+              default=0,
+              help='will be passed to the algo during training.')
+@click.option('--train-data-samples',
+              type=click.Path(exists=True, file_okay=False),
+              help='directory of data samples directories to use during training.')
+@click.option('--test-data-samples',
+              type=click.Path(exists=True, file_okay=False),
+              help='directory of data samples directories to use during testing.')
+@click.option('--inmodel', 'inmodels',
+              type=click.Path(exists=True, dir_okay=False),
+              multiple=True,
+              help='model to use as input during training.')
+@click.option('--fake-data-samples',
+              is_flag=True,
+              help='use fake data samples during both training and testing.')
+def run_local(algo, train_opener, test_opener, metrics, rank,
+              train_data_samples, test_data_samples, inmodels,
               fake_data_samples):
     """Run local.
+
+    Train and test the algo located in ALGO locally.
 
     This command can be used to check that objective, dataset and algo assets
     implementations are compatible.
@@ -680,9 +703,23 @@ def run_local(algo_path, train_opener, test_opener, metrics, rank,
     - sandbox/pred_test/perf.json
     - sandbox/pred_test/pred
     """
-    inmodels = inmodel  # multiple option
+    if fake_data_samples and (train_data_samples or test_data_samples):
+        raise click.BadOptionUsage('--fake-data-samples',
+                                   'Options --train-data-samples and --test-data-samples cannot '
+                                   'be used if --fake-data-samples is activated')
+    if not fake_data_samples and not train_data_samples and not test_data_samples:
+        raise click.BadOptionUsage('--fake-data-samples',
+                                   'Missing option --fake-data-samples or --test-data-samples '
+                                   'and -train-data-samples')
+    if not fake_data_samples and train_data_samples and not test_data_samples:
+        raise click.BadOptionUsage('--test-data-samples',
+                                   'Missing option --test-data-samples')
+    if not fake_data_samples and not train_data_samples and test_data_samples:
+        raise click.BadOptionUsage('--train-data-samples',
+                                   'Missing option --train-data-samples')
+
     # TODO merge runner.setup and runner.compute methods
-    config = runner.setup(algo_path,
+    config = runner.setup(algo,
                           train_opener,
                           test_opener,
                           metrics,
