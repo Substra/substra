@@ -9,7 +9,7 @@ pipeline {
   parameters {
     booleanParam(name: 'E2E', defaultValue: false, description: 'Launch E2E test')
     string(name: 'CHAINCODE', defaultValue: 'dev', description: 'chaincode branch')
-    string(name: 'BACKEND', defaultValue: 'jenkins', description: 'substrabac branch')
+    string(name: 'BACKEND', defaultValue: 'jenkins', description: 'substra-backend branch')
   }
 
   agent none
