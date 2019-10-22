@@ -69,13 +69,9 @@ def test_command_config(workdir):
     assert list(cfg.keys()) == expected_profiles
 
 
-def mock_client_call(mocker, method_name, response="", exception=None):
-    if exception:
-        return mocker.patch(f'substra.cli.interface.Client.{method_name}',
-                            side_effect=exception)
-    else:
-        return mocker.patch(f'substra.cli.interface.Client.{method_name}',
-                            return_value=response)
+def mock_client_call(mocker, method_name, response="", side_effect=None):
+    return mocker.patch(f'substra.cli.interface.Client.{method_name}',
+                        return_value=response, side_effect=side_effect)
 
 
 @pytest.mark.parametrize(
@@ -169,11 +165,9 @@ def test_command_add_data_sample(workdir, mocker):
 def test_command_add_already_exists(workdir, mocker):
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json') as file, \
             mock_client_call(mocker, 'add_dataset',
-                             exception=substra.exceptions.AlreadyExists('foo', 409)) as m:
+                             side_effect=substra.exceptions.AlreadyExists('foo', 409)) as m:
         json.dump({}, file)
         file.seek(0)
-
-        # client_execute(workdir, ['add', 'dataset', file.name]),
         output = client_execute(workdir, ['add', 'dataset', file.name], exit_code=1)
 
         assert 'already exists' in output
