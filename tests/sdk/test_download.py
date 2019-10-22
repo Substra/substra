@@ -1,4 +1,5 @@
 import pytest
+import os
 
 import substra
 
@@ -7,11 +8,13 @@ from .utils import mock_requests, mock_requests_response
 
 
 @pytest.mark.parametrize(
-    'asset_name', ['dataset', 'algo', 'objective']
+    'asset_name, params', [
+        ('dataset', 'opener.py'),
+        ('algo', 'algo.tar.gz'),
+        ('objective', 'metrics.py')
+    ]
 )
-def test_download_asset(asset_name, tmp_path, client, mocker):
-    temp_dir = tmp_path / "temp"
-    temp_dir.mkdir()
+def test_download_asset(asset_name, params, tmp_path, client, mocker):
     item = getattr(datastore, asset_name.upper())
     asset_response = mock_requests_response(item)
 
@@ -21,8 +24,10 @@ def test_download_asset(asset_name, tmp_path, client, mocker):
                      side_effect=[asset_response, description_response])
 
     method = getattr(client, f'download_{asset_name}')
-    method("foo", temp_dir)
+    method("foo", tmp_path)
 
+    temp_file = str(tmp_path) + '/' + params
+    assert os.path.exists(temp_file)
     assert m.is_called()
 
 
@@ -30,13 +35,11 @@ def test_download_asset(asset_name, tmp_path, client, mocker):
     'asset_name', ['dataset', 'algo', 'objective']
 )
 def test_download_asset_not_found(asset_name, tmp_path, client, mocker):
-    temp_dir = tmp_path / "temp"
-    temp_dir.mkdir()
     m = mock_requests(mocker, "get", status=404)
 
     with pytest.raises(substra.sdk.exceptions.NotFound):
         method = getattr(client, f'download_{asset_name}')
-        method('foo', temp_dir)
+        method('foo', tmp_path)
 
     assert m.call_count == 1
 
@@ -45,8 +48,6 @@ def test_download_asset_not_found(asset_name, tmp_path, client, mocker):
     'asset_name', ['dataset', 'algo', 'objective']
 )
 def test_download_content_not_found(asset_name, tmp_path, client, mocker):
-    temp_dir = tmp_path / "temp"
-    temp_dir.mkdir()
     item = getattr(datastore, asset_name.upper())
     asset_response = mock_requests_response(item)
 
@@ -58,6 +59,6 @@ def test_download_content_not_found(asset_name, tmp_path, client, mocker):
     method = getattr(client, f'download_{asset_name}')
 
     with pytest.raises(substra.sdk.exceptions.NotFound):
-        method("key", temp_dir)
+        method("key", tmp_path)
 
     assert m.call_count == 2
