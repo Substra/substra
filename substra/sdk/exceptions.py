@@ -79,7 +79,7 @@ class RequestTimeout(HTTPError):
         return cls(pkhash, request_exception.response.status_code)
 
 
-class AlreadyExists(RequestException):
+class AlreadyExists(HTTPError):
     def __init__(self, pkhash, status_code):
         self.pkhash = pkhash
         msg = f"Object with key(s) '{pkhash}' already exists."
@@ -101,7 +101,6 @@ class AlreadyExists(RequestException):
 
 class InvalidResponse(SDKException):
     def __init__(self, msg):
-        self.msg = msg
         super(InvalidResponse, self).__init__(msg)
 
 
