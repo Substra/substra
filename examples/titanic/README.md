@@ -11,8 +11,8 @@ In order to run this example, you'll need to:
 * use Python 3
 * have [Docker](https://www.docker.com/) installed
 * [install the `substra` cli](../../README.md#install)
-* [install the `substratools` library](https://github.com/substrafoundation/substratools)
-* [pull the `substratools` docker images](https://github.com/substrafoundation/substratools#pull-from-private-docker-registry)
+* [install the `substratools` library](https://github.com/substrafoundation/substra-tools)
+* [pull the `substra-tools` docker images](https://github.com/substrafoundation/substra-tools#pull-from-private-docker-registry)
 
 ## Data preparation
 
