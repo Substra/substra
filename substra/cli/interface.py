@@ -665,24 +665,24 @@ def leaderboard(ctx, objective_key, output_format, expand, sort, config, profile
 @click.option('--metrics',
               type=click.Path(exists=True, file_okay=False),
               required=True,
-              help='metrics directory to use during both training and testing')
+              help='metrics directory to use during both training and testing.')
 @click.option('--rank',
               type=click.INT,
               default=0,
-              help='will be passed to the algo during training')
+              help='will be passed to the algo during training.')
 @click.option('--train-data-samples',
               type=click.Path(exists=True, file_okay=False),
-              help='directory of data samples directories to use during training')
+              help='directory of data samples directories to use during training.')
 @click.option('--test-data-samples',
               type=click.Path(exists=True, file_okay=False),
-              help='directory of data samples directories to use during testing')
+              help='directory of data samples directories to use during testing.')
 @click.option('--inmodel', 'inmodels',
               type=click.Path(exists=True, dir_okay=False),
               multiple=True,
-              help='model to use as input during training')
+              help='model to use as input during training.')
 @click.option('--fake-data-samples',
               is_flag=True,
-              help='use fake data samples during both training and testing')
+              help='use fake data samples during both training and testing.')
 def run_local(algo, train_opener, test_opener, metrics, rank,
               train_data_samples, test_data_samples, inmodels,
               fake_data_samples):

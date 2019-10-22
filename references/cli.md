@@ -372,15 +372,15 @@ Options:
   --test-opener FILE              opener.py file to use during testing.
                                   [required]
   --metrics DIRECTORY             metrics directory to use during both
-                                  training and testing  [required]
-  --rank INTEGER                  will be passed to the algo during training
+                                  training and testing.  [required]
+  --rank INTEGER                  will be passed to the algo during training.
   --train-data-samples DIRECTORY  directory of data samples directories to use
-                                  during training
+                                  during training.
   --test-data-samples DIRECTORY   directory of data samples directories to use
-                                  during testing
-  --inmodel FILE                  model to use as input during training
+                                  during testing.
+  --inmodel FILE                  model to use as input during training.
   --fake-data-samples             use fake data samples during both training
-                                  and testing
+                                  and testing.
   --help                          Show this message and exit.
 ```
 
