@@ -144,12 +144,13 @@ def error_printer(fn):
         try:
             return fn(*args, **kwargs)
 
-        except exceptions.HTTPError as e:
+        except exceptions.RequestException as e:
+            # if there isn't any "msg" attribute, return the whole error
             try:
-                error = e.response.json()
+                error = e.msg
             except ValueError:
-                error = e.response.content
-            raise click.ClickException(f"Request failed: {e}:\n{error}")
+                error = e
+            raise click.ClickException(f"Request failed: {error}")
 
         except (exceptions.ConnectionError,
                 exceptions.InvalidResponse) as e:

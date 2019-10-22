@@ -46,7 +46,10 @@ class InternalServerError(HTTPError):
 class InvalidRequest(HTTPError):
     @classmethod
     def from_request_exception(cls, request_exception):
-        error = request_exception.response.json()
+        try:
+            error = request_exception.response.json()
+        except AttributeError:
+            error = request_exception.response
         msg = error.get('message', None)
         return super().from_request_exception(request_exception, msg)
 
@@ -76,7 +79,7 @@ class RequestTimeout(HTTPError):
         return cls(pkhash, request_exception.response.status_code)
 
 
-class AlreadyExists(HTTPError):
+class AlreadyExists(RequestException):
     def __init__(self, pkhash, status_code):
         self.pkhash = pkhash
         msg = f"Object with key(s) '{pkhash}' already exists."
@@ -97,8 +100,8 @@ class AlreadyExists(HTTPError):
 
 
 class InvalidResponse(SDKException):
-    def __init__(self, response, msg):
-        self.response = response
+    def __init__(self, msg):
+        self.msg = msg
         super(InvalidResponse, self).__init__(msg)
 
 
