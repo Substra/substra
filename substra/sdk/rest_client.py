@@ -18,7 +18,6 @@ import keyring
 import requests
 
 from substra.sdk import exceptions, assets, utils
-from substra.sdk.exceptions import BadConfiguration
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +81,7 @@ class Client():
         self._base_url = config['url'][:-1] if config['url'].endswith('/') else config['url']
 
         if not isinstance(config['auth'], dict):
-            raise BadConfiguration('Your configuration is outdated, please update it.')
+            raise exceptions.BadConfiguration('Your configuration is outdated, please update it.')
 
         username = config['auth']['username']
         self._auth = {
