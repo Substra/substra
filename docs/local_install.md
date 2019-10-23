@@ -16,22 +16,13 @@ This guide will help you to get Substra source code and to start a local instanc
   - on macOS, by default, docker has access only to the user directory.
     - Substra requires access to `/substra`, update accordingly the docker desktop configuration (`Preferences` > `File Sharing`).
     - Ensure also that the docker daemon has enough resources to execute the ML pipeline, for instance: CPUs>1, Memory>4.0 GiB (`Preferences` > `Advanced`).
-<<<<<<< HEAD
   - on Linux environment, please refer to this [guide](https://github.com/SubstraFoundation/substra-backend/blob/master/README.md) to configure docker.
-=======
-  - on Linux environment, please refer to this [guide](https://github.com/SubstraFoundation/substrabac/blob/master/README.md) to configure docker.
->>>>>>> Reupdate docs folder
 
 - network: map localhost to owkin and chunantes backend hostnames. Edit `/etc/hosts` and add the following lines:
 
 ```
-<<<<<<< HEAD
 127.0.0.1       substra-backend.chunantes.xyz
 127.0.0.1       substra-backend.owkin.xyz
-=======
-127.0.0.1       substrabac.chunantes.com
-127.0.0.1       substrabac.owkin.com
->>>>>>> Reupdate docs folder
 ```
 
 ## Get source code
@@ -44,7 +35,6 @@ mkdir -p $SUBSTRA_SOURCE
 cd $SUBSTRA_SOURCE
 ```
 
-<<<<<<< HEAD
 - Clone the following repositories from github and fetch the master branch:
   - hlf-k8s
   - substra-chaincode
@@ -57,20 +47,6 @@ git clone -b dev https://github.com/SubstraFoundation/hlf-k8s.git
 git clone -b dev https://github.com/SubstraFoundation/substra-chaincode.git
 git clone -b dev https://github.com/SubstraFoundation/substra-backend.git
 git clone -b dev https://github.com/SubstraFoundation/substra-frontend.git
-=======
-- Clone the following repositories (from github or gitlab) and fetch the master branch:
-  - substra-network
-  - substra-chaincode
-  - substrabac
-  - substrafront
-
-```bash
-# for instance, from github through https connection
-git clone -b dev https://github.com/SubstraFoundation/substra-network.git
-git clone -b dev https://github.com/SubstraFoundation/substra-chaincode.git
-git clone -b dev https://github.com/SubstraFoundation/substrabac.git
-git clone -b dev https://github.com/SubstraFoundation/substrafront.git
->>>>>>> Reupdate docs folder
 ```
 
 ## Install command line interface
@@ -97,11 +73,7 @@ $ substra --version
 0.0.1
 ```
 
-<<<<<<< HEAD
 ## Pull substra-tools image from private docker repository
-=======
-## Pull substratools image from private docker repository
->>>>>>> Reupdate docs folder
 
 It is required to run the algo, opener and metrics scripts on the substra
 platform.
@@ -109,11 +81,7 @@ platform.
 - Install Google Cloud SDK: https://cloud.google.com/sdk/install
 - Authenticate with your google account: `gcloud auth login`
 - Configure docker to use your google credentials for google based docker registery: `gcloud auth configure-docker`
-<<<<<<< HEAD
 - Pull image: `docker pull eu.gcr.io/substra-208412/substra-tools`
-=======
-- Pull image: `docker pull eu.gcr.io/substra-208412/substratools`
->>>>>>> Reupdate docs folder
 
 ## Start the Substra network
 

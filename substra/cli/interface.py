@@ -25,7 +25,6 @@ from substra.sdk import assets, exceptions
 from substra.sdk import config as configuration
 from substra.sdk.client import Client
 from substra.sdk import user as usr
-from substra.sdk.exceptions import BadConfiguration
 
 
 def get_client(config_path, profile_name, user_path):
@@ -91,7 +90,7 @@ def click_option_user(f):
     """Add user option to command."""
     return click.option(
         '--user',
-        type=click.Path(resolve_path=True),
+        type=click.Path(dir_okay=False, resolve_path=True),
         default=usr.DEFAULT_PATH,
         help='User file path to use (default ~/.substra-user).')(f)
 
@@ -172,14 +171,17 @@ def error_printer(fn):
         try:
             return fn(*args, **kwargs)
 
+        except exceptions.BadLoginException:
+            raise click.ClickException('Login failed: No active account found with the'
+                                       ' given credentials.')
+
         except exceptions.RequestException as e:
             raise click.ClickException(f"Request failed: {e.__class__.__name__}: {e}")
 
         except (exceptions.ConnectionError,
-                exceptions.InvalidResponse) as e:
-            raise click.ClickException(str(e))
-
-        except exceptions.LoadDataException as e:
+                exceptions.InvalidResponse,
+                exceptions.LoadDataException,
+                exceptions.BadConfiguration) as e:
             raise click.ClickException(str(e))
 
     return wrapper
@@ -225,25 +227,15 @@ def add_profile_to_config(url, config, profile, insecure, version, username, pas
 @click_option_config
 @click_option_profile
 @click_option_user
+@error_printer
 def login(config, profile, user):
     """Login to the Substra platform."""
     usr.Manager(user).clear_user()
-    try:
-        client = get_client(config, profile, user)
-    except BadConfiguration as e:
-        print(e)  # TODO, display error correctly
-    else:
-        try:
-            token = client.login()
-        except exceptions.BadLoginException:
-            raise click.ClickException(
-                "Login failed: No active account found with the given credentials.")
-        except Exception as e:
-            # TODO display error correctly
-            print(e)
-        else:
-            # create temporary user data
-            usr.Manager(user).add_user(token)
+    client = get_client(config, profile, user)
+
+    token = client.login()
+    # create temporary user data
+    usr.Manager(user).add_user(token)
 
 
 @cli.group()

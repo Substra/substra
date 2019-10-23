@@ -2,13 +2,11 @@ import json
 import logging
 import os
 
+from substra.sdk import exceptions
+
 logger = logging.getLogger(__name__)
 
 DEFAULT_PATH = os.path.expanduser('~/.substra-user')
-
-
-class UserException(Exception):
-    pass
 
 
 def _read_user(path):
@@ -16,7 +14,7 @@ def _read_user(path):
         try:
             return json.load(fh)
         except json.decoder.JSONDecodeError:
-            raise UserException(f"Cannot parse user file '{path}'")
+            raise exceptions.UserException(f"Cannot parse user file '{path}'")
 
 
 class Manager():

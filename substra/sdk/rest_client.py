@@ -38,14 +38,26 @@ class Client():
             self.set_config(config)
 
     def login(self):
-        res = requests.post(f'{self._base_url}/api-token-auth/',
-                            data=self._auth, headers=self._headers)
-        if res.status_code in (400, 401):
-            raise exceptions.BadLoginException()
-        if not res.ok:
-            raise exceptions.SDKException(f'cannot login {res.content}')
+        try:
+            r = requests.post(f'{self._base_url}/api-token-auth/',
+                              data=self._auth,
+                              headers=self._headers)
+            r.raise_for_status()
+        except requests.exceptions.ConnectionError as e:
+            raise exceptions.ConnectionError.from_request_exception(e)
+        except requests.exceptions.Timeout as e:
+            raise exceptions.Timeout.from_request_exception(e)
+        except requests.exceptions.HTTPError as e:
+            logger.error(f"Requests error status {e.response.status_code}: {e.response.text}")
 
-        return res
+            if e.response.status_code == 400:
+                raise exceptions.BadLoginException.from_request_exception(e)
+            if e.response.status_code == 401:
+                raise exceptions.BadLoginException.from_request_exception(e)
+
+            raise exceptions.HTTPError.from_request_exception(e)
+        else:
+            return r
 
     def set_config(self, config, profile_name='default'):
         """Reset internal attributes from config."""

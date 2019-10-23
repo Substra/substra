@@ -21,7 +21,6 @@ import keyring
 from substra.sdk import utils, assets, rest_client, exceptions
 from substra.sdk import config as cfg
 from substra.sdk import user as usr
-from substra.sdk.user import UserException
 
 logger = logging.getLogger(__name__)
 
@@ -91,7 +90,7 @@ class Client(object):
     def set_user(self):
         try:
             user = self._usr_manager.load_user()
-        except (UserException, FileNotFoundError):
+        except (exceptions.UserException, FileNotFoundError):
             pass
         else:
             if self._current_profile is not None and 'token' in user:
