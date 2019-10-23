@@ -8,13 +8,13 @@ from .utils import mock_requests, mock_requests_response
 
 
 @pytest.mark.parametrize(
-    'asset_name, params', [
+    'asset_name, filename', [
         ('dataset', 'opener.py'),
         ('algo', 'algo.tar.gz'),
         ('objective', 'metrics.py')
     ]
 )
-def test_download_asset(asset_name, params, tmp_path, client, mocker):
+def test_download_asset(asset_name, filename, tmp_path, client, mocker):
     item = getattr(datastore, asset_name.upper())
     asset_response = mock_requests_response(item)
 
@@ -26,7 +26,7 @@ def test_download_asset(asset_name, params, tmp_path, client, mocker):
     method = getattr(client, f'download_{asset_name}')
     method("foo", tmp_path)
 
-    temp_file = str(tmp_path) + '/' + params
+    temp_file = str(tmp_path) + '/' + filename
     assert os.path.exists(temp_file)
     assert m.is_called()
 
