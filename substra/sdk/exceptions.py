@@ -48,7 +48,7 @@ class InvalidRequest(HTTPError):
     def from_request_exception(cls, request_exception):
         try:
             error = request_exception.response.json()
-        except AttributeError:
+        except ValueError:
             error = request_exception.response
         msg = error.get('message', None)
         return super().from_request_exception(request_exception, msg)
@@ -100,7 +100,8 @@ class AlreadyExists(HTTPError):
 
 
 class InvalidResponse(SDKException):
-    def __init__(self, msg):
+    def __init__(self, response, msg):
+        self.response = response
         super(InvalidResponse, self).__init__(msg)
 
 

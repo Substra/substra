@@ -145,12 +145,7 @@ def error_printer(fn):
             return fn(*args, **kwargs)
 
         except exceptions.RequestException as e:
-            # if there isn't any "msg" attribute, return the whole error
-            try:
-                error = e.msg
-            except ValueError:
-                error = e
-            raise click.ClickException(f"Request failed: {error}")
+            raise click.ClickException(f"Request failed: {e.__class__.__name__}: {e}")
 
         except (exceptions.ConnectionError,
                 exceptions.InvalidResponse) as e:
