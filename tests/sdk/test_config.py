@@ -9,7 +9,7 @@ def test_add_load_profile(tmpdir):
 
     profile_1 = manager.add_profile(
         'owkin',
-        url='http://owkin.substrabac:8000',
+        url='http://owkin.substra-backend:8000',
         version='0.0')
 
     profile_2 = manager.load_profile('owkin')

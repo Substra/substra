@@ -7,9 +7,9 @@ Interacting with the Substra platform:
 
 Implementing your assets in python:
 
-- [Objective base class](https://github.com/SubstraFoundation/substratools/blob/dev/docs/api.md#metrics)
-- [Dataset base class](https://github.com/SubstraFoundation/substratools/blob/dev/docs/api.md#opener)
-- [Algo base class](https://github.com/SubstraFoundation/substratools/blob/dev/docs/api.md#algo)
+- [Objective base class](https://github.com/SubstraFoundation/substra-tools/blob/dev/docs/api.md#metrics)
+- [Dataset base class](https://github.com/SubstraFoundation/substra-tools/blob/dev/docs/api.md#opener)
+- [Algo base class](https://github.com/SubstraFoundation/substra-tools/blob/dev/docs/api.md#algo)
 
 Learning about the Substra platform:
 

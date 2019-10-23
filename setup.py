@@ -19,7 +19,7 @@ with open(os.path.join(here, 'substra', '__version__.py'), 'r', 'utf-8') as fp:
 setup(
     name='substra',
     version=about['__version__'],
-    description='Substra CLI for interacting with substrabac',
+    description='Substra CLI for interacting with substra backend',
     long_description=readme,
     url='https://github.com/SubstraFoundation/substra-cli',
     author='Owkin, Substra team',
