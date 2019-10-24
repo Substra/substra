@@ -35,7 +35,7 @@ mkdir -p $SUBSTRA_SOURCE
 cd $SUBSTRA_SOURCE
 ```
 
-- Clone the following repositories (from github or gitlab) and fetch the master branch:
+- Clone the following repositories from github and fetch the master branch:
   - hlf-k8s
   - substra-chaincode
   - substra-backend
