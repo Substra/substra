@@ -2,12 +2,13 @@ import json
 import re
 import tempfile
 
+from unittest import mock
 import click
 from click.testing import CliRunner
 import pytest
 
 import substra
-from substra.cli.interface import cli, click_option_output_format
+from substra.cli.interface import cli, click_option_output_format, error_printer
 
 from . import datastore
 
@@ -247,3 +248,23 @@ def test_option_output_format(params, output):
 
     res = runner.invoke(foo, params)
     assert res.output == output
+
+
+@pytest.mark.parametrize('exception', [
+    (substra.exceptions.RequestException("foo", 400)),
+    (substra.exceptions.ConnectionError("foo", 400)),
+    (substra.exceptions.InvalidResponse(None, 'foo')),
+    (substra.exceptions.LoadDataException("foo", 400)),
+])
+def test_error_printer(mocker, exception):
+    @error_printer
+    def foo():
+        raise exception
+
+    mock_click_context = mock.MagicMock()
+    mock_click_context.params = {'verbose': False}
+
+    with mocker.patch('substra.cli.interface.click.get_current_context',
+                      return_value=mock_click_context):
+        with pytest.raises(click.ClickException, match='foo'):
+            foo()
