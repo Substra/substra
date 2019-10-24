@@ -1,13 +1,14 @@
 import json
 import re
 import tempfile
+from unittest import mock
 
 import click
 from click.testing import CliRunner
 import pytest
 
 import substra
-from substra.cli.interface import cli, click_option_output_format
+from substra.cli.interface import cli, click_option_output_format, error_printer
 
 from . import datastore
 
@@ -69,9 +70,9 @@ def test_command_config(workdir):
     assert list(cfg.keys()) == expected_profiles
 
 
-def mock_client_call(mocker, method_name, response=""):
+def mock_client_call(mocker, method_name, response="", side_effect=None):
     return mocker.patch(f'substra.cli.interface.Client.{method_name}',
-                        return_value=response)
+                        return_value=response, side_effect=side_effect)
 
 
 @pytest.mark.parametrize(
@@ -172,6 +173,18 @@ def test_command_add_data_sample(workdir, mocker):
     assert re.search(r'Directory ".*" does not exist\.', res)
 
 
+def test_command_add_already_exists(workdir, mocker):
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json') as file, \
+            mock_client_call(mocker, 'add_dataset',
+                             side_effect=substra.exceptions.AlreadyExists('foo', 409)) as m:
+        json.dump({}, file)
+        file.seek(0)
+        output = client_execute(workdir, ['add', 'dataset', file.name], exit_code=1)
+
+        assert 'already exists' in output
+        assert m.is_called()
+
+
 @pytest.mark.parametrize(
     'asset_name', ['objective', 'dataset', 'algo', 'testtuple', 'traintuple']
 )
@@ -245,3 +258,23 @@ def test_option_output_format(params, output):
 
     res = runner.invoke(foo, params)
     assert res.output == output
+
+
+@pytest.mark.parametrize('exception', [
+    (substra.exceptions.RequestException("foo", 400)),
+    (substra.exceptions.ConnectionError("foo", 400)),
+    (substra.exceptions.InvalidResponse(None, 'foo')),
+    (substra.exceptions.LoadDataException("foo", 400)),
+])
+def test_error_printer(mocker, exception):
+    @error_printer
+    def foo():
+        raise exception
+
+    mock_click_context = mock.MagicMock()
+    mock_click_context.params = {'verbose': False}
+
+    with mocker.patch('substra.cli.interface.click.get_current_context',
+                      return_value=mock_click_context):
+        with pytest.raises(click.ClickException, match='foo'):
+            foo()

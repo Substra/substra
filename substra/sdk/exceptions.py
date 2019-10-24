@@ -46,7 +46,10 @@ class InternalServerError(HTTPError):
 class InvalidRequest(HTTPError):
     @classmethod
     def from_request_exception(cls, request_exception):
-        error = request_exception.response.json()
+        try:
+            error = request_exception.response.json()
+        except ValueError:
+            error = request_exception.response
         msg = error.get('message', None)
         return super().from_request_exception(request_exception, msg)
 
