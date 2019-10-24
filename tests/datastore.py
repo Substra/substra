@@ -131,6 +131,10 @@ TESTTUPLE = {
     "tag": ""
 }
 
+LEADERBOARD = {
+    "foo": True
+}
+
 NODES = [
     {'id': 'foo', 'isCurrent': False},
     {'id': 'bar', 'isCurrent': True},
