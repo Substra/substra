@@ -68,8 +68,15 @@ def _docker_run(docker_client, name, command, volumes, remove=True):
     print(f'Running docker {name}', end=' ', flush=True)
     start = time.time()
     try:
+        # Setting userns_mode to "host" effectively turns off user namespaces
+        # (see https://github.com/moby/moby/issues/25492#issuecomment-239173095).
+        # Turning it off prevents permission issues when accessing the host
+        # filesystem from the container.
+        # It is safe to do because we also use the user=USER option: the `UID`
+        # in the container is set to the `UID` of the current process.
         docker_client.containers.run(name, command=command,
-                                     volumes=volumes, remove=remove, user=USER)
+                                     volumes=volumes, remove=remove, user=USER,
+                                     userns_mode="host")
     except docker.errors.ContainerError as e:
         # try to pretty print traceback
         try:
