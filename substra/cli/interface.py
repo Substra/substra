@@ -31,6 +31,9 @@ def get_client(config_path, profile_name):
 
 
 def load_json_from_path(ctx, param, value):
+    if not value:
+        return value
+
     with open(value, 'r') as fp:
         try:
             json_file = json.load(fp)

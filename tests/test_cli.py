@@ -131,6 +131,10 @@ def test_command_add_objective(workdir, mocker):
                                      '--data-samples-path', file.name])
         assert m.is_called()
 
+        with mock_client_call(mocker, 'add_objective', response={}) as m:
+            client_execute(workdir, ['add', 'objective', file.name])
+        assert m.is_called()
+
         res = client_execute(workdir, ['add', 'objective', 'non_existing_file.txt', '--dataset-key',
                                        'foo', '--data-samples-path', file.name], exit_code=2)
         assert re.search(r'File ".*" does not exist\.', res)
@@ -147,6 +151,12 @@ def test_command_add_objective(workdir, mocker):
             res = client_execute(workdir, ['add', 'objective', file.name, '--dataset-key', 'foo',
                                            '--data-samples-path', md_file.name], exit_code=2)
             assert re.search(r'File ".*" is not a valid JSON file\.', res)
+
+
+def test_command_add_testtuple_no_data_samples(mocker, workdir):
+    with mock_client_call(mocker, 'add_testtuple', response={}) as m:
+        client_execute(workdir, ['add', 'testtuple', '--traintuple-key', 'foo'])
+    assert m.is_called()
 
 
 def test_command_add_data_sample(workdir, mocker):
