@@ -43,7 +43,7 @@ Usage: substra add data_sample [OPTIONS] PATH
 
   Add data sample(s).
 
-  The path is either a directory reprensenting a data sample or a parent
+  The path is either a directory representing a data sample or a parent
   directory containing data samples directories (if --multiple option is
   set).
 

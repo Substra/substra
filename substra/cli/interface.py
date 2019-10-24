@@ -226,7 +226,7 @@ def add_data_sample(ctx, path, dataset_key, local, multiple, test_only,
     """Add data sample(s).
 
 
-    The path is either a directory reprensenting a data sample or a parent
+    The path is either a directory representing a data sample or a parent
     directory containing data samples directories (if --multiple option is
     set).
     """
