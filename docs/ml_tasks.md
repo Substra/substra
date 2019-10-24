@@ -27,7 +27,7 @@ Within this node, Substra creates a new docker container containing the algorith
 * the **opener** volume contains the opener library provided by the dataset
 * the **model** volume contains the input models (identified by their key)
 * the **pred** volume is an empty volume where the predictions made by the generated model must be saved
-* optionaly, for a specific federated learning tasks, a *local* folder that is persistent from one model update to another within the node.
+* optionaly, for a task part of a compute plan, a *local* folder that is persistent from one model update to another within the node.
 
 Substra then runs the algorithm **in training mode** and 
 * a new model is generated and saved to the **model** volume, 
