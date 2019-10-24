@@ -1,8 +1,8 @@
 import json
 import re
 import tempfile
-
 from unittest import mock
+
 import click
 from click.testing import CliRunner
 import pytest
