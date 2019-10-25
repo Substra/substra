@@ -69,5 +69,3 @@ print(f'Tuples keys have been saved to {os.path.abspath(folds_keys_path)}')
 print('\nRun the following commands to track the status of the tuples:')
 print(f'    substra list traintuple -f "traintuple:tag:{tag}"')
 print(f'    substra list testtuple -f "testtuple:tag:{tag}"')
-
-

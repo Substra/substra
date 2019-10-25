@@ -53,5 +53,3 @@ for row_index in range(len(testtuple_keys) + 1):
     for col_index, column in enumerate(columns):
         print(column[row_index].ljust(column_widths[col_index]), end='')
     print()
-
-
