@@ -214,7 +214,7 @@ def _extract_archive(archive_path, to_directory):
         with tarfile.open(archive_path, 'r:*') as tf:
             tf.extractall(to_directory)
     else:
-        raise Exception('Archive must be zip or tar.gz')
+        raise ValueError('Archive must be zip or tar.gz')
 
 
 @contextlib.contextmanager

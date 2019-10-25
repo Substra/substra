@@ -18,7 +18,6 @@ import zipfile
 import pytest
 
 from substra import runner
-from substra.runner import DOCKER_ALGO_TAG, DOCKER_METRICS_TAG
 
 
 @pytest.fixture
@@ -74,14 +73,14 @@ def docker_api(cwdir, mocker):
 
 
 def docker_run_side_effect(sandbox_path):
-    def inner(*args, **kwargs):
+    def create_expected_docker_outputs(*args, **kwargs):
         name = args[1]
-        if name == DOCKER_ALGO_TAG:
+        if name == runner.DOCKER_ALGO_TAG:
             create_file('model/model', root=sandbox_path)
-        if name == DOCKER_METRICS_TAG:
+        if name == runner.DOCKER_METRICS_TAG:
             create_file('pred_train/perf.json', '{"all": 1}', root=sandbox_path)
             create_file('pred_test/perf.json', '{"all": 1}', root=sandbox_path)
-    return inner
+    return create_expected_docker_outputs
 
 
 def test_runner_folders(tmp_path, mocker):
@@ -165,7 +164,7 @@ def test_runner_invalid_archives(tmp_path):
     test_data_samples_path = create_dir('test_data_samples_path', root=tmp_path)
     sandbox_path = create_dir('sandbox', root=tmp_path)
 
-    with pytest.raises(Exception, match="Archive must be zip or tar.gz"):
+    with pytest.raises(ValueError, match="Archive must be zip or tar.gz"):
         runner.compute(
             algo_path=algo_path,
             train_opener_file=train_opener_path,
