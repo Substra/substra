@@ -236,7 +236,7 @@ def add_data_sample(ctx, path, dataset_key, local, multiple, test_only,
     """Add data sample(s).
 
 
-    The path is either a directory reprensenting a data sample or a parent
+    The path is either a directory representing a data sample or a parent
     directory containing data samples directories (if --multiple option is
     set).
     """
@@ -660,7 +660,7 @@ def leaderboard(ctx, objective_key, output_format, expand, sort, config, profile
 
 @cli.command()
 @click.argument('algo',
-                type=click.Path(exists=True, file_okay=False))
+                type=click.Path(exists=True))
 @click.option('--train-opener',
               type=click.Path(exists=True, dir_okay=False),
               required=True,
@@ -670,9 +670,9 @@ def leaderboard(ctx, objective_key, output_format, expand, sort, config, profile
               required=True,
               help='opener.py file to use during testing.')
 @click.option('--metrics',
-              type=click.Path(exists=True, file_okay=False),
+              type=click.Path(exists=True),
               required=True,
-              help='metrics directory to use during both training and testing.')
+              help='metrics directory or archive to use during both training and testing.')
 @click.option('--rank',
               type=click.INT,
               default=0,
@@ -695,7 +695,7 @@ def run_local(algo, train_opener, test_opener, metrics, rank,
               fake_data_samples):
     """Run local.
 
-    Train and test the algo located in ALGO locally.
+    Train and test the algo located in ALGO (directory or archive) locally.
 
     This command can be used to check that objective, dataset and algo assets
     implementations are compatible.
