@@ -114,18 +114,17 @@ def test_command_list_node(workdir, mocker):
     ('traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
                     '--data-samples-path']),
     ('testtuple', ['--traintuple-key', 'foo', '--data-samples-path'])]
-                         )
+)
 def test_command_add(asset_name, params, workdir, mocker):
     method_name = f'add_{asset_name}'
 
     with mock_client_call(mocker, method_name, response={}) as m:
-        json_file = workdir / "temp_file.json"
-        with open(str(json_file), 'w') as f:
-            json.dump({}, f)
+        json_file = workdir / "valid_json_file.json"
+        json_file.write_text(json.dumps({}))
         client_execute(workdir, ['add', asset_name] + params + [str(json_file)])
     assert m.is_called()
 
-    file = workdir / "temp_file.txt"
+    file = workdir / "invalid_json_file.txt"
     file.write_text("foo")
 
     res = client_execute(workdir, ['add', asset_name] + params + [str(file)], exit_code=2)
@@ -137,9 +136,8 @@ def test_command_add(asset_name, params, workdir, mocker):
 
 
 def test_command_add_objective(workdir, mocker):
-    json_file = workdir / "temp_file_valid.json"
-    with open(str(json_file), 'w') as f:
-        json.dump({}, f)
+    json_file = workdir / "valid_json_file.json"
+    json_file.write_text(json.dumps({}))
 
     with mock_client_call(mocker, 'add_objective', response={}) as m:
         client_execute(workdir, ['add', 'objective', str(json_file), '--dataset-key', 'foo',
@@ -158,7 +156,7 @@ def test_command_add_objective(workdir, mocker):
                                    '--data-samples-path', 'non_existing_file.txt'], exit_code=2)
     assert re.search(r'File ".*" does not exist\.', res)
 
-    md_file = workdir / "temp_file.md"
+    md_file = workdir / "invalid_json_file.md"
     md_file.write_text("test")
 
     res = client_execute(workdir, ['add', 'objective', str(md_file), '--dataset-key', 'foo',
@@ -193,9 +191,8 @@ def test_command_add_data_sample(workdir, mocker):
 def test_command_add_already_exists(workdir, mocker):
     with mock_client_call(mocker, 'add_dataset',
                           side_effect=substra.exceptions.AlreadyExists('foo', 409)) as m:
-        json_file = workdir / "temp_file.json"
-        with open(str(json_file), 'w') as f:
-            json.dump({}, f)
+        json_file = workdir / "valid_json_file.json"
+        json_file.write_text(json.dumps({}))
         output = client_execute(workdir, ['add', 'dataset', str(json_file)], exit_code=1)
 
         assert 'already exists' in output
@@ -239,15 +236,14 @@ def test_command_update_data_sample(workdir, mocker):
         'keys': ['key1', 'key2'],
     }
 
-    json_file = workdir / "temp_file_valid.json"
-    with open(str(json_file), 'w') as f:
-        json.dump(data_samples, f)
+    json_file = workdir / "valid_json_file.json"
+    json_file.write_text(json.dumps(data_samples))
 
     with mock_client_call(mocker, 'link_dataset_with_data_samples') as m:
         client_execute(workdir, ['update', 'data_sample', str(json_file), '--dataset-key', 'foo'])
     assert m.is_called()
 
-    json_file_invalid = workdir / "temp_file_invalid.json"
+    json_file_invalid = workdir / "invalid_json_file.json"
     json_file_invalid.write_text('test')
 
     res = client_execute(workdir, ['update', 'data_sample', str(json_file_invalid), '--dataset-key',
