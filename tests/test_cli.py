@@ -124,10 +124,11 @@ def test_command_add(asset_name, params, workdir, mocker):
         client_execute(workdir, ['add', asset_name] + params + [str(json_file)])
     assert m.is_called()
 
-    file = workdir / "invalid_json_file.txt"
-    file.write_text("foo")
+    invalid_json_file = workdir / "invalid_json_file.txt"
+    invalid_json_file.write_text("foo")
 
-    res = client_execute(workdir, ['add', asset_name] + params + [str(file)], exit_code=2)
+    res = client_execute(workdir, ['add', asset_name] + params + [str(invalid_json_file)],
+                         exit_code=2)
     assert re.search(r'File ".*" is not a valid JSON file\.', res)
 
     res = client_execute(workdir, ['add', asset_name] + params + ['non_existing_file.txt'],
@@ -156,15 +157,16 @@ def test_command_add_objective(workdir, mocker):
                                    '--data-samples-path', 'non_existing_file.txt'], exit_code=2)
     assert re.search(r'File ".*" does not exist\.', res)
 
-    md_file = workdir / "invalid_json_file.md"
-    md_file.write_text("test")
+    invalid_json_file = workdir / "invalid_json_file.md"
+    invalid_json_file.write_text("test")
 
-    res = client_execute(workdir, ['add', 'objective', str(md_file), '--dataset-key', 'foo',
-                                   '--data-samples-path', str(json_file)], exit_code=2)
+    res = client_execute(workdir, ['add', 'objective', str(invalid_json_file), '--dataset-key',
+                                   'foo', '--data-samples-path', str(json_file)], exit_code=2)
     assert re.search(r'File ".*" is not a valid JSON file\.', res)
 
     res = client_execute(workdir, ['add', 'objective', str(json_file), '--dataset-key',
-                                   'foo', '--data-samples-path', str(md_file)], exit_code=2)
+                                   'foo', '--data-samples-path', str(invalid_json_file)],
+                         exit_code=2)
     assert re.search(r'File ".*" is not a valid JSON file\.', res)
 
 
@@ -243,10 +245,10 @@ def test_command_update_data_sample(workdir, mocker):
         client_execute(workdir, ['update', 'data_sample', str(json_file), '--dataset-key', 'foo'])
     assert m.is_called()
 
-    json_file_invalid = workdir / "invalid_json_file.json"
-    json_file_invalid.write_text('test')
+    invalid_json_file = workdir / "invalid_json_file.json"
+    invalid_json_file.write_text('test')
 
-    res = client_execute(workdir, ['update', 'data_sample', str(json_file_invalid), '--dataset-key',
+    res = client_execute(workdir, ['update', 'data_sample', str(invalid_json_file), '--dataset-key',
                                    'foo'], exit_code=2)
     assert re.search(r'File ".*" is not a valid JSON file\.', res)
 
