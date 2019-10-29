@@ -7,7 +7,9 @@
 - [substra add objective](#substra-add-objective)
 - [substra add algo](#substra-add-algo)
 - [substra add compute_plan](#substra-add-compute_plan)
+- [substra add composite_algo](#substra-add-composite_algo)
 - [substra add traintuple](#substra-add-traintuple)
+- [substra add composite_traintuple](#substra-add-composite_traintuple)
 - [substra add testtuple](#substra-add-testtuple)
 - [substra get](#substra-get)
 - [substra list](#substra-list)
@@ -243,6 +245,43 @@ Options:
   --help                Show this message and exit.
 ```
 
+## substra add composite_algo
+
+```bash
+Usage: substra add composite_algo [OPTIONS] PATH
+
+  Add composite algo.
+
+  The path must point to a valid JSON file with the following schema:
+
+  {
+      "name": str,
+      "description": path,
+      "file": path,
+      "permissions": {
+          "public": bool,
+          "authorized_ids": list[str],
+      },
+  }
+
+  Where:
+  - name: name of the algorithm
+  - description: path to a markdown file describing the algo
+  - file: path to tar.gz or zip archive containing the algorithm python
+    script and its Dockerfile
+  - permissions: define asset access permissions
+
+Options:
+  --yaml          Display output as yaml.
+  --json          Display output as json.
+  --pretty        Pretty print output  [default: True]
+  --config PATH   Config path (default ~/.substra).
+  --profile TEXT  Profile name to use.
+  --user FILE     User file path to use (default ~/.substra-user).
+  --verbose       Enable verbose mode.
+  --help          Show this message and exit.
+```
+
 ## substra add traintuple
 
 ```bash
@@ -275,6 +314,51 @@ Options:
   --user FILE               User file path to use (default ~/.substra-user).
   --verbose                 Enable verbose mode.
   --help                    Show this message and exit.
+```
+
+## substra add composite_traintuple
+
+```bash
+Usage: substra add composite_traintuple [OPTIONS]
+
+  Add composite traintuple.
+
+  The option --data-samples-path must point to a valid JSON file with the
+  following schema:
+
+  {
+      "keys": list[str],
+  }
+
+  Where:
+  - keys: list of data sample keys
+
+  The option --out-trunk-model-permissions-path must point to a valid JSON
+  file with the following schema:
+
+  {
+      "authorized_ids": list[str],
+  }
+
+Options:
+  --objective-key TEXT            [required]
+  --algo-key TEXT                 [required]
+  --dataset-key TEXT              [required]
+  --data-samples-path FILE        [required]
+  --head-model-key TEXT           Must be used with --trunk-model-key option.
+  --trunk-model-key TEXT          Must be used with --head-model-key option.
+  --out-trunk-model-permissions-path FILE
+                                  Load a permissions file.
+  --tag TEXT
+  --yaml                          Display output as yaml.
+  --json                          Display output as json.
+  --pretty                        Pretty print output  [default: True]
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --user FILE                     User file path to use (default ~/.substra-
+                                  user).
+  --verbose                       Enable verbose mode.
+  --help                          Show this message and exit.
 ```
 
 ## substra add testtuple
@@ -312,9 +396,8 @@ Options:
 ## substra get
 
 ```bash
-Usage: substra get [OPTIONS]
-                   [algo|compute_plan|dataset|objective|testtuple|traintuple]
-                   ASSET_KEY
+Usage: substra get [OPTIONS] [algo|compute_plan|composite_algo|dataset|objecti
+                   ve|testtuple|traintuple|composite_traintuple] ASSET_KEY
 
   Get asset definition.
 
@@ -333,8 +416,9 @@ Options:
 ## substra list
 
 ```bash
-Usage: substra list [OPTIONS] [algo|compute_plan|data_sample|dataset|objective
-                    |testtuple|traintuple|node]
+Usage: substra list [OPTIONS] [algo|compute_plan|composite_algo|data_sample|da
+                    taset|objective|testtuple|traintuple|composite_traintuple|
+                    node]
 
   List assets.
 
@@ -364,7 +448,8 @@ Options:
 ## substra describe
 
 ```bash
-Usage: substra describe [OPTIONS] [algo|dataset|objective] ASSET_KEY
+Usage: substra describe [OPTIONS] [algo|composite_algo|dataset|objective]
+                        ASSET_KEY
 
   Display asset description.
 
@@ -379,7 +464,7 @@ Options:
 ## substra download
 
 ```bash
-Usage: substra download [OPTIONS] [algo|dataset|objective] KEY
+Usage: substra download [OPTIONS] [algo|composite_algo|dataset|objective] KEY
 
   Download asset implementation.
 

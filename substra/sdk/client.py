@@ -29,6 +29,17 @@ def get_asset_key(data):
     return data.get('pkhash') or data.get('key')
 
 
+def _flatten_permissions(data, field_name):
+    data = deepcopy(data)
+
+    p = data[field_name]  # should not raise as a default permissions is added if missing
+    data[f'{field_name}_public'] = p['public']
+    data[f'{field_name}_authorized_ids'] = p.get('authorized_ids', [])
+    del data[field_name]
+
+    return data
+
+
 class Client(object):
 
     def __init__(self, config_path=None, profile_name=None, user_path=None):
@@ -111,20 +122,22 @@ class Client(object):
         return self._set_current_profile(profile_name, profile)
 
     def _add(self, asset, data, files=None, timeout=False, exist_ok=False,
-             json_encoding=False):
+             json_encoding=False, permissions_field='permissions'):
         """Add asset."""
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
         files = files or {}
 
-        # XXX workaround because backend accepts only Form Data body. This is due to the
-        #     fact that backend expects both file objects and payload in the same request
-        if 'permissions' not in data:
-            data['permissions_public'] = False
-            data['permissions_authorized_ids'] = []
-        else:
-            data['permissions_public'] = data['permissions']['public']
-            data['permissions_authorized_ids'] = data['permissions'].get('authorized_ids', [])
-            del data['permissions']
+        if permissions_field:
+            if permissions_field not in data:
+                default_permissions = {
+                    'public': False,
+                    'authorized_ids': [],
+                }
+                data[permissions_field] = default_permissions
+            # XXX workaround because backend accepts only Form Data body. This is due to
+            #     the fact that backend expects both file objects and payload in the
+            #     same request
+            data = _flatten_permissions(data, field_name=permissions_field)
 
         requests_kwargs = {}
         if files:
@@ -323,6 +336,36 @@ class Client(object):
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_algo(get_asset_key(res))
 
+    def add_composite_algo(self, data, timeout=False, exist_ok=False):
+        """Create new composite algo asset.
+
+        `data` is a dict object with the following schema:
+
+```
+        {
+            "name": str,
+            "description": str,
+            "file": str,
+            "permissions": {
+                "public": bool,
+                "authorized_ids": list[str],
+            },
+        }
+```
+
+        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
+        existing asset will be returned.
+        """
+        attributes = ['file', 'description']
+        with utils.extract_files(data, attributes) as (data, files):
+            res = self._add(
+                assets.COMPOSITE_ALGO, data, files=files, timeout=timeout,
+                exist_ok=exist_ok)
+
+        # The backend has inconsistent API responses when getting or adding an asset (with much
+        # less data when responding to adds). A second GET request hides the discrepancies.
+        return self.get_composite_algo(get_asset_key(res))
+
     def add_traintuple(self, data, timeout=False, exist_ok=False):
         """Create new traintuple asset.
 
@@ -344,11 +387,42 @@ class Client(object):
         existing asset will be returned.
         """
         res = self._add(assets.TRAINTUPLE, data, timeout=timeout,
-                        exist_ok=exist_ok)
+                        exist_ok=exist_ok, permissions_field=None)
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_traintuple(get_asset_key(res))
+
+    def add_composite_traintuple(self, data, timeout=False, exist_ok=False):
+        """Create new composite traintuple asset.
+
+        `data` is a dict object with the following schema:
+
+```
+        {
+            "algo_key": str,
+            "objective_key": str,
+            "data_manager_key": str,
+            "in_head_model_key": str,
+            "in_trunk_model_key": str,
+            "out_trunk_model_permissions": {
+                "authorized_ids": list[str],
+            },
+            "tag": str,
+            "compute_plan_id": str,
+        }
+```
+
+        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
+        existing asset will be returned.
+        """
+        res = self._add(assets.COMPOSITE_TRAINTUPLE, data, timeout=timeout,
+                        exist_ok=exist_ok,
+                        permissions_field='out_model_trunk_permissions')
+
+        # The backend has inconsistent API responses when getting or adding an asset (with much
+        # less data when responding to adds). A second GET request hides the discrepancies.
+        return self.get_composite_traintuple(get_asset_key(res))
 
     def add_testtuple(self, data, timeout=False, exist_ok=False):
         """Create new testtuple asset.
@@ -412,6 +486,10 @@ class Client(object):
         """Get compute plan by key."""
         return self.client.get(assets.COMPUTE_PLAN, compute_plan_key)
 
+    def get_composite_algo(self, composite_algo_key):
+        """Get composite algo by key."""
+        return self.client.get(assets.COMPOSITE_ALGO, composite_algo_key)
+
     def get_dataset(self, dataset_key):
         """Get dataset by key."""
         return self.client.get(assets.DATASET, dataset_key)
@@ -428,6 +506,10 @@ class Client(object):
         """Get traintuple by key."""
         return self.client.get(assets.TRAINTUPLE, traintuple_key)
 
+    def get_composite_traintuple(self, composite_traintuple_key):
+        """Get composite traintuple by key."""
+        return self.client.get(assets.COMPOSITE_TRAINTUPLE, composite_traintuple_key)
+
     def list_algo(self, filters=None, is_complex=False):
         """List algos."""
         return self.client.list(assets.ALGO, filters=filters)
@@ -435,6 +517,10 @@ class Client(object):
     def list_compute_plan(self, filters=None, is_complex=False):
         """List compute plans."""
         return self.client.list(assets.COMPUTE_PLAN, filters=filters)
+
+    def list_composite_algo(self, filters=None, is_complex=False):
+        """List composite algos."""
+        return self.client.list(assets.COMPOSITE_ALGO, filters=filters)
 
     def list_data_sample(self, filters=None, is_complex=False):
         """List data samples."""
@@ -455,6 +541,10 @@ class Client(object):
     def list_traintuple(self, filters=None, is_complex=False):
         """List traintuples."""
         return self.client.list(assets.TRAINTUPLE, filters=filters)
+
+    def list_composite_traintuple(self, filters=None, is_complex=False):
+        """List composite traintuples."""
+        return self.client.list(assets.COMPOSITE_TRAINTUPLE, filters=filters)
 
     def list_node(self, *args, **kwargs):
         """List nodes."""
@@ -528,6 +618,17 @@ class Client(object):
         url = data['content']['storageAddress']
         self._download(url, destination_folder, default_filename)
 
+    def download_composite_algo(self, asset_key, destination_folder):
+        """Download composite algo resource.
+
+        Download composite algo package in destination folder.
+        """
+        data = self.get_composite_algo(asset_key)
+        # download composite algo package
+        default_filename = 'composite_algo.tar.gz'
+        url = data['content']['storageAddress']
+        self._download(url, destination_folder, default_filename)
+
     def download_objective(self, asset_key, destination_folder):
         """Download objective resource.
 
@@ -549,6 +650,10 @@ class Client(object):
     def describe_algo(self, asset_key):
         """Get algo description."""
         return self._describe(assets.ALGO, asset_key)
+
+    def describe_composite_algo(self, asset_key):
+        """Get composite algo description."""
+        return self._describe(assets.COMPOSITE_ALGO, asset_key)
 
     def describe_dataset(self, asset_key):
         """Get dataset description."""

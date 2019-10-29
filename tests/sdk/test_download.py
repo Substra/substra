@@ -25,6 +25,7 @@ from .utils import mock_requests, mock_requests_response
     'asset_name, filename', [
         ('dataset', 'opener.py'),
         ('algo', 'algo.tar.gz'),
+        ('composite_algo', 'composite_algo.tar.gz'),
         ('objective', 'metrics.py')
     ]
 )
@@ -46,7 +47,7 @@ def test_download_asset(asset_name, filename, tmp_path, client, mocker):
 
 
 @pytest.mark.parametrize(
-    'asset_name', ['dataset', 'algo', 'objective']
+    'asset_name', ['dataset', 'algo', 'composite_algo', 'objective']
 )
 def test_download_asset_not_found(asset_name, tmp_path, client, mocker):
     m = mock_requests(mocker, "get", status=404)
@@ -59,7 +60,7 @@ def test_download_asset_not_found(asset_name, tmp_path, client, mocker):
 
 
 @pytest.mark.parametrize(
-    'asset_name', ['dataset', 'algo', 'objective']
+    'asset_name', ['dataset', 'algo', 'composite_algo', 'objective']
 )
 def test_download_content_not_found(asset_name, tmp_path, client, mocker):
     item = getattr(datastore, asset_name.upper())
