@@ -49,9 +49,7 @@ class Client():
         except requests.exceptions.HTTPError as e:
             logger.error(f"Requests error status {e.response.status_code}: {e.response.text}")
 
-            if e.response.status_code == 400:
-                raise exceptions.BadLoginException.from_request_exception(e)
-            if e.response.status_code == 401:
+            if e.response.status_code in (400, 401):
                 raise exceptions.BadLoginException.from_request_exception(e)
 
             raise exceptions.HTTPError.from_request_exception(e)

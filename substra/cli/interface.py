@@ -170,14 +170,11 @@ def error_printer(fn):
 
         try:
             return fn(*args, **kwargs)
-
         except exceptions.BadLoginException:
             raise click.ClickException('Login failed: No active account found with the'
                                        ' given credentials.')
-
         except exceptions.RequestException as e:
             raise click.ClickException(f"Request failed: {e.__class__.__name__}: {e}")
-
         except (exceptions.ConnectionError,
                 exceptions.InvalidResponse,
                 exceptions.LoadDataException,
