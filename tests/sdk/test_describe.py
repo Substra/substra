@@ -1,11 +1,3 @@
-import pytest
-
-import substra
-
-from .. import datastore
-from .utils import mock_requests, mock_requests_response
-
-
 # Copyright 2018 Owkin, inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +11,14 @@ from .utils import mock_requests, mock_requests_response
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+import pytest
+
+import substra
+
+from .. import datastore
+from .utils import mock_requests, mock_requests_response
+
 
 @pytest.mark.parametrize(
     'asset_name', ['dataset', 'algo', 'objective']
