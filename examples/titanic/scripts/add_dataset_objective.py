@@ -42,6 +42,7 @@ def progress_bar(length):
         substra_logger.removeHandler(progress_handler)
         substra_logger.addHandler(default_stream_handler)
 
+
 current_directory = os.path.dirname(__file__)
 assets_directory = os.path.join(current_directory, '../assets')
 

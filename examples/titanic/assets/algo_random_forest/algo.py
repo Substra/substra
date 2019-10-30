@@ -3,7 +3,6 @@ import re
 import pandas as pd
 import pickle
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import GridSearchCV
 
 import numpy as np
 
@@ -79,7 +78,7 @@ class Algo(tools.algo.Algo):
         # Name
         titles = {"Mr": 1, "Miss": 2, "Mrs": 3, "Master": 4, "Rare": 5}
         # extract titles
-        X['Title'] = X.Name.str.extract(' ([A-Za-z]+)\.', expand=False)
+        X['Title'] = X.Name.str.extract(r' ([A-Za-z]+)\.', expand=False)
         # replace titles with a more common title or as Rare
         X['Title'] = X['Title'].replace(
             ['Lady', 'Countess', 'Capt', 'Col', 'Don', 'Dr',
@@ -114,7 +113,8 @@ class Algo(tools.algo.Algo):
         X = self._normalize_X(X)
 
         # the following RFC hyperparameters were determined using:
-        # >>> param_grid = {"criterion": ["gini", "entropy"], "min_samples_leaf": [1, 5, 10, 25, 50, 70],
+        # >>> param_grid = {"criterion": ["gini", "entropy"],
+        #                   "min_samples_leaf": [1, 5, 10, 25, 50, 70],
         #                   "min_samples_split": [2, 4, 10, 12, 16, 18, 25, 35],
         #                   "n_estimators": [100, 400, 700, 1000, 1500]}
         # >>> rf = RandomForestClassifier(n_estimators=100, max_features='auto', oob_score=True,
