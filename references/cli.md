@@ -72,7 +72,10 @@ Usage: substra add dataset [OPTIONS] PATH
       "description": path,
       "type": str,
       "data_opener": path,
-      "permissions": str,
+      "permissions": {
+          "public": bool,
+          "authorized_ids": list[str],
+      },
   }
 
   Where:
@@ -109,7 +112,10 @@ Usage: substra add objective [OPTIONS] PATH
       "description": path,
       "metrics_name": str,
       "metrics": path,
-      "permissions": str,
+      "permissions": {
+          "public": bool,
+          "authorized_ids": list[str],
+      },
   }
 
   Where:
@@ -155,7 +161,10 @@ Usage: substra add algo [OPTIONS] PATH
       "name": str,
       "description": path,
       "file": path,
-      "permissions": str,
+      "permissions": {
+          "public": bool,
+          "authorized_ids": list[str],
+      },
   }
 
   Where:
