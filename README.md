@@ -31,7 +31,7 @@ eval "$(_SUBSTRA_COMPLETE=source_zsh substra)"
 
 From this point onwards, substra command line interface will have autocompletion enabled.
 
-See the [local install guide](./docs/local_install.md) if you need to run a full instance of the Substra platform 
+See the [local install guide](./docs/local_install.md) if you need to run a full instance of the Substra platform
 locally.
 
 ## Usage
@@ -72,7 +72,7 @@ Learning about the Substra platform:
 
 ## Examples
 
-- [Titanic](./examples/titanic/README.md) 
+- [Titanic](./examples/titanic/README.md)
 - [Cross-validation](./examples/cross_val/README.md)
 - [Compute plan](./examples/compute_plan/README.md)
 
@@ -111,8 +111,10 @@ Documentation will be available in *docs/* directory.
 
 ### Deploy
 
+Deployment to pypi.org should be automatic thanks to Travis but if you need to do it manually, here is what you need to do:
+
 ```sh
 rm -rf dist/*
 python3 setup.py sdist bdist_wheel
-twine upload dist/* --repository-url https://substra-pypi.owkin.com/ --verbose
+twine upload dist/* --verbose
 ```
