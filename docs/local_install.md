@@ -60,13 +60,6 @@ python3 -m venv substra
 source substra/bin/activate
 ```
 
-- Configure access to substra private PIP server. Put in your substra virtual environment path the following pip.conf file (more information [here](https://github.com/SubstraFoundation/substra-cli/blob/master/README.md)):
-
-```
-[global]
-index-url = https://<user>:<pass>@substra-pypi.owkin.com/simple/
-```
-
 - Install Substra python sdk and Substra command line interface.
 
 ```
