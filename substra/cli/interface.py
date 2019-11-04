@@ -282,7 +282,10 @@ def add_dataset(ctx, data, objective_key, output_format, config, profile, verbos
         "description": path,
         "type": str,
         "data_opener": path,
-        "permissions": str,
+        "permissions": {
+            "public": bool,
+            "authorized_ids": list[str],
+        },
     }
 
     \b
@@ -326,7 +329,10 @@ def add_objective(ctx, data, dataset_key, data_samples, output_format, config, p
         "description": path,
         "metrics_name": str,
         "metrics": path,
-        "permissions": str,
+        "permissions": {
+            "public": bool,
+            "authorized_ids": list[str],
+        },
     }
 
     \b
@@ -382,7 +388,10 @@ def add_algo(ctx, data, output_format, config, profile, verbose):
         "name": str,
         "description": path,
         "file": path,
-        "permissions": str,
+        "permissions": {
+            "public": bool,
+            "authorized_ids": list[str],
+        },
     }
 
     \b

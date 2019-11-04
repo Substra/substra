@@ -121,7 +121,6 @@ class Client(object):
         {
             "path": str,
             "data_manager_keys": list[str],
-            "permissions": str,
             "test_only": bool,
         }
 ```
@@ -157,7 +156,6 @@ class Client(object):
         {
             "paths": list[str],
             "data_manager_keys": list[str],
-            "permissions": str,
             "test_only": bool,
         }
 ```
@@ -181,7 +179,10 @@ class Client(object):
             "type": str,
             "data_opener": str,
             "objective_keys": list[str],
-            "permissions": str,
+            "permissions": {
+                "public": bool,
+                "authorized_ids": list[str],
+            },
         }
 ```
 
@@ -211,7 +212,10 @@ class Client(object):
             "metrics": str,
             "test_data_manager_key": str,
             "test_data_sample_keys": list[str],
-            "permissions": str,
+            "permissions": {
+                "public": bool,
+                "authorized_ids": list[str],
+            },
         }
 ```
 
@@ -238,7 +242,10 @@ class Client(object):
             "name": str,
             "description": str,
             "file": str,
-            "permissions": str,
+            "permissions": {
+                "public": bool,
+                "authorized_ids": list[str],
+            },
         }
 ```
 
