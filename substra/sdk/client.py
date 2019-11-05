@@ -151,8 +151,7 @@ class Client(object):
                 assets.DATA_SAMPLE, data,
                 files=files, timeout=timeout, exist_ok=False)
 
-    def add_data_sample(self, data, local=True, timeout=False,
-                        exist_ok=False):
+    def add_data_sample(self, data, local=True, timeout=False, exist_ok=False):
         """Create new data sample asset.
 
         `data` is a dict object with the following schema:
@@ -164,9 +163,20 @@ class Client(object):
             "test_only": bool,
         }
 ```
+        The `path` in the data dictionary must point to a directory representing the
+        data sample content. Note that the directory can contain multiple files, all the
+        directory content will be added to the platform.
+
+        If `local` is true, `path` must refer to a directory located on the local
+        filesystem. The file content will be transferred to the server through an
+        HTTP query, so this mode should be used for relatively small files (<10mo).
+
+        If `local` is false, `path` must refer to a directory located on the server
+        filesystem. This mode is well suited for all kind of file sizes.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
+
         """
         if 'paths' in data:
             raise ValueError("data: invalid 'paths' field")
