@@ -11,13 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from substra.__version__ import __version__
-from substra.sdk import Client, exceptions
-
-
-__all__ = [
-    '__version__',
-    'Client',
-    'exceptions',
-]

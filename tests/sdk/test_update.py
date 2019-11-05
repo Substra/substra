@@ -12,12 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from substra.__version__ import __version__
-from substra.sdk import Client, exceptions
+from .. import datastore
+from .utils import mock_requests
 
 
-__all__ = [
-    '__version__',
-    'Client',
-    'exceptions',
-]
+def test_update_dataset(client, mocker):
+    item = datastore.DATASET
+    m = mock_requests(mocker, "post", response=item)
+
+    response = client.update_dataset(
+        'a key',
+        {'objective_key': 'an another key', })
+
+    assert response == item
+    assert m.is_called()

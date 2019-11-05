@@ -1,48 +1,48 @@
+# Copyright 2018 Owkin, inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """Packaging settings."""
-
 from codecs import open
-from os.path import abspath, dirname, join
-from subprocess import call
+import os
 
-from setuptools import Command, find_packages, setup
+from setuptools import setup, find_packages
 
-from substra import __version__
-
-this_dir = abspath(dirname(__file__))
-with open(join(this_dir, 'README.md'), encoding='utf-8') as file:
-    long_description = file.read()
+here = os.path.abspath(os.path.dirname(__file__))
 
 
-class RunTests(Command):
-    """Run all tests."""
-    description = 'run tests'
-    user_options = []
+with open(os.path.join(here, 'README.md'), 'r', 'utf-8') as fp:
+    readme = fp.read()
 
-    def initialize_options(self):
-        pass
 
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        """Run all tests!"""
-        errno = call(['py.test', '--cov=substra', '--cov-report=term-missing', '--ignore=tests/e2e'])
-        raise SystemExit(errno)
+about = {}
+with open(os.path.join(here, 'substra', '__version__.py'), 'r', 'utf-8') as fp:
+    exec(fp.read(), about)
 
 
 setup(
     name='substra',
-    version=__version__,
-    description='Substra CLI for interacting with substrabac',
-    long_description=long_description,
-    url='https://github.com/SubstraFoundation/substra-cli',
-    author='Owkin, Substra team',
-    author_email='substra@owkin.com',
+    version=about['__version__'],
+    description='Substra CLI for interacting with substra-backend',
+    long_description=readme,
+    long_description_content_type="text/markdown",
+    url='https://github.com/SubstraFoundation/substra',
+    author='Owkin',
+    author_email='fldev@owkin.com',
     license='Apache 2.0',
     classifiers=[
         'Intended Audience :: Developers',
         'Topic :: Utilities',
-        'License :: Private',
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 2',
@@ -55,14 +55,14 @@ setup(
     ],
     keywords=['cli', 'substra'],
     packages=find_packages(exclude=['docs', 'tests*']),
-    install_requires=['docopt', 'requests', 'docker', 'substra-sdk-py'],
-    extras_require={
-        'test': ['coverage', 'pytest', 'pytest-cov', 'mock'],
-    },
+    include_package_data=True,
+    install_requires=['click', 'requests', 'docker', 'consolemd', 'pyyaml', 'keyring'],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest', 'pytest-cov', 'pytest-mock', 'keyrings.alt'],
     entry_points={
         'console_scripts': [
-            'substra=substra.cli:main',
+            'substra=substra.cli.interface:cli',
         ],
     },
-    cmdclass={'test': RunTests},
+    zip_safe=False,
 )
