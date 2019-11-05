@@ -21,8 +21,8 @@ This guide will help you to get Substra source code and to start a local instanc
 - network: map localhost to owkin and chunantes backend hostnames. Edit `/etc/hosts` and add the following lines:
 
 ```
-127.0.0.1       chunantes.substra-backend
-127.0.0.1       owkin.substra-backend
+127.0.0.1       substra-backend.chunantes.xyz
+127.0.0.1       substra-backend.owkin.xyz
 ```
 
 ## Get source code
@@ -70,7 +70,7 @@ pip install substra
 
 ```bash
 $ substra --version
-0.0.1
+0.1.0
 ```
 
 ## Pull substra-tools image from private docker repository
@@ -147,5 +147,5 @@ python3 populate.py
 export SUBSTRA_SOURCE=~/substra
 alias sbnet-start="cd $SUBSTRA_SOURCE/hlf-k8s/; ./bootstrap.sh && python3 python-scripts/start.py --no-backup; docker rm -f run setup; cd -"
 alias sbbac-start="pushd .; cd $SUBSTRA_SOURCE/substra-backend/; sh build-docker-images.sh; sh scripts/clean_media.sh; cd docker; python3 start.py -d --no-backup; popd"
-alias sbbac-wait="while ! curl owkin.substra-backend:8000 ; do sleep 2 ; done"
+alias sbbac-wait="while ! curl substra-backend.owkin.xyz:8000 ; do sleep 2 ; done"
 ```

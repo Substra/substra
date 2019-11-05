@@ -16,8 +16,11 @@ from copy import deepcopy
 import logging
 import os
 
+import keyring
+
 from substra.sdk import utils, assets, rest_client, exceptions
 from substra.sdk import config as cfg
+from substra.sdk import user as usr
 
 logger = logging.getLogger(__name__)
 
@@ -28,20 +31,47 @@ def get_asset_key(data):
 
 class Client(object):
 
-    def __init__(self, config_path=None, profile_name=None):
+    def __init__(self, config_path=None, profile_name=None, user_path=None):
         self._cfg_manager = cfg.Manager(config_path or cfg.DEFAULT_PATH)
+        self._usr_manager = usr.Manager(user_path or usr.DEFAULT_PATH)
         self._current_profile = None
         self._profiles = {}
         self.client = rest_client.Client()
+        self._profile_name = 'default'
 
         if profile_name:
+            self._profile_name = profile_name
             self.set_profile(profile_name)
+
+        # set current logged user if exists
+        self.set_user()
+
+    def login(self):
+        """Login.
+
+        Allow to login to a remote server.
+
+        After setting your configuration with `substra config` using `-u` and `-p`
+        Launch `substra login`
+        You will get a token which will be stored by default in `~/.substra-user`
+        You can change that thanks to the --user option (works like the --profile option)
+
+        """
+
+        res = self.client.login()
+        token = res.json()['token']
+        self._current_profile.update({
+            'token': token,
+        })
+        self.client.set_config(self._current_profile, self._profile_name)
+        return token
 
     def _set_current_profile(self, profile_name, profile):
         """Set client current profile."""
         self._profiles[profile_name] = profile
         self._current_profile = profile
-        self.client.set_config(self._current_profile)
+        self.client.set_config(self._current_profile, profile_name)
+
         return profile
 
     def set_profile(self, profile_name):
@@ -57,17 +87,27 @@ class Client(object):
 
         return self._set_current_profile(profile_name, profile)
 
-    def add_profile(self, profile_name, url, version='0.0', insecure=False,
-                    user=None, password=None):
+    def set_user(self):
+        try:
+            user = self._usr_manager.load_user()
+        except (exceptions.UserException, FileNotFoundError):
+            pass
+        else:
+            if self._current_profile is not None and 'token' in user:
+                self._current_profile.update({
+                    'token': user['token'],
+                })
+                self.client.set_config(self._current_profile, self._profile_name)
+
+    def add_profile(self, profile_name, username, password, url, version='0.0', insecure=False):
         """Add new profile (in-memory only)."""
         profile = cfg.create_profile(
-            name=profile_name,
             url=url,
             version=version,
             insecure=insecure,
-            user=user,
-            password=password,
+            username=username,
         )
+        keyring.set_password(profile_name, username, password)
         return self._set_current_profile(profile_name, profile)
 
     def _add(self, asset, data, files=None, timeout=False, exist_ok=False,

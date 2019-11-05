@@ -2,8 +2,22 @@
 
 # Client
 ```python
-Client(self, config_path=None, profile_name=None)
+Client(self, config_path=None, profile_name=None, user_path=None)
 ```
+
+## login
+```python
+Client.login(self)
+```
+Login.
+
+Allow to login to a remote server.
+
+After setting your configuration with `substra config` using `-u` and `-p`
+Launch `substra login`
+You will get a token which will be stored by default in `~/.substra-user`
+You can change that thanks to the --user option (works like the --profile option)
+
 
 ## set_profile
 ```python
@@ -16,7 +30,7 @@ from the config file.
 
 ## add_profile
 ```python
-Client.add_profile(self, profile_name, url, version='0.0', insecure=False, user=None, password=None)
+Client.add_profile(self, profile_name, username, password, url, version='0.0', insecure=False)
 ```
 Add new profile (in-memory only).
 ## add_data_sample

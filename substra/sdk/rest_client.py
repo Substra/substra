@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import logging
+
+import keyring
 import requests
 
 from substra.sdk import exceptions, assets, utils
@@ -29,27 +31,61 @@ class Client():
         self._headers = {}
         self._default_kwargs = {}
         self._base_url = None
+        self._auth = {}
 
         if config:
             self.set_config(config)
 
-    def set_config(self, config):
+    def login(self):
+        try:
+            r = requests.post(f'{self._base_url}/api-token-auth/',
+                              data=self._auth,
+                              headers=self._headers)
+            r.raise_for_status()
+        except requests.exceptions.ConnectionError as e:
+            raise exceptions.ConnectionError.from_request_exception(e)
+        except requests.exceptions.Timeout as e:
+            raise exceptions.Timeout.from_request_exception(e)
+        except requests.exceptions.HTTPError as e:
+            logger.error(f"Requests error status {e.response.status_code}: {e.response.text}")
+
+            if e.response.status_code in (400, 401):
+                raise exceptions.BadLoginException.from_request_exception(e)
+
+            raise exceptions.HTTPError.from_request_exception(e)
+        else:
+            return r
+
+    def set_config(self, config, profile_name='default'):
         """Reset internal attributes from config."""
         # get default requests keyword arguments from config
         kwargs = {}
-        if config['auth']:
-            user, password = config['auth']['user'], config['auth']['password']
-            kwargs['auth'] = (user, password)
 
         if config['insecure']:
             kwargs['verify'] = False
 
         # get default HTTP headers from config
-        headers = {'Accept': 'application/json;version={}'.format(config['version'])}
+        headers = {
+            'Accept': 'application/json;version={}'.format(config['version']),
+        }
+
+        if 'token' in config:
+            headers.update({
+                'Authorization': f"Token {config['token']}"
+            })
 
         self._headers = headers
         self._default_kwargs = kwargs
         self._base_url = config['url'][:-1] if config['url'].endswith('/') else config['url']
+
+        if not isinstance(config['auth'], dict):
+            raise exceptions.BadConfiguration('Your configuration is outdated, please update it.')
+
+        username = config['auth']['username']
+        self._auth = {
+            'username': username,
+            'password': keyring.get_password(profile_name, username)
+        }
 
     def _request(self, request_name, url, **request_kwargs):
         """Base request helper."""

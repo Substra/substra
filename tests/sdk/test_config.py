@@ -23,7 +23,9 @@ def test_add_load_profile(tmpdir):
 
     profile_1 = manager.add_profile(
         'owkin',
-        url='http://owkin.substra-backend:8000',
+        'substra',
+        'p@$swr0d44',
+        url='http://substra-backend.owkin.xyz:8000',
         version='0.0')
 
     profile_2 = manager.load_profile('owkin')
@@ -37,7 +39,7 @@ def test_load_profile_fail(tmpdir):
     with pytest.raises(FileNotFoundError):
         manager.load_profile('notfound')
 
-    manager.add_profile('default')
+    manager.add_profile('default', 'foo', 'bar')
 
     with pytest.raises(configuration.ProfileNotFoundError):
         manager.load_profile('notfound')

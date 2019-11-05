@@ -45,7 +45,7 @@ def client_execute(directory, command, exit_code=0):
     if '--config' not in command:
         cfgpath = directory / 'substra.cfg'
         substra.sdk.config.Manager(str(cfgpath)).add_profile(
-            'default', url='http://foo')
+            'default', 'username', 'password', url='http://foo')
         command.extend(['--config', str(cfgpath)])
     return execute(command, exit_code=exit_code)
 
@@ -72,6 +72,8 @@ def test_command_config(workdir):
         new_url,
         '--profile', new_profile,
         '--config', str(cfgfile),
+        '-u', 'foo',
+        '-p', 'bar'
     ])
     assert cfgfile.exists()
 

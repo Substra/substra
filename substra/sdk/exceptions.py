@@ -126,3 +126,18 @@ class AuthenticationError(HTTPError):
 
 class AuthorizationError(HTTPError):
     pass
+
+
+class BadLoginException(RequestException):
+    """The server refused to log-in with these credentials"""
+    pass
+
+
+class BadConfiguration(SDKException):
+    """Bad configuration"""
+    pass
+
+
+class UserException(SDKException):
+    """User Exception"""
+    pass
