@@ -5,11 +5,6 @@ python:
 
 cache: pip
 
-branches:
-  only:
-    - master
-    - dev
-
 deploy:
   provider: pypi
   user: __token__
