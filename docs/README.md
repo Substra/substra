@@ -4,6 +4,7 @@ Interacting with the Substra platform:
 
 - [Command line interface](../references/cli.md)
 - [SDK](../references/sdk.md)
+- [Ingest data samples](./ingest_data.md)
 
 Implementing your assets in python:
 
