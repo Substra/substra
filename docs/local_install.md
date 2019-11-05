@@ -70,7 +70,7 @@ pip install substra
 
 ```bash
 $ substra --version
-1.3.0
+0.0.1
 ```
 
 ## Pull substra-tools image from private docker repository
