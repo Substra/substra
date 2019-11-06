@@ -6,6 +6,7 @@
 - [substra add dataset](#substra-add-dataset)
 - [substra add objective](#substra-add-objective)
 - [substra add algo](#substra-add-algo)
+- [substra add compute_plan](#substra-add-compute_plan)
 - [substra add traintuple](#substra-add-traintuple)
 - [substra add testtuple](#substra-add-testtuple)
 - [substra get](#substra-get)
@@ -203,6 +204,45 @@ Options:
   --help          Show this message and exit.
 ```
 
+## substra add compute_plan
+
+```bash
+Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
+
+  Add compute plan.
+
+  The tuples path must point to a valid JSON file with the following schema:
+
+  {
+      "traintuples": list[{
+          "data_manager_key": str,
+          "train_data_sample_keys": list[str],
+          "traintuple_id": str,
+          "in_models_ids": list[str],
+          "tag": str,
+      }],
+      "testtuples": list[{
+          "data_manager_key": str,
+          "test_data_sample_keys": list[str],
+          "testtuple_id": str,
+          "traintuple_id": str,
+          "tag": str,
+      }]
+  }
+
+Options:
+  --algo-key TEXT       [required]
+  --objective-key TEXT  [required]
+  --yaml                Display output as yaml.
+  --json                Display output as json.
+  --pretty              Pretty print output  [default: True]
+  --config PATH         Config path (default ~/.substra).
+  --profile TEXT        Profile name to use.
+  --user FILE           User file path to use (default ~/.substra-user).
+  --verbose             Enable verbose mode.
+  --help                Show this message and exit.
+```
+
 ## substra add traintuple
 
 ```bash
@@ -272,7 +312,8 @@ Options:
 ## substra get
 
 ```bash
-Usage: substra get [OPTIONS] [algo|dataset|objective|testtuple|traintuple]
+Usage: substra get [OPTIONS]
+                   [algo|compute_plan|dataset|objective|testtuple|traintuple]
                    ASSET_KEY
 
   Get asset definition.
@@ -292,8 +333,8 @@ Options:
 ## substra list
 
 ```bash
-Usage: substra list [OPTIONS] [algo|data_sample|dataset|objective|testtuple|tr
-                    aintuple|node]
+Usage: substra list [OPTIONS] [algo|compute_plan|data_sample|dataset|objective
+                    |testtuple|traintuple|node]
 
   List assets.
 

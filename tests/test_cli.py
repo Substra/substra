@@ -119,8 +119,9 @@ def test_command_list_node(workdir, mocker):
                     '--in-model-key', 'foo', '--data-samples-path']),
     ('traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
                     '--in-model-key', 'foo', '--in-model-key', 'bar', '--data-samples-path']),
-    ('testtuple', ['--traintuple-key', 'foo', '--data-samples-path'])]
-)
+    ('testtuple', ['--traintuple-key', 'foo', '--data-samples-path']),
+    ('compute_plan', ['--algo-key', 'foo', '--objective-key', 'foo']),
+])
 def test_command_add(asset_name, params, workdir, mocker):
     method_name = f'add_{asset_name}'
 
@@ -186,7 +187,7 @@ def test_command_add_data_sample(workdir, mocker):
     temp_dir = workdir / "test"
     temp_dir.mkdir()
 
-    m =  mock_client_call(mocker, 'add_data_samples')
+    m = mock_client_call(mocker, 'add_data_samples')
     client_execute(workdir, ['add', 'data_sample', str(temp_dir), '--dataset-key', 'foo',
                              '--test-only'])
     assert m.is_called()
@@ -196,13 +197,34 @@ def test_command_add_data_sample(workdir, mocker):
     assert re.search(r'Directory ".*" does not exist\.', res)
 
 
-def test_command_add_already_exists(workdir, mocker):
-    m = mock_client_call(mocker, 'add_dataset',
+@pytest.mark.parametrize('asset_name, params', [
+    ('dataset', []),
+    ('algo', []),
+    ('traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
+                    '--data-samples-path']),
+    ('testtuple', ['--traintuple-key', 'foo', '--data-samples-path']),
+    ('compute_plan', ['--algo-key', 'foo', '--objective-key', 'foo']),
+    ('objective', []),
+])
+def test_command_add_already_exists(workdir, mocker, asset_name, params):
+    m = mock_client_call(mocker, f'add_{asset_name}',
                          side_effect=substra.exceptions.AlreadyExists('foo', 409))
     json_file = workdir / "valid_json_file.json"
     json_file.write_text(json.dumps({}))
-    output = client_execute(workdir, ['add', 'dataset', str(json_file)], exit_code=1)
+    output = client_execute(workdir, ['add', asset_name] + params + [str(json_file)],
+                            exit_code=1)
 
+    assert 'already exists' in output
+    assert m.is_called()
+
+
+def test_command_add_data_sample_already_exists(workdir, mocker):
+    m = mock_client_call(mocker, 'add_data_samples',
+                         side_effect=substra.exceptions.AlreadyExists('foo', 409))
+    temp_dir = workdir / "test"
+    temp_dir.mkdir()
+    output = client_execute(workdir, ['add', 'data_sample', str(temp_dir), '--dataset-key', 'foo'],
+                            exit_code=1)
     assert 'already exists' in output
     assert m.is_called()
 

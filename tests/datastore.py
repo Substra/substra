@@ -173,3 +173,5 @@ NODES = [
     {'id': 'foo', 'isCurrent': False},
     {'id': 'bar', 'isCurrent': True},
 ]
+
+COMPUTE_PLAN = {}

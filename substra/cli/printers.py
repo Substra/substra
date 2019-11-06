@@ -95,6 +95,14 @@ class KeysField(Field):
         return value
 
 
+class CountField(Field):
+    def get_value(self, item, **kwargs):
+        value = super().get_value(item)
+        if value:
+            return len(value)
+        return 0
+
+
 class InModelTraintupleKeysField(KeysField):
     def _get_key(self, v):
         return v.get('traintupleKey')
@@ -228,22 +236,30 @@ class AlgoPrinter(AssetPrinter):
 class ComputePlanPrinter(AssetPrinter):
     asset_name = 'compute_plan'
 
+    key_field = Field('Compute plan ID', 'computePlanID')
+
     list_fields = (
-        # Field('Name', 'name'),
+        Field('Algo key', 'algoKey'),
+        Field('Objective key', 'objectiveKey'),
+        CountField('Traintuples count', 'traintuples'),
+        CountField('Testtuples count', 'testtuples'),
     )
     single_fields = (
-        # Field('Name', 'name'),
-        # Field('Owner', 'owner'),
-        # PermissionField('Permissions', 'permissions'),
+        Field('Algo key', 'algoKey'),
+        Field('Objective key', 'objectiveKey'),
+        KeysField('Traintuple keys', 'traintupleKeys'),
+        KeysField('Testtuple keys', 'traintupleKeys'),
     )
 
     def print_messages(self, item):
         key_value = self.key_field.get_value(item)
 
+        print()
         print('Display this compute_plan\'s traintuples:')
-        print(f'\tsubstra list traintuple -f "traintuple:computePlanID:{key_value}')
+        print(f'\tsubstra list traintuple -f "traintuple:computePlanID:{key_value}"')
+        print()
         print('Display this compute_plan\'s testtuples:')
-        print(f'\tsubstra list testtuple -f "testtuple:computePlanID:{key_value}')
+        print(f'\tsubstra list testtuple -f "testtuple:computePlanID:{key_value}"')
 
 
 class ObjectivePrinter(AssetPrinter):

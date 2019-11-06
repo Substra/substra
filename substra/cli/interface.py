@@ -438,6 +438,54 @@ def add_algo(ctx, data, output_format, config, profile, user, verbose):
     printer.print(res, is_list=False)
 
 
+@add.command('compute_plan')
+@click.argument('tuples', type=click.Path(exists=True, dir_okay=False),
+                callback=load_json_from_path, metavar="TUPLES_PATH")
+@click.option('--algo-key', required=True)
+@click.option('--objective-key', required=True)
+@click_option_output_format
+@click_option_config
+@click_option_profile
+@click_option_user
+@click_option_verbose
+@click.pass_context
+@error_printer
+def add_compute_plan(ctx, tuples, algo_key, objective_key, output_format,
+                     config, profile, user, verbose):
+    """Add compute plan.
+
+    The tuples path must point to a valid JSON file with the following schema:
+
+    \b
+    {
+        "traintuples": list[{
+            "data_manager_key": str,
+            "train_data_sample_keys": list[str],
+            "traintuple_id": str,
+            "in_models_ids": list[str],
+            "tag": str,
+        }],
+        "testtuples": list[{
+            "data_manager_key": str,
+            "test_data_sample_keys": list[str],
+            "testtuple_id": str,
+            "traintuple_id": str,
+            "tag": str,
+        }]
+    }
+
+    """
+    client = get_client(config, profile, user)
+    data = {
+        "algo_key": algo_key,
+        "objective_key": objective_key
+    }
+    data.update(tuples)
+    res = client.add_compute_plan(data)
+    printer = printers.get_asset_printer(assets.COMPUTE_PLAN, output_format)
+    printer.print(res, is_list=False)
+
+
 @add.command('traintuple')
 @click.option('--objective-key', required=True)
 @click.option('--algo-key', required=True)
