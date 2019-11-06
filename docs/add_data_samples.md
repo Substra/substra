@@ -1,6 +1,6 @@
-# Ingest data samples to Substra
+# Add data samples to Substra
 
-Data samples should be ingested to Substra using our python SDK or our command line
+Data samples can be ingested to Substra using our python SDK or our command line
 interface tool.
 
 2 different modes are available when adding data samples:

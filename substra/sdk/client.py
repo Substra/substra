@@ -209,6 +209,13 @@ class Client(object):
             "test_only": bool,
         }
 ```
+        Create multiple data samples through a single HTTP request.
+
+        For the `local` argument, please refer to the method `Client.add_data_sample`.
+
+        This method is well suited for adding multiple small files only. For adding a
+        large amount of data it is recommended to add them one by one. It allows a
+        better control in case of failures.
         """
         if 'path' in data:
             raise ValueError("data: invalid 'path' field")

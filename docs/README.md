@@ -4,7 +4,6 @@ Interacting with the Substra platform:
 
 - [Command line interface](../references/cli.md)
 - [SDK](../references/sdk.md)
-- [Ingest data samples](./ingest_data.md)
 
 Implementing your assets in python:
 
@@ -17,3 +16,4 @@ Learning about the Substra platform:
 - [Concepts](./concepts.md)
 - [Machine Learning tasks](./ml_tasks.md)
 - [Adding a full pipeline](./full_pipeline_workflow.md)
+- [Add data samples](./add_data_samples.md)
