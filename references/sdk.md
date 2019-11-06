@@ -80,6 +80,9 @@ Create many data sample assets.
 ```
 Create multiple data samples through a single HTTP request.
 
+The `paths` in the data dictionary must be a list of paths where each path
+points to a directory representing one data sample.
+
 For the `local` argument, please refer to the method `Client.add_data_sample`.
 
 This method is well suited for adding multiple small files only. For adding a
