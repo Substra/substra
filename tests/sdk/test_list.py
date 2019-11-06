@@ -19,7 +19,7 @@ from .utils import mock_requests
 
 
 @pytest.mark.parametrize(
-    'asset_name', ['objective', 'dataset', 'algo', 'testtuple', 'traintuple']
+    'asset_name', ['objective', 'dataset', 'algo', 'testtuple', 'traintuple', 'compute_plan']
 )
 def test_list_asset(asset_name, client, mocker):
     item = getattr(datastore, asset_name.upper())

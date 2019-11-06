@@ -540,6 +540,7 @@ def add_testtuple(ctx, dataset_key, traintuple_key, data_samples, tag,
 @cli.command()
 @click.argument('asset-name', type=click.Choice([
     assets.ALGO,
+    assets.COMPUTE_PLAN,
     assets.DATASET,
     assets.OBJECTIVE,
     assets.TESTTUPLE,
@@ -572,6 +573,7 @@ def get(ctx, asset_name, asset_key, expand, output_format, config, profile, user
 @cli.command('list')
 @click.argument('asset-name', type=click.Choice([
     assets.ALGO,
+    assets.COMPUTE_PLAN,
     assets.DATA_SAMPLE,
     assets.DATASET,
     assets.OBJECTIVE,

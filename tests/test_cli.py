@@ -91,7 +91,7 @@ def mock_client_call(mocker, method_name, response="", side_effect=None):
 
 
 @pytest.mark.parametrize(
-    'asset_name', ['objective', 'dataset', 'algo', 'testtuple', 'traintuple']
+    'asset_name', ['objective', 'dataset', 'algo', 'testtuple', 'traintuple', 'compute_plan']
 )
 def test_command_list(asset_name, workdir, mocker):
     item = getattr(datastore, asset_name.upper())
@@ -208,7 +208,7 @@ def test_command_add_already_exists(workdir, mocker):
 
 
 @pytest.mark.parametrize(
-    'asset_name', ['objective', 'dataset', 'algo', 'testtuple', 'traintuple']
+    'asset_name', ['objective', 'dataset', 'algo', 'testtuple', 'traintuple', 'compute_plan']
 )
 def test_command_get(asset_name, workdir, mocker):
     item = getattr(datastore, asset_name.upper())

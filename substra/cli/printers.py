@@ -225,6 +225,27 @@ class AlgoPrinter(AssetPrinter):
     download_message = 'Download this algorithm\'s code:'
 
 
+class ComputePlanPrinter(AssetPrinter):
+    asset_name = 'compute_plan'
+
+    list_fields = (
+        # Field('Name', 'name'),
+    )
+    single_fields = (
+        # Field('Name', 'name'),
+        # Field('Owner', 'owner'),
+        # PermissionField('Permissions', 'permissions'),
+    )
+
+    def print_messages(self, item):
+        key_value = self.key_field.get_value(item)
+
+        print('Display this compute_plan\'s traintuples:')
+        print(f'\tsubstra list traintuple -f "traintuple:computePlanID:{key_value}')
+        print('Display this compute_plan\'s testtuples:')
+        print(f'\tsubstra list testtuple -f "testtuple:computePlanID:{key_value}')
+
+
 class ObjectivePrinter(AssetPrinter):
     asset_name = 'objective'
 
@@ -365,6 +386,7 @@ class LeaderBoardPrinter(BasePrinter):
 
 PRINTERS = {
     assets.ALGO: AlgoPrinter,
+    assets.COMPUTE_PLAN: ComputePlanPrinter,
     assets.OBJECTIVE: ObjectivePrinter,
     assets.DATASET: DatasetPrinter,
     assets.DATA_SAMPLE: DataSamplePrinter,
