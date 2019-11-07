@@ -57,7 +57,8 @@ filesystem. The file content will be transferred to the server through an
 HTTP query, so this mode should be used for relatively small files (<10mo).
 
 If `local` is false, `path` must refer to a directory located on the server
-filesystem. This mode is well suited for all kind of file sizes.
+filesystem. This directory must be accessible (readable) by the server.  This
+mode is well suited for all kind of file sizes.
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
