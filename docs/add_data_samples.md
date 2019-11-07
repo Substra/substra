@@ -8,5 +8,6 @@ interface tool.
   requests. This mode is most likely to be used to add relatively small files or for
   testing purposes.
 - remote: data are located on the server filesystem. Data must have been transferred
-  previously to the server. This mode is recommended for adding relatively big data 
-  samples or for adding many data samples.
+  previously to the server. Please ask the substra server administrator for further
+  details regarding how to transfer the data. This mode is recommended for adding
+  relatively big data samples or for adding many data samples.
