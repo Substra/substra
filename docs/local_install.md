@@ -27,7 +27,7 @@ This guide will help you to get Substra source code and to start a local instanc
 
 ## Get source code
 
-- Define a root directory for all your Substra git repositorories (for instance `~/substra`)
+- Define a root directory for all your Substra git repositories (for instance `~/substra`)
 
 ```bash
 export SUBSTRA_SOURCE=~/substra
