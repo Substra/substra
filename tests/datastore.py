@@ -174,4 +174,54 @@ NODES = [
     {'id': 'bar', 'isCurrent': True},
 ]
 
-COMPUTE_PLAN = {}
+COMPUTE_PLAN = {
+    "computePlanID": "d4ca4befe79e56b98168b80e17db415f5be8c138ddeb600b6937a3f2aa809de3",
+    "algoKey": "9fe61782e7b4d445dff6bc0baae01eb3fa6e926ad0f6870365d605eee5bd169d",
+    "objectiveKey": "3d70ab46d710dacb0f48cb42db4874fac14e048a0d415e266aad38c09591ee71",
+    "traintuples": [
+        {
+            "key": "d4ca4befe79e56b98168b80e17db415f5be8c138ddeb600b6937a3f2aa809de3",
+            "algo": {
+                "name": "Logistic regression",
+                "hash": "9fe61782e7b4d445dff6bc0baae01eb3fa6e926ad0f6870365d605eee5bd169d",
+                "storageAddress": "http://testserver/algo/9fe61782e7b4d445dff6bc0baae01eb3fa6e926ad0f6870365d605eee5bd169d/file/",  # noqa: E501
+            },
+            "creator": "MyPeer2MSP",
+            "dataset": {
+                "worker": "MyPeer2MSP",
+                "keys": [
+                    "31510dc1d8be788f7c5d28d05714f7efb9edb667762966b9adc02eadeaacebe9",
+                    "e3644123451975be20909fcfd9c664a0573d9bfe04c5021625412d78c3536f1c"
+                ],
+                "openerHash": "8dd01465003a9b1e01c99c904d86aa518b3a5dd9dc8d40fe7d075c726ac073ca",
+                "perf": 1
+            },
+            "computePlanID": "d4ca4befe79e56b98168b80e17db415f5be8c138ddeb600b6937a3f2aa809de3",
+            "inModels": None,
+            "log": "",
+            "objective": {
+                "hash": "3d70ab46d710dacb0f48cb42db4874fac14e048a0d415e266aad38c09591ee71",
+                "metrics": {
+                    "hash": "e5762042461c355761dd8986b510ea23494d5638a671370dabbf0ac73f8a3208",
+                    "storageAddress": "http://testserver/objective/3d70ab46d710dacb0f48cb42db4874fac14e048a0d415e266aad38c09591ee71/metrics/",  # noqa: E501
+
+                }
+            },
+            "outModel": {
+                "hash": "af716d0315e847b500376420aaa65a5192f67a5635163d7c0f44cdf72d5b3772",
+                "storageAddress": "http://testserver/model/af716d0315e847b500376420aaa65a5192f67a5635163d7c0f44cdf72d5b3772/file/",  # noqa: E501
+
+            },
+            "permissions": {
+                "process": {
+                    "public": True,
+                    "authorizedIDs": []
+                }
+            },
+            "rank": 0,
+            "status": "done",
+            "tag": ""
+        }
+    ],
+    "testtuples": []
+}
