@@ -151,8 +151,7 @@ class Client(object):
                 assets.DATA_SAMPLE, data,
                 files=files, timeout=timeout, exist_ok=False)
 
-    def add_data_sample(self, data, local=True, timeout=False,
-                        exist_ok=False):
+    def add_data_sample(self, data, local=True, timeout=False, exist_ok=False):
         """Create new data sample asset.
 
         `data` is a dict object with the following schema:
@@ -164,9 +163,21 @@ class Client(object):
             "test_only": bool,
         }
 ```
+        The `path` in the data dictionary must point to a directory representing the
+        data sample content. Note that the directory can contain multiple files, all the
+        directory content will be added to the platform.
+
+        If `local` is true, `path` must refer to a directory located on the local
+        filesystem. The file content will be transferred to the server through an
+        HTTP query, so this mode should be used for relatively small files (<10mo).
+
+        If `local` is false, `path` must refer to a directory located on the server
+        filesystem. This directory must be accessible (readable) by the server.  This
+        mode is well suited for all kind of file sizes.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
+
         """
         if 'paths' in data:
             raise ValueError("data: invalid 'paths' field")
@@ -199,6 +210,16 @@ class Client(object):
             "test_only": bool,
         }
 ```
+        Create multiple data samples through a single HTTP request.
+
+        The `paths` in the data dictionary must be a list of paths where each path
+        points to a directory representing one data sample.
+
+        For the `local` argument, please refer to the method `Client.add_data_sample`.
+
+        This method is well suited for adding multiple small files only. For adding a
+        large amount of data it is recommended to add them one by one. It allows a
+        better control in case of failures.
         """
         if 'path' in data:
             raise ValueError("data: invalid 'path' field")

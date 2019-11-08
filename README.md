@@ -71,6 +71,7 @@ Learning about the Substra platform:
 - [Concepts](./docs/concepts.md)
 - [Machine Learning tasks](./docs/ml_tasks.md)
 - [Adding a full pipeline](./docs/full_pipeline_workflow.md)
+- [Adding data samples](./docs/add_data_samples.md)
 
 ## Examples
 
