@@ -454,8 +454,8 @@ def add_algo(ctx, data, output_format, config, profile, user, verbose):
 @click_option_verbose
 @click.pass_context
 @error_printer
-def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, in_models_keys, tag, output_format,
-                   config, profile, user, verbose):
+def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, in_models_keys, tag,
+                   output_format, config, profile, user, verbose):
     """Add traintuple.
 
     The option --data-samples-path must point to a valid JSON file with the
