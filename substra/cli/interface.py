@@ -445,6 +445,7 @@ def add_algo(ctx, data, output_format, config, profile, user, verbose):
 @click.option('--data-samples-path', 'data_samples', required=True,
               type=click.Path(exists=True, resolve_path=True, dir_okay=False),
               callback=load_json_from_path)
+@click.option('--in-models-keys')
 @click.option('--tag')
 @click_option_output_format
 @click_option_config
@@ -453,7 +454,7 @@ def add_algo(ctx, data, output_format, config, profile, user, verbose):
 @click_option_verbose
 @click.pass_context
 @error_printer
-def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, tag, output_format,
+def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, in_models_keys, tag, output_format,
                    config, profile, user, verbose):
     """Add traintuple.
 
@@ -469,7 +470,6 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, tag,
     Where:
     - keys: list of data sample keys
     """
-    # TODO add missing inmodel keys?
     client = get_client(config, profile, user)
     data = {
         'algo_key': algo_key,
@@ -482,6 +482,9 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, tag,
 
     if tag:
         data['tag'] = tag
+
+    if in_models_keys:
+        data['in_models_keys'] = in_models_keys
     res = client.add_traintuple(data)
     printer = printers.get_asset_printer(assets.TRAINTUPLE, output_format)
     printer.print(res, is_list=False)
