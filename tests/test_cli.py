@@ -115,6 +115,10 @@ def test_command_list_node(workdir, mocker):
     ('algo', []),
     ('traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
                     '--data-samples-path']),
+    ('traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
+                    '--in-model-key', 'foo', '--data-samples-path']),
+    ('traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
+                    '--in-model-key', 'foo', '--in-model-key', 'bar', '--data-samples-path']),
     ('testtuple', ['--traintuple-key', 'foo', '--data-samples-path'])]
 )
 def test_command_add(asset_name, params, workdir, mocker):

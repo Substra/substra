@@ -338,7 +338,7 @@ def add_dataset(ctx, data, objective_key, output_format, config, profile, user, 
 @click.option('--dataset-key')
 @click.option('--data-samples-path', 'data_samples',
               type=click.Path(exists=True, resolve_path=True, dir_okay=False),
-              callback=load_json_from_path, help='test data samples')
+              callback=load_json_from_path, help='Test data samples.')
 @click_option_output_format
 @click_option_config
 @click_option_profile
@@ -445,7 +445,8 @@ def add_algo(ctx, data, output_format, config, profile, user, verbose):
 @click.option('--data-samples-path', 'data_samples', required=True,
               type=click.Path(exists=True, resolve_path=True, dir_okay=False),
               callback=load_json_from_path)
-@click.option('--in-models-keys')
+@click.option('--in-model-key', 'in_models_keys', type=click.STRING, multiple=True,
+              help='In model traintuple key.')
 @click.option('--tag')
 @click_option_output_format
 @click_option_config
