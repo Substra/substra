@@ -27,7 +27,7 @@ This guide will help you to get Substra source code and to start a local instanc
 
 ## Get source code
 
-- Define a root directory for all your Substra git repositorories (for instance `~/substra`)
+- Define a root directory for all your Substra git repositories (for instance `~/substra`)
 
 ```bash
 export SUBSTRA_SOURCE=~/substra
@@ -35,7 +35,7 @@ mkdir -p $SUBSTRA_SOURCE
 cd $SUBSTRA_SOURCE
 ```
 
-- Clone the following repositories from github and fetch the master branch:
+- Clone the following repositories from github and fetch the dev branch:
   - hlf-k8s
   - substra-chaincode
   - substra-backend
