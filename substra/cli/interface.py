@@ -310,7 +310,8 @@ def add_data_sample(ctx, path, dataset_key, local, multiple, test_only,
 @click_option_verbose
 @click.pass_context
 @error_printer
-def add_dataset(ctx, data, objective_key, output_format, config, permissions, profile, user, verbose):
+def add_dataset(ctx, data, objective_key, output_format, config, permissions, profile, user,
+                verbose):
     """Add dataset.
 
     The path must point to a valid JSON file with the following schema:
