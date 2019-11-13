@@ -153,8 +153,8 @@ def click_option_permissions(f):
     return click.option(
         '--permissions-path',
         'permissions',
-        type=click.Path(exists=True, dir_okay=False), callback=load_json_from_path,
-        metavar="PATH",
+        type=click.Path(exists=True, dir_okay=False),
+        callback=load_json_from_path,
         help='Add permissions file.'
     )(f)
 
@@ -338,6 +338,8 @@ def add_dataset(ctx, data, objective_key, output_format, config, permissions, pr
     - data_opener: path to the opener python script
     - permissions: define asset access permissions
     """
+    if permissions:
+        data['permissions'] = permissions
     client = get_client(config, profile, user)
     dict_append_to_optional_field(data, 'objective_keys', objective_key)
     res = client.add_dataset(data)
@@ -399,6 +401,8 @@ def add_objective(ctx, data, dataset_key, data_samples, output_format, config, p
     Where:
     - keys: list of test only data sample keys
     """
+    if permissions:
+        data['permissions'] = permissions
     client = get_client(config, profile, user)
 
     if dataset_key:
@@ -447,6 +451,8 @@ def add_algo(ctx, data, output_format, config, permissions, profile, user, verbo
       script and its Dockerfile
     - permissions: define asset access permissions
     """
+    if permissions:
+        data['permissions'] = permissions
     client = get_client(config, profile, user)
     res = client.add_algo(data)
     printer = printers.get_asset_printer(assets.ALGO, output_format)
@@ -502,6 +508,9 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, in_m
 
     if in_models_keys:
         data['in_models_keys'] = in_models_keys
+
+    if permissions:
+        data['permissions'] = permissions
     res = client.add_traintuple(data)
     printer = printers.get_asset_printer(assets.TRAINTUPLE, output_format)
     printer.print(res, is_list=False)

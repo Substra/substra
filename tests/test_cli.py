@@ -207,6 +207,26 @@ def test_command_add_already_exists(workdir, mocker):
         assert m.is_called()
 
 
+def test_command_add_with_permissions(workdir, mocker):
+    with mock_client_call(mocker, 'add_algo', response={}) as m:
+        json_file = workdir / "valid_json_file.json"
+        json_file.write_text(json.dumps({}))
+        client_execute(workdir, ['add', 'algo', str(json_file), '--permissions-path',
+                                 str(json_file)])
+    assert m.is_called()
+
+    invalid_json_file = workdir / "invalid_json_file.txt"
+    invalid_json_file.write_text("foo")
+
+    res = client_execute(workdir, ['add', 'algo', str(json_file), '--permissions-path',
+                                   str(invalid_json_file)], exit_code=2)
+    assert re.search(r'File ".*" is not a valid JSON file\.', res)
+
+    res = client_execute(workdir, ['add', 'algo', str(json_file), '--permissions-path',
+                                   'non_existing_file.txt'], exit_code=2)
+    assert re.search(r'File ".*" does not exist\.', res)
+
+
 @pytest.mark.parametrize(
     'asset_name', ['objective', 'dataset', 'algo', 'testtuple', 'traintuple']
 )
