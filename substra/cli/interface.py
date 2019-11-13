@@ -148,6 +148,17 @@ def click_option_verbose(f):
     )(f)
 
 
+def click_option_permissions(f):
+    """Add permissions file path to command."""
+    return click.option(
+        '--permissions-path',
+        'permissions',
+        type=click.Path(exists=True, dir_okay=False), callback=load_json_from_path,
+        metavar="PATH",
+        help='Add permissions file.'
+    )(f)
+
+
 def validate_json(ctx, param, value):
     if not value:
         return value
@@ -293,12 +304,13 @@ def add_data_sample(ctx, path, dataset_key, local, multiple, test_only,
 @click.option('--objective-key')
 @click_option_output_format
 @click_option_config
+@click_option_permissions
 @click_option_profile
 @click_option_user
 @click_option_verbose
 @click.pass_context
 @error_printer
-def add_dataset(ctx, data, objective_key, output_format, config, profile, user, verbose):
+def add_dataset(ctx, data, objective_key, output_format, config, permissions, profile, user, verbose):
     """Add dataset.
 
     The path must point to a valid JSON file with the following schema:
@@ -341,12 +353,13 @@ def add_dataset(ctx, data, objective_key, output_format, config, profile, user, 
               callback=load_json_from_path, help='Test data samples.')
 @click_option_output_format
 @click_option_config
+@click_option_permissions
 @click_option_profile
 @click_option_user
 @click_option_verbose
 @click.pass_context
 @error_printer
-def add_objective(ctx, data, dataset_key, data_samples, output_format, config,
+def add_objective(ctx, data, dataset_key, data_samples, output_format, config, permissions,
                   profile, user, verbose):
     """Add objective.
 
@@ -403,12 +416,13 @@ def add_objective(ctx, data, dataset_key, data_samples, output_format, config,
                 metavar="PATH")
 @click_option_output_format
 @click_option_config
+@click_option_permissions
 @click_option_profile
 @click_option_user
 @click_option_verbose
 @click.pass_context
 @error_printer
-def add_algo(ctx, data, output_format, config, profile, user, verbose):
+def add_algo(ctx, data, output_format, config, permissions, profile, user, verbose):
     """Add algo.
 
     The path must point to a valid JSON file with the following schema:
@@ -450,13 +464,14 @@ def add_algo(ctx, data, output_format, config, profile, user, verbose):
 @click.option('--tag')
 @click_option_output_format
 @click_option_config
+@click_option_permissions
 @click_option_profile
 @click_option_user
 @click_option_verbose
 @click.pass_context
 @error_printer
 def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, in_models_keys, tag,
-                   output_format, config, profile, user, verbose):
+                   output_format, config, permissions, profile, user, verbose):
     """Add traintuple.
 
     The option --data-samples-path must point to a valid JSON file with the
