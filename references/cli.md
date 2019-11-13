@@ -155,7 +155,7 @@ Usage: substra add objective [OPTIONS] PATH
 
 Options:
   --dataset-key TEXT
-  --data-samples-path FILE  test data samples
+  --data-samples-path FILE  Test data samples.
   --yaml                    Display output as yaml.
   --json                    Display output as json.
   --pretty                  Pretty print output  [default: True]
@@ -225,6 +225,7 @@ Options:
   --algo-key TEXT           [required]
   --dataset-key TEXT        [required]
   --data-samples-path FILE  [required]
+  --in-model-key TEXT       In model traintuple key.
   --tag TEXT
   --yaml                    Display output as yaml.
   --json                    Display output as json.
