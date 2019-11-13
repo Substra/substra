@@ -105,14 +105,15 @@ Usage: substra add dataset [OPTIONS] PATH
 
 Options:
   --objective-key TEXT
-  --yaml                Display output as yaml.
-  --json                Display output as json.
-  --pretty              Pretty print output  [default: True]
-  --config PATH         Config path (default ~/.substra).
-  --profile TEXT        Profile name to use.
-  --user FILE           User file path to use (default ~/.substra-user).
-  --verbose             Enable verbose mode.
-  --help                Show this message and exit.
+  --yaml                   Display output as yaml.
+  --json                   Display output as json.
+  --pretty                 Pretty print output  [default: True]
+  --config PATH            Config path (default ~/.substra).
+  --permissions-path FILE  Add permissions file.
+  --profile TEXT           Profile name to use.
+  --user FILE              User file path to use (default ~/.substra-user).
+  --verbose                Enable verbose mode.
+  --help                   Show this message and exit.
 ```
 
 ## substra add objective
@@ -160,6 +161,7 @@ Options:
   --json                    Display output as json.
   --pretty                  Pretty print output  [default: True]
   --config PATH             Config path (default ~/.substra).
+  --permissions-path FILE   Add permissions file.
   --profile TEXT            Profile name to use.
   --user FILE               User file path to use (default ~/.substra-user).
   --verbose                 Enable verbose mode.
@@ -193,14 +195,15 @@ Usage: substra add algo [OPTIONS] PATH
   - permissions: define asset access permissions
 
 Options:
-  --yaml          Display output as yaml.
-  --json          Display output as json.
-  --pretty        Pretty print output  [default: True]
-  --config PATH   Config path (default ~/.substra).
-  --profile TEXT  Profile name to use.
-  --user FILE     User file path to use (default ~/.substra-user).
-  --verbose       Enable verbose mode.
-  --help          Show this message and exit.
+  --yaml                   Display output as yaml.
+  --json                   Display output as json.
+  --pretty                 Pretty print output  [default: True]
+  --config PATH            Config path (default ~/.substra).
+  --permissions-path FILE  Add permissions file.
+  --profile TEXT           Profile name to use.
+  --user FILE              User file path to use (default ~/.substra-user).
+  --verbose                Enable verbose mode.
+  --help                   Show this message and exit.
 ```
 
 ## substra add traintuple
@@ -231,6 +234,7 @@ Options:
   --json                    Display output as json.
   --pretty                  Pretty print output  [default: True]
   --config PATH             Config path (default ~/.substra).
+  --permissions-path FILE   Add permissions file.
   --profile TEXT            Profile name to use.
   --user FILE               User file path to use (default ~/.substra-user).
   --verbose                 Enable verbose mode.
