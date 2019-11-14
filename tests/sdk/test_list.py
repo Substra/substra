@@ -22,11 +22,13 @@ from .utils import mock_requests
     'objective',
     'dataset',
     'algo',
+    'aggregate_algo',
     'composite_algo',
     'testtuple',
     'traintuple',
+    'aggregatetuple',
     'composite_traintuple',
-    'compute_plan'
+    'compute_plan',
 ])
 def test_list_asset(asset_name, client, mocker):
     item = getattr(datastore, asset_name.upper())

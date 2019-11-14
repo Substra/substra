@@ -486,6 +486,46 @@ def add_compute_plan(ctx, tuples, algo_key, objective_key, output_format,
     printer.print(res, is_list=False)
 
 
+@add.command('aggregate_algo')
+@click.argument('data', type=click.Path(exists=True, dir_okay=False), callback=load_json_from_path,
+                metavar="PATH")
+@click_option_output_format
+@click_option_config
+@click_option_profile
+@click_option_user
+@click_option_verbose
+@click.pass_context
+@error_printer
+def add_aggregate_algo(ctx, data, output_format, config, profile, user, verbose):
+    """Add aggregate algo.
+
+    The path must point to a valid JSON file with the following schema:
+
+    \b
+    {
+        "name": str,
+        "description": path,
+        "file": path,
+        "permissions": {
+            "public": bool,
+            "authorized_ids": list[str],
+        },
+    }
+
+    \b
+    Where:
+    - name: name of the algorithm
+    - description: path to a markdown file describing the algo
+    - file: path to tar.gz or zip archive containing the algorithm python
+      script and its Dockerfile
+    - permissions: define asset access permissions
+    """
+    client = get_client(config, profile, user)
+    res = client.add_aggregate_algo(data)
+    printer = printers.get_asset_printer(assets.AGGREGATE_ALGO, output_format)
+    printer.print(res, is_list=False)
+
+
 @add.command('composite_algo')
 @click.argument('data', type=click.Path(exists=True, dir_okay=False), callback=load_json_from_path,
                 metavar="PATH")
@@ -577,6 +617,44 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, in_m
         data['in_models_keys'] = in_models_keys
     res = client.add_traintuple(data)
     printer = printers.get_asset_printer(assets.TRAINTUPLE, output_format)
+    printer.print(res, is_list=False)
+
+
+@add.command('aggregatetuple')
+@click.option('--objective-key', required=True)
+@click.option('--algo-key', required=True)
+@click.option('--in-model-key', 'in_models_keys', type=click.STRING, multiple=True,
+              help='In model traintuple key.')
+@click.option('--worker', required=True, help='Node ID for worker execution.')
+@click.option('--rank', type=click.INT)
+@click.option('--tag')
+@click_option_output_format
+@click_option_config
+@click_option_profile
+@click_option_user
+@click_option_verbose
+@click.pass_context
+@error_printer
+def add_aggregatetuple(ctx, objective_key, algo_key, in_models_keys, worker, rank, tag,
+                       output_format, config, profile, user, verbose):
+    """Add aggregatetuple."""
+    client = get_client(config, profile, user)
+    data = {
+        'algo_key': algo_key,
+        'objective_key': objective_key,
+        'worker': worker,
+    }
+
+    if in_models_keys:
+        data['in_models_keys'] = in_models_keys
+
+    if rank is not None:
+        data['rank'] = rank
+
+    if tag:
+        data['tag'] = tag
+    res = client.add_aggregatetuple(data)
+    printer = printers.get_asset_printer(assets.AGGREGATETUPLE, output_format)
     printer.print(res, is_list=False)
 
 
@@ -711,11 +789,13 @@ def add_testtuple(ctx, dataset_key, traintuple_key, data_samples, tag,
     assets.ALGO,
     assets.COMPUTE_PLAN,
     assets.COMPOSITE_ALGO,
+    assets.AGGREGATE_ALGO,
     assets.DATASET,
     assets.OBJECTIVE,
     assets.TESTTUPLE,
     assets.TRAINTUPLE,
     assets.COMPOSITE_TRAINTUPLE,
+    assets.AGGREGATETUPLE,
 ]))
 @click.argument('asset-key')
 @click_option_expand
@@ -746,12 +826,14 @@ def get(ctx, asset_name, asset_key, expand, output_format, config, profile, user
     assets.ALGO,
     assets.COMPUTE_PLAN,
     assets.COMPOSITE_ALGO,
+    assets.AGGREGATE_ALGO,
     assets.DATA_SAMPLE,
     assets.DATASET,
     assets.OBJECTIVE,
     assets.TESTTUPLE,
     assets.TRAINTUPLE,
     assets.COMPOSITE_TRAINTUPLE,
+    assets.AGGREGATETUPLE,
     assets.NODE,
 ]))
 @click.option('-f', '--filter', 'filters',
@@ -811,6 +893,7 @@ def list_(ctx, asset_name, filters, filters_logical_clause, advanced_filters, is
 @click.argument('asset-name', type=click.Choice([
     assets.ALGO,
     assets.COMPOSITE_ALGO,
+    assets.AGGREGATE_ALGO,
     assets.DATASET,
     assets.OBJECTIVE,
 ]))
@@ -835,6 +918,7 @@ def describe(ctx, asset_name, asset_key, config, profile, user, verbose):
 @click.argument('asset-name', type=click.Choice([
     assets.ALGO,
     assets.COMPOSITE_ALGO,
+    assets.AGGREGATE_ALGO,
     assets.DATASET,
     assets.OBJECTIVE,
 ]))
