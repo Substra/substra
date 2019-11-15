@@ -170,16 +170,18 @@ class AssetPrinter(BasePrinter):
     def print_download_message(self, item):
         if self.download_message:
             key_value = self.key_field.get_value(item)
+            profile = item['profile']
             print()
             print(self.download_message)
-            print(f'\tsubstra download {self.asset_name} {key_value}')
+            print(f'\tsubstra download {self.asset_name} {key_value} --profile {profile}')
 
     def print_description_message(self, item):
         if self.has_description:
             key_value = self.key_field.get_value(item)
+            profile = item['profile']
             print()
             print(f'Display this {self.asset_name}\'s description:')
-            print(f'\tsubstra describe {self.asset_name} {key_value}')
+            print(f'\tsubstra describe {self.asset_name} {key_value} --profile {profile}')
 
     def print_messages(self, item):
         self.print_download_message(item)
@@ -239,9 +241,10 @@ class ObjectivePrinter(AssetPrinter):
 
     def print_leaderboard_message(self, item):
         key_value = self.key_field.get_value(item)
+        profile = item['profile']
         print()
         print('Display this objective\'s leaderboard:')
-        print(f'\tsubstra leaderboard {key_value}')
+        print(f'\tsubstra leaderboard {key_value} --profile {profile}')
 
     def print_messages(self, item):
         super().print_messages(item)

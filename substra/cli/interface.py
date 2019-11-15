@@ -565,6 +565,7 @@ def get(ctx, asset_name, asset_key, expand, output_format, config, profile, user
     # method must exist in sdk
     method = getattr(client, f'get_{asset_name.lower()}')
     res = method(asset_key)
+    res['profile'] = profile
     printer = printers.get_asset_printer(asset_name, output_format)
     printer.print(res, expand=expand)
 
