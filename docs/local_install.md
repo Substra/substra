@@ -14,7 +14,7 @@ This guide will help you to get Substra source code and to start a local instanc
 
 - docker:
   - on macOS, by default, docker has access only to the user directory.
-    - Substra requires access to `/tmp/substra`, update accordingly the docker desktop configuration (`Preferences` > `File Sharing`).
+    - Substra requires access to a local folder that you can set through the `SUBSTRA_PATH` variable env (defaults to `/tmp/substra`). Make sure the directory of your choice is accessible by updating accordingly the docker desktop configuration (`Preferences` > `File Sharing`).
     - Ensure also that the docker daemon has enough resources to execute the ML pipeline, for instance: CPUs>1, Memory>4.0 GiB (`Preferences` > `Advanced`).
   - on Linux environment, please refer to this [guide](https://github.com/SubstraFoundation/substra-backend/blob/master/README.md) to configure docker.
 
