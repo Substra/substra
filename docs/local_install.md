@@ -14,7 +14,7 @@ This guide will help you to get Substra source code and to start a local instanc
 
 - docker:
   - on macOS, by default, docker has access only to the user directory.
-    - Substra requires access to `/substra`, update accordingly the docker desktop configuration (`Preferences` > `File Sharing`).
+    - Substra requires access to a local folder that you can set through the `SUBSTRA_PATH` variable env (defaults to `/tmp/substra`). Make sure the directory of your choice is accessible by updating accordingly the docker desktop configuration (`Preferences` > `File Sharing`).
     - Ensure also that the docker daemon has enough resources to execute the ML pipeline, for instance: CPUs>1, Memory>4.0 GiB (`Preferences` > `Advanced`).
   - on Linux environment, please refer to this [guide](https://github.com/SubstraFoundation/substra-backend/blob/master/README.md) to configure docker.
 
@@ -72,16 +72,6 @@ pip install substra
 $ substra --version
 0.1.0
 ```
-
-## Pull substra-tools image from private docker repository
-
-It is required to run the algo, opener and metrics scripts on the substra
-platform.
-
-- Install Google Cloud SDK: https://cloud.google.com/sdk/install
-- Authenticate with your google account: `gcloud auth login`
-- Configure docker to use your google credentials for google based docker registery: `gcloud auth configure-docker`
-- Pull image: `docker pull substrafoundation/substra-tools`
 
 ## Start the Substra network
 
