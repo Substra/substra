@@ -167,32 +167,30 @@ class AssetPrinter(BasePrinter):
     def _get_single_fields(self):
         return (self.key_field, ) + self.single_fields
 
-    def print_download_message(self, item):
+    def print_download_message(self, item, profile=None):
         if self.download_message:
             key_value = self.key_field.get_value(item)
-            profile = item['profile']
             print()
             print(self.download_message)
             print(f'\tsubstra download {self.asset_name} {key_value} --profile {profile}')
 
-    def print_description_message(self, item):
+    def print_description_message(self, item, profile=None):
         if self.has_description:
             key_value = self.key_field.get_value(item)
-            profile = item['profile']
             print()
             print(f'Display this {self.asset_name}\'s description:')
             print(f'\tsubstra describe {self.asset_name} {key_value} --profile {profile}')
 
-    def print_messages(self, item):
-        self.print_download_message(item)
-        self.print_description_message(item)
+    def print_messages(self, item, profile=None):
+        self.print_download_message(item, profile)
+        self.print_description_message(item, profile)
 
-    def print(self, data, expand=False, is_list=False):
+    def print(self, data, profile=None, expand=False, is_list=False):
         if is_list:
             self.print_table(data, self._get_list_fields())
         else:
             self.print_details(data, self._get_single_fields(), expand)
-            self.print_messages(data)
+            self.print_messages(data, profile)
 
 
 class JsonPrinter:
@@ -239,16 +237,15 @@ class ObjectivePrinter(AssetPrinter):
     )
     download_message = 'Download this objective\'s metric:'
 
-    def print_leaderboard_message(self, item):
+    def print_leaderboard_message(self, item, profile=None):
         key_value = self.key_field.get_value(item)
-        profile = item['profile']
         print()
         print('Display this objective\'s leaderboard:')
         print(f'\tsubstra leaderboard {key_value} --profile {profile}')
 
-    def print_messages(self, item):
+    def print_messages(self, item, profile=None):
         super().print_messages(item)
-        self.print_leaderboard_message(item)
+        self.print_leaderboard_message(item, profile)
 
 
 class DataSamplePrinter(AssetPrinter):
