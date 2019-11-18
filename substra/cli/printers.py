@@ -167,19 +167,24 @@ class AssetPrinter(BasePrinter):
     def _get_single_fields(self):
         return (self.key_field, ) + self.single_fields
 
+    def print_with_profile(self, profile):
+        if profile and profile != 'default':
+            return f'--profile {profile}'
+        return ''
+
     def print_download_message(self, item, profile=None):
         if self.download_message:
             key_value = self.key_field.get_value(item)
-            print()
-            print(self.download_message)
-            print(f'\tsubstra download {self.asset_name} {key_value} --profile {profile}')
+            profile_arg = self.print_with_profile(profile)
+            print('\n' + self.download_message)
+            print(f'\tsubstra download {self.asset_name} {key_value} {profile_arg}')
 
     def print_description_message(self, item, profile=None):
         if self.has_description:
             key_value = self.key_field.get_value(item)
-            print()
-            print(f'Display this {self.asset_name}\'s description:')
-            print(f'\tsubstra describe {self.asset_name} {key_value} --profile {profile}')
+            profile_arg = self.print_with_profile(profile)
+            print('\n' + f'Display this {self.asset_name}\'s description:')
+            print(f'\tsubstra describe {self.asset_name} {key_value} {profile_arg}')
 
     def print_messages(self, item, profile=None):
         self.print_download_message(item, profile)
@@ -237,14 +242,19 @@ class ObjectivePrinter(AssetPrinter):
     )
     download_message = 'Download this objective\'s metric:'
 
+    def print_with_profile(self, profile):
+        if profile and profile != 'default':
+            return f'--profile {profile}'
+        return ''
+
     def print_leaderboard_message(self, item, profile=None):
         key_value = self.key_field.get_value(item)
-        print()
-        print('Display this objective\'s leaderboard:')
-        print(f'\tsubstra leaderboard {key_value} --profile {profile}')
+        profile_arg = self.print_with_profile(profile)
+        print('\n' + 'Display this objective\'s leaderboard:')
+        print(f'\tsubstra leaderboard {key_value} {profile_arg}')
 
     def print_messages(self, item, profile=None):
-        super().print_messages(item)
+        super().print_messages(item, profile)
         self.print_leaderboard_message(item, profile)
 
 
