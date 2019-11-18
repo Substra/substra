@@ -167,7 +167,7 @@ class AssetPrinter(BasePrinter):
     def _get_single_fields(self):
         return (self.key_field, ) + self.single_fields
 
-    def print_with_profile(self, profile):
+    def get_profile_arg(self, profile):
         if profile and profile != 'default':
             return f'--profile {profile}'
         return ''
@@ -175,15 +175,15 @@ class AssetPrinter(BasePrinter):
     def print_download_message(self, item, profile=None):
         if self.download_message:
             key_value = self.key_field.get_value(item)
-            profile_arg = self.print_with_profile(profile)
+            profile_arg = self.get_profile_arg(profile)
             print('\n' + self.download_message)
             print(f'\tsubstra download {self.asset_name} {key_value} {profile_arg}')
 
     def print_description_message(self, item, profile=None):
         if self.has_description:
             key_value = self.key_field.get_value(item)
-            profile_arg = self.print_with_profile(profile)
-            print('\n' + f'Display this {self.asset_name}\'s description:')
+            profile_arg = self.get_profile_arg(profile)
+            print(f'\nDisplay this {self.asset_name}\'s description:')
             print(f'\tsubstra describe {self.asset_name} {key_value} {profile_arg}')
 
     def print_messages(self, item, profile=None):
@@ -242,15 +242,10 @@ class ObjectivePrinter(AssetPrinter):
     )
     download_message = 'Download this objective\'s metric:'
 
-    def print_with_profile(self, profile):
-        if profile and profile != 'default':
-            return f'--profile {profile}'
-        return ''
-
     def print_leaderboard_message(self, item, profile=None):
         key_value = self.key_field.get_value(item)
-        profile_arg = self.print_with_profile(profile)
-        print('\n' + 'Display this objective\'s leaderboard:')
+        profile_arg = self.get_profile_arg(profile)
+        print('\nDisplay this objective\'s leaderboard:')
         print(f'\tsubstra leaderboard {key_value} {profile_arg}')
 
     def print_messages(self, item, profile=None):
