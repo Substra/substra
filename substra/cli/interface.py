@@ -566,7 +566,7 @@ def get(ctx, asset_name, asset_key, expand, output_format, config, profile, user
     method = getattr(client, f'get_{asset_name.lower()}')
     res = method(asset_key)
     printer = printers.get_asset_printer(asset_name, output_format)
-    printer.print(res, expand=expand)
+    printer.print(res, profile=profile, expand=expand)
 
 
 @cli.command('list')
