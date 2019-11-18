@@ -20,5 +20,5 @@ Learning about the Substra platform:
 
 Running the platform locally:
 
+- [Using kubernetes and skaffold (recommended)](./local_install_skaffold.md)
 - [Using docker-compose](./local_install_docker_compose.md)
-- [Using kubernetes and skaffold](./local_install_skaffold.md)

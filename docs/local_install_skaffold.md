@@ -1,6 +1,6 @@
 # Local install of Substra using kubernetes and skaffold
 
-This guide will help you run the Substra platform on your machine with a 2 organisations setup.
+This guide will help you run the Substra platform on your machine in development mode, with a 2 organisations setup.
 
 - [Setup](#setup)
   - [1. Get the source code](#1-get-the-source-code)
@@ -14,23 +14,21 @@ This guide will help you run the Substra platform on your machine with a 2 organ
 
 ### 1. Get the source code
 
-You'll need either download or clone 3 repositories:
-
-#### Download
-
-Download links:
-
-- [hlf-k8s](https://github.com/SubstraFoundation/hlf-k8s/archive/dev.zip)
-- [substra-backend](https://github.com/SubstraFoundation/substra-backend/archive/dev.zip)
-- [substra-frontend](https://github.com/SubstraFoundation/substra-frontend/archive/dev.zip)
-
-#### Git clone
+You'll need either to 3 repositories: `hlf-k8s`, `substra-backend` and `substra-front`
 
 Git clone commands:
 
 - hlf-k8s: `git clone git@github.com:SubstraFoundation/hlf-k8s.git`
-- substra-backend: `git@github.com:SubstraFoundation/substra-backend.git`
-- substra-frontend: `git@github.com:SubstraFoundation/substra-frontend.git`
+- substra-backend: `git clone git@github.com:SubstraFoundation/substra-backend.git`
+- substra-frontend: `git clone git@github.com:SubstraFoundation/substra-frontend.git`
+
+> Note: if you do not have git on your machine, you can also download the code using these links:
+>
+> - [hlf-k8s](https://github.com/SubstraFoundation/hlf-k8s/archive/dev.zip)
+> - [substra-backend](https://github.com/SubstraFoundation/substra-backend/archive/dev.zip)
+> - [substra-frontend](https://github.com/SubstraFoundation/substra-frontend/archive/dev.zip)
+>
+> Do not forget to unzip the files after download.
 
 ### 2. Install Docker and Kubernetes
 
@@ -56,7 +54,7 @@ To do so, you'll first need to get the host IP address from container by running
 docker run -it --rm busybox ping host.docker.internal
 ```
 
-This will output should look like this:
+The output should look like this:
 
 ```
 Unable to find image 'busybox:latest' locally
@@ -175,7 +173,7 @@ The platform will be ready once
 
 ## Login, password and urls
 
-Once the platform is running, you can sign in to the two organizations using these credentials:
+Once the platform is running, you can sign in to the two organizations using the default development credentials:
 
 org-1:
 - API url: `http://substra-backend.node-1.com`
