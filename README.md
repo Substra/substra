@@ -34,7 +34,7 @@ From this point onwards, substra command line interface will have autocompletion
 
 ## Running the Substra platform locally
 
-You can run the Substra platform locally on your machine using using of the two following methods:
+You can run the Substra platform locally on your machine using one of the two following methods:
 
 * [Using kubernetes and skaffold (recommended)](./docs/local_install_skaffold.md)
 * [Using docker-compose](./docs/local_install_docker_compose.md)

@@ -14,7 +14,7 @@ This guide will help you run the Substra platform on your machine in development
 
 ### 1. Get the source code
 
-You'll need either to 3 repositories: `hlf-k8s`, `substra-backend` and `substra-front`
+You'll need to clone 3 repositories: `hlf-k8s`, `substra-backend` and `substra-front`
 
 Git clone commands:
 
