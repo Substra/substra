@@ -95,6 +95,14 @@ class KeysField(Field):
         return value
 
 
+class CountField(Field):
+    def get_value(self, item, **kwargs):
+        value = super().get_value(item)
+        if value:
+            return len(value)
+        return 0
+
+
 class InModelTraintupleKeysField(KeysField):
     def _get_key(self, v):
         return v.get('traintupleKey')
@@ -223,6 +231,34 @@ class AlgoPrinter(AssetPrinter):
     )
 
     download_message = 'Download this algorithm\'s code:'
+
+
+class ComputePlanPrinter(AssetPrinter):
+    asset_name = 'compute_plan'
+
+    key_field = Field('Compute plan ID', 'computePlanID')
+
+    list_fields = (
+        Field('Algo key', 'algoKey'),
+        Field('Objective key', 'objectiveKey'),
+        CountField('Traintuples count', 'traintuples'),
+        CountField('Testtuples count', 'testtuples'),
+    )
+    single_fields = (
+        Field('Algo key', 'algoKey'),
+        Field('Objective key', 'objectiveKey'),
+        KeysField('Traintuple keys', 'traintuples'),
+        KeysField('Testtuple keys', 'testtuples'),
+    )
+
+    def print_messages(self, item, profile=None):
+        key_value = self.key_field.get_value(item)
+        profile_arg = self.get_profile_arg(profile)
+
+        print('\nDisplay this compute_plan\'s traintuples:')
+        print(f'\tsubstra list traintuple -f "traintuple:computePlanID:{key_value}" {profile_arg}')
+        print('\nDisplay this compute_plan\'s testtuples:')
+        print(f'\tsubstra list testtuple -f "testtuple:computePlanID:{key_value}" {profile_arg}')
 
 
 class ObjectivePrinter(AssetPrinter):
@@ -365,6 +401,7 @@ class LeaderBoardPrinter(BasePrinter):
 
 PRINTERS = {
     assets.ALGO: AlgoPrinter,
+    assets.COMPUTE_PLAN: ComputePlanPrinter,
     assets.OBJECTIVE: ObjectivePrinter,
     assets.DATASET: DatasetPrinter,
     assets.DATA_SAMPLE: DataSamplePrinter,

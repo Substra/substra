@@ -243,6 +243,11 @@ Data is a dict object with the following schema:
 Client.get_algo(self, algo_key)
 ```
 Get algo by key.
+## get_compute_plan
+```python
+Client.get_compute_plan(self, compute_plan_key)
+```
+Get compute plan by key.
 ## get_dataset
 ```python
 Client.get_dataset(self, dataset_key)
@@ -268,6 +273,11 @@ Get traintuple by key.
 Client.list_algo(self, filters=None, is_complex=False)
 ```
 List algos.
+## list_compute_plan
+```python
+Client.list_compute_plan(self, filters=None, is_complex=False)
+```
+List compute plans.
 ## list_data_sample
 ```python
 Client.list_data_sample(self, filters=None, is_complex=False)

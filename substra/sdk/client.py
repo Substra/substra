@@ -408,6 +408,10 @@ class Client(object):
         """Get algo by key."""
         return self.client.get(assets.ALGO, algo_key)
 
+    def get_compute_plan(self, compute_plan_key):
+        """Get compute plan by key."""
+        return self.client.get(assets.COMPUTE_PLAN, compute_plan_key)
+
     def get_dataset(self, dataset_key):
         """Get dataset by key."""
         return self.client.get(assets.DATASET, dataset_key)
@@ -427,6 +431,10 @@ class Client(object):
     def list_algo(self, filters=None, is_complex=False):
         """List algos."""
         return self.client.list(assets.ALGO, filters=filters)
+
+    def list_compute_plan(self, filters=None, is_complex=False):
+        """List compute plans."""
+        return self.client.list(assets.COMPUTE_PLAN, filters=filters)
 
     def list_data_sample(self, filters=None, is_complex=False):
         """List data samples."""
