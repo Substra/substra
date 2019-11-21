@@ -92,21 +92,21 @@ def test_runner_folders(tmp_path, mocker):
     test_data_samples_path = create_dir('test_data_samples_path', root=tmp_path)
     sandbox_path = create_dir('sandbox', root=tmp_path)
 
-    with mocker.patch('substra.runner.docker'), \
-            mocker.patch('substra.runner._docker_run',
-                         side_effect=docker_run_side_effect(sandbox_path)):
-        runner.compute(
-            algo_path=algo_path,
-            train_opener_file=train_opener_path,
-            test_opener_file=test_opener_path,
-            metrics_path=metrics_path,
-            train_data_path=train_data_samples_path,
-            test_data_path=test_data_samples_path,
-            rank=0,
-            inmodels=[],
-            fake_data_samples=False,
-            compute_path=sandbox_path
-        )
+    mocker.patch('substra.runner.docker')
+    mocker.patch('substra.runner._docker_run',
+                 side_effect=docker_run_side_effect(sandbox_path))
+    runner.compute(
+        algo_path=algo_path,
+        train_opener_file=train_opener_path,
+        test_opener_file=test_opener_path,
+        metrics_path=metrics_path,
+        train_data_path=train_data_samples_path,
+        test_data_path=test_data_samples_path,
+        rank=0,
+        inmodels=[],
+        fake_data_samples=False,
+        compute_path=sandbox_path
+    )
 
     paths = (
         os.path.join(tmp_path, 'sandbox/model/model'),
@@ -132,21 +132,21 @@ def test_runner_archives(mocker, tmp_path):
         z.write(create_file('Dockerfile', root=tmp_path))
         z.write(create_file('metrics.py', root=tmp_path))
 
-    with mocker.patch('substra.runner.docker'), \
-            mocker.patch('substra.runner._docker_run',
-                         side_effect=docker_run_side_effect(sandbox_path)):
-        runner.compute(
-            algo_path=algo_path,
-            train_opener_file=train_opener_path,
-            test_opener_file=test_opener_path,
-            metrics_path=metrics_path,
-            train_data_path=train_data_samples_path,
-            test_data_path=test_data_samples_path,
-            rank=0,
-            inmodels=[],
-            fake_data_samples=False,
-            compute_path=sandbox_path
-        )
+    mocker.patch('substra.runner.docker'), \
+    mocker.patch('substra.runner._docker_run',
+                 side_effect=docker_run_side_effect(sandbox_path))
+    runner.compute(
+        algo_path=algo_path,
+        train_opener_file=train_opener_path,
+        test_opener_file=test_opener_path,
+        metrics_path=metrics_path,
+        train_data_path=train_data_samples_path,
+        test_data_path=test_data_samples_path,
+        rank=0,
+        inmodels=[],
+        fake_data_samples=False,
+        compute_path=sandbox_path
+    )
 
     paths = (
         os.path.join(tmp_path, 'sandbox/model/model'),

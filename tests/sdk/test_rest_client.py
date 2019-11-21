@@ -82,10 +82,10 @@ def test_request_http_errors(mocker, status_code, http_response, sdk_exception):
 
 
 def test_request_connection_error(mocker):
-    with mocker.patch('substra.sdk.rest_client.requests.post',
-                      side_effect=requests.exceptions.ConnectionError):
-        with pytest.raises(exceptions.ConnectionError):
-            rest_client.Client(CONFIG).add('foo', {})
+    mocker.patch('substra.sdk.rest_client.requests.post',
+                 side_effect=requests.exceptions.ConnectionError)
+    with pytest.raises(exceptions.ConnectionError):
+        rest_client.Client(CONFIG).add('foo', {})
 
 
 def test_add_timeout_with_retry(mocker):
