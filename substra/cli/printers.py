@@ -247,19 +247,18 @@ class ComputePlanPrinter(AssetPrinter):
     single_fields = (
         Field('Algo key', 'algoKey'),
         Field('Objective key', 'objectiveKey'),
-        KeysField('Traintuple keys', 'traintupleKeys'),
-        KeysField('Testtuple keys', 'traintupleKeys'),
+        KeysField('Traintuple keys', 'traintuples'),
+        KeysField('Testtuple keys', 'traintuples'),
     )
 
-    def print_messages(self, item):
+    def print_messages(self, item, profile=None):
         key_value = self.key_field.get_value(item)
+        profile_arg = self.get_profile_arg(profile)
 
-        print()
-        print('Display this compute_plan\'s traintuples:')
-        print(f'\tsubstra list traintuple -f "traintuple:computePlanID:{key_value}"')
-        print()
-        print('Display this compute_plan\'s testtuples:')
-        print(f'\tsubstra list testtuple -f "testtuple:computePlanID:{key_value}"')
+        print('\nDisplay this compute_plan\'s traintuples:')
+        print(f'\tsubstra list traintuple -f "traintuple:computePlanID:{key_value}" {profile_arg}')
+        print('\nDisplay this compute_plan\'s testtuples:')
+        print(f'\tsubstra list testtuple -f "testtuple:computePlanID:{key_value}" {profile_arg}')
 
 
 class ObjectivePrinter(AssetPrinter):
