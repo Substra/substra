@@ -8,7 +8,6 @@ In this example, we consider by default two nodes: node 0 and node 1. We'll see 
 - define and register an algorithm and train it on distributed datasets
 
 
-
 ## Prerequisites
 
 In order to run this example, you'll need to:
@@ -38,9 +37,16 @@ pip install -r scripts/requirements.txt
 python scripts/generate_data_samples.py
 ```
 
-This will create two sub-folders in the `assets` folder:
-* `train_data_samples` contains 10 sub-folders, one for each train data sample and each containing a single CSV file
-* `test_data_samples` contains 2 sub-folders, one for each test data sample and each containing a single CSV file
+This will create three sub-folders in the `assets` folder:
+* `train_data_samples_node0` contains 5 sub-folders, one for each train data sample and each containing a single CSV file.
+    This corresponds to data samples that will be submitted to node 0.
+* `train_data_samples_node1` contains 5 sub-folders, one for each train data sample and each containing a single CSV file
+    This corresponds to data samples that will be submitted to node 1.
+* `test_data_samples_node0` contains 2 sub-folders, one for each test data sample and each containing a single CSV file
+    This corresponds to data samples that will be submitted to node 0.
+
+This also create two sub-folders in the `assets` folder: `dataset_node0` and `dataset_node1` that store a description and 
+an opener to handle data samples submitted to node 0 and node 1. 
 
 The reason we have multiple train data samples is that this way we'll be able to finely select our training set later 
 on.
@@ -68,14 +74,14 @@ the train and predict tasks but also a lot of data preprocessing.
 ```sh
 python assets/algo_random_forest/algo.py train \
   --debug \
-  --opener-path assets/dataset/opener.py \
-  --data-samples-path assets/train_data_samples \
+  --opener-path assets/dataset_node0/opener.py \
+  --data-samples-path assets/train_data_samples_node0 \
   --output-predictions-path assets/pred-train.csv
   
 python assets/objective/metrics.py \
   --debug \
-  --opener-path assets/dataset/opener.py \
-  --data-samples-path assets/train_data_samples \
+  --opener-path assets/dataset_node0/opener.py \
+  --data-samples-path assets/train_data_samples_node0 \
   --input-predictions-path assets/pred-train.csv
  ```
 
@@ -84,14 +90,14 @@ python assets/objective/metrics.py \
 ```sh
 python assets/algo_random_forest/algo.py predict \
   --debug \
-  --opener-path assets/dataset/opener.py \
-  --data-samples-path assets/test_data_samples \
+  --opener-path assets/dataset_node0/opener.py \
+  --data-samples-path assets/test_data_samples_node0 \
   --output-predictions-path assets/pred-test.csv model
   
 python assets/objective/metrics.py \
   --debug \
-  --opener-path assets/dataset/opener.py \
-  --data-samples-path assets/test_data_samples \
+  --opener-path assets/dataset_node0/opener.py \
+  --data-samples-path assets/test_data_samples_node0 \
   --input-predictions-path assets/pred-test.csv
 ```
 
@@ -105,11 +111,11 @@ the metrics and to the data samples we want to use.
 
 ```sh
 substra run-local assets/algo_random_forest \
-  --train-opener=assets/dataset/opener.py \
-  --test-opener=assets/dataset/opener.py \
+  --train-opener=assets/dataset_node0/opener.py \
+  --test-opener=assets/dataset_node0/opener.py \
   --metrics=assets/objective/ \
-  --train-data-samples=assets/train_data_samples \
-  --test-data-samples=assets/test_data_samples
+  --train-data-samples=assets/train_data_samples_node0 \
+  --test-data-samples=assets/test_data_samples_node0
 ```
 
 At the end of this step, you'll find in the newly created `sandbox/model` folder a `model` file that contains your 
@@ -124,9 +130,9 @@ of the run in  `sandbox/model/log_model.log`.
 
 ## Adding the assets to substra
 
-### Adding the objective, dataset and data samples to substra
+### Adding the objective, dataset and data samples to substra as a user of the node 0
 
-A script has been written that adds objective, data manager and data samples to substra. It uses the `substra` python 
+A script has been written that adds objective, data manager and data samples to substra as a user of node 0. It uses the `substra` python 
 sdk to perform actions. It's main goal is to create assets, get their keys and use these keys in the creation of other
 assets.
 
@@ -137,16 +143,30 @@ pip install -r scripts/requirements.txt
 python scripts/add_dataset_objective.py
 ```
 
-This script just generated an `assets_keys.json` file in the `titanic` folder. This file contains the keys of all assets 
-we've just created and organizes the keys of the train data samples in folds. This file will be used as input when 
-adding an algorithm so that we can automatically launch all training and testing tasks.
+This script just generated an `assets_keys_node0.json` file in the `titanic` folder. This file contains the keys of 
+all assets we've just created and organizes the keys of the train data samples in folds. 
+
+### Adding a dataset and data samples to substra as a user of the node 1
+
+A script has been written that adds a data manager and data samples to substra as a user of node 1. It uses the `substra` python 
+sdk to perform actions. It's main goal is to create assets, get their keys and use these keys in the creation of other
+assets.
+
+To run it:
+
+```sh
+python scripts/add_dataset.py
+```
+
+This script just generated an `assets_keys_node1.json` file in the `titanic` folder. This file contains the keys of
+all assets we've just created and organizes the keys of the train data samples in folds.
 
 
-### Adding the algorithm and training it
+### Adding the algorithm and training it as a user of node 1
 
-The script `add_train_algo_random_forest.py` pushes our simple algo to substra and then uses the `assets_keys.json` file 
+The script `add_train_algo_random_forest.py` pushes our simple algo to substra, uses the SDK to retrieve the datasets and objective 
 we just generated to train it against the dataset and objective we previously set up. It will then update the 
-`assets_keys.json` file with the newly created assets keys (algo, traintuple and testtuple)
+`assets_keys_node1.json` file with the newly created assets keys (algo, traintuple and testtuple)
 
 To run it:
 
@@ -157,6 +177,8 @@ python scripts/add_train_algo_random_forest.py
 It will end by providing a couple of commands you can use to track the progress of the train and test tuples as well 
 as the associated scores. Alternatively, you can browse the frontend to look up progress and scores.
 
+
+<!--
 ## Writing an algorithm when you don't have access to the data samples
 
 Now that we have a full example setup, let's imagine that we are someone else, someone whithout access to the data 
@@ -194,3 +216,4 @@ python scripts/add_train_algo_constant.py
 ```
 
 At the end of the training and testing, we can use the frontend to compare the performance of our algorithms.
+-->
