@@ -110,13 +110,13 @@ Usage: substra add dataset [OPTIONS] PATH
 
 Options:
   --objective-key TEXT
-  --yaml                Display output as yaml.
-  --json                Display output as json.
-  --pretty              Pretty print output  [default: True]
   --config PATH         Config path (default ~/.substra).
   --profile TEXT        Profile name to use.
   --user FILE           User file path to use (default ~/.substra-user).
   --verbose             Enable verbose mode.
+  --yaml                Display output as yaml.
+  --json                Display output as json.
+  --pretty              Pretty print output  [default: True]
   --help                Show this message and exit.
 ```
 
@@ -161,13 +161,13 @@ Usage: substra add objective [OPTIONS] PATH
 Options:
   --dataset-key TEXT
   --data-samples-path FILE  Test data samples.
-  --yaml                    Display output as yaml.
-  --json                    Display output as json.
-  --pretty                  Pretty print output  [default: True]
   --config PATH             Config path (default ~/.substra).
   --profile TEXT            Profile name to use.
   --user FILE               User file path to use (default ~/.substra-user).
   --verbose                 Enable verbose mode.
+  --yaml                    Display output as yaml.
+  --json                    Display output as json.
+  --pretty                  Pretty print output  [default: True]
   --help                    Show this message and exit.
 ```
 
@@ -198,13 +198,13 @@ Usage: substra add algo [OPTIONS] PATH
   - permissions: define asset access permissions
 
 Options:
-  --yaml          Display output as yaml.
-  --json          Display output as json.
-  --pretty        Pretty print output  [default: True]
   --config PATH   Config path (default ~/.substra).
   --profile TEXT  Profile name to use.
   --user FILE     User file path to use (default ~/.substra-user).
   --verbose       Enable verbose mode.
+  --yaml          Display output as yaml.
+  --json          Display output as json.
+  --pretty        Pretty print output  [default: True]
   --help          Show this message and exit.
 ```
 
@@ -254,13 +254,13 @@ Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
 
 Options:
   --objective-key TEXT  [required]
-  --yaml                Display output as yaml.
-  --json                Display output as json.
-  --pretty              Pretty print output  [default: True]
   --config PATH         Config path (default ~/.substra).
   --profile TEXT        Profile name to use.
   --user FILE           User file path to use (default ~/.substra-user).
   --verbose             Enable verbose mode.
+  --yaml                Display output as yaml.
+  --json                Display output as json.
+  --pretty              Pretty print output  [default: True]
   --help                Show this message and exit.
 ```
 
@@ -291,13 +291,13 @@ Usage: substra add aggregate_algo [OPTIONS] PATH
   - permissions: define asset access permissions
 
 Options:
-  --yaml          Display output as yaml.
-  --json          Display output as json.
-  --pretty        Pretty print output  [default: True]
   --config PATH   Config path (default ~/.substra).
   --profile TEXT  Profile name to use.
   --user FILE     User file path to use (default ~/.substra-user).
   --verbose       Enable verbose mode.
+  --yaml          Display output as yaml.
+  --json          Display output as json.
+  --pretty        Pretty print output  [default: True]
   --help          Show this message and exit.
 ```
 
@@ -328,13 +328,13 @@ Usage: substra add composite_algo [OPTIONS] PATH
   - permissions: define asset access permissions
 
 Options:
-  --yaml          Display output as yaml.
-  --json          Display output as json.
-  --pretty        Pretty print output  [default: True]
   --config PATH   Config path (default ~/.substra).
   --profile TEXT  Profile name to use.
   --user FILE     User file path to use (default ~/.substra-user).
   --verbose       Enable verbose mode.
+  --yaml          Display output as yaml.
+  --json          Display output as json.
+  --pretty        Pretty print output  [default: True]
   --help          Show this message and exit.
 ```
 
@@ -362,13 +362,13 @@ Options:
   --data-samples-path FILE  [required]
   --in-model-key TEXT       In model traintuple key.
   --tag TEXT
-  --yaml                    Display output as yaml.
-  --json                    Display output as json.
-  --pretty                  Pretty print output  [default: True]
   --config PATH             Config path (default ~/.substra).
   --profile TEXT            Profile name to use.
   --user FILE               User file path to use (default ~/.substra-user).
   --verbose                 Enable verbose mode.
+  --yaml                    Display output as yaml.
+  --json                    Display output as json.
+  --pretty                  Pretty print output  [default: True]
   --help                    Show this message and exit.
 ```
 
@@ -386,13 +386,13 @@ Options:
   --worker TEXT         Node ID for worker execution.  [required]
   --rank INTEGER
   --tag TEXT
-  --yaml                Display output as yaml.
-  --json                Display output as json.
-  --pretty              Pretty print output  [default: True]
   --config PATH         Config path (default ~/.substra).
   --profile TEXT        Profile name to use.
   --user FILE           User file path to use (default ~/.substra-user).
   --verbose             Enable verbose mode.
+  --yaml                Display output as yaml.
+  --json                Display output as json.
+  --pretty              Pretty print output  [default: True]
   --help                Show this message and exit.
 ```
 
@@ -430,14 +430,14 @@ Options:
   --out-trunk-model-permissions-path FILE
                                   Load a permissions file.
   --tag TEXT
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
   --verbose                       Enable verbose mode.
+  --yaml                          Display output as yaml.
+  --json                          Display output as json.
+  --pretty                        Pretty print output  [default: True]
   --help                          Show this message and exit.
 ```
 
@@ -463,13 +463,13 @@ Options:
   --traintuple-key TEXT     [required]
   --data-samples-path FILE
   --tag TEXT
-  --yaml                    Display output as yaml.
-  --json                    Display output as json.
-  --pretty                  Pretty print output  [default: True]
   --config PATH             Config path (default ~/.substra).
   --profile TEXT            Profile name to use.
   --user FILE               User file path to use (default ~/.substra-user).
   --verbose                 Enable verbose mode.
+  --yaml                    Display output as yaml.
+  --json                    Display output as json.
+  --pretty                  Pretty print output  [default: True]
   --help                    Show this message and exit.
 ```
 
@@ -484,13 +484,13 @@ Usage: substra get [OPTIONS] [algo|compute_plan|composite_algo|aggregate_algo|
 
 Options:
   --expand        Display associated assets details
-  --yaml          Display output as yaml.
-  --json          Display output as json.
-  --pretty        Pretty print output  [default: True]
   --config PATH   Config path (default ~/.substra).
   --profile TEXT  Profile name to use.
   --user FILE     User file path to use (default ~/.substra-user).
   --verbose       Enable verbose mode.
+  --yaml          Display output as yaml.
+  --json          Display output as json.
+  --pretty        Pretty print output  [default: True]
   --help          Show this message and exit.
 ```
 
@@ -516,13 +516,13 @@ Options:
                            By default these lists are merged into a single
                            list. When set, this option disables the lists
                            aggregation.
-  --yaml                   Display output as yaml.
-  --json                   Display output as json.
-  --pretty                 Pretty print output  [default: True]
   --config PATH            Config path (default ~/.substra).
   --profile TEXT           Profile name to use.
   --user FILE              User file path to use (default ~/.substra-user).
   --verbose                Enable verbose mode.
+  --yaml                   Display output as yaml.
+  --json                   Display output as json.
+  --pretty                 Pretty print output  [default: True]
   --help                   Show this message and exit.
 ```
 
@@ -574,15 +574,15 @@ Usage: substra leaderboard [OPTIONS] OBJECTIVE_KEY
 
 Options:
   --expand           Display associated assets details
-  --yaml             Display output as yaml.
-  --json             Display output as json.
-  --pretty           Pretty print output  [default: True]
   --sort [asc|desc]  Sort models by highest to lowest perf or vice versa
                      [default: desc]
   --config PATH      Config path (default ~/.substra).
   --profile TEXT     Profile name to use.
   --user FILE        User file path to use (default ~/.substra-user).
   --verbose          Enable verbose mode.
+  --yaml             Display output as yaml.
+  --json             Display output as json.
+  --pretty           Pretty print output  [default: True]
   --help             Show this message and exit.
 ```
 
