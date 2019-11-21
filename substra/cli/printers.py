@@ -248,7 +248,7 @@ class ComputePlanPrinter(AssetPrinter):
         Field('Algo key', 'algoKey'),
         Field('Objective key', 'objectiveKey'),
         KeysField('Traintuple keys', 'traintuples'),
-        KeysField('Testtuple keys', 'traintuples'),
+        KeysField('Testtuple keys', 'testtuples'),
     )
 
     def print_messages(self, item, profile=None):
