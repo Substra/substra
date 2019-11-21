@@ -1,3 +1,7 @@
+'''
+This script registers the objective and a train dataset. It is submitted by the node 0
+'''
+
 # Copyright 2018 Owkin, inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,6 +15,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 
 import json
 import logging
@@ -46,7 +51,7 @@ def progress_bar(length):
 current_directory = os.path.dirname(__file__)
 assets_directory = os.path.join(current_directory, '../assets')
 
-with open(os.path.join(current_directory, '../../config.json'), 'r') as f:
+with open(os.path.join(current_directory, f'../../config_node0.json'), 'r') as f:
     config = json.load(f)
 
 client = substra.Client()
@@ -56,18 +61,19 @@ client.login()
 DATASET = {
     'name': 'Titanic',
     'type': 'csv',
-    'data_opener': os.path.join(assets_directory, 'dataset/opener.py'),
-    'description': os.path.join(assets_directory, 'dataset/description.md'),
+    'data_opener': os.path.join(assets_directory, 'dataset_node0/opener.py'),
+    'description': os.path.join(assets_directory, 'dataset_node0/description.md'),
 }
 
-TEST_DATA_SAMPLES_PATHS = [
-    os.path.join(assets_directory, 'test_data_samples', path)
-    for path in os.listdir(os.path.join(assets_directory, 'test_data_samples'))
+TRAIN_DATA_SAMPLES_PATHS = [
+    os.path.join(assets_directory, 'train_data_samples_node0', path)
+    for path in os.listdir(os.path.join(assets_directory, 'train_data_samples_node0'))
 ]
 
-TRAIN_DATA_SAMPLES_PATHS = [
-    os.path.join(assets_directory, 'train_data_samples', path)
-    for path in os.listdir(os.path.join(assets_directory, 'train_data_samples'))
+
+TEST_DATA_SAMPLES_PATHS = [
+    os.path.join(assets_directory, 'test_data_samples_node0', path)
+    for path in os.listdir(os.path.join(assets_directory, 'test_data_samples_node0'))
 ]
 
 OBJECTIVE = {
@@ -76,6 +82,7 @@ OBJECTIVE = {
     'metrics_name': 'accuracy',
     'metrics': os.path.join(assets_directory, 'objective/metrics.zip'),
 }
+
 METRICS_DOCKERFILE_FILES = [
     os.path.join(assets_directory, 'objective/metrics.py'),
     os.path.join(assets_directory, 'objective/Dockerfile')
@@ -121,7 +128,7 @@ for conf in data_samples_configs:
             data_sample_key = data_sample['pkhash']
             conf['data_sample_keys'].append(data_sample_key)
             progress.update()
-    assert len(conf['data_sample_keys']), conf['missing_message']
+    assert conf['data_sample_keys'], conf['missing_message']
 
 print('Associating data samples with dataset...')
 client.link_dataset_with_data_samples(
@@ -147,8 +154,8 @@ assets_keys = {
     'train_data_sample_keys': train_data_sample_keys,
     'test_data_sample_keys': test_data_sample_keys,
 }
-assets_keys_path = os.path.join(current_directory, '../assets_keys.json')
+assets_keys_path = os.path.join(current_directory, '../assets_keys_node0.json')
 with open(assets_keys_path, 'w') as f:
     json.dump(assets_keys, f, indent=2)
 
-print(f'Assets keys have been saved to {os.path.abspath(assets_keys_path)}')
+print(f'Assets keys for node 0 have been saved to {os.path.abspath(assets_keys_path)}')
