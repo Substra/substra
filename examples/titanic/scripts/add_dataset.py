@@ -61,7 +61,7 @@ client.add_profile(config['profile_name'], config['username'], config['password'
 client.login()
 
 DATASET = {
-    'name': 'Titanic',
+    'name': f'Titanic - node {NODE_ID}',
     'type': 'csv',
     'data_opener': os.path.join(assets_directory, f'dataset_node{NODE_ID}/opener.py'),
     'description': os.path.join(assets_directory, f'dataset_node{NODE_ID}/description.md'),

@@ -18,10 +18,14 @@ import zipfile
 
 import substra
 
+NODE_ID = 1
+DATASET_NAME = "Titanic"
+OBJECTIVE_NAME = "Titanic"
+
 current_directory = os.path.dirname(__file__)
 assets_directory = os.path.join(current_directory, '../assets')
 
-with open(os.path.join(current_directory, '../../config.json'), 'r') as f:
+with open(os.path.join(current_directory, f'../../config_node{NODE_ID}.json'), 'r') as f:
     config = json.load(f)
 
 client = substra.Client()
@@ -53,7 +57,7 @@ ALGO['file'] = archive_path
 #       Load keys for dataset and objective
 ########################################################
 
-assets_keys_path = os.path.join(current_directory, '../assets_keys.json')
+assets_keys_path = os.path.join(current_directory, f'../assets_keys_node{NODE_ID}.json')
 with open(assets_keys_path, 'r') as f:
     assets_keys = json.load(f)
 
@@ -69,18 +73,30 @@ algo_key = client.add_algo({
 }, exist_ok=True)['pkhash']
 
 ########################################################
-#         Add traintuple
+#         Add traintuples
 ########################################################
 
+# Retrieve dataset and objective
+data_manager_keys = [d['key'] for d in client.list_dataset() if DATASET_NAME in d['name']]
+objective_key = [d['key'] for d in client.list_objective() if OBJECTIVE_NAME in 
+                 d['name']][0]
+traintuple_key = None
+traintuple_keys = []
+
 print('Registering traintuple...')
-traintuple = client.add_traintuple({
-    'algo_key': algo_key,
-    'objective_key': assets_keys['objective_key'],
-    'data_manager_key': assets_keys['dataset_key'],
-    'train_data_sample_keys': assets_keys['train_data_sample_keys']
-}, exist_ok=True)
-traintuple_key = traintuple.get('key') or traintuple.get('pkhash')
-assert traintuple_key, 'Missing traintuple key'
+for data_manager_key in data_manager_keys:
+    data_keys = client.get_dataset(data_manager_key)['trainDataSampleKeys']
+    traintuple = client.add_traintuple({
+        'algo_key': algo_key,
+        'objective_key': objective_key,
+        'data_manager_key': data_manager_key,
+        'train_data_sample_keys': data_keys,
+        'in_models_keys': [traintuple_key]
+    }, exist_ok=True)
+    traintuple_key = traintuple.get('key') or traintuple.get('pkhash')
+    print(traintuple_key)
+    assert traintuple_key, 'Missing traintuple key'
+    traintuple_keys.append(traintuple_key)
 
 ########################################################
 #         Add testtuple
@@ -98,7 +114,7 @@ assert testtuple_key, 'Missing testtuple key'
 
 assets_keys['algo_random_forest'] = {
     'algo_key': algo_key,
-    'traintuple_key': traintuple_key,
+    'traintuple_key': traintuple_keys,
     'testtuple_key': testtuple_key,
 }
 with open(assets_keys_path, 'w') as f:
@@ -106,5 +122,6 @@ with open(assets_keys_path, 'w') as f:
 
 print(f'Assets keys have been saved to {os.path.abspath(assets_keys_path)}')
 print('\nRun the following commands to track the status of the tuples:')
-print(f'    substra get traintuple {traintuple_key}')
+for traintuple_key in traintuple_keys:
+    print(f'    substra get traintuple {traintuple_key}')
 print(f'    substra get testtuple {testtuple_key}')

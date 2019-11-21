@@ -2,7 +2,12 @@
 
 *This example is based on [the similarly named Kaggle challenge](https://www.kaggle.com/c/titanic/overview)*
 
-In this example, we'll see how to setup an objective with cross-validation in mind and how to train algorithms.
+In this example, we consider by default two nodes: node 0 and node 1. We'll see how to:
+- define and register an objective 
+- define and register a dataset
+- define and register an algorithm and train it on distributed datasets
+
+
 
 ## Prerequisites
 

@@ -59,10 +59,11 @@ client.add_profile(config['profile_name'], config['username'], config['password'
 client.login()
 
 DATASET = {
-    'name': 'Titanic',
+    'name': 'Titanic - node 0',
     'type': 'csv',
     'data_opener': os.path.join(assets_directory, 'dataset_node0/opener.py'),
     'description': os.path.join(assets_directory, 'dataset_node0/description.md'),
+    'permissions': {'public': True},
 }
 
 TRAIN_DATA_SAMPLES_PATHS = [
@@ -81,6 +82,7 @@ OBJECTIVE = {
     'description': os.path.join(assets_directory, 'objective/description.md'),
     'metrics_name': 'accuracy',
     'metrics': os.path.join(assets_directory, 'objective/metrics.zip'),
+    'permissions': {'public': True},
 }
 
 METRICS_DOCKERFILE_FILES = [
@@ -124,6 +126,7 @@ for conf in data_samples_configs:
                 'data_manager_keys': [dataset_key],
                 'test_only': conf['test_only'],
                 'path': path,
+                'permissions': DATASET['permissions'],
             }, local=True, exist_ok=True)
             data_sample_key = data_sample['pkhash']
             conf['data_sample_keys'].append(data_sample_key)
@@ -144,6 +147,7 @@ objective_key = client.add_objective({
     'metrics': OBJECTIVE['metrics'],
     'test_data_sample_keys': test_data_sample_keys,
     'test_data_manager_key': dataset_key,
+    'permissions': OBJECTIVE['permissions'],
 }, exist_ok=True)['pkhash']
 assert objective_key, 'Missing objective key'
 
