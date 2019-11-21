@@ -65,6 +65,7 @@ DATASET = {
     'type': 'csv',
     'data_opener': os.path.join(assets_directory, f'dataset_node{NODE_ID}/opener.py'),
     'description': os.path.join(assets_directory, f'dataset_node{NODE_ID}/description.md'),
+    'permissions': {'public': True},
 }
 
 TRAIN_DATA_SAMPLES_PATHS = [
@@ -87,6 +88,7 @@ with progress_bar(len(TRAIN_DATA_SAMPLES_PATHS)) as progress:
             'data_manager_keys': [dataset_key],
             'test_only': False,
             'path': path,
+            'permissions': {'public': True},
         }, local=True, exist_ok=True)
         data_sample_key = data_sample['pkhash']
         train_data_sample_keys.append(data_sample_key)
