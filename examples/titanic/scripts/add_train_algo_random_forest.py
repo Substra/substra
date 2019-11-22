@@ -37,7 +37,8 @@ ALGO_KEYS_JSON_FILENAME = 'algo_random_forest_keys.json'
 
 ALGO = {
     'name': 'Titanic: Random Forest',
-    'description': os.path.join(assets_directory, 'algo_random_forest/description.md')
+    'description': os.path.join(assets_directory,
+                                'algo_random_forest/description.md'),
     'permissions': {'public': True},
 }
 ALGO_DOCKERFILE_FILES = [
