@@ -69,11 +69,7 @@ with open(assets_keys_path, 'r') as f:
 ########################################################
 
 print('Adding algo...')
-algo_key = client.add_algo({
-    'name': ALGO['name'],
-    'file': ALGO['file'],
-    'description': ALGO['description'],
-}, exist_ok=True)['pkhash']
+algo_key = client.add_algo(ALGO, exist_ok=True)['pkhash']
 
 ########################################################
 #         Add traintuples
