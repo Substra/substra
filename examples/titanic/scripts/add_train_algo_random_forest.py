@@ -26,6 +26,7 @@ current_directory = os.path.dirname(__file__)
 assets_directory = os.path.join(current_directory, '../assets')
 
 with open(os.path.join(current_directory, f'../../config_node{NODE_ID}.json'), 'r') as f:
+# with open(os.path.join(current_directory, '/Users/camillemarini/Desktop/config_node2.json'), 'r') as f:
     config = json.load(f)
 
 client = substra.Client()
@@ -37,6 +38,7 @@ ALGO_KEYS_JSON_FILENAME = 'algo_random_forest_keys.json'
 ALGO = {
     'name': 'Titanic: Random Forest',
     'description': os.path.join(assets_directory, 'algo_random_forest/description.md')
+    'permissions': {'public': True},
 }
 ALGO_DOCKERFILE_FILES = [
         os.path.join(assets_directory, 'algo_random_forest/algo.py'),
