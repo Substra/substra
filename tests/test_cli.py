@@ -91,14 +91,16 @@ def mock_client_call(mocker, method_name, response="", side_effect=None):
 
 
 @pytest.mark.parametrize('asset_name,key_field', [
-        ('objective', 'key'),
-        ('dataset', 'key'),
-        ('algo', 'key'),
-        ('composite_algo', 'key'),
-        ('testtuple', 'key'),
-        ('traintuple', 'key'),
-        ('composite_traintuple', 'key'),
-        ('compute_plan', 'computePlanID'),
+    ('objective', 'key'),
+    ('dataset', 'key'),
+    ('algo', 'key'),
+    ('aggregate_algo', 'key'),
+    ('composite_algo', 'key'),
+    ('testtuple', 'key'),
+    ('traintuple', 'key'),
+    ('aggregatetuple', 'key'),
+    ('composite_traintuple', 'key'),
+    ('compute_plan', 'computePlanID'),
 ])
 def test_command_list(asset_name, key_field, workdir, mocker):
     item = getattr(datastore, asset_name.upper())
@@ -120,6 +122,7 @@ def test_command_list_node(workdir, mocker):
 @pytest.mark.parametrize('asset_name,params', [
     ('dataset', []),
     ('algo', []),
+    ('aggregate_algo', []),
     ('composite_algo', []),
     ('traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
                     '--data-samples-path']),
@@ -257,14 +260,16 @@ def test_command_add_data_sample_already_exists(workdir, mocker):
 
 
 @pytest.mark.parametrize('asset_name,key_field', [
-        ('objective', 'key'),
-        ('dataset', 'key'),
-        ('algo', 'key'),
-        ('composite_algo', 'key'),
-        ('testtuple', 'key'),
-        ('traintuple', 'key'),
-        ('composite_traintuple', 'key'),
-        ('compute_plan', 'computePlanID'),
+    ('objective', 'key'),
+    ('dataset', 'key'),
+    ('algo', 'key'),
+    ('aggregate_algo', 'key'),
+    ('composite_algo', 'key'),
+    ('testtuple', 'key'),
+    ('traintuple', 'key'),
+    ('aggregatetuple', 'key'),
+    ('composite_traintuple', 'key'),
+    ('compute_plan', 'computePlanID'),
 ])
 def test_command_get(asset_name, key_field, workdir, mocker):
     item = getattr(datastore, asset_name.upper())

@@ -263,6 +263,10 @@ class AlgoPrinter(BaseAlgoPrinter):
     asset_name = 'algo'
 
 
+class AggregateAlgoPrinter(BaseAlgoPrinter):
+    asset_name = 'aggregate_algo'
+
+
 class CompositeAlgoPrinter(BaseAlgoPrinter):
     asset_name = 'composite_algo'
 
@@ -338,6 +342,36 @@ class TraintuplePrinter(AssetPrinter):
         Field('Dataset key', 'dataset.openerHash'),
         KeysField('Train data sample keys', 'dataset.keys'),
         InModelTraintupleKeysField('In model traintuple keys', 'inModels'),
+        Field('Rank', 'rank'),
+        Field('Compute Plan Id', 'computePlanID'),
+        Field('Tag', 'tag'),
+        Field('Log', 'log'),
+        Field('Creator', 'creator'),
+        Field('Worker', 'dataset.worker'),
+        PermissionField('Permissions', 'permissions'),
+    )
+    has_description = False
+
+
+class AggregateTuplePrinter(AssetPrinter):
+    asset_name = 'aggregatetuple'
+
+    list_fields = (
+        Field('Algo name', 'algo.name'),
+        Field('Status', 'status'),
+        Field('Perf', 'dataset.perf'),
+        Field('Tag', 'tag'),
+        Field('Compute Plan Id', 'computePlanID'),
+    )
+    single_fields = (
+        Field('Model key', 'outModel.hash'),
+        Field('Algo key', 'algo.hash'),
+        Field('Algo name', 'algo.name'),
+        Field('Objective key', 'objective.hash'),
+        Field('Status', 'status'),
+        Field('Perf', 'dataset.perf'),
+        Field('Dataset key', 'dataset.openerHash'),
+        InModelTraintupleKeysField('In model keys', 'inModels'),
         Field('Rank', 'rank'),
         Field('Compute Plan Id', 'computePlanID'),
         Field('Tag', 'tag'),
@@ -443,11 +477,13 @@ class LeaderBoardPrinter(BasePrinter):
 PRINTERS = {
     assets.ALGO: AlgoPrinter,
     assets.COMPUTE_PLAN: ComputePlanPrinter,
+    assets.AGGREGATE_ALGO: AggregateAlgoPrinter,
     assets.COMPOSITE_ALGO: CompositeAlgoPrinter,
     assets.OBJECTIVE: ObjectivePrinter,
     assets.DATASET: DatasetPrinter,
     assets.DATA_SAMPLE: DataSamplePrinter,
     assets.TRAINTUPLE: TraintuplePrinter,
+    assets.AGGREGATETUPLE: AggregateTuplePrinter,
     assets.COMPOSITE_TRAINTUPLE: CompositeTraintuplePrinter,
     assets.TESTTUPLE: TesttuplePrinter,
     assets.NODE: NodePrinter,

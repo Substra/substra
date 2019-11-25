@@ -336,11 +336,36 @@ class Client(object):
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_algo(get_asset_key(res))
 
+    def add_aggregate_algo(self, data, timeout=False, exist_ok=False):
+        """Create new aggregate algo asset.
+        `data` is a dict object with the following schema:
+```
+        {
+            "name": str,
+            "description": str,
+            "file": str,
+            "permissions": {
+                "public": bool,
+                "authorizedIDs": list[str],
+            },
+        }
+```
+        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
+        existing asset will be returned.
+        """
+        attributes = ['file', 'description']
+        with utils.extract_files(data, attributes) as (data, files):
+            res = self._add(
+                assets.AGGREGATE_ALGO, data, files=files, timeout=timeout,
+                exist_ok=exist_ok)
+
+        # The backend has inconsistent API responses when getting or adding an asset (with much
+        # less data when responding to adds). A second GET request hides the discrepancies.
+        return self.get_aggregate_algo(get_asset_key(res))
+
     def add_composite_algo(self, data, timeout=False, exist_ok=False):
         """Create new composite algo asset.
-
         `data` is a dict object with the following schema:
-
 ```
         {
             "name": str,
@@ -352,7 +377,6 @@ class Client(object):
             },
         }
 ```
-
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
@@ -393,11 +417,33 @@ class Client(object):
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_traintuple(get_asset_key(res))
 
+    def add_aggregatetuple(self, data, timeout=False, exist_ok=False):
+        """Create new aggregatetuple asset.
+        `data` is a dict object with the following schema:
+```
+        {
+            "algo_key": str,
+            "objective_key": str,
+            "in_models_keys": list[str],
+            "tag": str,
+            "compute_plan_id": str,
+            "rank": int,
+            "worker": str,
+        }
+```
+        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
+        existing asset will be returned.
+        """
+        res = self._add(assets.AGGREGATETUPLE, data, timeout=timeout,
+                        exist_ok=exist_ok)
+
+        # The backend has inconsistent API responses when getting or adding an asset (with much
+        # less data when responding to adds). A second GET request hides the discrepancies.
+        return self.get_aggregatetuple(get_asset_key(res))
+
     def add_composite_traintuple(self, data, timeout=False, exist_ok=False):
         """Create new composite traintuple asset.
-
         `data` is a dict object with the following schema:
-
 ```
         {
             "algo_key": str,
@@ -412,7 +458,6 @@ class Client(object):
             "compute_plan_id": str,
         }
 ```
-
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
@@ -486,6 +531,10 @@ class Client(object):
         """Get compute plan by key."""
         return self.client.get(assets.COMPUTE_PLAN, compute_plan_key)
 
+    def get_aggregate_algo(self, aggregate_algo_key):
+        """Get aggregate algo by key."""
+        return self.client.get(assets.AGGREGATE_ALGO, aggregate_algo_key)
+
     def get_composite_algo(self, composite_algo_key):
         """Get composite algo by key."""
         return self.client.get(assets.COMPOSITE_ALGO, composite_algo_key)
@@ -506,6 +555,10 @@ class Client(object):
         """Get traintuple by key."""
         return self.client.get(assets.TRAINTUPLE, traintuple_key)
 
+    def get_aggregatetuple(self, aggregatetuple_key):
+        """Get aggregatetuple by key."""
+        return self.client.get(assets.AGGREGATETUPLE, aggregatetuple_key)
+
     def get_composite_traintuple(self, composite_traintuple_key):
         """Get composite traintuple by key."""
         return self.client.get(assets.COMPOSITE_TRAINTUPLE, composite_traintuple_key)
@@ -517,6 +570,10 @@ class Client(object):
     def list_compute_plan(self, filters=None, is_complex=False):
         """List compute plans."""
         return self.client.list(assets.COMPUTE_PLAN, filters=filters)
+
+    def list_aggregate_algo(self, filters=None, is_complex=False):
+        """List aggregate algos."""
+        return self.client.list(assets.AGGREGATE_ALGO, filters=filters)
 
     def list_composite_algo(self, filters=None, is_complex=False):
         """List composite algos."""
@@ -541,6 +598,10 @@ class Client(object):
     def list_traintuple(self, filters=None, is_complex=False):
         """List traintuples."""
         return self.client.list(assets.TRAINTUPLE, filters=filters)
+
+    def list_aggregatetuple(self, filters=None, is_complex=False):
+        """List aggregatetuples."""
+        return self.client.list(assets.AGGREGATETUPLE, filters=filters)
 
     def list_composite_traintuple(self, filters=None, is_complex=False):
         """List composite traintuples."""
@@ -618,6 +679,17 @@ class Client(object):
         url = data['content']['storageAddress']
         self._download(url, destination_folder, default_filename)
 
+    def download_aggregate_algo(self, asset_key, destination_folder):
+        """Download aggregate algo resource.
+
+        Download aggregate algo package in destination folder.
+        """
+        data = self.get_aggregate_algo(asset_key)
+        # download aggregate algo package
+        default_filename = 'aggregate_algo.tar.gz'
+        url = data['content']['storageAddress']
+        self._download(url, destination_folder, default_filename)
+
     def download_composite_algo(self, asset_key, destination_folder):
         """Download composite algo resource.
 
@@ -650,6 +722,10 @@ class Client(object):
     def describe_algo(self, asset_key):
         """Get algo description."""
         return self._describe(assets.ALGO, asset_key)
+
+    def describe_aggregate_algo(self, asset_key):
+        """Get aggregate algo description."""
+        return self._describe(assets.AGGREGATE_ALGO, asset_key)
 
     def describe_composite_algo(self, asset_key):
         """Get composite algo description."""

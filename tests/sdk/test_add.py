@@ -73,6 +73,16 @@ def test_add_algo(client, algo_query, mocker):
     assert m_get.is_called()
 
 
+def test_add_aggregate_algo(client, algo_query, mocker):
+    m_post = mock_requests(mocker, "post", response=datastore.AGGREGATE_ALGO)
+    m_get = mock_requests(mocker, "get", response=datastore.AGGREGATE_ALGO)
+    response = client.add_aggregate_algo(algo_query)
+
+    assert response == datastore.AGGREGATE_ALGO
+    assert m_post.is_called()
+    assert m_get.is_called()
+
+
 def test_add_composite_algo(client, algo_query, mocker):
     m_post = mock_requests(mocker, "post", response=datastore.COMPOSITE_ALGO)
     m_get = mock_requests(mocker, "get", response=datastore.COMPOSITE_ALGO)
