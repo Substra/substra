@@ -17,3 +17,8 @@ Learning about the Substra platform:
 - [Machine Learning tasks](./ml_tasks.md)
 - [Adding a full pipeline](./full_pipeline_workflow.md)
 - [Adding data samples](./add_data_samples.md)
+
+Running the platform locally:
+
+- [Using kubernetes and skaffold (recommended)](./local_install_skaffold.md)
+- [Using docker-compose](./local_install_docker_compose.md)
