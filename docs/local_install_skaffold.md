@@ -102,7 +102,7 @@ The last step will be to update `/etc/hosts` by adding this new line to it:
 192.168.65.2 substra-backend.node-1.com substra-frontend.node-1.com substra-backend.node-2.com substra-frontend.node-2.com
 ```
 
-Running the following command will do it for you (you 'll be asked for your password again):
+Running the following command will do it for you (you'll be asked for your password again):
 
 ```sh
 echo "192.168.65.2 substra-backend.node-1.com substra-frontend.node-1.com substra-backend.node-2.com substra-frontend.node-2.com" | sudo tee -a /etc/hosts
