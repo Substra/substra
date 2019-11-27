@@ -131,7 +131,7 @@ def test_command_list_node(workdir, mocker):
     ('traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
                     '--in-model-key', 'foo', '--in-model-key', 'bar', '--data-samples-path']),
     ('testtuple', ['--traintuple-key', 'foo', '--data-samples-path']),
-    ('compute_plan', ['--algo-key', 'foo', '--objective-key', 'foo']),
+    ('compute_plan', ['--objective-key', 'foo']),
     ('composite_traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
                               '--data-samples-path']),
 ])
@@ -233,7 +233,7 @@ def test_command_add_data_sample(workdir, mocker):
     ('traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
                     '--data-samples-path']),
     ('testtuple', ['--traintuple-key', 'foo', '--data-samples-path']),
-    ('compute_plan', ['--algo-key', 'foo', '--objective-key', 'foo']),
+    ('compute_plan', ['--objective-key', 'foo']),
     ('objective', []),
 ])
 def test_command_add_already_exists(workdir, mocker, asset_name, params):
