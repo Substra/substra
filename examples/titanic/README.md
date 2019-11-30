@@ -10,6 +10,9 @@ In this example, we consider by default two nodes: node 0 and node 1. We'll see 
 
 ## Prerequisites
 
+
+### Setup 
+
 In order to run this example, you'll need to:
 
 * use Python 3
@@ -18,9 +21,9 @@ In order to run this example, you'll need to:
 * [install the `substratools` library](https://github.com/substrafoundation/substra-tools)
 * [pull the `substra-tools` docker images](https://github.com/substrafoundation/substra-tools#pull-from-private-docker-registry)
 
-## Data preparation
+### Data preparation
 
-The first step will be to generate train and test data samples from the 
+To run this example, you will also need to generate data samples for the two nodes from
 [Kaggle challenge source](https://www.kaggle.com/c/titanic/data). The raw `train.csv` file is available in the `data` 
 directory.
 
@@ -48,22 +51,103 @@ This will create three sub-folders in the `assets` folder:
 This also create two sub-folders in the `assets` folder: `dataset_node0` and `dataset_node1` that store a description and 
 an opener to handle data samples submitted to node 0 and node 1. 
 
-The reason we have multiple train data samples is that this way we'll be able to finely select our training set later 
+The reason we have multiple train data samples for each node is that this way we'll be able to finely select our training set later 
 on.
 
-## Writing the objective and data manager
+> :tada: **Congratulations, you are now ready to start running the example!** 
 
-Both objective and data manager will need a proper markdown description, you can check them out in their respective 
-folders. Notice that the data manager's description includes a formal description of the data structure.
+## Objective preparation by Node 0
 
-Notice also that the `metrics.py` and `opener.py` module both rely on classes imported from the `substratools` module. 
-These classes provide a simple yet rigid structure that will make algorithms pretty easy to write.
+A user of Node 0 will register an *objective* to Substra. 
+An *objective* corresponds to the definition of a machine learning problem. 
+It is associated with a test dataset and a metrics to evaluate models created to solve this problem. 
 
-## Writing a simple algorithm
+To prepare an objective, one needs to create:
+- a markdown description `description.md`
+- a metrics defined in a `metrics.py` file with its dependencies specified in a `Dockerfile`. This rely on classes imported from the `substratools` module. These classes provide a simple yet rigid structure that will make your metrics pretty easy to write. 
 
-You'll find under `assets/algo_random_forest` a simple algorithm. Like the metrics and opener scripts, it relies on a 
-class imported from `substratools` that greatly simplifies the writing process. You'll notice that it handles not only
-the train and predict tasks but also a lot of data preprocessing.
+Those have been already been created: You can have a look at them in the folder `asset/objective`. 
+
+## Dataset preparation by Node 0 and Node 1
+
+Both a user of Node 0 and of Node 1 will register a *dataset*.
+A *dataset* corresponds to a set of *data samples* and a *data manager*.
+
+To prepare a *data manager*, one needs to create:
+- a markdown description `description.md`
+- an `opener.py` file with makes it possible to load your data samples in memory. It relies on a classe imported from the `substratools` module. This classe provides a simple yet rigid structure that will make your opener pretty easy to write. 
+
+Those have been created: You can have a look at them in the folder `asset/dataset0` and `asset/dataset1`.
+
+
+## Algorithm definition by Node 1
+
+A user of Node 1 will register an *algorithm*. 
+
+To prepare an *algorithm*, one needs to create:
+- a markdown description `description.md`
+- the algorithm itself :-) Like for a metrics you can define it through Python file and a `Dockerfile`. Like the metrics and opener scripts, it relies on a 
+class imported from `substratools` that greatly simplifies the writing process. 
+
+Those have been created: You can have a look at them in the folder `assets/algo_random_forest`.
+
+> **Everything is now prepared and we can add the assets to Substra!**
+
+## Adding the assets to substra
+
+### Adding the objective, dataset and data samples to substra as a user of the Node 0
+
+A script has been written that adds objective, data manager and data samples to substra as a user of Node 0. It uses the `substra` python 
+sdk to perform actions. It's main goal is to create assets, get their keys and use these keys in the creation of other
+assets.
+
+To run it:
+
+```sh
+pip install -r scripts/requirements.txt
+python scripts/add_dataset_objective.py
+```
+
+This script just generated an `assets_keys_node0.json` file in the `titanic` folder. This file contains the keys of 
+all assets we've just created and organizes the keys of the train data samples in folds. 
+
+### Adding a dataset and data samples to substra as a user of the Node 1
+
+A script has been written that adds a data manager and data samples to substra as a user of Node 1. It uses the `substra` python 
+sdk to perform actions. It's main goal is to create assets, get their keys and use these keys in the creation of other
+assets.
+
+To run it:
+
+```sh
+python scripts/add_dataset.py
+```
+
+This script just generated an `assets_keys_node1.json` file in the `titanic` folder. This file contains the keys of
+all assets we've just created and organizes the keys of the train data samples in folds.
+
+
+### Adding the algorithm and training it as a user of Node 1
+
+The script `add_train_algo_random_forest.py` pushes our simple algo to substra, uses the SDK to retrieve the datasets and objective 
+we just generated to train it against the dataset and objective we previously set up. It will then update the 
+`assets_keys_node1.json` file with the newly created assets keys (algo, traintuple and testtuple)
+
+To run it:
+
+```sh
+python scripts/add_train_algo_random_forest.py
+```
+
+It will end by providing a couple of commands you can use to track the progress of the train and test tuples as well 
+as the associated scores. Alternatively, you can browse the frontend to look up progress and scores.
+
+
+> **Congratulations! You submitted assets to Substra as being users of two different nodes!** 
+> **Hopefully, everything went well.** 
+> **But wait, what if you had to design all assets by yourself ?**
+> **It would been nice to know how to test things before submitting them. And also how to do this when you don't have access to data.**
+> **This is what is explained in the next two sections.**
 
 ## Testing our assets
 
@@ -128,58 +212,9 @@ It's more than probable that your code won't run perfectly the first time. Since
 debug using prints. Instead, you should use the `logging` module from python. All logs can then be consulted at the end 
 of the run in  `sandbox/model/log_model.log`.
 
-## Adding the assets to substra
+## 
 
-### Adding the objective, dataset and data samples to substra as a user of the node 0
-
-A script has been written that adds objective, data manager and data samples to substra as a user of node 0. It uses the `substra` python 
-sdk to perform actions. It's main goal is to create assets, get their keys and use these keys in the creation of other
-assets.
-
-To run it:
-
-```sh
-pip install -r scripts/requirements.txt
-python scripts/add_dataset_objective.py
-```
-
-This script just generated an `assets_keys_node0.json` file in the `titanic` folder. This file contains the keys of 
-all assets we've just created and organizes the keys of the train data samples in folds. 
-
-### Adding a dataset and data samples to substra as a user of the node 1
-
-A script has been written that adds a data manager and data samples to substra as a user of node 1. It uses the `substra` python 
-sdk to perform actions. It's main goal is to create assets, get their keys and use these keys in the creation of other
-assets.
-
-To run it:
-
-```sh
-python scripts/add_dataset.py
-```
-
-This script just generated an `assets_keys_node1.json` file in the `titanic` folder. This file contains the keys of
-all assets we've just created and organizes the keys of the train data samples in folds.
-
-
-### Adding the algorithm and training it as a user of node 1
-
-The script `add_train_algo_random_forest.py` pushes our simple algo to substra, uses the SDK to retrieve the datasets and objective 
-we just generated to train it against the dataset and objective we previously set up. It will then update the 
-`assets_keys_node1.json` file with the newly created assets keys (algo, traintuple and testtuple)
-
-To run it:
-
-```sh
-python scripts/add_train_algo_random_forest.py
-```
-
-It will end by providing a couple of commands you can use to track the progress of the train and test tuples as well 
-as the associated scores. Alternatively, you can browse the frontend to look up progress and scores.
-
-
-<!--
-## Writing an algorithm when you don't have access to the data samples
+## Preparing an algorithm when you don't have access to the data samples
 
 Now that we have a full example setup, let's imagine that we are someone else, someone whithout access to the data 
 samples who want to develop an algorithm for this objective (see `assets/algo_constant` for such an algorithm).
@@ -216,4 +251,4 @@ python scripts/add_train_algo_constant.py
 ```
 
 At the end of the training and testing, we can use the frontend to compare the performance of our algorithms.
--->
+
