@@ -33,9 +33,6 @@ client = substra.Client()
 client.add_profile(config['profile_name'], config['username'], config['password'],  config['url'])
 client.login()
 
-# print(f'Loading existing asset keys from {os.path.abspath(assets_keys_path)}...')
-# with open(assets_keys_path, 'r') as f:
-#     assets_keys = json.load(f)
 
 # Retrieve objective and dataset keys
 data_manager_keys = [d['key'] for d in client.list_dataset() if DATASET_NAME in d['name']]

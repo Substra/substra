@@ -16,31 +16,63 @@ import hashlib
 import os
 import json
 
+import numpy as np
+from sklearn.model_selection import KFold
+
 import substra
 
 current_directory = os.path.dirname(__file__)
-assets_keys_path = os.path.join(current_directory, '../../titanic/assets_keys.json')
 folds_keys_path = os.path.join(current_directory, '../folds_keys.json')
 
-with open(os.path.join(current_directory, '../../config.json'), 'r') as f:
+N_FOLDS = 2 
+NODE_ID = 1
+ALGO_NAME = "Random Forest"
+DATASET_NAME = "Titanic"
+OBJECTIVE_NAME = "Titanic"
+
+with open(os.path.join(current_directory, f'../../config_node{NODE_ID}.json'), 'r') as f:
     config = json.load(f)
 
 client = substra.Client()
 client.add_profile(config['profile_name'], config['username'], config['password'],  config['url'])
 client.login()
 
-print(f'Loading existing asset keys from {os.path.abspath(assets_keys_path)}...')
-with open(assets_keys_path, 'r') as f:
-    assets_keys = json.load(f)
+# -----------------------------------
+# Retrieve objective and dataset keys
+# -----------------------------------
+print('Retrieving existing asset keys ...')
+algo_key = [d['key'] for d in client.list_algo() if ALGO_NAME in d['name']][0]
+data_manager_key = [d['key'] for d in client.list_dataset() if DATASET_NAME in
+                    d['name']][0]
+objective_key = [d['key'] for d in client.list_objective() if OBJECTIVE_NAME in 
+                 d['name']][0]
+train_data_sample_keys = client.get_dataset(data_manager_key)['trainDataSampleKeys']
 
-algo_key = assets_keys['algo_random_forest']['algo_key']
-objective_key = assets_keys['objective_key']
-dataset_key = assets_keys['dataset_key']
+# -----------------------------------
+# Retrieve objective and dataset keys
+# -----------------------------------
+print('Generating folds...')
+X = np.array(train_data_sample_keys)
+kf = KFold(n_splits=N_FOLDS, shuffle=True)
+folds_keys = {
+    'folds': [
+        {
+            'train_data_sample_keys': list(X[train_index]),
+            'test_data_sample_keys': list(X[test_index])
+        } for train_index, test_index in kf.split(X)
+    ]
+}
 
-print(f'Loading folds keys from {os.path.abspath(folds_keys_path)}...')
-with open(folds_keys_path, 'r') as f:
-    folds_keys = json.load(f)
+# saving folds keys
+with open(os.path.join(current_directory, folds_keys_path), 'w') as f:
+    json.dump(folds_keys, f, indent=2)
 
+print(f'Folds keys have been saved in {folds_keys_path}')
+
+# -----------------------------------
+# Submitting tasks on folds 
+# -----------------------------------
+print('Submitting training and testing tasks on folds...')
 tag = hashlib.sha256(str(folds_keys).encode()).hexdigest()
 folds_keys['tag'] = tag
 
@@ -50,7 +82,7 @@ for i, fold in enumerate(folds_keys['folds']):
     traintuple = client.add_traintuple({
         'algo_key': algo_key,
         'objective_key': objective_key,
-        'data_manager_key': dataset_key,
+        'data_manager_key': data_manager_key,
         'train_data_sample_keys': fold['train_data_sample_keys'],
         'tag': tag,
     }, exist_ok=True)
@@ -60,7 +92,7 @@ for i, fold in enumerate(folds_keys['folds']):
     # testtuple
     testtuple = client.add_testtuple({
         'traintuple_key': traintuple_key,
-        'data_manager_key': dataset_key,
+        'data_manager_key': data_manager_key,
         'test_data_sample_keys': fold['test_data_sample_keys'],
         'tag': tag,
     }, exist_ok=True)
