@@ -1,12 +1,13 @@
 # Compute plan
 
-> Important  
+> :warning: 
 > This example relies on the assets setup by the [Titanic example](../titanic/README.md). In order to run the following 
-code snippets, you'll need the `assets_keys.json` generated while running the Titanic example. 
+code snippets, you'll need to have run the Titanic example before 
+(or at least make sure you have submitted the Titanic objective and datasets of Node 0 and 1).  
 
-In the Titanic example, we trained our algos on all the available data samples simultaneously. In this example, we'll 
-go a different route, training our algo on a single data sample at once, chaining our training tasks so that the 
-resulting model improves with each individual step.
+In the Titanic example, we trained our algo on all data samples of Node 0 and then on all data samples of Node 1. 
+
+In this example, we'll train our algo sequentially on part of the data samples of Node 0, then part of the data samples of Node 1, then again on part of the data samples of Node 0, etc ...  
 
 To do so, we'll generate a *compute plan* that describes each step of the training and have each of these steps 
 evaluated against the objective's test data so that we can see the score improving. 

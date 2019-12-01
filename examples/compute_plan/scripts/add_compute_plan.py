@@ -20,23 +20,40 @@ import zipfile
 import substra
 
 current_directory = os.path.dirname(__file__)
-assets_keys_path = os.path.join(current_directory, '../../titanic/assets_keys.json')
 compute_plan_keys_path = os.path.join(current_directory, '../compute_plan_keys.json')
 
-with open(os.path.join(current_directory, '../../config.json'), 'r') as f:
+NODE_ID = 1
+DATASET_NAME = "Titanic"
+OBJECTIVE_NAME = "Titanic"
+
+with open(os.path.join(current_directory, f'../../config_node{NODE_ID}.json'), 'r') as f:
     config = json.load(f)
 
 client = substra.Client()
 client.add_profile(config['profile_name'], config['username'], config['password'],  config['url'])
 client.login()
 
-print(f'Loading existing asset keys from {os.path.abspath(assets_keys_path)}...')
-with open(assets_keys_path, 'r') as f:
-    assets_keys = json.load(f)
+# print(f'Loading existing asset keys from {os.path.abspath(assets_keys_path)}...')
+# with open(assets_keys_path, 'r') as f:
+#     assets_keys = json.load(f)
 
-train_data_sample_keys = assets_keys['train_data_sample_keys']
-objective_key = assets_keys['objective_key']
-dataset_key = assets_keys['dataset_key']
+# Retrieve objective and dataset keys
+data_manager_keys = [d['key'] for d in client.list_dataset() if DATASET_NAME in d['name']]
+objective_key = [d['key'] for d in client.list_objective() if OBJECTIVE_NAME in 
+                 d['name']][0]
+train_data_sample_keys = []
+for data_manager_key in data_manager_keys:
+    train_data_sample_keys.append(client.get_dataset(data_manager_key)['trainDataSampleKeys'])
+# Create data batches: one sample of Node0, one of Node 1, onde of Node 0, ....
+data_batches = []
+n_batch = max([len(tds) for tds in train_data_sample_keys])
+for i in range(n_batch):
+    for j, data_manager_key in enumerate(data_manager_keys):
+        try:
+            data_batches.append([data_manager_key, train_data_sample_keys[j]])
+        except IndexError:
+            pass
+
 
 print('Adding algo...')
 algo_directory = os.path.join(current_directory, '../assets/algo_sgd')
@@ -56,10 +73,11 @@ print(f'Generating compute plan...')
 traintuples = []
 testtuples = []
 previous_id = None
-for train_data_sample_key in train_data_sample_keys:
+# for data_btrain_data_sample_key in train_data_sample_keys:
+for data_batch in data_batches:
     traintuple = {
-        'data_manager_key': dataset_key,
-        'train_data_sample_keys': [train_data_sample_key],
+        'data_manager_key': data_batch[0],
+        'train_data_sample_keys': data_batch[1],
         'traintuple_id': uuid.uuid4().hex,
         'in_models_ids': [previous_id] if previous_id else [],
     }
