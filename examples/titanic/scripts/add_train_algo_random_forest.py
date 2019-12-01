@@ -18,15 +18,15 @@ import zipfile
 
 import substra
 
-NODE_ID = 1
+NODE_ID = 1 
 DATASET_NAME = "Titanic"
 OBJECTIVE_NAME = "Titanic"
 
 current_directory = os.path.dirname(__file__)
 assets_directory = os.path.join(current_directory, '../assets')
+assets_keys_path = os.path.join(current_directory, 'algo_tuples_keys_node{NODE_ID}.json')
 
 with open(os.path.join(current_directory, f'../../config_node{NODE_ID}.json'), 'r') as f:
-# with open(os.path.join(current_directory, '/Users/camillemarini/Desktop/config_node2.json'), 'r') as f:
     config = json.load(f)
 
 client = substra.Client()
@@ -56,13 +56,6 @@ with zipfile.ZipFile(archive_path, 'w') as z:
         z.write(filepath, arcname=os.path.basename(filepath))
 ALGO['file'] = archive_path
 
-########################################################
-#       Load keys for dataset and objective
-########################################################
-
-assets_keys_path = os.path.join(current_directory, f'../assets_keys_node{NODE_ID}.json')
-with open(assets_keys_path, 'r') as f:
-    assets_keys = json.load(f)
 
 ########################################################
 #         Add algo
@@ -111,7 +104,7 @@ assert testtuple_key, 'Missing testtuple key'
 #         Save keys in json
 ########################################################
 
-assets_keys['algo_random_forest'] = {
+assets_keys = {
     'algo_key': algo_key,
     'traintuple_key': traintuple_keys,
     'testtuple_key': testtuple_key,
