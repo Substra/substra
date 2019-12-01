@@ -24,7 +24,7 @@ OBJECTIVE_NAME = "Titanic"
 
 current_directory = os.path.dirname(__file__)
 assets_directory = os.path.join(current_directory, '../assets')
-assets_keys_path = os.path.join(current_directory, 'algo_tuples_keys_node{NODE_ID}.json')
+assets_keys_path = os.path.join(current_directory, f'algo_tuples_keys_node{NODE_ID}.json')
 
 with open(os.path.join(current_directory, f'../../config_node{NODE_ID}.json'), 'r') as f:
     config = json.load(f)

@@ -21,7 +21,9 @@ import substra
 current_directory = os.path.dirname(__file__)
 compute_plan_keys_path = os.path.join(current_directory, '../compute_plan_keys.json')
 
-with open(os.path.join(current_directory, '../../config.json'), 'r') as f:
+NODE_ID = 1
+
+with open(os.path.join(current_directory, f'../../config_node{NODE_ID}.json'), 'r') as f:
     config = json.load(f)
 
 client = substra.Client()
@@ -44,7 +46,7 @@ for i, testtuple_key in enumerate(testtuple_keys):
     score = testtuple['dataset']['perf'] if testtuple['status'] == 'done' else testtuple['status']
     columns[0].append(str(i+1))
     columns[1].append(str(score))
-    columns[2].append(testtuple['model']['traintupleKey'])
+    columns[2].append(testtuple['traintupleKey'])
     columns[3].append(testtuple['key'])
 
 # display data
