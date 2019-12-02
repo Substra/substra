@@ -164,6 +164,46 @@ Create new algo asset.
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
+## add_aggregate_algo
+```python
+Client.add_aggregate_algo(self, data, timeout=False, exist_ok=False)
+```
+Create new aggregate algo asset.
+`data` is a dict object with the following schema:
+```
+{
+    "name": str,
+    "description": str,
+    "file": str,
+    "permissions": {
+        "public": bool,
+        "authorizedIDs": list[str],
+    },
+}
+```
+If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
+existing asset will be returned.
+
+## add_composite_algo
+```python
+Client.add_composite_algo(self, data, timeout=False, exist_ok=False)
+```
+Create new composite algo asset.
+`data` is a dict object with the following schema:
+```
+{
+    "name": str,
+    "description": str,
+    "file": str,
+    "permissions": {
+        "public": bool,
+        "authorized_ids": list[str],
+    },
+}
+```
+If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
+existing asset will be returned.
+
 ## add_traintuple
 ```python
 Client.add_traintuple(self, data, timeout=False, exist_ok=False)
@@ -184,6 +224,49 @@ Create new traintuple asset.
 }
 ```
 
+If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
+existing asset will be returned.
+
+## add_aggregatetuple
+```python
+Client.add_aggregatetuple(self, data, timeout=False, exist_ok=False)
+```
+Create new aggregatetuple asset.
+`data` is a dict object with the following schema:
+```
+{
+    "algo_key": str,
+    "objective_key": str,
+    "in_models_keys": list[str],
+    "tag": str,
+    "compute_plan_id": str,
+    "rank": int,
+    "worker": str,
+}
+```
+If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
+existing asset will be returned.
+
+## add_composite_traintuple
+```python
+Client.add_composite_traintuple(self, data, timeout=False, exist_ok=False)
+```
+Create new composite traintuple asset.
+`data` is a dict object with the following schema:
+```
+{
+    "algo_key": str,
+    "objective_key": str,
+    "data_manager_key": str,
+    "in_head_model_key": str,
+    "in_trunk_model_key": str,
+    "out_trunk_model_permissions": {
+        "authorized_ids": list[str],
+    },
+    "tag": str,
+    "compute_plan_id": str,
+}
+```
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
@@ -248,6 +331,16 @@ Get algo by key.
 Client.get_compute_plan(self, compute_plan_key)
 ```
 Get compute plan by key.
+## get_aggregate_algo
+```python
+Client.get_aggregate_algo(self, aggregate_algo_key)
+```
+Get aggregate algo by key.
+## get_composite_algo
+```python
+Client.get_composite_algo(self, composite_algo_key)
+```
+Get composite algo by key.
 ## get_dataset
 ```python
 Client.get_dataset(self, dataset_key)
@@ -268,6 +361,16 @@ Get testtuple by key.
 Client.get_traintuple(self, traintuple_key)
 ```
 Get traintuple by key.
+## get_aggregatetuple
+```python
+Client.get_aggregatetuple(self, aggregatetuple_key)
+```
+Get aggregatetuple by key.
+## get_composite_traintuple
+```python
+Client.get_composite_traintuple(self, composite_traintuple_key)
+```
+Get composite traintuple by key.
 ## list_algo
 ```python
 Client.list_algo(self, filters=None, is_complex=False)
@@ -278,6 +381,16 @@ List algos.
 Client.list_compute_plan(self, filters=None, is_complex=False)
 ```
 List compute plans.
+## list_aggregate_algo
+```python
+Client.list_aggregate_algo(self, filters=None, is_complex=False)
+```
+List aggregate algos.
+## list_composite_algo
+```python
+Client.list_composite_algo(self, filters=None, is_complex=False)
+```
+List composite algos.
 ## list_data_sample
 ```python
 Client.list_data_sample(self, filters=None, is_complex=False)
@@ -303,6 +416,16 @@ List testtuples.
 Client.list_traintuple(self, filters=None, is_complex=False)
 ```
 List traintuples.
+## list_aggregatetuple
+```python
+Client.list_aggregatetuple(self, filters=None, is_complex=False)
+```
+List aggregatetuples.
+## list_composite_traintuple
+```python
+Client.list_composite_traintuple(self, filters=None, is_complex=False)
+```
+List composite traintuples.
 ## list_node
 ```python
 Client.list_node(self, *args, **kwargs)
@@ -339,6 +462,22 @@ Download algo resource.
 
 Download algo package in destination folder.
 
+## download_aggregate_algo
+```python
+Client.download_aggregate_algo(self, asset_key, destination_folder)
+```
+Download aggregate algo resource.
+
+Download aggregate algo package in destination folder.
+
+## download_composite_algo
+```python
+Client.download_composite_algo(self, asset_key, destination_folder)
+```
+Download composite algo resource.
+
+Download composite algo package in destination folder.
+
 ## download_objective
 ```python
 Client.download_objective(self, asset_key, destination_folder)
@@ -352,6 +491,16 @@ Download metrics script in destination folder.
 Client.describe_algo(self, asset_key)
 ```
 Get algo description.
+## describe_aggregate_algo
+```python
+Client.describe_aggregate_algo(self, asset_key)
+```
+Get aggregate algo description.
+## describe_composite_algo
+```python
+Client.describe_composite_algo(self, asset_key)
+```
+Get composite algo description.
 ## describe_dataset
 ```python
 Client.describe_dataset(self, asset_key)

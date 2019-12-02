@@ -90,16 +90,18 @@ def mock_client_call(mocker, method_name, response="", side_effect=None):
                         return_value=response, side_effect=side_effect)
 
 
-@pytest.mark.parametrize(
-    'asset_name,key_field', [
-        ('objective', 'key'),
-        ('dataset', 'key'),
-        ('algo', 'key'),
-        ('testtuple', 'key'),
-        ('traintuple', 'key'),
-        ('compute_plan', 'computePlanID'),
-    ]
-)
+@pytest.mark.parametrize('asset_name,key_field', [
+    ('objective', 'key'),
+    ('dataset', 'key'),
+    ('algo', 'key'),
+    ('aggregate_algo', 'key'),
+    ('composite_algo', 'key'),
+    ('testtuple', 'key'),
+    ('traintuple', 'key'),
+    ('aggregatetuple', 'key'),
+    ('composite_traintuple', 'key'),
+    ('compute_plan', 'computePlanID'),
+])
 def test_command_list(asset_name, key_field, workdir, mocker):
     item = getattr(datastore, asset_name.upper())
     method_name = f'list_{asset_name}'
@@ -120,6 +122,8 @@ def test_command_list_node(workdir, mocker):
 @pytest.mark.parametrize('asset_name,params', [
     ('dataset', []),
     ('algo', []),
+    ('aggregate_algo', []),
+    ('composite_algo', []),
     ('traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
                     '--data-samples-path']),
     ('traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
@@ -128,6 +132,8 @@ def test_command_list_node(workdir, mocker):
                     '--in-model-key', 'foo', '--in-model-key', 'bar', '--data-samples-path']),
     ('testtuple', ['--traintuple-key', 'foo', '--data-samples-path']),
     ('compute_plan', ['--algo-key', 'foo', '--objective-key', 'foo']),
+    ('composite_traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
+                              '--data-samples-path']),
 ])
 def test_command_add(asset_name, params, workdir, mocker):
     method_name = f'add_{asset_name}'
@@ -184,6 +190,23 @@ def test_command_add_objective(workdir, mocker):
     assert re.search(r'File ".*" is not a valid JSON file\.', res)
 
 
+@pytest.mark.parametrize('params,message,exit_code', [
+    ([], r'', 0),
+    (['--head-model-key', 'e', '--trunk-model-key', 'e'], r'', 0),
+    (['--head-model-key', 'e'], r'The --trunk-model-key option is required', 2),
+    (['--trunk-model-key', 'e'], r'The --head-model-key option is required', 2)
+])
+def test_command_add_composite_traintuple(mocker, workdir, params, message, exit_code):
+    with mock_client_call(mocker, 'add_composite_traintuple', response={}) as m:
+        json_file = workdir / "valid_json_file.json"
+        json_file.write_text(json.dumps({}))
+        res = client_execute(workdir, ['add', 'composite_traintuple', '--objective-key', 'foo',
+                                       '--algo-key', 'foo', '--dataset-key', 'foo'] + params +
+                             ['--data-samples-path', str(json_file)], exit_code=exit_code)
+        assert re.search(message, res)
+    assert m.is_called()
+
+
 def test_command_add_testtuple_no_data_samples(mocker, workdir):
     m = mock_client_call(mocker, 'add_testtuple', response={})
     client_execute(workdir, ['add', 'testtuple', '--traintuple-key', 'foo'])
@@ -236,16 +259,18 @@ def test_command_add_data_sample_already_exists(workdir, mocker):
     assert m.is_called()
 
 
-@pytest.mark.parametrize(
-    'asset_name,key_field', [
-        ('objective', 'key'),
-        ('dataset', 'key'),
-        ('algo', 'key'),
-        ('testtuple', 'key'),
-        ('traintuple', 'key'),
-        ('compute_plan', 'computePlanID'),
-    ]
-)
+@pytest.mark.parametrize('asset_name,key_field', [
+    ('objective', 'key'),
+    ('dataset', 'key'),
+    ('algo', 'key'),
+    ('aggregate_algo', 'key'),
+    ('composite_algo', 'key'),
+    ('testtuple', 'key'),
+    ('traintuple', 'key'),
+    ('aggregatetuple', 'key'),
+    ('composite_traintuple', 'key'),
+    ('compute_plan', 'computePlanID'),
+])
 def test_command_get(asset_name, key_field, workdir, mocker):
     item = getattr(datastore, asset_name.upper())
     method_name = f'get_{asset_name}'
