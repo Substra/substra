@@ -13,12 +13,16 @@
 # limitations under the License.
 
 ALGO = 'algo'
+AGGREGATE_ALGO = 'aggregate_algo'
+COMPOSITE_ALGO = 'composite_algo'
 DATA_SAMPLE = 'data_sample'
 DATASET = 'dataset'
 MODEL = 'model'
 OBJECTIVE = 'objective'
 TESTTUPLE = 'testtuple'
 TRAINTUPLE = 'traintuple'
+AGGREGATETUPLE = 'aggregatetuple'
+COMPOSITE_TRAINTUPLE = 'composite_traintuple'
 COMPUTE_PLAN = 'compute_plan'
 NODE = 'node'
 
@@ -30,12 +34,16 @@ _SERVER_MAPPER = {
 def get_all():
     return (
         ALGO,
+        AGGREGATE_ALGO,
+        COMPOSITE_ALGO,
         DATA_SAMPLE,
         DATASET,
         MODEL,
         OBJECTIVE,
         TESTTUPLE,
         TRAINTUPLE,
+        AGGREGATETUPLE,
+        COMPOSITE_TRAINTUPLE,
         COMPUTE_PLAN,
         NODE,
     )

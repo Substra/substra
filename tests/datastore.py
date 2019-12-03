@@ -25,8 +25,12 @@ OBJECTIVE = {
     },
     "name": "Skin Lesion Classification Challenge",
     "owner": "c657699f8b03c19e6eadc7b474c23f26dd83454395266a673406f2cf44de2ca2",
-    "permissions_public": False,
-    "permissions_authorized_ids": [],
+    "permissions": {
+        "process": {
+            "public": False,
+            "authorizedIDs": []
+        }
+    },
     "testDataset": {
         "dataManagerKey": "ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994",
         "dataSampleKeys": [
@@ -48,8 +52,12 @@ DATASET = {
         "storageAddress": "",
     },
     "owner": "c657699f8b03c19e6eadc7b474c23f26dd83454395266a673406f2cf44de2ca2",
-    "permissions_public": False,
-    "permissions_authorized_ids": [],
+    "permissions": {
+        "process": {
+            "public": False,
+            "authorizedIDs": []
+        }
+    },
     "size": 100,
     "type": "Images",
     "trainDataSampleKeys": [],
@@ -68,9 +76,51 @@ ALGO = {
       "storageAddress": ""
     },
     "owner": "ab75010bacbd1a4b826dc2e9ead6f1e4e1c4feade2d62a8b708fdde48fb0edea",
+    "permissions": {
+        "process": {
+            "public": False,
+            "authorizedIDs": []
+        }
+    },
+    "pkhash": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5"
+}
+
+AGGREGATE_ALGO = {
+    "key": "7c9f9799bf64c10062381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
+    "name": "Logistic regression",
+    "content": {
+      "hash": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6g0c614d3f6f868f72a9d5",
+      "storageAddress": ""
+    },
+    "description": {
+      "hash": "124a0725b746d7072282d167b53cb6aab3a31bf1946dae89135c15b0126ebec3",
+      "storageAddress": ""
+    },
+    "owner": "ab75010bacbd1a4b826dc2e9ead6f1e4e1c4feade2d62a8b708fdde48fb0edeb",
+    "permissions": {
+        "process": {
+            "public": False,
+            "authorizedIDs": []
+        }
+    },
+    "pkhash": "7c9t9799bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5"
+}
+
+COMPOSITE_ALGO = {
+    "key": "7c9f9799bf64c1000238b583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
+    "name": "Logistic regression",
+    "content": {
+      "hash": "7c9f9799bf64c10002381b83a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
+      "storageAddress": ""
+    },
+    "description": {
+      "hash": "124a0425b746d7b72282d167b53cb6aab3a31bf1946dae89135c15b0126ebec3",
+      "storageAddress": ""
+    },
+    "owner": "ab75010bacbd1a4b826dc2e9ead6f1e4e1c4beade2d62a8b708fdde48fb0edea",
     "permissions_public": False,
     "permissions_authorized_ids": [],
-    "pkhash": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5"
+    "pkhash": "7c9f9br9bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5"
 }
 
 TRAINTUPLE = {
@@ -101,8 +151,100 @@ TRAINTUPLE = {
         }
     },
     "outModel": None,
-    "permissions_public": False,
-    "permissions_authorized_ids": [],
+    "permissions": {
+        "process": {
+            "public": False,
+            "authorizedIDs": []
+        }
+    },
+    "rank": 0,
+    "status": "failed",
+    "tag": "My super tag"
+}
+
+AGGREGATETUPLE = {
+    "key": "06207faf17854fa9422099a50dcfe064753d6c3425a077f097e91622f3199be5",
+    "algo": {
+        "name": "Neural Network",
+        "hash": "0acc5180e09b6a6ac250f4f3c172e2893f617aa1c22ef1f379019d20fe44142f",
+        "storageAddress": ""
+    },
+    "creator": "e75db4df2532dc1313ebb5c2462f1eb813b94c3e67de29f6e4b2272ae60385f5",
+    "dataset": {
+        "worker": "e75db4df2532dc1313ebb5c2f62e1eb813b94c3e67de29f6e4b2272ae60385f5",
+        "keys": [
+            "31510dc1d8be788f7c5d28d05714f7efbfedb667762966b9adc02eadeaacebe9",
+            "03a1f878768ea8624942d46a3b438c379f2e626c2cf655023bcc3bed69d485d1"
+        ],
+        "openerHash": "8dd01465003a9b1e01c99c904d86aa518b3afdd9dc8d40fe7d075c726ac073ca",
+        "perf": 0
+    },
+    "computePlanID": "",
+    "inModels": None,
+    "log": "[00-01-0032-d415995]",
+    "objective": {
+        "hash": "3d70ab46d710dacb0f48cb42db4874fac14e048afd415e266aad38c09591ee71",
+        "metrics": {
+            "hash": "c42dca31fbc2ebb5705643e3bb6ee666bbfdf56de13dd03727f825ad8445b4d7",
+            "storageAddress": ""
+        }
+    },
+    "outModel": None,
+    "permissions": {
+        "process": {
+            "public": False,
+            "authorizedIDs": []
+        }
+    },
+    "rank": 0,
+    "status": "failed",
+    "tag": "My super tag"
+}
+
+COMPOSITE_TRAINTUPLE = {
+    "key": "06207faf17854fa9422099a50dcee064753d6c3425a077f097e91622f3199be5",
+    "algo": {
+        "name": "Neural Network",
+        "hash": "0acc5180e09b6a6ac250f4e3c172e2893f617aa1c22ef1f379019d20fe44142f",
+        "storageAddress": ""
+    },
+    "inHeadModel": {
+        "key": "0acc5180e09b6a6ac250f4e3d972e2893f617aa1c22ef1f379019d20fe44142e",
+    },
+    "inTrunkModel": {
+        "key": "0acc5180e09b6a6ac250f4e3d972e2893f617aa1c22ef1f379019d20fe44142f",
+    },
+    "creator": "e75db4df2532dc1313ebb5c2462e1eb813b94c3e67de29f6e4b2272ae60385f5",
+    "dataset": {
+        "worker": "e75db4df2532dc1313ebb5c2462e1eb813b94c3e67de29f6e4b2272ae60385f5",
+        "keys": [
+            "31510dc1d8be788f7c5d28d05714f7efb9edb667762966b9adc02eadeaacebe9",
+            "03a1f878768ea8624942d46a3b438c37992e626c2cf655023bcc3bed69d485d1"
+        ],
+        "openerHash": "8dd01465003a9b1e01c99c904d86aa518b3a5dd9dc8d40fe7d075c726ac073ca",
+        "perf": 0
+    },
+    "computePlanID": "",
+    "log": "[00-01-0032-d415995]",
+    "objective": {
+        "hash": "3d70ab46d710dacb0f48cb42db4874fac14e048a0d415e266aad38c09591ee71",
+        "metrics": {
+            "hash": "c42dca31fbc2ebb5705643e3bb6ee666bbfd956de13dd03727f825ad8445b4d7",
+            "storageAddress": ""
+        }
+    },
+    "outHeadModel": {
+        "permissions": {},
+        "outModel": {
+            "hash": "8a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
+        }
+    },
+    "outTrunkModel": {
+        "permissions": {},
+        "outModel": {
+            "hash": "9a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
+        }
+    },
     "rank": 0,
     "status": "failed",
     "tag": "My super tag"
@@ -139,8 +281,12 @@ TESTTUPLE = {
             "storageAddress": "",
           }
     },
-    "permissions_public": False,
-    "permissions_authorized_ids": [],
+    "permissions": {
+        "process": {
+            "public": False,
+            "authorizedIDs": []
+        }
+    },
     "status": "done",
     "tag": ""
 }
@@ -153,3 +299,55 @@ NODES = [
     {'id': 'foo', 'isCurrent': False},
     {'id': 'bar', 'isCurrent': True},
 ]
+
+COMPUTE_PLAN = {
+    "computePlanID": "d4ca4befe79e56b98168b80e17db415f5be8c138ddeb600b6937a3f2aa809de3",
+    "algoKey": "9fe61782e7b4d445dff6bc0baae01eb3fa6e926ad0f6870365d605eee5bd169d",
+    "objectiveKey": "3d70ab46d710dacb0f48cb42db4874fac14e048a0d415e266aad38c09591ee71",
+    "traintuples": [
+        {
+            "key": "d4ca4befe79e56b98168b80e17db415f5be8c138ddeb600b6937a3f2aa809de3",
+            "algo": {
+                "name": "Logistic regression",
+                "hash": "9fe61782e7b4d445dff6bc0baae01eb3fa6e926ad0f6870365d605eee5bd169d",
+                "storageAddress": "http://testserver/algo/9fe61782e7b4d445dff6bc0baae01eb3fa6e926ad0f6870365d605eee5bd169d/file/",  # noqa: E501
+            },
+            "creator": "MyPeer2MSP",
+            "dataset": {
+                "worker": "MyPeer2MSP",
+                "keys": [
+                    "31510dc1d8be788f7c5d28d05714f7efb9edb667762966b9adc02eadeaacebe9",
+                    "e3644123451975be20909fcfd9c664a0573d9bfe04c5021625412d78c3536f1c"
+                ],
+                "openerHash": "8dd01465003a9b1e01c99c904d86aa518b3a5dd9dc8d40fe7d075c726ac073ca",
+                "perf": 1
+            },
+            "computePlanID": "d4ca4befe79e56b98168b80e17db415f5be8c138ddeb600b6937a3f2aa809de3",
+            "inModels": None,
+            "log": "",
+            "objective": {
+                "hash": "3d70ab46d710dacb0f48cb42db4874fac14e048a0d415e266aad38c09591ee71",
+                "metrics": {
+                    "hash": "e5762042461c355761dd8986b510ea23494d5638a671370dabbf0ac73f8a3208",
+                    "storageAddress": "http://testserver/objective/3d70ab46d710dacb0f48cb42db4874fac14e048a0d415e266aad38c09591ee71/metrics/",  # noqa: E501
+
+                }
+            },
+            "outModel": {
+                "hash": "af716d0315e847b500376420aaa65a5192f67a5635163d7c0f44cdf72d5b3772",
+                "storageAddress": "http://testserver/model/af716d0315e847b500376420aaa65a5192f67a5635163d7c0f44cdf72d5b3772/file/",  # noqa: E501
+
+            },
+            "permissions": {
+                "process": {
+                    "public": True,
+                    "authorizedIDs": []
+                }
+            },
+            "rank": 0,
+            "status": "done",
+            "tag": ""
+        }
+    ],
+    "testtuples": []
+}

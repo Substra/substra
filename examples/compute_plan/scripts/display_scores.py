@@ -44,7 +44,7 @@ for i, testtuple_key in enumerate(testtuple_keys):
     score = testtuple['dataset']['perf'] if testtuple['status'] == 'done' else testtuple['status']
     columns[0].append(str(i+1))
     columns[1].append(str(score))
-    columns[2].append(testtuple['model']['traintupleKey'])
+    columns[2].append(testtuple['traintupleKey'])
     columns[3].append(testtuple['key'])
 
 # display data

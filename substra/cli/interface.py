@@ -338,7 +338,7 @@ def add_dataset(ctx, data, objective_key, output_format, config, profile, user, 
 @click.option('--dataset-key')
 @click.option('--data-samples-path', 'data_samples',
               type=click.Path(exists=True, resolve_path=True, dir_okay=False),
-              callback=load_json_from_path, help='test data samples')
+              callback=load_json_from_path, help='Test data samples.')
 @click_option_output_format
 @click_option_config
 @click_option_profile
@@ -438,6 +438,134 @@ def add_algo(ctx, data, output_format, config, profile, user, verbose):
     printer.print(res, is_list=False)
 
 
+@add.command('compute_plan')
+@click.argument('tuples', type=click.Path(exists=True, dir_okay=False),
+                callback=load_json_from_path, metavar="TUPLES_PATH")
+@click.option('--algo-key', required=True)
+@click.option('--objective-key', required=True)
+@click_option_output_format
+@click_option_config
+@click_option_profile
+@click_option_user
+@click_option_verbose
+@click.pass_context
+@error_printer
+def add_compute_plan(ctx, tuples, algo_key, objective_key, output_format,
+                     config, profile, user, verbose):
+    """Add compute plan.
+
+    The tuples path must point to a valid JSON file with the following schema:
+
+    \b
+    {
+        "traintuples": list[{
+            "data_manager_key": str,
+            "train_data_sample_keys": list[str],
+            "traintuple_id": str,
+            "in_models_ids": list[str],
+            "tag": str,
+        }],
+        "testtuples": list[{
+            "data_manager_key": str,
+            "test_data_sample_keys": list[str],
+            "testtuple_id": str,
+            "traintuple_id": str,
+            "tag": str,
+        }]
+    }
+
+    """
+    client = get_client(config, profile, user)
+    data = {
+        "algo_key": algo_key,
+        "objective_key": objective_key
+    }
+    data.update(tuples)
+    res = client.add_compute_plan(data)
+    printer = printers.get_asset_printer(assets.COMPUTE_PLAN, output_format)
+    printer.print(res, is_list=False)
+
+
+@add.command('aggregate_algo')
+@click.argument('data', type=click.Path(exists=True, dir_okay=False), callback=load_json_from_path,
+                metavar="PATH")
+@click_option_output_format
+@click_option_config
+@click_option_profile
+@click_option_user
+@click_option_verbose
+@click.pass_context
+@error_printer
+def add_aggregate_algo(ctx, data, output_format, config, profile, user, verbose):
+    """Add aggregate algo.
+
+    The path must point to a valid JSON file with the following schema:
+
+    \b
+    {
+        "name": str,
+        "description": path,
+        "file": path,
+        "permissions": {
+            "public": bool,
+            "authorized_ids": list[str],
+        },
+    }
+
+    \b
+    Where:
+    - name: name of the algorithm
+    - description: path to a markdown file describing the algo
+    - file: path to tar.gz or zip archive containing the algorithm python
+      script and its Dockerfile
+    - permissions: define asset access permissions
+    """
+    client = get_client(config, profile, user)
+    res = client.add_aggregate_algo(data)
+    printer = printers.get_asset_printer(assets.AGGREGATE_ALGO, output_format)
+    printer.print(res, is_list=False)
+
+
+@add.command('composite_algo')
+@click.argument('data', type=click.Path(exists=True, dir_okay=False), callback=load_json_from_path,
+                metavar="PATH")
+@click_option_output_format
+@click_option_config
+@click_option_profile
+@click_option_user
+@click_option_verbose
+@click.pass_context
+@error_printer
+def add_composite_algo(ctx, data, output_format, config, profile, user, verbose):
+    """Add composite algo.
+
+    The path must point to a valid JSON file with the following schema:
+
+    \b
+    {
+        "name": str,
+        "description": path,
+        "file": path,
+        "permissions": {
+            "public": bool,
+            "authorized_ids": list[str],
+        },
+    }
+
+    \b
+    Where:
+    - name: name of the algorithm
+    - description: path to a markdown file describing the algo
+    - file: path to tar.gz or zip archive containing the algorithm python
+      script and its Dockerfile
+    - permissions: define asset access permissions
+    """
+    client = get_client(config, profile, user)
+    res = client.add_composite_algo(data)
+    printer = printers.get_asset_printer(assets.COMPOSITE_ALGO, output_format)
+    printer.print(res, is_list=False)
+
+
 @add.command('traintuple')
 @click.option('--objective-key', required=True)
 @click.option('--algo-key', required=True)
@@ -445,6 +573,8 @@ def add_algo(ctx, data, output_format, config, profile, user, verbose):
 @click.option('--data-samples-path', 'data_samples', required=True,
               type=click.Path(exists=True, resolve_path=True, dir_okay=False),
               callback=load_json_from_path)
+@click.option('--in-model-key', 'in_models_keys', type=click.STRING, multiple=True,
+              help='In model traintuple key.')
 @click.option('--tag')
 @click_option_output_format
 @click_option_config
@@ -453,8 +583,9 @@ def add_algo(ctx, data, output_format, config, profile, user, verbose):
 @click_option_verbose
 @click.pass_context
 @error_printer
-def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, tag, output_format,
-                   config, profile, user, verbose):
+def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, in_models_keys,
+                   tag, output_format, config, profile,
+                   user, verbose):
     """Add traintuple.
 
     The option --data-samples-path must point to a valid JSON file with the
@@ -469,7 +600,6 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, tag,
     Where:
     - keys: list of data sample keys
     """
-    # TODO add missing inmodel keys?
     client = get_client(config, profile, user)
     data = {
         'algo_key': algo_key,
@@ -482,8 +612,129 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, tag,
 
     if tag:
         data['tag'] = tag
+
+    if in_models_keys:
+        data['in_models_keys'] = in_models_keys
     res = client.add_traintuple(data)
     printer = printers.get_asset_printer(assets.TRAINTUPLE, output_format)
+    printer.print(res, is_list=False)
+
+
+@add.command('aggregatetuple')
+@click.option('--objective-key', required=True)
+@click.option('--algo-key', required=True)
+@click.option('--in-model-key', 'in_models_keys', type=click.STRING, multiple=True,
+              help='In model traintuple key.')
+@click.option('--worker', required=True, help='Node ID for worker execution.')
+@click.option('--rank', type=click.INT)
+@click.option('--tag')
+@click_option_output_format
+@click_option_config
+@click_option_profile
+@click_option_user
+@click_option_verbose
+@click.pass_context
+@error_printer
+def add_aggregatetuple(ctx, objective_key, algo_key, in_models_keys, worker, rank, tag,
+                       output_format, config, profile, user, verbose):
+    """Add aggregatetuple."""
+    client = get_client(config, profile, user)
+    data = {
+        'algo_key': algo_key,
+        'objective_key': objective_key,
+        'worker': worker,
+    }
+
+    if in_models_keys:
+        data['in_models_keys'] = in_models_keys
+
+    if rank is not None:
+        data['rank'] = rank
+
+    if tag:
+        data['tag'] = tag
+    res = client.add_aggregatetuple(data)
+    printer = printers.get_asset_printer(assets.AGGREGATETUPLE, output_format)
+    printer.print(res, is_list=False)
+
+
+@add.command('composite_traintuple')
+@click.option('--objective-key', required=True)
+@click.option('--algo-key', required=True)
+@click.option('--dataset-key', required=True)
+@click.option('--data-samples-path', 'data_samples', required=True,
+              type=click.Path(exists=True, resolve_path=True, dir_okay=False),
+              callback=load_json_from_path)
+@click.option('--head-model-key',
+              help='Must be used with --trunk-model-key option.')
+@click.option('--trunk-model-key',
+              help='Must be used with --head-model-key option.')
+@click.option('--out-trunk-model-permissions-path', 'out_trunk_model_permissions',
+              type=click.Path(exists=True, resolve_path=True, dir_okay=False),
+              callback=load_json_from_path,
+              help='Load a permissions file.')
+@click.option('--tag')
+@click_option_output_format
+@click_option_config
+@click_option_profile
+@click_option_user
+@click_option_verbose
+@click.pass_context
+@error_printer
+def add_composite_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples,
+                             head_model_key, trunk_model_key, out_trunk_model_permissions, tag,
+                             output_format, config, profile, user, verbose):
+    """Add composite traintuple.
+
+    The option --data-samples-path must point to a valid JSON file with the
+    following schema:
+
+    \b
+    {
+        "keys": list[str],
+    }
+
+    \b
+    Where:
+    - keys: list of data sample keys
+
+    The option --out-trunk-model-permissions-path must point to a valid JSON file with the
+    following schema:
+
+    \b
+    {
+        "authorized_ids": list[str],
+    }
+    """
+
+    if head_model_key and not trunk_model_key:
+        raise click.BadOptionUsage('--trunk-model-key',
+                                   "The --trunk-model-key option is required when using "
+                                   "--head-model-key.")
+    if trunk_model_key and not head_model_key:
+        raise click.BadOptionUsage('--head-model-key',
+                                   "The --head-model-key option is required when using "
+                                   "--trunk-model-key.")
+
+    client = get_client(config, profile, user)
+    data = {
+        'algo_key': algo_key,
+        'objective_key': objective_key,
+        'data_manager_key': dataset_key,
+        'in_head_model_key': head_model_key,
+        'in_trunk_model_key': trunk_model_key,
+    }
+
+    if data_samples:
+        data['train_data_sample_keys'] = data_samples['keys']
+
+    if out_trunk_model_permissions:
+        data['out_trunk_model_permissions'] = out_trunk_model_permissions
+
+    if tag:
+        data['tag'] = tag
+    res = client.add_composite_traintuple(data)
+    printer = printers.get_asset_printer(assets.COMPOSITE_TRAINTUPLE, output_format)
     printer.print(res, is_list=False)
 
 
@@ -536,10 +787,15 @@ def add_testtuple(ctx, dataset_key, traintuple_key, data_samples, tag,
 @cli.command()
 @click.argument('asset-name', type=click.Choice([
     assets.ALGO,
+    assets.COMPUTE_PLAN,
+    assets.COMPOSITE_ALGO,
+    assets.AGGREGATE_ALGO,
     assets.DATASET,
     assets.OBJECTIVE,
     assets.TESTTUPLE,
     assets.TRAINTUPLE,
+    assets.COMPOSITE_TRAINTUPLE,
+    assets.AGGREGATETUPLE,
 ]))
 @click.argument('asset-key')
 @click_option_expand
@@ -552,7 +808,8 @@ def add_testtuple(ctx, dataset_key, traintuple_key, data_samples, tag,
 @error_printer
 def get(ctx, asset_name, asset_key, expand, output_format, config, profile, user, verbose):
     """Get asset definition."""
-    expand_valid_assets = (assets.DATASET, assets.TRAINTUPLE, assets.OBJECTIVE, assets.TESTTUPLE)
+    expand_valid_assets = (assets.DATASET, assets.TRAINTUPLE, assets.OBJECTIVE, assets.TESTTUPLE,
+                           assets.COMPOSITE_TRAINTUPLE, assets.AGGREGATETUPLE)
     if expand and asset_name not in expand_valid_assets:  # fail fast
         raise click.UsageError(
             f'--expand option is available with assets {expand_valid_assets}')
@@ -562,17 +819,22 @@ def get(ctx, asset_name, asset_key, expand, output_format, config, profile, user
     method = getattr(client, f'get_{asset_name.lower()}')
     res = method(asset_key)
     printer = printers.get_asset_printer(asset_name, output_format)
-    printer.print(res, expand=expand)
+    printer.print(res, profile=profile, expand=expand)
 
 
 @cli.command('list')
 @click.argument('asset-name', type=click.Choice([
     assets.ALGO,
+    assets.COMPUTE_PLAN,
+    assets.COMPOSITE_ALGO,
+    assets.AGGREGATE_ALGO,
     assets.DATA_SAMPLE,
     assets.DATASET,
     assets.OBJECTIVE,
     assets.TESTTUPLE,
     assets.TRAINTUPLE,
+    assets.COMPOSITE_TRAINTUPLE,
+    assets.AGGREGATETUPLE,
     assets.NODE,
 ]))
 @click.option('-f', '--filter', 'filters',
@@ -631,6 +893,8 @@ def list_(ctx, asset_name, filters, filters_logical_clause, advanced_filters, is
 @cli.command()
 @click.argument('asset-name', type=click.Choice([
     assets.ALGO,
+    assets.COMPOSITE_ALGO,
+    assets.AGGREGATE_ALGO,
     assets.DATASET,
     assets.OBJECTIVE,
 ]))
@@ -654,6 +918,8 @@ def describe(ctx, asset_name, asset_key, config, profile, user, verbose):
 @cli.command()
 @click.argument('asset-name', type=click.Choice([
     assets.ALGO,
+    assets.COMPOSITE_ALGO,
+    assets.AGGREGATE_ALGO,
     assets.DATASET,
     assets.OBJECTIVE,
 ]))

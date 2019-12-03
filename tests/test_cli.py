@@ -90,21 +90,30 @@ def mock_client_call(mocker, method_name, response="", side_effect=None):
                         return_value=response, side_effect=side_effect)
 
 
-@pytest.mark.parametrize(
-    'asset_name', ['objective', 'dataset', 'algo', 'testtuple', 'traintuple']
-)
-def test_command_list(asset_name, workdir, mocker):
+@pytest.mark.parametrize('asset_name,key_field', [
+    ('objective', 'key'),
+    ('dataset', 'key'),
+    ('algo', 'key'),
+    ('aggregate_algo', 'key'),
+    ('composite_algo', 'key'),
+    ('testtuple', 'key'),
+    ('traintuple', 'key'),
+    ('aggregatetuple', 'key'),
+    ('composite_traintuple', 'key'),
+    ('compute_plan', 'computePlanID'),
+])
+def test_command_list(asset_name, key_field, workdir, mocker):
     item = getattr(datastore, asset_name.upper())
     method_name = f'list_{asset_name}'
-    with mock_client_call(mocker, method_name, [item]) as m:
-        output = client_execute(workdir, ['list', asset_name])
+    m = mock_client_call(mocker, method_name, [item])
+    output = client_execute(workdir, ['list', asset_name])
     assert m.is_called()
-    assert item['key'] in output
+    assert item[key_field] in output
 
 
 def test_command_list_node(workdir, mocker):
-    with mock_client_call(mocker, 'list_node', datastore.NODES):
-        output = client_execute(workdir, ['list', 'node'])
+    mock_client_call(mocker, 'list_node', datastore.NODES)
+    output = client_execute(workdir, ['list', 'node'])
     assert output == ('NODE ID                     \n'
                       'foo                         \n'
                       'bar         (current)       \n')
@@ -113,17 +122,26 @@ def test_command_list_node(workdir, mocker):
 @pytest.mark.parametrize('asset_name,params', [
     ('dataset', []),
     ('algo', []),
+    ('aggregate_algo', []),
+    ('composite_algo', []),
     ('traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
                     '--data-samples-path']),
-    ('testtuple', ['--traintuple-key', 'foo', '--data-samples-path'])]
-)
+    ('traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
+                    '--in-model-key', 'foo', '--data-samples-path']),
+    ('traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
+                    '--in-model-key', 'foo', '--in-model-key', 'bar', '--data-samples-path']),
+    ('testtuple', ['--traintuple-key', 'foo', '--data-samples-path']),
+    ('compute_plan', ['--algo-key', 'foo', '--objective-key', 'foo']),
+    ('composite_traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
+                              '--data-samples-path']),
+])
 def test_command_add(asset_name, params, workdir, mocker):
     method_name = f'add_{asset_name}'
 
-    with mock_client_call(mocker, method_name, response={}) as m:
-        json_file = workdir / "valid_json_file.json"
-        json_file.write_text(json.dumps({}))
-        client_execute(workdir, ['add', asset_name] + params + [str(json_file)])
+    m = mock_client_call(mocker, method_name, response={})
+    json_file = workdir / "valid_json_file.json"
+    json_file.write_text(json.dumps({}))
+    client_execute(workdir, ['add', asset_name] + params + [str(json_file)])
     assert m.is_called()
 
     invalid_json_file = workdir / "invalid_json_file.txt"
@@ -142,13 +160,13 @@ def test_command_add_objective(workdir, mocker):
     json_file = workdir / "valid_json_file.json"
     json_file.write_text(json.dumps({}))
 
-    with mock_client_call(mocker, 'add_objective', response={}) as m:
-        client_execute(workdir, ['add', 'objective', str(json_file), '--dataset-key', 'foo',
-                                 '--data-samples-path', str(json_file)])
+    m = mock_client_call(mocker, 'add_objective', response={})
+    client_execute(workdir, ['add', 'objective', str(json_file), '--dataset-key', 'foo',
+                             '--data-samples-path', str(json_file)])
     assert m.is_called()
 
-    with mock_client_call(mocker, 'add_objective', response={}) as m:
-        client_execute(workdir, ['add', 'objective', str(json_file)])
+    m = mock_client_call(mocker, 'add_objective', response={})
+    client_execute(workdir, ['add', 'objective', str(json_file)])
     assert m.is_called()
 
     res = client_execute(workdir, ['add', 'objective', 'non_existing_file.txt', '--dataset-key',
@@ -172,9 +190,26 @@ def test_command_add_objective(workdir, mocker):
     assert re.search(r'File ".*" is not a valid JSON file\.', res)
 
 
+@pytest.mark.parametrize('params,message,exit_code', [
+    ([], r'', 0),
+    (['--head-model-key', 'e', '--trunk-model-key', 'e'], r'', 0),
+    (['--head-model-key', 'e'], r'The --trunk-model-key option is required', 2),
+    (['--trunk-model-key', 'e'], r'The --head-model-key option is required', 2)
+])
+def test_command_add_composite_traintuple(mocker, workdir, params, message, exit_code):
+    with mock_client_call(mocker, 'add_composite_traintuple', response={}) as m:
+        json_file = workdir / "valid_json_file.json"
+        json_file.write_text(json.dumps({}))
+        res = client_execute(workdir, ['add', 'composite_traintuple', '--objective-key', 'foo',
+                                       '--algo-key', 'foo', '--dataset-key', 'foo'] + params +
+                             ['--data-samples-path', str(json_file)], exit_code=exit_code)
+        assert re.search(message, res)
+    assert m.is_called()
+
+
 def test_command_add_testtuple_no_data_samples(mocker, workdir):
-    with mock_client_call(mocker, 'add_testtuple', response={}) as m:
-        client_execute(workdir, ['add', 'testtuple', '--traintuple-key', 'foo'])
+    m = mock_client_call(mocker, 'add_testtuple', response={})
+    client_execute(workdir, ['add', 'testtuple', '--traintuple-key', 'foo'])
     assert m.is_called()
 
 
@@ -182,9 +217,9 @@ def test_command_add_data_sample(workdir, mocker):
     temp_dir = workdir / "test"
     temp_dir.mkdir()
 
-    with mock_client_call(mocker, 'add_data_samples') as m:
-        client_execute(workdir, ['add', 'data_sample', str(temp_dir), '--dataset-key', 'foo',
-                                 '--test-only'])
+    m = mock_client_call(mocker, 'add_data_samples')
+    client_execute(workdir, ['add', 'data_sample', str(temp_dir), '--dataset-key', 'foo',
+                             '--test-only'])
     assert m.is_called()
 
     res = client_execute(workdir, ['add', 'data_sample', 'dir', '--dataset-key', 'foo'],
@@ -192,46 +227,76 @@ def test_command_add_data_sample(workdir, mocker):
     assert re.search(r'Directory ".*" does not exist\.', res)
 
 
-def test_command_add_already_exists(workdir, mocker):
-    with mock_client_call(mocker, 'add_dataset',
-                          side_effect=substra.exceptions.AlreadyExists('foo', 409)) as m:
-        json_file = workdir / "valid_json_file.json"
-        json_file.write_text(json.dumps({}))
-        output = client_execute(workdir, ['add', 'dataset', str(json_file)], exit_code=1)
+@pytest.mark.parametrize('asset_name, params', [
+    ('dataset', []),
+    ('algo', []),
+    ('traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
+                    '--data-samples-path']),
+    ('testtuple', ['--traintuple-key', 'foo', '--data-samples-path']),
+    ('compute_plan', ['--algo-key', 'foo', '--objective-key', 'foo']),
+    ('objective', []),
+])
+def test_command_add_already_exists(workdir, mocker, asset_name, params):
+    m = mock_client_call(mocker, f'add_{asset_name}',
+                         side_effect=substra.exceptions.AlreadyExists('foo', 409))
+    json_file = workdir / "valid_json_file.json"
+    json_file.write_text(json.dumps({}))
+    output = client_execute(workdir, ['add', asset_name] + params + [str(json_file)],
+                            exit_code=1)
 
-        assert 'already exists' in output
-        assert m.is_called()
+    assert 'already exists' in output
+    assert m.is_called()
 
 
-@pytest.mark.parametrize(
-    'asset_name', ['objective', 'dataset', 'algo', 'testtuple', 'traintuple']
-)
-def test_command_get(asset_name, workdir, mocker):
+def test_command_add_data_sample_already_exists(workdir, mocker):
+    m = mock_client_call(mocker, 'add_data_samples',
+                         side_effect=substra.exceptions.AlreadyExists('foo', 409))
+    temp_dir = workdir / "test"
+    temp_dir.mkdir()
+    output = client_execute(workdir, ['add', 'data_sample', str(temp_dir), '--dataset-key', 'foo'],
+                            exit_code=1)
+    assert 'already exists' in output
+    assert m.is_called()
+
+
+@pytest.mark.parametrize('asset_name,key_field', [
+    ('objective', 'key'),
+    ('dataset', 'key'),
+    ('algo', 'key'),
+    ('aggregate_algo', 'key'),
+    ('composite_algo', 'key'),
+    ('testtuple', 'key'),
+    ('traintuple', 'key'),
+    ('aggregatetuple', 'key'),
+    ('composite_traintuple', 'key'),
+    ('compute_plan', 'computePlanID'),
+])
+def test_command_get(asset_name, key_field, workdir, mocker):
     item = getattr(datastore, asset_name.upper())
     method_name = f'get_{asset_name}'
-    with mock_client_call(mocker, method_name, item) as m:
-        output = client_execute(workdir, ['get', asset_name, 'fakekey'])
+    m = mock_client_call(mocker, method_name, item)
+    output = client_execute(workdir, ['get', asset_name, 'fakekey'])
     assert m.is_called()
-    assert item['key'] in output
+    assert item[key_field] in output
 
 
 def test_command_describe(workdir, mocker):
     response = "My description."
-    with mock_client_call(mocker, 'describe_objective', response) as m:
-        output = client_execute(workdir, ['describe', 'objective', 'fakekey'])
+    m = mock_client_call(mocker, 'describe_objective', response)
+    output = client_execute(workdir, ['describe', 'objective', 'fakekey'])
     assert m.is_called()
     assert response in output
 
 
 def test_command_download(workdir, mocker):
-    with mock_client_call(mocker, 'download_objective') as m:
-        client_execute(workdir, ['download', 'objective', 'fakekey'])
+    m = mock_client_call(mocker, 'download_objective')
+    client_execute(workdir, ['download', 'objective', 'fakekey'])
     assert m.is_called()
 
 
 def test_command_update_dataset(workdir, mocker):
-    with mock_client_call(mocker, 'update_dataset') as m:
-        client_execute(workdir, ['update', 'dataset', 'key1', 'key2'])
+    m = mock_client_call(mocker, 'update_dataset')
+    client_execute(workdir, ['update', 'dataset', 'key1', 'key2'])
     assert m.is_called()
 
 
@@ -243,8 +308,8 @@ def test_command_update_data_sample(workdir, mocker):
     json_file = workdir / "valid_json_file.json"
     json_file.write_text(json.dumps(data_samples))
 
-    with mock_client_call(mocker, 'link_dataset_with_data_samples') as m:
-        client_execute(workdir, ['update', 'data_sample', str(json_file), '--dataset-key', 'foo'])
+    m = mock_client_call(mocker, 'link_dataset_with_data_samples')
+    client_execute(workdir, ['update', 'data_sample', str(json_file), '--dataset-key', 'foo'])
     assert m.is_called()
 
     invalid_json_file = workdir / "invalid_json_file.json"
@@ -291,7 +356,7 @@ def test_error_printer(mocker, exception):
     mock_click_context = mock.MagicMock()
     mock_click_context.params = {'verbose': False}
 
-    with mocker.patch('substra.cli.interface.click.get_current_context',
-                      return_value=mock_click_context):
-        with pytest.raises(click.ClickException, match='foo'):
-            foo()
+    mocker.patch('substra.cli.interface.click.get_current_context',
+                 return_value=mock_click_context)
+    with pytest.raises(click.ClickException, match='foo'):
+        foo()

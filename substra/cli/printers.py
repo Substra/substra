@@ -95,6 +95,14 @@ class KeysField(Field):
         return value
 
 
+class CountField(Field):
+    def get_value(self, item, **kwargs):
+        value = super().get_value(item)
+        if value:
+            return len(value)
+        return 0
+
+
 class InModelTraintupleKeysField(KeysField):
     def _get_key(self, v):
         return v.get('traintupleKey')
@@ -167,30 +175,35 @@ class AssetPrinter(BasePrinter):
     def _get_single_fields(self):
         return (self.key_field, ) + self.single_fields
 
-    def print_download_message(self, item):
+    def get_profile_arg(self, profile):
+        if profile and profile != 'default':
+            return f'--profile {profile}'
+        return ''
+
+    def print_download_message(self, item, profile=None):
         if self.download_message:
             key_value = self.key_field.get_value(item)
-            print()
-            print(self.download_message)
-            print(f'\tsubstra download {self.asset_name} {key_value}')
+            profile_arg = self.get_profile_arg(profile)
+            print('\n' + self.download_message)
+            print(f'\tsubstra download {self.asset_name} {key_value} {profile_arg}')
 
-    def print_description_message(self, item):
+    def print_description_message(self, item, profile=None):
         if self.has_description:
             key_value = self.key_field.get_value(item)
-            print()
-            print(f'Display this {self.asset_name}\'s description:')
-            print(f'\tsubstra describe {self.asset_name} {key_value}')
+            profile_arg = self.get_profile_arg(profile)
+            print(f'\nDisplay this {self.asset_name}\'s description:')
+            print(f'\tsubstra describe {self.asset_name} {key_value} {profile_arg}')
 
-    def print_messages(self, item):
-        self.print_download_message(item)
-        self.print_description_message(item)
+    def print_messages(self, item, profile=None):
+        self.print_download_message(item, profile)
+        self.print_description_message(item, profile)
 
-    def print(self, data, expand=False, is_list=False):
+    def print(self, data, profile=None, expand=False, is_list=False):
         if is_list:
             self.print_table(data, self._get_list_fields())
         else:
             self.print_details(data, self._get_single_fields(), expand)
-            self.print_messages(data)
+            self.print_messages(data, profile)
 
 
 class JsonPrinter:
@@ -205,9 +218,7 @@ class YamlPrinter:
         print(yaml.dump(data, default_flow_style=False))
 
 
-class AlgoPrinter(AssetPrinter):
-    asset_name = 'algo'
-
+class BaseAlgoPrinter(AssetPrinter):
     list_fields = (
         Field('Name', 'name'),
     )
@@ -218,6 +229,46 @@ class AlgoPrinter(AssetPrinter):
     )
 
     download_message = 'Download this algorithm\'s code:'
+
+
+class ComputePlanPrinter(AssetPrinter):
+    asset_name = 'compute_plan'
+
+    key_field = Field('Compute plan ID', 'computePlanID')
+
+    list_fields = (
+        Field('Algo key', 'algoKey'),
+        Field('Objective key', 'objectiveKey'),
+        CountField('Traintuples count', 'traintuples'),
+        CountField('Testtuples count', 'testtuples'),
+    )
+    single_fields = (
+        Field('Algo key', 'algoKey'),
+        Field('Objective key', 'objectiveKey'),
+        KeysField('Traintuple keys', 'traintuples'),
+        KeysField('Testtuple keys', 'testtuples'),
+    )
+
+    def print_messages(self, item, profile=None):
+        key_value = self.key_field.get_value(item)
+        profile_arg = self.get_profile_arg(profile)
+
+        print('\nDisplay this compute_plan\'s traintuples:')
+        print(f'\tsubstra list traintuple -f "traintuple:computePlanID:{key_value}" {profile_arg}')
+        print('\nDisplay this compute_plan\'s testtuples:')
+        print(f'\tsubstra list testtuple -f "testtuple:computePlanID:{key_value}" {profile_arg}')
+
+
+class AlgoPrinter(BaseAlgoPrinter):
+    asset_name = 'algo'
+
+
+class AggregateAlgoPrinter(BaseAlgoPrinter):
+    asset_name = 'aggregate_algo'
+
+
+class CompositeAlgoPrinter(BaseAlgoPrinter):
+    asset_name = 'composite_algo'
 
 
 class ObjectivePrinter(AssetPrinter):
@@ -237,15 +288,15 @@ class ObjectivePrinter(AssetPrinter):
     )
     download_message = 'Download this objective\'s metric:'
 
-    def print_leaderboard_message(self, item):
+    def print_leaderboard_message(self, item, profile=None):
         key_value = self.key_field.get_value(item)
-        print()
-        print('Display this objective\'s leaderboard:')
-        print(f'\tsubstra leaderboard {key_value}')
+        profile_arg = self.get_profile_arg(profile)
+        print('\nDisplay this objective\'s leaderboard:')
+        print(f'\tsubstra leaderboard {key_value} {profile_arg}')
 
-    def print_messages(self, item):
-        super().print_messages(item)
-        self.print_leaderboard_message(item)
+    def print_messages(self, item, profile=None):
+        super().print_messages(item, profile)
+        self.print_leaderboard_message(item, profile)
 
 
 class DataSamplePrinter(AssetPrinter):
@@ -298,6 +349,71 @@ class TraintuplePrinter(AssetPrinter):
         Field('Creator', 'creator'),
         Field('Worker', 'dataset.worker'),
         PermissionField('Permissions', 'permissions'),
+    )
+    has_description = False
+
+
+class AggregateTuplePrinter(AssetPrinter):
+    asset_name = 'aggregatetuple'
+
+    list_fields = (
+        Field('Algo name', 'algo.name'),
+        Field('Status', 'status'),
+        Field('Perf', 'dataset.perf'),
+        Field('Tag', 'tag'),
+        Field('Compute Plan Id', 'computePlanID'),
+    )
+    single_fields = (
+        Field('Model key', 'outModel.hash'),
+        Field('Algo key', 'algo.hash'),
+        Field('Algo name', 'algo.name'),
+        Field('Objective key', 'objective.hash'),
+        Field('Status', 'status'),
+        Field('Perf', 'dataset.perf'),
+        Field('Dataset key', 'dataset.openerHash'),
+        InModelTraintupleKeysField('In model keys', 'inModels'),
+        Field('Rank', 'rank'),
+        Field('Compute Plan Id', 'computePlanID'),
+        Field('Tag', 'tag'),
+        Field('Log', 'log'),
+        Field('Creator', 'creator'),
+        Field('Worker', 'dataset.worker'),
+        PermissionField('Permissions', 'permissions'),
+    )
+    has_description = False
+
+
+class CompositeTraintuplePrinter(AssetPrinter):
+    asset_name = 'composite_traintuple'
+
+    list_fields = (
+        Field('Composite algo name', 'algo.name'),
+        Field('Status', 'status'),
+        Field('Perf', 'dataset.perf'),
+        Field('Tag', 'tag'),
+        Field('Compute Plan Id', 'computePlanID'),
+    )
+
+    single_fields = (
+        Field('Out head model key', 'outHeadModel.outModel.hash'),
+        PermissionField('Out head model permissions', 'outHeadModel.permissions'),
+        Field('Out trunk model key', 'outTrunkModel.outModel.hash'),
+        PermissionField('Out trunk model permissions', 'outTrunkModel.permissions'),
+        Field('Composite algo key', 'algo.hash'),
+        Field('Composite algo name', 'algo.name'),
+        Field('Objective key', 'objective.hash'),
+        Field('Status', 'status'),
+        Field('Perf', 'dataset.perf'),
+        Field('Dataset key', 'dataset.openerHash'),
+        KeysField('Train data sample keys', 'dataset.keys'),
+        Field('In head model key', 'inHeadModelKey'),
+        Field('In trunk model key', 'inTrunkModelKey'),
+        Field('Rank', 'rank'),
+        Field('Compute Plan Id', 'computePlanID'),
+        Field('Tag', 'tag'),
+        Field('Log', 'log'),
+        Field('Creator', 'creator'),
+        Field('Worker', 'dataset.worker'),
     )
     has_description = False
 
@@ -360,10 +476,15 @@ class LeaderBoardPrinter(BasePrinter):
 
 PRINTERS = {
     assets.ALGO: AlgoPrinter,
+    assets.COMPUTE_PLAN: ComputePlanPrinter,
+    assets.AGGREGATE_ALGO: AggregateAlgoPrinter,
+    assets.COMPOSITE_ALGO: CompositeAlgoPrinter,
     assets.OBJECTIVE: ObjectivePrinter,
     assets.DATASET: DatasetPrinter,
     assets.DATA_SAMPLE: DataSamplePrinter,
     assets.TRAINTUPLE: TraintuplePrinter,
+    assets.AGGREGATETUPLE: AggregateTuplePrinter,
+    assets.COMPOSITE_TRAINTUPLE: CompositeTraintuplePrinter,
     assets.TESTTUPLE: TesttuplePrinter,
     assets.NODE: NodePrinter,
 }
