@@ -239,14 +239,18 @@ class ComputePlanPrinter(AssetPrinter):
     list_fields = (
         Field('Algo key', 'algoKey'),
         Field('Objective key', 'objectiveKey'),
-        CountField('Traintuples count', 'traintuples'),
-        CountField('Testtuples count', 'testtuples'),
+        CountField('Traintuples count', 'traintupleKeys'),
+        CountField('Composite traintuples count', 'compositeTraintupleKeys'),
+        CountField('Aggregatetuples count', 'aggregatetupleKeys'),
+        CountField('Testtuples count', 'testtupleKeys'),
     )
     single_fields = (
         Field('Algo key', 'algoKey'),
         Field('Objective key', 'objectiveKey'),
-        KeysField('Traintuple keys', 'traintuples'),
-        KeysField('Testtuple keys', 'testtuples'),
+        KeysField('Traintuple keys', 'traintupleKeys'),
+        KeysField('Composite traintuple keys', 'compositeTraintupleKeys'),
+        KeysField('Aggregatetuple keys', 'aggregatetupleKeys'),
+        KeysField('Testtuple keys', 'testtupleKeys'),
     )
 
     def print_messages(self, item, profile=None):
