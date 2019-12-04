@@ -237,7 +237,6 @@ class ComputePlanPrinter(AssetPrinter):
     key_field = Field('Compute plan ID', 'computePlanID')
 
     list_fields = (
-        Field('Algo key', 'algoKey'),
         Field('Objective key', 'objectiveKey'),
         CountField('Traintuples count', 'traintupleKeys'),
         CountField('Composite traintuples count', 'compositeTraintupleKeys'),
@@ -245,7 +244,6 @@ class ComputePlanPrinter(AssetPrinter):
         CountField('Testtuples count', 'testtupleKeys'),
     )
     single_fields = (
-        Field('Algo key', 'algoKey'),
         Field('Objective key', 'objectiveKey'),
         KeysField('Traintuple keys', 'traintupleKeys'),
         KeysField('Composite traintuple keys', 'compositeTraintupleKeys'),
