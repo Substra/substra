@@ -259,6 +259,15 @@ class ComputePlanPrinter(AssetPrinter):
 
         print('\nDisplay this compute_plan\'s traintuples:')
         print(f'\tsubstra list traintuple -f "traintuple:computePlanID:{key_value}" {profile_arg}')
+
+        print('\nDisplay this compute_plan\'s composite_traintuples:')
+        print(f'\tsubstra list composite_traintuple'
+              f' -f "composite_traintuple:computePlanID:{key_value}" {profile_arg}')
+
+        print('\nDisplay this compute_plan\'s aggregatetuples:')
+        print(f'\tsubstra list aggregatetuple'
+              f' -f "aggregatetuple:computePlanID:{key_value}" {profile_arg}')
+
         print('\nDisplay this compute_plan\'s testtuples:')
         print(f'\tsubstra list testtuple -f "testtuple:computePlanID:{key_value}" {profile_arg}')
 
