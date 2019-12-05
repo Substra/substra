@@ -49,7 +49,6 @@ for i, fold in enumerate(folds_keys['folds']):
     # traintuple
     traintuple = client.add_traintuple({
         'algo_key': algo_key,
-        'objective_key': objective_key,
         'data_manager_key': dataset_key,
         'train_data_sample_keys': fold['train_data_sample_keys'],
         'tag': tag,
@@ -59,6 +58,7 @@ for i, fold in enumerate(folds_keys['folds']):
 
     # testtuple
     testtuple = client.add_testtuple({
+        'objective_key': objective_key,
         'traintuple_key': traintuple_key,
         'data_manager_key': dataset_key,
         'test_data_sample_keys': fold['test_data_sample_keys'],

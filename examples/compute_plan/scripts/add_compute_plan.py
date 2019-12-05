@@ -58,12 +58,14 @@ testtuples = []
 previous_id = None
 for train_data_sample_key in train_data_sample_keys:
     traintuple = {
+        'algo_key': algo_key,
         'data_manager_key': dataset_key,
         'train_data_sample_keys': [train_data_sample_key],
         'traintuple_id': uuid.uuid4().hex,
         'in_models_ids': [previous_id] if previous_id else [],
     }
     testtuple = {
+        'objective_key': objective_key,
         'traintuple_id': traintuple['traintuple_id']
     }
     traintuples.append(traintuple)
@@ -73,10 +75,10 @@ for train_data_sample_key in train_data_sample_keys:
 
 print('Adding compute plan...')
 compute_plan = client.add_compute_plan({
-    "algo_key": algo_key,
-    "objective_key": objective_key,
-    "traintuples": traintuples,
-    "testtuples": testtuples,
+    'traintuples': traintuples,
+    'testtuples': testtuples,
+    'composite_traintuples': [],
+    'aggregatetuples': [],
 })
 compute_plan_id = compute_plan.get('computePlanID')
 

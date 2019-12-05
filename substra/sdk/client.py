@@ -405,11 +405,11 @@ class Client(object):
 ```
         {
             "algo_key": str,
-            "objective_key": str,
             "data_manager_key": str,
             "train_data_sample_keys": list[str],
             "in_models_keys": list[str],
             "tag": str,
+            "rank": int,
             "compute_plan_id": str,
         }
 ```
@@ -429,7 +429,6 @@ class Client(object):
 ```
         {
             "algo_key": str,
-            "objective_key": str,
             "in_models_keys": list[str],
             "tag": str,
             "compute_plan_id": str,
@@ -453,7 +452,6 @@ class Client(object):
 ```
         {
             "algo_key": str,
-            "objective_key": str,
             "data_manager_key": str,
             "in_head_model_key": str,
             "in_trunk_model_key": str,
@@ -461,6 +459,7 @@ class Client(object):
                 "authorized_ids": list[str],
             },
             "tag": str,
+            "rank": int,
             "compute_plan_id": str,
         }
 ```
@@ -481,10 +480,12 @@ class Client(object):
 
 ```
         {
+            "objective_key": str,
             "data_manager_key": str,
             "traintuple_key": str,
             "test_data_sample_keys": list[str],
             "tag": str,
+            "rank": int,
             "compute_plan_id": str,
         }
 ```
@@ -505,7 +506,6 @@ class Client(object):
 
 ```
         {
-            "objective_key": str,
             "traintuples": list[{
                 "algo_key": str,
                 "data_manager_key": str,
@@ -532,6 +532,7 @@ class Client(object):
                 "tag": str,
             }],
             "testtuples": list[{
+                "objective_key": str,
                 "data_manager_key": str,
                 "test_data_sample_keys": list[str],
                 "testtuple_id": str,

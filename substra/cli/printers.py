@@ -237,14 +237,12 @@ class ComputePlanPrinter(AssetPrinter):
     key_field = Field('Compute plan ID', 'computePlanID')
 
     list_fields = (
-        Field('Objective key', 'objectiveKey'),
         CountField('Traintuples count', 'traintupleKeys'),
         CountField('Composite traintuples count', 'compositeTraintupleKeys'),
         CountField('Aggregatetuples count', 'aggregatetupleKeys'),
         CountField('Testtuples count', 'testtupleKeys'),
     )
     single_fields = (
-        Field('Objective key', 'objectiveKey'),
         KeysField('Traintuple keys', 'traintupleKeys'),
         KeysField('Composite traintuple keys', 'compositeTraintupleKeys'),
         KeysField('Aggregatetuple keys', 'aggregatetupleKeys'),
@@ -266,7 +264,9 @@ class ComputePlanPrinter(AssetPrinter):
         print(f'\tsubstra list aggregatetuple'
               f' -f "aggregatetuple:computePlanID:{key_value}" {profile_arg}')
 
-        # TODO add a command to display the related testtuples once testtuples have a computePlanID
+        print('\nDisplay this compute_plan\'s testtuples:')
+        print(f'\tsubstra list testtuples'
+              f' -f "testtuple:computePlanID:{key_value}" {profile_arg}')
 
 
 class AlgoPrinter(BaseAlgoPrinter):
@@ -338,7 +338,6 @@ class TraintuplePrinter(AssetPrinter):
     list_fields = (
         Field('Algo name', 'algo.name'),
         Field('Status', 'status'),
-        Field('Perf', 'dataset.perf'),
         Field('Rank', 'rank'),
         Field('Tag', 'tag'),
         Field('Compute Plan Id', 'computePlanID'),
@@ -347,9 +346,7 @@ class TraintuplePrinter(AssetPrinter):
         Field('Model key', 'outModel.hash'),
         Field('Algo key', 'algo.hash'),
         Field('Algo name', 'algo.name'),
-        Field('Objective key', 'objective.hash'),
         Field('Status', 'status'),
-        Field('Perf', 'dataset.perf'),
         Field('Dataset key', 'dataset.openerHash'),
         KeysField('Train data sample keys', 'dataset.keys'),
         InModelTraintupleKeysField('In model traintuple keys', 'inModels'),
@@ -370,7 +367,6 @@ class AggregateTuplePrinter(AssetPrinter):
     list_fields = (
         Field('Algo name', 'algo.name'),
         Field('Status', 'status'),
-        Field('Perf', 'dataset.perf'),
         Field('Rank', 'rank'),
         Field('Tag', 'tag'),
         Field('Compute Plan Id', 'computePlanID'),
@@ -379,9 +375,7 @@ class AggregateTuplePrinter(AssetPrinter):
         Field('Model key', 'outModel.hash'),
         Field('Algo key', 'algo.hash'),
         Field('Algo name', 'algo.name'),
-        Field('Objective key', 'objective.hash'),
         Field('Status', 'status'),
-        Field('Perf', 'dataset.perf'),
         Field('Dataset key', 'dataset.openerHash'),
         InModelTraintupleKeysField('In model keys', 'inModels'),
         Field('Rank', 'rank'),
@@ -401,7 +395,6 @@ class CompositeTraintuplePrinter(AssetPrinter):
     list_fields = (
         Field('Composite algo name', 'algo.name'),
         Field('Status', 'status'),
-        Field('Perf', 'dataset.perf'),
         Field('Rank', 'rank'),
         Field('Tag', 'tag'),
         Field('Compute Plan Id', 'computePlanID'),
@@ -414,9 +407,7 @@ class CompositeTraintuplePrinter(AssetPrinter):
         PermissionField('Out trunk model permissions', 'outTrunkModel.permissions'),
         Field('Composite algo key', 'algo.hash'),
         Field('Composite algo name', 'algo.name'),
-        Field('Objective key', 'objective.hash'),
         Field('Status', 'status'),
-        Field('Perf', 'dataset.perf'),
         Field('Dataset key', 'dataset.openerHash'),
         KeysField('Train data sample keys', 'dataset.keys'),
         Field('In head model key', 'inHeadModelKey'),
@@ -439,7 +430,9 @@ class TesttuplePrinter(AssetPrinter):
         Field('Certified', 'certified'),
         Field('Status', 'status'),
         Field('Perf', 'dataset.perf'),
+        Field('Rank', 'rank'),
         Field('Tag', 'tag'),
+        Field('Compute Plan Id', 'computePlanID'),
     )
     single_fields = (
         Field('Traintuple key', 'traintupleKey'),
@@ -452,7 +445,9 @@ class TesttuplePrinter(AssetPrinter):
         Field('Perf', 'dataset.perf'),
         Field('Dataset key', 'dataset.openerHash'),
         KeysField('Test data sample keys', 'dataset.keys'),
+        Field('Rank', 'rank'),
         Field('Tag', 'tag'),
+        Field('Compute Plan Id', 'computePlanID'),
         Field('Log', 'log'),
         Field('Creator', 'creator'),
         Field('Worker', 'dataset.worker'),
