@@ -416,7 +416,7 @@ def add_objective(ctx, data, dataset_key, data_samples):
         data['test_data_manager_key'] = dataset_key
 
     if data_samples:
-        data['test_data_sample_keys'] = data_samples['keys']
+        data['test_data_sample_keys'] = data_samples.get('keys', None)
 
     res = client.add_objective(data)
     printer = printers.get_asset_printer(assets.OBJECTIVE, ctx.obj.output_format)
@@ -626,7 +626,7 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, in_m
     }
 
     if data_samples:
-        data['train_data_sample_keys'] = data_samples['keys']
+        data['train_data_sample_keys'] = data_samples.get('keys', None)
 
     if tag:
         data['tag'] = tag
@@ -734,7 +734,7 @@ def add_composite_traintuple(ctx, objective_key, algo_key, dataset_key, data_sam
     }
 
     if data_samples:
-        data['train_data_sample_keys'] = data_samples['keys']
+        data['train_data_sample_keys'] = data_samples.get('keys', None)
 
     if out_trunk_model_permissions:
         data['out_trunk_model_permissions'] = out_trunk_model_permissions
@@ -778,7 +778,7 @@ def add_testtuple(ctx, dataset_key, traintuple_key, data_samples, tag):
     }
 
     if data_samples:
-        data['test_data_sample_keys'] = data_samples['keys']
+        data['test_data_sample_keys'] = data_samples.get('keys', None)
 
     if tag:
         data['tag'] = tag
@@ -1068,7 +1068,7 @@ def update_data_sample(ctx, data_samples, dataset_key):
     - keys: list of data sample keys
     """
     client = get_client(ctx.obj)
-    res = client.link_dataset_with_data_samples(dataset_key, data_samples['keys'])
+    res = client.link_dataset_with_data_samples(dataset_key, data_samples.get('keys', None))
     display(res)
 
 
