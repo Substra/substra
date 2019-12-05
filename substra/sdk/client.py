@@ -40,6 +40,20 @@ def _flatten_permissions(data, field_name):
     return data
 
 
+def _update_permissions_field(data, permissions_field='permissions'):
+    if permissions_field not in data:
+        default_permissions = {
+            'public': False,
+            'authorized_ids': [],
+        }
+        data[permissions_field] = default_permissions
+    # XXX workaround because backend accepts only Form Data body. This is due to
+    #     the fact that backend expects both file objects and payload in the
+    #     same request
+    data = _flatten_permissions(data, field_name=permissions_field)
+    return data
+
+
 class Client(object):
 
     def __init__(self, config_path=None, profile_name=None, user_path=None):
@@ -110,20 +124,6 @@ class Client(object):
                 })
                 self.client.set_config(self._current_profile, self._profile_name)
 
-    def update_permissions_field(self, data, permissions_field='permissions'):
-        if permissions_field:
-            if permissions_field not in data:
-                default_permissions = {
-                    'public': False,
-                    'authorized_ids': [],
-                }
-                data[permissions_field] = default_permissions
-            # XXX workaround because backend accepts only Form Data body. This is due to
-            #     the fact that backend expects both file objects and payload in the
-            #     same request
-            data = _flatten_permissions(data, field_name=permissions_field)
-        return data
-
     def add_profile(self, profile_name, username, password, url, version='0.0', insecure=False):
         """Add new profile (in-memory only)."""
         profile = cfg.create_profile(
@@ -192,7 +192,7 @@ class Client(object):
         existing asset will be returned.
 
         """
-        data = self.update_permissions_field(data)
+        data = _update_permissions_field(data)
         if 'paths' in data:
             raise ValueError("data: invalid 'paths' field")
         if 'path' not in data:
@@ -235,7 +235,7 @@ class Client(object):
         large amount of data it is recommended to add them one by one. It allows a
         better control in case of failures.
         """
-        data = self.update_permissions_field(data)
+        data = _update_permissions_field(data)
         if 'path' in data:
             raise ValueError("data: invalid 'path' field")
         if 'paths' not in data:
@@ -265,7 +265,7 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = self.update_permissions_field(data)
+        data = _update_permissions_field(data)
         attributes = ['data_opener', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(
@@ -299,7 +299,7 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = self.update_permissions_field(data)
+        data = _update_permissions_field(data)
         attributes = ['metrics', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(
@@ -330,7 +330,7 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = self.update_permissions_field(data)
+        data = _update_permissions_field(data)
         attributes = ['file', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(
@@ -358,7 +358,7 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = self.update_permissions_field(data)
+        data = _update_permissions_field(data)
         attributes = ['file', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(
@@ -386,7 +386,7 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = self.update_permissions_field(data)
+        data = _update_permissions_field(data)
         attributes = ['file', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(
@@ -467,6 +467,7 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
+        data = _update_permissions_field(data, permissions_field='out_model_trunk_permissions')
         res = self._add(assets.COMPOSITE_TRAINTUPLE, data, timeout=timeout, exist_ok=exist_ok)
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
