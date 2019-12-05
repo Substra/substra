@@ -132,7 +132,7 @@ def test_runner_archives(mocker, tmp_path):
         z.write(create_file('Dockerfile', root=tmp_path))
         z.write(create_file('metrics.py', root=tmp_path))
 
-    mocker.patch('substra.runner.docker'), \
+    mocker.patch('substra.runner.docker')
     mocker.patch('substra.runner._docker_run',
                  side_effect=docker_run_side_effect(sandbox_path))
     runner.compute(

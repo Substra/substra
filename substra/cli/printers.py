@@ -237,16 +237,18 @@ class ComputePlanPrinter(AssetPrinter):
     key_field = Field('Compute plan ID', 'computePlanID')
 
     list_fields = (
-        Field('Algo key', 'algoKey'),
         Field('Objective key', 'objectiveKey'),
-        CountField('Traintuples count', 'traintuples'),
-        CountField('Testtuples count', 'testtuples'),
+        CountField('Traintuples count', 'traintupleKeys'),
+        CountField('Composite traintuples count', 'compositeTraintupleKeys'),
+        CountField('Aggregatetuples count', 'aggregatetupleKeys'),
+        CountField('Testtuples count', 'testtupleKeys'),
     )
     single_fields = (
-        Field('Algo key', 'algoKey'),
         Field('Objective key', 'objectiveKey'),
-        KeysField('Traintuple keys', 'traintuples'),
-        KeysField('Testtuple keys', 'testtuples'),
+        KeysField('Traintuple keys', 'traintupleKeys'),
+        KeysField('Composite traintuple keys', 'compositeTraintupleKeys'),
+        KeysField('Aggregatetuple keys', 'aggregatetupleKeys'),
+        KeysField('Testtuple keys', 'testtupleKeys'),
     )
 
     def print_messages(self, item, profile=None):
@@ -255,8 +257,16 @@ class ComputePlanPrinter(AssetPrinter):
 
         print('\nDisplay this compute_plan\'s traintuples:')
         print(f'\tsubstra list traintuple -f "traintuple:computePlanID:{key_value}" {profile_arg}')
-        print('\nDisplay this compute_plan\'s testtuples:')
-        print(f'\tsubstra list testtuple -f "testtuple:computePlanID:{key_value}" {profile_arg}')
+
+        print('\nDisplay this compute_plan\'s composite_traintuples:')
+        print(f'\tsubstra list composite_traintuple'
+              f' -f "composite_traintuple:computePlanID:{key_value}" {profile_arg}')
+
+        print('\nDisplay this compute_plan\'s aggregatetuples:')
+        print(f'\tsubstra list aggregatetuple'
+              f' -f "aggregatetuple:computePlanID:{key_value}" {profile_arg}')
+
+        # TODO add a command to display the related testtuples once testtuples have a computePlanID
 
 
 class AlgoPrinter(BaseAlgoPrinter):
@@ -329,6 +339,7 @@ class TraintuplePrinter(AssetPrinter):
         Field('Algo name', 'algo.name'),
         Field('Status', 'status'),
         Field('Perf', 'dataset.perf'),
+        Field('Rank', 'rank'),
         Field('Tag', 'tag'),
         Field('Compute Plan Id', 'computePlanID'),
     )
@@ -360,6 +371,7 @@ class AggregateTuplePrinter(AssetPrinter):
         Field('Algo name', 'algo.name'),
         Field('Status', 'status'),
         Field('Perf', 'dataset.perf'),
+        Field('Rank', 'rank'),
         Field('Tag', 'tag'),
         Field('Compute Plan Id', 'computePlanID'),
     )
@@ -390,6 +402,7 @@ class CompositeTraintuplePrinter(AssetPrinter):
         Field('Composite algo name', 'algo.name'),
         Field('Status', 'status'),
         Field('Perf', 'dataset.perf'),
+        Field('Rank', 'rank'),
         Field('Tag', 'tag'),
         Field('Compute Plan Id', 'computePlanID'),
     )
@@ -429,7 +442,8 @@ class TesttuplePrinter(AssetPrinter):
         Field('Tag', 'tag'),
     )
     single_fields = (
-        Field('Traintuple key', 'model.traintupleKey'),
+        Field('Traintuple key', 'traintupleKey'),
+        Field('Traintuple type', 'traintupleType'),
         Field('Algo key', 'algo.hash'),
         Field('Algo name', 'algo.name'),
         Field('Objective key', 'objective.hash'),
@@ -460,7 +474,7 @@ class LeaderBoardPrinter(BasePrinter):
     testtuple_fields = (
         Field('Perf', 'perf'),
         Field('Algo name', 'algo.name'),
-        Field('Traintuple key', 'model.traintupleKey'),
+        Field('Traintuple key', 'traintupleKey'),
     )
 
     def print(self, leaderboard, expand):

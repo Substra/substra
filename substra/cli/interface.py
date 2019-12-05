@@ -441,7 +441,6 @@ def add_algo(ctx, data, output_format, config, profile, user, verbose):
 @add.command('compute_plan')
 @click.argument('tuples', type=click.Path(exists=True, dir_okay=False),
                 callback=load_json_from_path, metavar="TUPLES_PATH")
-@click.option('--algo-key', required=True)
 @click.option('--objective-key', required=True)
 @click_option_output_format
 @click_option_config
@@ -450,7 +449,7 @@ def add_algo(ctx, data, output_format, config, profile, user, verbose):
 @click_option_verbose
 @click.pass_context
 @error_printer
-def add_compute_plan(ctx, tuples, algo_key, objective_key, output_format,
+def add_compute_plan(ctx, tuples, objective_key, output_format,
                      config, profile, user, verbose):
     """Add compute plan.
 
@@ -459,9 +458,27 @@ def add_compute_plan(ctx, tuples, algo_key, objective_key, output_format,
     \b
     {
         "traintuples": list[{
+            "algo_key": str,
             "data_manager_key": str,
             "train_data_sample_keys": list[str],
             "traintuple_id": str,
+            "in_models_ids": list[str],
+            "tag": str,
+        }],
+        "composite_traintuples": list[{
+            "algo_key": str,
+            "data_manager_key": str,
+            "train_data_sample_keys": list[str],
+            "in_head_model_id": str,
+            "in_trunk_model_id": str,
+            "out_trunk_model_permissions": {
+                "authorized_ids": list[str],
+            },
+            "tag": str,
+        }]
+        "aggregatetuples": list[{
+            "algo_key": str,
+            "worker": str,
             "in_models_ids": list[str],
             "tag": str,
         }],
@@ -477,7 +494,6 @@ def add_compute_plan(ctx, tuples, algo_key, objective_key, output_format,
     """
     client = get_client(config, profile, user)
     data = {
-        "algo_key": algo_key,
         "objective_key": objective_key
     }
     data.update(tuples)
@@ -809,7 +825,7 @@ def add_testtuple(ctx, dataset_key, traintuple_key, data_samples, tag,
 def get(ctx, asset_name, asset_key, expand, output_format, config, profile, user, verbose):
     """Get asset definition."""
     expand_valid_assets = (assets.DATASET, assets.TRAINTUPLE, assets.OBJECTIVE, assets.TESTTUPLE,
-                           assets.COMPOSITE_TRAINTUPLE, assets.AGGREGATETUPLE)
+                           assets.COMPOSITE_TRAINTUPLE, assets.AGGREGATETUPLE, assets.COMPUTE_PLAN)
     if expand and asset_name not in expand_valid_assets:  # fail fast
         raise click.UsageError(
             f'--expand option is available with assets {expand_valid_assets}')
