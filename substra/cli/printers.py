@@ -266,8 +266,7 @@ class ComputePlanPrinter(AssetPrinter):
         print(f'\tsubstra list aggregatetuple'
               f' -f "aggregatetuple:computePlanID:{key_value}" {profile_arg}')
 
-        print('\nDisplay this compute_plan\'s testtuples:')
-        print(f'\tsubstra list testtuple -f "testtuple:computePlanID:{key_value}" {profile_arg}')
+        # TODO add a command to display the related testtuples once testtuples have a computePlanID
 
 
 class AlgoPrinter(BaseAlgoPrinter):
@@ -440,7 +439,8 @@ class TesttuplePrinter(AssetPrinter):
         Field('Tag', 'tag'),
     )
     single_fields = (
-        Field('Traintuple key', 'model.traintupleKey'),
+        Field('Traintuple key', 'traintupleKey'),
+        Field('Traintuple type', 'traintupleType'),
         Field('Algo key', 'algo.hash'),
         Field('Algo name', 'algo.name'),
         Field('Objective key', 'objective.hash'),
@@ -471,7 +471,7 @@ class LeaderBoardPrinter(BasePrinter):
     testtuple_fields = (
         Field('Perf', 'perf'),
         Field('Algo name', 'algo.name'),
-        Field('Traintuple key', 'model.traintupleKey'),
+        Field('Traintuple key', 'traintupleKey'),
     )
 
     def print(self, leaderboard, expand):
