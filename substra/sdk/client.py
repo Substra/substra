@@ -110,23 +110,7 @@ class Client(object):
                 })
                 self.client.set_config(self._current_profile, self._profile_name)
 
-    def add_profile(self, profile_name, username, password, url, version='0.0', insecure=False):
-        """Add new profile (in-memory only)."""
-        profile = cfg.create_profile(
-            url=url,
-            version=version,
-            insecure=insecure,
-            username=username,
-        )
-        keyring.set_password(profile_name, username, password)
-        return self._set_current_profile(profile_name, profile)
-
-    def _add(self, asset, data, files=None, timeout=False, exist_ok=False,
-             json_encoding=False, permissions_field='permissions'):
-        """Add asset."""
-        data = deepcopy(data)  # make a deep copy for avoiding modification by reference
-        files = files or {}
-
+    def update_permissions_field(self, data, permissions_field='permissions'):
         if permissions_field:
             if permissions_field not in data:
                 default_permissions = {
@@ -138,7 +122,23 @@ class Client(object):
             #     the fact that backend expects both file objects and payload in the
             #     same request
             data = _flatten_permissions(data, field_name=permissions_field)
+        return data
 
+    def add_profile(self, profile_name, username, password, url, version='0.0', insecure=False):
+        """Add new profile (in-memory only)."""
+        profile = cfg.create_profile(
+            url=url,
+            version=version,
+            insecure=insecure,
+            username=username,
+        )
+        keyring.set_password(profile_name, username, password)
+        return self._set_current_profile(profile_name, profile)
+
+    def _add(self, asset, data, files=None, timeout=False, exist_ok=False, json_encoding=False):
+        """Add asset."""
+        data = deepcopy(data)  # make a deep copy for avoiding modification by reference
+        files = files or {}
         requests_kwargs = {}
         if files:
             requests_kwargs['files'] = files
@@ -192,6 +192,7 @@ class Client(object):
         existing asset will be returned.
 
         """
+        data = self.update_permissions_field(data)
         if 'paths' in data:
             raise ValueError("data: invalid 'paths' field")
         if 'path' not in data:
@@ -234,6 +235,7 @@ class Client(object):
         large amount of data it is recommended to add them one by one. It allows a
         better control in case of failures.
         """
+        data = self.update_permissions_field(data)
         if 'path' in data:
             raise ValueError("data: invalid 'path' field")
         if 'paths' not in data:
@@ -263,6 +265,7 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
+        data = self.update_permissions_field(data)
         attributes = ['data_opener', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(
@@ -296,6 +299,7 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
+        data = self.update_permissions_field(data)
         attributes = ['metrics', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(
@@ -326,6 +330,7 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
+        data = self.update_permissions_field(data)
         attributes = ['file', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(
@@ -353,6 +358,7 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
+        data = self.update_permissions_field(data)
         attributes = ['file', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(
@@ -380,6 +386,7 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
+        data = self.update_permissions_field(data)
         attributes = ['file', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(
@@ -410,8 +417,7 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        res = self._add(assets.TRAINTUPLE, data, timeout=timeout,
-                        exist_ok=exist_ok, permissions_field=None)
+        res = self._add(assets.TRAINTUPLE, data, timeout=timeout, exist_ok=exist_ok)
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
@@ -461,9 +467,7 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        res = self._add(assets.COMPOSITE_TRAINTUPLE, data, timeout=timeout,
-                        exist_ok=exist_ok,
-                        permissions_field='out_model_trunk_permissions')
+        res = self._add(assets.COMPOSITE_TRAINTUPLE, data, timeout=timeout, exist_ok=exist_ok)
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
@@ -487,8 +491,7 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        res = self._add(assets.TESTTUPLE, data, timeout=timeout,
-                        exist_ok=exist_ok)
+        res = self._add(assets.TESTTUPLE, data, timeout=timeout, exist_ok=exist_ok)
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
