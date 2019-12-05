@@ -172,7 +172,7 @@ def click_global_conf(f):
 
 def click_global_conf_with_output_format(f):
     f = click_global_conf_output_format(f)
-    click_global_conf(f)
+    f = click_global_conf(f)
     return f
 
 
