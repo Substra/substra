@@ -339,6 +339,7 @@ class TraintuplePrinter(AssetPrinter):
         Field('Algo name', 'algo.name'),
         Field('Status', 'status'),
         Field('Perf', 'dataset.perf'),
+        Field('Rank', 'rank'),
         Field('Tag', 'tag'),
         Field('Compute Plan Id', 'computePlanID'),
     )
@@ -370,6 +371,7 @@ class AggregateTuplePrinter(AssetPrinter):
         Field('Algo name', 'algo.name'),
         Field('Status', 'status'),
         Field('Perf', 'dataset.perf'),
+        Field('Rank', 'rank'),
         Field('Tag', 'tag'),
         Field('Compute Plan Id', 'computePlanID'),
     )
@@ -400,6 +402,7 @@ class CompositeTraintuplePrinter(AssetPrinter):
         Field('Composite algo name', 'algo.name'),
         Field('Status', 'status'),
         Field('Perf', 'dataset.perf'),
+        Field('Rank', 'rank'),
         Field('Tag', 'tag'),
         Field('Compute Plan Id', 'computePlanID'),
     )

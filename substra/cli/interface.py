@@ -825,7 +825,7 @@ def add_testtuple(ctx, dataset_key, traintuple_key, data_samples, tag,
 def get(ctx, asset_name, asset_key, expand, output_format, config, profile, user, verbose):
     """Get asset definition."""
     expand_valid_assets = (assets.DATASET, assets.TRAINTUPLE, assets.OBJECTIVE, assets.TESTTUPLE,
-                           assets.COMPOSITE_TRAINTUPLE, assets.AGGREGATETUPLE)
+                           assets.COMPOSITE_TRAINTUPLE, assets.AGGREGATETUPLE, assets.COMPUTE_PLAN)
     if expand and asset_name not in expand_valid_assets:  # fail fast
         raise click.UsageError(
             f'--expand option is available with assets {expand_valid_assets}')
