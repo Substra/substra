@@ -485,8 +485,6 @@ class Client(object):
             "traintuple_key": str,
             "test_data_sample_keys": list[str],
             "tag": str,
-            "rank": int,
-            "compute_plan_id": str,
         }
 ```
 
