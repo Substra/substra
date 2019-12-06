@@ -292,7 +292,34 @@ TESTTUPLE = {
 }
 
 LEADERBOARD = {
-    "foo": True
+    "objective": {
+        "key": "c6a6139a28b5936c1086a49d7c772734f4ad65f4580ca4ab14029a925847faf3",
+        "name": "data-network - Objective 1",
+        "description": {
+            "hash": "c6a6139a28b5936c1086a49d7c772734f4ad65f4580ca4ab14029a925847faf3",
+            "storageAddress": ""
+        },
+        "metrics": {
+            "name": "test metrics",
+            "hash": "48e748a15552ea2a8a258f6e8e75b1d67da5d6ca7471f80f9b69dae3cb950335",
+            "storageAddress": ""
+        },
+        "owner": "MyOrg2MSP",
+        "testDataset": {
+            "dataManagerKey": "c0230e3ab5b92e50fe3c166471e754e393d4a802a48086fc93dd6a1ea38a2441",
+            "dataSampleKeys": [
+                "d2e599efe1288a8646b99330eb50f38593be33d3cb144aabb4058272ec263c93"
+            ],
+            "worker": ""
+        },
+        "permissions": {
+            "process": {
+                "public": True,
+                "authorizedIDs": []
+            }
+        }
+    },
+    "testtuples": []
 }
 
 NODES = [

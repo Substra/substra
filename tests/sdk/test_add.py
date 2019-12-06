@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import re
 
 import pytest
 import substra
@@ -110,6 +111,15 @@ def test_add_data_sample_already_exists(client, data_sample_query, mocker):
     m.assert_called()
 
 
+def test_add_data_sample_with_paths(client, data_samples_query, mocker):
+    server_response = [{"key": "42"}]
+    m = mock_requests(mocker, "post", response=server_response)
+    with pytest.raises(ValueError):
+        client.add_data_sample(data_samples_query)
+
+    assert m.is_called()
+
+
 def test_add_data_samples(client, data_samples_query, mocker):
     server_response = [{"key": "42"}]
     m = mock_requests(mocker, "post", response=server_response)
@@ -117,3 +127,12 @@ def test_add_data_samples(client, data_samples_query, mocker):
 
     assert response == server_response
     m.assert_called()
+
+
+def test_add_data_samples_with_path(client, data_sample_query, mocker):
+    server_response = [{"key": "42"}]
+    m = mock_requests(mocker, "post", response=server_response)
+    with pytest.raises(ValueError):
+        client.add_data_samples(data_sample_query)
+
+    assert m.is_called()
