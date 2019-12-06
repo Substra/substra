@@ -196,6 +196,14 @@ def validate_json(ctx, param, value):
     return data
 
 
+def load_data_samples_keys(data_samples):
+    try:
+        return data_samples['keys']
+    except KeyError:
+        raise click.ClickException('The file specified for the \'--data-samples-path\' option must '
+                                   'contains a \'keys\' attribute')
+
+
 def error_printer(fn):
     """Command decorator to pretty print a few selected exceptions from sdk."""
     @functools.wraps(fn)
@@ -416,7 +424,7 @@ def add_objective(ctx, data, dataset_key, data_samples):
         data['test_data_manager_key'] = dataset_key
 
     if data_samples:
-        data['test_data_sample_keys'] = data_samples.get('keys', None)
+        data['test_data_sample_keys'] = load_data_samples_keys(data_samples)
 
     res = client.add_objective(data)
     printer = printers.get_asset_printer(assets.OBJECTIVE, ctx.obj.output_format)
@@ -626,7 +634,7 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, in_m
     }
 
     if data_samples:
-        data['train_data_sample_keys'] = data_samples.get('keys', None)
+        data['train_data_sample_keys'] = load_data_samples_keys(data_samples)
 
     if tag:
         data['tag'] = tag
@@ -734,7 +742,7 @@ def add_composite_traintuple(ctx, objective_key, algo_key, dataset_key, data_sam
     }
 
     if data_samples:
-        data['train_data_sample_keys'] = data_samples.get('keys', None)
+        data['train_data_sample_keys'] = load_data_samples_keys(data_samples)
 
     if out_trunk_model_permissions:
         data['out_trunk_model_permissions'] = out_trunk_model_permissions
@@ -778,7 +786,7 @@ def add_testtuple(ctx, dataset_key, traintuple_key, data_samples, tag):
     }
 
     if data_samples:
-        data['test_data_sample_keys'] = data_samples.get('keys', None)
+        data['test_data_sample_keys'] = load_data_samples_keys(data_samples)
 
     if tag:
         data['tag'] = tag
@@ -1068,7 +1076,7 @@ def update_data_sample(ctx, data_samples, dataset_key):
     - keys: list of data sample keys
     """
     client = get_client(ctx.obj)
-    res = client.link_dataset_with_data_samples(dataset_key, data_samples.get('keys', None))
+    res = client.link_dataset_with_data_samples(dataset_key, load_data_samples_keys(data_samples))
     display(res)
 
 
