@@ -293,6 +293,12 @@ def test_command_download(workdir, mocker):
     assert m.is_called()
 
 
+def test_command_cancel_compute_plan(workdir, mocker):
+    m = mock_client_call(mocker, 'cancel_compute_plan')
+    client_execute(workdir, ['cancel', 'compute_plan', 'fakekey'])
+    assert m.is_called()
+
+
 def test_command_update_dataset(workdir, mocker):
     m = mock_client_call(mocker, 'update_dataset')
     client_execute(workdir, ['update', 'dataset', 'key1', 'key2'])
