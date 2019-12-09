@@ -15,6 +15,7 @@
 import json
 import re
 from unittest import mock
+import traceback
 
 import click
 from click.testing import CliRunner
@@ -36,15 +37,12 @@ def workdir(tmp_path):
 def execute(command, exit_code=0):
     runner = CliRunner()
     result = runner.invoke(cli, command)
-    if result.exception:
-        import traceback
-        print('# Command: ', command)
-        print('# Exception: ', result.exception)
-        print('# Exit code: ', result.exit_code)
+    debugging = result.output
+    if exit_code == 0 and result.exit_code != 0 and result.exc_info:
         _, _, tb = result.exc_info
-        print('# Traceback: ', traceback.print_tb(tb))
-    assert result.exit_code == exit_code, result.output
-    return result.output
+        debugging = traceback.print_tb(tb)
+    assert result.exit_code == exit_code, debugging
+    return debugging
 
 
 def client_execute(directory, command, exit_code=0):
