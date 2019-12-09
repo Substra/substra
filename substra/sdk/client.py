@@ -410,6 +410,7 @@ class Client(object):
             "train_data_sample_keys": list[str],
             "in_models_keys": list[str],
             "tag": str,
+            "rank": int,
             "compute_plan_id": str,
         }
 ```
@@ -461,6 +462,7 @@ class Client(object):
                 "authorized_ids": list[str],
             },
             "tag": str,
+            "rank": int,
             "compute_plan_id": str,
         }
 ```

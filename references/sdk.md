@@ -220,6 +220,7 @@ Create new traintuple asset.
     "train_data_sample_keys": list[str],
     "in_models_keys": list[str],
     "tag": str,
+    "rank": int,
     "compute_plan_id": str,
 }
 ```
@@ -264,6 +265,7 @@ Create new composite traintuple asset.
         "authorized_ids": list[str],
     },
     "tag": str,
+    "rank": int,
     "compute_plan_id": str,
 }
 ```
