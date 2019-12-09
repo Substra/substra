@@ -949,9 +949,9 @@ def download(ctx, asset_name, key, folder):
 def leaderboard(ctx, expand, objective_key, sort):
     """Display objective leaderboard"""
     client = get_client(ctx.obj)
-    leaderboard = client.leaderboard(objective_key, sort=sort)
+    board = client.leaderboard(objective_key, sort=sort)
     printer = printers.get_leaderboard_printer(ctx.obj.output_format)
-    printer.print(leaderboard, expand=expand)
+    printer.print(board, expand=expand)
 
 
 @cli.command()
