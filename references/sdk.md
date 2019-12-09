@@ -267,6 +267,10 @@ Create new composite traintuple asset.
     "compute_plan_id": str,
 }
 ```
+
+As specified in the data dict structure, output trunk models cannot be made
+public.
+
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
@@ -303,14 +307,15 @@ Data is a dict object with the following schema:
 {
     "objective_key": str,
     "traintuples": list[{
+        "traintuple_id": str,
         "algo_key": str,
         "data_manager_key": str,
         "train_data_sample_keys": list[str],
-        "traintuple_id": str,
         "in_models_ids": list[str],
         "tag": str,
     }],
     "composite_traintuples": list[{
+        "composite_traintuple_id": str,
         "algo_key": str,
         "data_manager_key": str,
         "train_data_sample_keys": list[str],
@@ -322,6 +327,7 @@ Data is a dict object with the following schema:
         "tag": str,
     }]
     "aggregatetuples": list[{
+        "aggregatetuple_id": str,
         "algo_key": str,
         "worker": str,
         "in_models_ids": list[str],
@@ -337,6 +343,8 @@ Data is a dict object with the following schema:
 }
 ```
 
+As specified in the data dict structure, output trunk models of composite
+traintuples cannot be made public.
 
 ## get_algo
 ```python
