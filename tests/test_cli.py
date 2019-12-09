@@ -36,6 +36,13 @@ def workdir(tmp_path):
 def execute(command, exit_code=0):
     runner = CliRunner()
     result = runner.invoke(cli, command)
+    if result.exception:
+        import traceback
+        print('# Command: ', command)
+        print('# Exception: ', result.exception)
+        print('# Exit code: ', result.exit_code)
+        _, _, tb = result.exc_info
+        print('# Traceback: ', traceback.print_tb(tb))
     assert result.exit_code == exit_code, result.output
     return result.output
 
