@@ -196,12 +196,12 @@ def validate_json(ctx, param, value):
     return data
 
 
-def load_data_samples_keys(data_samples):
+def load_data_samples_keys(data_samples, option="--data-samples-path"):
     try:
         return data_samples['keys']
     except KeyError:
-        raise click.ClickException('The file specified for the \'--data-samples-path\' option must '
-                                   'contains a \'keys\' attribute')
+        raise click.ClickException(f'The file specified for \'{option}\' must contains a \'keys\' '
+                                   f'attribute')
 
 
 def error_printer(fn):
@@ -1076,7 +1076,8 @@ def update_data_sample(ctx, data_samples, dataset_key):
     - keys: list of data sample keys
     """
     client = get_client(ctx.obj)
-    res = client.link_dataset_with_data_samples(dataset_key, load_data_samples_keys(data_samples))
+    res = client.link_dataset_with_data_samples(
+        dataset_key, load_data_samples_keys(data_samples, option="data_samples"))
     display(res)
 
 
