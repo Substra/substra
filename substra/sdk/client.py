@@ -466,6 +466,10 @@ class Client(object):
             "compute_plan_id": str,
         }
 ```
+
+        As specified in the data dict structure, output trunk models cannot be made
+        public.
+
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
@@ -509,14 +513,15 @@ class Client(object):
         {
             "objective_key": str,
             "traintuples": list[{
+                "traintuple_id": str,
                 "algo_key": str,
                 "data_manager_key": str,
                 "train_data_sample_keys": list[str],
-                "traintuple_id": str,
                 "in_models_ids": list[str],
                 "tag": str,
             }],
             "composite_traintuples": list[{
+                "composite_traintuple_id": str,
                 "algo_key": str,
                 "data_manager_key": str,
                 "train_data_sample_keys": list[str],
@@ -528,6 +533,7 @@ class Client(object):
                 "tag": str,
             }]
             "aggregatetuples": list[{
+                "aggregatetuple_id": str,
                 "algo_key": str,
                 "worker": str,
                 "in_models_ids": list[str],
@@ -543,6 +549,8 @@ class Client(object):
         }
 ```
 
+        As specified in the data dict structure, output trunk models of composite
+        traintuples cannot be made public.
         """
         return self._add(assets.COMPUTE_PLAN, data, timeout=timeout, json_encoding=True)
 
