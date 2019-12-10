@@ -14,6 +14,7 @@
 
 import json
 import re
+import sys
 from unittest import mock
 import traceback
 
@@ -37,12 +38,12 @@ def workdir(tmp_path):
 def execute(command, exit_code=0):
     runner = CliRunner()
     result = runner.invoke(cli, command)
-    debugging = result.output
     if exit_code == 0 and result.exit_code != 0 and result.exc_info:
         _, _, tb = result.exc_info
-        debugging = traceback.print_tb(tb)
-    assert result.exit_code == exit_code, debugging
-    return debugging
+        traceback.print_tb(tb, file=sys.stdout)
+        pytest.fail(str(result.exception))
+    assert result.exit_code == exit_code, result.output
+    return result.output
 
 
 def client_execute(directory, command, exit_code=0):
