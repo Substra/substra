@@ -241,12 +241,14 @@ class ComputePlanPrinter(AssetPrinter):
         CountField('Composite traintuples count', 'compositeTraintupleKeys'),
         CountField('Aggregatetuples count', 'aggregatetupleKeys'),
         CountField('Testtuples count', 'testtupleKeys'),
+        Field('Status', 'status'),
     )
     single_fields = (
         KeysField('Traintuple keys', 'traintupleKeys'),
         KeysField('Composite traintuple keys', 'compositeTraintupleKeys'),
         KeysField('Aggregatetuple keys', 'aggregatetupleKeys'),
         KeysField('Testtuple keys', 'testtupleKeys'),
+        KeysField('Status', 'status'),
     )
 
     def print_messages(self, item, profile=None):
