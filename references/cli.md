@@ -244,6 +244,7 @@ Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
           "tag": str,
       }],
       "testtuples": list[{
+          "objective_key": str,
           "data_manager_key": str,
           "test_data_sample_keys": list[str],
           "testtuple_id": str,
@@ -253,15 +254,14 @@ Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
   }
 
 Options:
-  --objective-key TEXT  [required]
-  --config PATH         Config path (default ~/.substra).
-  --profile TEXT        Profile name to use.
-  --user FILE           User file path to use (default ~/.substra-user).
-  --verbose             Enable verbose mode.
-  --yaml                Display output as yaml.
-  --json                Display output as json.
-  --pretty              Pretty print output  [default: True]
-  --help                Show this message and exit.
+  --config PATH   Config path (default ~/.substra).
+  --profile TEXT  Profile name to use.
+  --user FILE     User file path to use (default ~/.substra-user).
+  --verbose       Enable verbose mode.
+  --yaml          Display output as yaml.
+  --json          Display output as json.
+  --pretty        Pretty print output  [default: True]
+  --help          Show this message and exit.
 ```
 
 ## substra add aggregate_algo
@@ -356,7 +356,6 @@ Usage: substra add traintuple [OPTIONS]
   - keys: list of data sample keys
 
 Options:
-  --objective-key TEXT      [required]
   --algo-key TEXT           [required]
   --dataset-key TEXT        [required]
   --data-samples-path FILE  [required]
@@ -380,20 +379,19 @@ Usage: substra add aggregatetuple [OPTIONS]
   Add aggregatetuple.
 
 Options:
-  --objective-key TEXT  [required]
-  --algo-key TEXT       [required]
-  --in-model-key TEXT   In model traintuple key.
-  --worker TEXT         Node ID for worker execution.  [required]
+  --algo-key TEXT      [required]
+  --in-model-key TEXT  In model traintuple key.
+  --worker TEXT        Node ID for worker execution.  [required]
   --rank INTEGER
   --tag TEXT
-  --config PATH         Config path (default ~/.substra).
-  --profile TEXT        Profile name to use.
-  --user FILE           User file path to use (default ~/.substra-user).
-  --verbose             Enable verbose mode.
-  --yaml                Display output as yaml.
-  --json                Display output as json.
-  --pretty              Pretty print output  [default: True]
-  --help                Show this message and exit.
+  --config PATH        Config path (default ~/.substra).
+  --profile TEXT       Profile name to use.
+  --user FILE          User file path to use (default ~/.substra-user).
+  --verbose            Enable verbose mode.
+  --yaml               Display output as yaml.
+  --json               Display output as json.
+  --pretty             Pretty print output  [default: True]
+  --help               Show this message and exit.
 ```
 
 ## substra add composite_traintuple
@@ -421,7 +419,6 @@ Usage: substra add composite_traintuple [OPTIONS]
   }
 
 Options:
-  --objective-key TEXT            [required]
   --algo-key TEXT                 [required]
   --dataset-key TEXT              [required]
   --data-samples-path FILE        [required]
@@ -459,6 +456,7 @@ Usage: substra add testtuple [OPTIONS]
   - keys: list of data sample keys
 
 Options:
+  --objective-key TEXT      [required]
   --dataset-key TEXT
   --traintuple-key TEXT     [required]
   --data-samples-path FILE

@@ -462,11 +462,10 @@ def add_algo(ctx, data):
 @add.command('compute_plan')
 @click.argument('tuples', type=click.Path(exists=True, dir_okay=False),
                 callback=load_json_from_path, metavar="TUPLES_PATH")
-@click.option('--objective-key', required=True)
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
-def add_compute_plan(ctx, tuples, objective_key):
+def add_compute_plan(ctx, tuples):
     """Add compute plan.
 
     The tuples path must point to a valid JSON file with the following schema:
@@ -499,6 +498,7 @@ def add_compute_plan(ctx, tuples, objective_key):
             "tag": str,
         }],
         "testtuples": list[{
+            "objective_key": str,
             "data_manager_key": str,
             "test_data_sample_keys": list[str],
             "testtuple_id": str,
@@ -509,11 +509,7 @@ def add_compute_plan(ctx, tuples, objective_key):
 
     """
     client = get_client(ctx.obj)
-    data = {
-        "objective_key": objective_key
-    }
-    data.update(tuples)
-    res = client.add_compute_plan(data)
+    res = client.add_compute_plan(tuples)
     printer = printers.get_asset_printer(assets.COMPUTE_PLAN, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
@@ -591,7 +587,6 @@ def add_composite_algo(ctx, data):
 
 
 @add.command('traintuple')
-@click.option('--objective-key', required=True)
 @click.option('--algo-key', required=True)
 @click.option('--dataset-key', required=True)
 @click.option('--data-samples-path', 'data_samples', required=True,
@@ -603,7 +598,7 @@ def add_composite_algo(ctx, data):
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
-def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, in_models_keys, tag):
+def add_traintuple(ctx, algo_key, dataset_key, data_samples, in_models_keys, tag):
     """Add traintuple.
 
     The option --data-samples-path must point to a valid JSON file with the
@@ -621,7 +616,6 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, in_m
     client = get_client(ctx.obj)
     data = {
         'algo_key': algo_key,
-        'objective_key': objective_key,
         'data_manager_key': dataset_key,
     }
 
@@ -639,7 +633,6 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, in_m
 
 
 @add.command('aggregatetuple')
-@click.option('--objective-key', required=True)
 @click.option('--algo-key', required=True)
 @click.option('--in-model-key', 'in_models_keys', type=click.STRING, multiple=True,
               help='In model traintuple key.')
@@ -649,12 +642,11 @@ def add_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples, in_m
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
-def add_aggregatetuple(ctx, objective_key, algo_key, in_models_keys, worker, rank, tag):
+def add_aggregatetuple(ctx, algo_key, in_models_keys, worker, rank, tag):
     """Add aggregatetuple."""
     client = get_client(ctx.obj)
     data = {
         'algo_key': algo_key,
-        'objective_key': objective_key,
         'worker': worker,
     }
 
@@ -672,7 +664,6 @@ def add_aggregatetuple(ctx, objective_key, algo_key, in_models_keys, worker, ran
 
 
 @add.command('composite_traintuple')
-@click.option('--objective-key', required=True)
 @click.option('--algo-key', required=True)
 @click.option('--dataset-key', required=True)
 @click.option('--data-samples-path', 'data_samples', required=True,
@@ -690,8 +681,8 @@ def add_aggregatetuple(ctx, objective_key, algo_key, in_models_keys, worker, ran
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
-def add_composite_traintuple(ctx, objective_key, algo_key, dataset_key, data_samples,
-                             head_model_key, trunk_model_key, out_trunk_model_permissions, tag):
+def add_composite_traintuple(ctx, algo_key, dataset_key, data_samples, head_model_key,
+                             trunk_model_key, out_trunk_model_permissions, tag):
     """Add composite traintuple.
 
     The option --data-samples-path must point to a valid JSON file with the
@@ -727,7 +718,6 @@ def add_composite_traintuple(ctx, objective_key, algo_key, dataset_key, data_sam
     client = get_client(ctx.obj)
     data = {
         'algo_key': algo_key,
-        'objective_key': objective_key,
         'data_manager_key': dataset_key,
         'in_head_model_key': head_model_key,
         'in_trunk_model_key': trunk_model_key,
@@ -747,6 +737,7 @@ def add_composite_traintuple(ctx, objective_key, algo_key, dataset_key, data_sam
 
 
 @add.command('testtuple')
+@click.option('--objective-key', required=True)
 @click.option('--dataset-key')
 @click.option('--traintuple-key', required=True)
 @click.option('--data-samples-path', 'data_samples',
@@ -756,7 +747,7 @@ def add_composite_traintuple(ctx, objective_key, algo_key, dataset_key, data_sam
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
-def add_testtuple(ctx, dataset_key, traintuple_key, data_samples, tag):
+def add_testtuple(ctx, objective_key, dataset_key, traintuple_key, data_samples, tag):
     """Add testtuple.
 
     The option --data-samples-path must point to a valid JSON file with the
@@ -773,6 +764,7 @@ def add_testtuple(ctx, dataset_key, traintuple_key, data_samples, tag):
     """
     client = get_client(ctx.obj)
     data = {
+        'objective_key': objective_key,
         'data_manager_key': dataset_key,
         'traintuple_key': traintuple_key,
     }

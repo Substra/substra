@@ -124,16 +124,15 @@ def test_command_list_node(workdir, mocker):
     ('algo', []),
     ('aggregate_algo', []),
     ('composite_algo', []),
-    ('traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
+    ('traintuple', ['--algo-key', 'foo', '--dataset-key', 'foo',
                     '--data-samples-path']),
-    ('traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
+    ('traintuple', ['--algo-key', 'foo', '--dataset-key', 'foo',
                     '--in-model-key', 'foo', '--data-samples-path']),
-    ('traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
+    ('traintuple', ['--algo-key', 'foo', '--dataset-key', 'foo',
                     '--in-model-key', 'foo', '--in-model-key', 'bar', '--data-samples-path']),
-    ('testtuple', ['--traintuple-key', 'foo', '--data-samples-path']),
-    ('compute_plan', ['--objective-key', 'foo']),
-    ('composite_traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
-                              '--data-samples-path']),
+    ('testtuple', ['--objective-key', 'foo', '--traintuple-key', 'foo', '--data-samples-path']),
+    ('compute_plan', []),
+    ('composite_traintuple', ['--algo-key', 'foo', '--dataset-key', 'foo', '--data-samples-path']),
 ])
 def test_command_add(asset_name, params, workdir, mocker):
     method_name = f'add_{asset_name}'
@@ -200,7 +199,7 @@ def test_command_add_composite_traintuple(mocker, workdir, params, message, exit
     with mock_client_call(mocker, 'add_composite_traintuple', response={}) as m:
         json_file = workdir / "valid_json_file.json"
         json_file.write_text(json.dumps({}))
-        res = client_execute(workdir, ['add', 'composite_traintuple', '--objective-key', 'foo',
+        res = client_execute(workdir, ['add', 'composite_traintuple',
                                        '--algo-key', 'foo', '--dataset-key', 'foo'] + params +
                              ['--data-samples-path', str(json_file)], exit_code=exit_code)
         assert re.search(message, res)
@@ -209,7 +208,7 @@ def test_command_add_composite_traintuple(mocker, workdir, params, message, exit
 
 def test_command_add_testtuple_no_data_samples(mocker, workdir):
     m = mock_client_call(mocker, 'add_testtuple', response={})
-    client_execute(workdir, ['add', 'testtuple', '--traintuple-key', 'foo'])
+    client_execute(workdir, ['add', 'testtuple', '--objective-key', 'foo', '--traintuple-key', 'foo'])
     assert m.is_called()
 
 
@@ -230,10 +229,10 @@ def test_command_add_data_sample(workdir, mocker):
 @pytest.mark.parametrize('asset_name, params', [
     ('dataset', []),
     ('algo', []),
-    ('traintuple', ['--objective-key', 'foo', '--algo-key', 'foo', '--dataset-key', 'foo',
+    ('traintuple', ['--algo-key', 'foo', '--dataset-key', 'foo',
                     '--data-samples-path']),
-    ('testtuple', ['--traintuple-key', 'foo', '--data-samples-path']),
-    ('compute_plan', ['--objective-key', 'foo']),
+    ('testtuple', ['--objective-key', 'foo', '--traintuple-key', 'foo', '--data-samples-path']),
+    ('compute_plan', []),
     ('objective', []),
 ])
 def test_command_add_already_exists(workdir, mocker, asset_name, params):
