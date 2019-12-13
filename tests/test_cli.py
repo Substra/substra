@@ -208,7 +208,8 @@ def test_command_add_composite_traintuple(mocker, workdir, params, message, exit
 
 def test_command_add_testtuple_no_data_samples(mocker, workdir):
     m = mock_client_call(mocker, 'add_testtuple', response={})
-    client_execute(workdir, ['add', 'testtuple', '--objective-key', 'foo', '--traintuple-key', 'foo'])
+    client_execute(workdir, ['add', 'testtuple', '--objective-key', 'foo',
+                             '--traintuple-key', 'foo'])
     assert m.is_called()
 
 
@@ -290,6 +291,12 @@ def test_command_describe(workdir, mocker):
 def test_command_download(workdir, mocker):
     m = mock_client_call(mocker, 'download_objective')
     client_execute(workdir, ['download', 'objective', 'fakekey'])
+    assert m.is_called()
+
+
+def test_command_cancel_compute_plan(workdir, mocker):
+    m = mock_client_call(mocker, 'cancel_compute_plan', datastore.COMPUTE_PLAN)
+    client_execute(workdir, ['cancel', 'compute_plan', 'fakekey'])
     assert m.is_called()
 
 

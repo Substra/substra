@@ -1032,6 +1032,26 @@ def run_local(algo, train_opener, test_opener, metrics, rank,
 
 @cli.group()
 @click.pass_context
+def cancel(ctx):
+    """Cancel execution of an asset."""
+    pass
+
+
+@cancel.command('compute_plan')
+@click.argument('compute_plan_id', type=click.STRING)
+@click_global_conf_with_output_format
+@click.pass_context
+def cancel_compute_plan(ctx, compute_plan_id):
+    """Cancel execution of a compute plan."""
+    client = get_client(ctx.obj)
+    # method must exist in sdk
+    res = client.cancel_compute_plan(compute_plan_id)
+    printer = printers.get_asset_printer(assets.COMPUTE_PLAN, ctx.obj.output_format)
+    printer.print(res, profile=ctx.obj.profile)
+
+
+@cli.group()
+@click.pass_context
 def update(ctx):
     """Update asset."""
     pass

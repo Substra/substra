@@ -771,3 +771,11 @@ class Client(object):
         """Get objective leaderboard"""
         return self.client.request('get', assets.OBJECTIVE, f'{objective_key}/leaderboard',
                                    params={'sort': sort})
+
+    def cancel_compute_plan(self, compute_plan_id):
+        """Cancel execution of compute plan."""
+        return self.client.request(
+            'post',
+            assets.COMPUTE_PLAN,
+            path=f"{compute_plan_id}/cancel",
+        )

@@ -540,3 +540,8 @@ Get objective description.
 Client.leaderboard(self, objective_key, sort='desc')
 ```
 Get objective leaderboard
+## cancel_compute_plan
+```python
+Client.cancel_compute_plan(self, compute_plan_id)
+```
+Cancel execution of compute plan.

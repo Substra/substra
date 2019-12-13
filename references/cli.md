@@ -19,6 +19,7 @@
 - [substra download](#substra-download)
 - [substra leaderboard](#substra-leaderboard)
 - [substra run-local](#substra-run-local)
+- [substra cancel compute_plan](#substra-cancel-compute_plan)
 - [substra update data_sample](#substra-update-data_sample)
 - [substra update dataset](#substra-update-dataset)
 
@@ -626,6 +627,24 @@ Options:
   --fake-data-samples             use fake data samples during both training
                                   and testing.
   --help                          Show this message and exit.
+```
+
+## substra cancel compute_plan
+
+```bash
+Usage: substra cancel compute_plan [OPTIONS] COMPUTE_PLAN_ID
+
+  Cancel execution of a compute plan.
+
+Options:
+  --config PATH   Config path (default ~/.substra).
+  --profile TEXT  Profile name to use.
+  --user FILE     User file path to use (default ~/.substra-user).
+  --verbose       Enable verbose mode.
+  --yaml          Display output as yaml.
+  --json          Display output as json.
+  --pretty        Pretty print output  [default: True]
+  --help          Show this message and exit.
 ```
 
 ## substra update data_sample
