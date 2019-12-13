@@ -200,8 +200,7 @@ def load_data_samples_keys(data_samples, option="--data-samples-path"):
     try:
         return data_samples['keys']
     except KeyError:
-        raise click.BadParameter('The file specified must contain a \'keys\' attribute',
-                                 param_hint=option)
+        raise click.BadParameter(f'File must contain a "keys" attribute.', param_hint=f'"{option}"')
 
 
 def error_printer(fn):
@@ -1077,7 +1076,7 @@ def update_data_sample(ctx, data_samples, dataset_key):
     """
     client = get_client(ctx.obj)
     res = client.link_dataset_with_data_samples(
-        dataset_key, load_data_samples_keys(data_samples, option="data_samples"))
+        dataset_key, load_data_samples_keys(data_samples, option="DATA_SAMPLES_PATH"))
     display(res)
 
 
