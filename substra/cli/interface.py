@@ -1046,7 +1046,7 @@ def cancel_compute_plan(ctx, compute_plan_id):
     client = get_client(ctx.obj)
     # method must exist in sdk
     res = client.cancel_compute_plan(compute_plan_id)
-    printer = printers.get_asset_printer(compute_plan_id, ctx.obj.output_format)
+    printer = printers.get_asset_printer(assets.COMPUTE_PLAN, ctx.obj.output_format)
     printer.print(res, profile=ctx.obj.profile)
 
 

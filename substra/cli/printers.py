@@ -248,7 +248,7 @@ class ComputePlanPrinter(AssetPrinter):
         KeysField('Composite traintuple keys', 'compositeTraintupleKeys'),
         KeysField('Aggregatetuple keys', 'aggregatetupleKeys'),
         KeysField('Testtuple keys', 'testtupleKeys'),
-        KeysField('Status', 'status'),
+        Field('Status', 'status'),
     )
 
     def print_messages(self, item, profile=None):
