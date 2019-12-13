@@ -200,8 +200,8 @@ def load_data_samples_keys(data_samples, option="--data-samples-path"):
     try:
         return data_samples['keys']
     except KeyError:
-        raise click.ClickException(f'The file specified for \'{option}\' must contains a \'keys\' '
-                                   f'attribute')
+        raise click.BadParameter('The file specified must contain a \'keys\' attribute',
+                                 param_hint=option)
 
 
 def error_printer(fn):
