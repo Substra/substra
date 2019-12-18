@@ -11,7 +11,7 @@ All of the concepts mentioned below are assets (basically a set of files) which 
 
 An objective is simply made of:
 * a test dataset, that is to say a data manager associated with several test data samples
-* a metrics script ([python implementation](https://github.com/SubstraFoundation/substra-tools/blob/dev/docs/api.md#metrics)).
+* a metrics script ([python implementation](https://github.com/SubstraFoundation/substra-tools/blob/master/docs/api.md#metrics)).
 
 It mainly aims at standardising the evaluation process of ML models. Since Substra focuses on supervised learning, each models trained on Substra has to be linked to an objective for evaluation.
 
@@ -22,7 +22,7 @@ It makes the link between a set of **data samples** and an **Objective** through
 
 A *dataset* is composed of:
 
-- an **opener**: it is in fact a script that opens and loads data in memory to fit the purpose of the objective ([python implementation](https://github.com/SubstraFoundation/substra-tools/blob/dev/docs/api.md#opener)). It can also apply preprocessing to the **data samples**.   
+- an **opener**: it is in fact a script that opens and loads data in memory to fit the purpose of the objective ([python implementation](https://github.com/SubstraFoundation/substra-tools/blob/master/docs/api.md#opener)). It can also apply preprocessing to the **data samples**.
 - a description: define the opener interface, that is to say what is returned by the opener.
 
 For now Substra users only work with labelled datasets. Substra users are expected to design preprocess and build specific clean and labelled datasets by applying preprocessing tasks and for a specific objective. Part of the operations can be done in the opener.
@@ -31,7 +31,7 @@ For now Substra users only work with labelled datasets. Substra users are expect
 
 Datasets are not a fixed set of data samples. Data samples can be linked to multiple datasets and new data samples can be linked to existing datasets even if these already have links to other data samples.
 
-Datasets act as an interface between algorithms and objectives on one side and data samples on the other side. 
+Datasets act as an interface between algorithms and objectives on one side and data samples on the other side.
 
 ### Data opener
 
@@ -51,7 +51,7 @@ The Docker container is built from an archive containing:
 * a Dockerfile and the required dependencies
 * an algo python script
 
-The algo must follow a specific template to be executed properly, basically overloading a train and a predict function ([python implementation](https://github.com/SubstraFoundation/substra-tools/blob/dev/docs/api.md#algo)).
+The algo must follow a specific template to be executed properly, basically overloading a train and a predict function ([python implementation](https://github.com/SubstraFoundation/substra-tools/blob/master/docs/api.md#algo)).
 
 ### Link with other concepts
 
