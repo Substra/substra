@@ -267,7 +267,7 @@ class ComputePlanPrinter(AssetPrinter):
               f' -f "aggregatetuple:computePlanID:{key_value}" {profile_arg}')
 
         print('\nDisplay this compute_plan\'s testtuples:')
-        print(f'\tsubstra list testtuples'
+        print(f'\tsubstra list testtuple'
               f' -f "testtuple:computePlanID:{key_value}" {profile_arg}')
 
 
