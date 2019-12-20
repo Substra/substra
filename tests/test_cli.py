@@ -14,7 +14,9 @@
 
 import json
 import re
+import sys
 from unittest import mock
+import traceback
 
 import click
 from click.testing import CliRunner
@@ -36,6 +38,12 @@ def workdir(tmp_path):
 def execute(command, exit_code=0):
     runner = CliRunner()
     result = runner.invoke(cli, command)
+    if exit_code == 0 and result.exit_code != 0 and result.exc_info:
+        # if the test was supposed to succeed but failed,
+        # we display the exception and the full traceback
+        _, _, tb = result.exc_info
+        traceback.print_tb(tb, file=sys.stdout)
+        pytest.fail(str(result.exception))
     assert result.exit_code == exit_code, result.output
     return result.output
 
