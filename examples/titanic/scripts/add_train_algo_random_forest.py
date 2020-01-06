@@ -24,7 +24,6 @@ OBJECTIVE_NAME = "Titanic"
 
 current_directory = os.path.dirname(__file__)
 assets_directory = os.path.join(current_directory, '../assets')
-assets_keys_path = os.path.join(current_directory, f'algo_tuples_keys_node{NODE_ID}.json')
 
 with open(os.path.join(current_directory, f'../../config_node{NODE_ID}.json'), 'r') as f:
     config = json.load(f)
@@ -95,24 +94,16 @@ for data_manager_key in data_manager_keys:
 ########################################################
 print('Registering testtuple...')
 testtuple = client.add_testtuple({
+    'objective_key': objective_key,
     'traintuple_key': traintuple_key
 }, exist_ok=True)
 testtuple_key = testtuple.get('key') or testtuple.get('pkhash')
 assert testtuple_key, 'Missing testtuple key'
 
 ########################################################
-#         Save keys in json
+#         Show keys
 ########################################################
 
-assets_keys = {
-    'algo_key': algo_key,
-    'traintuple_key': traintuple_keys,
-    'testtuple_key': testtuple_key,
-}
-with open(assets_keys_path, 'w') as f:
-    json.dump(assets_keys, f, indent=2)
-
-print(f'Assets keys have been saved to {os.path.abspath(assets_keys_path)}')
 print('\nRun the following commands to track the status of the tuples:')
 for traintuple_key in traintuple_keys:
     print(f'    substra get traintuple {traintuple_key}')
