@@ -61,7 +61,8 @@ with zipfile.ZipFile(archive_path, 'w') as z:
 algo_key = client.add_algo({
     'name': 'SGD classifier death predictor',
     'file': archive_path,
-    'description': os.path.join(algo_directory, 'description.md')
+    'description': os.path.join(algo_directory, 'description.md'),
+     'permissions': {'public': True},
 }, exist_ok=True)['pkhash']
 
 
