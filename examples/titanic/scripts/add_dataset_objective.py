@@ -158,8 +158,5 @@ assets_keys = {
     'train_data_sample_keys': train_data_sample_keys,
     'test_data_sample_keys': test_data_sample_keys,
 }
-assets_keys_path = os.path.join(current_directory, '../assets_keys_node0.json')
-with open(assets_keys_path, 'w') as f:
-    json.dump(assets_keys, f, indent=2)
 
-print(f'Assets keys for node 0 have been saved to {os.path.abspath(assets_keys_path)}')
+print(f'Assets keys submitted by node 0: {assets_keys}')
