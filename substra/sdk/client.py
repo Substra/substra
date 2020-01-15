@@ -149,7 +149,6 @@ class Client(object):
 
         return self.client.add(
             asset,
-            retry_timeout=timeout,
             exist_ok=exist_ok,
             **requests_kwargs)
 
