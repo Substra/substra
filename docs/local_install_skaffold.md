@@ -24,9 +24,9 @@ Git clone commands:
 
 > Note: if you do not have git on your machine, you can also download the code using these links:
 >
-> - [hlf-k8s](https://github.com/SubstraFoundation/hlf-k8s/archive/dev.zip)
-> - [substra-backend](https://github.com/SubstraFoundation/substra-backend/archive/dev.zip)
-> - [substra-frontend](https://github.com/SubstraFoundation/substra-frontend/archive/dev.zip)
+> - [hlf-k8s](https://github.com/SubstraFoundation/hlf-k8s/archive/master.zip)
+> - [substra-backend](https://github.com/SubstraFoundation/substra-backend/archive/master.zip)
+> - [substra-frontend](https://github.com/SubstraFoundation/substra-frontend/archive/master.zip)
 >
 > Do not forget to unzip the files after download.
 
