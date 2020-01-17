@@ -2,7 +2,7 @@
 
 # Client
 ```python
-Client(self, config_path=None, profile_name=None, user_path=None)
+Client(self, config_path=None, profile_name=None, user_path=None, retry_timeout=300)
 ```
 
 ## login
@@ -35,7 +35,7 @@ Client.add_profile(self, profile_name, username, password, url, version='0.0', i
 Add new profile (in-memory only).
 ## add_data_sample
 ```python
-Client.add_data_sample(self, data, local=True, timeout=False, exist_ok=False)
+Client.add_data_sample(self, data, local=True, exist_ok=False)
 ```
 Create new data sample asset.
 
@@ -66,7 +66,7 @@ existing asset will be returned.
 
 ## add_data_samples
 ```python
-Client.add_data_samples(self, data, local=True, timeout=False)
+Client.add_data_samples(self, data, local=True)
 ```
 Create many data sample assets.
 
@@ -92,7 +92,7 @@ better control in case of failures.
 
 ## add_dataset
 ```python
-Client.add_dataset(self, data, timeout=False, exist_ok=False)
+Client.add_dataset(self, data, exist_ok=False)
 ```
 Create new dataset asset.
 
@@ -117,7 +117,7 @@ existing asset will be returned.
 
 ## add_objective
 ```python
-Client.add_objective(self, data, timeout=False, exist_ok=False)
+Client.add_objective(self, data, exist_ok=False)
 ```
 Create new objective asset.
 
@@ -143,7 +143,7 @@ existing asset will be returned.
 
 ## add_algo
 ```python
-Client.add_algo(self, data, timeout=False, exist_ok=False)
+Client.add_algo(self, data, exist_ok=False)
 ```
 Create new algo asset.
 
@@ -166,7 +166,7 @@ existing asset will be returned.
 
 ## add_aggregate_algo
 ```python
-Client.add_aggregate_algo(self, data, timeout=False, exist_ok=False)
+Client.add_aggregate_algo(self, data, exist_ok=False)
 ```
 Create new aggregate algo asset.
 `data` is a dict object with the following schema:
@@ -186,7 +186,7 @@ existing asset will be returned.
 
 ## add_composite_algo
 ```python
-Client.add_composite_algo(self, data, timeout=False, exist_ok=False)
+Client.add_composite_algo(self, data, exist_ok=False)
 ```
 Create new composite algo asset.
 `data` is a dict object with the following schema:
@@ -206,7 +206,7 @@ existing asset will be returned.
 
 ## add_traintuple
 ```python
-Client.add_traintuple(self, data, timeout=False, exist_ok=False)
+Client.add_traintuple(self, data, exist_ok=False)
 ```
 Create new traintuple asset.
 
@@ -229,7 +229,7 @@ existing asset will be returned.
 
 ## add_aggregatetuple
 ```python
-Client.add_aggregatetuple(self, data, timeout=False, exist_ok=False)
+Client.add_aggregatetuple(self, data, exist_ok=False)
 ```
 Create new aggregatetuple asset.
 `data` is a dict object with the following schema:
@@ -248,7 +248,7 @@ existing asset will be returned.
 
 ## add_composite_traintuple
 ```python
-Client.add_composite_traintuple(self, data, timeout=False, exist_ok=False)
+Client.add_composite_traintuple(self, data, exist_ok=False)
 ```
 Create new composite traintuple asset.
 `data` is a dict object with the following schema:
@@ -275,7 +275,7 @@ existing asset will be returned.
 
 ## add_testtuple
 ```python
-Client.add_testtuple(self, data, timeout=False, exist_ok=False)
+Client.add_testtuple(self, data, exist_ok=False)
 ```
 Create new testtuple asset.
 
@@ -296,7 +296,7 @@ existing asset will be returned.
 
 ## add_compute_plan
 ```python
-Client.add_compute_plan(self, data, timeout=False)
+Client.add_compute_plan(self, data)
 ```
 Create compute plan.
 
