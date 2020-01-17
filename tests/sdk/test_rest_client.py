@@ -92,7 +92,7 @@ def test_add_timeout_with_retry(mocker):
     asset_name = "traintuple"
     m_post = mock_requests(mocker, "post", response={"pkhash": "a-key"}, status=408)
     m_get = mock_requests(mocker, "get", response={"pkhash": "a-key"})
-    asset = rest_client.Client(CONFIG).add(asset_name)
+    asset = rest_client.Client(CONFIG).add(asset_name, retry_timeout=60)
     assert len(m_post.call_args_list) == 1
     assert len(m_get.call_args_list) == 1
     assert asset == {"pkhash": "a-key"}

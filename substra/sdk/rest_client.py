@@ -21,8 +21,6 @@ from substra.sdk import exceptions, assets, utils
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_RETRY_TIMEOUT = 5 * 60
-
 
 class Client():
     """REST Client to communicate with Substra server."""
@@ -191,8 +189,7 @@ class Client():
 
         return items
 
-    def add(self, name, retry_timeout=DEFAULT_RETRY_TIMEOUT, exist_ok=False,
-            **request_kwargs):
+    def add(self, name, retry_timeout=False, exist_ok=False, **request_kwargs):
         """Add asset.
 
         In case of timeout, block till resource is created.

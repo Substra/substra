@@ -24,6 +24,8 @@ from substra.sdk import user as usr
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_RETRY_TIMEOUT = 5 * 60
+
 
 def get_asset_key(data):
     return data.get('pkhash') or data.get('key')
@@ -56,13 +58,15 @@ def _update_permissions_field(data, permissions_field='permissions'):
 
 class Client(object):
 
-    def __init__(self, config_path=None, profile_name=None, user_path=None):
+    def __init__(self, config_path=None, profile_name=None, user_path=None,
+                 retry_timeout=DEFAULT_RETRY_TIMEOUT):
         self._cfg_manager = cfg.Manager(config_path or cfg.DEFAULT_PATH)
         self._usr_manager = usr.Manager(user_path or usr.DEFAULT_PATH)
         self._current_profile = None
         self._profiles = {}
         self.client = rest_client.Client()
         self._profile_name = 'default'
+        self._retry_timeout = retry_timeout
 
         if profile_name:
             self._profile_name = profile_name
@@ -135,7 +139,7 @@ class Client(object):
         keyring.set_password(profile_name, username, password)
         return self._set_current_profile(profile_name, profile)
 
-    def _add(self, asset, data, files=None, timeout=False, exist_ok=False, json_encoding=False):
+    def _add(self, asset, data, files=None, exist_ok=False, json_encoding=False):
         """Add asset."""
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
         files = files or {}
@@ -149,21 +153,22 @@ class Client(object):
 
         return self.client.add(
             asset,
+            retry_timeout=self._retry_timeout,
             exist_ok=exist_ok,
             **requests_kwargs)
 
-    def _add_data_samples(self, data, local=True, timeout=False):
+    def _add_data_samples(self, data, local=True):
         """Create new data sample(s) asset."""
         if not local:
             return self._add(
                 assets.DATA_SAMPLE, data,
-                timeout=timeout, exist_ok=False)
+                exist_ok=False)
         with utils.extract_data_sample_files(data) as (data, files):
             return self._add(
                 assets.DATA_SAMPLE, data,
-                files=files, timeout=timeout, exist_ok=False)
+                files=files, exist_ok=False)
 
-    def add_data_sample(self, data, local=True, timeout=False, exist_ok=False):
+    def add_data_sample(self, data, local=True, exist_ok=False):
         """Create new data sample asset.
 
         `data` is a dict object with the following schema:
@@ -197,8 +202,7 @@ class Client(object):
         if 'path' not in data:
             raise ValueError("data: missing 'path' field")
         try:
-            data_samples = self._add_data_samples(
-                data, local=local, timeout=timeout)
+            data_samples = self._add_data_samples(data, local=local)
         except exceptions.AlreadyExists as e:
             # exist_ok option must be handle separately for data samples as a get action
             # is not allowed on data samples
@@ -211,7 +215,7 @@ class Client(object):
         # datasamples, this route always returned a list of created data sample keys
         return data_samples[0]
 
-    def add_data_samples(self, data, local=True, timeout=False):
+    def add_data_samples(self, data, local=True):
         """Create many data sample assets.
 
         `data` is a dict object with the following schema:
@@ -239,10 +243,9 @@ class Client(object):
             raise ValueError("data: invalid 'path' field")
         if 'paths' not in data:
             raise ValueError("data: missing 'paths' field")
-        return self._add_data_samples(
-            data, local=local, timeout=timeout)
+        return self._add_data_samples(data, local=local)
 
-    def add_dataset(self, data, timeout=False, exist_ok=False):
+    def add_dataset(self, data, exist_ok=False):
         """Create new dataset asset.
 
         `data` is a dict object with the following schema:
@@ -267,15 +270,13 @@ class Client(object):
         data = _update_permissions_field(data)
         attributes = ['data_opener', 'description']
         with utils.extract_files(data, attributes) as (data, files):
-            res = self._add(
-                assets.DATASET, data, files=files, timeout=timeout,
-                exist_ok=exist_ok)
+            res = self._add(assets.DATASET, data, files=files, exist_ok=exist_ok)
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_dataset(get_asset_key(res))
 
-    def add_objective(self, data, timeout=False, exist_ok=False):
+    def add_objective(self, data, exist_ok=False):
         """Create new objective asset.
 
         `data` is a dict object with the following schema:
@@ -301,15 +302,13 @@ class Client(object):
         data = _update_permissions_field(data)
         attributes = ['metrics', 'description']
         with utils.extract_files(data, attributes) as (data, files):
-            res = self._add(
-                assets.OBJECTIVE, data, files=files, timeout=timeout,
-                exist_ok=exist_ok)
+            res = self._add(assets.OBJECTIVE, data, files=files, exist_ok=exist_ok)
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_objective(get_asset_key(res))
 
-    def add_algo(self, data, timeout=False, exist_ok=False):
+    def add_algo(self, data, exist_ok=False):
         """Create new algo asset.
 
         `data` is a dict object with the following schema:
@@ -332,15 +331,13 @@ class Client(object):
         data = _update_permissions_field(data)
         attributes = ['file', 'description']
         with utils.extract_files(data, attributes) as (data, files):
-            res = self._add(
-                assets.ALGO, data, files=files, timeout=timeout,
-                exist_ok=exist_ok)
+            res = self._add(assets.ALGO, data, files=files, exist_ok=exist_ok)
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_algo(get_asset_key(res))
 
-    def add_aggregate_algo(self, data, timeout=False, exist_ok=False):
+    def add_aggregate_algo(self, data, exist_ok=False):
         """Create new aggregate algo asset.
         `data` is a dict object with the following schema:
 ```
@@ -360,15 +357,13 @@ class Client(object):
         data = _update_permissions_field(data)
         attributes = ['file', 'description']
         with utils.extract_files(data, attributes) as (data, files):
-            res = self._add(
-                assets.AGGREGATE_ALGO, data, files=files, timeout=timeout,
-                exist_ok=exist_ok)
+            res = self._add(assets.AGGREGATE_ALGO, data, files=files, exist_ok=exist_ok)
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_aggregate_algo(get_asset_key(res))
 
-    def add_composite_algo(self, data, timeout=False, exist_ok=False):
+    def add_composite_algo(self, data, exist_ok=False):
         """Create new composite algo asset.
         `data` is a dict object with the following schema:
 ```
@@ -388,15 +383,13 @@ class Client(object):
         data = _update_permissions_field(data)
         attributes = ['file', 'description']
         with utils.extract_files(data, attributes) as (data, files):
-            res = self._add(
-                assets.COMPOSITE_ALGO, data, files=files, timeout=timeout,
-                exist_ok=exist_ok)
+            res = self._add(assets.COMPOSITE_ALGO, data, files=files, exist_ok=exist_ok)
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_composite_algo(get_asset_key(res))
 
-    def add_traintuple(self, data, timeout=False, exist_ok=False):
+    def add_traintuple(self, data, exist_ok=False):
         """Create new traintuple asset.
 
         `data` is a dict object with the following schema:
@@ -416,13 +409,13 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        res = self._add(assets.TRAINTUPLE, data, timeout=timeout, exist_ok=exist_ok)
+        res = self._add(assets.TRAINTUPLE, data, exist_ok=exist_ok)
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_traintuple(get_asset_key(res))
 
-    def add_aggregatetuple(self, data, timeout=False, exist_ok=False):
+    def add_aggregatetuple(self, data, exist_ok=False):
         """Create new aggregatetuple asset.
         `data` is a dict object with the following schema:
 ```
@@ -438,14 +431,13 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        res = self._add(assets.AGGREGATETUPLE, data, timeout=timeout,
-                        exist_ok=exist_ok)
+        res = self._add(assets.AGGREGATETUPLE, data, exist_ok=exist_ok)
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_aggregatetuple(get_asset_key(res))
 
-    def add_composite_traintuple(self, data, timeout=False, exist_ok=False):
+    def add_composite_traintuple(self, data, exist_ok=False):
         """Create new composite traintuple asset.
         `data` is a dict object with the following schema:
 ```
@@ -470,13 +462,13 @@ class Client(object):
         existing asset will be returned.
         """
         data = _update_permissions_field(data, permissions_field='out_model_trunk_permissions')
-        res = self._add(assets.COMPOSITE_TRAINTUPLE, data, timeout=timeout, exist_ok=exist_ok)
+        res = self._add(assets.COMPOSITE_TRAINTUPLE, data, exist_ok=exist_ok)
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_composite_traintuple(get_asset_key(res))
 
-    def add_testtuple(self, data, timeout=False, exist_ok=False):
+    def add_testtuple(self, data, exist_ok=False):
         """Create new testtuple asset.
 
         `data` is a dict object with the following schema:
@@ -494,13 +486,13 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        res = self._add(assets.TESTTUPLE, data, timeout=timeout, exist_ok=exist_ok)
+        res = self._add(assets.TESTTUPLE, data, exist_ok=exist_ok)
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_testtuple(get_asset_key(res))
 
-    def add_compute_plan(self, data, timeout=False):
+    def add_compute_plan(self, data):
         """Create compute plan.
 
         Data is a dict object with the following schema:
@@ -548,7 +540,7 @@ class Client(object):
         As specified in the data dict structure, output trunk models of composite
         traintuples cannot be made public.
         """
-        return self._add(assets.COMPUTE_PLAN, data, timeout=timeout, json_encoding=True)
+        return self._add(assets.COMPUTE_PLAN, data, json_encoding=True)
 
     def get_algo(self, algo_key):
         """Get algo by key."""
