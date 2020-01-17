@@ -156,7 +156,7 @@ def parse_filters(filters):
     return 'search=%s' % quote(''.join(filters))
 
 
-def retry_on_exception(exceptions, timeout=False):
+def retry_on_exception(exceptions, timeout=300):
     """Retry function in case of exception(s)."""
     def _retry(f):
         @functools.wraps(f)
