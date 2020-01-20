@@ -135,13 +135,13 @@ class Client():
                 raise exceptions.InternalServerError.from_request_exception(e)
 
             if e.response.status_code in [502, 503, 504]:
-                raise exceptions.GatewayTimeout.from_request_exception(e)
+                raise exceptions.GatewayUnavailable.from_request_exception(e)
 
             raise exceptions.HTTPError.from_request_exception(e)
 
         return r
 
-    @utils.retry_on_exception(exceptions=(exceptions.GatewayTimeout))
+    @utils.retry_on_exception(exceptions=(exceptions.GatewayUnavailable))
     def request(self, request_name, asset_name, path=None, json_response=True,
                 **request_kwargs):
         """Base request."""

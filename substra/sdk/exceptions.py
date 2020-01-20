@@ -58,7 +58,7 @@ class InternalServerError(HTTPError):
     pass
 
 
-class GatewayTimeout(HTTPError):
+class GatewayUnavailable(HTTPError):
     pass
 
 
