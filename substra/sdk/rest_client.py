@@ -11,8 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import logging
+import time
 
 import keyring
 import requests
@@ -85,7 +85,7 @@ class Client():
             'password': keyring.get_password(profile_name, username)
         }
 
-    def _request(self, request_name, url, **request_kwargs):
+    def __request(self, request_name, url, **request_kwargs):
         """Base request helper."""
 
         if request_name == 'get':
@@ -140,6 +140,21 @@ class Client():
             raise exceptions.HTTPError.from_request_exception(e)
 
         return r
+
+    def _request(self, request_name, url, **request_kwargs):
+        """Wrapper to __request to emit a log for each HTTP request."""
+        ts = time.time()
+        error = None
+        try:
+            return self.__request(request_name, url, **request_kwargs)
+        except Exception as e:
+            error = e
+            raise
+        finally:
+            te = time.time()
+            elaps = (te - ts) * 1000
+            error_message = error.__class__.__name__ if error else None
+            logger.debug(f'{request_name} {url}: done in {elaps:.2f}ms error={error_message}')
 
     @utils.retry_on_exception(exceptions=(exceptions.GatewayUnavailable))
     def request(self, request_name, asset_name, path=None, json_response=True,

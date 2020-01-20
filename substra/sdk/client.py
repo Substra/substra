@@ -13,8 +13,10 @@
 # limitations under the License.
 
 from copy import deepcopy
+import functools
 import logging
 import os
+import time
 
 import keyring
 
@@ -25,6 +27,26 @@ from substra.sdk import user as usr
 logger = logging.getLogger(__name__)
 
 DEFAULT_RETRY_TIMEOUT = 5 * 60
+
+
+def logit(f):
+    """Decorator used to log all high-level methods of the Substra client."""
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        logger.debug(f'{f.__name__}: call')
+        ts = time.time()
+        successful = True
+        try:
+            return f(*args, **kwargs)
+        except Exception:
+            successful = False
+            raise
+        finally:
+            # add a log even if the function raises an exception
+            te = time.time()
+            elaps = (te - ts) * 1000
+            logger.info(f'{f.__name__}: done in {elaps:.2f}ms; successful={successful}')
+    return wrapper
 
 
 def get_asset_key(data):
@@ -75,6 +97,7 @@ class Client(object):
         # set current logged user if exists
         self.set_user()
 
+    @logit
     def login(self):
         """Login.
 
@@ -168,6 +191,7 @@ class Client(object):
                 assets.DATA_SAMPLE, data,
                 files=files, exist_ok=False)
 
+    @logit
     def add_data_sample(self, data, local=True, exist_ok=False):
         """Create new data sample asset.
 
@@ -215,6 +239,7 @@ class Client(object):
         # datasamples, this route always returned a list of created data sample keys
         return data_samples[0]
 
+    @logit
     def add_data_samples(self, data, local=True):
         """Create many data sample assets.
 
@@ -245,6 +270,7 @@ class Client(object):
             raise ValueError("data: missing 'paths' field")
         return self._add_data_samples(data, local=local)
 
+    @logit
     def add_dataset(self, data, exist_ok=False):
         """Create new dataset asset.
 
@@ -276,6 +302,7 @@ class Client(object):
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_dataset(get_asset_key(res))
 
+    @logit
     def add_objective(self, data, exist_ok=False):
         """Create new objective asset.
 
@@ -308,6 +335,7 @@ class Client(object):
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_objective(get_asset_key(res))
 
+    @logit
     def add_algo(self, data, exist_ok=False):
         """Create new algo asset.
 
@@ -337,6 +365,7 @@ class Client(object):
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_algo(get_asset_key(res))
 
+    @logit
     def add_aggregate_algo(self, data, exist_ok=False):
         """Create new aggregate algo asset.
         `data` is a dict object with the following schema:
@@ -363,6 +392,7 @@ class Client(object):
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_aggregate_algo(get_asset_key(res))
 
+    @logit
     def add_composite_algo(self, data, exist_ok=False):
         """Create new composite algo asset.
         `data` is a dict object with the following schema:
@@ -389,6 +419,7 @@ class Client(object):
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_composite_algo(get_asset_key(res))
 
+    @logit
     def add_traintuple(self, data, exist_ok=False):
         """Create new traintuple asset.
 
@@ -415,6 +446,7 @@ class Client(object):
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_traintuple(get_asset_key(res))
 
+    @logit
     def add_aggregatetuple(self, data, exist_ok=False):
         """Create new aggregatetuple asset.
         `data` is a dict object with the following schema:
@@ -437,6 +469,7 @@ class Client(object):
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_aggregatetuple(get_asset_key(res))
 
+    @logit
     def add_composite_traintuple(self, data, exist_ok=False):
         """Create new composite traintuple asset.
         `data` is a dict object with the following schema:
@@ -468,6 +501,7 @@ class Client(object):
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_composite_traintuple(get_asset_key(res))
 
+    @logit
     def add_testtuple(self, data, exist_ok=False):
         """Create new testtuple asset.
 
@@ -492,6 +526,7 @@ class Client(object):
         # less data when responding to adds). A second GET request hides the discrepancies.
         return self.get_testtuple(get_asset_key(res))
 
+    @logit
     def add_compute_plan(self, data):
         """Create compute plan.
 
@@ -542,94 +577,117 @@ class Client(object):
         """
         return self._add(assets.COMPUTE_PLAN, data, json_encoding=True)
 
+    @logit
     def get_algo(self, algo_key):
         """Get algo by key."""
         return self.client.get(assets.ALGO, algo_key)
 
+    @logit
     def get_compute_plan(self, compute_plan_key):
         """Get compute plan by key."""
         return self.client.get(assets.COMPUTE_PLAN, compute_plan_key)
 
+    @logit
     def get_aggregate_algo(self, aggregate_algo_key):
         """Get aggregate algo by key."""
         return self.client.get(assets.AGGREGATE_ALGO, aggregate_algo_key)
 
+    @logit
     def get_composite_algo(self, composite_algo_key):
         """Get composite algo by key."""
         return self.client.get(assets.COMPOSITE_ALGO, composite_algo_key)
 
+    @logit
     def get_dataset(self, dataset_key):
         """Get dataset by key."""
         return self.client.get(assets.DATASET, dataset_key)
 
+    @logit
     def get_objective(self, objective_key):
         """Get objective by key."""
         return self.client.get(assets.OBJECTIVE, objective_key)
 
+    @logit
     def get_testtuple(self, testtuple_key):
         """Get testtuple by key."""
         return self.client.get(assets.TESTTUPLE, testtuple_key)
 
+    @logit
     def get_traintuple(self, traintuple_key):
         """Get traintuple by key."""
         return self.client.get(assets.TRAINTUPLE, traintuple_key)
 
+    @logit
     def get_aggregatetuple(self, aggregatetuple_key):
         """Get aggregatetuple by key."""
         return self.client.get(assets.AGGREGATETUPLE, aggregatetuple_key)
 
+    @logit
     def get_composite_traintuple(self, composite_traintuple_key):
         """Get composite traintuple by key."""
         return self.client.get(assets.COMPOSITE_TRAINTUPLE, composite_traintuple_key)
 
+    @logit
     def list_algo(self, filters=None, is_complex=False):
         """List algos."""
         return self.client.list(assets.ALGO, filters=filters)
 
+    @logit
     def list_compute_plan(self, filters=None, is_complex=False):
         """List compute plans."""
         return self.client.list(assets.COMPUTE_PLAN, filters=filters)
 
+    @logit
     def list_aggregate_algo(self, filters=None, is_complex=False):
         """List aggregate algos."""
         return self.client.list(assets.AGGREGATE_ALGO, filters=filters)
 
+    @logit
     def list_composite_algo(self, filters=None, is_complex=False):
         """List composite algos."""
         return self.client.list(assets.COMPOSITE_ALGO, filters=filters)
 
+    @logit
     def list_data_sample(self, filters=None, is_complex=False):
         """List data samples."""
         return self.client.list(assets.DATA_SAMPLE, filters=filters)
 
+    @logit
     def list_dataset(self, filters=None, is_complex=False):
         """List datasets."""
         return self.client.list(assets.DATASET, filters=filters)
 
+    @logit
     def list_objective(self, filters=None, is_complex=False):
         """List objectives."""
         return self.client.list(assets.OBJECTIVE, filters=filters)
 
+    @logit
     def list_testtuple(self, filters=None, is_complex=False):
         """List testtuples."""
         return self.client.list(assets.TESTTUPLE, filters=filters)
 
+    @logit
     def list_traintuple(self, filters=None, is_complex=False):
         """List traintuples."""
         return self.client.list(assets.TRAINTUPLE, filters=filters)
 
+    @logit
     def list_aggregatetuple(self, filters=None, is_complex=False):
         """List aggregatetuples."""
         return self.client.list(assets.AGGREGATETUPLE, filters=filters)
 
+    @logit
     def list_composite_traintuple(self, filters=None, is_complex=False):
         """List composite traintuples."""
         return self.client.list(assets.COMPOSITE_TRAINTUPLE, filters=filters)
 
+    @logit
     def list_node(self, *args, **kwargs):
         """List nodes."""
         return self.client.list(assets.NODE)
 
+    @logit
     def update_dataset(self, dataset_key, data):
         """Update dataset."""
         return self.client.request(
@@ -639,11 +697,13 @@ class Client(object):
             data=data,
         )
 
+    @logit
     def link_dataset_with_objective(self, dataset_key, objective_key):
         """Link dataset with objective."""
         return self.update_dataset(
             dataset_key, {'objective_key': objective_key, })
 
+    @logit
     def link_dataset_with_data_samples(self, dataset_key, data_sample_keys):
         """Link dataset with data samples."""
         data = {
@@ -676,6 +736,7 @@ class Client(object):
                 f.write(chunk)
         return destination_path
 
+    @logit
     def download_dataset(self, asset_key, destination_folder):
         """Download data manager resource.
 
@@ -687,6 +748,7 @@ class Client(object):
         url = data['opener']['storageAddress']
         self._download(url, destination_folder, default_filename)
 
+    @logit
     def download_algo(self, asset_key, destination_folder):
         """Download algo resource.
 
@@ -698,6 +760,7 @@ class Client(object):
         url = data['content']['storageAddress']
         self._download(url, destination_folder, default_filename)
 
+    @logit
     def download_aggregate_algo(self, asset_key, destination_folder):
         """Download aggregate algo resource.
 
@@ -709,6 +772,7 @@ class Client(object):
         url = data['content']['storageAddress']
         self._download(url, destination_folder, default_filename)
 
+    @logit
     def download_composite_algo(self, asset_key, destination_folder):
         """Download composite algo resource.
 
@@ -720,6 +784,7 @@ class Client(object):
         url = data['content']['storageAddress']
         self._download(url, destination_folder, default_filename)
 
+    @logit
     def download_objective(self, asset_key, destination_folder):
         """Download objective resource.
 
@@ -738,31 +803,38 @@ class Client(object):
         r = self.client.get_data(url)
         return r.text
 
+    @logit
     def describe_algo(self, asset_key):
         """Get algo description."""
         return self._describe(assets.ALGO, asset_key)
 
+    @logit
     def describe_aggregate_algo(self, asset_key):
         """Get aggregate algo description."""
         return self._describe(assets.AGGREGATE_ALGO, asset_key)
 
+    @logit
     def describe_composite_algo(self, asset_key):
         """Get composite algo description."""
         return self._describe(assets.COMPOSITE_ALGO, asset_key)
 
+    @logit
     def describe_dataset(self, asset_key):
         """Get dataset description."""
         return self._describe(assets.DATASET, asset_key)
 
+    @logit
     def describe_objective(self, asset_key):
         """Get objective description."""
         return self._describe(assets.OBJECTIVE, asset_key)
 
+    @logit
     def leaderboard(self, objective_key, sort='desc'):
         """Get objective leaderboard"""
         return self.client.request('get', assets.OBJECTIVE, f'{objective_key}/leaderboard',
                                    params={'sort': sort})
 
+    @logit
     def cancel_compute_plan(self, compute_plan_id):
         """Cancel execution of compute plan."""
         return self.client.request(
