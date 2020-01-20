@@ -58,6 +58,10 @@ class InternalServerError(HTTPError):
     pass
 
 
+class GatewayUnavailable(HTTPError):
+    pass
+
+
 class InvalidRequest(HTTPError):
     @classmethod
     def from_request_exception(cls, request_exception):
