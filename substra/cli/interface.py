@@ -15,6 +15,7 @@
 import json
 import functools
 import os
+import logging
 
 import click
 import consolemd
@@ -130,6 +131,22 @@ def click_global_conf_verbose(f):
     )(f)
 
 
+def set_log_level(ctx, param, value):
+    if value:
+        logging.basicConfig(level=getattr(logging, value))
+
+
+def click_global_conf_log_level(f):
+    """Add verbose option to command."""
+    return click.option(
+        '--log-level',
+        type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']),
+        callback=set_log_level,
+        expose_value=False,
+        help='Enable logging and set log level'
+    )(f)
+
+
 def click_global_conf_output_format(f):
     """Add json option to command."""
     flags = [
@@ -167,6 +184,7 @@ def click_global_conf(f):
     f = click_global_conf_user(f)
     f = click_global_conf_profile(f)
     f = click_global_conf_config(f)
+    f = click_global_conf_log_level(f)
     return f
 
 
@@ -265,9 +283,7 @@ def add_profile_to_config(url, config, profile, insecure, version, username, pas
 
 
 @cli.command('login')
-@click_global_conf_config
-@click_global_conf_profile
-@click_global_conf_user
+@click_global_conf
 @click.pass_context
 @error_printer
 def login(ctx):
