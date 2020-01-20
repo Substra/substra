@@ -51,10 +51,14 @@ Usage: substra login [OPTIONS]
   Login to the Substra platform.
 
 Options:
-  --config PATH   Config path (default ~/.substra).
-  --profile TEXT  Profile name to use.
-  --user FILE     User file path to use (default ~/.substra-user).
-  --help          Show this message and exit.
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --user FILE                     User file path to use (default ~/.substra-
+                                  user).
+  --verbose                       Enable verbose mode.
+  --help                          Show this message and exit.
 ```
 
 ## substra add data_sample
@@ -69,15 +73,18 @@ Usage: substra add data_sample [OPTIONS] PATH
   set).
 
 Options:
-  --dataset-key TEXT  [required]
-  --local / --remote  Data sample(s) location.
-  --multiple          Add multiple data samples at once.
-  --test-only         Data sample(s) used as test data only.
-  --config PATH       Config path (default ~/.substra).
-  --profile TEXT      Profile name to use.
-  --user FILE         User file path to use (default ~/.substra-user).
-  --verbose           Enable verbose mode.
-  --help              Show this message and exit.
+  --dataset-key TEXT              [required]
+  --local / --remote              Data sample(s) location.
+  --multiple                      Add multiple data samples at once.
+  --test-only                     Data sample(s) used as test data only.
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --user FILE                     User file path to use (default ~/.substra-
+                                  user).
+  --verbose                       Enable verbose mode.
+  --help                          Show this message and exit.
 ```
 
 ## substra add dataset
@@ -111,14 +118,17 @@ Usage: substra add dataset [OPTIONS] PATH
 
 Options:
   --objective-key TEXT
-  --config PATH         Config path (default ~/.substra).
-  --profile TEXT        Profile name to use.
-  --user FILE           User file path to use (default ~/.substra-user).
-  --verbose             Enable verbose mode.
-  --yaml                Display output as yaml.
-  --json                Display output as json.
-  --pretty              Pretty print output  [default: True]
-  --help                Show this message and exit.
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --user FILE                     User file path to use (default ~/.substra-
+                                  user).
+  --verbose                       Enable verbose mode.
+  --yaml                          Display output as yaml.
+  --json                          Display output as json.
+  --pretty                        Pretty print output  [default: True]
+  --help                          Show this message and exit.
 ```
 
 ## substra add objective
@@ -161,15 +171,18 @@ Usage: substra add objective [OPTIONS] PATH
 
 Options:
   --dataset-key TEXT
-  --data-samples-path FILE  Test data samples.
-  --config PATH             Config path (default ~/.substra).
-  --profile TEXT            Profile name to use.
-  --user FILE               User file path to use (default ~/.substra-user).
-  --verbose                 Enable verbose mode.
-  --yaml                    Display output as yaml.
-  --json                    Display output as json.
-  --pretty                  Pretty print output  [default: True]
-  --help                    Show this message and exit.
+  --data-samples-path FILE        Test data samples.
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --user FILE                     User file path to use (default ~/.substra-
+                                  user).
+  --verbose                       Enable verbose mode.
+  --yaml                          Display output as yaml.
+  --json                          Display output as json.
+  --pretty                        Pretty print output  [default: True]
+  --help                          Show this message and exit.
 ```
 
 ## substra add algo
@@ -199,14 +212,17 @@ Usage: substra add algo [OPTIONS] PATH
   - permissions: define asset access permissions
 
 Options:
-  --config PATH   Config path (default ~/.substra).
-  --profile TEXT  Profile name to use.
-  --user FILE     User file path to use (default ~/.substra-user).
-  --verbose       Enable verbose mode.
-  --yaml          Display output as yaml.
-  --json          Display output as json.
-  --pretty        Pretty print output  [default: True]
-  --help          Show this message and exit.
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --user FILE                     User file path to use (default ~/.substra-
+                                  user).
+  --verbose                       Enable verbose mode.
+  --yaml                          Display output as yaml.
+  --json                          Display output as json.
+  --pretty                        Pretty print output  [default: True]
+  --help                          Show this message and exit.
 ```
 
 ## substra add compute_plan
@@ -255,14 +271,17 @@ Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
   }
 
 Options:
-  --config PATH   Config path (default ~/.substra).
-  --profile TEXT  Profile name to use.
-  --user FILE     User file path to use (default ~/.substra-user).
-  --verbose       Enable verbose mode.
-  --yaml          Display output as yaml.
-  --json          Display output as json.
-  --pretty        Pretty print output  [default: True]
-  --help          Show this message and exit.
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --user FILE                     User file path to use (default ~/.substra-
+                                  user).
+  --verbose                       Enable verbose mode.
+  --yaml                          Display output as yaml.
+  --json                          Display output as json.
+  --pretty                        Pretty print output  [default: True]
+  --help                          Show this message and exit.
 ```
 
 ## substra add aggregate_algo
@@ -292,14 +311,17 @@ Usage: substra add aggregate_algo [OPTIONS] PATH
   - permissions: define asset access permissions
 
 Options:
-  --config PATH   Config path (default ~/.substra).
-  --profile TEXT  Profile name to use.
-  --user FILE     User file path to use (default ~/.substra-user).
-  --verbose       Enable verbose mode.
-  --yaml          Display output as yaml.
-  --json          Display output as json.
-  --pretty        Pretty print output  [default: True]
-  --help          Show this message and exit.
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --user FILE                     User file path to use (default ~/.substra-
+                                  user).
+  --verbose                       Enable verbose mode.
+  --yaml                          Display output as yaml.
+  --json                          Display output as json.
+  --pretty                        Pretty print output  [default: True]
+  --help                          Show this message and exit.
 ```
 
 ## substra add composite_algo
@@ -329,14 +351,17 @@ Usage: substra add composite_algo [OPTIONS] PATH
   - permissions: define asset access permissions
 
 Options:
-  --config PATH   Config path (default ~/.substra).
-  --profile TEXT  Profile name to use.
-  --user FILE     User file path to use (default ~/.substra-user).
-  --verbose       Enable verbose mode.
-  --yaml          Display output as yaml.
-  --json          Display output as json.
-  --pretty        Pretty print output  [default: True]
-  --help          Show this message and exit.
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --user FILE                     User file path to use (default ~/.substra-
+                                  user).
+  --verbose                       Enable verbose mode.
+  --yaml                          Display output as yaml.
+  --json                          Display output as json.
+  --pretty                        Pretty print output  [default: True]
+  --help                          Show this message and exit.
 ```
 
 ## substra add traintuple
@@ -357,19 +382,22 @@ Usage: substra add traintuple [OPTIONS]
   - keys: list of data sample keys
 
 Options:
-  --algo-key TEXT           [required]
-  --dataset-key TEXT        [required]
-  --data-samples-path FILE  [required]
-  --in-model-key TEXT       In model traintuple key.
+  --algo-key TEXT                 [required]
+  --dataset-key TEXT              [required]
+  --data-samples-path FILE        [required]
+  --in-model-key TEXT             In model traintuple key.
   --tag TEXT
-  --config PATH             Config path (default ~/.substra).
-  --profile TEXT            Profile name to use.
-  --user FILE               User file path to use (default ~/.substra-user).
-  --verbose                 Enable verbose mode.
-  --yaml                    Display output as yaml.
-  --json                    Display output as json.
-  --pretty                  Pretty print output  [default: True]
-  --help                    Show this message and exit.
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --user FILE                     User file path to use (default ~/.substra-
+                                  user).
+  --verbose                       Enable verbose mode.
+  --yaml                          Display output as yaml.
+  --json                          Display output as json.
+  --pretty                        Pretty print output  [default: True]
+  --help                          Show this message and exit.
 ```
 
 ## substra add aggregatetuple
@@ -380,19 +408,22 @@ Usage: substra add aggregatetuple [OPTIONS]
   Add aggregatetuple.
 
 Options:
-  --algo-key TEXT      [required]
-  --in-model-key TEXT  In model traintuple key.
-  --worker TEXT        Node ID for worker execution.  [required]
+  --algo-key TEXT                 [required]
+  --in-model-key TEXT             In model traintuple key.
+  --worker TEXT                   Node ID for worker execution.  [required]
   --rank INTEGER
   --tag TEXT
-  --config PATH        Config path (default ~/.substra).
-  --profile TEXT       Profile name to use.
-  --user FILE          User file path to use (default ~/.substra-user).
-  --verbose            Enable verbose mode.
-  --yaml               Display output as yaml.
-  --json               Display output as json.
-  --pretty             Pretty print output  [default: True]
-  --help               Show this message and exit.
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --user FILE                     User file path to use (default ~/.substra-
+                                  user).
+  --verbose                       Enable verbose mode.
+  --yaml                          Display output as yaml.
+  --json                          Display output as json.
+  --pretty                        Pretty print output  [default: True]
+  --help                          Show this message and exit.
 ```
 
 ## substra add composite_traintuple
@@ -428,6 +459,8 @@ Options:
   --out-trunk-model-permissions-path FILE
                                   Load a permissions file.
   --tag TEXT
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
@@ -457,19 +490,22 @@ Usage: substra add testtuple [OPTIONS]
   - keys: list of data sample keys
 
 Options:
-  --objective-key TEXT      [required]
+  --objective-key TEXT            [required]
   --dataset-key TEXT
-  --traintuple-key TEXT     [required]
+  --traintuple-key TEXT           [required]
   --data-samples-path FILE
   --tag TEXT
-  --config PATH             Config path (default ~/.substra).
-  --profile TEXT            Profile name to use.
-  --user FILE               User file path to use (default ~/.substra-user).
-  --verbose                 Enable verbose mode.
-  --yaml                    Display output as yaml.
-  --json                    Display output as json.
-  --pretty                  Pretty print output  [default: True]
-  --help                    Show this message and exit.
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --user FILE                     User file path to use (default ~/.substra-
+                                  user).
+  --verbose                       Enable verbose mode.
+  --yaml                          Display output as yaml.
+  --json                          Display output as json.
+  --pretty                        Pretty print output  [default: True]
+  --help                          Show this message and exit.
 ```
 
 ## substra get
@@ -482,15 +518,18 @@ Usage: substra get [OPTIONS] [algo|compute_plan|composite_algo|aggregate_algo|
   Get asset definition.
 
 Options:
-  --expand        Display associated assets details
-  --config PATH   Config path (default ~/.substra).
-  --profile TEXT  Profile name to use.
-  --user FILE     User file path to use (default ~/.substra-user).
-  --verbose       Enable verbose mode.
-  --yaml          Display output as yaml.
-  --json          Display output as json.
-  --pretty        Pretty print output  [default: True]
-  --help          Show this message and exit.
+  --expand                        Display associated assets details
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --user FILE                     User file path to use (default ~/.substra-
+                                  user).
+  --verbose                       Enable verbose mode.
+  --yaml                          Display output as yaml.
+  --json                          Display output as json.
+  --pretty                        Pretty print output  [default: True]
+  --help                          Show this message and exit.
 ```
 
 ## substra list
@@ -503,26 +542,30 @@ Usage: substra list [OPTIONS] [algo|compute_plan|composite_algo|aggregate_algo
   List assets.
 
 Options:
-  -f, --filter TEXT        Only display assets that exactly match this filter.
-                           Valid syntax is: <asset>:<property>:<value>
-  --and                    Combine filters using logical ANDs
-  --or                     Combine filters using logical ORs
-  --advanced-filters TEXT  Filter results using a complex search (must be a
-                           JSON array of valid filters). Incompatible with the
-                           --filter option
-  --is-complex             When using filters using 'OR', the server will
-                           return a list of matching assets for each operand.
-                           By default these lists are merged into a single
-                           list. When set, this option disables the lists
-                           aggregation.
-  --config PATH            Config path (default ~/.substra).
-  --profile TEXT           Profile name to use.
-  --user FILE              User file path to use (default ~/.substra-user).
-  --verbose                Enable verbose mode.
-  --yaml                   Display output as yaml.
-  --json                   Display output as json.
-  --pretty                 Pretty print output  [default: True]
-  --help                   Show this message and exit.
+  -f, --filter TEXT               Only display assets that exactly match this
+                                  filter. Valid syntax is:
+                                  <asset>:<property>:<value>
+  --and                           Combine filters using logical ANDs
+  --or                            Combine filters using logical ORs
+  --advanced-filters TEXT         Filter results using a complex search (must
+                                  be a JSON array of valid filters).
+                                  Incompatible with the --filter option
+  --is-complex                    When using filters using 'OR', the server
+                                  will return a list of matching assets for
+                                  each operand. By default these lists are
+                                  merged into a single list. When set, this
+                                  option disables the lists aggregation.
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --user FILE                     User file path to use (default ~/.substra-
+                                  user).
+  --verbose                       Enable verbose mode.
+  --yaml                          Display output as yaml.
+  --json                          Display output as json.
+  --pretty                        Pretty print output  [default: True]
+  --help                          Show this message and exit.
 ```
 
 ## substra describe
@@ -535,11 +578,14 @@ Usage: substra describe [OPTIONS]
   Display asset description.
 
 Options:
-  --config PATH   Config path (default ~/.substra).
-  --profile TEXT  Profile name to use.
-  --user FILE     User file path to use (default ~/.substra-user).
-  --verbose       Enable verbose mode.
-  --help          Show this message and exit.
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --user FILE                     User file path to use (default ~/.substra-
+                                  user).
+  --verbose                       Enable verbose mode.
+  --help                          Show this message and exit.
 ```
 
 ## substra download
@@ -556,12 +602,15 @@ Usage: substra download [OPTIONS]
   - objective: the metrics and its dependencies
 
 Options:
-  --folder PATH   destination folder
-  --config PATH   Config path (default ~/.substra).
-  --profile TEXT  Profile name to use.
-  --user FILE     User file path to use (default ~/.substra-user).
-  --verbose       Enable verbose mode.
-  --help          Show this message and exit.
+  --folder PATH                   destination folder
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --user FILE                     User file path to use (default ~/.substra-
+                                  user).
+  --verbose                       Enable verbose mode.
+  --help                          Show this message and exit.
 ```
 
 ## substra leaderboard
@@ -572,17 +621,20 @@ Usage: substra leaderboard [OPTIONS] OBJECTIVE_KEY
   Display objective leaderboard
 
 Options:
-  --expand           Display associated assets details
-  --sort [asc|desc]  Sort models by highest to lowest perf or vice versa
-                     [default: desc]
-  --config PATH      Config path (default ~/.substra).
-  --profile TEXT     Profile name to use.
-  --user FILE        User file path to use (default ~/.substra-user).
-  --verbose          Enable verbose mode.
-  --yaml             Display output as yaml.
-  --json             Display output as json.
-  --pretty           Pretty print output  [default: True]
-  --help             Show this message and exit.
+  --expand                        Display associated assets details
+  --sort [asc|desc]               Sort models by highest to lowest perf or
+                                  vice versa  [default: desc]
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --user FILE                     User file path to use (default ~/.substra-
+                                  user).
+  --verbose                       Enable verbose mode.
+  --yaml                          Display output as yaml.
+  --json                          Display output as json.
+  --pretty                        Pretty print output  [default: True]
+  --help                          Show this message and exit.
 ```
 
 ## substra run-local
@@ -637,14 +689,17 @@ Usage: substra cancel compute_plan [OPTIONS] COMPUTE_PLAN_ID
   Cancel execution of a compute plan.
 
 Options:
-  --config PATH   Config path (default ~/.substra).
-  --profile TEXT  Profile name to use.
-  --user FILE     User file path to use (default ~/.substra-user).
-  --verbose       Enable verbose mode.
-  --yaml          Display output as yaml.
-  --json          Display output as json.
-  --pretty        Pretty print output  [default: True]
-  --help          Show this message and exit.
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --user FILE                     User file path to use (default ~/.substra-
+                                  user).
+  --verbose                       Enable verbose mode.
+  --yaml                          Display output as yaml.
+  --json                          Display output as json.
+  --pretty                        Pretty print output  [default: True]
+  --help                          Show this message and exit.
 ```
 
 ## substra update data_sample
@@ -665,12 +720,15 @@ Usage: substra update data_sample [OPTIONS] DATA_SAMPLES_PATH
   - keys: list of data sample keys
 
 Options:
-  --dataset-key TEXT  [required]
-  --config PATH       Config path (default ~/.substra).
-  --profile TEXT      Profile name to use.
-  --user FILE         User file path to use (default ~/.substra-user).
-  --verbose           Enable verbose mode.
-  --help              Show this message and exit.
+  --dataset-key TEXT              [required]
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --user FILE                     User file path to use (default ~/.substra-
+                                  user).
+  --verbose                       Enable verbose mode.
+  --help                          Show this message and exit.
 ```
 
 ## substra update dataset
@@ -681,10 +739,13 @@ Usage: substra update dataset [OPTIONS] DATASET_KEY OBJECTIVE_KEY
   Link dataset with objective.
 
 Options:
-  --config PATH   Config path (default ~/.substra).
-  --profile TEXT  Profile name to use.
-  --user FILE     User file path to use (default ~/.substra-user).
-  --verbose       Enable verbose mode.
-  --help          Show this message and exit.
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --user FILE                     User file path to use (default ~/.substra-
+                                  user).
+  --verbose                       Enable verbose mode.
+  --help                          Show this message and exit.
 ```
 

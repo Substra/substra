@@ -1,10 +1,7 @@
 import json
-import logging
 import os
 
 from substra.sdk import exceptions
-
-logger = logging.getLogger(__name__)
 
 DEFAULT_PATH = os.path.expanduser('~/.substra-user')
 
@@ -39,7 +36,6 @@ class Manager():
     def load_user(self):
         """Load user from user file on disk.
         """
-        logger.debug(f"Loading user from '{self.path}'")
         return _read_user(self.path)
 
     def _write_user(self, path, user):
