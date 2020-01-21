@@ -224,13 +224,13 @@ class Client():
             )
 
         except exceptions.RequestTimeout as e:
-            logger.warning(
-                'Request timeout, blocking till asset is created')
             key = e.pkhash
             is_many = isinstance(key, list)  # timeout on many objects is not handled
             if not retry_timeout or is_many:
                 raise e
 
+            logger.warning(
+                f'Request timeout, blocking till {name} is created: key={key}')
             retry = utils.retry_on_exception(
                 exceptions=(exceptions.NotFound),
                 timeout=float(retry_timeout),
