@@ -235,7 +235,7 @@ def test_command_add_composite_traintuple_missing_model_key(mocker, workdir, par
 ])
 def test_command_add_aggregatetuple(mocker, workdir, params):
     m = mock_client_call(mocker, 'add_aggregatetuple', response={})
-    client_execute(workdir, ['add', 'aggregatetuple', '--objective-key', 'foo', '--algo-key', 'foo',
+    client_execute(workdir, ['add', 'aggregatetuple', '--algo-key', 'foo',
                              '--in-model-key', 'foo'] + params + ['--worker', 'foo'])
     assert m.is_called()
 
