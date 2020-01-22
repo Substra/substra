@@ -109,13 +109,10 @@ def test_add_data_sample_already_exists(client, data_sample_query, mocker):
     m.assert_called()
 
 
-def test_add_data_sample_with_paths(client, data_samples_query, mocker):
-    server_response = [{"key": "42"}]
-    m = mock_requests(mocker, "post", response=server_response)
+# We try to add multiple data samples instead of a single one
+def test_add_data_sample_with_paths(client, data_samples_query):
     with pytest.raises(ValueError):
         client.add_data_sample(data_samples_query)
-
-    assert m.is_called()
 
 
 def test_add_data_samples(client, data_samples_query, mocker):
@@ -127,10 +124,7 @@ def test_add_data_samples(client, data_samples_query, mocker):
     m.assert_called()
 
 
-def test_add_data_samples_with_path(client, data_sample_query, mocker):
-    server_response = [{"key": "42"}]
-    m = mock_requests(mocker, "post", response=server_response)
+# We try to add a single data sample instead of multiple ones
+def test_add_data_samples_with_path(client, data_sample_query):
     with pytest.raises(ValueError):
         client.add_data_samples(data_sample_query)
-
-    assert m.is_called()
