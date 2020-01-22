@@ -148,13 +148,12 @@ class Client():
         try:
             return self.__request(request_name, url, **request_kwargs)
         except Exception as e:
-            error = e
+            error = e.__class__.__name__
             raise
         finally:
             te = time.time()
             elaps = (te - ts) * 1000
-            error_message = error.__class__.__name__ if error else None
-            logger.debug(f'{request_name} {url}: done in {elaps:.2f}ms error={error_message}')
+            logger.debug(f'{request_name} {url}: done in {elaps:.2f}ms error={error}')
 
     @utils.retry_on_exception(exceptions=(exceptions.GatewayUnavailable))
     def request(self, request_name, asset_name, path=None, json_response=True,
@@ -224,13 +223,13 @@ class Client():
             )
 
         except exceptions.RequestTimeout as e:
-            logger.warning(
-                'Request timeout, blocking till asset is created')
             key = e.pkhash
             is_many = isinstance(key, list)  # timeout on many objects is not handled
             if not retry_timeout or is_many:
                 raise e
 
+            logger.warning(
+                f'Request timeout, blocking till {name} is created: key={key}')
             retry = utils.retry_on_exception(
                 exceptions=(exceptions.NotFound),
                 timeout=float(retry_timeout),
