@@ -116,6 +116,16 @@ class CurrentNodeField(Field):
         return ''
 
 
+class MappingField(Field):
+    def get_value(self, item, expand=False):
+        mapping = super().get_value(item, False)
+        value = [
+            f'{key}:{mapping[key]}'
+            for key in mapping.keys()
+        ]
+        return value
+
+
 class BasePrinter:
     @staticmethod
     def _get_columns(items, fields):
@@ -251,6 +261,14 @@ class ComputePlanPrinter(AssetPrinter):
         Field('Status', 'status'),
     )
 
+    keys_to_ids_mapping_field = MappingField('Keys to IDs mapping', 'keysToIDsMapping')
+
+    def print_details(self, item, fields, expand):
+        if 'keysToIDsMapping' in item:
+            fields = fields + (self.keys_to_ids_mapping_field, )
+
+        super().print_details(item, fields, expand)
+
     def print_messages(self, item, profile=None):
         key_value = self.key_field.get_value(item)
         profile_arg = self.get_profile_arg(profile)
@@ -269,6 +287,12 @@ class ComputePlanPrinter(AssetPrinter):
         print('\nDisplay this compute_plan\'s testtuples:')
         print(f'\tsubstra list testtuple'
               f' -f "testtuple:computePlanID:{key_value}" {profile_arg}')
+
+        try:
+            keys_to_ids_mapping_file = item['keys_to_ids_mapping_file']
+            print(f'\nKeys to IDs mapping has been saved to {keys_to_ids_mapping_file}')
+        except KeyError:
+            pass
 
 
 class AlgoPrinter(BaseAlgoPrinter):

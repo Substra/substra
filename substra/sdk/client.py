@@ -17,6 +17,8 @@ import functools
 import logging
 import os
 import time
+import json
+import tempfile
 
 import keyring
 
@@ -76,6 +78,19 @@ def _update_permissions_field(data, permissions_field='permissions'):
     #     same request
     data = _flatten_permissions(data, field_name=permissions_field)
     return data
+
+
+def _dump_compute_plan_mapping_to_file(compute_plan):
+    compute_plan_id = compute_plan['computePlanID']
+    keys_to_ids_mapping = compute_plan['keysToIDsMapping']
+
+    with tempfile.NamedTemporaryFile(prefix=f'compute_plan_{compute_plan_id}',
+                                     suffix='.json',
+                                     mode='w',
+                                     delete=False) as f:
+        compute_plan['keys_to_ids_mapping_file'] = f.name
+        json.dump(keys_to_ids_mapping, f, indent=4)
+    return compute_plan
 
 
 class Client(object):
@@ -575,7 +590,9 @@ class Client(object):
         As specified in the data dict structure, output trunk models of composite
         traintuples cannot be made public.
         """
-        return self._add(assets.COMPUTE_PLAN, data, json_encoding=True)
+        compute_plan = self._add(assets.COMPUTE_PLAN, data, json_encoding=True)
+        compute_plan = _dump_compute_plan_mapping_to_file(compute_plan)
+        return compute_plan
 
     @logit
     def get_algo(self, algo_key):
@@ -696,6 +713,76 @@ class Client(object):
             path=f"{dataset_key}/update_ledger/",
             data=data,
         )
+
+    @logit
+    def update_compute_plan(self, compute_plan_id, data):
+        """Update compute plan.
+
+        Data is a dict object with the following schema:
+
+```
+        {
+            "traintuples": list[{
+                "algo_key": str,
+                "data_manager_key": str,
+                "train_data_sample_keys": list[str],
+                "traintuple_id": str,
+                "in_models_ids": list[str],
+                "in_models_keys": list[str],
+                "tag": str,
+            }],
+            "composite_traintuples": list[{
+                "algo_key": str,
+                "data_manager_key": str,
+                "train_data_sample_keys": list[str],
+                "in_head_model_id": str,
+                "in_head_model_key": str,
+                "in_trunk_model_id": str,
+                "in_trunk_model_key": str,
+                "out_trunk_model_permissions": {
+                    "authorized_ids": list[str],
+                },
+                "tag": str,
+            }]
+            "aggregatetuples": list[{
+                "algo_key": str,
+                "worker": str,
+                "in_models_ids": list[str],
+                "in_models_keys": list[str],
+                "tag": str,
+            }],
+            "testtuples": list[{
+                "objective_key": str,
+                "data_manager_key": str,
+                "test_data_sample_keys": list[str],
+                "testtuple_id": str,
+                "traintuple_id": str,
+                "traintuple_key": str,
+                "tag": str,
+            }]
+        }
+```
+
+        Where:
+
+        * traintuples and aggregatetuples `in_models_ids` and `in_models_keys` can be specified
+          together
+        * composite traintuples `in_head_model_id` and `in_head_model_key` are mutually exclusive
+        * composite traintuples `in_trunk_model_id` and `in_trunk_model_key` are mutually exclusive
+        * testtuples `traintuple_id` and `traintuple_key` are mutually exclusive
+
+        As specified in the data dict structure, output trunk models of composite
+        traintuples cannot be made public.
+
+        """
+        compute_plan = self.client.request(
+            'post',
+            assets.COMPUTE_PLAN,
+            path=f"{compute_plan_id}/update_ledger/",
+            data=data,
+        )
+        compute_plan = _dump_compute_plan_mapping_to_file(compute_plan)
+        return compute_plan
 
     @logit
     def link_dataset_with_objective(self, dataset_key, objective_key):
