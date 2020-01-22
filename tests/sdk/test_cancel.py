@@ -22,4 +22,4 @@ def test_cancel_compute_plan(client, mocker):
     response = client.cancel_compute_plan("magic-key")
 
     assert response == datastore.COMPUTE_PLAN
-    assert m.is_called()
+    m.assert_called()

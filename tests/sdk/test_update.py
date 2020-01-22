@@ -25,4 +25,4 @@ def test_update_dataset(client, mocker):
         {'objective_key': 'an another key', })
 
     assert response == item
-    assert m.is_called()
+    m.assert_called()

@@ -39,7 +39,7 @@ def test_list_asset(asset_name, client, mocker):
     response = method()
 
     assert response == [item]
-    assert m.is_called()
+    m.assert_called()
 
 
 def test_list_asset_flatten(client, mocker):
@@ -49,7 +49,7 @@ def test_list_asset_flatten(client, mocker):
     response = client.list_algo()
 
     assert response == items
-    assert m.is_called()
+    m.assert_called()
 
 
 def test_list_asset_with_filters(client, mocker):
@@ -60,7 +60,7 @@ def test_list_asset_with_filters(client, mocker):
     response = client.list_algo(filters)
 
     assert response == items
-    assert m.is_called()
+    m.assert_called()
 
 
 def test_list_asset_with_filters_failure(client, mocker):
@@ -71,5 +71,5 @@ def test_list_asset_with_filters_failure(client, mocker):
     with pytest.raises(ValueError) as exc_info:
         client.list_algo(filters)
 
-    assert m.is_called()
+    m.assert_not_called()
     assert str(exc_info.value).startswith("Cannot load filters")

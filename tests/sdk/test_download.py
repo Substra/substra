@@ -44,7 +44,7 @@ def test_download_asset(asset_name, filename, tmp_path, client, mocker):
 
     temp_file = str(tmp_path) + '/' + filename
     assert os.path.exists(temp_file)
-    assert m.is_called()
+    m.assert_called()
 
 
 @pytest.mark.parametrize(
