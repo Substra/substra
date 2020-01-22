@@ -1111,5 +1111,61 @@ def update_dataset(ctx, dataset_key, objective_key):
     display(res)
 
 
+@update.command('compute_plan')
+@click.argument('compute_plan_id', type=click.STRING)
+@click.argument('tuples', type=click.Path(exists=True, dir_okay=False),
+                callback=load_json_from_path, metavar="TUPLES_PATH")
+@click_global_conf_with_output_format
+@click.pass_context
+@error_printer
+def update_compute_plan(ctx, compute_plan_id, tuples):
+    """Update compute plan.
+
+    The tuples path must point to a valid JSON file with the following schema:
+
+    \b
+    {
+        "traintuples": list[{
+            "algo_key": str,
+            "data_manager_key": str,
+            "train_data_sample_keys": list[str],
+            "traintuple_id": str,
+            "in_models_ids": list[str],
+            "tag": str,
+        }],
+        "composite_traintuples": list[{
+            "algo_key": str,
+            "data_manager_key": str,
+            "train_data_sample_keys": list[str],
+            "in_head_model_id": str,
+            "in_trunk_model_id": str,
+            "out_trunk_model_permissions": {
+                "authorized_ids": list[str],
+            },
+            "tag": str,
+        }]
+        "aggregatetuples": list[{
+            "algo_key": str,
+            "worker": str,
+            "in_models_ids": list[str],
+            "tag": str,
+        }],
+        "testtuples": list[{
+            "objective_key": str,
+            "data_manager_key": str,
+            "test_data_sample_keys": list[str],
+            "testtuple_id": str,
+            "traintuple_id": str,
+            "tag": str,
+        }]
+    }
+
+    """
+    client = get_client(ctx.obj)
+    res = client.update_compute_plan(compute_plan_id, tuples)
+    printer = printers.get_asset_printer(assets.COMPUTE_PLAN, ctx.obj.output_format)
+    printer.print(res, is_list=False)
+
+
 if __name__ == '__main__':
     cli()

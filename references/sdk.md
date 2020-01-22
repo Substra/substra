@@ -460,6 +460,58 @@ List nodes.
 Client.update_dataset(self, dataset_key, data)
 ```
 Update dataset.
+## update_compute_plan
+```python
+Client.update_compute_plan(self, compute_plan_id, data)
+```
+Update compute plan.
+
+Data is a dict object with the following schema:
+
+```
+{
+    "traintuples": list[{
+        "traintuple_id": str,
+        "algo_key": str,
+        "data_manager_key": str,
+        "train_data_sample_keys": list[str],
+        "in_models_ids": list[str],
+        "tag": str,
+    }],
+    "composite_traintuples": list[{
+        "composite_traintuple_id": str,
+        "algo_key": str,
+        "data_manager_key": str,
+        "train_data_sample_keys": list[str],
+        "in_head_model_id": str,
+        "in_trunk_model_id": str,
+        "out_trunk_model_permissions": {
+            "authorized_ids": list[str],
+        },
+        "tag": str,
+    }]
+    "aggregatetuples": list[{
+        "aggregatetuple_id": str,
+        "algo_key": str,
+        "worker": str,
+        "in_models_ids": list[str],
+        "tag": str,
+    }],
+    "testtuples": list[{
+        "objective_key": str,
+        "data_manager_key": str,
+        "test_data_sample_keys": list[str],
+        "testtuple_id": str,
+        "traintuple_id": str,
+        "tag": str,
+    }]
+}
+```
+
+As specified in the data dict structure, output trunk models of composite
+traintuples cannot be made public.
+
+
 ## link_dataset_with_objective
 ```python
 Client.link_dataset_with_objective(self, dataset_key, objective_key)

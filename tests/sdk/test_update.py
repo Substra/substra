@@ -26,3 +26,13 @@ def test_update_dataset(client, mocker):
 
     assert response == item
     m.assert_called()
+
+
+def test_update_compute_plan(client, mocker):
+    item = datastore.COMPUTE_PLAN
+    m = mock_requests(mocker, "post", response=item)
+
+    response = client.update_compute_plan('foo', {})
+
+    assert response == item
+    m.assert_called
