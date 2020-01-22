@@ -35,17 +35,17 @@ def logit(f):
     def wrapper(*args, **kwargs):
         logger.debug(f'{f.__name__}: call')
         ts = time.time()
-        successful = True
+        error = None
         try:
             return f(*args, **kwargs)
-        except Exception:
-            successful = False
+        except Exception as e:
+            error = e.__class__.__name__
             raise
         finally:
             # add a log even if the function raises an exception
             te = time.time()
             elaps = (te - ts) * 1000
-            logger.info(f'{f.__name__}: done in {elaps:.2f}ms; successful={successful}')
+            logger.info(f'{f.__name__}: done in {elaps:.2f}ms; error={error}')
     return wrapper
 
 

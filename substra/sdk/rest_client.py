@@ -148,13 +148,12 @@ class Client():
         try:
             return self.__request(request_name, url, **request_kwargs)
         except Exception as e:
-            error = e
+            error = e.__class__.__name__
             raise
         finally:
             te = time.time()
             elaps = (te - ts) * 1000
-            error_message = error.__class__.__name__ if error else None
-            logger.debug(f'{request_name} {url}: done in {elaps:.2f}ms error={error_message}')
+            logger.debug(f'{request_name} {url}: done in {elaps:.2f}ms error={error}')
 
     @utils.retry_on_exception(exceptions=(exceptions.GatewayUnavailable))
     def request(self, request_name, asset_name, path=None, json_response=True,
