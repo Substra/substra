@@ -197,20 +197,32 @@ def test_command_add_objective(workdir, mocker):
     assert re.search(r'File ".*" is not a valid JSON file\.', res)
 
 
-@pytest.mark.parametrize('params,message,exit_code', [
-    ([], r'', 0),
-    (['--head-model-key', 'e', '--trunk-model-key', 'e'], r'', 0),
-    (['--head-model-key', 'e'], r'The --trunk-model-key option is required', 2),
-    (['--trunk-model-key', 'e'], r'The --head-model-key option is required', 2)
+@pytest.mark.parametrize('params', [
+    ([]),
+    (['--head-model-key', 'e', '--trunk-model-key', 'e'])
 ])
-def test_command_add_composite_traintuple(mocker, workdir, params, message, exit_code):
-    with mock_client_call(mocker, 'add_composite_traintuple', response={}):
-        json_file = workdir / "valid_json_file.json"
-        json_file.write_text(json.dumps({}))
-        res = client_execute(workdir, ['add', 'composite_traintuple',
-                                       '--algo-key', 'foo', '--dataset-key', 'foo'] + params +
-                             ['--data-samples-path', str(json_file)], exit_code=exit_code)
-        assert re.search(message, res)
+def test_command_add_composite_traintuple(mocker, workdir, params):
+    m = mock_client_call(mocker, 'add_composite_traintuple', response={})
+    json_file = workdir / "valid_json_file.json"
+    json_file.write_text(json.dumps({}))
+    client_execute(workdir, ['add', 'composite_traintuple', '--algo-key', 'foo', '--dataset-key',
+                             'foo'] + params + ['--data-samples-path', str(json_file)])
+    m.assert_called()
+
+
+@pytest.mark.parametrize('params,message', [
+    (['--head-model-key', 'e'], r'The --trunk-model-key option is required'),
+    (['--trunk-model-key', 'e'], r'The --head-model-key option is required')
+])
+def test_command_add_composite_traintuple_missing_model_key(mocker, workdir, params, message):
+    m = mock_client_call(mocker, 'add_composite_traintuple', response={})
+    json_file = workdir / "valid_json_file.json"
+    json_file.write_text(json.dumps({}))
+    res = client_execute(workdir, ['add', 'composite_traintuple', '--algo-key', 'foo',
+                                   '--dataset-key', 'foo', '--data-samples-path', str(json_file)]
+                         + params, exit_code=2)
+    assert re.search(message, res)
+    m.assert_not_called()
 
 
 def test_command_add_testtuple_no_data_samples(mocker, workdir):
