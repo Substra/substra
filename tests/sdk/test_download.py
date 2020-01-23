@@ -18,7 +18,7 @@ import os
 import substra
 
 from .. import datastore
-from .utils import mock_requests, mock_requests_response
+from .utils import mock_requests, mock_response
 
 
 @pytest.mark.parametrize(
@@ -32,9 +32,9 @@ from .utils import mock_requests, mock_requests_response
 )
 def test_download_asset(asset_name, filename, tmp_path, client, mocker):
     item = getattr(datastore, asset_name.upper())
-    asset_response = mock_requests_response(item)
+    asset_response = mock_response(item)
 
-    description_response = mock_requests_response('foo')
+    description_response = mock_response('foo')
 
     m = mocker.patch('substra.sdk.rest_client.requests.get',
                      side_effect=[asset_response, description_response])
@@ -65,9 +65,9 @@ def test_download_asset_not_found(asset_name, tmp_path, client, mocker):
 )
 def test_download_content_not_found(asset_name, tmp_path, client, mocker):
     item = getattr(datastore, asset_name.upper())
-    asset_response = mock_requests_response(item)
+    asset_response = mock_response(item)
 
-    description_response = mock_requests_response('foo', status=404)
+    description_response = mock_response('foo', status=404)
 
     m = mocker.patch('substra.sdk.rest_client.requests.get',
                      side_effect=[asset_response, description_response])

@@ -17,7 +17,7 @@ import requests
 
 from substra.sdk import rest_client, exceptions
 
-from .utils import mock_requests
+from .utils import mock_response, mock_requests, mock_requests_responses
 
 
 CONFIG = {
@@ -90,11 +90,13 @@ def test_request_connection_error(mocker):
 
 def test_add_timeout_with_retry(mocker):
     asset_name = "traintuple"
-    m_post = mock_requests(mocker, "post", response={"pkhash": "a-key"}, status=408)
-    m_get = mock_requests(mocker, "get", response={"pkhash": "a-key"})
+    responses = [
+        mock_response(response={"pkhash": "a-key"}, status=408),
+        mock_response(response={"pkhash": "a-key"}),
+    ]
+    m_post = mock_requests_responses(mocker, "post", responses)
     asset = rest_client.Client(CONFIG).add(asset_name, retry_timeout=60)
-    assert len(m_post.call_args_list) == 1
-    assert len(m_get.call_args_list) == 1
+    assert len(m_post.call_args_list) == 2
     assert asset == {"pkhash": "a-key"}
 
 
