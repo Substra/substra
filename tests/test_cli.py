@@ -215,14 +215,12 @@ def test_command_add_composite_traintuple(mocker, workdir, params):
     (['--trunk-model-key', 'e'], r'The --head-model-key option is required')
 ])
 def test_command_add_composite_traintuple_missing_model_key(mocker, workdir, params, message):
-    m = mock_client_call(mocker, 'add_composite_traintuple', response={})
     json_file = workdir / "valid_json_file.json"
     json_file.write_text(json.dumps({}))
     res = client_execute(workdir, ['add', 'composite_traintuple', '--algo-key', 'foo',
                                    '--dataset-key', 'foo', '--data-samples-path', str(json_file)]
                          + params, exit_code=2)
     assert re.search(message, res)
-    m.assert_not_called()
 
 
 def test_command_add_testtuple_no_data_samples(mocker, workdir):
