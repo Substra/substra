@@ -36,7 +36,7 @@ def test_describe_asset(asset_name, client, mocker):
     response = method("magic-key")
 
     assert response == 'foo'
-    assert m.is_called()
+    m.assert_called()
 
 
 @pytest.mark.parametrize(

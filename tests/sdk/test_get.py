@@ -40,7 +40,7 @@ def test_get_asset(asset_name, client, mocker):
     response = method("magic-key")
 
     assert response == item
-    assert m.is_called()
+    m.assert_called()
 
 
 def test_get_asset_not_found(client, mocker):

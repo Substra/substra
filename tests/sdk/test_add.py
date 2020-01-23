@@ -25,8 +25,8 @@ def test_add_dataset(client, dataset_query, mocker):
     response = client.add_dataset(dataset_query)
 
     assert response == datastore.DATASET
-    assert m_post.is_called()
-    assert m_get.is_called()
+    m_post.assert_called()
+    m_get.assert_called()
 
 
 def test_add_dataset_invalid_args(client, dataset_query, mocker):
@@ -59,8 +59,8 @@ def test_add_objective(client, objective_query, mocker):
     response = client.add_objective(objective_query)
 
     assert response == datastore.OBJECTIVE
-    assert m_post.is_called()
-    assert m_get.is_called()
+    m_post.assert_called()
+    m_get.assert_called()
 
 
 def test_add_algo(client, algo_query, mocker):
@@ -69,8 +69,8 @@ def test_add_algo(client, algo_query, mocker):
     response = client.add_algo(algo_query)
 
     assert response == datastore.ALGO
-    assert m_post.is_called()
-    assert m_get.is_called()
+    m_post.assert_called()
+    m_get.assert_called()
 
 
 def test_add_aggregate_algo(client, algo_query, mocker):
@@ -79,8 +79,8 @@ def test_add_aggregate_algo(client, algo_query, mocker):
     response = client.add_aggregate_algo(algo_query)
 
     assert response == datastore.AGGREGATE_ALGO
-    assert m_post.is_called()
-    assert m_get.is_called()
+    m_post.assert_called()
+    m_get.assert_called()
 
 
 def test_add_composite_algo(client, algo_query, mocker):
@@ -89,8 +89,8 @@ def test_add_composite_algo(client, algo_query, mocker):
     response = client.add_composite_algo(algo_query)
 
     assert response == datastore.COMPOSITE_ALGO
-    assert m_post.is_called()
-    assert m_get.is_called()
+    m_post.assert_called()
+    m_get.assert_called()
 
 
 def test_add_data_sample(client, data_sample_query, mocker):
@@ -99,7 +99,7 @@ def test_add_data_sample(client, data_sample_query, mocker):
     response = client.add_data_sample(data_sample_query)
 
     assert response == server_response[0]
-    assert m.is_called()
+    m.assert_called()
 
 
 def test_add_data_sample_already_exists(client, data_sample_query, mocker):
@@ -107,7 +107,7 @@ def test_add_data_sample_already_exists(client, data_sample_query, mocker):
     response = client.add_data_sample(data_sample_query, exist_ok=True)
 
     assert response == {"pkhash": "42"}
-    assert m.is_called()
+    m.assert_called()
 
 
 def test_add_data_samples(client, data_samples_query, mocker):
@@ -116,4 +116,4 @@ def test_add_data_samples(client, data_samples_query, mocker):
     response = client.add_data_samples(data_samples_query)
 
     assert response == server_response
-    assert m.is_called()
+    m.assert_called()

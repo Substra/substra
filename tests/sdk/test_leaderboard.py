@@ -27,7 +27,7 @@ def test_leaderboard(client, mocker):
     response = client.leaderboard("magic-key")
 
     assert response == item
-    assert m.is_called()
+    m.assert_called()
 
 
 def test_leaderboard_not_found(client, mocker):
