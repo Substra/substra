@@ -17,7 +17,7 @@ import pytest
 import substra
 
 from .. import datastore
-from .utils import mock_requests, mock_response
+from .utils import mock_response, mock_requests, mock_requests_responses
 
 
 @pytest.mark.parametrize(
@@ -25,12 +25,11 @@ from .utils import mock_requests, mock_response
 )
 def test_describe_asset(asset_name, client, mocker):
     item = getattr(datastore, asset_name.upper())
-    asset_response = mock_response(item)
-
-    description_response = mock_response('foo')
-
-    m = mocker.patch('substra.sdk.rest_client.requests.get',
-                     side_effect=[asset_response, description_response])
+    responses = [
+        mock_response(item),  # metadata
+        mock_response('foo'),  # data
+    ]
+    m = mock_requests_responses(mocker, 'get', responses)
 
     method = getattr(client, f'describe_{asset_name}')
     response = method("magic-key")
@@ -57,12 +56,11 @@ def test_describe_asset_not_found(asset_name, client, mocker):
 )
 def test_describe_description_not_found(asset_name, client, mocker):
     item = getattr(datastore, asset_name.upper())
-    asset_response = mock_response(item)
-
-    description_response = mock_response('foo', 404)
-
-    m = mocker.patch('substra.sdk.rest_client.requests.get',
-                     side_effect=[asset_response, description_response])
+    responses = [
+        mock_response(item),  # metadata
+        mock_response('foo', 404),  # data
+    ]
+    m = mock_requests_responses(mocker, 'get', responses)
 
     method = getattr(client, f'describe_{asset_name}')
 
