@@ -101,7 +101,7 @@ def mock_client_call(mocker, method_name, response="", side_effect=None):
 def test_command_login(workdir, mocker):
     m = mock_client_call(mocker, 'login')
     client_execute(workdir, ['login'])
-    assert m.is_called()
+    m.assert_called()
 
 
 @pytest.mark.parametrize('asset_name,key_field', [
@@ -237,7 +237,7 @@ def test_command_add_aggregatetuple(mocker, workdir, params):
     m = mock_client_call(mocker, 'add_aggregatetuple', response={})
     client_execute(workdir, ['add', 'aggregatetuple', '--algo-key', 'foo',
                              '--in-model-key', 'foo'] + params + ['--worker', 'foo'])
-    assert m.is_called()
+    m.assert_called()
 
 
 def test_command_add_testtuple_no_data_samples(mocker, workdir):
@@ -337,7 +337,7 @@ def test_command_cancel_compute_plan(workdir, mocker):
 def test_command_leaderboard(workdir, mocker):
     m = mock_client_call(mocker, 'leaderboard', datastore.LEADERBOARD)
     client_execute(workdir, ['leaderboard', 'fakekey'])
-    assert m.is_called()
+    m.assert_called()
 
 
 def test_command_update_dataset(workdir, mocker):
