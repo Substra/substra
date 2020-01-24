@@ -65,7 +65,6 @@ def test_list_asset_with_filters(client, mocker):
 
 def test_list_asset_with_filters_failure(client, mocker):
     items = [datastore.ALGO]
-    mock_requests(mocker, "get", response=[items])
 
     filters = 'foo'
     with pytest.raises(ValueError) as exc_info:
