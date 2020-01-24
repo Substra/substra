@@ -207,34 +207,13 @@ class Client():
 
         return items
 
-    def add(self, name, retry_timeout=False, exist_ok=False, **request_kwargs):
-        """Add asset.
+    def _add(self, name, exist_ok=False, **request_kwargs):
+        """ Add asset wrapper.
 
-        In case of timeout, block till resource is created.
-
-        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        Handles conflict error when created asset already exists.
         """
         try:
-            return self.request(
-                'post',
-                name,
-                **request_kwargs,
-            )
-
-        except exceptions.RequestTimeout as e:
-            key = e.pkhash
-            is_many = isinstance(key, list)  # timeout on many objects is not handled
-            if not retry_timeout or is_many:
-                raise e
-
-            logger.warning(
-                f'Request timeout, blocking till {name} is created: key={key}')
-            retry = utils.retry_on_exception(
-                exceptions=(exceptions.NotFound),
-                timeout=float(retry_timeout),
-            )
-            return retry(self.get)(name, key)
+            return self.request('post', name, **request_kwargs)
 
         except exceptions.AlreadyExists as e:
             if not exist_ok:
@@ -248,6 +227,34 @@ class Client():
 
             logger.warning(f"{name} already exists: key='{key}'")
             return self.get(name, key)
+
+    def add(self, name, retry_timeout=False, exist_ok=False, **request_kwargs):
+        """Add asset.
+
+        In case of timeout, block till resource is created.
+
+        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
+        existing asset will be returned.
+        """
+        try:
+            return self._add(name, exist_ok=exist_ok, **request_kwargs)
+
+        except exceptions.RequestTimeout as e:
+            key = e.pkhash
+            is_many = isinstance(key, list)  # timeout on many objects is not handled
+            if not retry_timeout or is_many:
+                raise e
+
+            logger.warning(
+                f'Request timeout, blocking till {name} is created: key={key}')
+            retry = utils.retry_on_exception(
+                exceptions=(exceptions.RequestTimeout),
+                timeout=float(retry_timeout),
+            )
+            # XXX as there is no guarantee that the request has been sent to the ledger
+            #     (and will be processed), retry on on the add request and ignore
+            #     potential conflicts
+            return retry(self._add)(name, exist_ok=True, **request_kwargs)
 
     def get_data(self, address, **request_kwargs):
         """Get asset data."""

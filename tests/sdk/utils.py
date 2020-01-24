@@ -17,7 +17,7 @@ from unittest import mock
 import requests
 
 
-def mock_requests_response(response=None, status=200, headers=None):
+def mock_response(response=None, status=200, headers=None):
     headers = headers or {}
     m = mock.MagicMock(spec=requests.Response)
     m.status_code = status
@@ -32,12 +32,13 @@ def mock_requests_response(response=None, status=200, headers=None):
     return m
 
 
-def mock_requests(mocker, method, response=None, status=200, headers=None):
-
-    def _req(*args, **kwargs):
-        return mock_requests_response(response, status, headers)
-
+def mock_requests_responses(mocker, method, responses):
     return mocker.patch(
         f'substra.sdk.rest_client.requests.{method}',
-        side_effect=_req,
+        side_effect=responses,
     )
+
+
+def mock_requests(mocker, method, response=None, status=200, headers=None):
+    r = mock_response(response, status, headers)
+    return mock_requests_responses(mocker, method, (r, ))
