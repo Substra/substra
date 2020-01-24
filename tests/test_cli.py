@@ -98,6 +98,12 @@ def mock_client_call(mocker, method_name, response="", side_effect=None):
                         return_value=response, side_effect=side_effect)
 
 
+def test_command_login(workdir, mocker):
+    m = mock_client_call(mocker, 'login')
+    client_execute(workdir, ['login'])
+    m.assert_called()
+
+
 @pytest.mark.parametrize('asset_name,key_field', [
     ('objective', 'key'),
     ('dataset', 'key'),
@@ -223,6 +229,17 @@ def test_command_add_composite_traintuple_missing_model_key(mocker, workdir, par
     assert re.search(message, res)
 
 
+@pytest.mark.parametrize('params', [
+    [],
+    ['--in-model-key', 'bar']
+])
+def test_command_add_aggregatetuple(mocker, workdir, params):
+    m = mock_client_call(mocker, 'add_aggregatetuple', response={})
+    client_execute(workdir, ['add', 'aggregatetuple', '--algo-key', 'foo',
+                             '--in-model-key', 'foo'] + params + ['--worker', 'foo'])
+    m.assert_called()
+
+
 def test_command_add_testtuple_no_data_samples(mocker, workdir):
     m = mock_client_call(mocker, 'add_testtuple', response={})
     client_execute(workdir, ['add', 'testtuple', '--objective-key', 'foo',
@@ -314,6 +331,12 @@ def test_command_download(workdir, mocker):
 def test_command_cancel_compute_plan(workdir, mocker):
     m = mock_client_call(mocker, 'cancel_compute_plan', datastore.COMPUTE_PLAN)
     client_execute(workdir, ['cancel', 'compute_plan', 'fakekey'])
+    m.assert_called()
+
+
+def test_command_leaderboard(workdir, mocker):
+    m = mock_client_call(mocker, 'leaderboard', datastore.LEADERBOARD)
+    client_execute(workdir, ['leaderboard', 'fakekey'])
     m.assert_called()
 
 
