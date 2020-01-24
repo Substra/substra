@@ -116,6 +116,16 @@ class CurrentNodeField(Field):
         return ''
 
 
+class ComputePlanProgressField(Field):
+    def __init__(self, name):
+        self.name = name
+
+    def get_value(self, item, expand=False):
+        done_count = find_dict_composite_key_value(item, 'doneCount')
+        tuple_count = find_dict_composite_key_value(item, 'tupleCount')
+        return f'{done_count}/{tuple_count}'
+
+
 class BasePrinter:
     @staticmethod
     def _get_columns(items, fields):
@@ -241,6 +251,7 @@ class ComputePlanPrinter(AssetPrinter):
         CountField('Composite traintuples count', 'compositeTraintupleKeys'),
         CountField('Aggregatetuples count', 'aggregatetupleKeys'),
         CountField('Testtuples count', 'testtupleKeys'),
+        ComputePlanProgressField('Progress'),
         Field('Status', 'status'),
     )
     single_fields = (
@@ -248,6 +259,7 @@ class ComputePlanPrinter(AssetPrinter):
         KeysField('Composite traintuple keys', 'compositeTraintupleKeys'),
         KeysField('Aggregatetuple keys', 'aggregatetupleKeys'),
         KeysField('Testtuple keys', 'testtupleKeys'),
+        ComputePlanProgressField('Progress'),
         Field('Status', 'status'),
     )
 
