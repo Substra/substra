@@ -57,7 +57,7 @@ def _get_abspath(path):
     return path
 
 
-def clean_sandbox(compute_path, local_path, train_pred_path, test_pred_path, outmodel_path):
+def clean_sandbox(compute_path, local_path, test_pred_path, outmodel_path):
     print(f'Clean run local sandbox {compute_path}')
 
     try:
@@ -67,7 +67,6 @@ def clean_sandbox(compute_path, local_path, train_pred_path, test_pred_path, out
 
     _create_directory(compute_path)
     _create_directory(local_path)
-    _create_directory(train_pred_path)
     _create_directory(test_pred_path)
     _create_directory(outmodel_path)
 
@@ -112,8 +111,7 @@ def _docker_run(docker_client, name, command, volumes, remove=True):
 
 
 def compute_train(docker_client, train_data_path, algo_path, fake_data_samples, outmodel_path,
-                  train_pred_path, local_path, train_opener_file, rank, inmodels, outmodel_file,
-                  metrics_path):
+                  local_path, train_opener_file, rank, inmodels, outmodel_file):
 
     print('Training starts')
 
@@ -125,7 +123,6 @@ def compute_train(docker_client, train_data_path, algo_path, fake_data_samples, 
         print('Training algo fake data samples')
 
     volumes = {outmodel_path: VOLUME_OUTPUT_MODEL,
-               train_pred_path: VOLUME_PRED,
                local_path: VOLUME_LOCAL,
                train_opener_file: VOLUME_OPENER}
 
@@ -159,8 +156,6 @@ def compute_train(docker_client, train_data_path, algo_path, fake_data_samples, 
 
     if not os.path.exists(outmodel_file):
         raise Exception(f"Model {outmodel_file} doesn't exist")
-
-    _docker_build(docker_client, metrics_path, DOCKER_METRICS_TAG, rm=True)
 
 
 def compute_test(docker_client, algo_path, test_data_path, test_pred_path, outmodel_path,
@@ -251,14 +246,13 @@ def _compute(algo_path,
     # substra/docker absolute paths
     compute_path = _get_abspath(compute_path)
     local_path = os.path.join(compute_path, local_path)
-    train_pred_path = os.path.join(compute_path, 'pred_train')
     test_pred_path = os.path.join(compute_path, 'pred_test')
     outmodel_path = os.path.join(compute_path, outmodel_path)
     outmodel_file = os.path.join(outmodel_path, MODEL_FILENAME)
 
     print(f'Run local results will be in sandbox : {compute_path}')
 
-    clean_sandbox(compute_path, local_path, train_pred_path, test_pred_path, outmodel_path)
+    clean_sandbox(compute_path, local_path, test_pred_path, outmodel_path)
 
     docker_client = docker.from_env()
 
@@ -267,22 +261,13 @@ def _compute(algo_path,
                   algo_path,
                   fake_data_samples,
                   outmodel_path,
-                  train_pred_path,
                   local_path,
                   train_opener_file,
                   rank,
                   inmodels,
-                  outmodel_file,
-                  metrics_path)
+                  outmodel_file)
 
-    print(f'Evaluating performance - compute metrics with {train_pred_path} '
-          f'predictions against {train_data_path or "fake"} labels')
-    train_perf = compute_perf(pred_path=train_pred_path,
-                              opener_file=train_opener_file,
-                              fake_data_samples=fake_data_samples,
-                              data_path=train_data_path,
-                              docker_client=docker_client)
-    print(f'Successfully train model {outmodel_file} with a score of {train_perf} on train data')
+    print(f'Successfully train model {outmodel_file}')
 
     compute_test(docker_client,
                  algo_path,

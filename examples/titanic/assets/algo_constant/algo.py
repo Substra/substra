@@ -11,7 +11,7 @@ def constant_clf(X):
 
 class TitanicAlgo(tools.algo.Algo):
     def train(self, X, y, models, rank):
-        return (constant_clf(X), constant_clf)
+        return constant_clf
 
     def predict(self, X, models):
         return constant_clf(X)
