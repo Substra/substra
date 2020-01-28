@@ -282,7 +282,7 @@ class Client(object):
             "description": str,
             "type": str,
             "data_opener": str,
-            "objective_keys": list[str],
+            "objective_key": str,
             "permissions": {
                 "public": bool,
                 "authorized_ids": list[str],
