@@ -52,8 +52,6 @@ def create_file(filename, content='', root=None):
 def do_algo_train_predict(*args, **kwargs):
     # create a single method doing both algo training and prediction
     create_file('model', root='sandbox/model')
-    create_file('perf.json', content='{"all": 0.42}', root='sandbox/pred_train')
-    create_file('pred', root='sandbox/pred_train')
     create_file('perf.json', content='{"all": 0.42}', root='sandbox/pred_test')
     create_file('pred', root='sandbox/pred_test')
 
@@ -78,7 +76,6 @@ def docker_run_side_effect(sandbox_path):
         if name == runner.DOCKER_ALGO_TAG:
             create_file('model/model', root=sandbox_path)
         if name == runner.DOCKER_METRICS_TAG:
-            create_file('pred_train/perf.json', '{"all": 1}', root=sandbox_path)
             create_file('pred_test/perf.json', '{"all": 1}', root=sandbox_path)
     return create_expected_docker_outputs
 

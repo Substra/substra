@@ -1011,19 +1011,16 @@ def run_local(algo, train_opener, test_opener, metrics, rank,
     This command can be used to check that objective, dataset and algo assets
     implementations are compatible.
 
-    It will execute sequentially 4 tasks in docker:
+    It will execute sequentially 3 tasks in docker:
 
     \b
     - train algo using train data samples
-    - get model perf
     - test model using test data samples
     - get model perf
 
     \b
     It will create several output files:
     - sandbox/model/model
-    - sandbox/pred_train/perf.json
-    - sandbox/pred_train/pred
     - sandbox/pred_test/perf.json
     - sandbox/pred_test/pred
     """

@@ -649,17 +649,14 @@ Usage: substra run-local [OPTIONS] ALGO
   This command can be used to check that objective, dataset and algo assets
   implementations are compatible.
 
-  It will execute sequentially 4 tasks in docker:
+  It will execute sequentially 3 tasks in docker:
 
   - train algo using train data samples
-  - get model perf
   - test model using test data samples
   - get model perf
 
   It will create several output files:
   - sandbox/model/model
-  - sandbox/pred_train/perf.json
-  - sandbox/pred_train/pred
   - sandbox/pred_test/perf.json
   - sandbox/pred_test/pred
 

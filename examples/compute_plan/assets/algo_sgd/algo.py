@@ -28,8 +28,7 @@ class Algo(tools.algo.Algo):
                                   power_t=0.5,
                                   eta0=0.001)
             model.partial_fit(X, y, classes=[0, 1])
-        y_pred = self._predict_pandas(model, X)
-        return y_pred, model
+        return model
 
     def predict(self, X, model):
         X = self._normalize_X(X)

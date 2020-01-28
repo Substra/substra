@@ -73,7 +73,7 @@ A traintuple is the explicit specification of a training task. It contains the r
 * the algo
 * the set of input models (optional)
 
-A sequence of traintuple defines a training tajectory.
+A sequence of traintuple defines a training trajectory.
 
 ### Link with other concepts
 

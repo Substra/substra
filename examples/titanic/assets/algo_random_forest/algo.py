@@ -132,9 +132,7 @@ class Algo(tools.algo.Algo):
                                                n_jobs=-1)
         random_forest.fit(X, y)
 
-        y_pred = self._predict_pandas(random_forest, X)
-
-        return y_pred, random_forest
+        return random_forest
 
     def predict(self, X, model):
         X = self._normalize_X(X)
