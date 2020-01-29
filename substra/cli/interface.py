@@ -58,14 +58,6 @@ def load_json_from_path(ctx, param, value):
     return json_file
 
 
-def dict_append_to_optional_field(data, key, value):
-    """Append value to a list that may be null."""
-    if key in data:
-        data[key].append(value)
-    else:
-        data[key] = [value]
-
-
 def display(res):
     """Display result."""
     if res is None:
@@ -379,7 +371,8 @@ def add_dataset(ctx, data, objective_key):
     - permissions: define asset access permissions
     """
     client = get_client(ctx.obj)
-    dict_append_to_optional_field(data, 'objective_keys', objective_key)
+    if objective_key:  # overwrite data values if set
+        data['objective_key'] = objective_key
     res = client.add_dataset(data)
     printer = printers.get_asset_printer(assets.DATASET, ctx.obj.output_format)
     printer.print(res, is_list=False)
