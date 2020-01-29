@@ -91,9 +91,9 @@ Learning about the Substra platform:
 
 These sets of versions have been tested for compatilibility: all the tests from [`substra-tests`](https://github.com/SubstraFoundation/substra-tests/) pass.
 
-| Tested on | Major release?  | substra  | substra-chaincode  | substra-backend  | substra-tests  |
-|---|---|---|---|---|---|
-| 2020-01-29 |   | [`b537d7`](https://github.com/SubstraFoundation/substra/commit/b537d7d3730dd74764213af9c93ee735005c5ac7)  | [`0.0.8-alpha4`](https://github.com/SubstraFoundation/substra-chaincode/releases/tag/0.0.8-alpha.4)  | [`0.0.12-alpha.5`](https://github.com/SubstraFoundation/substra-backend/releases/tag/0.0.12-alpha.5) | [`fc52ea`](https://github.com/SubstraFoundation/substra-tests/commit/fc52ea1f7b2846e2af97d73d654b0265ded7011a) |
+| Major release?  | substra  | substra-chaincode  | substra-backend  | substra-tests  |
+|---|---|---|---|---|
+|   | [`b537d7`](https://github.com/SubstraFoundation/substra/commit/b537d7d3730dd74764213af9c93ee735005c5ac7)  | [`0.0.8-alpha4`](https://github.com/SubstraFoundation/substra-chaincode/releases/tag/0.0.8-alpha.4)  | [`0.0.12-alpha.5`](https://github.com/SubstraFoundation/substra-backend/releases/tag/0.0.12-alpha.5) | [`fc52ea`](https://github.com/SubstraFoundation/substra-tests/commit/fc52ea1f7b2846e2af97d73d654b0265ded7011a) |
 
 ## Contributing
 
