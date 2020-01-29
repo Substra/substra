@@ -40,7 +40,7 @@ OBJECTIVE = {
 }
 
 DATASET = {
-    "objectiveKeys": [],
+    "objectiveKey": "7a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
     "description": {
         "hash": "7a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
         "storageAddress": "",
