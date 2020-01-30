@@ -91,9 +91,11 @@ Learning about the Substra platform:
 
 These sets of versions have been tested for compatilibility: all the tests from [`substra-tests`](https://github.com/SubstraFoundation/substra-tests/) pass.
 
-| Major release?  | substra  | substra-chaincode  | substra-backend  | substra-tests  |
-|---|---|---|---|---|
-|   | [`b537d7`](https://github.com/SubstraFoundation/substra/commit/b537d7d3730dd74764213af9c93ee735005c5ac7)  | [`0.0.8-alpha.4`](https://github.com/SubstraFoundation/substra-chaincode/releases/tag/0.0.8-alpha.4)  | [`0.0.12-alpha.6`](https://github.com/SubstraFoundation/substra-backend/releases/tag/0.0.12-alpha.6) | [`fc52ea`](https://github.com/SubstraFoundation/substra-tests/commit/fc52ea1f7b2846e2af97d73d654b0265ded7011a) |
+| substra  | substra-chaincode  | substra-backend  | substra-tests  | hlf-k8s | substra-frontend (*) |
+|---|---|---|---|---|---|---|
+| [`b537d7`](https://github.com/SubstraFoundation/substra/commit/b537d7d3730dd74764213af9c93ee735005c5ac7) | [`0.0.8-alpha.4`](https://github.com/SubstraFoundation/substra-chaincode/releases/tag/0.0.8-alpha.4) | [`0.0.12-alpha.6`](https://github.com/SubstraFoundation/substra-backend/releases/tag/0.0.12-alpha.6) | [`fc52ea`](https://github.com/SubstraFoundation/substra-tests/commit/fc52ea1f7b2846e2af97d73d654b0265ded7011a) | [`9148fd`](https://github.com/SubstraFoundation/hlf-k8s/commit/9148fd349f72f5ce71619421616969581f7a9634) |
+
+(*) only add a front end version in this column if you have completed the [front end testing checklist](https://github.com/SubstraFoundation/substra-frontend/docs/some_checklist_TODO_WRITE_THE_CHECKLIST)
 
 ## Contributing
 
