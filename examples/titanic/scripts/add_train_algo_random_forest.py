@@ -76,8 +76,7 @@ print('Registering traintuple...')
 traintuple = client.add_traintuple({
     'algo_key': algo_key,
     'data_manager_key': assets_keys['dataset_key'],
-    'train_data_sample_keys': assets_keys['train_data_sample_keys'],
-    'objective_key': assets_keys['objective_key']
+    'train_data_sample_keys': assets_keys['train_data_sample_keys']
 }, exist_ok=True)
 traintuple_key = traintuple.get('key') or traintuple.get('pkhash')
 assert traintuple_key, 'Missing traintuple key'
