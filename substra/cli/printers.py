@@ -376,6 +376,13 @@ class TraintuplePrinter(AssetPrinter):
     )
     has_description = False
 
+    def print_messages(self, item, profile=None):
+        key_value = self.key_field.get_value(item)
+        profile_arg = self.get_profile_arg(profile)
+
+        print('\nDisplay this traintuple\'s testtuples:')
+        print(f'\tsubstra list testtuple -f "testtuple:traintupleKey:{key_value}" {profile_arg}')
+
 
 class AggregateTuplePrinter(AssetPrinter):
     asset_name = 'aggregatetuple'
@@ -403,6 +410,13 @@ class AggregateTuplePrinter(AssetPrinter):
         PermissionField('Permissions', 'permissions'),
     )
     has_description = False
+
+    def print_messages(self, item, profile=None):
+        key_value = self.key_field.get_value(item)
+        profile_arg = self.get_profile_arg(profile)
+
+        print('\nDisplay this aggregatetuple\'s testtuples:')
+        print(f'\tsubstra list testtuple -f "testtuple:traintupleKey:{key_value}" {profile_arg}')
 
 
 class CompositeTraintuplePrinter(AssetPrinter):
@@ -436,6 +450,13 @@ class CompositeTraintuplePrinter(AssetPrinter):
         Field('Worker', 'dataset.worker'),
     )
     has_description = False
+
+    def print_messages(self, item, profile=None):
+        key_value = self.key_field.get_value(item)
+        profile_arg = self.get_profile_arg(profile)
+
+        print('\nDisplay this composite traintuple\'s testtuples:')
+        print(f'\tsubstra list testtuple -f "testtuple:traintupleKey:{key_value}" {profile_arg}')
 
 
 class TesttuplePrinter(AssetPrinter):
