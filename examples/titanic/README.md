@@ -13,6 +13,10 @@ In order to run this example, you'll need to:
 * [install the `substra` cli](../../README.md#install)
 * [install the `substratools` library](https://github.com/substrafoundation/substra-tools)
 * [pull the `substra-tools` docker images](https://github.com/substrafoundation/substra-tools#pull-from-private-docker-registry)
+* have one or two profiles:
+    * with Docker: `.`
+    * with Skaffold: `substra config --profile node-1 --username USERNAME --password PASSWORD URL`
+    * you need to use the `node-1` profile
 
 ## Data preparation
 
