@@ -494,7 +494,7 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = _update_permissions_field(data, permissions_field='out_model_trunk_permissions')
+        data = _update_permissions_field(data, permissions_field='out_trunk_model_permissions')
         res = self._add(assets.COMPOSITE_TRAINTUPLE, data, exist_ok=exist_ok)
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
