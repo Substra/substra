@@ -48,33 +48,11 @@ def test_add_load_profile_from_file(tmpdir):
     }
 
     path.write_text(json.dumps(conf), "UTF-8")
-    keyring.set_password('node-1', conf['node-1']['auth']['username'], 'foo')
     manager = configuration.Manager(str(path))
     profile = manager.load_profile('node-1')
 
-    assert conf['node-1']['auth']['username'] == profile['auth']['username']
+    assert conf['node-1'] == profile
     assert keyring.get_password(service_name='node-1', username='node-1') == 'foo'
-
-
-def test_add_load_bad_profile_from_file(tmpdir):
-    path = tmpdir / 'substra.cfg'
-    conf = {
-       "node-1": {
-           "auth": {
-               "username": "node-1"
-           },
-           "insecure": False,
-           "url": "http://substra-backend.node-1.com",
-           "version": "0.0"
-       },
-    }
-
-    path.write_text(json.dumps(conf), "UTF-8")
-    keyring.set_password('node-1', conf['node-1']['auth']['username'], 'foo')
-    manager = configuration.Manager(str(path))
-
-    with pytest.raises(configuration.ProfileNotFoundError):
-        manager.load_profile('foo')
 
 
 def test_load_profile_fail(tmpdir):
