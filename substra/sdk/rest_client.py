@@ -35,6 +35,8 @@ class Client():
             self.set_config(config)
 
     def login(self):
+        # we do not use self._headers in order to avoid existing tokens to be sent alongside the
+        # required Accept header
         headers = {
             'Accept': self._headers['Accept'],
         }
