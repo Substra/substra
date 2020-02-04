@@ -52,7 +52,6 @@ def test_add_load_profile_from_file(tmpdir):
     profile = manager.load_profile('node-1')
 
     assert conf['node-1'] == profile
-    assert keyring.get_password(service_name='node-1', username='node-1') == 'foo'
 
 
 def test_load_profile_fail(tmpdir):
