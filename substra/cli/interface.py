@@ -245,7 +245,7 @@ def cli(ctx):
     """Substra Command Line Interface.
 
     For help using this tool, please open an issue on the Github repository:
-    https://github.com/SubstraFoundation/substra-cli
+    https://github.com/SubstraFoundation/substra
     """
     ctx.obj = GlobalConf()
 
