@@ -89,16 +89,16 @@ Learning about the Substra platform:
 
 ## Compatibility table
 
-These sets of versions have been tested for compatilibility: 
+These sets of versions have been tested for compatilibility:
 
 | substra  | substra-chaincode  | substra-backend  | substra-tests  | hlf-k8s | substra-frontend |
 |---|---|---|---|---|---|
-| [`b537d7`](https://github.com/SubstraFoundation/substra/commit/b537d7d3730dd74764213af9c93ee735005c5ac7) | [`0.0.8-alpha.4`](https://github.com/SubstraFoundation/substra-chaincode/releases/tag/0.0.8-alpha.4) | [`0.0.12-alpha.6`](https://github.com/SubstraFoundation/substra-backend/releases/tag/0.0.12-alpha.6) | [`fc52ea`](https://github.com/SubstraFoundation/substra-tests/commit/fc52ea1f7b2846e2af97d73d654b0265ded7011a) | [`9148fd`](https://github.com/SubstraFoundation/hlf-k8s/commit/9148fd349f72f5ce71619421616969581f7a9634) | |
+| [`0.4.0-alpha.2`](https://github.com/SubstraFoundation/substra/releases/tag/0.4.0-alpha.2) | [`0.0.8-alpha.4`](https://github.com/SubstraFoundation/substra-chaincode/releases/tag/0.0.8-alpha.4) | [`0.0.12-alpha.6`](https://github.com/SubstraFoundation/substra-backend/releases/tag/0.0.12-alpha.6) | [`0.1.1`](https://github.com/SubstraFoundation/substra-tests/releases/tag/0.1.1) | [`0.0.10`](https://github.com/SubstraFoundation/hlf-k8s/releases/tag/0.0.10) | |
 
 **Adding entries to the compatibility table**
 
 - Please ensure that all the tests from [`substra-tests`](https://github.com/SubstraFoundation/substra-tests/) pass
-  
+
 ```
 $ cd substra-tests
 $ make test
