@@ -237,8 +237,8 @@ minikube start --cpus 4 --memory 8192 --disk-size 30g --kubernetes-version='v1.1
 sudo minikube start --vm-driver=none --kubernetes-version='v1.15.4'
 
 # first time only
-helm init 
-# or
+helm init
+# or you might need to 
 helm init --service-account tiller --upgrade
 ```
 
@@ -250,6 +250,8 @@ helm init --service-account tiller --upgrade
 # Append your Kubernetes cluster ip to your system hosts
 echo "$(minikube ip) substra-backend.node-1.com substra-frontend.node-1.com substra-backend.node-2.com substra-frontend.node-2.com" >> /etc/hosts
 
+# Inside a VM you will need to use
+echo "$(sudo minikube ip) substra-backend.node-1.com substra-frontend.node-1.com substra-backend.node-2.com substra-frontend.node-2.com" | sudo tee -a /etc/hosts
 ```
 
 Example:
@@ -530,6 +532,8 @@ If you want to ensure that everything is working approprietly, you use the examp
 - `minikube ip`
 - `minikube dashboard`
 - `minikube tunnel`
+- `minikube config view`
+- `minikube addons list`
 - If you are using microk8s: 
   - `microk8s.status`
   - `microk8s.inspect`
