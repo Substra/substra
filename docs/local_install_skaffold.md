@@ -2,7 +2,7 @@
 
 > This is an ongoing document, please feel free to reach us or to raise any issue.
 
-This guide will help you to run the Substra platform on your machine in development mode, with a two organisations setup.
+This guide will help you to run the Substra platform on your machine in development mode, with a two nodes setup.
 
 ## Index
 - [Local install of Substra using Kubernetes and Skaffold](#local-install-of-substra-using-kubernetes-and-skaffold)
@@ -55,7 +55,7 @@ skaffold dev # in hlf-k8s, susbtra-backend, substra-frontend repositories
 
 ### General knowledge
 
-I order to install Substra, it is *recommended* to be confortable with your package manager and to have some basic knowledge of Linux administration and network.
+I order to install Substra, it is *recommended* to be comfortable with your package manager and to have some basic knowledge of Linux administration and network.
 
 ### Hardware requirements
 
@@ -63,8 +63,8 @@ I order to install Substra, it is *recommended* to be confortable with your pack
 
 If you wish to comfortably run Substra, it is advised to have:
 
-- At least 30 Go of free space but **50** would really be better!
-- **8 Go of RAM** for Kubernetes/Minikube! Be warned, 4 Go won't work. 
+- At least 30 GB of free space but **50** would really be better!
+- **8 GB of RAM** for Kubernetes/Minikube! Be warned, 4 GB won't work. 
 
 ### Software requirements
 
@@ -88,11 +88,8 @@ Once installed, launch Docker and open its "preferences" panel. In the Kubernete
 
 Kubernetes will take a while to launch the first time, but once it is done, you can move on to configuring.
 
-If you don't have `homebrew` installed, please install it first with the following command:
+If you don't have `homebrew` installed, please install it first: <https://brew.sh/>
 
-```sh
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-```
 
 ##### Ubuntu
 
@@ -108,10 +105,7 @@ kubectl version --client
 #### [2. Minikube](https://minikube.sigs.k8s.io/docs/start/)
 
 ```sh
-# Mac
-brew install minikube
-
-# Ubuntu
+# Ubuntu/Debian only
 # Get the executable & install it (Please use the up-to-date version)
 curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube_1.6.2.deb && sudo dpkg -i minikube_1.6.2.deb
 ```
@@ -122,13 +116,8 @@ V3 is not supported yet, please use [Helm v2.16.1](https://github.com/helm/helm/
 
 ```sh
 # Mac
-# Get the executable
-curl -LO https://get.helm.sh/helm-v2.16.1-darwin-amd64.tar.gz
-# Extract the downloaded archive
-tar xzvf helm-v2.16.1-darwin-amd64.tar.gz
-cd darwin-amd64/
-# Move the executables to your local bin
-sudo mv tiller helm /usr/local/bin/
+# If not already installed with Docker Desktop:
+brew install kubernetes-helm
 
 # Linux (amd64)
 # Get the executable
@@ -145,12 +134,6 @@ sudo mv tiller helm /usr/local/bin/
 ```sh
 # Mac
 brew install skaffold
-# Or get the executable
-curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-darwin-amd64
-# Make it executable on your machine
-chmod +x skaffold
-# Move it to your local bin
-sudo mv skaffold /usr/local/bin
 
 # Linux
 # Get the executable
