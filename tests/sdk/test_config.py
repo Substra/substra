@@ -13,7 +13,6 @@
 # limitations under the License.
 import json
 
-import keyring
 import pytest
 
 import substra.sdk.config as configuration
@@ -52,6 +51,17 @@ def test_add_load_profile_from_file(tmpdir):
     profile = manager.load_profile('node-1')
 
     assert conf['node-1'] == profile
+
+
+def test_add_load_bad_profile_from_file(tmpdir):
+    path = tmpdir / 'substra.cfg'
+    conf = "node-1"
+
+    path.write_text(conf, "UTF-8")
+    manager = configuration.Manager(str(path))
+
+    with pytest.raises(configuration.ConfigException):
+        manager.load_profile('node-1')
 
 
 def test_load_profile_fail(tmpdir):
