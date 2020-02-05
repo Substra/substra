@@ -540,7 +540,7 @@ If you want to ensure that everything is working approprietly, you use the examp
 
 ### Tiller
 
-- Tiller might need you to use this command in case of error during init: `helm init --service-account tiller --upgrade`. Otherwise, please have a look here: <https://github.com/SubstraFoundation/substra-backend/pull/1>
+- Tiller might need you to use this command in case of error during init: `helm init --service-account tiller --upgrade`. You can also try to create a service account with `kubectl create serviceaccount --namespace kube-system tiller`Otherwise, please have a look here: <https://github.com/SubstraFoundation/substra-backend/pull/1>
 - tiller issues: <https://stackoverflow.com/questions/51646957/helm-could-not-find-tiller#51662259>
 - After running `skaffold dev` in the `hlf-k8s` repo, in case of error related to the `tempchart` folder, please do `rm -rf tempchart`
 
