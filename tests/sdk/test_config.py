@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import json
 
 import pytest
 
@@ -30,6 +31,37 @@ def test_add_load_profile(tmpdir):
 
     profile_2 = manager.load_profile('owkin')
     assert profile_1 == profile_2
+
+
+def test_add_load_profile_from_file(tmpdir):
+    path = tmpdir / 'substra.cfg'
+    conf = {
+       "node-1": {
+           "auth": {
+               "username": "node-1"
+           },
+           "insecure": False,
+           "url": "http://substra-backend.node-1.com",
+           "version": "0.0"
+       },
+    }
+
+    path.write_text(json.dumps(conf), "UTF-8")
+    manager = configuration.Manager(str(path))
+    profile = manager.load_profile('node-1')
+
+    assert conf['node-1'] == profile
+
+
+def test_add_load_bad_profile_from_file(tmpdir):
+    path = tmpdir / 'substra.cfg'
+    conf = "node-1"
+
+    path.write_text(conf, "UTF-8")
+    manager = configuration.Manager(str(path))
+
+    with pytest.raises(configuration.ConfigException):
+        manager.load_profile('node-1')
 
 
 def test_load_profile_fail(tmpdir):
