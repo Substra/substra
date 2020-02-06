@@ -1,5 +1,7 @@
 # Local install of Substra using Kubernetes and Skaffold
 
+TODO: RM minikube mac / explain when it is Ubuntu related!
+
 > This is an ongoing document, please feel free to reach us or to raise any issue.
 
 This guide will help you to run the Substra platform on your machine in development mode, with a two nodes setup.
