@@ -8,6 +8,7 @@ CLI and SDK for interacting with Substra platform.
 - [Running the Substra platform locally](#running-the-substra-platform-locally)
 - [Usage](#usage)
 - [Documentation](#documentation)
+- [Compatibility table](#compatibility-table)
 - [Contributing](#contributing)
 
 ## Install
@@ -85,6 +86,25 @@ Learning about the Substra platform:
 - [Titanic](./examples/titanic/README.md)
 - [Cross-validation](./examples/cross_val/README.md)
 - [Compute plan](./examples/compute_plan/README.md)
+
+## Compatibility table
+
+These sets of versions have been tested for compatilibility:
+
+| substra  | substra-chaincode  | substra-backend  | substra-tests  | hlf-k8s | substra-frontend |
+|---|---|---|---|---|---|
+| [`0.4.0-alpha.2`](https://github.com/SubstraFoundation/substra/releases/tag/0.4.0-alpha.2) | [`0.0.8-alpha.4`](https://github.com/SubstraFoundation/substra-chaincode/releases/tag/0.0.8-alpha.4) | [`0.0.12-alpha.6`](https://github.com/SubstraFoundation/substra-backend/releases/tag/0.0.12-alpha.6) | [`0.1.1`](https://github.com/SubstraFoundation/substra-tests/releases/tag/0.1.1) | [`0.0.10`](https://github.com/SubstraFoundation/hlf-k8s/releases/tag/0.0.10) | |
+
+**Adding entries to the compatibility table**
+
+- Please ensure that all the tests from [`substra-tests`](https://github.com/SubstraFoundation/substra-tests/) pass
+
+```
+$ cd substra-tests
+$ make test
+```
+
+- To test the front end, please refer to the [front end testing checklist](https://github.com/SubstraFoundation/substra-frontend/docs/some_checklist_TODO_WRITE_THE_CHECKLIST)
 
 ## Contributing
 
