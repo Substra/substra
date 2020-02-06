@@ -497,17 +497,20 @@ def add_compute_plan(ctx, tuples):
             "tag": str,
         }],
         "composite_traintuples": list[{
+            "composite_traintuple_id": str,
             "algo_key": str,
             "data_manager_key": str,
             "train_data_sample_keys": list[str],
             "in_head_model_id": str,
             "in_trunk_model_id": str,
             "out_trunk_model_permissions": {
+                "public": bool,
                 "authorized_ids": list[str],
             },
             "tag": str,
         }]
         "aggregatetuples": list[{
+            "aggregatetuple_id": str,
             "algo_key": str,
             "worker": str,
             "in_models_ids": list[str],
