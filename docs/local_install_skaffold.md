@@ -34,16 +34,15 @@ This guide will help you to run the Substra platform on your machine in developm
     - [Credentials and urls](#credentials-and-urls)
     - [Browser extension](#browser-extension)
     - [Substra CLI config & login](#substra-cli-config--login)
-  - [5. Titanic example](#5-titanic-example)
-  - [6. Troubleshooting](#6-troubleshooting)
+  - [5. Troubleshooting](#5-troubleshooting)
     - [Virtualisation](#virtualisation-1)
     - [Kubectl useful commands](#kubectl-useful-commands)
     - [Minikube useful commands](#minikube-useful-commands)
     - [Tiller](#tiller)
     - [Ongoing issues](#ongoing-issues)
-  - [7. Further resources](#7-further-resources)
-  - [8. Need help](#8-need-help)
-  - [9. Acknowledgements](#9-acknowledgements)
+  - [6. Further resources](#6-further-resources)
+  - [7. Need help](#7-need-help)
+  - [8. Acknowledgements](#8-acknowledgements)
 ___
 
 When everything is ready, you will be able to start Substra with:
@@ -165,7 +164,7 @@ sudo mv skaffold /usr/local/bin
 
 You will find the main Substra repository [here](https://github.com/SubstraFoundation/substra), but in order to run the Substra framework, you will need to clone 3 repositories: [hlf-k8s](https://github.com/SubstraFoundation/hlf-k8s) (Hyperledger Fabric), [susbtra-backend](https://github.com/SubstraFoundation/substra-backend) and [substra-frontend](https://github.com/SubstraFoundation/substra-frontend).
 
-The `hlf-k8s` repository is in charge of the initialisation of the [Hyperledger Fabric](https://www.hyperledger.org/projects/fabric) network. By default, it will create an `orderer` and two orgs (`org-1` & `org-2`).
+The `hlf-k8s` repository is in charge of the initialization of the [Hyperledger Fabric](https://www.hyperledger.org/projects/fabric) network. By default, it will create an `orderer` and two orgs (`org-1` & `org-2`).
 
 The `substra-backend` is powered by Django and is responsible for, among other things, handling the api endpoints.
 
@@ -214,7 +213,7 @@ You can now start Minikube with:
 
 ```sh
 cd hlf-k8s
-# Confortable setup
+# Comfortable setup
 minikube start --cpus 6 --memory 8192 --disk-size 50g --kubernetes-version='v1.15.4'
 # Frugal setup
 minikube start --cpus 4 --memory 8192 --disk-size 30g --kubernetes-version='v1.15.4'
@@ -244,7 +243,7 @@ Example:
 192.168.39.32 substra-backend.node-1.com substra-frontend.node-1.com substra-backend.node-2.com substra-frontend.node-2.com
 ```
 
-If you want to customise your configuration,
+If you want to customize your configuration,
 you can assign the ingress loadbalancer ip to the corresponding url, for example:
 
 ```sh
@@ -325,7 +324,7 @@ echo "192.168.65.2 substra-backend.node-1.com substra-frontend.node-1.com substr
 ## 3. Running the platform
 
 ### Start Substra
-Once Minikube is running and Tiller initialised, please go the `hlf-k8s`, `substra-backend` and `substra-frontend` repositories and run `skaffold dev` to start Substra with Skaffold:
+Once Minikube is running and Tiller initialized, please go the `hlf-k8s`, `substra-backend` and `substra-frontend` repositories and run `skaffold dev` to start Substra with Skaffold:
 
 ```sh
 # hlf-k8s
@@ -491,15 +490,7 @@ substra list traintuple
 substra get traintuple HASH
 ```
 
-
-## 5. Titanic example
-
-> Note: You don't need to create an account on Kaggle, all the required materials are already provided!
-
-If you want to ensure that everything is working approprietly, you use the examples provided in the [Substra repository](https://github.com/SubstraFoundation/substra/blob/master/examples/titanic/README.md#testing-our-assets)
-
-
-## 6. Troubleshooting
+## 5. Troubleshooting
 
 ### Virtualisation
 
@@ -556,7 +547,7 @@ helm install stable/nginx-ingress \
   --set "controller.image.runAsUser=101"
   ```
 
-## 7. Further resources
+## 6. Further resources
 
 - Use [k9s](https://github.com/derailed/k9s):
   - `CTRL + A`
@@ -575,15 +566,15 @@ helm install stable/nginx-ingress \
 - Use [Firefox Multi-Account Containers](https://addons.mozilla.org/en-US/firefox/addon/multi-account-containers/) extension to have several simultaneous different logins
 - TLDR (*Too Long; Didn't Read*): `sudo apt install tldr`
 
-## 8. Need help
+## 7. Need help
 
 Let's talk:
   - [Create an issue on Github](https://github.com/SubstraFoundation/substra/issues/new)
   - Come to chat with us on [Slack](https://substra-workspace.slack.com/archives/CT54J1U2E)
   - Have a look to the [forum](https://forum.substra.org/)
-  - Drop us an [email](mailto:hello@substra.org)
+  - Drop us an [email](mailto:help@substra.org)
   - Or come meet us *afk* in Paris, Nantes or Limoges!
 
-## 9. Acknowledgements
+## 8. Acknowledgements
 
 This amazing piece of software has been developed and open sourced by [Owkin](https://owkin.com/) and its [terrific developers](https://github.com/SubstraFoundation/substra/graphs/contributors). The repositories are now maintained by [SubstraFoundation](https://github.com/SubstraFoundation) and its core contributors and users. Besides, Substra is really excited to welcome new members, feedbacks and contributions, so please, feel free to get in touch with us!
