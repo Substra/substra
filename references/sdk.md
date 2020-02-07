@@ -335,7 +335,6 @@ Data is a dict object with the following schema:
         "objective_key": str,
         "data_manager_key": str,
         "test_data_sample_keys": list[str],
-        "testtuple_id": str,
         "traintuple_id": str,
         "tag": str,
     }]
