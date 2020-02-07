@@ -244,6 +244,7 @@ Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
           "tag": str,
       }],
       "composite_traintuples": list[{
+          "composite_traintuple_id": str,
           "algo_key": str,
           "data_manager_key": str,
           "train_data_sample_keys": list[str],
@@ -255,6 +256,7 @@ Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
           "tag": str,
       }]
       "aggregatetuples": list[{
+          "aggregatetuple_id": str,
           "algo_key": str,
           "worker": str,
           "in_models_ids": list[str],
@@ -264,7 +266,6 @@ Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
           "objective_key": str,
           "data_manager_key": str,
           "test_data_sample_keys": list[str],
-          "testtuple_id": str,
           "traintuple_id": str,
           "tag": str,
       }]
