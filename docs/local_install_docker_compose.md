@@ -9,7 +9,7 @@ This guide will help you to get Substra source code and to start a local instanc
   - Ubuntu/Debian: `sudo apt install docker docker-compose`
 - Python 3 (recommended 3.6 or 3.7)
   - It is recommended to use a virtual environment to install Substra packages (for instance [virtualenv](https://virtualenv.pypa.io/en/latest/))
-- [Yarn](https://yarnpkpipg.com/)
+- [Yarn](https://yarnpkg.com/getting-started/install)
 - Redis Server:
   - [Download page](https://redis.io/download) 
   - Or just: `sudo apt install redis-server`
