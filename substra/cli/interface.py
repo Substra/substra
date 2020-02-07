@@ -497,6 +497,7 @@ def add_compute_plan(ctx, tuples):
             "tag": str,
         }],
         "composite_traintuples": list[{
+            "composite_traintuple_id": str,
             "algo_key": str,
             "data_manager_key": str,
             "train_data_sample_keys": list[str],
@@ -508,6 +509,7 @@ def add_compute_plan(ctx, tuples):
             "tag": str,
         }]
         "aggregatetuples": list[{
+            "aggregatetuple_id": str,
             "algo_key": str,
             "worker": str,
             "in_models_ids": list[str],
@@ -517,7 +519,6 @@ def add_compute_plan(ctx, tuples):
             "objective_key": str,
             "data_manager_key": str,
             "test_data_sample_keys": list[str],
-            "testtuple_id": str,
             "traintuple_id": str,
             "tag": str,
         }]
