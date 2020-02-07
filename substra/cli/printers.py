@@ -132,12 +132,9 @@ class MappingField(Field):
     def get_value(self, item, expand=False):
         mapping = super().get_value(item) or {}
         if expand:
-            value = [
-                f'{key}:{mapping[key]}'
-                for key in mapping.keys()
-            ]
+            value = [f'{k}:{v}' for k, v in mapping.items()]
         else:
-            value = f'{len(mapping.keys())} values'
+            value = f'{len(mapping)} values'
         return value
 
 
