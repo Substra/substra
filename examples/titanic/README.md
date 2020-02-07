@@ -14,9 +14,10 @@ In order to run this example, you'll need to:
 * [install the `substratools` library](https://github.com/substrafoundation/substra-tools)
 * [pull the `substra-tools` docker images](https://github.com/substrafoundation/substra-tools#pull-from-private-docker-registry)
 * have one or two profiles:
-   * with Docker: `.`
-   * with Skaffold: `substra config --profile node-1 --username USERNAME --password PASSWORD URL`
-   * you need to use the `node-1` profile
+    ```sh
+    substra config --profile node-1 --username node-1 --password 'p@$swr0d44' http://substra-backend.owkin.xyz:8000
+    substra login --profile node-1
+    ```
 
 ## Data preparation
 
