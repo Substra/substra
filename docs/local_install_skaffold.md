@@ -30,6 +30,7 @@ This guide will help you to run the Substra platform on your machine in developm
   - [3. Running the platform](#3-running-the-platform)
     - [Start Substra](#start-substra)
     - [Stop Substra](#stop-substra)
+    - [Reset Substra](#reset-substra)
   - [4. Login, password and urls](#4-login-password-and-urls)
     - [Credentials and urls](#credentials-and-urls)
     - [Browser extension](#browser-extension)
@@ -47,9 +48,18 @@ ___
 
 When everything is ready, you will be able to start Substra with:
 ```sh
+# Ubuntu only
 minikube start --cpus 6 --memory 8192 --disk-size 50g --kubernetes-version='v1.15.4'
 
-skaffold dev # in hlf-k8s, susbtra-backend, substra-frontend repositories
+# In 3 different terminal windows, in this order:
+# In the repository hlf-k8s
+skaffold dev
+
+# In the repository susbtra-backend
+skaffold dev
+
+# In the repository substra-frontend
+skaffold dev
 ```
 
 ## 1. Requirements
@@ -64,8 +74,8 @@ I order to install Substra, it is *recommended* to be comfortable with your pack
 
 If you wish to comfortably run Substra, it is advised to have:
 
-- At least 30 GB of free space but **50** would really be better!
-- **8 GB of RAM** for Kubernetes/Minikube! Be warned, 4 GB won't work. 
+- **50 GB of free space**
+- **8 GB of RAM**
 
 ### Software requirements
 
@@ -113,7 +123,7 @@ curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube_1.6.2.
 
 #### [3. Helm](https://helm.sh/)
 
-V3 is not supported yet, please use [Helm v2.16.1](https://github.com/helm/helm/releases/tag/v2.16.1)
+V3 is not supported yet, please use [Helm v2.16.1](https://github.com/helm/helm/releases/tag/v2.16.1) to get Helm and Tiller.
 
 ```sh
 # Mac
@@ -283,7 +293,7 @@ PING host.docker.internal (192.168.65.2): 56 data bytes
 64 bytes from 192.168.65.2: seq=4 ttl=37 time=3.638 ms
 ```
 
-With new `64 bytes from 192.168.65.2: seq=4 ttl=37 time=3.638 ms` lines added every second. Hit Ctrl-c to stop it.
+With new `64 bytes from 192.168.65.2: seq=4 ttl=37 time=3.638 ms` lines added every second. Hit `Ctrl-c` to stop it.
 
 Please note that you may not see `192.168.65.2` but another address. In this case, you'll have to update the following commands with your address.
 
@@ -324,61 +334,36 @@ echo "192.168.65.2 substra-backend.node-1.com substra-frontend.node-1.com substr
 ## 3. Running the platform
 
 ### Start Substra
-Once Minikube is running and Tiller initialized, please go the `hlf-k8s`, `substra-backend` and `substra-frontend` repositories and run `skaffold dev` to start Substra with Skaffold:
 
-```sh
-# hlf-k8s
-skaffold dev # or skaffold run for detached mode
+- For Ubuntu, once Minikube is running and Tiller initialized, please go the `hlf-k8s`, `substra-backend` and `substra-frontend` repositories and run `skaffold dev` to start Substra with Skaffold.
+- For Mac, directly head to the tree repositories and start Substra with Skaffold.
 
-# substra-backend
-skaffold dev
+Please note that these commands are quite long to be executed and might take a few minutes.
 
-# susbtra-frontend
-skaffold dev
-```
+In 3 different terminal windows, in this order:
 
-### Stop Substra
-
-In order to stop Substra, hit `ctrl + c` in each repository. If you want to stop the minikube Kubernetes cluster, you can use `minikube stop` and if you want to remove all the Kubernetes cluster, please use the `minikube delete` command.
-
-Reset your installation (if you've used `skaffold run` to start it) with:
-
-```sh
-# run from each repository (hlf-k8s, substra-backend, substra-frontend)
-skaffold delete
-# or
-kubectl rm ns peer-1 peer-2 orderer
-# or even
-minikube delete
-```
-
-The platform will be ready once:
-- the `hlf-k8s` terminal displays `INFO 003 Installed remotely response:<status:200 payload:"OK" >`
+1. In the `hlf-k8s` repository, please run the command `skaffold dev` (or `skaffold run` for detached mode). The platform will be ready once the terminal displays:
 
 ```sh
 [network-org-2-peer-1-hlf-k8s-chaincode-install-0-4bdd4 fabric-tools] 2019-11-14 09:14:52.070 UTC [chaincodeCmd] install -> INFO 003 Installed remotely response:<status:200 payload:"OK" >
+# or
+[network-org-2-peer-1-hlf-k8s-channel-join-0-kljgq fabric-tools] 2020-02-10 10:18:02.211 UTC [channelCmd] InitCmdFactory -> INFO 001 Endorser and orderer connections initialized
+# or
+[network-org-2-peer-1-hlf-k8s-channel-join-0-kljgq fabric-tools] 2020-02-10 10:18:02.350 UTC [channelCmd] executeJoin -> INFO 002 Successfully submitted proposal to join channel
 ```
 
-- the `backend` terminal displays `"GET /readiness HTTP/1.1" 200 2` and `"GET /liveness HTTP/1.1" 200 2` for both `org-1` and `org2`:
+2. In the `substra-backend` repository, please run the command `skaffold dev`. The platform will be ready once the terminal displays:
 
 ```sh
-[backend-org-1-substra-backend-server-7bd48859c-dr9xj substra-backend] [15/Nov/2019 08:09:29] "GET /liveness HTTP/1.1" 200 2
-[backend-org-1-substra-backend-server-7bd48859c-dr9xj substra-backend] [15/Nov/2019 08:09:36] "GET /readiness HTTP/1.1" 200 2
-[backend-org-1-substra-backend-server-7bd48859c-dr9xj substra-backend] [15/Nov/2019 08:09:29] "GET /liveness HTTP/1.1" 200 2
-[backend-org-1-substra-backend-server-7bd48859c-dr9xj substra-backend] [15/Nov/2019 08:09:36] "GET /readiness HTTP/1.1" 200 2
+[backend-org-2-substra-backend-server-74bb8486fb-nkq6m substra-backend] INFO - 2020-02-10 10:24:42,514 - django.server - "GET /liveness HTTP/1.1" 200 2
+# or
+[backend-org-1-substra-backend-server-77cf8cb9fd-cwgs6 substra-backend] INFO - 2020-02-10 10:24:51,393 - django.server - "GET /readiness HTTP/1.1" 200 2
 ```
 
-- the `frontend` terminal displays:
+3. In the `susbtra-frontend` repository, please run the command `skaffold dev`. The platform will be ready once the terminal displays:
 
 ```sh
-[substra-frontend-peer-2-substra-frontend-848764cb4c-j7qjc substra-frontend] REQUESTED ORIGINAL PATH: /
-[substra-frontend-peer-2-substra-frontend-848764cb4c-j7qjc substra-frontend] REQUESTED PARSED PATH: /
-[substra-frontend-peer-2-substra-frontend-848764cb4c-j7qjc substra-frontend] UNCACHABLE ROUTE /
-[substra-frontend-peer-2-substra-frontend-848764cb4c-j7qjc substra-frontend] REQUESTED ORIGINAL PATH: /login
-[substra-frontend-peer-2-substra-frontend-848764cb4c-j7qjc substra-frontend] REQUESTED PARSED PATH: /login
-[substra-frontend-peer-2-substra-frontend-848764cb4c-j7qjc substra-frontend] UNCACHABLE ROUTE /login
-[substra-frontend-peer-2-substra-frontend-848764cb4c-j7qjc substra-frontend] CHUNK NAMES [ 'user/components/index' ]
-[substra-frontend-peer-2-substra-frontend-848764cb4c-j7qjc substra-frontend] CACHING:  /login
+[frontend-org-2-substra-frontend-787554fc4b-pmh2g substra-frontend] CACHING:  /login
 ```
 
 Alternatively, instead of using `skaffold`, you might want to start the `substra-frontend` with [yarn](https://yarnpkg.com/getting-started/install):
@@ -395,19 +380,24 @@ yarn install
 API_URL=http://substra-backend.node-2.com yarn start
 ```
 
-If your browser has problems reaching the requested urls, please have a look at your hosts file with `cat /etc/hosts`.
+You can now head to <http://substra-frontend.node-1.com:3000/> or <http://substra-frontend.node-2.com:3000/> and start to play with Substra!
 
-You might want to separate front and backend addresses, for example:
+### Stop Substra
+
+In order to stop Substra, hit `ctrl + c` in each repository. On Ubuntu, if you want to stop the minikube Kubernetes cluster, you can use `minikube stop`.
+
+### Reset Substra
+
+You can reset your installation (if you've used `skaffold run` to start it) with:
+
 ```sh
-# minikube ip
-192.168.39.51 substra-backend.node-1.com substra-backend.node-2.com
-
-# localhost
-127.0.0.1 substra-frontend.node-1.com substra-frontend.node-2.com
+# run from each repository (hlf-k8s, substra-backend, substra-frontend)
+skaffold delete
+# or
+kubectl rm ns peer-1 peer-2 orderer
+# On Ubuntu, to remove all the Kubernetes cluster
+minikube delete
 ```
-
-You can now head to <http://substra-frontend.node-2.com:3000/> and start to play with Substra!
-
 
 ## 4. Login, password and urls
 
