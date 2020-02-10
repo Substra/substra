@@ -1,14 +1,10 @@
-# Local install of Substra using Kubernetes and Skaffold
-
-TODO: RM minikube mac / explain when it is Ubuntu related!
+# Local installation of Substra using Kubernetes and Skaffold
 
 > This is an ongoing document, please feel free to reach us or to raise any issue.
 
 This guide will help you to run the Substra platform on your machine in development mode, with a two nodes setup.
 
-## Index
-- [Local install of Substra using Kubernetes and Skaffold](#local-install-of-substra-using-kubernetes-and-skaffold)
-  - [Index](#index)
+- [Local installation of Substra using Kubernetes and Skaffold](#local-installation-of-substra-using-kubernetes-and-skaffold)
   - [1. Requirements](#1-requirements)
     - [General knowledge](#general-knowledge)
     - [Hardware requirements](#hardware-requirements)
@@ -23,10 +19,9 @@ This guide will help you to run the Substra platform on your machine in developm
   - [2. Setup](#2-setup)
     - [1. Get the source code](#1-get-the-source-code)
     - [2. Configuration](#2-configuration)
-      - [Minikube](#minikube)
+      - [Minikube (Ubuntu only)](#minikube-ubuntu-only)
+      - [Helm init](#helm-init)
       - [Network](#network)
-        - [Ubuntu](#ubuntu-1)
-        - [Mac](#mac-1)
   - [3. Running the platform](#3-running-the-platform)
     - [Start Substra](#start-substra)
     - [Stop Substra](#stop-substra)
@@ -40,7 +35,7 @@ This guide will help you to run the Substra platform on your machine in developm
     - [Kubectl useful commands](#kubectl-useful-commands)
     - [Minikube useful commands](#minikube-useful-commands)
     - [Tiller](#tiller)
-    - [Ongoing issues](#ongoing-issues)
+    - [[WIP] Ongoing issues](#wip-ongoing-issues)
   - [6. Further resources](#6-further-resources)
   - [7. Need help](#7-need-help)
   - [8. Acknowledgements](#8-acknowledgements)
@@ -66,7 +61,7 @@ skaffold dev
 
 ### General knowledge
 
-I order to install Substra, it is *recommended* to be comfortable with your package manager and to have some basic knowledge of Linux administration and network.
+I order to install Substra, it is *recommended* to be comfortable with your package manager and to have some basic knowledge of Unix (Mac or Ubuntu/Debian) administration and network.
 
 ### Hardware requirements
 
@@ -81,7 +76,7 @@ If you wish to comfortably run Substra, it is advised to have:
 
 > Note: Please **always** refer to the package provider website before installing any software!
 
-> Note: This setup has been tested on Ubuntu 19.10 & 18.04.3, Linux Mint 19 Cinnamon (4.15.0-45-generic Kernel)
+> Note: This setup has been tested on Ubuntu 19.10, 18.04.3 & Linux Mint 19 Cinnamon (4.15.0-45-generic Kernel)
 
 Substra deployment is orchestrated by `Kubernetes` and `Minikube` is a great tool for your local Kubernetes deployments.
 
@@ -116,21 +111,20 @@ kubectl version --client
 #### [2. Minikube](https://minikube.sigs.k8s.io/docs/start/)
 
 ```sh
-# Ubuntu/Debian only
+# Ubuntu only
 # Get the executable & install it (Please use the up-to-date version)
 curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube_1.6.2.deb && sudo dpkg -i minikube_1.6.2.deb
 ```
 
 #### [3. Helm](https://helm.sh/)
 
-V3 is not supported yet, please use [Helm v2.16.1](https://github.com/helm/helm/releases/tag/v2.16.1) to get Helm and Tiller.
+V3 is not supported yet, please use [Helm v2.16.1](https://github.com/helm/helm/releases/tag/v2.16.1) to get Helm and Tiller. Tiller has been removed from v3.
 
 ```sh
 # Mac
-# If not already installed with Docker Desktop:
-brew install kubernetes-helm
+brew install helm@2
 
-# Linux (amd64)
+# Ubuntu
 # Get the executable
 curl -LO https://get.helm.sh/helm-v2.16.1-linux-amd64.tar.gz
 # Extract the downloaded archive
@@ -146,7 +140,7 @@ sudo mv tiller helm /usr/local/bin/
 # Mac
 brew install skaffold
 
-# Linux
+# Ubuntu
 # Get the executable
 curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
 # Make it executable on your machine
@@ -157,11 +151,11 @@ sudo mv skaffold /usr/local/bin
 
 ### Virtualisation
 
-- If you are using [VirtualBox](https://www.virtualbox.org/wiki/Downloads) with Ubuntu, you will have to:
+- If you are in a virtualized environment (*within a Virtual Machine*), you will have to:
   - install `socat` with the command `sudo apt-get install socat`
   - launch all commands with `sudo`
   - pass the parameter `--vm-driver=none` when starting Minikube (`minikube start...`) 
-- Ubuntu:
+- If you use Ubuntu (*not in a VM*), you will need to:
   - Validate your host virtualisation with the command `virt-host-validate`: <https://linux.die.net/man/1/virt-host-validate>
   - [KVM (Kernel Virtual Machine) installation](https://help.ubuntu.com/community/KVM/Installation#Installation)
   - Required packages: [Ubuntu help](https://help.ubuntu.com/community/KVM/Installation#Install_Necessary_Packages)
@@ -215,7 +209,7 @@ TODO: add script?
 
 ### 2. Configuration
 
-#### Minikube
+#### Minikube (Ubuntu only)
 
 Please enable the ingress minikube module: `minikube addons enables ingress`. You might need to edit `skaffold.yaml` files and set `nginx-ingress.enabled` to `false`.
 
@@ -227,18 +221,23 @@ cd hlf-k8s
 minikube start --cpus 6 --memory 8192 --disk-size 50g --kubernetes-version='v1.15.4'
 # Frugal setup
 minikube start --cpus 4 --memory 8192 --disk-size 30g --kubernetes-version='v1.15.4'
-# VM setup (Please note that inside the VM, you will to execute all commands with sudo)
+# VM setup (Inside the VM, you will to execute all commands with sudo)
 sudo minikube start --vm-driver=none --kubernetes-version='v1.15.4'
+```
 
-# first time only
+#### Helm init
+
+The first time you install Substra, you will need to use:
+
+```sh
 helm init
-# or you might need to 
+# you might need to use
 helm init --service-account tiller --upgrade
 ```
 
 #### Network
 
-##### Ubuntu
+- Ubuntu
 
 ```sh
 # Append your Kubernetes cluster ip to your system hosts
@@ -267,7 +266,7 @@ If you to expose another service, you can use something like:
 kubectl port-forward -n ${NAMESPACE} service/${SERVICE_NAME} ${SERVICE_PORT}:${PORT_WANTED}
 ```
 
-##### Mac
+- Mac
 
 Once done, we can configure your machine so that the urls `substra-backend.node-1.com`, `substra-backend.node-2.com`, `substra-frontend.node-1.com` and `substra-frontend.node-2.com` point to your local instance of the platform.
 
@@ -388,7 +387,7 @@ In order to stop Substra, hit `ctrl + c` in each repository. On Ubuntu, if you w
 
 ### Reset Substra
 
-You can reset your installation (if you've used `skaffold run` to start it) with:
+You can reset your installation (if you've used `skaffold run`) with:
 
 ```sh
 # run from each repository (hlf-k8s, substra-backend, substra-frontend)
@@ -511,7 +510,7 @@ substra get traintuple HASH
 - After running `skaffold dev` in the `hlf-k8s` repo, in case of error related to the `tempchart` folder, please do `rm -rf tempchart`
 
 
-### Ongoing issues
+### [WIP] Ongoing issues
 
 - Unknown Host Request Forbidden on node 1...
 ```sh
@@ -536,6 +535,7 @@ helm install stable/nginx-ingress \
   --set "controller.extraArgs.report-node-internal-ip-address=" \
   --set "controller.image.runAsUser=101"
   ```
+- If you are getting a `403` error only on <http://substra-backend.node-1.com/> with Firefox, please try with another browser...
 
 ## 6. Further resources
 
