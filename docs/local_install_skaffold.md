@@ -69,8 +69,8 @@ I order to install Substra, it is *recommended* to be comfortable with your pack
 
 If you wish to comfortably run Substra, it is advised to have:
 
-- **50 GB of free space**
-- **8 GB of RAM**
+- **50 GB of free space** as several images need to be pulled.
+- **8 GB of RAM** for Kubernetes.
 
 ### Software requirements
 
@@ -231,6 +231,8 @@ The first time you install Substra, you will need to use:
 
 ```sh
 helm init
+# or 
+helm init --upgrade
 # you might need to use
 helm init --service-account tiller --upgrade
 ```
@@ -241,9 +243,9 @@ helm init --service-account tiller --upgrade
 
 ```sh
 # Append your Kubernetes cluster ip to your system hosts
-echo "$(minikube ip) substra-backend.node-1.com substra-frontend.node-1.com substra-backend.node-2.com substra-frontend.node-2.com" >> /etc/hosts
+echo "$(minikube ip) substra-backend.node-1.com substra-frontend.node-1.com substra-backend.node-2.com substra-frontend.node-2.com" | sudo tee -a /etc/hosts
 
-# Inside a VM you will need to use
+# Inside a VM, you will need to use
 echo "$(sudo minikube ip) substra-backend.node-1.com substra-frontend.node-1.com substra-backend.node-2.com substra-frontend.node-2.com" | sudo tee -a /etc/hosts
 ```
 
@@ -339,7 +341,7 @@ echo "192.168.65.2 substra-backend.node-1.com substra-frontend.node-1.com substr
 
 Please note that these commands are quite long to be executed and might take a few minutes.
 
-In 3 different terminal windows, in this order:
+**In 3 different terminal windows, in this order**:
 
 1. In the `hlf-k8s` repository, please run the command `skaffold dev` (or `skaffold run` for detached mode). The platform will be ready once the terminal displays:
 
@@ -367,16 +369,22 @@ In 3 different terminal windows, in this order:
 
 Alternatively, instead of using `skaffold`, you might want to start the `substra-frontend` with [yarn](https://yarnpkg.com/getting-started/install):
 
-Start redis:
+Start redis in one terminal window:
 ```sh 
 redis-cli
 ```
 
-Launch yarn:
+Launch yarn in another terminal window:
 ```sh
 yarn install
 
 API_URL=http://substra-backend.node-2.com yarn start
+```
+
+You will then have to map the frontend urls to your localhost, like this:
+
+```sh
+127.0.0.1 substra-frontend.node-1.com substra-frontend.node-2.com
 ```
 
 You can now head to <http://substra-frontend.node-1.com:3000/> or <http://substra-frontend.node-2.com:3000/> and start to play with Substra!
@@ -563,7 +571,7 @@ Let's talk:
   - Come to chat with us on [Slack](https://substra-workspace.slack.com/archives/CT54J1U2E)
   - Have a look to the [forum](https://forum.substra.org/)
   - Drop us an [email](mailto:help@substra.org)
-  - Or come meet us *afk* in Paris, Nantes or Limoges!
+  - Or come meet us *irl* in Paris, Nantes or Limoges!
 
 ## 8. Acknowledgements
 
