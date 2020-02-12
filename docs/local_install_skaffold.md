@@ -387,7 +387,7 @@ You will then have to map the frontend urls to your localhost, like this:
 127.0.0.1 substra-frontend.node-1.com substra-frontend.node-2.com
 ```
 
-You can now head to <http://substra-frontend.node-1.com:3000/> or <http://substra-frontend.node-2.com:3000/> and start to play with Substra!
+You can now head to <http://substra-frontend.node-2.com:3000/> and start to play with Substra!
 
 ### Stop Substra
 
@@ -436,7 +436,7 @@ You will then need to:
 - Add `Filters` > `URL Pattern`: `http://susbtra-backend.node-1.com`
 - Add `Filters` > `URL Pattern`: `http://susbtra-backend.node-2.com`
 
-Or import this to the extension:
+TODO: [KO] Or import this to the extension:
 
 ```json
 [{"title":"Profile 1","hideComment":true,"headers":[   {"enabled":true,"name":"Accept","value":"text/html;version=0.0, */*; version=0.0","comment":""}],"respHeaders":[],"filters":[{"enabled":true,"type":"urls","urlRegex":"http://substra-backend.node-2.com"},{"enabled":true,"type":"urls","urlRegex":"http://susbtra-backend.node-1.com"}],"urlReplacements":[],"appendMode":false}]
@@ -471,6 +471,32 @@ See: <https://github.com/SubstraFoundation/substra/blob/master/docs/local_instal
 ### Substra CLI config & login
 
 > Note: On Ubuntu you might need to install `keyrings-alt` with `pip install keyrings-alt`; you might even have to `sudo apt-get remove python3-keyrings.alt python-keyrings.alt`.
+
+Prepare your Python [virtual environment](https://virtualenv.pypa.io/en/latest/) to install the Python package:
+
+
+
+```sh
+# Method 1
+pip --user install virtualenv
+
+virtualenv NAME_OF_YOUR_VENV
+source NAME_OF_YOUR_VENV/bin/activate
+# or source venv/bin/activate.fish if you are an awesome fish shell user :)
+pip install substra
+
+# Method 2
+sudo apt install python3-venv
+
+python3 -m venv substra_venv
+source substra_venv/bin/activate # activate.fish
+pip install substra
+
+# Method 1 & 2: stop your virtual environment
+deactivate
+```
+
+Login with the CLI
 
 ```sh
 # Configuration
