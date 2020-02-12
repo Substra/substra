@@ -128,6 +128,16 @@ class ProgressField(Field):
         return f'{done_count}/{tuple_count}'
 
 
+class MappingField(Field):
+    def get_value(self, item, expand=False):
+        mapping = super().get_value(item) or {}
+        if expand:
+            value = [f'{k}:{v}' for k, v in mapping.items()]
+        else:
+            value = f'{len(mapping)} values'
+        return value
+
+
 class BasePrinter:
     @staticmethod
     def _get_columns(items, fields):
@@ -263,6 +273,7 @@ class ComputePlanPrinter(AssetPrinter):
         KeysField('Testtuple keys', 'testtupleKeys'),
         ProgressField('Progress', 'doneCount', 'tupleCount'),
         Field('Status', 'status'),
+        MappingField('ID to key mapping', 'IDToKey'),
     )
 
     def print_messages(self, item, profile=None):
