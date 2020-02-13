@@ -557,6 +557,7 @@ kubectl edit deployment --namespace kube-system nginx-ingress-controller
 ```
   - Possible alternative to nginx ingress: https://github.com/helm/charts/tree/master/stable/traefik
   - Possible alternative to fix node-1 not being resolved from Clément:
+
 ```sh
 minikube addons disable ingress
 helm install stable/nginx-ingress \
@@ -570,6 +571,7 @@ helm install stable/nginx-ingress \
   --set "controller.image.runAsUser=101"
   ```
 - If you are getting a `403` error only on <http://substra-backend.node-1.com/> with Firefox, please try with another browser...
+- Bad certificate issues: `helm list` or `helm list --all`, `helm delete network-org-1-peer-1 --no-hooks` & in k9s `:jobs` and delete orgs + orderer & `helm delete --purge RELEASE_NAME` (ex. `network-org-1-peer-1`)
 
 ## 6. Further resources
 
@@ -578,6 +580,7 @@ helm install stable/nginx-ingress \
   - `:xray deployments all`
   - `?` for help
   - `/server` then `l` for the logs
+  - `:jobs` might be useful to see what is happening behind the scene
   - `y` to see the YAML configuration
 - kubectx & kubens: <https://github.com/ahmetb/kubectx#installation>
 - Local Kubernetes deployment with minikube: <https://kubernetes.io/blog/2019/03/28/running-kubernetes-locally-on-linux-with-minikube-now-with-kubernetes-1.14-support/>
