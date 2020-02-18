@@ -22,9 +22,6 @@ current_directory = os.path.dirname(__file__)
 assets_keys_path = os.path.join(current_directory, '../../titanic/assets_keys.json')
 folds_keys_path = os.path.join(current_directory, '../folds_keys.json')
 
-with open(os.path.join(current_directory, '../../config.json'), 'r') as f:
-    config = json.load(f)
-
 client = substra.Client(profile_name="node-1")
 client.login()
 
