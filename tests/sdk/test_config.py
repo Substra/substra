@@ -15,6 +15,7 @@ import json
 
 import pytest
 
+import substra
 import substra.sdk.config as configuration
 
 
@@ -75,3 +76,10 @@ def test_load_profile_fail(tmpdir):
 
     with pytest.raises(configuration.ProfileNotFoundError):
         manager.load_profile('notfound')
+
+
+def test_login_without_profile(tmpdir):
+    client = substra.Client()
+
+    with pytest.raises(substra.exceptions.SDKException):
+        client.login()

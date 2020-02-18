@@ -37,6 +37,9 @@ class Client():
     def login(self):
         # we do not use self._headers in order to avoid existing tokens to be sent alongside the
         # required Accept header
+        if 'Accept' not in self._headers:
+            raise exceptions.SDKException("Cannot login: missing headers")
+
         headers = {
             'Accept': self._headers['Accept'],
         }
