@@ -26,7 +26,7 @@ compute_plan_keys_path = os.path.join(current_directory, '../compute_plan_keys.j
 with open(os.path.join(current_directory, '../../config.json'), 'r') as f:
     config = json.load(f)
 
-client = substra.Client()
+client = substra.Client(profile_name="node-1")
 client.login()
 
 print(f'Loading existing asset keys from {os.path.abspath(assets_keys_path)}...')
