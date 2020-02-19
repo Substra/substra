@@ -93,7 +93,6 @@ These sets of versions have been tested for compatilibility:
 
 | substra  | substra-chaincode  | substra-backend  | substra-tests  | hlf-k8s | substra-frontend |
 |---|---|---|---|---|---|
-| [`0.4.0-alpha.2`](https://github.com/SubstraFoundation/substra/releases/tag/0.4.0-alpha.2) | [`0.0.8-alpha.4`](https://github.com/SubstraFoundation/substra-chaincode/releases/tag/0.0.8-alpha.4) | [`0.0.12-alpha.6`](https://github.com/SubstraFoundation/substra-backend/releases/tag/0.0.12-alpha.6) | [`0.1.1`](https://github.com/SubstraFoundation/substra-tests/releases/tag/0.1.1) | [`0.0.10`](https://github.com/SubstraFoundation/hlf-k8s/releases/tag/0.0.10) | |
 | [`0.4.0-alpha.3`](https://github.com/SubstraFoundation/substra/releases/tag/0.4.0-alpha.3) | [`0.0.8-alpha.6`](https://github.com/SubstraFoundation/substra-chaincode/releases/tag/0.0.8-alpha.6) | [`0.0.12-alpha.13`](https://github.com/SubstraFoundation/substra-backend/releases/tag/0.0.12-alpha.13) | [`0.2.0-alpha.1`](https://github.com/SubstraFoundation/substra-tests/releases/tag/0.2.0-alpha.1) | [`0.0.11-alpha.1`](https://github.com/SubstraFoundation/hlf-k8s/releases/tag/0.0.11-alpha.1) | |
 
 **Adding entries to the compatibility table**
