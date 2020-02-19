@@ -35,10 +35,19 @@ class Client():
             self.set_config(config)
 
     def login(self):
+        # we do not use self._headers in order to avoid existing tokens to be sent alongside the
+        # required Accept header
+        if 'Accept' not in self._headers:
+            raise exceptions.SDKException("Cannot login: missing headers")
+
+        headers = {
+            'Accept': self._headers['Accept'],
+        }
+
         try:
             r = requests.post(f'{self._base_url}/api-token-auth/',
                               data=self._auth,
-                              headers=self._headers)
+                              headers=headers)
             r.raise_for_status()
         except requests.exceptions.ConnectionError as e:
             raise exceptions.ConnectionError.from_request_exception(e)

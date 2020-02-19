@@ -110,6 +110,9 @@ class Client(object):
 
         """
 
+        if not self._current_profile:
+            raise exceptions.SDKException("No profile defined")
+
         res = self.client.login()
         token = res.json()['token']
         self._current_profile.update({
