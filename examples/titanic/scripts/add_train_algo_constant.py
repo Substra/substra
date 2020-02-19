@@ -21,11 +21,7 @@ import substra
 current_directory = os.path.dirname(__file__)
 assets_directory = os.path.join(current_directory, '../assets')
 
-with open(os.path.join(current_directory, '../../config.json'), 'r') as f:
-    config = json.load(f)
-
-client = substra.Client()
-client.add_profile(config['profile_name'], config['username'], config['password'],  config['url'])
+client = substra.Client(profile_name="node-1")
 client.login()
 
 ALGO = {
