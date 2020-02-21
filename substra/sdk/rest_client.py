@@ -93,7 +93,7 @@ class Client():
 
         if password is None:
             raise exceptions.KeyringException(
-                Exception("Fetching password error: Check your keyring installation")
+                'Fetching password error: Check your keyring installation'
             )
 
         self._auth = {
