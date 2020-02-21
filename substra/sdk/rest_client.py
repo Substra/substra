@@ -89,9 +89,16 @@ class Client():
             raise exceptions.BadConfiguration('Your configuration is outdated, please update it.')
 
         username = config['auth']['username']
+        password = keyring.get_password(profile_name, username)
+
+        if password is None:
+            raise exceptions.KeyringException(
+                Exception("Fetching password error: Check your keyring installation")
+            )
+
         self._auth = {
             'username': username,
-            'password': keyring.get_password(profile_name, username)
+            'password': password
         }
 
     def __request(self, request_name, url, **request_kwargs):
