@@ -33,8 +33,8 @@ This guide will help you to run the Substra platform on your machine in developm
     - [Minikube useful commands](#minikube-useful-commands)
     - [Tiller](#tiller)
     - [[WIP] Ongoing issues](#wip-ongoing-issues)
-  - [6. Further resources](#6-further-resources)
-  - [7. Need help?](#7-need-help)
+  - [6. Need help?](#6-need-help)
+  - [7. Further resources](#7-further-resources)
   - [8. Acknowledgements](#8-acknowledgements)
 
 ___
@@ -565,7 +565,17 @@ helm install stable/nginx-ingress \
 - Bad certificate issues: `helm list` or `helm list --all`, `helm delete network-org-1-peer-1 --no-hooks` & in k9s `:jobs` and delete orgs + orderer & `helm delete --purge RELEASE_NAME` (ex. `network-org-1-peer-1`). You can then restart `skaffold dev`.
 - [WIP] `Self-signed certificate` issues are related to your network provider/admin
 
-## 6. Further resources
+## 6. Need help?
+
+Let's talk:
+
+- [WIP] [Create an issue on Github](https://github.com/SubstraFoundation/substra/issues/new)
+- Come chat with us on [Slack](https://substra-workspace.slack.com/archives/CT54J1U2E) (Please join the workspace to be able to join our *help* channel)
+- Have a look to the [forum](https://forum.substra.org/)
+- Drop us an [email](mailto:help@substra.org)
+- Or come meet us *irl* in Paris, Nantes or Limoges!
+
+## 7. Further resources
 
 - Use [k9s](https://github.com/derailed/k9s):
   - `CTRL + A`
@@ -593,16 +603,6 @@ helm install stable/nginx-ingress \
   - `tldr minikube`
   - `tldr helm`
   - `tldr skaffold`
-
-## 7. Need help?
-
-Let's talk:
-
-- [WIP] [Create an issue on Github](https://github.com/SubstraFoundation/substra/issues/new)
-- Come chat with us on [Slack](https://substra-workspace.slack.com/archives/CT54J1U2E) (Please join the workspace to be able to join our *help* channel)
-- Have a look to the [forum](https://forum.substra.org/)
-- Drop us an [email](mailto:help@substra.org)
-- Or come meet us *irl* in Paris, Nantes or Limoges!
 
 ## 8. Acknowledgements
 
