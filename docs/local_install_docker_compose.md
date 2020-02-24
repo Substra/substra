@@ -1,24 +1,27 @@
 # Local install of Substra (macOS & Ubuntu/Debian)
 
 - [Local install of Substra (macOS & Ubuntu/Debian)](#local-install-of-substra-macos--ubuntudebian)
-  - [1. Dependencies](#1-dependencies)
-  - [2. Configuration](#2-configuration)
+  - [Dependencies](#dependencies)
+  - [Configuration](#configuration)
     - [Docker](#docker)
     - [Network](#network)
-  - [3. Get source code](#3-get-source-code)
-  - [4. Install command line interface](#4-install-command-line-interface)
-  - [5. Start Substra](#5-start-substra)
+  - [Get source code](#get-source-code)
+  - [Start Substra](#start-substra)
     - [Start the Substra network](#start-the-substra-network)
     - [Start the Django backend](#start-the-django-backend)
     - [Start frontend](#start-frontend)
-  - [6. Add some assets to Substra](#6-add-some-assets-to-substra)
-  - [7. Useful aliases](#7-useful-aliases)
+  - [Install the CLI & the SDK](#install-the-cli--the-sdk)
+    - [Substra CLI config & login](#substra-cli-config--login)
+  - [Now, let's play with Substra!](#now-lets-play-with-substra)
+  - [Useful aliases](#useful-aliases)
+
+> Please consider using the [Kubernetes & Skaffold](./docs/local_install_skaffold.md) installation which is recommended over this docker-compose method.
 
 This guide will help you to get Substra source code and to start a local instance with two nodes: `owkin` and `chunantes`.
 
-## 1. Dependencies
+## Dependencies
 
-- Docker: 
+- Docker:
   - Mac: [Docker Desktop](https://www.docker.com/products/docker-desktop)
   - Ubuntu/Debian: `sudo apt install docker docker-compose`
 - Python 3 (recommended 3.6 or 3.7)
@@ -28,15 +31,14 @@ This guide will help you to get Substra source code and to start a local instanc
   - [Download page](https://redis.io/download) 
   - Or just: `sudo apt install redis-server`
 
-## 2. Configuration
+## Configuration
 
 ### Docker
 
-  - On macOS, by default, docker has access only to the user directory.
-    - Substra requires access to a local folder that you can set through the `SUBSTRA_PATH` variable env (defaults to `/tmp/substra`). Make sure the directory of your choice is accessible by updating accordingly the docker desktop configuration (`Preferences` > `File Sharing`).
+- On macOS, by default, docker has access only to the user directory.
+  - Substra requires access to a local folder that you can set through the `SUBSTRA_PATH` variable env (defaults to `/tmp/substra`). Make sure the directory of your choice is accessible by updating accordingly the docker desktop configuration (`Preferences` > `File Sharing`).
     - Also ensure that the docker daemon has enough resources to execute the ML pipeline, for instance: CPUs>1, Memory>4.0 GiB (`Preferences` > `Advanced`).
-  - On Linux environment, please refer to this [guide](https://github.com/SubstraFoundation/substra-backend/blob/master/README.md) to configure docker.
-    - TODO: MOVE this guide here?
+- On Linux environment, please refer to this [guide](https://github.com/SubstraFoundation/substra-backend/blob/master/doc/linux-userns-guide.md) to configure docker.
 
 ### Network
 
@@ -47,7 +49,7 @@ You will need to map your `localhost` to `owkin` and `chunantes` backend hostnam
 127.0.0.1       substra-backend.owkin.xyz
 ```
 
-## 3. Get source code
+## Get source code
 
 - Define a root directory for all your Substra git repositories, for instance `~/substra`:
 
@@ -65,18 +67,10 @@ cd $SUBSTRA_SOURCE
 
 ```sh
 RepoToClone=(
-#!/bin/bash
-# https
 https://github.com/SubstraFoundation/hlf-k8s.git
 https://github.com/SubstraFoundation/substra-chaincode.git
 https://github.com/SubstraFoundation/substra-backend.git
 https://github.com/SubstraFoundation/substra-frontend.git
-
-# ssh
-# git@github.com:SubstraFoundation/hlf-k8s.git
-# git@github.com:SubstraFoundation/substra-chaincode.git
-# git@github.com:SubstraFoundation/substra-backend.git
-# git@github.com:SubstraFoundation/substra-frontend.git
 )
 for repo in ${RepoToClone[@]}
 do
@@ -84,9 +78,46 @@ do
     git clone $repo
 done
 ```
-TODO: ADD script?
 
-## 4. Install command line interface
+## Start Substra
+
+### Start the Substra network
+
+- Build the network images and start the containers. To do so, launch the python `start.py` script:
+
+```sh
+cd $SUBSTRA_SOURCE/hlf-k8s; ./bootstrap.sh && python3 python-scripts/start.py --no-backup;
+```
+
+### Start the Django backend
+
+- Build the backend images, and start the required containers (postgres, rabbitmq, celeryworker, celerybeat and substra-backend):
+
+```sh
+cd $SUBSTRA_SOURCE/substra-backend; sh build-docker-images.sh; sh scripts/clean_media.sh; cd docker; python3 start.py -d --no-backup;
+```
+
+### Start frontend
+
+- The frontend requires a redis server, start it:
+
+```sh
+redis-server /usr/local/etc/redis.conf
+```
+
+- Install dependencies and start the frontend:
+
+```sh
+cd $SUBSTRA_SOURCE/substra-frontend
+yarn install
+yarn start
+```
+
+You can now go to <http://localhost:3000/> in your browser to access the web interface!
+
+## Install the CLI & the SDK
+
+> Note: CLI and SDK respectively stands for Command Line Interface & Software Development Kit
 
 - It is recommended to create a python virtual environment to install the client dependencies.
 
@@ -113,45 +144,15 @@ substra --version
 0.3.0
 ```
 
-## 5. Start Substra
+### Substra CLI config & login
 
-### Start the Substra network
+Please see the dedicated section: [Login, password and urls](./local_install_skaffold.md#login-password-and-urls)
 
-- Build the network images and start the containers. To do so, launch the python `start.py` script:
+## Now, let's play with Substra!
 
-> ???Note: for now, `start.py` will only work when your repositories are located at the root of the `home` of your machine (`~/substra`)
+One quick way, among others, to test that your setup is functional is to use the `populate` method, prepared especially for you:
 
-```sh
-cd $SUBSTRA_SOURCE/hlf-k8s; ./bootstrap.sh && python3 python-scripts/start.py --no-backup;
-```
-
-### Start the Django backend
-
-- Build the backend images, and start the required containers (postgres, rabbitmq, celeryworker, celerybeat and substra-backend):
-
-```sh
-cd $SUBSTRA_SOURCE/substra-backend; sh build-docker-images.sh; sh scripts/clean_media.sh; cd docker; python3 start.py -d --no-backup;
-```
-
-### Start frontend
-
-- The frontend requires a redis server, start it:
-
-```
-redis-server /usr/local/etc/redis.conf
-```
-
-- Install dependencies and start the frontend:
-
-```sh
-cd $SUBSTRA_SOURCE/substra-frontend
-yarn install
-yarn start
-```
-
-You can now go to <http://localhost:3000/> in your browser to access the web interface!
-
-## 6. Add some assets to Substra
+TODO: test `populate`, cf `populate.py -s -a` mentionned in this issue (closed): <https://github.com/SubstraFoundation/substra-backend/issues/38>
 
 - Execute the `populate.py` script to add assets to Substra:
 
@@ -160,9 +161,19 @@ cd $SUBSTRA_SOURCE/substra-backend/
 python3 populate.py
 ```
 
-You can now use the cli or the frontend to check that the assets have been added.
+You can now either use the CLI, or the SKD, but also the frontend (in your favorite browser) to check that the assets have been added.
 
-## 7. Useful aliases
+If you want to go further, please refer to:
+
+- Documentation:
+  - [CLI](../references/cli.md)
+  - [SDK](../references/sdk.md)
+- Examples:
+  - [Titanic](../examples/titanic/README.md)
+  - [Cross-validation](../examples/cross_val/README.md)
+  - [Compute plan](../examples/compute_plan/README.md)
+
+## Useful aliases
 
 ```sh
 export SUBSTRA_SOURCE=~/substra

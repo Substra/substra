@@ -2,30 +2,39 @@
 
 CLI and SDK for interacting with Substra platform.
 
-## Table of contents
+Table of contents
 
-- [Install](#install)
-- [Running the Substra platform locally](#running-the-substra-platform-locally)
-- [Usage](#usage)
-- [Documentation](#documentation)
-- [Compatibility table](#compatibility-table)
-- [Contributing](#contributing)
+- [!Substra](#substra)
+  - [Installation](#installation)
+  - [Running the Substra platform locally](#running-the-substra-platform-locally)
+    - [[Recommanded method] Kubernetes & Skaffold](#recommanded-method-kubernetes--skaffold)
+    - [[Alternative method] Docker Compose](#alternative-method-docker-compose)
+  - [Usage](#usage)
+    - [CLI](#cli)
+    - [SDK](#sdk)
+  - [Documentation](#documentation)
+  - [Examples](#examples)
+  - [Compatibility table](#compatibility-table)
+  - [Contributing](#contributing)
+    - [Setup](#setup)
+    - [Generate Documentation](#generate-documentation)
+    - [Deploy](#deploy)
 
-## Install
+## Installation
 
 To install the command line interface and the python sdk, run the following command:
 
 ```sh
-pip install substra
+pip3 install substra
 ```
 
-To enable Bash completion, you need to put into your .bashrc:
+To enable Bash completion, you need to put into your `.bashrc`:
 
 ```sh
 eval "$(_SUBSTRA_COMPLETE=source substra)"
 ```
 
-For zsh users add this to your .zshrc:
+For zsh users add this to your `.zshrc`:
 
 ```sh
 eval "$(_SUBSTRA_COMPLETE=source_zsh substra)"
@@ -37,8 +46,13 @@ From this point onwards, substra command line interface will have autocompletion
 
 You can run the Substra platform locally on your machine using one of the two following methods:
 
-* [Using kubernetes and skaffold (recommended)](./docs/local_install_skaffold.md)
-* [Using docker-compose](./docs/local_install_docker_compose.md)
+### [Recommanded method] Kubernetes & Skaffold
+
+[Local installation with Kubernetes & Skaffold](./docs/local_install_skaffold.md)
+
+### [Alternative method] Docker Compose
+
+[Local installation with docker-compose](./docs/local_install_docker_compose.md)
 
 ## Usage
 
@@ -56,7 +70,7 @@ substra --help
 import substra
 
 client = substra.Client()
-# enjoy...
+# enjoy!
 ```
 
 ## Documentation
@@ -122,7 +136,7 @@ To run all tests, use the following command:
 python setup.py test
 ```
 
-### Documentation
+### Generate Documentation
 
 To generate the command line interface documentation, run the following command:
 
@@ -137,7 +151,6 @@ pydocmd simple substra.sdk+ substra.sdk.Client+ > references/sdk.md
 ```
 
 Documentation will be available in *docs/* directory.
-
 
 ### Deploy
 
