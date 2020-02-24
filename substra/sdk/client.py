@@ -123,6 +123,7 @@ class Client(object):
 
     def _set_current_profile(self, profile_name, profile):
         """Set client current profile."""
+        self._profile_name = profile_name
         self._profiles[profile_name] = profile
         self._current_profile = profile
         self.client.set_config(self._current_profile, profile_name)
