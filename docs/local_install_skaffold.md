@@ -5,7 +5,7 @@
 This guide will help you to run the Substra platform on your machine in development mode, with a two nodes setup.
 
 - [Local installation of Substra using Kubernetes and Skaffold](#local-installation-of-substra-using-kubernetes-and-skaffold)
-  - [1. Requirements](#1-requirements)
+  - [1. Substra Setup](#1-substra-setup)
     - [General knowledge](#general-knowledge)
     - [Hardware requirements](#hardware-requirements)
     - [Software requirements](#software-requirements)
@@ -14,9 +14,8 @@ This guide will help you to run the Substra platform on your machine in developm
       - [3. Helm](#3-helm)
       - [4. Skaffold](#4-skaffold)
     - [Virtualization](#virtualization)
-  - [2. Setup](#2-setup)
-    - [1. Get the source code](#1-get-the-source-code)
-    - [2. Configuration](#2-configuration)
+    - [Get the source code](#get-the-source-code)
+    - [Configuration](#configuration)
       - [Minikube (Ubuntu only)](#minikube-ubuntu-only)
       - [Helm init](#helm-init)
       - [Network](#network)
@@ -57,7 +56,7 @@ skaffold dev
 skaffold dev
 ```
 
-## 1. Requirements
+## 1. Substra Setup
 
 ### General knowledge
 
@@ -160,9 +159,7 @@ sudo mv skaffold /usr/local/bin
   - If you need more information about [libvirt & qemu](https://libvirt.org/drvqemu.html)
 - If you use Mac, this virtualization part is already handled for you.
 
-## 2. Setup
-
-### 1. Get the source code
+### Get the source code
 
 You will find the main Substra repository [here](https://github.com/SubstraFoundation/substra), but in order to run the Substra framework, you will need to clone 3 repositories: [hlf-k8s](https://github.com/SubstraFoundation/hlf-k8s) (Hyperledger Fabric), [susbtra-backend](https://github.com/SubstraFoundation/substra-backend) and [substra-frontend](https://github.com/SubstraFoundation/substra-frontend).
 
@@ -175,19 +172,12 @@ The `substra-frontend` will serve a neat interface for the end-users.
 Go to the folder where you want to add the repositories and launch this command:
 
 ```sh
-#!/bin/bash
+
 RepoToClone=(
-# https
 https://github.com/SubstraFoundation/substra.git
 https://github.com/SubstraFoundation/hlf-k8s.git
 https://github.com/SubstraFoundation/substra-frontend.git
 https://github.com/SubstraFoundation/substra-backend.git
-
-# ssh
-# git@github.com:SubstraFoundation/substra.git
-# git@github.com:SubstraFoundation/hlf-k8s.git
-# git@github.com:SubstraFoundation/substra-backend.git
-# git@github.com:SubstraFoundation/substra-frontend.git
 )
 
 for repo in ${RepoToClone[@]}
@@ -197,19 +187,17 @@ do
 done
 ```
 
-TODO: add script?
-
-> Note: if you do not have git on your machine, you can also download and unzip the code using these links:
+> Note: if you do not have `git` on your machine, you can also download and unzip in the same folder the code using these links:
 >
 > - [hlf-k8s](https://github.com/SubstraFoundation/hlf-k8s/archive/master.zip)
 > - [substra-backend](https://github.com/SubstraFoundation/substra-backend/archive/master.zip)
 > - [substra-frontend](https://github.com/SubstraFoundation/substra-frontend/archive/master.zip)
 
-### 2. Configuration
+### Configuration
 
 #### Minikube (Ubuntu only)
 
-> Note: If you are using Mac, this part will be handled by docker desktop for you; you can directly head to the Helm section.
+> Note: If you are using Mac, this part will be handled by Docker Desktop for you; you can directly head to the Helm section. Still, you can use Minikube on Mac and select it in your Docker Desktop application.
 
 Please enable the ingress minikube module: `minikube addons enables ingress`. You might need to edit `skaffold.yaml` files and set `nginx-ingress.enabled` to `false`.
 
@@ -376,7 +364,7 @@ Please note that these commands are quite long to be executed and might take a f
 
 ![CACHING Login](/substra/docs/img/start_frontend.png "CACHING Login")
 
-Alternatively, instead of using `skaffold`, you might want to start the `substra-frontend` with [yarn](https://yarnpkg.com/getting-started/install):
+Alternatively, instead of using `skaffold`, you might want to start the `substra-frontend` with [Yarn](https://yarnpkg.com/getting-started/install):
 
 Start Redis in one terminal window:
 
@@ -411,7 +399,7 @@ If you want to restart, you will just need to run again the `skaffold run` comma
 You can reset your installation (if you've used `skaffold run`) with:
 
 ```sh
-# run from each repository (hlf-k8s, substra-backend, substra-frontend)
+# run from each repositories (hlf-k8s, substra-backend, substra-frontend)
 skaffold delete
 # or
 kubectl rm ns peer-1 peer-2 orderer
@@ -454,7 +442,7 @@ You will then need to:
 - Add `Filters` > `URL Pattern`: `http://susbtra-backend.node-1.com`
 - Add `Filters` > `URL Pattern`: `http://susbtra-backend.node-2.com`
 
-TODO: [KO] Or import this to the extension:
+TODO: [FIX] Or import this to the extension:
 
 ```json
 [{"title":"Profile 1","hideComment":true,"headers":[   {"enabled":true,"name":"Accept","value":"text/html;version=0.0, */*; version=0.0","comment":""}],"respHeaders":[],"filters":[{"enabled":true,"type":"urls","urlRegex":"http://substra-backend.node-2.com"},{"enabled":true,"type":"urls","urlRegex":"http://susbtra-backend.node-1.com"}],"urlReplacements":[],"appendMode":false}]
@@ -589,6 +577,7 @@ helm install stable/nginx-ingress \
 - `kubectx` & `kubens`: <https://github.com/ahmetb/kubectx#installation>
 - Local Kubernetes deployment with minikube: <https://kubernetes.io/blog/2019/03/28/running-kubernetes-locally-on-linux-with-minikube-now-with-kubernetes-1.14-support/>
 - Helm:
+  - Use `helm ls` to get the list of your helm releases (packages). You can also use commands like `helm delete NAME_OF_THE_CHART`
   - <https://www.linux.com/tutorials/helm-kubernetes-package-manager/>
   - [Substra Helm charts](https://hub.helm.sh/charts/substra/hlf-k8s)
   - [Helm 2 documentation](https://v2.helm.sh/docs/)
