@@ -1,4 +1,6 @@
-.PHONY: pyclean doc test
+DOCKER_TAG := latest
+
+.PHONY: pyclean doc test docker
 
 pyclean:
 	find . -type f -name "*.py[co]" -delete
@@ -11,3 +13,6 @@ doc:
 
 test: pyclean
 	python setup.py test
+
+docker:
+	docker build -f docker/Dockerfile . -t substra:$(DOCKER_TAG)
