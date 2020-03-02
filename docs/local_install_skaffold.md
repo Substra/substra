@@ -9,7 +9,7 @@ This guide will help you to run the Substra platform on your machine in developm
     - [General knowledge](#general-knowledge)
     - [Hardware requirements](#hardware-requirements)
     - [Software requirements](#software-requirements)
-      - [1. Kubernetes](#1-kubernetes)
+      - [1. Kubectl](#1-kubectl)
       - [2. Minikube](#2-minikube)
       - [3. Helm](#3-helm)
       - [4. Skaffold](#4-skaffold)
@@ -96,13 +96,14 @@ If you don't have `homebrew` installed, please install it first: <https://brew.s
 
 - Ubuntu
 
-Please use **[Kubernetes v1.15](https://kubernetes.io/docs/tasks/tools/install-kubectl/)** (client & server):
+Please use **[Kubectl v1.16.7](https://github.com/kubernetes/kubectl/releases/tag/v0.16.7)**:
 
 ```sh
-curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/linux/amd64/kubectl
-chmod +x ./kubectl
-sudo mv ./kubectl /usr/local/bin/kubectl
-kubectl version --client
+sudo apt-get update && sudo apt-get install -y apt-transport-https
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get update
+sudo apt-get install -y kubectl=1.16.7-00 -V
 ```
 
 #### [2. Minikube](https://minikube.sigs.k8s.io/docs/start/)
@@ -110,7 +111,8 @@ kubectl version --client
 ```sh
 # Ubuntu only
 # Get the executable & install it (Please use the up-to-date version)
-curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube_1.6.2.deb && sudo dpkg -i minikube_1.6.2.deb
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube_1.7.2-0_amd64.deb && \
+sudo dpkg -i minikube_1.7.2-0_amd64.deb
 ```
 
 #### [3. Helm](https://helm.sh/)
