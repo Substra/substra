@@ -82,7 +82,7 @@ Substra deployment is orchestrated by `Kubernetes` and `Minikube` is a great too
 
 `Skaffold` is a program working on top of the Kubernetes configuration that will operate the deployment for you. It relies on the `skaffold.yaml` files that you will find at the root of each repositories.
 
-#### [1. Kubernetes](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+#### [1. Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 
 - Mac
 
