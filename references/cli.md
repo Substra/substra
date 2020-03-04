@@ -411,7 +411,7 @@ Usage: substra add aggregatetuple [OPTIONS]
 
 Options:
   --algo-key TEXT                 [required]
-  --in-model-key TEXT             In model traintuple key.
+  --in-model-key TEXT             In model traintuple key.  [required]
   --worker TEXT                   Node ID for worker execution.  [required]
   --rank INTEGER
   --tag TEXT
