@@ -55,6 +55,7 @@ setup(
     packages=find_packages(exclude=['docs', 'tests*']),
     include_package_data=True,
     install_requires=['click', 'requests', 'docker', 'consolemd', 'pyyaml', 'keyring'],
+    python_requires='>=3',
     setup_requires=['pytest-runner'],
     tests_require=['pytest', 'pytest-cov', 'pytest-mock', 'keyrings.alt'],
     entry_points={
