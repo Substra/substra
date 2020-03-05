@@ -47,11 +47,16 @@ class ProfileNotFoundError(ConfigException):
 
 
 def _read_config(path):
-    with open(path) as fh:
-        try:
-            return json.load(fh)
-        except json.decoder.JSONDecodeError:
-            raise ConfigException(f"Cannot parse config file '{path}'")
+    try:
+        fh = open(path)
+    except FileNotFoundError:
+        raise ConfigException(f"Cannot find config file '{path}'")
+    else:
+        with fh:
+            try:
+                return json.load(fh)
+            except json.decoder.JSONDecodeError:
+                raise ConfigException(f"Cannot parse config file '{path}'")
 
 
 def _write_config(path, config):
