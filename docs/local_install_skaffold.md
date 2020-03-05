@@ -5,37 +5,41 @@
 This guide will help you to run the Substra platform on your machine in development mode, with a two nodes setup.
 
 - [Local installation of Substra using Kubernetes and Skaffold](#local-installation-of-substra-using-kubernetes-and-skaffold)
-  - [1. Substra Setup](#1-substra-setup)
+  - [Substra Setup](#substra-setup)
     - [General knowledge](#general-knowledge)
     - [Hardware requirements](#hardware-requirements)
     - [Software requirements](#software-requirements)
-      - [1. Kubectl](#1-kubectl)
-      - [2. Minikube](#2-minikube)
-      - [3. Helm](#3-helm)
-      - [4. Skaffold](#4-skaffold)
+      - [Kubernetes](#kubernetes)
+        - [Running Kubernetes locally](#running-kubernetes-locally)
+        - [Installing Kubectl](#installing-kubectl)
+      - [Helm](#helm)
+      - [Skaffold](#skaffold)
     - [Virtualization](#virtualization)
     - [Get the source code](#get-the-source-code)
     - [Configuration](#configuration)
       - [Minikube (Ubuntu only)](#minikube-ubuntu-only)
       - [Helm init](#helm-init)
       - [Network](#network)
-  - [3. Running the platform](#3-running-the-platform)
+  - [Running the platform](#running-the-platform)
     - [Start Substra](#start-substra)
+      - [1. hlf-k8s repository](#1-hlf-k8s-repository)
+      - [2. substra-backend repository](#2-substra-backend-repository)
+      - [3. substra-frontend repository](#3-substra-frontend-repository)
     - [Stop Substra](#stop-substra)
     - [Reset Substra](#reset-substra)
-  - [4. Login, password and urls](#4-login-password-and-urls)
+  - [Login, password and urls](#login-password-and-urls)
     - [Credentials and urls](#credentials-and-urls)
     - [Browser extension](#browser-extension)
     - [Substra CLI config & login](#substra-cli-config--login)
-  - [5. Troubleshooting](#5-troubleshooting)
+  - [Troubleshooting](#troubleshooting)
     - [Virtualization issues](#virtualization-issues)
     - [Kubectl useful commands](#kubectl-useful-commands)
     - [Minikube useful commands](#minikube-useful-commands)
     - [Tiller](#tiller)
     - [[WIP] Ongoing issues](#wip-ongoing-issues)
-  - [6. Need help?](#6-need-help)
-  - [7. Further resources](#7-further-resources)
-  - [8. Acknowledgements](#8-acknowledgements)
+  - [Need help?](#need-help)
+  - [Further resources](#further-resources)
+  - [Acknowledgements](#acknowledgements)
 
 ___
 
@@ -56,11 +60,11 @@ skaffold dev
 skaffold dev
 ```
 
-## 1. Substra Setup
+## Substra Setup
 
 ### General knowledge
 
-I order to install Substra, it is *recommended* to be comfortable with your package manager and to have some basic knowledge of Unix (Mac or Ubuntu/Debian) administration and network.
+In order to install Substra, it is *recommended* to be comfortable with your package manager and to have some basic knowledge of Unix (Mac or Ubuntu/Debian) administration and network. It might also be useful to have a good command of Docker containers and Kubernetes orchestration.
 
 ### Hardware requirements
 
@@ -76,23 +80,38 @@ If you wish to comfortably run Substra, it is advised to have:
 > Note: Please **always** refer to the package provider website before installing any software!
 > Note: This setup has been tested on Ubuntu 19.10, 18.04.3 & Linux Mint 19 Cinnamon (4.15.0-45-generic Kernel)
 
-Substra deployment is orchestrated by `Kubernetes` and `Minikube` is a great tool for your local Kubernetes deployments.
+Substra deployment is orchestrated by `Kubernetes` and `Minikube` is a great tool for your local Kubernetes deployments. For Mac users, we recommend to use Docker Desktop with Kubernetes, but Minikube is an alternative.
 
 `Helm` is a Kubernetes package manager that helps install and manage Kubernetes applications. `Tiller` runs inside the Kubernetes Cluster and manages releases of your charts. Helm has two parts : helm (client) & tiller (server). Charts are Helm packages that contains a package description (`Chart.yaml`) and one or more templates which contain Kubernetes manifest files. Charts can be stored locally or on a distant repository.
 
 `Skaffold` is a program working on top of the Kubernetes configuration that will operate the deployment for you. It relies on the `skaffold.yaml` files that you will find at the root of each repositories.
 
-#### [1. Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+#### Kubernetes
+
+##### Running Kubernetes locally
 
 - Mac
 
-First of all, download the `Docker desktop` installer from <https://www.docker.com/products/docker-desktop>. You'll have to create an account there to do so. Then run it to install Docker on your machine.
+First of all, download the `Docker desktop` installer from <https://www.docker.com/products/docker-desktop>. You'll have to create an account there to do so. Then run it to install Docker on your machine. Once installed, launch Docker and open its "preferences" panel. In the Kubernetes tab, check the `Enable Kubernetes` checkbox. If you want, you can select minikube from the Docker toolbar and restart Docker. Kubernetes will take a while to launch the first time, but once it is done, you can move on to configuring.
 
-Once installed, launch Docker and open its "preferences" panel. In the Kubernetes tab, check the `Enable Kubernetes` checkbox. If you want, you can select minikube from the Docker toolbar and restart Docker.
+- Ubuntu: [Minikube](https://minikube.sigs.k8s.io/docs/start/)
 
-Kubernetes will take a while to launch the first time, but once it is done, you can move on to configuring.
+> Please use the up-to-date version
 
-If you don't have `homebrew` installed, please install it first: <https://brew.sh/>
+```sh
+# Ubuntu only
+# Get the executable & install it
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube_1.7.2-0_amd64.deb && \
+sudo dpkg -i minikube_1.7.2-0_amd64.deb
+```
+
+##### Installing [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+
+- Mac
+
+```sh
+brew install kubectl
+```
 
 - Ubuntu
 
@@ -106,16 +125,7 @@ sudo apt-get update
 sudo apt-get install -y kubectl=1.16.7-00 -V
 ```
 
-#### [2. Minikube](https://minikube.sigs.k8s.io/docs/start/)
-
-```sh
-# Ubuntu only
-# Get the executable & install it (Please use the up-to-date version)
-curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube_1.7.2-0_amd64.deb && \
-sudo dpkg -i minikube_1.7.2-0_amd64.deb
-```
-
-#### [3. Helm](https://helm.sh/)
+#### [Helm](https://helm.sh/)
 
 V3 is not supported yet, please use [Helm v2.16.1](https://github.com/helm/helm/releases/tag/v2.16.1) to get Helm and Tiller. Tiller has been removed from v3.
 
@@ -133,7 +143,7 @@ cd linux-amd64/
 sudo mv tiller helm /usr/local/bin/
 ```
 
-#### [4. Skaffold](https://skaffold.dev/)
+#### [Skaffold](https://skaffold.dev/)
 
 ```sh
 # Mac
@@ -229,6 +239,8 @@ helm init --service-account tiller --upgrade
 
 #### Network
 
+We will now configure your machine so that the urls `substra-backend.node-1.com`, `substra-backend.node-2.com`, `substra-frontend.node-1.com` and `substra-frontend.node-2.com` point to your local instance of the platform.
+
 - Ubuntu
 
 ```sh
@@ -261,9 +273,7 @@ kubectl port-forward -n ${NAMESPACE} service/${SERVICE_NAME} ${SERVICE_PORT}:${P
 
 - Mac
 
-Once done, we can configure your machine so that the urls `substra-backend.node-1.com`, `substra-backend.node-2.com`, `substra-frontend.node-1.com` and `substra-frontend.node-2.com` point to your local instance of the platform.
-
-To do so, you'll first need to get the host IP address from container by running:
+You'll first need to get the host IP address from container by running:
 
 ```sh
 docker run -it --rm busybox ping host.docker.internal
@@ -325,18 +335,19 @@ Running the following command will do it for you (you'll be asked for your passw
 echo "192.168.65.2 substra-backend.node-1.com substra-frontend.node-1.com substra-backend.node-2.com substra-frontend.node-2.com" | sudo tee -a /etc/hosts
 ```
 
-## 3. Running the platform
+## Running the platform
 
 ### Start Substra
 
-- For Ubuntu, once Minikube is running and Tiller initialized, please go the `hlf-k8s`, `substra-backend` and `substra-frontend` repositories and run `skaffold dev` to start Substra with Skaffold.
-- For Mac, directly head to the tree repositories and start Substra with Skaffold.
+> Note: Please be aware that these commands are quite long to be executed and might take a few minutes, especially for the first installation.
 
-Please note that these commands are quite long to be executed and might take a few minutes.
+On both Mac and Ubuntu, once your Kubernetes cluster is up and running (started via Minikube or Docker) and Tiller initialized, you will need to start Substra with Skaffold.
 
 **In 3 different terminal windows, in this order**:
 
-1 In the `hlf-k8s` repository, please run the command `skaffold dev` (or `skaffold run` for detached mode). The platform will be ready once the terminal displays:
+#### 1. hlf-k8s repository
+
+In the `hlf-k8s` repository, please run the command `skaffold dev` (or `skaffold run` for detached mode). The platform will be ready once the terminal displays:
 
 ```sh
 [network-org-2-peer-1-hlf-k8s-chaincode-install-0-4bdd4 fabric-tools] 2019-11-14 09:14:52.070 UTC [chaincodeCmd] install -> INFO 003 Installed remotely response:<status:200 payload:"OK" >
@@ -348,7 +359,9 @@ Please note that these commands are quite long to be executed and might take a f
 
 ![status:200 payload:"OK"](/substra/docs/img/start_hlf-k8s.png "status:200 payload:'OK'")
 
-2 In the `substra-backend` repository, please run the command `skaffold dev`. The platform will be ready once the terminal displays:
+#### 2. substra-backend repository
+
+In the `substra-backend` repository, please run the command `skaffold dev`. The platform will be ready once the terminal displays:
 
 ```sh
 [backend-org-2-substra-backend-server-74bb8486fb-nkq6m substra-backend] INFO - 2020-02-10 10:24:42,514 - django.server - "GET /liveness HTTP/1.1" 200 2
@@ -358,7 +371,9 @@ Please note that these commands are quite long to be executed and might take a f
 
 ![django.server readiness](/substra/docs/img/start_backend.png "django.server readiness")
 
-3 In the `susbtra-frontend` repository, please run the command `skaffold dev`. The platform will be ready once the terminal displays:
+#### 3. substra-frontend repository
+
+In the `susbtra-frontend` repository, please run the command `skaffold dev`. The platform will be ready once the terminal displays:
 
 ```sh
 [frontend-org-2-substra-frontend-787554fc4b-pmh2g substra-frontend] CACHING:  /login
@@ -409,7 +424,7 @@ kubectl rm ns peer-1 peer-2 orderer
 minikube delete
 ```
 
-## 4. Login, password and urls
+## Login, password and urls
 
 ### Credentials and urls
 
@@ -504,7 +519,7 @@ substra list traintuple
 substra get traintuple HASH
 ```
 
-## 5. Troubleshooting
+## Troubleshooting
 
 ### Virtualization issues
 
@@ -567,17 +582,17 @@ helm install stable/nginx-ingress \
 - Bad certificate issues: `helm list` or `helm list --all`, `helm delete network-org-1-peer-1 --no-hooks` & in k9s `:jobs` and delete orgs + orderer & `helm delete --purge RELEASE_NAME` (ex. `network-org-1-peer-1`). You can then restart `skaffold dev`.
 - [WIP] `Self-signed certificate` issues are related to your network provider/admin
 
-## 6. Need help?
+## Need help?
 
 Let's talk:
 
 - [WIP] [Create an issue on Github](https://github.com/SubstraFoundation/substra/issues/new)
-- Come chat with us on [Slack](https://substra-workspace.slack.com/archives/CT54J1U2E) (Please join the workspace to be able to join our *help* channel)
+- Come chat with us on [Slack](https://substra-workspace.slack.com/archives/CT54J1U2E) (Once your request is granted, you will be able to join us, especially the *#help* channel)
 - Have a look to the [forum](https://forum.substra.org/)
 - Drop us an [email](mailto:help@substra.org)
 - Or come meet us *irl* in Paris, Nantes or Limoges!
 
-## 7. Further resources
+## Further resources
 
 - Use [k9s](https://github.com/derailed/k9s):
   - `CTRL + A`
@@ -606,6 +621,6 @@ Let's talk:
   - `tldr helm`
   - `tldr skaffold`
 
-## 8. Acknowledgements
+## Acknowledgements
 
 This amazing piece of software has been developed and open sourced by [Owkin](https://owkin.com/) and its [terrific developers](https://github.com/SubstraFoundation/substra/graphs/contributors). The repositories are now maintained by [Substra Foundation](https://github.com/SubstraFoundation) and its community. Besides, Substra is really excited to welcome new members, feedbacks and contributions, so please, feel free to get in touch with us!
