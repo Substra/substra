@@ -15,10 +15,10 @@ This guide will help you to run the Substra platform on your machine in developm
       - [Helm](#helm)
       - [Skaffold](#skaffold)
     - [Virtualization](#virtualization)
-    - [Get the source code](#get-the-source-code)
+    - [Get the source code (Mac & Ubuntu)](#get-the-source-code-mac--ubuntu)
     - [Configuration](#configuration)
-      - [Minikube (Ubuntu only)](#minikube-ubuntu-only)
-      - [Helm init](#helm-init)
+      - [Minikube (Ubuntu)](#minikube-ubuntu)
+      - [Helm init (Mac & Ubuntu)](#helm-init-mac--ubuntu)
       - [Network](#network)
   - [Running the platform](#running-the-platform)
     - [Start Substra](#start-substra)
@@ -30,7 +30,7 @@ This guide will help you to run the Substra platform on your machine in developm
   - [Login, password and urls](#login-password-and-urls)
     - [Credentials and urls](#credentials-and-urls)
     - [Browser extension](#browser-extension)
-    - [Substra CLI config & login](#substra-cli-config--login)
+    - [Substra CLI config & login (Mac & Ubuntu)](#substra-cli-config--login-mac--ubuntu)
   - [Troubleshooting](#troubleshooting)
     - [Virtualization issues](#virtualization-issues)
     - [Kubectl useful commands](#kubectl-useful-commands)
@@ -46,7 +46,7 @@ ___
 When everything is ready, you will be able to start Substra with:
 
 ```sh
-# Ubuntu only
+# If you use Minikube
 minikube start --cpus 6 --memory 8192 --disk-size 50g --kubernetes-version='v1.15.4'
 
 # In 3 different terminal windows, in this order:
@@ -129,11 +129,15 @@ sudo apt-get install -y kubectl=1.16.7-00 -V
 
 V3 is not supported yet, please use [Helm v2.16.1](https://github.com/helm/helm/releases/tag/v2.16.1) to get Helm and Tiller. Tiller has been removed from v3.
 
-```sh
-# Mac
-brew install helm@2
+- Mac
 
-# Ubuntu
+```sh
+brew install helm@2
+```
+
+- Ubuntu
+
+```sh
 # Get the executable
 curl -LO https://get.helm.sh/helm-v2.16.1-linux-amd64.tar.gz
 # Extract the downloaded archive
@@ -145,11 +149,15 @@ sudo mv tiller helm /usr/local/bin/
 
 #### [Skaffold](https://skaffold.dev/)
 
-```sh
-# Mac
-brew install skaffold
+- Mac
 
-# Ubuntu
+```sh
+brew install skaffold
+```
+
+- Ubuntu
+
+```sh
 # Get the executable
 curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
 # Make it executable on your machine
@@ -160,18 +168,18 @@ sudo mv skaffold /usr/local/bin
 
 ### Virtualization
 
+- If you use Mac, this virtualization part is already handled for you.
 - If you are in a virtualized environment (*within a Virtual Machine*), you will have to:
   - install `socat` with the command `sudo apt-get install socat`
   - launch all commands with `sudo`
-  - pass the parameter `--vm-driver=none` when starting Minikube (`minikube start...`)
+  - pass the parameter `--vm-driver=none` when starting Minikube (`minikube start (...)`)
 - If you use Ubuntu (*not in a VM*), you will need to:
   - Validate your host virtualization with the command `virt-host-validate`: <https://linux.die.net/man/1/virt-host-validate>
   - [KVM (Kernel Virtual Machine) installation](https://help.ubuntu.com/community/KVM/Installation#Installation)
   - Required packages: [Ubuntu help](https://help.ubuntu.com/community/KVM/Installation#Install_Necessary_Packages)
   - If you need more information about [libvirt & qemu](https://libvirt.org/drvqemu.html)
-- If you use Mac, this virtualization part is already handled for you.
 
-### Get the source code
+### Get the source code (Mac & Ubuntu)
 
 You will find the main Substra repository [here](https://github.com/SubstraFoundation/substra), but in order to run the Substra framework, you will need to clone 3 repositories: [hlf-k8s](https://github.com/SubstraFoundation/hlf-k8s) (Hyperledger Fabric), [susbtra-backend](https://github.com/SubstraFoundation/substra-backend) and [substra-frontend](https://github.com/SubstraFoundation/substra-frontend).
 
@@ -184,7 +192,6 @@ The `substra-frontend` will serve a neat interface for the end-users.
 Go to the folder where you want to add the repositories and launch this command:
 
 ```sh
-
 RepoToClone=(
 https://github.com/SubstraFoundation/substra.git
 https://github.com/SubstraFoundation/hlf-k8s.git
@@ -207,11 +214,13 @@ done
 
 ### Configuration
 
-#### Minikube (Ubuntu only)
+#### Minikube (Ubuntu)
 
 > Note: If you are using Mac, this part will be handled by Docker Desktop for you; you can directly head to the Helm section. Still, you can use Minikube on Mac and select it in your Docker Desktop application.
 
 Please enable the ingress minikube module: `minikube addons enables ingress`. You might need to edit `skaffold.yaml` files and set `nginx-ingress.enabled` to `false`.
+
+TODO: check the skaffold yaml edit
 
 You can now start Minikube with:
 
@@ -225,7 +234,7 @@ minikube start --cpus 4 --memory 8192 --disk-size 30g --kubernetes-version='v1.1
 sudo minikube start --vm-driver=none --kubernetes-version='v1.15.4'
 ```
 
-#### Helm init
+#### Helm init (Mac & Ubuntu)
 
 The first time you install Substra, you will need to use:
 
@@ -236,6 +245,8 @@ helm init --upgrade
 # you might need to use
 helm init --service-account tiller --upgrade
 ```
+
+TODO: muscler helm troubleshooting section
 
 #### Network
 
@@ -448,7 +459,7 @@ You should find the credentials in the charts: `skaffold.yaml` files or in the `
 
 ### Browser extension
 
-In order to use the backend pages (API) on your browser, you will need to install this extension that will send a special header containing a version:
+In order to use the backend webpages on your browser, you will need to install this extension that will send a special header containing a `version`:
 
 - [Firefox](https://addons.mozilla.org/en-US/firefox/addon/modheader-firefox/)
 - [Chrome](https://chrome.google.com/webstore/detail/modheader/idgpnmonknjnojddfkpgkljpfnnfcklj)
@@ -462,12 +473,40 @@ You will then need to:
 TODO: [FIX] Or import this to the extension:
 
 ```json
-[{"title":"Profile 1","hideComment":true,"headers":[   {"enabled":true,"name":"Accept","value":"text/html;version=0.0, */*; version=0.0","comment":""}],"respHeaders":[],"filters":[{"enabled":true,"type":"urls","urlRegex":"http://substra-backend.node-2.com"},{"enabled":true,"type":"urls","urlRegex":"http://susbtra-backend.node-1.com"}],"urlReplacements":[],"appendMode":false}]
+[
+    {
+        "title": "Profile 1",
+        "hideComment": true,
+        "headers": [
+            {
+                "enabled": true,
+                "name": "Accept",
+                "value": "text/html;version=0.0, */*; version=0.0",
+                "comment": ""
+            }
+        ],
+        "respHeaders": [],
+        "filters": [
+            {
+                "enabled": true,
+                "type": "urls",
+                "urlRegex": "http://substra-backend.node-2.com"
+            },
+            {
+                "enabled": true,
+                "type": "urls",
+                "urlRegex": "http://susbtra-backend.node-1.com"
+            }
+        ],
+        "urlReplacements": [],
+        "appendMode": false
+    }
+]
 ```
 
 See: <https://github.com/SubstraFoundation/substra-backend#testing-with-the-browsable-api>
 
-### Substra CLI config & login
+### Substra CLI config & login (Mac & Ubuntu)
 
 > Note 1: Substra works on Python 3+
 >
@@ -551,34 +590,7 @@ substra get traintuple HASH
 
 ### [WIP] Ongoing issues
 
-- Unknown Host Request Forbidden on node 1...
-
-```sh
-kubectl edit deployment --namespace kube-system nginx-ingress-controller
-
-# in spec / container / args
-# ADD
-# --enable-ssl-passthrough
-# KO method
-```
-
-- Possible alternative to nginx ingress: <https://github.com/helm/charts/tree/master/stable/traefik>
-- Possible alternative to fix node-1 not being resolved from Clément:
-
-```sh
-minikube addons disable ingress
-helm install stable/nginx-ingress \
-  --name ingress \
-  --namespace kube-system  \
-  --set "controller.image.tag=0.27.1"  \
-  --set "controller.extraArgs.enable-ssl-passthrough="  \
-  --set-string "controller.config.http-redirect-code=301"  \
-  --set controller.hostNetwork=true  \
-  --set "controller.extraArgs.report-node-internal-ip-address=" \
-  --set "controller.image.runAsUser=101"
-  ```
-
-- If you are getting a `403` error only on <http://substra-backend.node-1.com/> and <http://substra-frontend.node-1.com/> with Firefox, please try with another browser...
+- If you are getting a `403` error only on <http://substra-backend.node-1.com/> and <http://substra-frontend.node-1.com/> with Firefox, please check if `dns over https` (Network options) is activated. If so, please try again desactivating this option, or try with another browser...
 - Bad certificate issues: `helm list` or `helm list --all`, `helm delete network-org-1-peer-1 --no-hooks` & in k9s `:jobs` and delete orgs + orderer & `helm delete --purge RELEASE_NAME` (ex. `network-org-1-peer-1`). You can then restart `skaffold dev`.
 - [WIP] `Self-signed certificate` issues are related to your network provider/admin
 
@@ -615,7 +627,7 @@ Let's talk:
 - [Awesome Kubernetes list](https://github.com/ramitsurana/awesome-kubernetes#starting-point)
 - [Minikube](https://minikube.sigs.k8s.io/) is recommended on Ubuntu but you can also use [Microk8s](https://microk8s.io/).
 - Use [Firefox Multi-Account Containers](https://addons.mozilla.org/en-US/firefox/addon/multi-account-containers/) extension to have several simultaneous different logins
-- TLDR (*Too Long; Didn't Read*): `sudo apt install tldr` on Ubuntu or `brew install tldr`
+- TLDR (*Too Long; Didn't Read*): `sudo apt install tldr` on Ubuntu or `brew install tldr` on Mac
   - `tldr kubectl`
   - `tldr minikube`
   - `tldr helm`
