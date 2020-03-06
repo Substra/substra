@@ -459,18 +459,20 @@ You should find the credentials in the charts: `skaffold.yaml` files or in the `
 
 ### Browser extension
 
-In order to use the backend webpages on your browser, you will need to install this extension that will send a special header containing a `version`:
+In order to use the backend webpage on your browser, you will need to install this extension that will send a special header containing a `version`:
 
 - [Firefox](https://addons.mozilla.org/en-US/firefox/addon/modheader-firefox/)
 - [Chrome](https://chrome.google.com/webstore/detail/modheader/idgpnmonknjnojddfkpgkljpfnnfcklj)
 
-You will then need to:
+You will then need add these three elements:
 
-- Add `Request Header`: `text/html;version=0.0, */*; version=0.0`
-- Add `Filters` > `URL Pattern`: `http://susbtra-backend.node-1.com`
-- Add `Filters` > `URL Pattern`: `http://susbtra-backend.node-2.com`
+| Resource | Name | Value |
+| -------- | ---- | ----- |
+| Request Headers | `Accept` | `text/html;version=0.0, */*; version=0.0` |
+| Filters | `URL Pattern` | `http://susbtra-backend.node-1.com` |
+| Filters | `URL Pattern` | `http://susbtra-backend.node-2.com` |
 
-TODO: [FIX] Or import this to the extension:
+Otherwise, you can try to import the following configuration to the extension (via the Import menu):
 
 ```json
 [
@@ -514,7 +516,7 @@ See: <https://github.com/SubstraFoundation/substra-backend#testing-with-the-brow
 >
 > Note 3: If you are working inside a virtualized environment, you probably will have execute to `pip3` commands with `sudo`.
 
-Prepare your Python [virtual environment](https://virtualenv.pypa.io/en/latest/) to install the Python package:
+In order to keep your installation of Substra separated from your general Python environement, which is a general Python good practice, it is recommanded to prepare a Python [virtual environment](https://virtualenv.pypa.io/en/latest/). In a new terminal window, please use one of the following method:
 
 ```sh
 # Method 1
@@ -529,6 +531,7 @@ source NAME_OF_YOUR_VENV/bin/activate
 pip3 install substra
 
 # Method 2
+# Ubuntu
 sudo apt install python3-venv
 
 python3 -m venv substra_venv
@@ -557,6 +560,16 @@ substra list traintuple
 # or
 substra get traintuple HASH
 ```
+
+This is it, if you the `substra login` command is okay, you're good to go! 
+
+Congratulations \o/
+
+![Victory dance](https://media.giphy.com/media/mIZ9rPeMKefm0/giphy.gif)
+
+You can now head to the [usage section]
+
+TODO: ADD usage link
 
 ## Troubleshooting
 
