@@ -650,7 +650,7 @@ def add_traintuple(ctx, algo_key, dataset_key, data_samples, in_models_keys, tag
 
 
 @add.command('aggregatetuple')
-@click.option('--algo-key', required=True)
+@click.option('--algo-key', required=True, help="Aggregate algo key.")
 @click.option('--in-model-key', 'in_models_keys', type=click.STRING, multiple=True,
               help='In model traintuple key.')
 @click.option('--worker', required=True, help='Node ID for worker execution.')
