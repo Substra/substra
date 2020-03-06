@@ -410,7 +410,7 @@ Usage: substra add aggregatetuple [OPTIONS]
   Add aggregatetuple.
 
 Options:
-  --algo-key TEXT                 [required]
+  --algo-key TEXT                 Aggregate algo key.  [required]
   --in-model-key TEXT             In model traintuple key.
   --worker TEXT                   Node ID for worker execution.  [required]
   --rank INTEGER
