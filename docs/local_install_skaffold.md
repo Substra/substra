@@ -645,6 +645,7 @@ Let's talk:
   - `tldr minikube`
   - `tldr helm`
   - `tldr skaffold`
+- If you are looking for Python Virtual Environment resource, you might be interested in this post from [Real Python](https://realpython.com/python-virtual-environments-a-primer/).
 
 ## Acknowledgements
 
