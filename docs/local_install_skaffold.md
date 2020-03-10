@@ -218,7 +218,7 @@ done
 
 > Note: If you are using Mac, this part will be handled by Docker Desktop for you; you can directly head to the Helm section. Still, you can use Minikube on Mac and select it in your Docker Desktop application.
 
-Please enable the ingress minikube module: `minikube addons enables ingress`. You might need to edit `skaffold.yaml` files and set `nginx-ingress.enabled` to `false`.
+Please enable the ingress minikube module: `minikube addons enable ingress`. You might need to edit `skaffold.yaml` files and set `nginx-ingress.enabled` to `false`.
 
 TODO: check the skaffold yaml edit
 
