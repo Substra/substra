@@ -225,7 +225,6 @@ TODO: check the skaffold yaml edit
 You can now start Minikube with:
 
 ```sh
-cd hlf-k8s
 # Comfortable setup
 minikube start --cpus 6 --memory 8192 --disk-size 50g --kubernetes-version='v1.15.4'
 # Frugal setup
