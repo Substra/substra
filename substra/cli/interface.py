@@ -54,7 +54,7 @@ def load_json_from_path(ctx, param, value):
         try:
             json_file = json.load(fp)
         except json.decoder.JSONDecodeError:
-            raise click.BadParameter(f'File "{value}" is not a valid JSON file.')
+            raise click.BadParameter(f"File '{value}' is not a valid JSON file.")
     return json_file
 
 
