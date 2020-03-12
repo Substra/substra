@@ -58,6 +58,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --help                          Show this message and exit.
 ```
@@ -84,6 +85,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --help                          Show this message and exit.
 ```
@@ -125,6 +127,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --yaml                          Display output as yaml.
   --json                          Display output as json.
@@ -179,6 +182,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --yaml                          Display output as yaml.
   --json                          Display output as json.
@@ -219,6 +223,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --yaml                          Display output as yaml.
   --json                          Display output as json.
@@ -279,6 +284,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --yaml                          Display output as yaml.
   --json                          Display output as json.
@@ -319,6 +325,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --yaml                          Display output as yaml.
   --json                          Display output as json.
@@ -359,6 +366,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --yaml                          Display output as yaml.
   --json                          Display output as json.
@@ -395,6 +403,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --yaml                          Display output as yaml.
   --json                          Display output as json.
@@ -421,6 +430,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --yaml                          Display output as yaml.
   --json                          Display output as json.
@@ -467,6 +477,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --yaml                          Display output as yaml.
   --json                          Display output as json.
@@ -503,6 +514,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --yaml                          Display output as yaml.
   --json                          Display output as json.
@@ -527,6 +539,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --yaml                          Display output as yaml.
   --json                          Display output as json.
@@ -547,22 +560,26 @@ Options:
   -f, --filter TEXT               Only display assets that exactly match this
                                   filter. Valid syntax is:
                                   <asset>:<property>:<value>
+
   --and                           Combine filters using logical ANDs
   --or                            Combine filters using logical ORs
   --advanced-filters TEXT         Filter results using a complex search (must
                                   be a JSON array of valid filters).
                                   Incompatible with the --filter option
+
   --is-complex                    When using filters using 'OR', the server
                                   will return a list of matching assets for
                                   each operand. By default these lists are
                                   merged into a single list. When set, this
                                   option disables the lists aggregation.
+
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --yaml                          Display output as yaml.
   --json                          Display output as json.
@@ -586,6 +603,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --help                          Show this message and exit.
 ```
@@ -611,6 +629,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --help                          Show this message and exit.
 ```
@@ -626,12 +645,14 @@ Options:
   --expand                        Display associated assets details
   --sort [asc|desc]               Sort models by highest to lowest perf or
                                   vice versa  [default: desc]
+
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --yaml                          Display output as yaml.
   --json                          Display output as json.
@@ -665,18 +686,24 @@ Usage: substra run-local [OPTIONS] ALGO
 Options:
   --train-opener FILE             opener.py file to use during training.
                                   [required]
+
   --test-opener FILE              opener.py file to use during testing.
                                   [required]
+
   --metrics PATH                  metrics directory or archive to use during
                                   both training and testing.  [required]
+
   --rank INTEGER                  will be passed to the algo during training.
   --train-data-samples DIRECTORY  directory of data samples directories to use
                                   during training.
+
   --test-data-samples DIRECTORY   directory of data samples directories to use
                                   during testing.
+
   --inmodel FILE                  model to use as input during training.
   --fake-data-samples             use fake data samples during both training
                                   and testing.
+
   --help                          Show this message and exit.
 ```
 
@@ -694,6 +721,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --yaml                          Display output as yaml.
   --json                          Display output as json.
@@ -726,6 +754,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --help                          Show this message and exit.
 ```
@@ -744,6 +773,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --help                          Show this message and exit.
 ```
@@ -801,6 +831,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --yaml                          Display output as yaml.
   --json                          Display output as json.
