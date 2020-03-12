@@ -54,7 +54,7 @@ The Docker container is built from an archive containing:
 
 The algo must follow a specific template to be executed properly, basically overloading a train and a predict function ([python implementation](https://github.com/SubstraFoundation/substra-tools/blob/master/docs/api.md#algo)).
 
-**Related to:**
+### Link with other concepts
 
 An algorithm is linked to a unique objective.
 
@@ -62,7 +62,7 @@ An algorithm is linked to a unique objective.
 
 A model is an architecture and a set of parameters specifying completely a predictive function. Typically, it corresponds to the weights of a neural networks in the form of a parsable file (e.g. json or hdf5). Substra helps training new models from older ones by using an algorithm and a dataset.
 
-**Link with other concepts:**
+### Link with other concepts
 
 A model is linked with one or several input models, a dataset, and an algo (and a objective by transitivity).
 
@@ -77,7 +77,7 @@ A traintuple is the explicit specification of a training task. It contains the r
 
 A sequence of traintuple defines a training trajectory.
 
-**Link with other concepts:**
+### Link with other concepts
 
 A traintuple is linked with an objective, one algo, several models, and several train data samples.
 
@@ -94,6 +94,6 @@ However, this can be reduced to simply providing the sole traintuple. The platfo
 
 Using the metrics of the objective linked to the algo, a performance is computed.
 
-**Link with other concepts:**
+### Link with other concepts
 
 A testtuple is linked with a traintuple.

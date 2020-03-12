@@ -18,6 +18,3 @@ sdist/
 .vscode
 .env
 .venv
-
-# Sphinx built
-_build
