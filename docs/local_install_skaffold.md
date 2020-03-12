@@ -509,36 +509,18 @@ See: <https://github.com/SubstraFoundation/substra-backend#testing-with-the-brow
 
 ### Substra CLI config & login (Mac & Ubuntu)
 
-> Note 1: Substra works on Python 3+
+> Note 1: Substra works on Python 3.6.
 >
-> Note 2: On Ubuntu, if the command `pip3 install substra` fails, you might need to install `keyrings-alt` with `pip3 install keyrings-alt`; you might even have to `sudo apt-get remove python3-keyrings.alt python-keyrings.alt`.
+> Note 2: On Ubuntu, if the command `pip3 install substra` fails, you might need to install `keyrings-alt` with `pip3 install keyrings-alt`; you might even have to do `sudo apt-get remove python3-keyrings.alt python-keyrings.alt`.
 >
 > Note 3: If you are working inside a virtualized environment, you probably will have execute to `pip3` commands with `sudo`.
 
-In order to keep your installation of Substra separated from your general Python environement, which is a general Python good practice, it is recommanded to prepare a Python [virtual environment](https://virtualenv.pypa.io/en/latest/). In a new terminal window, please use one of the following method:
+Install the CLI:
+
+> Need help to setup a Python Virtual Environment? [Check this out](#python-virtual-environment)
 
 ```sh
-# Method 1
-pip3 install --user virtualenv
-
-virtualenv -p python3 NAME_OF_YOUR_VENV
-# or
-virtualenv -p $(which python3) NAME_OF_YOUR_VENV
-# then activate your new virtual env
-source NAME_OF_YOUR_VENV/bin/activate
-# or source venv/bin/activate.fish if you are an awesome fish shell user :)
 pip3 install substra
-
-# Method 2
-# Ubuntu
-sudo apt install python3-venv
-
-python3 -m venv substra_venv
-source substra_venv/bin/activate # activate.fish
-pip3 install substra
-
-# Method 1 & 2: stop your virtual environment
-deactivate
 ```
 
 Login with the CLI
@@ -560,15 +542,22 @@ substra list traintuple
 substra get traintuple HASH
 ```
 
-This is it, if you the `substra login` command is okay, you're good to go! 
+This is it, if you the `substra login` command is okay, you're good to go!
 
 Congratulations \o/
 
 ![Victory dance](https://media.giphy.com/media/mIZ9rPeMKefm0/giphy.gif)
 
-You can now head to the [usage section]
+If you want to go further, please refer to:
 
-TODO: ADD usage link
+- Documentation:
+  - [CLI](../references/cli.md)
+  - [SDK](../references/sdk.md)
+- Examples:
+  - [Titanic](../examples/titanic/README.md)
+  - [Cross-validation](../examples/cross_val/README.md)
+  - [Compute plan](../examples/compute_plan/README.md)
+
 
 ## Troubleshooting
 
@@ -618,33 +607,65 @@ Let's talk:
 
 ## Further resources
 
-- Use [k9s](https://github.com/derailed/k9s):
-  - `CTRL + A`
-  - `:xray deployments all`
-  - `?` for help
-  - `/server` then `l` for the logs
-  - `:jobs` might be useful to see what is happening behind the scene
-  - `y` to see the YAML configuration
+### K8s
+
 - `kubectx` & `kubens`: <https://github.com/ahmetb/kubectx#installation>
 - Local Kubernetes deployment with minikube: <https://kubernetes.io/blog/2019/03/28/running-kubernetes-locally-on-linux-with-minikube-now-with-kubernetes-1.14-support/>
-- Helm:
-  - Use `helm ls` to get the list of your helm releases (packages). You can also use commands like `helm delete NAME_OF_THE_CHART`
-  - <https://www.linux.com/tutorials/helm-kubernetes-package-manager/>
-  - [Substra Helm charts](https://hub.helm.sh/charts/substra/hlf-k8s)
-  - [Helm 2 documentation](https://v2.helm.sh/docs/)
-  - [Helm general file structure](https://v2.helm.sh/docs/developing_charts/#the-chart-file-structure)
-- Hyperledger Fabric
-  - Installation: <https://medium.com/hackernoon/hyperledger-fabric-installation-guide-74065855eca9#c566>
-  - Building your first network: <https://hyperledger-fabric.readthedocs.io/en/release-1.4/build_network.html>
 - [Awesome Kubernetes list](https://github.com/ramitsurana/awesome-kubernetes#starting-point)
 - [Minikube](https://minikube.sigs.k8s.io/) is recommended on Ubuntu but you can also use [Microk8s](https://microk8s.io/).
-- Use [Firefox Multi-Account Containers](https://addons.mozilla.org/en-US/firefox/addon/multi-account-containers/) extension to have several simultaneous different logins
-- TLDR (*Too Long; Didn't Read*): `sudo apt install tldr` on Ubuntu or `brew install tldr` on Mac
-  - `tldr kubectl`
-  - `tldr minikube`
-  - `tldr helm`
-  - `tldr skaffold`
-- If you are looking for Python Virtual Environment resource, you might be interested in this post from [Real Python](https://realpython.com/python-virtual-environments-a-primer/).
+
+### K9s
+
+Here some [k9s](https://github.com/derailed/k9s) tips:
+- `CTRL + A`
+- `:xray deployments all`
+- `?` for help
+- `/server` then `l` for the logs
+- `:jobs` might be useful to see what is happening behind the scene
+- `y` to see the YAML configuration
+
+### Helm
+
+- Use `helm ls` to get the list of your helm releases (packages). You can also use commands like `helm delete NAME_OF_THE_CHART`
+- <https://www.linux.com/tutorials/helm-kubernetes-package-manager/>
+- [Substra Helm charts](https://hub.helm.sh/charts/substra/hlf-k8s)
+- [Helm 2 documentation](https://v2.helm.sh/docs/)
+- [Helm general file structure](https://v2.helm.sh/docs/developing_charts/#the-chart-file-structure)
+
+### Hyperledger Fabric
+
+- Installation: <https://medium.com/hackernoon/hyperledger-fabric-installation-guide-74065855eca9#c566>
+- Building your first network: <https://hyperledger-fabric.readthedocs.io/en/release-1.4/build_network.html>
+
+### Python Virtual Environment
+
+In order to keep your installation of Substra separated from your general Python environement, which is a general Python good practice, it is recommanded to prepare a Python [virtual environment](https://virtualenv.pypa.io/en/latest/). In a new terminal window, please use one of the following method:
+
+```sh
+# Method 1
+pip3 install --user virtualenv
+
+virtualenv -p python3 NAME_OF_YOUR_VENV
+# or
+virtualenv -p $(which python3) NAME_OF_YOUR_VENV
+# then activate your new virtual env
+source NAME_OF_YOUR_VENV/bin/activate
+# or source venv/bin/activate.fish if you are an awesome fish shell user :)
+pip3 install substra
+
+# Method 2
+# Ubuntu
+sudo apt install python3-venv
+
+python3 -m venv substra_venv
+source substra_venv/bin/activate # activate.fish
+pip3 install substra
+
+# Method 1 & 2: stop your virtual environment
+deactivate
+```
+
+If you are looking for more Python Virtual Environment resource, you might be interested in this post from [Real Python](https://realpython.com/python-virtual-environments-a-primer/).
 
 ## Acknowledgements
 

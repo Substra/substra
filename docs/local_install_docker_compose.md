@@ -27,9 +27,9 @@ This guide will help you to get Substra source code and to start a local instanc
 - Python 3 (recommended 3.6 or 3.7)
   - It is recommended to use a virtual environment to install Substra packages (for instance [virtualenv](https://virtualenv.pypa.io/en/latest/))
 - [Yarn](https://yarnpkg.com/getting-started/install)
-- Redis Server:
-  - [Download page](https://redis.io/download) 
-  - Or just: `sudo apt install redis-server`
+- [Redis](https://redis.io):
+  - Mac: `brew install redis`
+  - Ubuntu: `sudo apt install redis-server`
 
 ## Configuration
 
@@ -83,6 +83,12 @@ done
 
 ### Start the Substra network
 
+- Install python scripts dependencies:
+
+```sh
+pip3 install pyyaml termcolor
+```
+
 - Build the network images and start the containers. To do so, launch the python `start.py` script:
 
 ```sh
@@ -97,7 +103,7 @@ cd $SUBSTRA_SOURCE/hlf-k8s; ./bootstrap.sh && python3 python-scripts/start.py --
 cd $SUBSTRA_SOURCE/substra-backend; sh build-docker-images.sh; sh scripts/clean_media.sh; cd docker; python3 start.py -d --no-backup;
 ```
 
-### Start frontend
+### Start the frontend
 
 - The frontend requires a redis server, start it:
 
@@ -131,10 +137,8 @@ source substra/bin/activate
 
 - Install Substra python sdk and Substra command line interface.
 
-TODO: ADD requirements.txt! & `pip3 install -r requirements.txt`
-
 ```sh
-pip3 install substra pyyaml termcolor
+pip3 install substra
 ```
 
 - The Substra CLI should have been installed. To check the installation has been successful, launch the `substra --version` command. The following lines should be displayed:
@@ -150,7 +154,7 @@ Please see the dedicated section: [Login, password and urls](./local_install_ska
 
 ## Now, let's play with Substra!
 
-One quick way, among others, to test that your setup is functional is to use the `populate` method, prepared especially for you:
+One quick way, among others, to test that your setup is functional is to use the `populate` method, prepared especially for you. Please note that this `populate` method is designed for testing purpose only, it does not reflect how the platform should be used.
 
 TODO: test `populate`, cf `populate.py -s -a` mentionned in this issue (closed): <https://github.com/SubstraFoundation/substra-backend/issues/38>
 
@@ -161,7 +165,7 @@ cd $SUBSTRA_SOURCE/substra-backend/
 python3 populate.py
 ```
 
-You can now either use the CLI, or the SKD, but also the frontend (in your favorite browser) to check that the assets have been added.
+You can now either use the CLI, or the SDK, but also the frontend (in your favorite browser) to check that the assets have been added.
 
 If you want to go further, please refer to:
 
