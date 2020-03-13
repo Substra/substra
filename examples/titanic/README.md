@@ -15,8 +15,8 @@ In order to run this example, you'll need to:
 * [pull the `substra-tools` docker images](https://github.com/substrafoundation/substra-tools#pull-from-private-docker-registry)
 * create a substra profile to define the substra network to target, for instance:
     ```sh
-    substra config --profile node-1 --username node-1 --password 'p@$swr0d44' http://substra-backend.node-1.com
-    substra login --profile node-1
+    substra config --profile node-1 http://substra-backend.node-1.com
+    substra login --profile node-1 --username node-1 --password 'p@$swr0d44'
     ```
 
 ## Data preparation

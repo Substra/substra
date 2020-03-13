@@ -52,8 +52,7 @@ def client_execute(directory, command, exit_code=0):
     # force using a new config file and a new profile
     if '--config' not in command:
         cfgpath = directory / 'substra.cfg'
-        substra.sdk.config.Manager(str(cfgpath)).add_profile(
-            'default', 'username', 'password', url='http://foo')
+        substra.sdk.config.Manager(str(cfgpath)).add_profile('default', url='http://foo')
         command.extend(['--config', str(cfgpath)])
     return execute(command, exit_code=exit_code)
 
@@ -80,8 +79,6 @@ def test_command_config(workdir):
         new_url,
         '--profile', new_profile,
         '--config', str(cfgfile),
-        '-u', 'foo',
-        '-p', 'bar'
     ])
     assert cfgfile.exists()
 
@@ -100,7 +97,7 @@ def mock_client_call(mocker, method_name, response="", side_effect=None):
 
 def test_command_login(workdir, mocker):
     m = mock_client_call(mocker, 'login')
-    client_execute(workdir, ['login'])
+    client_execute(workdir, ['login', '--username', 'foo', '--password', 'bar'])
     m.assert_called()
 
 

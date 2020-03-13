@@ -25,8 +25,6 @@ def test_add_load_profile(tmpdir):
 
     profile_1 = manager.add_profile(
         'owkin',
-        'substra',
-        'p@$swr0d44',
         url='http://substra-backend.owkin.xyz:8000',
         version='0.0')
 
@@ -38,9 +36,6 @@ def test_add_load_profile_from_file(tmpdir):
     path = tmpdir / 'substra.cfg'
     conf = {
        "node-1": {
-           "auth": {
-               "username": "node-1"
-           },
            "insecure": False,
            "url": "http://substra-backend.node-1.com",
            "version": "0.0"
@@ -82,4 +77,28 @@ def test_login_without_profile(tmpdir):
     client = substra.Client()
 
     with pytest.raises(substra.exceptions.SDKException):
-        client.login()
+        client.login('foo', 'bar')
+
+def test_token_without_user_path(tmpdir):
+    config_path = tmpdir / 'substra.json'
+    config_path.write_text(json.dumps(configuration.DEFAULT_CONFIG), "UTF-8")
+
+    client = substra.Client(config_path=config_path, profile_name='default')
+    assert client._current_profile['token'] == ''
+
+    client = substra.Client(config_path=config_path, profile_name='default', token='foo')
+    assert client._current_profile['token'] == 'foo'
+
+
+def test_token_with_user_path(tmpdir):
+    config_path = tmpdir / 'substra.json'
+    config_path.write_text(json.dumps(configuration.DEFAULT_CONFIG), "UTF-8")
+
+    user_path = tmpdir / 'substra-user.json'
+    user_path.write_text(json.dumps({'token': 'foo'}), "UTF-8")
+
+    client = substra.Client(config_path=config_path, profile_name='default', user_path=user_path)
+    assert client._current_profile['token'] == 'foo'
+
+    client = substra.Client(config_path=config_path, profile_name='default', user_path=user_path, token='bar')
+    assert client._current_profile['token'] == 'bar'

@@ -47,7 +47,6 @@ current_directory = os.path.dirname(__file__)
 assets_directory = os.path.join(current_directory, '../assets')
 
 client = substra.Client(profile_name="node-1")
-client.login()
 
 DATASET = {
     'name': 'Titanic',

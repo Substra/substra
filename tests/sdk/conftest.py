@@ -21,7 +21,7 @@ import substra
 def client(tmpdir):
     config_path = tmpdir / "substra.cfg"
     c = substra.Client(config_path=str(config_path))
-    c.add_profile('test', 'foo', 'password', url="http://foo.io")
+    c.add_profile('test', url="http://foo.io")
     return c
 
 

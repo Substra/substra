@@ -22,7 +22,6 @@ current_directory = os.path.dirname(__file__)
 assets_directory = os.path.join(current_directory, '../assets')
 
 client = substra.Client(profile_name="node-1")
-client.login()
 
 ALGO_KEYS_JSON_FILENAME = 'algo_random_forest_keys.json'
 

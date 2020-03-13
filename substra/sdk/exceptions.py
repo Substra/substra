@@ -145,8 +145,3 @@ class BadConfiguration(SDKException):
 class UserException(SDKException):
     """User Exception"""
     pass
-
-
-class KeyringException(SDKException):
-    """Could not retrieve password from keyring"""
-    pass

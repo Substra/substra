@@ -35,13 +35,11 @@ Usage: substra config [OPTIONS] URL
   Add profile to config file.
 
 Options:
-  --config PATH        Config path (default ~/.substra).
-  --profile TEXT       Profile name to add
-  -k, --insecure       Do not verify SSL certificates
+  --config PATH       Config path (default ~/.substra).
+  --profile TEXT      Profile name to add
+  -k, --insecure      Do not verify SSL certificates
   -v, --version TEXT
-  -u, --username TEXT  [required]
-  -p, --password TEXT  [required]
-  --help               Show this message and exit.
+  --help              Show this message and exit.
 ```
 
 ## substra login
@@ -60,6 +58,8 @@ Options:
                                   user).
 
   --verbose                       Enable verbose mode.
+  -u, --username TEXT
+  -p, --password TEXT
   --help                          Show this message and exit.
 ```
 

@@ -241,14 +241,10 @@ def cli(ctx):
 @click.option('--insecure', '-k', is_flag=True,
               help='Do not verify SSL certificates')
 @click.option('--version', '-v', default=configuration.DEFAULT_VERSION)
-@click.option('--username', '-u', required=True)
-@click.option('--password', '-p', required=True)
-def add_profile_to_config(url, config, profile, insecure, version, username, password):
+def add_profile_to_config(url, config, profile, insecure, version):
     """Add profile to config file."""
     configuration.Manager(config).add_profile(
         profile,
-        username,
-        password,
         url,
         version=version,
         insecure=insecure,
@@ -259,12 +255,14 @@ def add_profile_to_config(url, config, profile, insecure, version, username, pas
 @click_global_conf
 @click.pass_context
 @error_printer
-def login(ctx):
+@click.option('--username', '-u', prompt=True)
+@click.option('--password', '-p', prompt=True, hide_input=True)
+def login(ctx, username, password):
     """Login to the Substra platform."""
     usr.Manager(ctx.obj.user).clear_user()
     client = get_client(ctx.obj)
 
-    token = client.login()
+    token = client.login(username, password)
     # create temporary user data
     usr.Manager(ctx.obj.user).add_user(token)
 
