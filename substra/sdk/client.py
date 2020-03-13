@@ -72,21 +72,24 @@ class Client(object):
         self.set_user()
 
         if token:
-            self._set_token(token)
+            self.set_token(token)
 
     @logit
     def login(self, username, password):
-        """Login to a remote server. """
+        """Login.
 
-        if not self._current_profile:
-            raise exceptions.SDKException("No profile defined")
+        After setting your configuration with `substra config`, launch `substra login`.
+        You will be prompted for your username and password and get a token which will be
+        stored by default in `~/.substra-user`
+        You can change that thanks to the --user option (works like the --profile option)
+        """
 
         res = self.client.login(username, password)
         token = res.json()['token']
-        self._set_token(token)
+        self.set_token(token)
         return token
 
-    def _set_token(self, token):
+    def set_token(self, token):
         if not self._current_profile:
             raise exceptions.SDKException("No profile defined")
 

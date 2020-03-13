@@ -9,7 +9,20 @@ Client(self, config_path=None, profile_name=None, user_path=None, token=None, re
 ```python
 Client.login(self, username, password)
 ```
+<<<<<<< HEAD
 Login to a remote server.
+=======
+Login.
+
+Allow to login to a remote server.
+
+After setting your configuration with `substra config`, launch `substra login`.
+You will be prompted for your username and password and get a token which will be
+stored by default in `~/.substra-user`
+You can change that thanks to the --user option (works like the --profile option)
+
+
+>>>>>>> 7a90427... remove use of keyring
 ## set_profile
 ```python
 Client.set_profile(self, profile_name)
