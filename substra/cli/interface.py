@@ -265,6 +265,7 @@ def login(ctx, username, password):
     token = client.login(username, password)
     # create temporary user data
     usr.Manager(ctx.obj.user).add_user(token)
+    display(f"Token: {token}")
 
 
 @cli.group()
