@@ -79,6 +79,7 @@ def test_login_without_profile(tmpdir):
     with pytest.raises(substra.exceptions.SDKException):
         client.login('foo', 'bar')
 
+
 def test_token_without_user_path(tmpdir):
     config_path = tmpdir / 'substra.json'
     config_path.write_text(json.dumps(configuration.DEFAULT_CONFIG), "UTF-8")
@@ -100,5 +101,6 @@ def test_token_with_user_path(tmpdir):
     client = substra.Client(config_path=config_path, profile_name='default', user_path=user_path)
     assert client._current_profile['token'] == 'foo'
 
-    client = substra.Client(config_path=config_path, profile_name='default', user_path=user_path, token='bar')
+    client = substra.Client(config_path=config_path, profile_name='default', user_path=user_path,
+                            token='bar')
     assert client._current_profile['token'] == 'bar'

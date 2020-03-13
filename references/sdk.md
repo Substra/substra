@@ -9,15 +9,10 @@ Client(self, config_path=None, profile_name=None, user_path=None, token=None, re
 ```python
 Client.login(self, username, password)
 ```
-Login.
+Login to a remote server.
 
-Allow to login to a remote server.
-
-After setting your configuration with `substra config`, launch `substra login`.
-You will be prompted for your username and password and get a token which will be
-stored by default in `~/.substra-user`
-You can change that thanks to the --user option (works like the --profile option)
-
+Will log into the current profile's server and save the resulting token in the configured
+user_path.
 
 ## set_profile
 ```python
