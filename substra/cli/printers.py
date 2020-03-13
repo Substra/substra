@@ -266,6 +266,7 @@ class ComputePlanPrinter(AssetPrinter):
         ProgressField('Progress', 'doneCount', 'tupleCount'),
         Field('Status', 'status'),
         Field('Tag', 'tag'),
+        Field('Clean model', 'clean_model'),
     )
     single_fields = (
         KeysField('Traintuple keys', 'traintupleKeys'),
@@ -275,6 +276,7 @@ class ComputePlanPrinter(AssetPrinter):
         ProgressField('Progress', 'doneCount', 'tupleCount'),
         Field('Status', 'status'),
         Field('Tag', 'tag'),
+        Field('Clean model', 'clean_model'),
         MappingField('ID to key mapping', 'IDToKey'),
     )
 
