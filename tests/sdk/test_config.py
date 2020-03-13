@@ -101,5 +101,6 @@ def test_token_with_user_path(tmpdir):
     client = substra.Client(config_path=config_path, profile_name='default', user_path=user_path)
     assert client._current_profile['token'] == 'foo'
 
-    client = substra.Client(config_path=config_path, profile_name='default', user_path=user_path, token='bar')
+    client = substra.Client(config_path=config_path, profile_name='default', user_path=user_path,
+                            token='bar')
     assert client._current_profile['token'] == 'bar'

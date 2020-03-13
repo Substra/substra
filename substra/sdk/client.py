@@ -72,7 +72,7 @@ class Client(object):
         self.set_user()
 
         if token:
-            self.set_token(token)
+            self._set_token(token)
 
     @logit
     def login(self, username, password):
@@ -86,10 +86,10 @@ class Client(object):
 
         res = self.client.login(username, password)
         token = res.json()['token']
-        self.set_token(token)
+        self._set_token(token)
         return token
 
-    def set_token(self, token):
+    def _set_token(self, token):
         if not self._current_profile:
             raise exceptions.SDKException("No profile defined")
 
