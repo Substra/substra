@@ -47,16 +47,14 @@ class ProfileNotFoundError(ConfigException):
 
 
 def _read_config(path):
-    try:
-        fh = open(path)
-    except FileNotFoundError:
+    if not os.path.exists(path):
         raise ConfigException(f"Cannot find config file '{path}'")
-    else:
-        with fh:
-            try:
-                return json.load(fh)
-            except json.decoder.JSONDecodeError:
-                raise ConfigException(f"Cannot parse config file '{path}'")
+
+    with open(path) as fh:
+        try:
+            return json.load(fh)
+        except json.decoder.JSONDecodeError:
+            raise ConfigException(f"Cannot parse config file '{path}'")
 
 
 def _write_config(path, config):
@@ -81,7 +79,7 @@ def _add_profile(path, name, url, username, version, insecure):
     # read config file
     try:
         config = _read_config(path)
-    except FileNotFoundError:
+    except ConfigException:
         config = copy.deepcopy(DEFAULT_CONFIG)
 
     # create profile
