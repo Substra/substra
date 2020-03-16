@@ -166,7 +166,7 @@ def test_command_add(asset_name, params, workdir, mocker):
 
     res = client_execute(workdir, ['add', asset_name] + params + ['non_existing_file.txt'],
                          exit_code=2)
-    assert re.search(r"File \".*\" does not exist\.", res)
+    assert re.search(r"File '.*' does not exist\.", res)
 
 
 def test_command_add_objective(workdir, mocker):
@@ -184,11 +184,11 @@ def test_command_add_objective(workdir, mocker):
 
     res = client_execute(workdir, ['add', 'objective', 'non_existing_file.txt', '--dataset-key',
                                    'foo', '--data-samples-path', str(json_file)], exit_code=2)
-    assert re.search(r"File \".*\" does not exist\.", res)
+    assert re.search(r"File '.*' does not exist\.", res)
 
     res = client_execute(workdir, ['add', 'objective', str(json_file), '--dataset-key', 'foo',
                                    '--data-samples-path', 'non_existing_file.txt'], exit_code=2)
-    assert re.search(r"File \".*\" does not exist\.", res)
+    assert re.search(r"File '.*' does not exist\.", res)
 
     invalid_json_file = workdir / "invalid_json_file.md"
     invalid_json_file.write_text("test")
@@ -258,7 +258,7 @@ def test_command_add_data_sample(workdir, mocker):
 
     res = client_execute(workdir, ['add', 'data_sample', 'dir', '--dataset-key', 'foo'],
                          exit_code=2)
-    assert re.search(r"Directory \".*\" does not exist\.", res)
+    assert re.search(r"Directory '.*' does not exist\.", res)
 
 
 @pytest.mark.parametrize('asset_name, params', [
@@ -367,7 +367,7 @@ def test_command_update_data_sample(workdir, mocker):
 
     res = client_execute(workdir, ['update', 'data_sample', 'non_existing_file.txt',
                                    '--dataset-key', 'foo'], exit_code=2)
-    assert re.search(r"File \".*\" does not exist\.", res)
+    assert re.search(r"File '.*' does not exist\.", res)
 
 
 @pytest.mark.parametrize('exception', [
