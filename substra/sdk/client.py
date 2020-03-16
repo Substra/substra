@@ -20,8 +20,7 @@ import time
 import json
 
 from substra.sdk import utils, assets, rest_client, exceptions
-from substra.sdk import config as cfg
-from substra.sdk import user as usr
+from substra.sdk.config import ProfileConfigManager, ProfileTokenManager, ProfileNotFoundError
 
 logger = logging.getLogger(__name__)
 
@@ -53,93 +52,55 @@ def get_asset_key(data):
 
 
 class Client(object):
-
-    def __init__(self, config_path=None, profile_name=None, user_path=None,
-                 token=None, retry_timeout=DEFAULT_RETRY_TIMEOUT):
-        self._cfg_manager = cfg.Manager(config_path or cfg.DEFAULT_PATH)
-        self._usr_manager = usr.Manager(user_path or usr.DEFAULT_PATH)
-        self._current_profile = None
-        self._profiles = {}
+    def __init__(self, config_path=None, profile_name=None, token_path=None,
+                 retry_timeout=DEFAULT_RETRY_TIMEOUT):
+        self._cfg_manager = ProfileConfigManager(config_path)
+        self._token_manager = ProfileTokenManager(token_path)
         self.client = rest_client.Client()
-        self._profile_name = 'default'
         self._retry_timeout = retry_timeout
 
         if profile_name:
-            self._profile_name = profile_name
-            self.set_profile(profile_name)
+            self.use_profile(profile_name)
+        else:
+            try:
+                self.use_profile('default')
+            except ProfileNotFoundError:
+                pass
 
-        # set current logged user if exists
-        self.set_user()
+    def use_profile(self, profile_name):
+        """Set client current profile."""
+        cfg = {}
+        cfg.update(self._cfg_manager.get_profile(profile_name))
+        try:
+            cfg.update(self._token_manager.get_profile(profile_name))
+        except ProfileNotFoundError:
+            pass
+        self.client.set_config(cfg)
+        self._current_profile_name = profile_name
 
+    def add_profile(self, profile_name, url, version='0.0', insecure=False, token=None):
+        """Add new profile (in-memory only) and configure client to use it."""
+        self._cfg_manager.set_profile(profile_name, url, version, insecure)
         if token:
-            self._set_token(token)
+            self._token_manager.set_profile(profile_name, token)
+        self.use_profile(profile_name)
 
     @logit
     def login(self, username, password):
         """Login to a remote server. """
 
-        if not self._current_profile:
+        if not self._current_profile_name:
             raise exceptions.SDKException("No profile defined")
 
         res = self.client.login(username, password)
         token = res.json()['token']
-        self._set_token(token)
+
+        self._token_manager.set_profile(self._current_profile_name, token)
+        self.use_profile(self._current_profile_name)
+
         return token
 
-    def _set_token(self, token):
-        if not self._current_profile:
-            raise exceptions.SDKException("No profile defined")
-
-        self._current_profile.update({
-            'token': token,
-        })
-        self.client.set_config(self._current_profile, self._profile_name)
-        return token
-
-    def _set_current_profile(self, profile_name, profile):
-        """Set client current profile."""
-        self._profile_name = profile_name
-        self._profiles[profile_name] = profile
-        self._current_profile = profile
-        self.client.set_config(self._current_profile, profile_name)
-
-        return profile
-
-    def set_profile(self, profile_name):
-        """Set profile from profile name.
-
-        If profiles has not been defined through the `add_profile` method, it is loaded
-        from the config file.
-        """
-        try:
-            profile = self._profiles[profile_name]
-        except KeyError:
-            profile = self._cfg_manager.load_profile(profile_name)
-
-        return self._set_current_profile(profile_name, profile)
-
-    def set_user(self):
-        try:
-            user = self._usr_manager.load_user()
-        except (exceptions.UserException, FileNotFoundError):
-            pass
-        else:
-            if self._current_profile is not None and 'token' in user:
-                self._current_profile.update({
-                    'token': user['token'],
-                })
-                self.client.set_config(self._current_profile, self._profile_name)
-
-    def add_profile(self, profile_name, url, version='0.0', insecure=False):
-        """Add new profile (in-memory only)."""
-        profile = cfg.create_profile(
-            url=url,
-            version=version,
-            insecure=insecure,
-        )
-        return self._set_current_profile(profile_name, profile)
-
-    def _add(self, asset, data, files=None, exist_ok=False):
+    def _add(self, asset, data, files=None, exist_ok=False, json_encoding=False):
         """Add asset."""
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
         if files:

@@ -54,8 +54,8 @@ Options:
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
-  --user FILE                     User file path to use (default ~/.substra-
-                                  user).
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
 
   --verbose                       Enable verbose mode.
   -u, --username TEXT
@@ -83,8 +83,8 @@ Options:
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
-  --user FILE                     User file path to use (default ~/.substra-
-                                  user).
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
 
   --verbose                       Enable verbose mode.
   --help                          Show this message and exit.
@@ -125,8 +125,8 @@ Options:
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
-  --user FILE                     User file path to use (default ~/.substra-
-                                  user).
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
@@ -179,8 +179,8 @@ Options:
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
-  --user FILE                     User file path to use (default ~/.substra-
-                                  user).
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
@@ -219,8 +219,8 @@ Options:
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
-  --user FILE                     User file path to use (default ~/.substra-
-                                  user).
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
@@ -279,8 +279,8 @@ Options:
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
-  --user FILE                     User file path to use (default ~/.substra-
-                                  user).
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
@@ -319,8 +319,8 @@ Options:
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
-  --user FILE                     User file path to use (default ~/.substra-
-                                  user).
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
@@ -359,8 +359,8 @@ Options:
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
-  --user FILE                     User file path to use (default ~/.substra-
-                                  user).
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
@@ -395,8 +395,8 @@ Options:
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
-  --user FILE                     User file path to use (default ~/.substra-
-                                  user).
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
@@ -421,8 +421,8 @@ Options:
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
-  --user FILE                     User file path to use (default ~/.substra-
-                                  user).
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
@@ -467,8 +467,8 @@ Options:
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
-  --user FILE                     User file path to use (default ~/.substra-
-                                  user).
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
@@ -503,8 +503,8 @@ Options:
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
-  --user FILE                     User file path to use (default ~/.substra-
-                                  user).
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
@@ -527,8 +527,8 @@ Options:
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
-  --user FILE                     User file path to use (default ~/.substra-
-                                  user).
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
@@ -560,8 +560,8 @@ Options:
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
-  --user FILE                     User file path to use (default ~/.substra-
-                                  user).
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
@@ -583,8 +583,8 @@ Options:
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
-  --user FILE                     User file path to use (default ~/.substra-
-                                  user).
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
 
   --verbose                       Enable verbose mode.
   --help                          Show this message and exit.
@@ -609,8 +609,8 @@ Options:
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
-  --user FILE                     User file path to use (default ~/.substra-
-                                  user).
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
 
   --verbose                       Enable verbose mode.
   --help                          Show this message and exit.
@@ -632,8 +632,8 @@ Options:
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
-  --user FILE                     User file path to use (default ~/.substra-
-                                  user).
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
@@ -700,8 +700,8 @@ Options:
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
-  --user FILE                     User file path to use (default ~/.substra-
-                                  user).
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
@@ -732,8 +732,8 @@ Options:
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
-  --user FILE                     User file path to use (default ~/.substra-
-                                  user).
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
 
   --verbose                       Enable verbose mode.
   --help                          Show this message and exit.
@@ -751,8 +751,8 @@ Options:
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
-  --user FILE                     User file path to use (default ~/.substra-
-                                  user).
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
 
   --verbose                       Enable verbose mode.
   --help                          Show this message and exit.
@@ -809,8 +809,8 @@ Options:
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
-  --user FILE                     User file path to use (default ~/.substra-
-                                  user).
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]

@@ -65,12 +65,12 @@ class Client():
         else:
             return r
 
-    def set_config(self, config, profile_name='default'):
+    def set_config(self, config):
         """Reset internal attributes from config."""
         # get default requests keyword arguments from config
         kwargs = {}
 
-        if config['insecure']:
+        if config.get('insecure'):
             kwargs['verify'] = False
 
         # get default HTTP headers from config

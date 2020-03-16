@@ -23,23 +23,24 @@ import consolemd
 from substra import __version__, runner
 from substra.cli import printers
 from substra.sdk import assets, exceptions
-from substra.sdk import config as configuration
+from substra.sdk.config import ProfileConfigManager, ProfileTokenManager, ProfileNotFoundError
 from substra.sdk.client import Client
-from substra.sdk import user as usr
 
 
 def get_client(global_conf):
-    """Initialize substra client from config file, profile name and user file."""
+    """Initialize substra client from config file, profile name and tokens file."""
     help_command = "substra config <url> ..."
 
     try:
-        client = Client(global_conf.config, global_conf.profile, global_conf.user)
+        client = Client(config_path=global_conf.config,
+                        profile_name=global_conf.profile,
+                        token_path=global_conf.tokens)
 
     except FileNotFoundError:
         raise click.ClickException(
             f"Config file '{global_conf.config}' not found. Please run '{help_command}'.")
 
-    except configuration.ProfileNotFoundError:
+    except ProfileNotFoundError:
         raise click.ClickException(
             f"Profile '{global_conf.profile}' not found. Please run '{help_command}'.")
 
@@ -71,7 +72,7 @@ class GlobalConf:
     def __init__(self):
         self.profile = None
         self.config = None
-        self.user = None
+        self.tokens = None
         self.verbose = None
         self.output_format = None
 
@@ -90,15 +91,15 @@ def click_global_conf_profile(f):
         help='Profile name to use.')(f)
 
 
-def click_global_conf_user(f):
-    """Add user option to command."""
+def click_global_conf_tokens(f):
+    """Add tokens option to command."""
     return click.option(
-        '--user',
+        '--tokens',
         expose_value=False,
         type=click.Path(dir_okay=False, resolve_path=True),
         callback=update_global_conf,
-        default=usr.DEFAULT_PATH,
-        help='User file path to use (default ~/.substra-user).')(f)
+        default=ProfileTokenManager.DEFAULT_PATH,
+        help='Tokens file path to use (default ~/.substra-tokens).')(f)
 
 
 def click_global_conf_config(f):
@@ -108,7 +109,7 @@ def click_global_conf_config(f):
         expose_value=False,
         type=click.Path(exists=True, resolve_path=True),
         callback=update_global_conf,
-        default=os.path.expanduser('~/.substra'),
+        default=ProfileConfigManager.DEFAULT_PATH,
         help='Config path (default ~/.substra).')(f)
 
 
@@ -154,7 +155,7 @@ def click_global_conf_output_format(f):
 
 def click_global_conf(f):
     f = click_global_conf_verbose(f)
-    f = click_global_conf_user(f)
+    f = click_global_conf_tokens(f)
     f = click_global_conf_profile(f)
     f = click_global_conf_config(f)
     f = click_global_conf_log_level(f)
@@ -234,21 +235,23 @@ def cli(ctx):
 @cli.command('config')
 @click.argument('url')
 @click.option('--config', type=click.Path(),
-              default=configuration.DEFAULT_PATH,
+              default=ProfileConfigManager.DEFAULT_PATH,
               help='Config path (default ~/.substra).')
 @click.option('--profile', default='default',
               help='Profile name to add')
 @click.option('--insecure', '-k', is_flag=True,
               help='Do not verify SSL certificates')
-@click.option('--version', '-v', default=configuration.DEFAULT_VERSION)
+@click.option('--version', '-v', default=ProfileConfigManager.DEFAULT_VERSION)
 def add_profile_to_config(url, config, profile, insecure, version):
     """Add profile to config file."""
-    configuration.Manager(config).add_profile(
+    manager = ProfileConfigManager(config)
+    manager.set_profile(
         profile,
         url,
         version=version,
         insecure=insecure,
     )
+    manager.save_profiles()
 
 
 @cli.command('login')
@@ -259,12 +262,13 @@ def add_profile_to_config(url, config, profile, insecure, version):
 @click.option('--password', '-p', envvar='SUBSTRA_PASSWORD', prompt=True, hide_input=True)
 def login(ctx, username, password):
     """Login to the Substra platform."""
-    usr.Manager(ctx.obj.user).clear_user()
     client = get_client(ctx.obj)
-
     token = client.login(username, password)
-    # create temporary user data
-    usr.Manager(ctx.obj.user).add_user(token)
+
+    manager = ProfileTokenManager(ctx.obj.tokens)
+    manager.set_profile(ctx.obj.profile, token)
+    manager.save_profiles()
+
     display(f"Token: {token}")
 
 

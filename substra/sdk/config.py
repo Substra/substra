@@ -12,26 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import copy
 import json
 import logging
 import os
 
 logger = logging.getLogger(__name__)
-
-DEFAULT_PATH = os.path.expanduser('~/.substra')
-DEFAULT_VERSION = '0.0'
-DEFAULT_URL = 'http://127.0.0.1:8000'
-DEFAULT_PROFILE_NAME = 'default'
-DEFAULT_INSECURE = False
-
-DEFAULT_CONFIG = {
-    DEFAULT_PROFILE_NAME: {
-        'url': DEFAULT_URL,
-        'version': DEFAULT_VERSION,
-        'insecure': DEFAULT_INSECURE,
-    }
-}
 
 
 class ConfigException(Exception):
@@ -42,88 +27,60 @@ class ProfileNotFoundError(ConfigException):
     pass
 
 
-def _read_config(path):
-    if not os.path.exists(path):
-        raise ConfigException(f"Cannot find config file '{path}'")
+class _ProfileManager():
+    DEFAULT_PATH = None
 
-    with open(path) as fh:
+    def __init__(self, path=None, profiles=None):
+        self.path = path or self.DEFAULT_PATH
+
+        if self.path and os.path.exists(self.path):
+            self.load_profiles()
+
+        if profiles:
+            self.profiles = profiles
+
+        if not hasattr(self, 'profiles'):
+            self.profiles = {}
+
+    def load_profiles(self):
+        with open(self.path) as fh:
+            try:
+                profiles = json.load(fh)
+            except json.decoder.JSONDecodeError:
+                raise ConfigException(f"Cannot parse config file '{self.path}'")
+        self.profiles = profiles
+
+    def save_profiles(self):
+        with open(self.path, 'w') as f:
+            json.dump(self.profiles, f, indent=2, sort_keys=True)
+
+    def set_profile(self, profile_name, profile_data):
+        self.profiles[profile_name] = profile_data
+
+    def get_profile(self, profile_name):
         try:
-            return json.load(fh)
-        except json.decoder.JSONDecodeError:
-            raise ConfigException(f"Cannot parse config file '{path}'")
+            return self.profiles[profile_name]
+        except KeyError:
+            raise ProfileNotFoundError(profile_name)
 
 
-def _write_config(path, config):
-    with open(path, 'w') as fh:
-        json.dump(config, fh, indent=2, sort_keys=True)
+class ProfileConfigManager(_ProfileManager):
+    DEFAULT_PATH = os.path.expanduser('~/.substra')
+    DEFAULT_VERSION = '0.0'
+    DEFAULT_INSECURE = False
+
+    def set_profile(self, profile_name, url, version=None, insecure=None):
+        super().set_profile(profile_name, {
+            'url': url,
+            'version': version or self.DEFAULT_VERSION,
+            'insecure': insecure or self.DEFAULT_INSECURE,
+        })
 
 
-def create_profile(url, version, insecure):
-    """Create profile object."""
-    return {
-        'url': url,
-        'version': version,
-        'insecure': insecure,
-    }
+class ProfileTokenManager(_ProfileManager):
+    DEFAULT_PATH = os.path.expanduser('~/.substra-tokens')
 
-
-def _add_profile(path, name, url, version, insecure):
-    """Add profile to config file on disk."""
-    # read config file
-    try:
-        config = _read_config(path)
-    except ConfigException:
-        config = copy.deepcopy(DEFAULT_CONFIG)
-
-    # create profile
-    profile = create_profile(url, version, insecure)
-
-    # update config file
-    if name in config:
-        config[name].update(profile)
-    else:
-        config[name] = profile
-
-    _write_config(path, config)
-    return config
-
-
-def _load_profile(path, name):
-    """Load profile from config file on disk.
-
-    Raises:
-        FileNotFoundError: if config file does not exist.
-        ProfileNotFoundError: if profile does not exist.
-    """
-    logger.debug(f"Loading profile '{name}' from '{path}'")
-    config = _read_config(path)
-    try:
-        return config[name]
-    except KeyError:
-        raise ProfileNotFoundError(name)
-
-
-class Manager():
-    def __init__(self, path=DEFAULT_PATH):
-        self.path = path
-
-    def add_profile(self, name, url=DEFAULT_URL,
-                    version=DEFAULT_VERSION, insecure=False):
-        """Add profile to config file on disk."""
-        config = _add_profile(
-            self.path,
-            name,
-            url,
-            version=version,
-            insecure=insecure,
-        )
-        return config[name]
-
-    def load_profile(self, name):
-        """Load profile from config file on disk.
-
-        Raises:
-            FileNotFoundError: if config file does not exist.
-            ProfileNotFoundError: if profile does not exist.
-        """
-        return _load_profile(self.path, name)
+    def set_profile(self, profile_name, token):
+        super().set_profile(profile_name, {
+            'token': token
+        })

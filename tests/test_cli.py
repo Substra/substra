@@ -52,8 +52,14 @@ def client_execute(directory, command, exit_code=0):
     # force using a new config file and a new profile
     if '--config' not in command:
         cfgpath = directory / 'substra.cfg'
-        substra.sdk.config.Manager(str(cfgpath)).add_profile('default', url='http://foo')
+        manager = substra.sdk.config.ProfileConfigManager(str(cfgpath))
+        manager.set_profile('default', url='http://foo')
+        manager.save_profiles()
         command.extend(['--config', str(cfgpath)])
+    if '--tokens' not in command:
+        token_path = directory / 'substra-tokens.cfg'
+        command.extend(['--tokens', str(token_path)])
+
     return execute(command, exit_code=exit_code)
 
 
@@ -86,7 +92,7 @@ def test_command_config(workdir):
     # has been created
     with cfgfile.open() as fp:
         cfg = json.load(fp)
-    expected_profiles = ['default', 'foo']
+    expected_profiles = ['foo']
     assert list(cfg.keys()) == expected_profiles
 
 
