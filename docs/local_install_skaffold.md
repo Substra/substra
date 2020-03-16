@@ -616,7 +616,8 @@ Let's talk:
 
 ### K9s
 
-Here some [k9s](https://github.com/derailed/k9s) tips:
+Here are some [k9s](https://github.com/derailed/k9s) tips:
+
 - `CTRL + A`
 - `:xray deployments all`
 - `?` for help
