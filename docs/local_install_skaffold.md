@@ -642,23 +642,24 @@ Here some [k9s](https://github.com/derailed/k9s) tips:
 In order to keep your installation of Substra separated from your general Python environement, which is a general Python good practice, it is recommanded to prepare a Python [virtual environment](https://virtualenv.pypa.io/en/latest/). In a new terminal window, please use one of the following method:
 
 ```sh
-# Method 1
+# Method 1: install the virtualenv package
 pip3 install --user virtualenv
 
+# Create a new virtual environment
 virtualenv -p python3 NAME_OF_YOUR_VENV
-# or
+# or even
 virtualenv -p $(which python3) NAME_OF_YOUR_VENV
-# then activate your new virtual env
+
+# Method 2: install the python3-venv package
+sudo apt install python3-venv # (Ubuntu)
+
+# Create a new virtual environment
+python3 -m venv NAME_OF_YOUR_VENV
+
+# Method 1 & 2: activate your new virtual env
 source NAME_OF_YOUR_VENV/bin/activate
-# or source venv/bin/activate.fish if you are an awesome fish shell user :)
-pip3 install substra
 
-# Method 2
-# Ubuntu
-sudo apt install python3-venv
-
-python3 -m venv substra_venv
-source substra_venv/bin/activate # activate.fish
+# Method 1 & 2: install Substra package inside your fresh new virtual environment
 pip3 install substra
 
 # Method 1 & 2: stop your virtual environment
