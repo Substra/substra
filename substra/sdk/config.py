@@ -47,6 +47,9 @@ class ProfileNotFoundError(ConfigException):
 
 
 def _read_config(path):
+    if not os.path.exists(path):
+        raise ConfigException(f"Cannot find config file '{path}'")
+
     with open(path) as fh:
         try:
             return json.load(fh)
@@ -76,7 +79,7 @@ def _add_profile(path, name, url, username, version, insecure):
     # read config file
     try:
         config = _read_config(path)
-    except FileNotFoundError:
+    except ConfigException:
         config = copy.deepcopy(DEFAULT_CONFIG)
 
     # create profile

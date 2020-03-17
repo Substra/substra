@@ -69,7 +69,7 @@ def test_load_profile_fail(tmpdir):
     path = tmpdir / 'substra.cfg'
     manager = configuration.Manager(str(path))
 
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises(configuration.ConfigException):
         manager.load_profile('notfound')
 
     manager.add_profile('default', 'foo', 'bar')
