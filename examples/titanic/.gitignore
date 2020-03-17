@@ -14,6 +14,9 @@ assets/model
 assets/sandbox
 assets/pred-test.csv
 assets/pred-train.csv
+assets/perf-train.json
+assets/perf-test.json
+assets/logs
 sandbox
 model/model
 pred/perf.json
