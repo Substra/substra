@@ -10,10 +10,6 @@ Client(self, config_path=None, profile_name=None, user_path=None, token=None, re
 Client.login(self, username, password)
 ```
 Login to a remote server.
-
-Will log into the current profile's server and save the resulting token in the configured
-user_path.
-
 ## set_profile
 ```python
 Client.set_profile(self, profile_name)

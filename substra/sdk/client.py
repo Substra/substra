@@ -76,11 +76,7 @@ class Client(object):
 
     @logit
     def login(self, username, password):
-        """Login to a remote server.
-
-        Will log into the current profile's server and save the resulting token in the configured
-        user_path.
-        """
+        """Login to a remote server. """
 
         if not self._current_profile:
             raise exceptions.SDKException("No profile defined")
