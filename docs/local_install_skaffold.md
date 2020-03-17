@@ -220,8 +220,6 @@ done
 
 Please enable the ingress minikube module: `minikube addons enable ingress`. You might need to edit `skaffold.yaml` files and set `nginx-ingress.enabled` to `false`.
 
-TODO: check the skaffold yaml edit
-
 You can now start Minikube with:
 
 ```sh
@@ -244,8 +242,6 @@ helm init --upgrade
 # you might need to use
 helm init --service-account tiller --upgrade
 ```
-
-TODO: muscler helm troubleshooting section
 
 #### Network
 
@@ -558,7 +554,6 @@ If you want to go further, please refer to:
   - [Cross-validation](../examples/cross_val/README.md)
   - [Compute plan](../examples/compute_plan/README.md)
 
-
 ## Troubleshooting
 
 ### Virtualization issues
@@ -591,8 +586,8 @@ If you want to go further, please refer to:
 
 ### [WIP] Ongoing issues
 
-- If you are getting a `403` error only on <http://substra-backend.node-1.com/> and <http://substra-frontend.node-1.com/> with Firefox, please check if `dns over https` (Network options) is activated. If so, please try again desactivating this option, or try with another browser...
-- Bad certificate issues: `helm list` or `helm list --all`, `helm delete network-org-1-peer-1 --no-hooks` & in k9s `:jobs` and delete orgs + orderer & `helm delete --purge RELEASE_NAME` (ex. `network-org-1-peer-1`). You can then restart `skaffold dev`.
+- If you are getting a `403` error only on <http://substra-backend.node-1.com/> and <http://substra-frontend.node-1.com/> with Firefox, please check if `dns over https` is activated (in Firefox Network options). If so, please try again desactivating this option, or try with another browser...
+- If you are getting `bad certificate` issues: please try to investigate your setup with `helm list` or `helm list --all`; you can try `helm delete network-org-1-peer-1 --no-hooks` & in k9s `:jobs` and delete the `orgs` & `orderer`; you can also`helm delete --purge RELEASE_NAME` (ex. `network-org-1-peer-1`) and then restart with `skaffold dev`.
 - [WIP] `Self-signed certificate` issues are related to your network provider/admin
 
 ## Need help?

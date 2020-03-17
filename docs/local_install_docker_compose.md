@@ -60,10 +60,10 @@ cd $SUBSTRA_SOURCE
 ```
 
 - Clone the following repositories from [Substra's Github](https://github.com/SubstraFoundation):
-  - hlf-k8s
-  - substra-chaincode
-  - substra-backend
-  - substra-frontend
+  - [hlf-k8s](https://github.com/SubstraFoundation/hlf-k8s.git)
+  - [substra-chaincode](https://github.com/SubstraFoundation/substra-chaincode.git)
+  - [substra-backend](https://github.com/SubstraFoundation/substra-backend.git)
+  - [substra-frontend](https://github.com/SubstraFoundation/substra-frontend.git)
 
 ```sh
 RepoToClone=(
@@ -155,8 +155,6 @@ Please see the dedicated section: [Login, password and urls](./local_install_ska
 ## Now, let's play with Substra!
 
 One quick way, among others, to test that your setup is functional is to use the `populate` method, prepared especially for you. Please note that this `populate` method is designed for testing purpose only, it does not reflect how the platform should be used.
-
-TODO: test `populate`, cf `populate.py -s -a` mentionned in this issue (closed): <https://github.com/SubstraFoundation/substra-backend/issues/38>
 
 - Execute the `populate.py` script to add assets to Substra:
 
