@@ -15,6 +15,7 @@
 import json
 import logging
 import os
+from copy import copy
 
 logger = logging.getLogger(__name__)
 
@@ -27,60 +28,89 @@ class ProfileNotFoundError(ConfigException):
     pass
 
 
-class _ProfileManager():
-    DEFAULT_PATH = None
-
-    def __init__(self, path=None, profiles=None):
-        self.path = path or self.DEFAULT_PATH
-
-        if self.path and os.path.exists(self.path):
-            self.load_profiles()
-
-        if profiles:
-            self.profiles = profiles
-
-        if not hasattr(self, 'profiles'):
-            self.profiles = {}
-
-    def load_profiles(self):
-        with open(self.path) as fh:
-            try:
-                profiles = json.load(fh)
-            except json.decoder.JSONDecodeError:
-                raise ConfigException(f"Cannot parse config file '{self.path}'")
-        self.profiles = profiles
-
-    def save_profiles(self):
-        with open(self.path, 'w') as f:
-            json.dump(self.profiles, f, indent=2, sort_keys=True)
-
-    def set_profile(self, profile_name, profile_data):
-        self.profiles[profile_name] = profile_data
-
-    def get_profile(self, profile_name):
-        try:
-            return self.profiles[profile_name]
-        except KeyError:
-            raise ProfileNotFoundError(profile_name)
-
-
-class ProfileConfigManager(_ProfileManager):
-    DEFAULT_PATH = os.path.expanduser('~/.substra')
+class ConfigManager():
+    DEFAULT_CONFIG_PATH = os.path.expanduser('~/.substra')
+    DEFAULT_TOKENS_PATH = os.path.expanduser('~/.substra-tokens')
     DEFAULT_VERSION = '0.0'
     DEFAULT_INSECURE = False
 
-    def set_profile(self, profile_name, url, version=None, insecure=None):
-        super().set_profile(profile_name, {
+    def __init__(self, config_path=None, tokens_path=None):
+        self._config_path = str(config_path) or self.DEFAULT_CONFIG_PATH
+        config_tokens_path, profiles = self._load_config()
+
+        self._tokens_path = tokens_path or config_tokens_path or self.DEFAULT_TOKENS_PATH
+        tokens = self._load_tokens()
+
+        self._profiles = profiles
+        self._tokens = tokens
+
+    def _load_config(self):
+        tokens_path = None
+        profiles = {}
+
+        if not os.path.exists(self._config_path):
+            return tokens_path, profiles
+
+        with open(self._config_path) as f:
+            try:
+                data = json.load(f)
+            except json.decoder.JSONDecodeError:
+                raise ConfigException(f"Cannot parse config file '{self._config_path}'")
+
+        profiles = data.get('profiles', profiles)
+        tokens_path = data.get('tokens_path', tokens_path)
+
+        return tokens_path, profiles
+
+    def _load_tokens(self):
+        tokens = {}
+
+        if not os.path.exists(self._tokens_path):
+            return tokens
+
+        with open(self._tokens_path) as f:
+            try:
+                tokens = json.load(f)
+            except json.decoder.JSONDecodeError:
+                raise ConfigException(f"Cannot parse tokens file '{self._tokens_path}'")
+
+        return tokens
+
+    def save(self):
+        self._save_config()
+        self._save_tokens()
+
+    def _save_config(self):
+        with open(self._config_path, 'w') as f:
+            json.dump({
+                'tokens_path': self._tokens_path,
+                'profiles': self._profiles,
+            }, f, indent=2, sort_keys=True)
+
+    def _save_tokens(self):
+        with open(self._tokens_path, 'w') as f:
+            json.dump(self._tokens, f, indent=2, sort_keys=True)
+
+    def set_profile(self, profile_name, url, version=None, insecure=None, token=None):
+        self._profiles[profile_name] = {
             'url': url,
             'version': version or self.DEFAULT_VERSION,
             'insecure': insecure or self.DEFAULT_INSECURE,
-        })
+        }
 
+        if token:
+            self.set_token(profile_name, token)
 
-class ProfileTokenManager(_ProfileManager):
-    DEFAULT_PATH = os.path.expanduser('~/.substra-tokens')
+    def set_token(self, profile_name, token):
+        self._tokens[profile_name] = token
 
-    def set_profile(self, profile_name, token):
-        super().set_profile(profile_name, {
-            'token': token
-        })
+    def get_profile(self, profile_name):
+        if profile_name not in self._profiles:
+            raise ProfileNotFoundError(f'Profile not found: {profile_name}')
+
+        profile = copy(self._profiles[profile_name])
+
+        if profile_name in self._tokens:
+            profile['token'] = self._tokens[profile_name]
+
+        return profile

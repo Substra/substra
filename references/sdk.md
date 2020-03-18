@@ -2,7 +2,7 @@
 
 # Client
 ```python
-Client(self, config_path=None, profile_name=None, token_path=None, retry_timeout=300)
+Client(self, config_path=None, profile_name=None, retry_timeout=300)
 ```
 
 ## use_profile

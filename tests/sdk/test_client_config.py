@@ -1,5 +1,4 @@
 import json
-import os
 
 import pytest
 
@@ -13,64 +12,57 @@ from .utils import mock_requests
 ])
 def non_existing_or_empty_config_paths(tmpdir, request):
     config_path = tmpdir / 'substra.json'
-    token_path = tmpdir / 'substra-token.json'
+    tokens_path = tmpdir / 'substra-tokens.json'
     if request.param:
         config_path.write_text(request.param, 'utf-8')
-        token_path.write_text(request.param, 'utf-8')
-    return {
-        'config_path': config_path,
-        'token_path': token_path
-    }
+        tokens_path.write_text(request.param, 'utf-8')
+    return config_path
 
 
 @pytest.fixture
 def default_config_paths(tmpdir):
     config_path = tmpdir / 'substra.json'
-    token_path = tmpdir / 'substra-token.json'
+    tokens_path = tmpdir / 'substra-tokens.json'
     config_path.write_text(json.dumps({
-        'default': {
-            'url': 'http://default.example.com',
-            'secure': False,
-            'version': '0.0',
+        'tokens_path': str(tokens_path),
+        'profiles': {
+            'default': {
+                'url': 'http://default.example.com',
+                'secure': False,
+                'version': '0.0',
+            },
         },
     }), 'utf-8')
-    token_path.write_text(json.dumps({
-        'default': {
-            'token': 'default token',
-        },
+    tokens_path.write_text(json.dumps({
+        'default': 'default token',
     }), 'utf-8')
 
-    return {
-        'config_path': config_path,
-        'token_path': token_path
-    }
+    return config_path
 
 
 @pytest.fixture
 def foo_config_paths(tmpdir):
     config_path = tmpdir / 'substra.json'
-    token_path = tmpdir / 'substra-token.json'
+    tokens_path = tmpdir / 'substra-tokens.json'
     config_path.write_text(json.dumps({
-        'foo': {
-            'url': 'http://foo.example.com',
-            'secure': False,
-            'version': '0.0',
+        'tokens_path': str(tokens_path),
+        'profiles': {
+            'foo': {
+                'url': 'http://foo.example.com',
+                'secure': False,
+                'version': '0.0',
+            },
         },
     }), 'utf-8')
-    token_path.write_text(json.dumps({
-        'foo': {
-            'token': 'default token'
-        },
+    tokens_path.write_text(json.dumps({
+        'foo': 'foo token'
     }), 'utf-8')
 
-    return {
-        'config_path': config_path,
-        'token_path': token_path
-    }
+    return config_path
 
 
 def test_non_existing_or_empty_config_paths(non_existing_or_empty_config_paths, mocker):
-    client = Client(**non_existing_or_empty_config_paths)
+    client = Client(non_existing_or_empty_config_paths)
     assert not client.client._default_kwargs
     assert not client.client._base_url
     assert not client.client._headers
@@ -88,7 +80,7 @@ def test_non_existing_or_empty_config_paths(non_existing_or_empty_config_paths, 
 
 
 def test_default_config_paths(default_config_paths, mocker):
-    client = Client(**default_config_paths)
+    client = Client(default_config_paths)
     assert client.client._base_url == 'http://default.example.com'
     assert 'Accept' in client.client._headers
     assert 'Authorization' in client.client._headers
@@ -105,12 +97,12 @@ def test_default_config_paths(default_config_paths, mocker):
 
 
 def test_foo_config_paths(foo_config_paths, mocker):
-    client = Client(**foo_config_paths)
+    client = Client(foo_config_paths)
     assert not client.client._default_kwargs
     assert not client.client._base_url
     assert not client.client._headers
 
-    client = Client(**foo_config_paths, profile_name='foo')
+    client = Client(foo_config_paths, profile_name='foo')
     assert client.client._base_url == 'http://foo.example.com'
     assert 'Accept' in client.client._headers
     assert 'Authorization' in client.client._headers
