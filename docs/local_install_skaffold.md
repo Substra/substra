@@ -39,6 +39,11 @@ This guide will help you to run the Substra platform on your machine in developm
     - [[WIP] Ongoing issues](#wip-ongoing-issues)
   - [Need help?](#need-help)
   - [Further resources](#further-resources)
+    - [K8s](#k8s)
+    - [K9s](#k9s)
+    - [Helm](#helm-1)
+    - [Hyperledger Fabric](#hyperledger-fabric)
+    - [Python Virtual Environment](#python-virtual-environment)
   - [Acknowledgements](#acknowledgements)
 
 ___

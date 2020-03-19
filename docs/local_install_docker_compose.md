@@ -9,7 +9,7 @@
   - [Start Substra](#start-substra)
     - [Start the Substra network](#start-the-substra-network)
     - [Start the Django backend](#start-the-django-backend)
-    - [Start frontend](#start-frontend)
+    - [Start the frontend](#start-the-frontend)
   - [Install the CLI & the SDK](#install-the-cli--the-sdk)
     - [Substra CLI config & login](#substra-cli-config--login)
   - [Now, let's play with Substra!](#now-lets-play-with-substra)
