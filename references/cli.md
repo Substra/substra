@@ -108,6 +108,7 @@ Usage: substra add dataset [OPTIONS] PATH
           "public": bool,
           "authorized_ids": list[str],
       },
+      "metadata": dict
   }
 
   Where:
@@ -152,6 +153,7 @@ Usage: substra add objective [OPTIONS] PATH
           "public": bool,
           "authorized_ids": list[str],
       },
+      "metadata": dict
   }
 
   Where:
@@ -205,6 +207,7 @@ Usage: substra add algo [OPTIONS] PATH
           "public": bool,
           "authorized_ids": list[str],
       },
+      "metadata": dict
   }
 
   Where:
@@ -271,7 +274,8 @@ Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
           "test_data_sample_keys": list[str],
           "traintuple_id": str,
           "tag": str,
-      }]
+      }],
+      "metadata": list[str]
   }
 
 Options:
@@ -305,6 +309,7 @@ Usage: substra add aggregate_algo [OPTIONS] PATH
           "public": bool,
           "authorized_ids": list[str],
       },
+      "metadata": dict
   }
 
   Where:
@@ -345,6 +350,7 @@ Usage: substra add composite_algo [OPTIONS] PATH
           "public": bool,
           "authorized_ids": list[str],
       },
+      "metadata": dict
   }
 
   Where:
@@ -401,6 +407,7 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
+  --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
 ```
 
@@ -427,6 +434,7 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
+  --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
 ```
 
@@ -473,6 +481,7 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
+  --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
 ```
 
@@ -509,6 +518,7 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
+  --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
 ```
 
