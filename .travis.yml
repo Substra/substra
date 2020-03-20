@@ -18,6 +18,8 @@ deploy:
 script:
   - pip install flake8
   - flake8 substra
+  - pip install mypy
+  - make check-type
   - pip install -e .[test]
   - python setup.py test
   - python bin/generate_cli_documentation.py --output-path references/cli.md.tmp

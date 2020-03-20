@@ -11,3 +11,6 @@ doc:
 
 test: pyclean
 	python setup.py test
+
+check-type:
+	mypy --check-untyped-defs substra/ tests/

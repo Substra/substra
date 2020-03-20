@@ -12,6 +12,7 @@ sdist/
 .cache
 .coverage
 .pytest_cache/
+.mypy_cache/
 
 # Developer environments
 .idea
