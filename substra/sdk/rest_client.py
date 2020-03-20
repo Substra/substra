@@ -13,6 +13,7 @@
 # limitations under the License.
 import logging
 import time
+import typing
 
 import keyring
 import requests
@@ -104,6 +105,7 @@ class Client():
     def __request(self, request_name, url, **request_kwargs):
         """Base request helper."""
 
+        fn: typing.Callable
         if request_name == 'get':
             fn = requests.get
         elif request_name == 'post':

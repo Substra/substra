@@ -14,6 +14,7 @@
 
 import json
 import math
+import typing
 
 import yaml
 
@@ -131,6 +132,7 @@ class ProgressField(Field):
 class MappingField(Field):
     def get_value(self, item, expand=False):
         mapping = super().get_value(item) or {}
+        value: typing.Union[str, typing.List[str]]
         if expand:
             value = [f'{k}:{v}' for k, v in mapping.items()]
         else:
@@ -182,13 +184,13 @@ class BasePrinter:
 
 
 class AssetPrinter(BasePrinter):
-    asset_name = None
+    asset_name: str
 
     key_field = Field('key', 'key')
-    list_fields = ()
-    single_fields = ()
+    list_fields: typing.Tuple[Field, ...] = ()
+    single_fields: typing.Tuple[Field, ...] = ()
 
-    download_message = None
+    download_message: typing.Optional[str] = None
     has_description = True
 
     def _get_list_fields(self):
