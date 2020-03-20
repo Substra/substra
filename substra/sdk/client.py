@@ -220,6 +220,9 @@ class Client(object):
         filesystem. This directory must be accessible (readable) by the server.  This
         mode is well suited for all kind of file sizes.
 
+        If a data sample with the same content already exists, an `AlreadyExists` exception will be
+        raised.
+
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
 
@@ -266,6 +269,9 @@ class Client(object):
         This method is well suited for adding multiple small files only. For adding a
         large amount of data it is recommended to add them one by one. It allows a
         better control in case of failures.
+
+        If data samples with the same content as any of the paths already exists, an `AlreadyExists`
+        exception will be raised.
         """
         data = _update_permissions_field(data)
         if 'path' in data:
@@ -293,6 +299,9 @@ class Client(object):
             },
         }
 ```
+
+        If a dataset with the same opener already exists, an `AlreadyExists` exception will be
+        raised.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
@@ -327,6 +336,9 @@ class Client(object):
         }
 ```
 
+        If an objective with the same description already exists, an `AlreadyExists` exception will
+        be raised.
+
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
@@ -357,6 +369,8 @@ class Client(object):
         }
 ```
 
+        If an algo with the same file already exists, an `AlreadyExists` exception will be raised.
+
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
@@ -384,6 +398,9 @@ class Client(object):
             },
         }
 ```
+        If an aggregate algo with the same file already exists, an `AlreadyExists` exception will
+        be raised.
+
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
@@ -411,6 +428,9 @@ class Client(object):
             },
         }
 ```
+        If a composite algo with the same file already exists, an `AlreadyExists` exception will be
+        raised.
+
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
@@ -440,6 +460,9 @@ class Client(object):
             "compute_plan_id": str,
         }
 ```
+        An `AlreadyExists` exception will be raised if a traintuple already exists that:
+        * has the same `algo_key`, `data_manager_key`, `train_data_sample_keys` and `in_models_keys`
+        * and was created through the same node you are using
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
@@ -464,6 +487,10 @@ class Client(object):
             "worker": str,
         }
 ```
+        An `AlreadyExists` exception will be raised if an aggregatetuple already exists that:
+        * has the same `algo_key` and `in_models_keys`
+        * and was created through the same node you are using
+
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
@@ -495,6 +522,11 @@ class Client(object):
         As specified in the data dict structure, output trunk models cannot be made
         public.
 
+        An `AlreadyExists` exception will be raised if a traintuple already exists that:
+        * has the same `algo_key`, `data_manager_key`, `train_data_sample_keys`,
+          `in_head_models_key` and `in_trunk_model_key`
+        * and was created through the same node you are using
+
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
@@ -520,6 +552,10 @@ class Client(object):
             "tag": str,
         }
 ```
+
+        An `AlreadyExists` exception will be raised if a traintuple already exists that:
+        * has the same `traintuple_key`, `data_manager_key` and `test_data_sample_keys`
+        * and was created through the same node you are using
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
