@@ -11,6 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import typing
+
+RequestExceptionType = typing.Any
+RequestResponseType = typing.Any
 
 
 class SDKException(Exception):
@@ -22,13 +26,14 @@ class LoadDataException(SDKException):
 
 
 class RequestException(SDKException):
-    def __init__(self, msg, status_code):
+    def __init__(self, msg: str, status_code: int):
         self.msg = msg
         self.status_code = status_code
         super().__init__(msg)
 
     @classmethod
-    def from_request_exception(cls, request_exception, msg=None):
+    def from_request_exception(cls, request_exception: RequestExceptionType, msg: str = None
+                               ) -> 'RequestException':
         if msg is None:
             msg = str(request_exception)
         else:
@@ -64,13 +69,14 @@ class GatewayUnavailable(HTTPError):
 
 class InvalidRequest(HTTPError):
     @classmethod
-    def from_request_exception(cls, request_exception):
+    def from_request_exception(cls, request_exception: RequestExceptionType  # type: ignore
+                               ) -> 'InvalidRequest':
         try:
             error = request_exception.response.json()
         except ValueError:
             error = request_exception.response
         msg = error.get('message', None)
-        return super().from_request_exception(request_exception, msg)
+        return typing.cast('InvalidRequest', super().from_request_exception(request_exception, msg))
 
 
 class NotFound(HTTPError):
@@ -78,13 +84,14 @@ class NotFound(HTTPError):
 
 
 class RequestTimeout(HTTPError):
-    def __init__(self, pkhash, status_code):
+    def __init__(self, pkhash: str, status_code: int):
         self.pkhash = pkhash
         msg = f"Operation on object with key(s) '{pkhash}' timed out."
         super().__init__(msg, status_code)
 
     @classmethod
-    def from_request_exception(cls, request_exception):
+    def from_request_exception(cls, request_exception: RequestExceptionType  # type: ignore
+                               ) -> 'RequestTimeout':
         # parse response and fetch pkhash
         r = request_exception.response.json()
 
@@ -99,13 +106,16 @@ class RequestTimeout(HTTPError):
 
 
 class AlreadyExists(HTTPError):
-    def __init__(self, pkhash, status_code):
+    def __init__(self,
+                 pkhash: typing.Union[str, typing.List[str]],
+                 status_code: int) -> None:
         self.pkhash = pkhash
         msg = f"Object with key(s) '{pkhash}' already exists."
         super().__init__(msg, status_code)
 
     @classmethod
-    def from_request_exception(cls, request_exception):
+    def from_request_exception(cls, request_exception: RequestExceptionType  # type: ignore
+                               ) -> 'AlreadyExists':
         # parse response and fetch pkhash
         r = request_exception.response.json()
         # XXX support list of pkhashes; this could be the case when adding
@@ -119,7 +129,7 @@ class AlreadyExists(HTTPError):
 
 
 class InvalidResponse(SDKException):
-    def __init__(self, response, msg):
+    def __init__(self, response: RequestResponseType, msg: str):
         self.response = response
         super(InvalidResponse, self).__init__(msg)
 
