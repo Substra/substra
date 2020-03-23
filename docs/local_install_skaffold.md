@@ -29,7 +29,6 @@ This guide will help you to run the Substra platform on your machine in developm
     - [Reset Substra](#reset-substra)
   - [Login, password and urls](#login-password-and-urls)
     - [Credentials and urls](#credentials-and-urls)
-    - [Browser extension](#browser-extension)
     - [Substra CLI config & login (Mac & Ubuntu)](#substra-cli-config--login-mac--ubuntu)
   - [Troubleshooting](#troubleshooting)
     - [Virtualization issues](#virtualization-issues)
@@ -38,6 +37,7 @@ This guide will help you to run the Substra platform on your machine in developm
     - [Tiller](#tiller)
     - [Virtualization resources](#virtualization-resources)
     - [Serve the frontend with Yarn](#serve-the-frontend-with-yarn)
+    - [Backend & Browser extension](#backend--browser-extension)
     - [[WIP] Ongoing issues](#wip-ongoing-issues)
   - [Need help?](#need-help)
   - [Further resources](#further-resources)
@@ -437,57 +437,6 @@ org-2:
 
 You should find the credentials in the charts: `skaffold.yaml` files or in the `substra-backend/charts/substra-backend/values.yaml`.
 
-### Browser extension
-
-In order to use the backend webpage on your browser, you will need to install this extension that will send a special header containing a `version`:
-
-- [Firefox](https://addons.mozilla.org/en-US/firefox/addon/modheader-firefox/)
-- [Chrome](https://chrome.google.com/webstore/detail/modheader/idgpnmonknjnojddfkpgkljpfnnfcklj)
-
-You will then need add these three elements:
-
-| Resource | Name | Value |
-| -------- | ---- | ----- |
-| Request Headers | `Accept` | `text/html;version=0.0, */*; version=0.0` |
-| Filters | `URL Pattern` | `http://susbtra-backend.node-1.com` |
-| Filters | `URL Pattern` | `http://susbtra-backend.node-2.com` |
-
-Otherwise, you can try to import the following configuration to the extension (via the Import menu):
-
-```json
-[
-    {
-        "title": "Profile 1",
-        "hideComment": true,
-        "headers": [
-            {
-                "enabled": true,
-                "name": "Accept",
-                "value": "text/html;version=0.0, */*; version=0.0",
-                "comment": ""
-            }
-        ],
-        "respHeaders": [],
-        "filters": [
-            {
-                "enabled": true,
-                "type": "urls",
-                "urlRegex": "http://substra-backend.node-2.com"
-            },
-            {
-                "enabled": true,
-                "type": "urls",
-                "urlRegex": "http://susbtra-backend.node-1.com"
-            }
-        ],
-        "urlReplacements": [],
-        "appendMode": false
-    }
-]
-```
-
-See: <https://github.com/SubstraFoundation/substra-backend#testing-with-the-browsable-api>
-
 ### Substra CLI config & login (Mac & Ubuntu)
 
 > Note 1: Substra works on Python 3.6.
@@ -600,6 +549,57 @@ You will then have to map the frontend urls to your localhost, like this:
 ```
 
 You can now head to <http://substra-frontend.node-2.com:3000/> and start to play with Substra!
+
+### Backend & Browser extension
+
+In order to use the backend webpage on your browser, you will need to install this extension that will send a special header containing a `version`:
+
+- [Firefox](https://addons.mozilla.org/en-US/firefox/addon/modheader-firefox/)
+- [Chrome](https://chrome.google.com/webstore/detail/modheader/idgpnmonknjnojddfkpgkljpfnnfcklj)
+
+You will then need add these three elements:
+
+| Resource | Name | Value |
+| -------- | ---- | ----- |
+| Request Headers | `Accept` | `text/html;version=0.0, */*; version=0.0` |
+| Filters | `URL Pattern` | `http://susbtra-backend.node-1.com` |
+| Filters | `URL Pattern` | `http://susbtra-backend.node-2.com` |
+
+Otherwise, you can try to import the following configuration to the extension (via the Import menu):
+
+```json
+[
+    {
+        "title": "Profile 1",
+        "hideComment": true,
+        "headers": [
+            {
+                "enabled": true,
+                "name": "Accept",
+                "value": "text/html;version=0.0, */*; version=0.0",
+                "comment": ""
+            }
+        ],
+        "respHeaders": [],
+        "filters": [
+            {
+                "enabled": true,
+                "type": "urls",
+                "urlRegex": "http://substra-backend.node-2.com"
+            },
+            {
+                "enabled": true,
+                "type": "urls",
+                "urlRegex": "http://susbtra-backend.node-1.com"
+            }
+        ],
+        "urlReplacements": [],
+        "appendMode": false
+    }
+]
+```
+
+See: <https://github.com/SubstraFoundation/substra-backend#testing-with-the-browsable-api>
 
 ### [WIP] Ongoing issues
 
