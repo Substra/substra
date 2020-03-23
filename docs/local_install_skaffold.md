@@ -71,7 +71,7 @@ skaffold dev
 
 ### General knowledge
 
-In order to install Substra, it is *recommended* to be comfortable with your package manager and to have some basic knowledge of Unix (Mac or Ubuntu/Debian) administration and network. It might also be useful to have a good command of Docker containers and Kubernetes orchestration.
+In order to install Substra, it is *recommended* to be comfortable with your package manager and to have some basic knowledge of Unix (Mac or Ubuntu/Debian) administration and network. It might also be useful to have a good knowledge of Docker containers and Kubernetes orchestration.
 
 ### Hardware requirements
 
@@ -523,7 +523,7 @@ substra list traintuple
 substra get traintuple HASH
 ```
 
-This is it, if you the `substra login` command is okay, you're good to go!
+This is it, if you the `substra login` command exited successfully, you're good to go!
 
 Congratulations \o/
 
