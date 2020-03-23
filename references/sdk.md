@@ -173,7 +173,8 @@ Create new algo asset.
 }
 ```
 
-If an algo with the same file already exists, an `AlreadyExists` exception will be raised.
+If an algo with the same archive file already exists, an `AlreadyExists` exception will be
+raised.
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
@@ -195,8 +196,8 @@ Create new aggregate algo asset.
     },
 }
 ```
-If an aggregate algo with the same file already exists, an `AlreadyExists` exception will
-be raised.
+If an aggregate algo with the same archive file already exists, an `AlreadyExists`
+exception will be raised.
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
@@ -218,8 +219,8 @@ Create new composite algo asset.
     },
 }
 ```
-If a composite algo with the same file already exists, an `AlreadyExists` exception will be
-raised.
+If a composite algo with the same archive file already exists, an `AlreadyExists` exception
+will be raised.
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.

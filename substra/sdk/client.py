@@ -369,7 +369,8 @@ class Client(object):
         }
 ```
 
-        If an algo with the same file already exists, an `AlreadyExists` exception will be raised.
+        If an algo with the same archive file already exists, an `AlreadyExists` exception will be
+        raised.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
@@ -398,8 +399,8 @@ class Client(object):
             },
         }
 ```
-        If an aggregate algo with the same file already exists, an `AlreadyExists` exception will
-        be raised.
+        If an aggregate algo with the same archive file already exists, an `AlreadyExists`
+        exception will be raised.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
@@ -428,8 +429,8 @@ class Client(object):
             },
         }
 ```
-        If a composite algo with the same file already exists, an `AlreadyExists` exception will be
-        raised.
+        If a composite algo with the same archive file already exists, an `AlreadyExists` exception
+        will be raised.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
