@@ -36,6 +36,8 @@ This guide will help you to run the Substra platform on your machine in developm
     - [Kubectl useful commands](#kubectl-useful-commands)
     - [Minikube useful commands](#minikube-useful-commands)
     - [Tiller](#tiller)
+    - [Virtualization resources](#virtualization-resources)
+    - [Serve the frontend with Yarn](#serve-the-frontend-with-yarn)
     - [[WIP] Ongoing issues](#wip-ongoing-issues)
   - [Need help?](#need-help)
   - [Further resources](#further-resources)
@@ -179,12 +181,11 @@ sudo mv skaffold /usr/local/bin
   - launch all commands with `sudo`
   - pass the parameter `--vm-driver=none` when starting Minikube (`minikube start (...)`)
 - If you use Ubuntu (*not in a VM*), you will need to:
-  - Validate your host virtualization with the command `virt-host-validate`: <https://linux.die.net/man/1/virt-host-validate>
-  - [KVM (Kernel Virtual Machine) installation](https://help.ubuntu.com/community/KVM/Installation#Installation)
-  - Required packages: [Ubuntu help](https://help.ubuntu.com/community/KVM/Installation#Install_Necessary_Packages)
-  - If you need more information about [libvirt & qemu](https://libvirt.org/drvqemu.html)
+  - Validate your host virtualization with the command `virt-host-validate`, see [this for further resources](https://linux.die.net/man/1/virt-host-validate)
 
 ### Get the source code (Mac & Ubuntu)
+
+> Note: As Hyperledger Fabric is a permissioned blockchain, ordering nodes are in charge of the transaction ordering, see [Fabric documentation](https://hyperledger-fabric.readthedocs.io/en/release-1.4/orderer/ordering_service.html)
 
 You will find the main Substra repository [here](https://github.com/SubstraFoundation/substra), but in order to run the Substra framework, you will need to clone 3 repositories: [hlf-k8s](https://github.com/SubstraFoundation/hlf-k8s) (Hyperledger Fabric), [susbtra-backend](https://github.com/SubstraFoundation/substra-backend) and [substra-frontend](https://github.com/SubstraFoundation/substra-frontend).
 
@@ -244,8 +245,9 @@ The first time you install Substra, you will need to use:
 helm init
 # or
 helm init --upgrade
-# you might need to use
-helm init --service-account tiller --upgrade
+
+# Check if Tiller is correctly running
+kubectl get pods --namespace kube-system
 ```
 
 #### Network
@@ -392,29 +394,7 @@ In the `susbtra-frontend` repository, please run the command `skaffold dev`. The
 
 ![CACHING Login](/substra/docs/img/start_frontend.png "CACHING Login")
 
-Alternatively, instead of using `skaffold`, you might want to start the `substra-frontend` with [Yarn](https://yarnpkg.com/getting-started/install):
-
-Start Redis in one terminal window:
-
-```sh
-redis-cli
-```
-
-Launch Yarn in another terminal window:
-
-```sh
-yarn install
-
-API_URL=http://substra-backend.node-2.com yarn start
-```
-
-You will then have to map the frontend urls to your localhost, like this:
-
-```sh
-127.0.0.1 substra-frontend.node-1.com substra-frontend.node-2.com
-```
-
-You can now head to <http://substra-frontend.node-2.com:3000/> and start to play with Substra!
+Alternatively, instead of using `skaffold`, you might want to start the `substra-frontend` with [Yarn](https://yarnpkg.com/getting-started/install). If you want to do see, please refer to [this section](#serve-the-frontend-with-yarn).
 
 ### Stop Substra
 
@@ -588,6 +568,38 @@ If you want to go further, please refer to:
 - Tiller might need you to use this command in case of error during init: `helm init --service-account tiller --upgrade`. You can also try to create a service account with `kubectl create serviceaccount --namespace kube-system tiller`. Otherwise, please have a look here: <https://github.com/SubstraFoundation/substra-backend/pull/1>
 - tiller issues: <https://stackoverflow.com/questions/51646957/helm-could-not-find-tiller#51662259>
 - After running `skaffold dev` in the `hlf-k8s` repo, in case of error related to the `tempchart` folder, please do `rm -rf tempchart`
+
+### Virtualization resources
+
+- [KVM (Kernel Virtual Machine) installation](https://help.ubuntu.com/community/KVM/Installation#Installation)
+- Required packages: [Ubuntu help](https://help.ubuntu.com/community/KVM/Installation#Install_Necessary_Packages)
+- If you need more information about [libvirt & qemu](https://libvirt.org/drvqemu.html)
+
+### Serve the frontend with Yarn
+
+Alternatively, instead of using `skaffold`, you might want to start the `substra-frontend` with [Yarn](https://yarnpkg.com/getting-started/install):
+
+Start Redis in one terminal window:
+
+```sh
+redis-cli
+```
+
+Launch Yarn in another terminal window:
+
+```sh
+yarn install
+
+API_URL=http://substra-backend.node-2.com yarn start
+```
+
+You will then have to map the frontend urls to your localhost, like this:
+
+```sh
+127.0.0.1 substra-frontend.node-1.com substra-frontend.node-2.com
+```
+
+You can now head to <http://substra-frontend.node-2.com:3000/> and start to play with Substra!
 
 ### [WIP] Ongoing issues
 
