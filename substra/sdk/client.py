@@ -57,7 +57,8 @@ def _flatten_permissions(data, field_name):
     data = deepcopy(data)
 
     p = data[field_name]  # should not raise as a default permissions is added if missing
-    data[f'{field_name}_public'] = p['public']
+    if 'public' in p:
+        data[f'{field_name}_public'] = p['public']
     data[f'{field_name}_authorized_ids'] = p.get('authorized_ids', [])
     del data[field_name]
 
