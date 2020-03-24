@@ -206,6 +206,14 @@ def validate_json(ctx, param, value):
     return data
 
 
+def validate_min_length(min_length):
+    def validation_callback(ctx, param, value):
+        if not value or len(value) < min_length:
+            raise click.BadParameter(f'must contain at least {min_length} elements')
+
+    return validation_callback
+
+
 def load_data_samples_keys(data_samples, option="--data-samples-path"):
     try:
         return data_samples['keys']
@@ -651,8 +659,9 @@ def add_traintuple(ctx, algo_key, dataset_key, data_samples, in_models_keys, tag
 
 @add.command('aggregatetuple')
 @click.option('--algo-key', required=True, help="Aggregate algo key.")
-@click.option('--in-model-key', 'in_models_keys', type=click.STRING, multiple=True,
-              help='In model traintuple key.')
+@click.option('--in-model-key', 'in_models_keys', type=click.STRING, multiple=True, required=True,
+              callback=validate_min_length(2),
+              help='In model traintuple key (at least 2 keys required).')
 @click.option('--worker', required=True, help='Node ID for worker execution.')
 @click.option('--rank', type=click.INT)
 @click.option('--tag')
@@ -664,11 +673,9 @@ def add_aggregatetuple(ctx, algo_key, in_models_keys, worker, rank, tag):
     client = get_client(ctx.obj)
     data = {
         'algo_key': algo_key,
+        'in_models_keys': in_models_keys,
         'worker': worker,
     }
-
-    if in_models_keys:
-        data['in_models_keys'] = in_models_keys
 
     if rank is not None:
         data['rank'] = rank

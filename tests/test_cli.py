@@ -229,15 +229,17 @@ def test_command_add_composite_traintuple_missing_model_key(mocker, workdir, par
     assert re.search(message, res)
 
 
-@pytest.mark.parametrize('params', [
-    [],
-    ['--in-model-key', 'bar']
+@pytest.mark.parametrize('params,exit_code', [
+    ([], 2),
+    (['--in-model-key', 'foo'], 2),
+    (['--in-model-key', 'foo', '--in-model-key', 'bar'], 0),
 ])
-def test_command_add_aggregatetuple(mocker, workdir, params):
+def test_command_add_aggregatetuple(mocker, workdir, params, exit_code):
     m = mock_client_call(mocker, 'add_aggregatetuple', response={})
-    client_execute(workdir, ['add', 'aggregatetuple', '--algo-key', 'foo',
-                             '--in-model-key', 'foo'] + params + ['--worker', 'foo'])
-    m.assert_called()
+    command = ['add', 'aggregatetuple', '--algo-key', 'foo', '--worker', 'foo'] + params
+    client_execute(workdir, command, exit_code)
+    if exit_code == 0:
+        m.assert_called()
 
 
 def test_command_add_testtuple_no_data_samples(mocker, workdir):
