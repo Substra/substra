@@ -201,12 +201,48 @@ def compute_perf(pred_path, opener_file, fake_data_samples, data_path, docker_cl
     return perf['all']
 
 
+def raise_if_path_traversal(requested_paths, to_directory):
+    # Inspired from https://stackoverflow.com/a/45188896
+
+    safe_directory = os.path.join(
+        os.path.realpath(to_directory),
+        ''
+    )
+
+    if not isinstance(requested_paths, list):
+        raise TypeError(f'requested_paths argument should be a list not a {type(requested_paths)}')
+
+    for requested_path in requested_paths:
+        real_requested_path = os.path.realpath(requested_path)
+        path_traversal = os.path.commonprefix([real_requested_path,
+                                               safe_directory]) != safe_directory
+
+        if path_traversal:
+            raise Exception(
+                f'Path Traversal Error : {requested_path} '
+                f'(real : {real_requested_path}) is not safe.'
+            )
+
+
 def _extract_archive(archive_path, to_directory):
     if zipfile.is_zipfile(archive_path):
         with zipfile.ZipFile(archive_path, 'r') as zf:
+
+            # Check no path traversal
+            filenames = [os.path.join(to_directory, filename)
+                         for filename in zf.namelist()]
+            raise_if_path_traversal(filenames, to_directory)
+
             zf.extractall(to_directory)
+
     elif tarfile.is_tarfile(archive_path):
         with tarfile.open(archive_path, 'r:*') as tf:
+
+            # Check no path traversal
+            filenames = [os.path.join(to_directory, filename)
+                         for filename in tf.getnames()]
+            raise_if_path_traversal(filenames, to_directory)
+
             tf.extractall(to_directory)
     else:
         raise ValueError('Archive must be zip or tar.gz')
