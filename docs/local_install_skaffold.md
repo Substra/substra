@@ -441,9 +441,7 @@ You should find the credentials in the charts: `skaffold.yaml` files or in the `
 
 > Note 1: Substra works on Python 3.6.
 >
-> Note 2: On Ubuntu, if the command `pip3 install substra` fails, you might need to install `keyrings-alt` with `pip3 install keyrings-alt`; you might even have to do `sudo apt-get remove python3-keyrings.alt python-keyrings.alt`.
->
-> Note 3: If you are working inside a virtualized environment, you probably will have execute to `pip3` commands with `sudo`.
+> Note 2: If you are working inside a virtualized environment, you probably will have execute to `pip3` commands with `sudo`.
 
 Install the CLI:
 
@@ -457,10 +455,10 @@ Login with the CLI
 
 ```sh
 # Configuration
-substra config -u "node-1" -p 'p@$swr0d44' http://substra-backend.node-1.com
+substra config http://substra-backend.node-1.com
 
 # Login
-substra login
+substra login -u "node-1" -p 'p@$swr0d44'
 
 # Then you can try
 substra list node
