@@ -571,7 +571,9 @@ class Client(object):
                 "test_data_sample_keys": list[str],
                 "traintuple_id": str,
                 "tag": str,
-            }]
+            }],
+            "clean_models": bool,
+            "tag": str
         }
 ```
 

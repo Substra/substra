@@ -337,7 +337,9 @@ Data is a dict object with the following schema:
         "test_data_sample_keys": list[str],
         "traintuple_id": str,
         "tag": str,
-    }]
+    }],
+    "clean_models": bool,
+    "tag": str
 }
 ```
 
