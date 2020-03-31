@@ -255,8 +255,8 @@ def add_profile_to_config(url, config, profile, insecure, version):
 @click_global_conf
 @click.pass_context
 @error_printer
-@click.option('--username', '-u', prompt=True)
-@click.option('--password', '-p', prompt=True, hide_input=True)
+@click.option('--username', '-u', envvar='SUBSTRA_USERNAME', prompt=True)
+@click.option('--password', '-p', envvar='SUBSTRA_PASSWORD', prompt=True, hide_input=True)
 def login(ctx, username, password):
     """Login to the Substra platform."""
     usr.Manager(ctx.obj.user).clear_user()
