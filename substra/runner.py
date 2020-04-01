@@ -201,7 +201,22 @@ def compute_perf(pred_path, opener_file, fake_data_samples, data_path, docker_cl
     return perf['all']
 
 
-def raise_if_path_traversal(requested_paths, to_directory):
+class PathTraversalException(Exception):
+
+    def __init__(self, archive_path, issue_path):
+        self.msg = (
+            f'Path Traversal Error : archive {archive_path} contains '
+            f'{issue_path} which is not safe.'
+        )
+        super().__init__(self.msg)
+        self.archive_path = archive_path
+        self.issue_path = issue_path
+
+    def __repr__(self):
+        return self.msg
+
+
+def raise_if_path_traversal(requested_paths, to_directory, archive_path):
     # Inspired from https://stackoverflow.com/a/45188896
 
     # Get real path and ensure there is a suffix /
@@ -220,9 +235,9 @@ def raise_if_path_traversal(requested_paths, to_directory):
                                              safe_directory]) != safe_directory
 
         if is_traversal:
-            raise Exception(
-                f'Path Traversal Error : {requested_path} '
-                f'(real : {real_requested_path}) is not safe.'
+            raise PathTraversalException(
+                archive_path,
+                requested_path.replace(to_directory, '')
             )
 
 
@@ -233,7 +248,7 @@ def _extract_archive(archive_path, to_directory):
             # Check no path traversal
             filenames = [os.path.join(to_directory, filename)
                          for filename in zf.namelist()]
-            raise_if_path_traversal(filenames, to_directory)
+            raise_if_path_traversal(filenames, to_directory, archive_path)
 
             zf.extractall(to_directory)
 
@@ -243,7 +258,7 @@ def _extract_archive(archive_path, to_directory):
             # Check no path traversal
             filenames = [os.path.join(to_directory, filename)
                          for filename in tf.getnames()]
-            raise_if_path_traversal(filenames, to_directory)
+            raise_if_path_traversal(filenames, to_directory, archive_path)
 
             tf.extractall(to_directory)
     else:
