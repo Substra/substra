@@ -1033,15 +1033,21 @@ def run_local(algo, train_opener, test_opener, metrics, rank,
         raise click.BadOptionUsage('--train-data-samples',
                                    'Missing option --train-data-samples')
 
-    runner.compute(algo_path=algo,
-                   train_opener_file=train_opener,
-                   test_opener_file=test_opener,
-                   metrics_path=metrics,
-                   train_data_path=train_data_samples,
-                   test_data_path=test_data_samples,
-                   fake_data_samples=fake_data_samples,
-                   rank=rank,
-                   inmodels=inmodels)
+    try:
+        runner.compute(algo_path=algo,
+                       train_opener_file=train_opener,
+                       test_opener_file=test_opener,
+                       metrics_path=metrics,
+                       train_data_path=train_data_samples,
+                       test_data_path=test_data_samples,
+                       fake_data_samples=fake_data_samples,
+                       rank=rank,
+                       inmodels=inmodels)
+    except runner.PathTraversalException as e:
+        raise click.ClickException(
+            f'Archive "{e.archive_path}" includes at least 1 file or folder '
+            f'located outside the archive root folder: "{e.issue_path}"'
+        )
 
 
 @cli.group()
