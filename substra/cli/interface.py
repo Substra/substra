@@ -140,35 +140,16 @@ def click_global_conf_log_level(f):
 
 
 def click_global_conf_output_format(f):
-    """Add json option to command."""
-    flags = [
-        click.option(
-            '--pretty', 'output_format',
-            flag_value='pretty',
-            expose_value=False,
-            default=True,
-            show_default=True,
-            callback=update_global_conf,
-            help='Pretty print output'
-        ),
-        click.option(
-            '--json', 'output_format',
-            flag_value='json',
-            expose_value=False,
-            callback=update_global_conf,
-            help='Display output as json.'
-        ),
-        click.option(
-            '--yaml', 'output_format',
-            flag_value='yaml',
-            expose_value=False,
-            callback=update_global_conf,
-            help='Display output as yaml.'
-        )
-    ]
-    for flag in flags:
-        f = flag(f)
-    return f
+    """Add output option to command."""
+    return click.option(
+        '-o', '--output', 'output_format',
+        type=click.Choice(['pretty', 'yaml', 'json']),
+        expose_value=False,
+        default='pretty',
+        show_default=True,
+        callback=update_global_conf,
+        help='Set output format'
+    )(f)
 
 
 def click_global_conf(f):

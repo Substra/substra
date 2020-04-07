@@ -129,9 +129,8 @@ Options:
                                   user).
 
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -184,9 +183,8 @@ Options:
                                   user).
 
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -225,9 +223,8 @@ Options:
                                   user).
 
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -286,9 +283,8 @@ Options:
                                   user).
 
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -327,9 +323,8 @@ Options:
                                   user).
 
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -368,9 +363,8 @@ Options:
                                   user).
 
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -405,9 +399,8 @@ Options:
                                   user).
 
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -432,9 +425,8 @@ Options:
                                   user).
 
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -479,9 +471,8 @@ Options:
                                   user).
 
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -516,9 +507,8 @@ Options:
                                   user).
 
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -541,9 +531,8 @@ Options:
                                   user).
 
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -581,9 +570,8 @@ Options:
                                   user).
 
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -654,9 +642,8 @@ Options:
                                   user).
 
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -723,9 +710,8 @@ Options:
                                   user).
 
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -833,9 +819,8 @@ Options:
                                   user).
 
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
