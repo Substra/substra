@@ -7,6 +7,7 @@ dist/
 sdist/
 .eggs/*
 *.egg-info
+_build/
 
 # Unit test / coverage reports
 .cache

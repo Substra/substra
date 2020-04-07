@@ -1,0 +1,2 @@
+.. autoclass:: substra.Client
+   :members:

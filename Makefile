@@ -9,7 +9,8 @@ doc-cli:
 	python bin/generate_cli_documentation.py
 
 doc-sdk:
-	pydocmd simple substra.sdk+ substra.sdk.Client+ > references/sdk.md
+	sphinx-build -M markdown src-references _build -c .
+	cp _build/markdown/sdk.md references/
 
 doc: doc-cli doc-sdk
 

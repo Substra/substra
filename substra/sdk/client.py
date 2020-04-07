@@ -79,6 +79,16 @@ def _update_permissions_field(data, permissions_field='permissions'):
 
 
 class Client(object):
+    """Client to interact with a Substra node.
+
+    Args:
+        config_path (str, optional): The path to the config file to load. Defaults to '~/.substra'
+        profile_name (str, optional): The name of the profile to set as current profile. Defaults
+            to 'default'
+        user_path (str, optional): The path to the user file to load. Defaults to '~/.substra-user'
+        retry_timeout (int, optional): Number of seconds to wait before retry when an add request
+            timeouts. Defaults to 300 (5min)
+    """
 
     def __init__(self, config_path=None, profile_name=None, user_path=None,
                  retry_timeout=DEFAULT_RETRY_TIMEOUT):
@@ -99,15 +109,13 @@ class Client(object):
 
     @logit
     def login(self):
-        """Login.
+        """Logs into a substra node.
 
-        Allow to login to a remote server.
+        Uses the current profile's login and password to get a token from the profile's node. The
+        token will then be used to authenticate all calls made to the node.
 
-        After setting your configuration with `substra config` using `-u` and `-p`
-        Launch `substra login`
-        You will get a token which will be stored by default in `~/.substra-user`
-        You can change that thanks to the --user option (works like the --profile option)
-
+        Returns:
+            string: The authentication token
         """
 
         if not self._current_profile:
@@ -131,10 +139,16 @@ class Client(object):
         return profile
 
     def set_profile(self, profile_name):
-        """Set profile from profile name.
+        """Sets current profile from profile name.
 
-        If profiles has not been defined through the `add_profile` method, it is loaded
+        If profile_name has not been defined through the add_profile method, it is loaded
         from the config file.
+
+        Args:
+            profile_name (str): The name of the profile to set as current profile
+
+        Returns:
+            dict: The new current profile
         """
         try:
             profile = self._profiles[profile_name]
@@ -144,6 +158,11 @@ class Client(object):
         return self._set_current_profile(profile_name, profile)
 
     def set_user(self):
+        """Loads authentication token from user file.
+
+        If a token is found in the user file, it will be used to authenticate all calls made to the
+        node.
+        """
         try:
             user = self._usr_manager.load_user()
         except (exceptions.UserException, FileNotFoundError):
@@ -156,7 +175,20 @@ class Client(object):
                 self.client.set_config(self._current_profile, self._profile_name)
 
     def add_profile(self, profile_name, username, password, url, version='0.0', insecure=False):
-        """Add new profile (in-memory only)."""
+        """Adds new profile and sets it as current profile.
+
+        Args:
+            profile_name (str): The name of the new profile
+            username (str): The username that will be used to get an authentication token
+            password (str): The password that will be used to get an authentication token
+            url (str): The URL of the node
+            version (str): The version of the API to use. Defaults to 0.0
+            insecure (bool): If true the node's SSL certificate will not be verified. Defaults to
+                False.
+
+        Returns:
+            dict: The new profile
+        """
         profile = cfg.create_profile(
             url=url,
             version=version,
@@ -197,35 +229,39 @@ class Client(object):
 
     @logit
     def add_data_sample(self, data, local=True, exist_ok=False):
-        """Create new data sample asset.
+        """Creates a new data sample asset.
 
-        `data` is a dict object with the following schema:
+        Args:
+            data (dict): Must have the following schema
 
-```
-        {
-            "path": str,
-            "data_manager_keys": list[str],
-            "test_only": bool,
-        }
-```
-        The `path` in the data dictionary must point to a directory representing the
-        data sample content. Note that the directory can contain multiple files, all the
-        directory content will be added to the platform.
+                {
+                    "path": str,
+                    "data_manager_keys": list[str],
+                    "test_only": bool,
+                }
 
-        If `local` is true, `path` must refer to a directory located on the local
-        filesystem. The file content will be transferred to the server through an
-        HTTP query, so this mode should be used for relatively small files (<10mo).
+                The path in the data dictionary must point to a directory representing the
+                data sample content. Note that the directory can contain multiple files, all the
+                directory content will be added to the platform.
 
-        If `local` is false, `path` must refer to a directory located on the server
-        filesystem. This directory must be accessible (readable) by the server.  This
-        mode is well suited for all kind of file sizes.
+            local (bool):
 
-        If a data sample with the same content already exists, an `AlreadyExists` exception will be
-        raised.
+                If true, path must refer to a directory located on the local
+                filesystem. The file content will be transferred to the server through an
+                HTTP query, so this mode should be used for relatively small files (<10mo).
 
-        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+                If false, path must refer to a directory located on the server
+                filesystem. This directory must be accessible (readable) by the server.  This
+                mode is well suited for all kind of file sizes.
 
+            exist_ok (bool, optional): If true, AlreadyExists exceptions will be ignored and the
+                existing asset will be returned. Defaults to False.
+
+        Returns:
+            dict: The newly created asset.
+
+        Raises:
+            AlreadyExists: A data sample with the same content already exists on the server.
         """
         data = _update_permissions_field(data)
         if 'paths' in data:
@@ -248,30 +284,40 @@ class Client(object):
 
     @logit
     def add_data_samples(self, data, local=True):
-        """Create many data sample assets.
-
-        `data` is a dict object with the following schema:
-
-```
-        {
-            "paths": list[str],
-            "data_manager_keys": list[str],
-            "test_only": bool,
-        }
-```
-        Create multiple data samples through a single HTTP request.
-
-        The `paths` in the data dictionary must be a list of paths where each path
-        points to a directory representing one data sample.
-
-        For the `local` argument, please refer to the method `Client.add_data_sample`.
+        """Creates multiple new data sample assets.
 
         This method is well suited for adding multiple small files only. For adding a
         large amount of data it is recommended to add them one by one. It allows a
         better control in case of failures.
 
-        If data samples with the same content as any of the paths already exists, an `AlreadyExists`
-        exception will be raised.
+        Args:
+            data (dict): Must have the following schema
+
+                {
+                    "paths": list[str],
+                    "data_manager_keys": list[str],
+                    "test_only": bool,
+                }
+
+                The paths in the data dictionary must be a list of paths where each path
+                points to a directory representing one data sample.
+
+            local (bool):
+
+                If true, path must refer to a directory located on the local
+                filesystem. The file content will be transferred to the server through an
+                HTTP query, so this mode should be used for relatively small files (<10mo).
+
+                If false, path must refer to a directory located on the server
+                filesystem. This directory must be accessible (readable) by the server.  This
+                mode is well suited for all kind of file sizes.
+
+        Returns:
+            list[dict]: The newly created assets
+
+        Raises:
+            AlreadyExists: data samples with the same content as some of the paths already exist on
+                the server.
         """
         data = _update_permissions_field(data)
         if 'path' in data:
@@ -282,29 +328,31 @@ class Client(object):
 
     @logit
     def add_dataset(self, data, exist_ok=False):
-        """Create new dataset asset.
+        """Creates a new dataset asset.
 
-        `data` is a dict object with the following schema:
+        Args:
+            data (dict): Must have the following schema
 
-```
-        {
-            "name": str,
-            "description": str,
-            "type": str,
-            "data_opener": str,
-            "objective_key": str,
-            "permissions": {
-                "public": bool,
-                "authorized_ids": list[str],
-            },
-        }
-```
+                {
+                    "name": str,
+                    "description": str,
+                    "type": str,
+                    "data_opener": str,
+                    "objective_key": str,
+                    "permissions": {
+                        "public": bool,
+                        "authorized_ids": list[str],
+                    },
+                }
 
-        If a dataset with the same opener already exists, an `AlreadyExists` exception will be
-        raised.
+            exist_ok (bool, optional): If true, AlreadyExists exceptions will be ignored and the
+                existing asset will be returned. Defaults to False.
 
-        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        Returns:
+            dict: The newly created asset.
+
+        Raises:
+            AlreadyExists: A dataset with the same opener already exists on the server.
         """
         data = _update_permissions_field(data)
         attributes = ['data_opener', 'description']
@@ -317,30 +365,33 @@ class Client(object):
 
     @logit
     def add_objective(self, data, exist_ok=False):
-        """Create new objective asset.
+        """Creates a new objective asset.
 
-        `data` is a dict object with the following schema:
+        Args:
 
-```
-        {
-            "name": str,
-            "description": str,
-            "metrics_name": str,
-            "metrics": str,
-            "test_data_manager_key": str,
-            "test_data_sample_keys": list[str],
-            "permissions": {
-                "public": bool,
-                "authorized_ids": list[str],
-            },
-        }
-```
+            data (dict): Must have the following schema
 
-        If an objective with the same description already exists, an `AlreadyExists` exception will
-        be raised.
+                {
+                    "name": str,
+                    "description": str,
+                    "metrics_name": str,
+                    "metrics": str,
+                    "test_data_manager_key": str,
+                    "test_data_sample_keys": list[str],
+                    "permissions": {
+                        "public": bool,
+                        "authorized_ids": list[str],
+                    },
+                }
 
-        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+            exist_ok (bool, optional): If true, AlreadyExists exceptions will be ignored and the
+                existing asset will be returned. Defaults to False.
+
+        Returns:
+            dict: The newly created asset.
+
+        Raises:
+            AlreadyExists: An objective with the same description already exists on the server.
         """
         data = _update_permissions_field(data)
         attributes = ['metrics', 'description']
@@ -353,27 +404,29 @@ class Client(object):
 
     @logit
     def add_algo(self, data, exist_ok=False):
-        """Create new algo asset.
+        """Creates a new algo asset.
 
-        `data` is a dict object with the following schema:
+        Args:
+            data (dict): Must have the following schema
 
-```
-        {
-            "name": str,
-            "description": str,
-            "file": str,
-            "permissions": {
-                "public": bool,
-                "authorized_ids": list[str],
-            },
-        }
-```
+                {
+                    "name": str,
+                    "description": str,
+                    "file": str,
+                    "permissions": {
+                        "public": bool,
+                        "authorized_ids": list[str],
+                    },
+                }
 
-        If an algo with the same archive file already exists, an `AlreadyExists` exception will be
-        raised.
+            exist_ok (bool, optional): If true, AlreadyExists exceptions will be ignored and the
+                existing asset will be returned. Defaults to False.
 
-        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        Returns:
+            dict: The newly created asset.
+
+        Raises:
+            AlreadyExists: An algo with the same archive file already exists on the server.
         """
         data = _update_permissions_field(data)
         attributes = ['file', 'description']
@@ -386,24 +439,30 @@ class Client(object):
 
     @logit
     def add_aggregate_algo(self, data, exist_ok=False):
-        """Create new aggregate algo asset.
-        `data` is a dict object with the following schema:
-```
-        {
-            "name": str,
-            "description": str,
-            "file": str,
-            "permissions": {
-                "public": bool,
-                "authorizedIDs": list[str],
-            },
-        }
-```
-        If an aggregate algo with the same archive file already exists, an `AlreadyExists`
-        exception will be raised.
+        """Creates a new aggregate algo asset.
 
-        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        Args:
+            data (dict): Must have the following schema
+
+                {
+                    "name": str,
+                    "description": str,
+                    "file": str,
+                    "permissions": {
+                        "public": bool,
+                        "authorizedIDs": list[str],
+                    },
+                }
+
+            exist_ok (bool, optional): If true, AlreadyExists exceptions will be ignored and the
+                existing asset will be returned. Defaults to False.
+
+        Returns:
+            dict: The newly created asset.
+
+        Raises:
+            AlreadyExists: An aggregate algo with the same archive file already exists on the
+                server.
         """
         data = _update_permissions_field(data)
         attributes = ['file', 'description']
@@ -416,24 +475,30 @@ class Client(object):
 
     @logit
     def add_composite_algo(self, data, exist_ok=False):
-        """Create new composite algo asset.
-        `data` is a dict object with the following schema:
-```
-        {
-            "name": str,
-            "description": str,
-            "file": str,
-            "permissions": {
-                "public": bool,
-                "authorized_ids": list[str],
-            },
-        }
-```
-        If a composite algo with the same archive file already exists, an `AlreadyExists` exception
-        will be raised.
+        """Creates a new composite algo asset.
 
-        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        Args:
+            data (dict): Must have the following schema
+
+                    {
+                        "name": str,
+                        "description": str,
+                        "file": str,
+                        "permissions": {
+                            "public": bool,
+                            "authorizedIDs": list[str],
+                        },
+                    }
+
+            exist_ok (bool, optional): If true, AlreadyExists exceptions will be ignored and the
+                existing asset will be returned. Defaults to False.
+
+        Returns:
+            dict: The newly created asset.
+
+        Raises:
+            AlreadyExists: A composite algo with the same archive file already exists on the
+                server.
         """
         data = _update_permissions_field(data)
         attributes = ['file', 'description']
@@ -446,27 +511,32 @@ class Client(object):
 
     @logit
     def add_traintuple(self, data, exist_ok=False):
-        """Create new traintuple asset.
+        """Creates a new traintuple asset.
 
-        `data` is a dict object with the following schema:
+        Args:
+            data (dict): Must have the following schema
 
-```
-        {
-            "algo_key": str,
-            "data_manager_key": str,
-            "train_data_sample_keys": list[str],
-            "in_models_keys": list[str],
-            "tag": str,
-            "rank": int,
-            "compute_plan_id": str,
-        }
-```
-        An `AlreadyExists` exception will be raised if a traintuple already exists that:
-        * has the same `algo_key`, `data_manager_key`, `train_data_sample_keys` and `in_models_keys`
-        * and was created through the same node you are using
+                {
+                    "algo_key": str,
+                    "data_manager_key": str,
+                    "train_data_sample_keys": list[str],
+                    "in_models_keys": list[str],
+                    "tag": str,
+                    "rank": int,
+                    "compute_plan_id": str,
+                }
 
-        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+            exist_ok (bool, optional): If true, AlreadyExists exceptions will be ignored and the
+                existing asset will be returned. Defaults to False.
+
+        Returns:
+            dict: The newly created asset.
+
+        Raises:
+            AlreadyExists: A traintuple already exists on the server that:
+
+                * has the same algo_key, data_manager_key, train_data_sample_keys and in_models_keys
+                * was created through the same node this Client instance points to
         """
         res = self._add(assets.TRAINTUPLE, data, exist_ok=exist_ok)
 
@@ -476,24 +546,31 @@ class Client(object):
 
     @logit
     def add_aggregatetuple(self, data, exist_ok=False):
-        """Create new aggregatetuple asset.
-        `data` is a dict object with the following schema:
-```
-        {
-            "algo_key": str,
-            "in_models_keys": list[str],
-            "tag": str,
-            "compute_plan_id": str,
-            "rank": int,
-            "worker": str,
-        }
-```
-        An `AlreadyExists` exception will be raised if an aggregatetuple already exists that:
-        * has the same `algo_key` and `in_models_keys`
-        * and was created through the same node you are using
+        """Creates a new aggregatetuple asset.
 
-        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        Args:
+            data (dict): Must have the following schema
+
+                {
+                    "algo_key": str,
+                    "in_models_keys": list[str],
+                    "tag": str,
+                    "compute_plan_id": str,
+                    "rank": int,
+                    "worker": str,
+                }
+
+            exist_ok (bool, optional): If true, AlreadyExists exceptions will be ignored and the
+                existing asset will be returned. Defaults to False.
+
+        Returns:
+            dict: The newly created asset.
+
+        Raises:
+            AlreadyExists: A traintuple already exists on the server that:
+
+                * has the same algo_key and in_models_keys
+                * was created through the same node this Client instance points to
         """
         res = self._add(assets.AGGREGATETUPLE, data, exist_ok=exist_ok)
 
@@ -503,33 +580,39 @@ class Client(object):
 
     @logit
     def add_composite_traintuple(self, data, exist_ok=False):
-        """Create new composite traintuple asset.
-        `data` is a dict object with the following schema:
-```
-        {
-            "algo_key": str,
-            "data_manager_key": str,
-            "in_head_model_key": str,
-            "in_trunk_model_key": str,
-            "out_trunk_model_permissions": {
-                "authorized_ids": list[str],
-            },
-            "tag": str,
-            "rank": int,
-            "compute_plan_id": str,
-        }
-```
+        """Creates a new composite traintuple asset.
 
         As specified in the data dict structure, output trunk models cannot be made
         public.
 
-        An `AlreadyExists` exception will be raised if a traintuple already exists that:
-        * has the same `algo_key`, `data_manager_key`, `train_data_sample_keys`,
-          `in_head_models_key` and `in_trunk_model_key`
-        * and was created through the same node you are using
+        Args:
+            data (dict): Must have the following schema
 
-        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+                {
+                    "algo_key": str,
+                    "data_manager_key": str,
+                    "in_head_model_key": str,
+                    "in_trunk_model_key": str,
+                    "out_trunk_model_permissions": {
+                        "authorized_ids": list[str],
+                    },
+                    "tag": str,
+                    "rank": int,
+                    "compute_plan_id": str,
+                }
+
+            exist_ok (bool, optional): If true, AlreadyExists exceptions will be ignored and the
+                existing asset will be returned. Defaults to False.
+
+        Returns:
+            dict: The newly created asset.
+
+        Raises:
+            AlreadyExists: A traintuple already exists on the server that:
+
+                * has the same algo_key, data_manager_key, train_data_sample_keys,
+                  in_head_models_key and in_trunk_model_key
+                * was created through the same node this Client instance points to
         """
         data = _update_permissions_field(data, permissions_field='out_trunk_model_permissions')
         res = self._add(assets.COMPOSITE_TRAINTUPLE, data, exist_ok=exist_ok)
@@ -540,27 +623,31 @@ class Client(object):
 
     @logit
     def add_testtuple(self, data, exist_ok=False):
-        """Create new testtuple asset.
+        """Creates a new testtuple asset.
 
-        `data` is a dict object with the following schema:
+        Args:
+            data (dict): Must have the following schema
 
-```
-        {
-            "objective_key": str,
-            "data_manager_key": str,
-            "traintuple_key": str,
-            "test_data_sample_keys": list[str],
-            "tag": str,
-        }
-```
+                {
+                    "objective_key": str,
+                    "data_manager_key": str,
+                    "traintuple_key": str,
+                    "test_data_sample_keys": list[str],
+                    "tag": str,
+                }
 
-        An `AlreadyExists` exception will be raised if a traintuple already exists that:
-        * has the same `traintuple_key`, `objective_key`, `data_manager_key` and
-          `test_data_sample_keys`
-        * and was created through the same node you are using
+            exist_ok (bool, optional): If true, AlreadyExists exceptions will be ignored and the
+                existing asset will be returned. Defaults to False.
 
-        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        Returns:
+            dict: The newly created asset.
+
+        Raises:
+            AlreadyExists: A traintuple already exists on the server that:
+
+                * has the same traintuple_key, objective_key, data_manager_key and
+                  test_data_sample_keys
+                * was created through the same node this Client instance points to
         """
         res = self._add(assets.TESTTUPLE, data, exist_ok=exist_ok)
 
@@ -570,169 +657,454 @@ class Client(object):
 
     @logit
     def add_compute_plan(self, data):
-        """Create compute plan.
-
-        Data is a dict object with the following schema:
-
-```
-        {
-            "traintuples": list[{
-                "traintuple_id": str,
-                "algo_key": str,
-                "data_manager_key": str,
-                "train_data_sample_keys": list[str],
-                "in_models_ids": list[str],
-                "tag": str,
-            }],
-            "composite_traintuples": list[{
-                "composite_traintuple_id": str,
-                "algo_key": str,
-                "data_manager_key": str,
-                "train_data_sample_keys": list[str],
-                "in_head_model_id": str,
-                "in_trunk_model_id": str,
-                "out_trunk_model_permissions": {
-                    "authorized_ids": list[str],
-                },
-                "tag": str,
-            }]
-            "aggregatetuples": list[{
-                "aggregatetuple_id": str,
-                "algo_key": str,
-                "worker": str,
-                "in_models_ids": list[str],
-                "tag": str,
-            }],
-            "testtuples": list[{
-                "objective_key": str,
-                "data_manager_key": str,
-                "test_data_sample_keys": list[str],
-                "traintuple_id": str,
-                "tag": str,
-            }],
-            "clean_models": bool,
-            "tag": str
-        }
-```
+        """Creates a new compute plan asset.
 
         As specified in the data dict structure, output trunk models of composite
         traintuples cannot be made public.
+
+        Args:
+            data (dict): Must have the following schema
+
+                {
+                    "traintuples": list[{
+                        "traintuple_id": str,
+                        "algo_key": str,
+                        "data_manager_key": str,
+                        "train_data_sample_keys": list[str],
+                        "in_models_ids": list[str],
+                        "tag": str,
+                    }],
+                    "composite_traintuples": list[{
+                        "composite_traintuple_id": str,
+                        "algo_key": str,
+                        "data_manager_key": str,
+                        "train_data_sample_keys": list[str],
+                        "in_head_model_id": str,
+                        "in_trunk_model_id": str,
+                        "out_trunk_model_permissions": {
+                            "authorized_ids": list[str],
+                        },
+                        "tag": str,
+                    }]
+                    "aggregatetuples": list[{
+                        "aggregatetuple_id": str,
+                        "algo_key": str,
+                        "worker": str,
+                        "in_models_ids": list[str],
+                        "tag": str,
+                    }],
+                    "testtuples": list[{
+                        "objective_key": str,
+                        "data_manager_key": str,
+                        "test_data_sample_keys": list[str],
+                        "traintuple_id": str,
+                        "tag": str,
+                    }],
+                    "clean_models": bool,
+                    "tag": str
+                }
+
+        Returns:
+            dict: The newly created asset.
         """
         return self._add(assets.COMPUTE_PLAN, data, json_encoding=True)
 
     @logit
     def get_algo(self, algo_key):
-        """Get algo by key."""
+        """Gets an algo by key.
+
+        Args:
+            algo_key (str): The key of the algo
+
+        Raises:
+            NotFound: The algo_key did not match any algo.
+
+        Returns:
+            dict: The requested asset
+        """
         return self.client.get(assets.ALGO, algo_key)
 
     @logit
     def get_compute_plan(self, compute_plan_key):
-        """Get compute plan by key."""
+        """Gets a compute plan by key.
+
+        Args:
+            compute_plan_key (str): The key of the compute plan
+
+        Raises:
+            NotFound: The compute_plan_key did not match any compute plan.
+
+        Returns:
+            dict: The requested asset
+        """
         return self.client.get(assets.COMPUTE_PLAN, compute_plan_key)
 
     @logit
     def get_aggregate_algo(self, aggregate_algo_key):
-        """Get aggregate algo by key."""
+        """Gets an aggregate algo by key.
+
+        Args:
+            aggregate_algo_key (str): The key of the aggregate algo
+
+        Raises:
+            NotFound: The aggregate_algo_key did not match any aggregate algo.
+
+        Returns:
+            dict: The requested asset
+        """
         return self.client.get(assets.AGGREGATE_ALGO, aggregate_algo_key)
 
     @logit
     def get_composite_algo(self, composite_algo_key):
-        """Get composite algo by key."""
+        """Gets a composite algo by key.
+
+        Args:
+            composite_algo_key (str): The key of the composite algo
+
+        Raises:
+            NotFound: The composite_algo_key did not match any composite algo.
+
+        Returns:
+            dict: The requested asset
+        """
         return self.client.get(assets.COMPOSITE_ALGO, composite_algo_key)
 
     @logit
     def get_dataset(self, dataset_key):
-        """Get dataset by key."""
+        """Gets a dataset by key.
+
+        Args:
+            dataset_key (str): The key of the dataset
+
+        Raises:
+            NotFound: The dataset_key did not match any dataset.
+
+        Returns:
+            dict: The requested asset
+        """
         return self.client.get(assets.DATASET, dataset_key)
 
     @logit
     def get_objective(self, objective_key):
-        """Get objective by key."""
+        """Gets an objective by key.
+
+        Args:
+            objective_key (str): The key of the objective
+
+        Raises:
+            NotFound: The objective_key did not match any objective.
+
+        Returns:
+            dict: The requested asset
+        """
         return self.client.get(assets.OBJECTIVE, objective_key)
 
     @logit
     def get_testtuple(self, testtuple_key):
-        """Get testtuple by key."""
+        """Gets a testtuple by key.
+
+        Args:
+            testtuple_key (str): The key of the testtuple
+
+        Raises:
+            NotFound: The testtuple_key did not match any testtuple.
+
+        Returns:
+            dict: The requested asset
+        """
         return self.client.get(assets.TESTTUPLE, testtuple_key)
 
     @logit
     def get_traintuple(self, traintuple_key):
-        """Get traintuple by key."""
+        """Gets a traintuple by key.
+
+        Args:
+            traintuple_key (str): The key of the traintuple
+
+        Raises:
+            NotFound: The traintuple_key did not match any traintuple.
+
+        Returns:
+            dict: The requested asset
+        """
         return self.client.get(assets.TRAINTUPLE, traintuple_key)
 
     @logit
     def get_aggregatetuple(self, aggregatetuple_key):
-        """Get aggregatetuple by key."""
+        """Gets an aggregatetuple by key.
+
+        Args:
+            aggregatetuple_key (str): The key of the aggregatetuple
+
+        Raises:
+            NotFound: The aggregatetuple_key did not match any aggregatetuple.
+
+        Returns:
+            dict: The requested asset
+        """
         return self.client.get(assets.AGGREGATETUPLE, aggregatetuple_key)
 
     @logit
     def get_composite_traintuple(self, composite_traintuple_key):
-        """Get composite traintuple by key."""
+        """Gets a composite traintuple by key.
+
+        Args:
+            composite_traintuple_key (str): The key of the composite_traintuple
+
+        Raises:
+            NotFound: The composite_traintuple_key did not match any composite_traintuple.
+
+        Returns:
+            dict: The requested asset
+        """
         return self.client.get(assets.COMPOSITE_TRAINTUPLE, composite_traintuple_key)
 
     @logit
     def list_algo(self, filters=None, is_complex=False):
-        """List algos."""
+        """Lists algos.
+
+        Args:
+            filters (list[str], optional): List of filters to apply to the algo list.
+                Defaults to None.
+
+                A single filter is a string that can be either:
+                * 'OR'
+                * '<asset_type>:<asset_field>:<value>'
+
+        Raises:
+            InvalidRequest:
+
+        Returns:
+            list[dict]: The list of requested assets.
+        """
         return self.client.list(assets.ALGO, filters=filters)
 
     @logit
     def list_compute_plan(self, filters=None, is_complex=False):
-        """List compute plans."""
+        """Lists compute plans.
+
+        Args:
+            filters (list[str], optional): List of filters to apply to the compute plan list.
+                Defaults to None.
+
+                A single filter is a string that can be either:
+                * 'OR'
+                * '<asset_type>:<asset_field>:<value>'
+
+        Raises:
+            InvalidRequest:
+
+        Returns:
+            list[dict]: The list of requested assets.
+        """
         return self.client.list(assets.COMPUTE_PLAN, filters=filters)
 
     @logit
     def list_aggregate_algo(self, filters=None, is_complex=False):
-        """List aggregate algos."""
+        """Lists aggregate algos.
+
+        Args:
+            filters (list[str], optional): List of filters to apply to the aggregate algo list.
+                Defaults to None.
+
+                A single filter is a string that can be either:
+                * 'OR'
+                * '<asset_type>:<asset_field>:<value>'
+
+        Raises:
+            InvalidRequest:
+
+        Returns:
+            list[dict]: The list of requested assets.
+        """
         return self.client.list(assets.AGGREGATE_ALGO, filters=filters)
 
     @logit
     def list_composite_algo(self, filters=None, is_complex=False):
-        """List composite algos."""
+        """Lists composite algos.
+
+        Args:
+            filters (list[str], optional): List of filters to apply to the composite algo list.
+                Defaults to None.
+
+                A single filter is a string that can be either:
+                * 'OR'
+                * '<asset_type>:<asset_field>:<value>'
+
+        Raises:
+            InvalidRequest:
+
+        Returns:
+            list[dict]: The list of requested assets.
+        """
         return self.client.list(assets.COMPOSITE_ALGO, filters=filters)
 
     @logit
     def list_data_sample(self, filters=None, is_complex=False):
-        """List data samples."""
+        """Lists data samples.
+
+        Args:
+            filters (list[str], optional): List of filters to apply to the data sample list.
+                Defaults to None.
+
+                A single filter is a string that can be either:
+                * 'OR'
+                * '<asset_type>:<asset_field>:<value>'
+
+        Raises:
+            InvalidRequest:
+
+        Returns:
+            list[dict]: The list of requested assets.
+        """
         return self.client.list(assets.DATA_SAMPLE, filters=filters)
 
     @logit
     def list_dataset(self, filters=None, is_complex=False):
-        """List datasets."""
+        """Lists datasets.
+
+        Args:
+            filters (list[str], optional): List of filters to apply to the dataset list.
+                Defaults to None.
+
+                A single filter is a string that can be either:
+                * 'OR'
+                * '<asset_type>:<asset_field>:<value>'
+
+        Raises:
+            InvalidRequest:
+
+        Returns:
+            list[dict]: The list of requested assets.
+        """
         return self.client.list(assets.DATASET, filters=filters)
 
     @logit
     def list_objective(self, filters=None, is_complex=False):
-        """List objectives."""
+        """Lists objectives.
+
+        Args:
+            filters (list[str], optional): List of filters to apply to the objective list.
+                Defaults to None.
+
+                A single filter is a string that can be either:
+                * 'OR'
+                * '<asset_type>:<asset_field>:<value>'
+
+        Raises:
+            InvalidRequest:
+
+        Returns:
+            list[dict]: The list of requested assets.
+        """
         return self.client.list(assets.OBJECTIVE, filters=filters)
 
     @logit
     def list_testtuple(self, filters=None, is_complex=False):
-        """List testtuples."""
+        """Lists testtuple
+
+        Args:
+            filters (list[str], optional): List of filters to apply to the testtuple list.
+                Defaults to None.
+
+                A single filter is a string that can be either:
+                * 'OR'
+                * '<asset_type>:<asset_field>:<value>'
+
+        Raises:
+            InvalidRequest:
+
+        Returns:
+            list[dict]: The list of requested assets.
+        """
         return self.client.list(assets.TESTTUPLE, filters=filters)
 
     @logit
     def list_traintuple(self, filters=None, is_complex=False):
-        """List traintuples."""
+        """Lists traintuples.
+
+        Args:
+            filters (list[str], optional): List of filters to apply to the traintuple list.
+                Defaults to None.
+
+                A single filter is a string that can be either:
+                * 'OR'
+                * '<asset_type>:<asset_field>:<value>'
+
+        Raises:
+            InvalidRequest:
+
+        Returns:
+            list[dict]: The list of requested assets.
+        """
         return self.client.list(assets.TRAINTUPLE, filters=filters)
 
     @logit
     def list_aggregatetuple(self, filters=None, is_complex=False):
-        """List aggregatetuples."""
+        """Lists aggregatetuples.
+
+        Args:
+            filters (list[str], optional): List of filters to apply to the aggregatetuple list.
+                Defaults to None.
+
+                A single filter is a string that can be either:
+                * 'OR'
+                * '<asset_type>:<asset_field>:<value>'
+
+        Raises:
+            InvalidRequest:
+
+        Returns:
+            list[dict]: The list of requested assets.
+        """
         return self.client.list(assets.AGGREGATETUPLE, filters=filters)
 
     @logit
     def list_composite_traintuple(self, filters=None, is_complex=False):
-        """List composite traintuples."""
+        """Lists composite traintuples.
+
+        Args:
+            filters (list[str], optional): List of filters to apply to the composite traintuple
+                list. Defaults to None.
+
+                A single filter is a string that can be either:
+                * 'OR'
+                * '<asset_type>:<asset_field>:<value>'
+
+        Raises:
+            InvalidRequest:
+
+        Returns:
+            list[dict]: The list of requested assets.
+        """
         return self.client.list(assets.COMPOSITE_TRAINTUPLE, filters=filters)
 
     @logit
     def list_node(self, *args, **kwargs):
-        """List nodes."""
+        """Lists nodes.
+
+        Returns:
+            list[dict]: The list of requested assets.
+        """
         return self.client.list(assets.NODE)
 
     @logit
     def update_dataset(self, dataset_key, data):
-        """Update dataset."""
+        """Updates a dataset.
+
+        This only updates the link between a given dataset and objectives.
+
+        Args:
+            dataset_key (str): The dataset key of the asset to update.
+            data (dict): Must have the following schema
+
+                {
+                    "objective_key": str
+                }
+
+        Returns:
+            dict: The updated asset.
+        """
         return self.client.request(
             'post',
             assets.DATASET,
@@ -742,52 +1114,54 @@ class Client(object):
 
     @logit
     def update_compute_plan(self, compute_plan_id, data):
-        """Update compute plan.
-
-        Data is a dict object with the following schema:
-
-```
-        {
-            "traintuples": list[{
-                "traintuple_id": str,
-                "algo_key": str,
-                "data_manager_key": str,
-                "train_data_sample_keys": list[str],
-                "in_models_ids": list[str],
-                "tag": str,
-            }],
-            "composite_traintuples": list[{
-                "composite_traintuple_id": str,
-                "algo_key": str,
-                "data_manager_key": str,
-                "train_data_sample_keys": list[str],
-                "in_head_model_id": str,
-                "in_trunk_model_id": str,
-                "out_trunk_model_permissions": {
-                    "authorized_ids": list[str],
-                },
-                "tag": str,
-            }]
-            "aggregatetuples": list[{
-                "aggregatetuple_id": str,
-                "algo_key": str,
-                "worker": str,
-                "in_models_ids": list[str],
-                "tag": str,
-            }],
-            "testtuples": list[{
-                "objective_key": str,
-                "data_manager_key": str,
-                "test_data_sample_keys": list[str],
-                "traintuple_id": str,
-                "tag": str,
-            }]
-        }
-```
+        """Updates an existing compute plan asset.
 
         As specified in the data dict structure, output trunk models of composite
         traintuples cannot be made public.
 
+        Args:
+            compute_plan_id (str): The compute plan ID of the asset to update.
+            data (dict): Must have the following schema
+
+                {
+                    "traintuples": list[{
+                        "traintuple_id": str,
+                        "algo_key": str,
+                        "data_manager_key": str,
+                        "train_data_sample_keys": list[str],
+                        "in_models_ids": list[str],
+                        "tag": str,
+                    }],
+                    "composite_traintuples": list[{
+                        "composite_traintuple_id": str,
+                        "algo_key": str,
+                        "data_manager_key": str,
+                        "train_data_sample_keys": list[str],
+                        "in_head_model_id": str,
+                        "in_trunk_model_id": str,
+                        "out_trunk_model_permissions": {
+                            "authorized_ids": list[str],
+                        },
+                        "tag": str,
+                    }]
+                    "aggregatetuples": list[{
+                        "aggregatetuple_id": str,
+                        "algo_key": str,
+                        "worker": str,
+                        "in_models_ids": list[str],
+                        "tag": str,
+                    }],
+                    "testtuples": list[{
+                        "objective_key": str,
+                        "data_manager_key": str,
+                        "test_data_sample_keys": list[str],
+                        "traintuple_id": str,
+                        "tag": str,
+                    }],
+                }
+
+        Returns:
+            dict: The updated asset.
         """
         return self.client.request(
             'post',
@@ -798,13 +1172,29 @@ class Client(object):
 
     @logit
     def link_dataset_with_objective(self, dataset_key, objective_key):
-        """Link dataset with objective."""
+        """Links a dataset with an objective.
+
+        Args:
+            dataset_key (str): The key of the dataset to link.
+            objective_key (str): The key of the objective to link.
+
+        Returns:
+            dict: The updated dataset.
+        """
         return self.update_dataset(
             dataset_key, {'objective_key': objective_key, })
 
     @logit
     def link_dataset_with_data_samples(self, dataset_key, data_sample_keys):
-        """Link dataset with data samples."""
+        """Links a dataset with data samples.
+
+        Args:
+            dataset_key (str): The key of the dataset to link.
+            data_sample_keys (list[str]): The keys of the data samples to link.
+
+        Returns:
+            list[dict]: The updated data samples.
+        """
         data = {
             'data_manager_keys': [dataset_key],
             'data_sample_keys': data_sample_keys,
@@ -836,60 +1226,75 @@ class Client(object):
         return destination_path
 
     @logit
-    def download_dataset(self, asset_key, destination_folder):
-        """Download data manager resource.
+    def download_dataset(self, dataset_key, destination_folder):
+        """Downloads a dataset opener.
 
-        Download opener script in destination folder.
+        Args:
+            dataset_key (str): The key of the target dataset.
+            destination_folder (str): The path to the folder where the target dataset's opener
+                should be downloaded.
         """
-        data = self.get_dataset(asset_key)
+        data = self.get_dataset(dataset_key)
         # download opener file
         default_filename = 'opener.py'
         url = data['opener']['storageAddress']
         self._download(url, destination_folder, default_filename)
 
     @logit
-    def download_algo(self, asset_key, destination_folder):
-        """Download algo resource.
+    def download_algo(self, algo_key, destination_folder):
+        """Downloads an algo archive.
 
-        Download algo package in destination folder.
+        Args:
+            algo_key (str): The key of the target algo.
+            destination_folder (str): The path to the folder where the target algo's archive
+                should be downloaded.
         """
-        data = self.get_algo(asset_key)
+        data = self.get_algo(algo_key)
         # download algo package
         default_filename = 'algo.tar.gz'
         url = data['content']['storageAddress']
         self._download(url, destination_folder, default_filename)
 
     @logit
-    def download_aggregate_algo(self, asset_key, destination_folder):
-        """Download aggregate algo resource.
+    def download_aggregate_algo(self, aggregate_algo_key, destination_folder):
+        """Downloads an aggregate algo archive.
 
-        Download aggregate algo package in destination folder.
+        Args:
+            aggregate_algo_key (str): The key of the target aggregate algo.
+            destination_folder (str): The path to the folder where the target aggregate algo's
+                archive should be downloaded.
         """
-        data = self.get_aggregate_algo(asset_key)
+        data = self.get_aggregate_algo(aggregate_algo_key)
         # download aggregate algo package
         default_filename = 'aggregate_algo.tar.gz'
         url = data['content']['storageAddress']
         self._download(url, destination_folder, default_filename)
 
     @logit
-    def download_composite_algo(self, asset_key, destination_folder):
-        """Download composite algo resource.
+    def download_composite_algo(self, composite_algo_key, destination_folder):
+        """Downloads a composite algo archive.
 
-        Download composite algo package in destination folder.
+        Args:
+            composite_algo_key (str): The key of the target composite algo.
+            destination_folder (str): The path to the folder where the target composite algo's
+                archive should be downloaded.
         """
-        data = self.get_composite_algo(asset_key)
+        data = self.get_composite_algo(composite_algo_key)
         # download composite algo package
         default_filename = 'composite_algo.tar.gz'
         url = data['content']['storageAddress']
         self._download(url, destination_folder, default_filename)
 
     @logit
-    def download_objective(self, asset_key, destination_folder):
-        """Download objective resource.
+    def download_objective(self, objective_key, destination_folder):
+        """Downloads an objective metrics archive.
 
-        Download metrics script in destination folder.
+        Args:
+            objective_key (str): The key of the target objective.
+            destination_folder (str): The path to the folder where the target objective's
+                metrics archive should be downloaded.
         """
-        data = self.get_objective(asset_key)
+        data = self.get_objective(objective_key)
         # download metrics script
         default_filename = 'metrics.py'
         url = data['metrics']['storageAddress']
@@ -903,39 +1308,92 @@ class Client(object):
         return r.text
 
     @logit
-    def describe_algo(self, asset_key):
-        """Get algo description."""
-        return self._describe(assets.ALGO, asset_key)
+    def describe_algo(self, algo_key):
+        """Gets an algo description.
+
+        Args:
+            algo_key (str): The key of the target algo.
+
+        Returns:
+            str: The asset's description.
+        """
+        return self._describe(assets.ALGO, algo_key)
 
     @logit
-    def describe_aggregate_algo(self, asset_key):
-        """Get aggregate algo description."""
-        return self._describe(assets.AGGREGATE_ALGO, asset_key)
+    def describe_aggregate_algo(self, aggregate_algo_key):
+        """Gets an aggregate algo description.
+
+        Args:
+            aggregate_algo_key (str): The key of the target aggregate algo.
+
+        Returns:
+            str: The asset's description.
+        """
+        return self._describe(assets.AGGREGATE_ALGO, aggregate_algo_key)
 
     @logit
-    def describe_composite_algo(self, asset_key):
-        """Get composite algo description."""
-        return self._describe(assets.COMPOSITE_ALGO, asset_key)
+    def describe_composite_algo(self, composite_algo_key):
+        """Gets a composite algo description.
+
+        Args:
+            composite_algo_key (str): The key of the target composite algo.
+
+        Returns:
+            str: The asset's description.
+        """
+        return self._describe(assets.COMPOSITE_ALGO, composite_algo_key)
 
     @logit
-    def describe_dataset(self, asset_key):
-        """Get dataset description."""
-        return self._describe(assets.DATASET, asset_key)
+    def describe_dataset(self, dataset_key):
+        """Gets a dataset description.
+
+        Args:
+            dataset_key (str): The key of the target dataset.
+
+        Returns:
+            str: The asset's description.
+        """
+        return self._describe(assets.DATASET, dataset_key)
 
     @logit
-    def describe_objective(self, asset_key):
-        """Get objective description."""
-        return self._describe(assets.OBJECTIVE, asset_key)
+    def describe_objective(self, objective_key):
+        """Gets an objective description.
+
+        Args:
+            objective_key (str): The key of the target objective.
+
+        Returns:
+            str: The asset's description.
+        """
+        return self._describe(assets.OBJECTIVE, objective_key)
 
     @logit
     def leaderboard(self, objective_key, sort='desc'):
-        """Get objective leaderboard"""
+        """Gets an objective leaderboard
+
+        Args:
+            objective_key (str): The key of the target objective.
+            sort (str): Either 'desc' or 'asc'. Whether to sort the leaderboard values by ascending
+                order (lowest score first) or descending order (highest score first). Defaults to
+                'desc'
+
+        Returns:
+            list[dict]: The list of leaderboard tuples.
+
+        """
         return self.client.request('get', assets.OBJECTIVE, f'{objective_key}/leaderboard',
                                    params={'sort': sort})
 
     @logit
     def cancel_compute_plan(self, compute_plan_id):
-        """Cancel execution of compute plan."""
+        """Cancels the execution of a compute plan.
+
+        Args:
+            compute_plan_id (str): The ID of the compute plan to cancel.
+
+        Returns:
+            dict: The canceled compute plan.
+        """
         return self.client.request(
             'post',
             assets.COMPUTE_PLAN,

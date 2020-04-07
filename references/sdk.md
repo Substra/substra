@@ -1,637 +1,1819 @@
-# substra.sdk
-
-# Client
-```python
-Client(self, config_path=None, profile_name=None, user_path=None, retry_timeout=300)
-```
-
-## login
-```python
-Client.login(self)
-```
-Login.
-
-Allow to login to a remote server.
-
-After setting your configuration with `substra config` using `-u` and `-p`
-Launch `substra login`
-You will get a token which will be stored by default in `~/.substra-user`
-You can change that thanks to the --user option (works like the --profile option)
+### class substra.Client(config_path=None, profile_name=None, user_path=None, retry_timeout=300)
+Client to interact with a Substra node.
 
 
-## set_profile
-```python
-Client.set_profile(self, profile_name)
-```
-Set profile from profile name.
+* **Parameters**
 
-If profiles has not been defined through the `add_profile` method, it is loaded
-from the config file.
-
-## add_profile
-```python
-Client.add_profile(self, profile_name, username, password, url, version='0.0', insecure=False)
-```
-Add new profile (in-memory only).
-## add_data_sample
-```python
-Client.add_data_sample(self, data, local=True, exist_ok=False)
-```
-Create new data sample asset.
-
-`data` is a dict object with the following schema:
-
-```
-{
-    "path": str,
-    "data_manager_keys": list[str],
-    "test_only": bool,
-}
-```
-The `path` in the data dictionary must point to a directory representing the
-data sample content. Note that the directory can contain multiple files, all the
-directory content will be added to the platform.
-
-If `local` is true, `path` must refer to a directory located on the local
-filesystem. The file content will be transferred to the server through an
-HTTP query, so this mode should be used for relatively small files (<10mo).
-
-If `local` is false, `path` must refer to a directory located on the server
-filesystem. This directory must be accessible (readable) by the server.  This
-mode is well suited for all kind of file sizes.
-
-If a data sample with the same content already exists, an `AlreadyExists` exception will be
-raised.
-
-If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset will be returned.
+    
+    * **config_path** (*str**, **optional*) – The path to the config file to load. Defaults to ‘~/.substra’
 
 
-## add_data_samples
-```python
-Client.add_data_samples(self, data, local=True)
-```
-Create many data sample assets.
+    * **profile_name** (*str**, **optional*) – The name of the profile to set as current profile. Defaults
+    to ‘default’
 
-`data` is a dict object with the following schema:
 
-```
-{
-    "paths": list[str],
-    "data_manager_keys": list[str],
-    "test_only": bool,
-}
-```
-Create multiple data samples through a single HTTP request.
+    * **user_path** (*str**, **optional*) – The path to the user file to load. Defaults to ‘~/.substra-user’
 
-The `paths` in the data dictionary must be a list of paths where each path
-points to a directory representing one data sample.
 
-For the `local` argument, please refer to the method `Client.add_data_sample`.
+    * **retry_timeout** (*int**, **optional*) – Number of seconds to wait before retry when an add request
+    timeouts. Defaults to 300 (5min)
+
+
+
+#### add_aggregate_algo(data, exist_ok=False)
+Creates a new aggregate algo asset.
+
+
+* **Parameters**
+
+    
+    * **data** (*dict*) – Must have the following schema
+
+    {
+
+        “name”: str,
+        “description”: str,
+        “file”: str,
+        “permissions”: {
+
+        > ”public”: bool,
+        > “authorizedIDs”: list[str],
+
+        },
+
+    }
+
+
+
+    * **exist_ok** (*bool**, **optional*) – If true, AlreadyExists exceptions will be ignored and the
+    existing asset will be returned. Defaults to False.
+
+
+
+* **Returns**
+
+    The newly created asset.
+
+
+
+* **Return type**
+
+    dict
+
+
+
+* **Raises**
+
+    **AlreadyExists** – An aggregate algo with the same archive file already exists on the
+        server.
+
+
+
+#### add_aggregatetuple(data, exist_ok=False)
+Creates a new aggregatetuple asset.
+
+
+* **Parameters**
+
+    
+    * **data** (*dict*) – Must have the following schema
+
+    {
+
+        “algo_key”: str,
+        “in_models_keys”: list[str],
+        “tag”: str,
+        “compute_plan_id”: str,
+        “rank”: int,
+        “worker”: str,
+
+    }
+
+
+
+    * **exist_ok** (*bool**, **optional*) – If true, AlreadyExists exceptions will be ignored and the
+    existing asset will be returned. Defaults to False.
+
+
+
+* **Returns**
+
+    The newly created asset.
+
+
+
+* **Return type**
+
+    dict
+
+
+
+* **Raises**
+
+    **AlreadyExists** – A traintuple already exists on the server that:
+
+        \* has the same algo_key and in_models_keys
+        \* was created through the same node this Client instance points to
+
+
+
+#### add_algo(data, exist_ok=False)
+Creates a new algo asset.
+
+
+* **Parameters**
+
+    
+    * **data** (*dict*) – Must have the following schema
+
+    {
+
+        “name”: str,
+        “description”: str,
+        “file”: str,
+        “permissions”: {
+
+        > ”public”: bool,
+        > “authorized_ids”: list[str],
+
+        },
+
+    }
+
+
+
+    * **exist_ok** (*bool**, **optional*) – If true, AlreadyExists exceptions will be ignored and the
+    existing asset will be returned. Defaults to False.
+
+
+
+* **Returns**
+
+    The newly created asset.
+
+
+
+* **Return type**
+
+    dict
+
+
+
+* **Raises**
+
+    **AlreadyExists** – An algo with the same archive file already exists on the server.
+
+
+
+#### add_composite_algo(data, exist_ok=False)
+Creates a new composite algo asset.
+
+
+* **Parameters**
+
+    
+    * **data** (*dict*) – Must have the following schema
+
+    {
+
+        “name”: str,
+        “description”: str,
+        “file”: str,
+        “permissions”: {
+
+        > ”public”: bool,
+        > “authorizedIDs”: list[str],
+
+        },
+
+    }
+
+
+
+    * **exist_ok** (*bool**, **optional*) – If true, AlreadyExists exceptions will be ignored and the
+    existing asset will be returned. Defaults to False.
+
+
+
+* **Returns**
+
+    The newly created asset.
+
+
+
+* **Return type**
+
+    dict
+
+
+
+* **Raises**
+
+    **AlreadyExists** – A composite algo with the same archive file already exists on the
+        server.
+
+
+
+#### add_composite_traintuple(data, exist_ok=False)
+Creates a new composite traintuple asset.
+
+As specified in the data dict structure, output trunk models cannot be made
+public.
+
+
+* **Parameters**
+
+    
+    * **data** (*dict*) – Must have the following schema
+
+    {
+
+        “algo_key”: str,
+        “data_manager_key”: str,
+        “in_head_model_key”: str,
+        “in_trunk_model_key”: str,
+        “out_trunk_model_permissions”: {
+
+        > ”authorized_ids”: list[str],
+
+        },
+        “tag”: str,
+        “rank”: int,
+        “compute_plan_id”: str,
+
+    }
+
+
+
+    * **exist_ok** (*bool**, **optional*) – If true, AlreadyExists exceptions will be ignored and the
+    existing asset will be returned. Defaults to False.
+
+
+
+* **Returns**
+
+    The newly created asset.
+
+
+
+* **Return type**
+
+    dict
+
+
+
+* **Raises**
+
+    **AlreadyExists** – A traintuple already exists on the server that:
+
+        \* has the same algo_key, data_manager_key, train_data_sample_keys,
+          in_head_models_key and in_trunk_model_key
+        \* was created through the same node this Client instance points to
+
+
+
+#### add_compute_plan(data)
+Creates a new compute plan asset.
+
+As specified in the data dict structure, output trunk models of composite
+traintuples cannot be made public.
+
+
+* **Parameters**
+
+    **data** (*dict*) – Must have the following schema
+
+    {
+
+        “traintuples”: list[{
+
+            “traintuple_id”: str,
+            “algo_key”: str,
+            “data_manager_key”: str,
+            “train_data_sample_keys”: list[str],
+            “in_models_ids”: list[str],
+            “tag”: str,
+
+        }],
+        “composite_traintuples”: list[{
+
+        > ”composite_traintuple_id”: str,
+        > “algo_key”: str,
+        > “data_manager_key”: str,
+        > “train_data_sample_keys”: list[str],
+        > “in_head_model_id”: str,
+        > “in_trunk_model_id”: str,
+        > “out_trunk_model_permissions”: {
+
+        > > ”authorized_ids”: list[str],
+
+        > },
+        > “tag”: str,
+
+        }]
+        “aggregatetuples”: list[{
+
+        > ”aggregatetuple_id”: str,
+        > “algo_key”: str,
+        > “worker”: str,
+        > “in_models_ids”: list[str],
+        > “tag”: str,
+
+        }],
+        “testtuples”: list[{
+
+        > ”objective_key”: str,
+        > “data_manager_key”: str,
+        > “test_data_sample_keys”: list[str],
+        > “traintuple_id”: str,
+        > “tag”: str,
+
+        }],
+        “clean_models”: bool,
+        “tag”: str
+
+    }
+
+
+
+
+* **Returns**
+
+    The newly created asset.
+
+
+
+* **Return type**
+
+    dict
+
+
+
+#### add_data_sample(data, local=True, exist_ok=False)
+Creates a new data sample asset.
+
+
+* **Parameters**
+
+    
+    * **data** (*dict*) – Must have the following schema
+
+    {
+
+        “path”: str,
+        “data_manager_keys”: list[str],
+        “test_only”: bool,
+
+    }
+
+    The path in the data dictionary must point to a directory representing the
+    data sample content. Note that the directory can contain multiple files, all the
+    directory content will be added to the platform.
+
+
+
+    * **local** (*bool*) – If true, path must refer to a directory located on the local
+    filesystem. The file content will be transferred to the server through an
+    HTTP query, so this mode should be used for relatively small files (<10mo).
+
+    If false, path must refer to a directory located on the server
+    filesystem. This directory must be accessible (readable) by the server.  This
+    mode is well suited for all kind of file sizes.
+
+
+
+    * **exist_ok** (*bool**, **optional*) – If true, AlreadyExists exceptions will be ignored and the
+    existing asset will be returned. Defaults to False.
+
+
+
+* **Returns**
+
+    The newly created asset.
+
+
+
+* **Return type**
+
+    dict
+
+
+
+* **Raises**
+
+    **AlreadyExists** – A data sample with the same content already exists on the server.
+
+
+
+#### add_data_samples(data, local=True)
+Creates multiple new data sample assets.
 
 This method is well suited for adding multiple small files only. For adding a
 large amount of data it is recommended to add them one by one. It allows a
 better control in case of failures.
 
-If data samples with the same content as any of the paths already exists, an `AlreadyExists`
-exception will be raised.
 
-## add_dataset
-```python
-Client.add_dataset(self, data, exist_ok=False)
-```
-Create new dataset asset.
+* **Parameters**
 
-`data` is a dict object with the following schema:
+    
+    * **data** (*dict*) – Must have the following schema
 
-```
-{
-    "name": str,
-    "description": str,
-    "type": str,
-    "data_opener": str,
-    "objective_key": str,
-    "permissions": {
-        "public": bool,
-        "authorized_ids": list[str],
-    },
-}
-```
+    {
 
-If a dataset with the same opener already exists, an `AlreadyExists` exception will be
-raised.
+        “paths”: list[str],
+        “data_manager_keys”: list[str],
+        “test_only”: bool,
 
-If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset will be returned.
+    }
 
-## add_objective
-```python
-Client.add_objective(self, data, exist_ok=False)
-```
-Create new objective asset.
+    The paths in the data dictionary must be a list of paths where each path
+    points to a directory representing one data sample.
 
-`data` is a dict object with the following schema:
 
-```
-{
-    "name": str,
-    "description": str,
-    "metrics_name": str,
-    "metrics": str,
-    "test_data_manager_key": str,
-    "test_data_sample_keys": list[str],
-    "permissions": {
-        "public": bool,
-        "authorized_ids": list[str],
-    },
-}
-```
 
-If an objective with the same description already exists, an `AlreadyExists` exception will
-be raised.
+    * **local** (*bool*) – If true, path must refer to a directory located on the local
+    filesystem. The file content will be transferred to the server through an
+    HTTP query, so this mode should be used for relatively small files (<10mo).
 
-If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset will be returned.
+    If false, path must refer to a directory located on the server
+    filesystem. This directory must be accessible (readable) by the server.  This
+    mode is well suited for all kind of file sizes.
 
-## add_algo
-```python
-Client.add_algo(self, data, exist_ok=False)
-```
-Create new algo asset.
 
-`data` is a dict object with the following schema:
 
-```
-{
-    "name": str,
-    "description": str,
-    "file": str,
-    "permissions": {
-        "public": bool,
-        "authorized_ids": list[str],
-    },
-}
-```
 
-If an algo with the same archive file already exists, an `AlreadyExists` exception will be
-raised.
+* **Returns**
 
-If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset will be returned.
+    The newly created assets
 
-## add_aggregate_algo
-```python
-Client.add_aggregate_algo(self, data, exist_ok=False)
-```
-Create new aggregate algo asset.
-`data` is a dict object with the following schema:
-```
-{
-    "name": str,
-    "description": str,
-    "file": str,
-    "permissions": {
-        "public": bool,
-        "authorizedIDs": list[str],
-    },
-}
-```
-If an aggregate algo with the same archive file already exists, an `AlreadyExists`
-exception will be raised.
 
-If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset will be returned.
 
-## add_composite_algo
-```python
-Client.add_composite_algo(self, data, exist_ok=False)
-```
-Create new composite algo asset.
-`data` is a dict object with the following schema:
-```
-{
-    "name": str,
-    "description": str,
-    "file": str,
-    "permissions": {
-        "public": bool,
-        "authorized_ids": list[str],
-    },
-}
-```
-If a composite algo with the same archive file already exists, an `AlreadyExists` exception
-will be raised.
+* **Return type**
 
-If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset will be returned.
+    list[dict]
 
-## add_traintuple
-```python
-Client.add_traintuple(self, data, exist_ok=False)
-```
-Create new traintuple asset.
 
-`data` is a dict object with the following schema:
 
-```
-{
-    "algo_key": str,
-    "data_manager_key": str,
-    "train_data_sample_keys": list[str],
-    "in_models_keys": list[str],
-    "tag": str,
-    "rank": int,
-    "compute_plan_id": str,
-}
-```
-An `AlreadyExists` exception will be raised if a traintuple already exists that:
-* has the same `algo_key`, `data_manager_key`, `train_data_sample_keys` and `in_models_keys`
-* and was created through the same node you are using
+* **Raises**
 
-If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset will be returned.
+    **AlreadyExists** – data samples with the same content as some of the paths already exist on
+        the server.
 
-## add_aggregatetuple
-```python
-Client.add_aggregatetuple(self, data, exist_ok=False)
-```
-Create new aggregatetuple asset.
-`data` is a dict object with the following schema:
-```
-{
-    "algo_key": str,
-    "in_models_keys": list[str],
-    "tag": str,
-    "compute_plan_id": str,
-    "rank": int,
-    "worker": str,
-}
-```
-An `AlreadyExists` exception will be raised if an aggregatetuple already exists that:
-* has the same `algo_key` and `in_models_keys`
-* and was created through the same node you are using
 
-If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset will be returned.
 
-## add_composite_traintuple
-```python
-Client.add_composite_traintuple(self, data, exist_ok=False)
-```
-Create new composite traintuple asset.
-`data` is a dict object with the following schema:
-```
-{
-    "algo_key": str,
-    "data_manager_key": str,
-    "in_head_model_key": str,
-    "in_trunk_model_key": str,
-    "out_trunk_model_permissions": {
-        "authorized_ids": list[str],
-    },
-    "tag": str,
-    "rank": int,
-    "compute_plan_id": str,
-}
-```
+#### add_dataset(data, exist_ok=False)
+Creates a new dataset asset.
 
-As specified in the data dict structure, output trunk models cannot be made
-public.
 
-An `AlreadyExists` exception will be raised if a traintuple already exists that:
-* has the same `algo_key`, `data_manager_key`, `train_data_sample_keys`,
-  `in_head_models_key` and `in_trunk_model_key`
-* and was created through the same node you are using
+* **Parameters**
 
-If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset will be returned.
+    
+    * **data** (*dict*) – Must have the following schema
 
-## add_testtuple
-```python
-Client.add_testtuple(self, data, exist_ok=False)
-```
-Create new testtuple asset.
+    {
 
-`data` is a dict object with the following schema:
+        “name”: str,
+        “description”: str,
+        “type”: str,
+        “data_opener”: str,
+        “objective_key”: str,
+        “permissions”: {
 
-```
-{
-    "objective_key": str,
-    "data_manager_key": str,
-    "traintuple_key": str,
-    "test_data_sample_keys": list[str],
-    "tag": str,
-}
-```
+        > ”public”: bool,
+        > “authorized_ids”: list[str],
 
-An `AlreadyExists` exception will be raised if a traintuple already exists that:
-* has the same `traintuple_key`, `objective_key`, `data_manager_key` and
-  `test_data_sample_keys`
-* and was created through the same node you are using
-
-If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset will be returned.
-
-## add_compute_plan
-```python
-Client.add_compute_plan(self, data)
-```
-Create compute plan.
-
-Data is a dict object with the following schema:
-
-```
-{
-    "traintuples": list[{
-        "traintuple_id": str,
-        "algo_key": str,
-        "data_manager_key": str,
-        "train_data_sample_keys": list[str],
-        "in_models_ids": list[str],
-        "tag": str,
-    }],
-    "composite_traintuples": list[{
-        "composite_traintuple_id": str,
-        "algo_key": str,
-        "data_manager_key": str,
-        "train_data_sample_keys": list[str],
-        "in_head_model_id": str,
-        "in_trunk_model_id": str,
-        "out_trunk_model_permissions": {
-            "authorized_ids": list[str],
         },
-        "tag": str,
-    }]
-    "aggregatetuples": list[{
-        "aggregatetuple_id": str,
-        "algo_key": str,
-        "worker": str,
-        "in_models_ids": list[str],
-        "tag": str,
-    }],
-    "testtuples": list[{
-        "objective_key": str,
-        "data_manager_key": str,
-        "test_data_sample_keys": list[str],
-        "traintuple_id": str,
-        "tag": str,
-    }],
-    "clean_models": bool,
-    "tag": str
-}
-```
+
+    }
+
+
+
+    * **exist_ok** (*bool**, **optional*) – If true, AlreadyExists exceptions will be ignored and the
+    existing asset will be returned. Defaults to False.
+
+
+
+* **Returns**
+
+    The newly created asset.
+
+
+
+* **Return type**
+
+    dict
+
+
+
+* **Raises**
+
+    **AlreadyExists** – A dataset with the same opener already exists on the server.
+
+
+
+#### add_objective(data, exist_ok=False)
+Creates a new objective asset.
+
+
+* **Parameters**
+
+    
+    * **data** (*dict*) – Must have the following schema
+
+    {
+
+        “name”: str,
+        “description”: str,
+        “metrics_name”: str,
+        “metrics”: str,
+        “test_data_manager_key”: str,
+        “test_data_sample_keys”: list[str],
+        “permissions”: {
+
+        > ”public”: bool,
+        > “authorized_ids”: list[str],
+
+        },
+
+    }
+
+
+
+    * **exist_ok** (*bool**, **optional*) – If true, AlreadyExists exceptions will be ignored and the
+    existing asset will be returned. Defaults to False.
+
+
+
+* **Returns**
+
+    The newly created asset.
+
+
+
+* **Return type**
+
+    dict
+
+
+
+* **Raises**
+
+    **AlreadyExists** – An objective with the same description already exists on the server.
+
+
+
+#### add_profile(profile_name, username, password, url, version='0.0', insecure=False)
+Adds new profile and sets it as current profile.
+
+
+* **Parameters**
+
+    
+    * **profile_name** (*str*) – The name of the new profile
+
+
+    * **username** (*str*) – The username that will be used to get an authentication token
+
+
+    * **password** (*str*) – The password that will be used to get an authentication token
+
+
+    * **url** (*str*) – The URL of the node
+
+
+    * **version** (*str*) – The version of the API to use. Defaults to 0.0
+
+
+    * **insecure** (*bool*) – If true the node’s SSL certificate will not be verified. Defaults to
+    False.
+
+
+
+* **Returns**
+
+    The new profile
+
+
+
+* **Return type**
+
+    dict
+
+
+
+#### add_testtuple(data, exist_ok=False)
+Creates a new testtuple asset.
+
+
+* **Parameters**
+
+    
+    * **data** (*dict*) – Must have the following schema
+
+    {
+
+        “objective_key”: str,
+        “data_manager_key”: str,
+        “traintuple_key”: str,
+        “test_data_sample_keys”: list[str],
+        “tag”: str,
+
+    }
+
+
+
+    * **exist_ok** (*bool**, **optional*) – If true, AlreadyExists exceptions will be ignored and the
+    existing asset will be returned. Defaults to False.
+
+
+
+* **Returns**
+
+    The newly created asset.
+
+
+
+* **Return type**
+
+    dict
+
+
+
+* **Raises**
+
+    **AlreadyExists** – A traintuple already exists on the server that:
+
+        \* has the same traintuple_key, objective_key, data_manager_key and
+          test_data_sample_keys
+        \* was created through the same node this Client instance points to
+
+
+
+#### add_traintuple(data, exist_ok=False)
+Creates a new traintuple asset.
+
+
+* **Parameters**
+
+    
+    * **data** (*dict*) – Must have the following schema
+
+    {
+
+        “algo_key”: str,
+        “data_manager_key”: str,
+        “train_data_sample_keys”: list[str],
+        “in_models_keys”: list[str],
+        “tag”: str,
+        “rank”: int,
+        “compute_plan_id”: str,
+
+    }
+
+
+
+    * **exist_ok** (*bool**, **optional*) – If true, AlreadyExists exceptions will be ignored and the
+    existing asset will be returned. Defaults to False.
+
+
+
+* **Returns**
+
+    The newly created asset.
+
+
+
+* **Return type**
+
+    dict
+
+
+
+* **Raises**
+
+    **AlreadyExists** – A traintuple already exists on the server that:
+
+        \* has the same algo_key, data_manager_key, train_data_sample_keys and in_models_keys
+        \* was created through the same node this Client instance points to
+
+
+
+#### cancel_compute_plan(compute_plan_id)
+Cancels the execution of a compute plan.
+
+
+* **Parameters**
+
+    **compute_plan_id** (*str*) – The ID of the compute plan to cancel.
+
+
+
+* **Returns**
+
+    The canceled compute plan.
+
+
+
+* **Return type**
+
+    dict
+
+
+
+#### describe_aggregate_algo(aggregate_algo_key)
+Gets an aggregate algo description.
+
+
+* **Parameters**
+
+    **aggregate_algo_key** (*str*) – The key of the target aggregate algo.
+
+
+
+* **Returns**
+
+    The asset’s description.
+
+
+
+* **Return type**
+
+    str
+
+
+
+#### describe_algo(algo_key)
+Gets an algo description.
+
+
+* **Parameters**
+
+    **algo_key** (*str*) – The key of the target algo.
+
+
+
+* **Returns**
+
+    The asset’s description.
+
+
+
+* **Return type**
+
+    str
+
+
+
+#### describe_composite_algo(composite_algo_key)
+Gets a composite algo description.
+
+
+* **Parameters**
+
+    **composite_algo_key** (*str*) – The key of the target composite algo.
+
+
+
+* **Returns**
+
+    The asset’s description.
+
+
+
+* **Return type**
+
+    str
+
+
+
+#### describe_dataset(dataset_key)
+Gets a dataset description.
+
+
+* **Parameters**
+
+    **dataset_key** (*str*) – The key of the target dataset.
+
+
+
+* **Returns**
+
+    The asset’s description.
+
+
+
+* **Return type**
+
+    str
+
+
+
+#### describe_objective(objective_key)
+Gets an objective description.
+
+
+* **Parameters**
+
+    **objective_key** (*str*) – The key of the target objective.
+
+
+
+* **Returns**
+
+    The asset’s description.
+
+
+
+* **Return type**
+
+    str
+
+
+
+#### download_aggregate_algo(aggregate_algo_key, destination_folder)
+Downloads an aggregate algo archive.
+
+
+* **Parameters**
+
+    
+    * **aggregate_algo_key** (*str*) – The key of the target aggregate algo.
+
+
+    * **destination_folder** (*str*) – The path to the folder where the target aggregate algo’s
+    archive should be downloaded.
+
+
+
+#### download_algo(algo_key, destination_folder)
+Downloads an algo archive.
+
+
+* **Parameters**
+
+    
+    * **algo_key** (*str*) – The key of the target algo.
+
+
+    * **destination_folder** (*str*) – The path to the folder where the target algo’s archive
+    should be downloaded.
+
+
+
+#### download_composite_algo(composite_algo_key, destination_folder)
+Downloads a composite algo archive.
+
+
+* **Parameters**
+
+    
+    * **composite_algo_key** (*str*) – The key of the target composite algo.
+
+
+    * **destination_folder** (*str*) – The path to the folder where the target composite algo’s
+    archive should be downloaded.
+
+
+
+#### download_dataset(dataset_key, destination_folder)
+Downloads a dataset opener.
+
+
+* **Parameters**
+
+    
+    * **dataset_key** (*str*) – The key of the target dataset.
+
+
+    * **destination_folder** (*str*) – The path to the folder where the target dataset’s opener
+    should be downloaded.
+
+
+
+#### download_objective(objective_key, destination_folder)
+Downloads an objective metrics archive.
+
+
+* **Parameters**
+
+    
+    * **objective_key** (*str*) – The key of the target objective.
+
+
+    * **destination_folder** (*str*) – The path to the folder where the target objective’s
+    metrics archive should be downloaded.
+
+
+
+#### get_aggregate_algo(aggregate_algo_key)
+Gets an aggregate algo by key.
+
+
+* **Parameters**
+
+    **aggregate_algo_key** (*str*) – The key of the aggregate algo
+
+
+
+* **Raises**
+
+    **NotFound** – The aggregate_algo_key did not match any aggregate algo.
+
+
+
+* **Returns**
+
+    The requested asset
+
+
+
+* **Return type**
+
+    dict
+
+
+
+#### get_aggregatetuple(aggregatetuple_key)
+Gets an aggregatetuple by key.
+
+
+* **Parameters**
+
+    **aggregatetuple_key** (*str*) – The key of the aggregatetuple
+
+
+
+* **Raises**
+
+    **NotFound** – The aggregatetuple_key did not match any aggregatetuple.
+
+
+
+* **Returns**
+
+    The requested asset
+
+
+
+* **Return type**
+
+    dict
+
+
+
+#### get_algo(algo_key)
+Gets an algo by key.
+
+
+* **Parameters**
+
+    **algo_key** (*str*) – The key of the algo
+
+
+
+* **Raises**
+
+    **NotFound** – The algo_key did not match any algo.
+
+
+
+* **Returns**
+
+    The requested asset
+
+
+
+* **Return type**
+
+    dict
+
+
+
+#### get_composite_algo(composite_algo_key)
+Gets a composite algo by key.
+
+
+* **Parameters**
+
+    **composite_algo_key** (*str*) – The key of the composite algo
+
+
+
+* **Raises**
+
+    **NotFound** – The composite_algo_key did not match any composite algo.
+
+
+
+* **Returns**
+
+    The requested asset
+
+
+
+* **Return type**
+
+    dict
+
+
+
+#### get_composite_traintuple(composite_traintuple_key)
+Gets a composite traintuple by key.
+
+
+* **Parameters**
+
+    **composite_traintuple_key** (*str*) – The key of the composite_traintuple
+
+
+
+* **Raises**
+
+    **NotFound** – The composite_traintuple_key did not match any composite_traintuple.
+
+
+
+* **Returns**
+
+    The requested asset
+
+
+
+* **Return type**
+
+    dict
+
+
+
+#### get_compute_plan(compute_plan_key)
+Gets a compute plan by key.
+
+
+* **Parameters**
+
+    **compute_plan_key** (*str*) – The key of the compute plan
+
+
+
+* **Raises**
+
+    **NotFound** – The compute_plan_key did not match any compute plan.
+
+
+
+* **Returns**
+
+    The requested asset
+
+
+
+* **Return type**
+
+    dict
+
+
+
+#### get_dataset(dataset_key)
+Gets a dataset by key.
+
+
+* **Parameters**
+
+    **dataset_key** (*str*) – The key of the dataset
+
+
+
+* **Raises**
+
+    **NotFound** – The dataset_key did not match any dataset.
+
+
+
+* **Returns**
+
+    The requested asset
+
+
+
+* **Return type**
+
+    dict
+
+
+
+#### get_objective(objective_key)
+Gets an objective by key.
+
+
+* **Parameters**
+
+    **objective_key** (*str*) – The key of the objective
+
+
+
+* **Raises**
+
+    **NotFound** – The objective_key did not match any objective.
+
+
+
+* **Returns**
+
+    The requested asset
+
+
+
+* **Return type**
+
+    dict
+
+
+
+#### get_testtuple(testtuple_key)
+Gets a testtuple by key.
+
+
+* **Parameters**
+
+    **testtuple_key** (*str*) – The key of the testtuple
+
+
+
+* **Raises**
+
+    **NotFound** – The testtuple_key did not match any testtuple.
+
+
+
+* **Returns**
+
+    The requested asset
+
+
+
+* **Return type**
+
+    dict
+
+
+
+#### get_traintuple(traintuple_key)
+Gets a traintuple by key.
+
+
+* **Parameters**
+
+    **traintuple_key** (*str*) – The key of the traintuple
+
+
+
+* **Raises**
+
+    **NotFound** – The traintuple_key did not match any traintuple.
+
+
+
+* **Returns**
+
+    The requested asset
+
+
+
+* **Return type**
+
+    dict
+
+
+
+#### leaderboard(objective_key, sort='desc')
+Gets an objective leaderboard
+
+
+* **Parameters**
+
+    
+    * **objective_key** (*str*) – The key of the target objective.
+
+
+    * **sort** (*str*) – Either ‘desc’ or ‘asc’. Whether to sort the leaderboard values by ascending
+    order (lowest score first) or descending order (highest score first). Defaults to
+    ‘desc’
+
+
+
+* **Returns**
+
+    The list of leaderboard tuples.
+
+
+
+* **Return type**
+
+    list[dict]
+
+
+
+#### link_dataset_with_data_samples(dataset_key, data_sample_keys)
+Links a dataset with data samples.
+
+
+* **Parameters**
+
+    
+    * **dataset_key** (*str*) – The key of the dataset to link.
+
+
+    * **data_sample_keys** (*list**[**str**]*) – The keys of the data samples to link.
+
+
+
+* **Returns**
+
+    The updated data samples.
+
+
+
+* **Return type**
+
+    list[dict]
+
+
+
+#### link_dataset_with_objective(dataset_key, objective_key)
+Links a dataset with an objective.
+
+
+* **Parameters**
+
+    
+    * **dataset_key** (*str*) – The key of the dataset to link.
+
+
+    * **objective_key** (*str*) – The key of the objective to link.
+
+
+
+* **Returns**
+
+    The updated dataset.
+
+
+
+* **Return type**
+
+    dict
+
+
+
+#### list_aggregate_algo(filters=None, is_complex=False)
+Lists aggregate algos.
+
+
+* **Parameters**
+
+    **filters** (*list**[**str**]**, **optional*) – List of filters to apply to the aggregate algo list.
+    Defaults to None.
+
+    A single filter is a string that can be either:
+    \* ‘OR’
+    \* ‘<asset_type>:<asset_field>:<value>’
+
+
+
+
+* **Raises**
+
+    **InvalidRequest** – 
+
+
+
+* **Returns**
+
+    The list of requested assets.
+
+
+
+* **Return type**
+
+    list[dict]
+
+
+
+#### list_aggregatetuple(filters=None, is_complex=False)
+Lists aggregatetuples.
+
+
+* **Parameters**
+
+    **filters** (*list**[**str**]**, **optional*) – List of filters to apply to the aggregatetuple list.
+    Defaults to None.
+
+    A single filter is a string that can be either:
+    \* ‘OR’
+    \* ‘<asset_type>:<asset_field>:<value>’
+
+
+
+
+* **Raises**
+
+    **InvalidRequest** – 
+
+
+
+* **Returns**
+
+    The list of requested assets.
+
+
+
+* **Return type**
+
+    list[dict]
+
+
+
+#### list_algo(filters=None, is_complex=False)
+Lists algos.
+
+
+* **Parameters**
+
+    **filters** (*list**[**str**]**, **optional*) – List of filters to apply to the algo list.
+    Defaults to None.
+
+    A single filter is a string that can be either:
+    \* ‘OR’
+    \* ‘<asset_type>:<asset_field>:<value>’
+
+
+
+
+* **Raises**
+
+    **InvalidRequest** – 
+
+
+
+* **Returns**
+
+    The list of requested assets.
+
+
+
+* **Return type**
+
+    list[dict]
+
+
+
+#### list_composite_algo(filters=None, is_complex=False)
+Lists composite algos.
+
+
+* **Parameters**
+
+    **filters** (*list**[**str**]**, **optional*) – List of filters to apply to the composite algo list.
+    Defaults to None.
+
+    A single filter is a string that can be either:
+    \* ‘OR’
+    \* ‘<asset_type>:<asset_field>:<value>’
+
+
+
+
+* **Raises**
+
+    **InvalidRequest** – 
+
+
+
+* **Returns**
+
+    The list of requested assets.
+
+
+
+* **Return type**
+
+    list[dict]
+
+
+
+#### list_composite_traintuple(filters=None, is_complex=False)
+Lists composite traintuples.
+
+
+* **Parameters**
+
+    **filters** (*list**[**str**]**, **optional*) – List of filters to apply to the composite traintuple
+    list. Defaults to None.
+
+    A single filter is a string that can be either:
+    \* ‘OR’
+    \* ‘<asset_type>:<asset_field>:<value>’
+
+
+
+
+* **Raises**
+
+    **InvalidRequest** – 
+
+
+
+* **Returns**
+
+    The list of requested assets.
+
+
+
+* **Return type**
+
+    list[dict]
+
+
+
+#### list_compute_plan(filters=None, is_complex=False)
+Lists compute plans.
+
+
+* **Parameters**
+
+    **filters** (*list**[**str**]**, **optional*) – List of filters to apply to the compute plan list.
+    Defaults to None.
+
+    A single filter is a string that can be either:
+    \* ‘OR’
+    \* ‘<asset_type>:<asset_field>:<value>’
+
+
+
+
+* **Raises**
+
+    **InvalidRequest** – 
+
+
+
+* **Returns**
+
+    The list of requested assets.
+
+
+
+* **Return type**
+
+    list[dict]
+
+
+
+#### list_data_sample(filters=None, is_complex=False)
+Lists data samples.
+
+
+* **Parameters**
+
+    **filters** (*list**[**str**]**, **optional*) – List of filters to apply to the data sample list.
+    Defaults to None.
+
+    A single filter is a string that can be either:
+    \* ‘OR’
+    \* ‘<asset_type>:<asset_field>:<value>’
+
+
+
+
+* **Raises**
+
+    **InvalidRequest** – 
+
+
+
+* **Returns**
+
+    The list of requested assets.
+
+
+
+* **Return type**
+
+    list[dict]
+
+
+
+#### list_dataset(filters=None, is_complex=False)
+Lists datasets.
+
+
+* **Parameters**
+
+    **filters** (*list**[**str**]**, **optional*) – List of filters to apply to the dataset list.
+    Defaults to None.
+
+    A single filter is a string that can be either:
+    \* ‘OR’
+    \* ‘<asset_type>:<asset_field>:<value>’
+
+
+
+
+* **Raises**
+
+    **InvalidRequest** – 
+
+
+
+* **Returns**
+
+    The list of requested assets.
+
+
+
+* **Return type**
+
+    list[dict]
+
+
+
+#### list_node(\*args, \*\*kwargs)
+Lists nodes.
+
+
+* **Returns**
+
+    The list of requested assets.
+
+
+
+* **Return type**
+
+    list[dict]
+
+
+
+#### list_objective(filters=None, is_complex=False)
+Lists objectives.
+
+
+* **Parameters**
+
+    **filters** (*list**[**str**]**, **optional*) – List of filters to apply to the objective list.
+    Defaults to None.
+
+    A single filter is a string that can be either:
+    \* ‘OR’
+    \* ‘<asset_type>:<asset_field>:<value>’
+
+
+
+
+* **Raises**
+
+    **InvalidRequest** – 
+
+
+
+* **Returns**
+
+    The list of requested assets.
+
+
+
+* **Return type**
+
+    list[dict]
+
+
+
+#### list_testtuple(filters=None, is_complex=False)
+Lists testtuple
+
+
+* **Parameters**
+
+    **filters** (*list**[**str**]**, **optional*) – List of filters to apply to the testtuple list.
+    Defaults to None.
+
+    A single filter is a string that can be either:
+    \* ‘OR’
+    \* ‘<asset_type>:<asset_field>:<value>’
+
+
+
+
+* **Raises**
+
+    **InvalidRequest** – 
+
+
+
+* **Returns**
+
+    The list of requested assets.
+
+
+
+* **Return type**
+
+    list[dict]
+
+
+
+#### list_traintuple(filters=None, is_complex=False)
+Lists traintuples.
+
+
+* **Parameters**
+
+    **filters** (*list**[**str**]**, **optional*) – List of filters to apply to the traintuple list.
+    Defaults to None.
+
+    A single filter is a string that can be either:
+    \* ‘OR’
+    \* ‘<asset_type>:<asset_field>:<value>’
+
+
+
+
+* **Raises**
+
+    **InvalidRequest** – 
+
+
+
+* **Returns**
+
+    The list of requested assets.
+
+
+
+* **Return type**
+
+    list[dict]
+
+
+
+#### login()
+Logs into a substra node.
+
+Uses the current profile’s login and password to get a token from the profile’s node. The
+token will then be used to authenticate all calls made to the node.
+
+
+* **Returns**
+
+    The authentication token
+
+
+
+* **Return type**
+
+    string
+
+
+
+#### set_profile(profile_name)
+Sets current profile from profile name.
+
+If profile_name has not been defined through the add_profile method, it is loaded
+from the config file.
+
+
+* **Parameters**
+
+    **profile_name** (*str*) – The name of the profile to set as current profile
+
+
+
+* **Returns**
+
+    The new current profile
+
+
+
+* **Return type**
+
+    dict
+
+
+
+#### set_user()
+Loads authentication token from user file.
+
+If a token is found in the user file, it will be used to authenticate all calls made to the
+node.
+
+
+#### update_compute_plan(compute_plan_id, data)
+Updates an existing compute plan asset.
 
 As specified in the data dict structure, output trunk models of composite
 traintuples cannot be made public.
 
-## get_algo
-```python
-Client.get_algo(self, algo_key)
-```
-Get algo by key.
-## get_compute_plan
-```python
-Client.get_compute_plan(self, compute_plan_key)
-```
-Get compute plan by key.
-## get_aggregate_algo
-```python
-Client.get_aggregate_algo(self, aggregate_algo_key)
-```
-Get aggregate algo by key.
-## get_composite_algo
-```python
-Client.get_composite_algo(self, composite_algo_key)
-```
-Get composite algo by key.
-## get_dataset
-```python
-Client.get_dataset(self, dataset_key)
-```
-Get dataset by key.
-## get_objective
-```python
-Client.get_objective(self, objective_key)
-```
-Get objective by key.
-## get_testtuple
-```python
-Client.get_testtuple(self, testtuple_key)
-```
-Get testtuple by key.
-## get_traintuple
-```python
-Client.get_traintuple(self, traintuple_key)
-```
-Get traintuple by key.
-## get_aggregatetuple
-```python
-Client.get_aggregatetuple(self, aggregatetuple_key)
-```
-Get aggregatetuple by key.
-## get_composite_traintuple
-```python
-Client.get_composite_traintuple(self, composite_traintuple_key)
-```
-Get composite traintuple by key.
-## list_algo
-```python
-Client.list_algo(self, filters=None, is_complex=False)
-```
-List algos.
-## list_compute_plan
-```python
-Client.list_compute_plan(self, filters=None, is_complex=False)
-```
-List compute plans.
-## list_aggregate_algo
-```python
-Client.list_aggregate_algo(self, filters=None, is_complex=False)
-```
-List aggregate algos.
-## list_composite_algo
-```python
-Client.list_composite_algo(self, filters=None, is_complex=False)
-```
-List composite algos.
-## list_data_sample
-```python
-Client.list_data_sample(self, filters=None, is_complex=False)
-```
-List data samples.
-## list_dataset
-```python
-Client.list_dataset(self, filters=None, is_complex=False)
-```
-List datasets.
-## list_objective
-```python
-Client.list_objective(self, filters=None, is_complex=False)
-```
-List objectives.
-## list_testtuple
-```python
-Client.list_testtuple(self, filters=None, is_complex=False)
-```
-List testtuples.
-## list_traintuple
-```python
-Client.list_traintuple(self, filters=None, is_complex=False)
-```
-List traintuples.
-## list_aggregatetuple
-```python
-Client.list_aggregatetuple(self, filters=None, is_complex=False)
-```
-List aggregatetuples.
-## list_composite_traintuple
-```python
-Client.list_composite_traintuple(self, filters=None, is_complex=False)
-```
-List composite traintuples.
-## list_node
-```python
-Client.list_node(self, *args, **kwargs)
-```
-List nodes.
-## update_dataset
-```python
-Client.update_dataset(self, dataset_key, data)
-```
-Update dataset.
-## update_compute_plan
-```python
-Client.update_compute_plan(self, compute_plan_id, data)
-```
-Update compute plan.
 
-Data is a dict object with the following schema:
+* **Parameters**
 
-```
-{
-    "traintuples": list[{
-        "traintuple_id": str,
-        "algo_key": str,
-        "data_manager_key": str,
-        "train_data_sample_keys": list[str],
-        "in_models_ids": list[str],
-        "tag": str,
-    }],
-    "composite_traintuples": list[{
-        "composite_traintuple_id": str,
-        "algo_key": str,
-        "data_manager_key": str,
-        "train_data_sample_keys": list[str],
-        "in_head_model_id": str,
-        "in_trunk_model_id": str,
-        "out_trunk_model_permissions": {
-            "authorized_ids": list[str],
-        },
-        "tag": str,
-    }]
-    "aggregatetuples": list[{
-        "aggregatetuple_id": str,
-        "algo_key": str,
-        "worker": str,
-        "in_models_ids": list[str],
-        "tag": str,
-    }],
-    "testtuples": list[{
-        "objective_key": str,
-        "data_manager_key": str,
-        "test_data_sample_keys": list[str],
-        "traintuple_id": str,
-        "tag": str,
-    }]
-}
-```
-
-As specified in the data dict structure, output trunk models of composite
-traintuples cannot be made public.
+    
+    * **compute_plan_id** (*str*) – The compute plan ID of the asset to update.
 
 
-## link_dataset_with_objective
-```python
-Client.link_dataset_with_objective(self, dataset_key, objective_key)
-```
-Link dataset with objective.
-## link_dataset_with_data_samples
-```python
-Client.link_dataset_with_data_samples(self, dataset_key, data_sample_keys)
-```
-Link dataset with data samples.
-## download_dataset
-```python
-Client.download_dataset(self, asset_key, destination_folder)
-```
-Download data manager resource.
+    * **data** (*dict*) – Must have the following schema
 
-Download opener script in destination folder.
+    {
 
-## download_algo
-```python
-Client.download_algo(self, asset_key, destination_folder)
-```
-Download algo resource.
+        “traintuples”: list[{
 
-Download algo package in destination folder.
+            “traintuple_id”: str,
+            “algo_key”: str,
+            “data_manager_key”: str,
+            “train_data_sample_keys”: list[str],
+            “in_models_ids”: list[str],
+            “tag”: str,
 
-## download_aggregate_algo
-```python
-Client.download_aggregate_algo(self, asset_key, destination_folder)
-```
-Download aggregate algo resource.
+        }],
+        “composite_traintuples”: list[{
 
-Download aggregate algo package in destination folder.
+        > ”composite_traintuple_id”: str,
+        > “algo_key”: str,
+        > “data_manager_key”: str,
+        > “train_data_sample_keys”: list[str],
+        > “in_head_model_id”: str,
+        > “in_trunk_model_id”: str,
+        > “out_trunk_model_permissions”: {
 
-## download_composite_algo
-```python
-Client.download_composite_algo(self, asset_key, destination_folder)
-```
-Download composite algo resource.
+        > > ”authorized_ids”: list[str],
 
-Download composite algo package in destination folder.
+        > },
+        > “tag”: str,
 
-## download_objective
-```python
-Client.download_objective(self, asset_key, destination_folder)
-```
-Download objective resource.
+        }]
+        “aggregatetuples”: list[{
 
-Download metrics script in destination folder.
+        > ”aggregatetuple_id”: str,
+        > “algo_key”: str,
+        > “worker”: str,
+        > “in_models_ids”: list[str],
+        > “tag”: str,
 
-## describe_algo
-```python
-Client.describe_algo(self, asset_key)
-```
-Get algo description.
-## describe_aggregate_algo
-```python
-Client.describe_aggregate_algo(self, asset_key)
-```
-Get aggregate algo description.
-## describe_composite_algo
-```python
-Client.describe_composite_algo(self, asset_key)
-```
-Get composite algo description.
-## describe_dataset
-```python
-Client.describe_dataset(self, asset_key)
-```
-Get dataset description.
-## describe_objective
-```python
-Client.describe_objective(self, asset_key)
-```
-Get objective description.
-## leaderboard
-```python
-Client.leaderboard(self, objective_key, sort='desc')
-```
-Get objective leaderboard
-## cancel_compute_plan
-```python
-Client.cancel_compute_plan(self, compute_plan_id)
-```
-Cancel execution of compute plan.
+        }],
+        “testtuples”: list[{
+
+        > ”objective_key”: str,
+        > “data_manager_key”: str,
+        > “test_data_sample_keys”: list[str],
+        > “traintuple_id”: str,
+        > “tag”: str,
+
+        }],
+
+    }
+
+
+
+
+* **Returns**
+
+    The updated asset.
+
+
+
+* **Return type**
+
+    dict
+
+
+
+#### update_dataset(dataset_key, data)
+Updates a dataset.
+
+This only updates the link between a given dataset and objectives.
+
+
+* **Parameters**
+
+    
+    * **dataset_key** (*str*) – The dataset key of the asset to update.
+
+
+    * **data** (*dict*) – Must have the following schema
+
+    {
+
+        “objective_key”: str
+
+    }
+
+
+
+
+* **Returns**
+
+    The updated asset.
+
+
+
+* **Return type**
+
+    dict
