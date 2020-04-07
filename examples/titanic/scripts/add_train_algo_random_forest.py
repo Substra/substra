@@ -19,7 +19,7 @@ import zipfile
 import substra
 
 current_directory = os.path.dirname(__file__)
-assets_directory = os.path.join(current_directory, '../assets')
+assets_directory = os.path.join(current_directory, '../assets/node_1')
 
 client = substra.Client(profile_name="node-1")
 
@@ -29,8 +29,8 @@ ALGO = {
     'name': 'Titanic: Random Forest',
     'description': os.path.join(assets_directory, 'algo_random_forest/description.md'),
     'permissions': {
-        'public': False,
-        'authorized_ids': []
+        'public': True,
+        'authorized_ids': [],
     },
 }
 ALGO_DOCKERFILE_FILES = [
@@ -69,25 +69,39 @@ algo_key = client.add_algo({
 }, exist_ok=True)['pkhash']
 
 ########################################################
-#         Add traintuple
+#         Add node 1 traintuple
 ########################################################
 
-print('Registering traintuple...')
+print('Registering  node 1 traintuple...')
 traintuple = client.add_traintuple({
     'algo_key': algo_key,
-    'data_manager_key': assets_keys['dataset_key'],
-    'train_data_sample_keys': assets_keys['train_data_sample_keys']
+    'data_manager_key': assets_keys['node_1']['dataset_key'],
+    'train_data_sample_keys': assets_keys['node_1']['train_data_sample_keys'],
 }, exist_ok=True)
-traintuple_key = traintuple.get('key') or traintuple.get('pkhash')
-assert traintuple_key, 'Missing traintuple key'
+node_1_traintuple_key = traintuple.get('key') or traintuple.get('pkhash')
+assert node_1_traintuple_key, 'Missing traintuple key'
+
+########################################################
+#         Add node 2 traintuple
+########################################################
+
+print('Registering  node 2 traintuple...')
+traintuple = client.add_traintuple({
+    'algo_key': algo_key,
+    'data_manager_key': assets_keys['node_2']['dataset_key'],
+    'train_data_sample_keys': assets_keys['node_2']['train_data_sample_keys'],
+    'in_model_keys': [node_1_traintuple_key]
+}, exist_ok=True)
+node_2_traintuple_key = traintuple.get('key') or traintuple.get('pkhash')
+assert node_2_traintuple_key, 'Missing traintuple key'
 
 ########################################################
 #         Add testtuple
 ########################################################
 print('Registering testtuple...')
 testtuple = client.add_testtuple({
-    'objective_key': assets_keys['objective_key'],
-    'traintuple_key': traintuple_key
+    'objective_key': assets_keys['node_1']['objective_key'],
+    'traintuple_key': node_2_traintuple_key,
 }, exist_ok=True)
 testtuple_key = testtuple.get('key') or testtuple.get('pkhash')
 assert testtuple_key, 'Missing testtuple key'
@@ -98,7 +112,8 @@ assert testtuple_key, 'Missing testtuple key'
 
 assets_keys['algo_random_forest'] = {
     'algo_key': algo_key,
-    'traintuple_key': traintuple_key,
+    'node_1_traintuple_key': node_1_traintuple_key,
+    'node_2_traintuple_key': node_2_traintuple_key,
     'testtuple_key': testtuple_key,
 }
 with open(assets_keys_path, 'w') as f:
@@ -106,5 +121,6 @@ with open(assets_keys_path, 'w') as f:
 
 print(f'Assets keys have been saved to {os.path.abspath(assets_keys_path)}')
 print('\nRun the following commands to track the status of the tuples:')
-print(f'    substra get traintuple {traintuple_key} --profile node-1')
+print(f'    substra get traintuple {node_1_traintuple_key} --profile node-1')
+print(f'    substra get traintuple {node_2_traintuple_key} --profile node-1')
 print(f'    substra get testtuple {testtuple_key} --profile node-1')

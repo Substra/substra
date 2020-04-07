@@ -16,6 +16,7 @@ import json
 import os
 import uuid
 import zipfile
+import random
 
 import substra
 
@@ -29,9 +30,11 @@ print(f'Loading existing asset keys from {os.path.abspath(assets_keys_path)}...'
 with open(assets_keys_path, 'r') as f:
     assets_keys = json.load(f)
 
-train_data_sample_keys = assets_keys['train_data_sample_keys']
-objective_key = assets_keys['objective_key']
-dataset_key = assets_keys['dataset_key']
+node_1_train_data_sample_keys = assets_keys['node_1']['train_data_sample_keys']
+node_2_train_data_sample_keys = assets_keys['node_2']['train_data_sample_keys']
+objective_key = assets_keys['node_1']['objective_key']
+node_1_dataset_key = assets_keys['node_1']['dataset_key']
+node_2_dataset_key = assets_keys['node_2']['dataset_key']
 
 print('Adding algo...')
 algo_directory = os.path.join(current_directory, '../assets/algo_sgd')
@@ -45,17 +48,22 @@ algo_key = client.add_algo({
     'file': archive_path,
     'description': os.path.join(algo_directory, 'description.md'),
     'permissions': {
-        'public': False,
+        'public': True,
         'authorized_ids': [],
-    }
+    },
 }, exist_ok=True)['pkhash']
 
 
-print('Generating compute plan...')
+print(f'Generating compute plan...')
+# generate the order in which data samples will be trained on
+data_keys = [(node_1_dataset_key, key) for key in node_1_train_data_sample_keys]
+data_keys += [(node_2_dataset_key, key) for key in node_2_train_data_sample_keys]
+random.shuffle(data_keys)
+# generate compute plan tuples
 traintuples = []
 testtuples = []
 previous_id = None
-for train_data_sample_key in train_data_sample_keys:
+for (dataset_key, train_data_sample_key) in data_keys:
     traintuple = {
         'algo_key': algo_key,
         'data_manager_key': dataset_key,

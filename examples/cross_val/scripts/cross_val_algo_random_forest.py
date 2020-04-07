@@ -29,8 +29,8 @@ with open(assets_keys_path, 'r') as f:
     assets_keys = json.load(f)
 
 algo_key = assets_keys['algo_random_forest']['algo_key']
-objective_key = assets_keys['objective_key']
-dataset_key = assets_keys['dataset_key']
+objective_key = assets_keys['node_1']['objective_key']
+dataset_key = assets_keys['node_1']['dataset_key']
 
 print(f'Loading folds keys from {os.path.abspath(folds_keys_path)}...')
 with open(folds_keys_path, 'r') as f:

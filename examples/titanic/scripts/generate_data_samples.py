@@ -39,13 +39,13 @@ train_test_configs = [
     {
         'data': train_data,
         'n_samples': N_TRAIN_DATA_SAMPLES,
-        'data_samples_root': os.path.join(asset_path, 'train_data_samples'),
+        'data_samples_dir': 'train_data_samples',
         'data_samples_content': [],
     },
     {
         'data': test_data,
         'n_samples': N_TEST_DATA_SAMPLES,
-        'data_samples_root': os.path.join(asset_path, 'test_data_samples'),
+        'data_samples_dir': 'test_data_samples',
         'data_samples_content': [],
     },
 ]
@@ -60,7 +60,11 @@ for conf in train_test_configs:
 # save data samples
 for conf in train_test_configs:
     for i, data_sample in enumerate(conf['data_samples_content']):
-        filename = os.path.join(conf['data_samples_root'], f'data_sample_{i}/data_sample_{i}.csv')
+        node = 1 if i < (N_TRAIN_DATA_SAMPLES/2) else 2
+        filename = os.path.join(asset_path,
+                                f'node_{node}',
+                                conf['data_samples_dir'],
+                                f'data_sample_{i}/data_sample_{i}.csv')
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, 'w') as f:
             data_sample.to_csv(f)

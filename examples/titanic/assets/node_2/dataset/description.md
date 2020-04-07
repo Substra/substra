@@ -1,4 +1,4 @@
-# Titanic
+# Titanic - Node 2
 
 This dataset comes from Kaggle's ["Titanic: Machine Learning from Disaster" challenge](https://www.kaggle.com/c/titanic/data).
 

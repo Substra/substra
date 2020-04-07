@@ -8,6 +8,8 @@ import substratools as tools
 
 
 class TitanicOpener(tools.Opener):
+    """Opener for the node-2 dataset"""
+
     def get_X(self, folders):
         data = self._get_data(folders)
         return self._get_X(data)

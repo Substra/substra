@@ -26,7 +26,7 @@ assets_keys_path = os.path.join(current_directory, '../../titanic/assets_keys.js
 print(f'Loading existing asset keys from {os.path.abspath(assets_keys_path)}...')
 with open(assets_keys_path, 'r') as f:
     assets_keys = json.load(f)
-train_data_sample_keys = assets_keys['train_data_sample_keys']
+train_data_sample_keys = assets_keys['node_1']['train_data_sample_keys']
 
 print('Generating folds...')
 X = np.array(train_data_sample_keys)
