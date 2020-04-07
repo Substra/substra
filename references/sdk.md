@@ -60,6 +60,9 @@ If `local` is false, `path` must refer to a directory located on the server
 filesystem. This directory must be accessible (readable) by the server.  This
 mode is well suited for all kind of file sizes.
 
+If a data sample with the same content already exists, an `AlreadyExists` exception will be
+raised.
+
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
@@ -90,6 +93,9 @@ This method is well suited for adding multiple small files only. For adding a
 large amount of data it is recommended to add them one by one. It allows a
 better control in case of failures.
 
+If data samples with the same content as any of the paths already exists, an `AlreadyExists`
+exception will be raised.
+
 ## add_dataset
 ```python
 Client.add_dataset(self, data, exist_ok=False)
@@ -111,6 +117,9 @@ Create new dataset asset.
     },
 }
 ```
+
+If a dataset with the same opener already exists, an `AlreadyExists` exception will be
+raised.
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
@@ -138,6 +147,9 @@ Create new objective asset.
 }
 ```
 
+If an objective with the same description already exists, an `AlreadyExists` exception will
+be raised.
+
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
@@ -161,6 +173,9 @@ Create new algo asset.
 }
 ```
 
+If an algo with the same archive file already exists, an `AlreadyExists` exception will be
+raised.
+
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
@@ -181,6 +196,9 @@ Create new aggregate algo asset.
     },
 }
 ```
+If an aggregate algo with the same archive file already exists, an `AlreadyExists`
+exception will be raised.
+
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
@@ -201,6 +219,9 @@ Create new composite algo asset.
     },
 }
 ```
+If a composite algo with the same archive file already exists, an `AlreadyExists` exception
+will be raised.
+
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
@@ -223,6 +244,9 @@ Create new traintuple asset.
     "compute_plan_id": str,
 }
 ```
+An `AlreadyExists` exception will be raised if a traintuple already exists that:
+* has the same `algo_key`, `data_manager_key`, `train_data_sample_keys` and `in_models_keys`
+* and was created through the same node you are using
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
@@ -243,6 +267,10 @@ Create new aggregatetuple asset.
     "worker": str,
 }
 ```
+An `AlreadyExists` exception will be raised if an aggregatetuple already exists that:
+* has the same `algo_key` and `in_models_keys`
+* and was created through the same node you are using
+
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
@@ -270,6 +298,11 @@ Create new composite traintuple asset.
 As specified in the data dict structure, output trunk models cannot be made
 public.
 
+An `AlreadyExists` exception will be raised if a traintuple already exists that:
+* has the same `algo_key`, `data_manager_key`, `train_data_sample_keys`,
+  `in_head_models_key` and `in_trunk_model_key`
+* and was created through the same node you are using
+
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
@@ -290,6 +323,11 @@ Create new testtuple asset.
     "tag": str,
 }
 ```
+
+An `AlreadyExists` exception will be raised if a traintuple already exists that:
+* has the same `traintuple_key`, `objective_key`, `data_manager_key` and
+  `test_data_sample_keys`
+* and was created through the same node you are using
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
