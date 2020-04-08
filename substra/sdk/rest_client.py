@@ -216,8 +216,8 @@ class Client():
             **request_kwargs,
         )
 
-        # when filtering 'complex' assets the server responds with a list per filter
-        # item, these list of list must then be flatten
+        # the server always responds with a list of lists (linked to the debug option "is_complex")
+        # which must then be flatten
         if isinstance(items, list) and all([isinstance(i, list) for i in items]):
             items = utils.flatten(items)
 

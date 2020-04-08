@@ -436,57 +436,57 @@ Client.get_composite_traintuple(self, composite_traintuple_key)
 Get composite traintuple by key.
 ## list_algo
 ```python
-Client.list_algo(self, filters=None, is_complex=False)
+Client.list_algo(self, filters=None)
 ```
 List algos.
 ## list_compute_plan
 ```python
-Client.list_compute_plan(self, filters=None, is_complex=False)
+Client.list_compute_plan(self, filters=None)
 ```
 List compute plans.
 ## list_aggregate_algo
 ```python
-Client.list_aggregate_algo(self, filters=None, is_complex=False)
+Client.list_aggregate_algo(self, filters=None)
 ```
 List aggregate algos.
 ## list_composite_algo
 ```python
-Client.list_composite_algo(self, filters=None, is_complex=False)
+Client.list_composite_algo(self, filters=None)
 ```
 List composite algos.
 ## list_data_sample
 ```python
-Client.list_data_sample(self, filters=None, is_complex=False)
+Client.list_data_sample(self, filters=None)
 ```
 List data samples.
 ## list_dataset
 ```python
-Client.list_dataset(self, filters=None, is_complex=False)
+Client.list_dataset(self, filters=None)
 ```
 List datasets.
 ## list_objective
 ```python
-Client.list_objective(self, filters=None, is_complex=False)
+Client.list_objective(self, filters=None)
 ```
 List objectives.
 ## list_testtuple
 ```python
-Client.list_testtuple(self, filters=None, is_complex=False)
+Client.list_testtuple(self, filters=None)
 ```
 List testtuples.
 ## list_traintuple
 ```python
-Client.list_traintuple(self, filters=None, is_complex=False)
+Client.list_traintuple(self, filters=None)
 ```
 List traintuples.
 ## list_aggregatetuple
 ```python
-Client.list_aggregatetuple(self, filters=None, is_complex=False)
+Client.list_aggregatetuple(self, filters=None)
 ```
 List aggregatetuples.
 ## list_composite_traintuple
 ```python
-Client.list_composite_traintuple(self, filters=None, is_complex=False)
+Client.list_composite_traintuple(self, filters=None)
 ```
 List composite traintuples.
 ## list_node

@@ -841,18 +841,10 @@ def get(ctx, expand, asset_name, asset_key):
               callback=validate_json,
               help='Filter results using a complex search (must be a JSON array of valid filters). '
                    'Incompatible with the --filter option')
-@click.option(
-    '--is-complex', is_flag=True,
-    help=(
-        "When using filters using 'OR', the server will return a list of matching assets for each "
-        "operand. By default these lists are merged into a single list. When set, this option "
-        "disables the lists aggregation."
-    ),
-)
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
-def list_(ctx, asset_name, filters, filters_logical_clause, advanced_filters, is_complex):
+def list_(ctx, asset_name, filters, filters_logical_clause, advanced_filters):
     """List assets."""
     client = get_client(ctx.obj)
     # method must exist in sdk
@@ -869,7 +861,7 @@ def list_(ctx, asset_name, filters, filters_logical_clause, advanced_filters, is
                 filters.insert(i + 1, 'OR')
     elif advanced_filters:
         filters = advanced_filters
-    res = method(filters, is_complex)
+    res = method(filters)
     printer = printers.get_asset_printer(asset_name, ctx.obj.output_format)
     printer.print(res, is_list=True)
 

@@ -556,12 +556,6 @@ Options:
                                   be a JSON array of valid filters).
                                   Incompatible with the --filter option
 
-  --is-complex                    When using filters using 'OR', the server
-                                  will return a list of matching assets for
-                                  each operand. By default these lists are
-                                  merged into a single list. When set, this
-                                  option disables the lists aggregation.
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
