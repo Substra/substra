@@ -1006,7 +1006,7 @@ def run_local(algo, train_opener, test_opener, metrics, rank,
     if not fake_data_samples and not train_data_samples and not test_data_samples:
         raise click.BadOptionUsage('--fake-data-samples',
                                    'Missing option --fake-data-samples or --test-data-samples '
-                                   'and -train-data-samples')
+                                   'and --train-data-samples')
     if not fake_data_samples and train_data_samples and not test_data_samples:
         raise click.BadOptionUsage('--test-data-samples',
                                    'Missing option --test-data-samples')
