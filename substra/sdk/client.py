@@ -671,57 +671,57 @@ class Client(object):
         return self.client.get(assets.COMPOSITE_TRAINTUPLE, composite_traintuple_key)
 
     @logit
-    def list_algo(self, filters=None, is_complex=False):
+    def list_algo(self, filters=None):
         """List algos."""
         return self.client.list(assets.ALGO, filters=filters)
 
     @logit
-    def list_compute_plan(self, filters=None, is_complex=False):
+    def list_compute_plan(self, filters=None):
         """List compute plans."""
         return self.client.list(assets.COMPUTE_PLAN, filters=filters)
 
     @logit
-    def list_aggregate_algo(self, filters=None, is_complex=False):
+    def list_aggregate_algo(self, filters=None):
         """List aggregate algos."""
         return self.client.list(assets.AGGREGATE_ALGO, filters=filters)
 
     @logit
-    def list_composite_algo(self, filters=None, is_complex=False):
+    def list_composite_algo(self, filters=None):
         """List composite algos."""
         return self.client.list(assets.COMPOSITE_ALGO, filters=filters)
 
     @logit
-    def list_data_sample(self, filters=None, is_complex=False):
+    def list_data_sample(self, filters=None):
         """List data samples."""
         return self.client.list(assets.DATA_SAMPLE, filters=filters)
 
     @logit
-    def list_dataset(self, filters=None, is_complex=False):
+    def list_dataset(self, filters=None):
         """List datasets."""
         return self.client.list(assets.DATASET, filters=filters)
 
     @logit
-    def list_objective(self, filters=None, is_complex=False):
+    def list_objective(self, filters=None):
         """List objectives."""
         return self.client.list(assets.OBJECTIVE, filters=filters)
 
     @logit
-    def list_testtuple(self, filters=None, is_complex=False):
+    def list_testtuple(self, filters=None):
         """List testtuples."""
         return self.client.list(assets.TESTTUPLE, filters=filters)
 
     @logit
-    def list_traintuple(self, filters=None, is_complex=False):
+    def list_traintuple(self, filters=None):
         """List traintuples."""
         return self.client.list(assets.TRAINTUPLE, filters=filters)
 
     @logit
-    def list_aggregatetuple(self, filters=None, is_complex=False):
+    def list_aggregatetuple(self, filters=None):
         """List aggregatetuples."""
         return self.client.list(assets.AGGREGATETUPLE, filters=filters)
 
     @logit
-    def list_composite_traintuple(self, filters=None, is_complex=False):
+    def list_composite_traintuple(self, filters=None):
         """List composite traintuples."""
         return self.client.list(assets.COMPOSITE_TRAINTUPLE, filters=filters)
 
