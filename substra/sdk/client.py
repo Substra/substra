@@ -17,6 +17,7 @@ import functools
 import logging
 import os
 import time
+import json
 
 import keyring
 
@@ -51,31 +52,6 @@ def logit(f):
 
 def get_asset_key(data):
     return data.get('pkhash') or data.get('key')
-
-
-def _flatten_permissions(data, field_name):
-    data = deepcopy(data)
-
-    p = data[field_name]  # should not raise as a default permissions is added if missing
-    data[f'{field_name}_public'] = p['public']
-    data[f'{field_name}_authorized_ids'] = p.get('authorized_ids', [])
-    del data[field_name]
-
-    return data
-
-
-def _update_permissions_field(data, permissions_field='permissions'):
-    if permissions_field not in data:
-        default_permissions = {
-            'public': False,
-            'authorized_ids': [],
-        }
-        data[permissions_field] = default_permissions
-    # XXX workaround because backend accepts only Form Data body. This is due to
-    #     the fact that backend expects both file objects and payload in the
-    #     same request
-    data = _flatten_permissions(data, field_name=permissions_field)
-    return data
 
 
 class Client(object):
@@ -166,17 +142,20 @@ class Client(object):
         keyring.set_password(profile_name, username, password)
         return self._set_current_profile(profile_name, profile)
 
-    def _add(self, asset, data, files=None, exist_ok=False, json_encoding=False):
+    def _add(self, asset, data, files=None, exist_ok=False):
         """Add asset."""
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
-        files = files or {}
-        requests_kwargs = {}
         if files:
-            requests_kwargs['files'] = files
-        if json_encoding:
-            requests_kwargs['json'] = data
+            requests_kwargs = {
+                'data': {
+                    'json': json.dumps(data),
+                },
+                'files': files,
+            }
         else:
-            requests_kwargs['data'] = data
+            requests_kwargs = {
+                'json': data
+            }
 
         return self.client.add(
             asset,
@@ -227,7 +206,6 @@ class Client(object):
         existing asset will be returned.
 
         """
-        data = _update_permissions_field(data)
         if 'paths' in data:
             raise ValueError("data: invalid 'paths' field")
         if 'path' not in data:
@@ -273,7 +251,6 @@ class Client(object):
         If data samples with the same content as any of the paths already exists, an `AlreadyExists`
         exception will be raised.
         """
-        data = _update_permissions_field(data)
         if 'path' in data:
             raise ValueError("data: invalid 'path' field")
         if 'paths' not in data:
@@ -306,7 +283,6 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = _update_permissions_field(data)
         attributes = ['data_opener', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(assets.DATASET, data, files=files, exist_ok=exist_ok)
@@ -342,7 +318,6 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = _update_permissions_field(data)
         attributes = ['metrics', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(assets.OBJECTIVE, data, files=files, exist_ok=exist_ok)
@@ -375,7 +350,6 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = _update_permissions_field(data)
         attributes = ['file', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(assets.ALGO, data, files=files, exist_ok=exist_ok)
@@ -405,7 +379,6 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = _update_permissions_field(data)
         attributes = ['file', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(assets.AGGREGATE_ALGO, data, files=files, exist_ok=exist_ok)
@@ -435,7 +408,6 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = _update_permissions_field(data)
         attributes = ['file', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(assets.COMPOSITE_ALGO, data, files=files, exist_ok=exist_ok)
@@ -531,7 +503,6 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = _update_permissions_field(data, permissions_field='out_trunk_model_permissions')
         res = self._add(assets.COMPOSITE_TRAINTUPLE, data, exist_ok=exist_ok)
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
@@ -618,7 +589,7 @@ class Client(object):
         As specified in the data dict structure, output trunk models of composite
         traintuples cannot be made public.
         """
-        return self._add(assets.COMPUTE_PLAN, data, json_encoding=True)
+        return self._add(assets.COMPUTE_PLAN, data)
 
     @logit
     def get_algo(self, algo_key):
