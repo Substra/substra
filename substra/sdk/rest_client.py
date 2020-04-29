@@ -117,7 +117,7 @@ class Client():
 
         # rewind files so that they are properly sent in retries as well
         if 'files' in kwargs:
-            for _, file in kwargs['files'].items():
+            for file in kwargs['files'].values():
                 file.seek(0)
 
         # do HTTP request and catch generic exceptions
