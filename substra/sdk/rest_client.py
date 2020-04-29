@@ -115,6 +115,11 @@ class Client():
         kwargs = dict(self._default_kwargs)
         kwargs.update(request_kwargs)
 
+        # rewind files so that they are properly sent in retries as well
+        if 'files' in kwargs:
+            for _, file in kwargs['files'].items():
+                file.seek(0)
+
         # do HTTP request and catch generic exceptions
         try:
             r = fn(url, headers=self._headers, **kwargs)
