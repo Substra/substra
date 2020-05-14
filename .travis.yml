@@ -16,7 +16,7 @@ deploy:
     tags: true
 
 script:
-  - pip install flake8==3.7.9
+  - pip install flake8
   - flake8 substra
   - pip install -e .[test]
   - python setup.py test
