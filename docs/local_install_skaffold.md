@@ -441,7 +441,7 @@ You should find the credentials in the charts: `skaffold.yaml` files or in the `
 
 > Note 1: Substra works on Python 3.6.
 >
-> Note 2: If you are working inside a virtualized environment, you probably will have execute to `pip3` commands with `sudo`.
+> Note 2: If you are working inside a virtualized environment, you probably will have to execute `pip3` commands with `sudo`.
 
 Install the CLI:
 
