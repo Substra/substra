@@ -191,7 +191,7 @@ def load_data_samples_keys(data_samples, option="--data-samples-path"):
     try:
         return data_samples['keys']
     except KeyError:
-        raise click.BadParameter(f'File must contain a "keys" attribute.', param_hint=f'"{option}"')
+        raise click.BadParameter('File must contain a "keys" attribute.', param_hint=f'"{option}"')
 
 
 def error_printer(fn):
