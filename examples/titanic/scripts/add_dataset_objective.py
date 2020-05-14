@@ -55,7 +55,7 @@ DATASET = {
     'data_opener': os.path.join(assets_directory, 'dataset/opener.py'),
     'description': os.path.join(assets_directory, 'dataset/description.md'),
     "permissions": {
-        "public": True,
+        "public": False,
         "authorized_ids": []
     },
 }
@@ -76,7 +76,7 @@ OBJECTIVE = {
     'metrics_name': 'accuracy',
     'metrics': os.path.join(assets_directory, 'objective/metrics.zip'),
     "permissions": {
-        "public": True,
+        "public": False,
         "authorized_ids": []
     },
 }

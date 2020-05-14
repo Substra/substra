@@ -28,7 +28,7 @@ ALGO = {
     'name': 'Constant death predictor',
     'description': os.path.join(assets_directory, 'algo_constant/description.md'),
     "permissions": {
-        "public": True,
+        "public": False,
         "authorized_ids": []
     },
 }
