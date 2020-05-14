@@ -54,6 +54,10 @@ DATASET = {
     'type': 'csv',
     'data_opener': os.path.join(assets_directory, 'dataset/opener.py'),
     'description': os.path.join(assets_directory, 'dataset/description.md'),
+    "permissions": {
+        "public": True,
+        "authorized_ids": []
+    },
 }
 
 TEST_DATA_SAMPLES_PATHS = [
@@ -71,6 +75,10 @@ OBJECTIVE = {
     'description': os.path.join(assets_directory, 'objective/description.md'),
     'metrics_name': 'accuracy',
     'metrics': os.path.join(assets_directory, 'objective/metrics.zip'),
+    "permissions": {
+        "public": True,
+        "authorized_ids": []
+    },
 }
 METRICS_DOCKERFILE_FILES = [
     os.path.join(assets_directory, 'objective/metrics.py'),

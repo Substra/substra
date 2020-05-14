@@ -26,7 +26,11 @@ client.login()
 
 ALGO = {
     'name': 'Constant death predictor',
-    'description': os.path.join(assets_directory, 'algo_constant/description.md')
+    'description': os.path.join(assets_directory, 'algo_constant/description.md'),
+    "permissions": {
+        "public": True,
+        "authorized_ids": []
+    },
 }
 ALGO_DOCKERFILE_FILES = [
     os.path.join(assets_directory, 'algo_constant/algo.py'),
