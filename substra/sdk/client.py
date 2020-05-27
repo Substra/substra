@@ -54,28 +54,6 @@ def get_asset_key(data):
     return data.get('pkhash') or data.get('key')
 
 
-def _flatten_metadata(data, field_name):
-    data = deepcopy(data)
-    if isinstance(data[field_name], dict):
-        for k, v in data[field_name].items():
-            # prevent users from adding dict to key values
-            if isinstance(v, dict):
-                raise ValueError('metadata key value must be a string')
-            data[f'{field_name}_{k}'] = v
-    del data[field_name]
-    return data
-
-
-def _update_metadata_field(data):
-    if 'metadata' not in data or not data['metadata']:
-        return data
-    # XXX workaround because backend accepts only Form Data body. This is due to
-    #     the fact that backend expects both file objects and payload in the
-    #     same request
-    data = _flatten_metadata(data, field_name='metadata')
-    return data
-
-
 class Client(object):
 
     def __init__(self, config_path=None, profile_name=None, user_path=None,
@@ -228,7 +206,6 @@ class Client(object):
         existing asset will be returned.
 
         """
-        data = _update_metadata_field(data)
         if 'paths' in data:
             raise ValueError("data: invalid 'paths' field")
         if 'path' not in data:
@@ -274,7 +251,6 @@ class Client(object):
         If data samples with the same content as any of the paths already exists, an `AlreadyExists`
         exception will be raised.
         """
-        data = _update_metadata_field(data)
         if 'path' in data:
             raise ValueError("data: invalid 'path' field")
         if 'paths' not in data:
@@ -308,7 +284,6 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = _update_metadata_field(data)
         attributes = ['data_opener', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(assets.DATASET, data, files=files, exist_ok=exist_ok)
@@ -345,7 +320,6 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = _update_metadata_field(data)
         attributes = ['metrics', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(assets.OBJECTIVE, data, files=files, exist_ok=exist_ok)
@@ -379,7 +353,6 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = _update_metadata_field(data)
         attributes = ['file', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(assets.ALGO, data, files=files, exist_ok=exist_ok)
@@ -410,7 +383,6 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = _update_metadata_field(data)
         attributes = ['file', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(assets.AGGREGATE_ALGO, data, files=files, exist_ok=exist_ok)
@@ -441,7 +413,6 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = _update_metadata_field(data)
         attributes = ['file', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(assets.COMPOSITE_ALGO, data, files=files, exist_ok=exist_ok)
@@ -475,7 +446,6 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = _update_metadata_field(data)
         res = self._add(assets.TRAINTUPLE, data, exist_ok=exist_ok)
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
@@ -504,7 +474,6 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = _update_metadata_field(data)
         res = self._add(assets.AGGREGATETUPLE, data, exist_ok=exist_ok)
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
@@ -542,7 +511,6 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = _update_metadata_field(data)
         res = self._add(assets.COMPOSITE_TRAINTUPLE, data, exist_ok=exist_ok)
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
