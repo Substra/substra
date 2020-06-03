@@ -531,8 +531,7 @@ def add_compute_plan(ctx, tuples):
             "test_data_sample_keys": list[str],
             "traintuple_id": str,
             "tag": str,
-        }],
-        "metadata": list[str]
+        }]
     }
 
     """

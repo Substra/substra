@@ -274,8 +274,7 @@ Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
           "test_data_sample_keys": list[str],
           "traintuple_id": str,
           "tag": str,
-      }],
-      "metadata": list[str]
+      }]
   }
 
 Options:
