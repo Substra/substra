@@ -592,7 +592,6 @@ class Client(object):
             }],
             "clean_models": bool,
             "tag": str
-            "metadata": list[str]
         }
 ```
 
