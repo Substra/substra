@@ -12,28 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .. import datastore
-from .utils import mock_requests
+
+from substra.sdk.backends.remote.backend import Remote
 
 
-def test_update_dataset(client, mocker):
-    item = datastore.DATASET
-    m = mock_requests(mocker, "post", response=item)
-
-    response = client.link_dataset_with_objective(
-        'a key',
-        'an another key',
-    )
-
-    assert response == item
-    m.assert_called()
+_BACKEND_CHOICES = {
+    'remote': Remote,
+}
 
 
-def test_update_compute_plan(client, mocker):
-    item = datastore.COMPUTE_PLAN
-    m = mock_requests(mocker, "post", response=item)
-
-    response = client.update_compute_plan('foo', {})
-
-    assert response == item
-    m.assert_called
+def get(name, *args, **kwargs):
+    return _BACKEND_CHOICES[name.lower()](*args, **kwargs)

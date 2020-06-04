@@ -34,7 +34,7 @@ def mock_response(response=None, status=200, headers=None):
 
 def mock_requests_responses(mocker, method, responses):
     return mocker.patch(
-        f'substra.sdk.rest_client.requests.{method}',
+        f'substra.sdk.backends.remote.rest_client.requests.{method}',
         side_effect=responses,
     )
 

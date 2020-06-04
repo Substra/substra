@@ -36,6 +36,7 @@ def path_leaf(path):
 
 @contextlib.contextmanager
 def extract_files(data, file_attributes):
+    # FIXME should be move to the backend module
     data = copy.deepcopy(data)
 
     paths = {}
@@ -78,6 +79,7 @@ def zip_folder_in_memory(path):
 
 @contextlib.contextmanager
 def extract_data_sample_files(data):
+    # FIXME should be move to the backend module
     # handle data sample specific case; paths and path cases
     data = copy.deepcopy(data)
 
@@ -87,9 +89,10 @@ def extract_data_sample_files(data):
         folders[attr] = data[attr]
         del data[attr]
 
-    for p in list(data.get('paths', [])):
-        folders[path_leaf(p)] = p
-        data['paths'].remove(p)
+    if data.get('paths'):  # field is set and is not None/empty
+        for p in data['paths']:
+            folders[path_leaf(p)] = p
+            data['paths'].remove(p)
 
     files = {}
     for k, f in folders.items():
