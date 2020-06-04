@@ -387,7 +387,6 @@ Data is a dict object with the following schema:
     }],
     "clean_models": bool,
     "tag": str
-    "metadata": list[str]
 }
 ```
 
