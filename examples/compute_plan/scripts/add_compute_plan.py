@@ -52,7 +52,7 @@ algo_key = client.add_algo({
 }, exist_ok=True)['pkhash']
 
 
-print(f'Generating compute plan...')
+print('Generating compute plan...')
 traintuples = []
 testtuples = []
 previous_id = None

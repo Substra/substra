@@ -76,9 +76,9 @@ def algo_query(tmpdir):
 
 @pytest.fixture
 def data_sample_query(tmpdir):
-    data_sample_dir_path = tmpdir / f"data_sample_0"
+    data_sample_dir_path = tmpdir / "data_sample_0"
     data_sample_file_path = data_sample_dir_path / "data.txt"
-    data_sample_file_path.write_text(f"Hello world 0", encoding="utf-8", ensure=True)
+    data_sample_file_path.write_text("Hello world 0", encoding="utf-8", ensure=True)
 
     return {
         "path": str(data_sample_dir_path),
