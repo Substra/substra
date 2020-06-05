@@ -27,9 +27,9 @@ client.login()
 ALGO = {
     'name': 'Constant death predictor',
     'description': os.path.join(assets_directory, 'algo_constant/description.md'),
-    "permissions": {
-        "public": False,
-        "authorized_ids": []
+    'permissions': {
+        'public': False,
+        'authorized_ids': []
     },
 }
 ALGO_DOCKERFILE_FILES = [
@@ -64,6 +64,7 @@ algo_key = client.add_algo({
     'name': ALGO['name'],
     'file': ALGO['file'],
     'description': ALGO['description'],
+    'permissions': ALGO['permissions'],
 }, exist_ok=True)['pkhash']
 
 ########################################################

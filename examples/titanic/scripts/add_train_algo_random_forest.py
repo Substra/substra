@@ -28,7 +28,11 @@ ALGO_KEYS_JSON_FILENAME = 'algo_random_forest_keys.json'
 
 ALGO = {
     'name': 'Titanic: Random Forest',
-    'description': os.path.join(assets_directory, 'algo_random_forest/description.md')
+    'description': os.path.join(assets_directory, 'algo_random_forest/description.md'),
+    'permissions': {
+        'public': False,
+        'authorized_ids': []
+    },
 }
 ALGO_DOCKERFILE_FILES = [
         os.path.join(assets_directory, 'algo_random_forest/algo.py'),
@@ -62,6 +66,7 @@ algo_key = client.add_algo({
     'name': ALGO['name'],
     'file': ALGO['file'],
     'description': ALGO['description'],
+    'permissions': ALGO['permissions'],
 }, exist_ok=True)['pkhash']
 
 ########################################################
