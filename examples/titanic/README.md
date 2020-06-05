@@ -18,6 +18,9 @@ In order to run this example, you'll need to:
     substra config --profile node-1 --username node-1 --password 'p@$swr0d44' http://substra-backend.node-1.com
     substra login --profile node-1
     ```
+* checkout this repository
+
+All commands in this example are run from the `substra/examples/titanic/` folder.
 
 ## Data preparation
 
