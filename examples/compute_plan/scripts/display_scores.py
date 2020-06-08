@@ -22,7 +22,6 @@ current_directory = os.path.dirname(__file__)
 compute_plan_keys_path = os.path.join(current_directory, '../compute_plan_keys.json')
 
 client = substra.Client(profile_name="node-1")
-client.login()
 
 with open(compute_plan_keys_path, 'r') as f:
     compute_plan_keys = json.load(f)

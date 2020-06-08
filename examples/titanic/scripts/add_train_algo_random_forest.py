@@ -22,7 +22,6 @@ current_directory = os.path.dirname(__file__)
 assets_directory = os.path.join(current_directory, '../assets')
 
 client = substra.Client(profile_name="node-1")
-client.login()
 
 ALGO_KEYS_JSON_FILENAME = 'algo_random_forest_keys.json'
 
@@ -107,5 +106,5 @@ with open(assets_keys_path, 'w') as f:
 
 print(f'Assets keys have been saved to {os.path.abspath(assets_keys_path)}')
 print('\nRun the following commands to track the status of the tuples:')
-print(f'    substra get traintuple {traintuple_key}')
-print(f'    substra get testtuple {testtuple_key}')
+print(f'    substra get traintuple {traintuple_key} --profile node-1')
+print(f'    substra get testtuple {testtuple_key} --profile node-1')
