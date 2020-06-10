@@ -88,7 +88,7 @@ def _add_profile(path, name, url, version, insecure):
     return config
 
 
-def _load_profile(path, name):
+def _from_config_file(path, name):
     """Load profile from config file on disk.
 
     Raises:
@@ -96,34 +96,35 @@ def _load_profile(path, name):
         ProfileNotFoundError: if profile does not exist.
     """
     logger.debug(f"Loading profile '{name}' from '{path}'")
-    config = _read_config(path)
+    try:
+        config = _read_config(path)
+    except ConfigException:
+        config = copy.deepcopy(DEFAULT_CONFIG)
+
     try:
         return config[name]
     except KeyError:
         raise ProfileNotFoundError(name)
 
 
-class Manager():
+class Manager:
     def __init__(self, path=DEFAULT_PATH):
+        if not path:
+            path = DEFAULT_PATH
         self.path = path
 
-    def add_profile(self, name, url=DEFAULT_URL,
-                    version=DEFAULT_VERSION, insecure=False):
+    def add_profile(
+        self, name, url=DEFAULT_URL, version=DEFAULT_VERSION, insecure=False
+    ):
         """Add profile to config file on disk."""
-        config = _add_profile(
-            self.path,
-            name,
-            url,
-            version=version,
-            insecure=insecure,
-        )
+        config = _add_profile(self.path, name, url, version=version, insecure=insecure,)
         return config[name]
 
-    def load_profile(self, name):
+    def from_config_file(self, name):
         """Load profile from config file on disk.
 
         Raises:
             FileNotFoundError: if config file does not exist.
             ProfileNotFoundError: if profile does not exist.
         """
-        return _load_profile(self.path, name)
+        return _from_config_file(self.path, name)

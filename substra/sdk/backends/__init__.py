@@ -14,10 +14,12 @@
 
 
 from substra.sdk.backends.remote.backend import Remote
+from substra.sdk.backends.local.backend import Local
 
 
 _BACKEND_CHOICES = {
     'remote': Remote,
+    'local': Local,
 }
 
 

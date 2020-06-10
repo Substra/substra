@@ -17,11 +17,15 @@ import pytest
 import substra
 
 
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    )
+
+
 @pytest.fixture
 def client(tmpdir):
-    config_path = tmpdir / "substra.cfg"
-    c = substra.Client(config_path=str(config_path))
-    c.add_profile('test', url="http://foo.io")
+    c = substra.Client(url="http://foo.io")
     return c
 
 
@@ -38,7 +42,8 @@ def dataset_query(tmpdir):
         "data_opener": str(opener_path),
         "type": "images",
         "description": str(desc_path),
-        "objective_key": ""
+        "objective_key": "",
+        "permissions": {"public": True, "authorized_ids": [], },
     }
 
 
@@ -53,10 +58,11 @@ def objective_query(tmpdir):
     return {
         "name": "metrics_name",
         "metrics": str(metrics_path),
-        "metrics_name": "name of the metics",
+        "metrics_name": "name of the metrics",
         "description": str(desc_path),
         "test_data_keys": [],
-        "test_data_sample_keys": []
+        "test_data_sample_keys": [],
+        "permissions": {"public": True, "authorized_ids": [], },
     }
 
 
@@ -72,6 +78,7 @@ def algo_query(tmpdir):
         "name": "algo_name",
         "description": str(desc_path),
         "file": str(algo_file_path),
+        "permissions": {"public": True, "authorized_ids": [], },
     }
 
 
@@ -96,7 +103,8 @@ def data_samples_query(tmpdir):
         data_sample_dir_path = tmpdir / f"data_sample_{i}"
         data_sample_file_path = data_sample_dir_path / "data.txt"
         data_sample_file_path.write_text(
-            f"Hello world {i}", encoding="utf-8", ensure=True)
+            f"Hello world {i}", encoding="utf-8", ensure=True
+        )
 
         paths.append(str(data_sample_dir_path))
 

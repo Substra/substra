@@ -15,12 +15,18 @@
 import abc
 import contextlib
 import enum
+import pathlib
 import typing
-from typing import Optional, List
+from typing import Optional, List, Dict, Union
 
 import pydantic
 
 from substra.sdk import utils
+
+# TODO create a sub-package schemas:
+# types
+# inputs
+# outputs
 
 
 _SERVER_NAMES = {
@@ -28,7 +34,7 @@ _SERVER_NAMES = {
 }
 
 
-class AssetType(enum.Enum):
+class Type(enum.Enum):
     Algo = 'algo'
     AggregateAlgo = 'aggregate_algo'
     CompositeAlgo = 'composite_algo'
@@ -47,6 +53,9 @@ class AssetType(enum.Enum):
         """Returns the name used to identify the asset on the backend."""
         name = self.value
         return _SERVER_NAMES.get(name, name)
+
+    def __str__(self):
+        return self.name
 
 
 class _Spec(pydantic.BaseModel, abc.ABC):
@@ -79,12 +88,12 @@ class PrivatePermissions(pydantic.BaseModel):
 
 
 class DataSampleSpec(_Spec):
-    path: Optional[str]
-    paths: Optional[List[str]]
+    path: Optional[Union[str, pathlib.Path]]
+    paths: Optional[List[Union[str, pathlib.Path]]]
     test_only: bool
     data_manager_keys: typing.List[str]
 
-    type_: typing.ClassVar[AssetType] = AssetType.DataSample
+    type_: typing.ClassVar[Type] = Type.DataSample
 
     def is_many(self):
         return self.paths and len(self.paths) > 0
@@ -111,13 +120,14 @@ class DataSampleSpec(_Spec):
 
 class DatasetSpec(_Spec):
     name: str
-    data_opener: str
+    data_opener: Union[str, pathlib.Path]
     type: str
-    description: str
+    description: Union[str, pathlib.Path]
     permissions: Permissions
     objective_key: Optional[str]
+    metadata: Optional[Dict[str, str]]
 
-    type_: typing.ClassVar[AssetType] = AssetType.Dataset
+    type_: typing.ClassVar[Type] = Type.Dataset
 
     class Meta:
         file_attributes = ('data_opener', 'description', )
@@ -125,14 +135,15 @@ class DatasetSpec(_Spec):
 
 class ObjectiveSpec(_Spec):
     name: str
-    description: str
+    description: Union[str, pathlib.Path]
     metrics_name: str
-    metrics: str
-    test_data_sample_keys: List[str]
+    metrics: Union[str, pathlib.Path]
+    test_data_sample_keys: Optional[List[str]]
     test_data_manager_key: Optional[str]
     permissions: Permissions
+    metadata: Optional[Dict[str, str]]
 
-    type_: typing.ClassVar[AssetType] = AssetType.Objective
+    type_: typing.ClassVar[Type] = Type.Objective
 
     class Meta:
         file_attributes = ('metrics', 'description', )
@@ -140,24 +151,25 @@ class ObjectiveSpec(_Spec):
 
 class _AlgoSpec(_Spec):
     name: str
-    description: str
-    file: str
+    description: Union[str, pathlib.Path]
+    file: Union[str, pathlib.Path]
     permissions: Permissions
+    metadata: Optional[Dict[str, str]]
 
     class Meta:
         file_attributes = ('file', 'description', )
 
 
 class AlgoSpec(_AlgoSpec):
-    type_: typing.ClassVar[AssetType] = AssetType.Algo
+    type_: typing.ClassVar[Type] = Type.Algo
 
 
 class AggregateAlgoSpec(_AlgoSpec):
-    type_: typing.ClassVar[AssetType] = AssetType.AggregateAlgo
+    type_: typing.ClassVar[Type] = Type.AggregateAlgo
 
 
 class CompositeAlgoSpec(_AlgoSpec):
-    type_: typing.ClassVar[AssetType] = AssetType.CompositeAlgo
+    type_: typing.ClassVar[Type] = Type.CompositeAlgo
 
 
 class TraintupleSpec(_Spec):
@@ -168,8 +180,9 @@ class TraintupleSpec(_Spec):
     tag: Optional[str]
     compute_plan_id: Optional[str]
     rank: Optional[int]
+    metadata: Optional[Dict[str, str]]
 
-    type_: typing.ClassVar[AssetType] = AssetType.Traintuple
+    type_: typing.ClassVar[Type] = Type.Traintuple
 
 
 class AggregatetupleSpec(_Spec):
@@ -179,8 +192,9 @@ class AggregatetupleSpec(_Spec):
     tag: Optional[str]
     compute_plan_id: Optional[str]
     rank: Optional[int]
+    metadata: Optional[Dict[str, str]]
 
-    type_: typing.ClassVar[AssetType] = AssetType.Aggregatetuple
+    type_: typing.ClassVar[Type] = Type.Aggregatetuple
 
 
 class CompositeTraintupleSpec(_Spec):
@@ -193,8 +207,9 @@ class CompositeTraintupleSpec(_Spec):
     compute_plan_id: Optional[str]
     out_trunk_model_permissions: PrivatePermissions
     rank: Optional[int]
+    metadata: Optional[Dict[str, str]]
 
-    type_: typing.ClassVar[AssetType] = AssetType.CompositeTraintuple
+    type_: typing.ClassVar[Type] = Type.CompositeTraintuple
 
 
 class TesttupleSpec(_Spec):
@@ -203,8 +218,9 @@ class TesttupleSpec(_Spec):
     tag: Optional[str]
     data_manager_key: Optional[str]
     test_data_sample_keys: Optional[List[str]]
+    metadata: Optional[Dict[str, str]]
 
-    type_: typing.ClassVar[AssetType] = AssetType.Testtuple
+    type_: typing.ClassVar[Type] = Type.Testtuple
 
 
 class ComputePlanTraintupleSpec(_Spec):
@@ -214,6 +230,7 @@ class ComputePlanTraintupleSpec(_Spec):
     traintuple_id: str
     in_models_ids: Optional[List[str]]
     tag: Optional[str]
+    metadata: Optional[Dict[str, str]]
 
 
 class ComputePlanAggregatetupleSpec(_Spec):
@@ -222,6 +239,7 @@ class ComputePlanAggregatetupleSpec(_Spec):
     worker: str
     in_models_ids: Optional[List[str]]
     tag: Optional[str]
+    metadata: Optional[Dict[str, str]]
 
 
 class ComputePlanCompositeTraintupleSpec(_Spec):
@@ -233,12 +251,16 @@ class ComputePlanCompositeTraintupleSpec(_Spec):
     in_trunk_model_id: Optional[str]
     tag: Optional[str]
     out_trunk_model_permissions: Permissions
+    metadata: Optional[Dict[str, str]]
 
 
 class ComputePlanTesttupleSpec(_Spec):
     objective_key: str
     traintuple_id: str
-    tag: str
+    tag: Optional[str]
+    data_manager_key: Optional[str]
+    test_data_sample_keys: Optional[List[str]]
+    metadata: Optional[Dict[str, str]]
 
 
 class _BaseComputePlanSpec(_Spec, abc.ABC):
@@ -249,10 +271,11 @@ class _BaseComputePlanSpec(_Spec, abc.ABC):
 
 
 class ComputePlanSpec(_BaseComputePlanSpec):
-    tag: str
-    clean_models: bool
+    tag: Optional[str]
+    clean_models: Optional[bool]
+    metadata: Optional[Dict[str, str]]
 
-    type_: typing.ClassVar[AssetType] = AssetType.ComputePlan
+    type_: typing.ClassVar[Type] = Type.ComputePlan
 
 
 class UpdateComputePlanSpec(_BaseComputePlanSpec):

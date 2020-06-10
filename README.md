@@ -133,7 +133,7 @@ To generate the command line interface documentation, run the following command:
 python bin/generate_cli_documentation.py
 ```
 
-Use the following command to generate the python sdk documentation:
+Use the following command to generate the python sdk documentation (with Python 3.7):
 
 ```sh
 pydocmd simple substra.sdk+ substra.sdk.Client+ > references/sdk.md

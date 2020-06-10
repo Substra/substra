@@ -32,6 +32,8 @@ class Client():
             'Authorization': f"Token {token}",
             'Accept': f'application/json;version={version}',
         }
+        if not url:
+            raise exceptions.SDKException("url required to connect to the Substra server")
         self._base_url = url[:-1] if url.endswith('/') else url
 
     def login(self, username, password):
@@ -147,12 +149,12 @@ class Client():
             logger.debug(f'{request_name} {url}: done in {elaps:.2f}ms error={error}')
 
     @utils.retry_on_exception(exceptions=(exceptions.GatewayUnavailable))
-    def request(self, request_name, asset_type, path=None, json_response=True,
+    def request(self, request_name, asset_name, path=None, json_response=True,
                 **request_kwargs):
         """Base request."""
 
         path = path or ''
-        url = f"{self._base_url}/{asset_type}/{path}"
+        url = f"{self._base_url}/{asset_name}/{path}"
         if not url.endswith("/"):
             url = url + "/"  # server requires a suffix /
 
@@ -210,7 +212,7 @@ class Client():
             if not exist_ok:
                 raise
 
-            key = e.pkhash
+            key = e.pkhash or e.computePlanID
             is_many = isinstance(key, list)
             if is_many:
                 logger.warning("Many assets not compatible with 'exist_ok' option")

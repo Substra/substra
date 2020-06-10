@@ -26,7 +26,7 @@ DEFAULT_RETRY_TIMEOUT = 5 * 60
 
 
 def _get_asset_key(data):
-    return data.get('pkhash') or data.get('key')
+    return data.get('pkhash') or data.get('key') or data.get('computePlanID')
 
 
 def _find_asset_field(data, field):
@@ -83,7 +83,7 @@ class Remote(base.BaseBackend):
         try:
             with spec.build_request_kwargs(**spec_options) as (data, files):
                 data_samples = self._add(
-                    schemas.AssetType.DataSample, data, files, exist_ok=exist_ok)
+                    schemas.Type.DataSample, data, files, exist_ok=exist_ok)
 
         except exceptions.AlreadyExists as e:
             if not exist_ok or spec.is_many():
@@ -102,7 +102,7 @@ class Remote(base.BaseBackend):
         spec_options = spec_options or {}
         asset_type = spec.__class__.type_
 
-        if asset_type == schemas.AssetType.DataSample:
+        if asset_type == schemas.Type.DataSample:
             # data sample corner case
             return self._add_data_samples(
                 spec,
@@ -121,7 +121,7 @@ class Remote(base.BaseBackend):
     def update_compute_plan(self, compute_plan_id, spec):
         return self._client.request(
             'post',
-            schemas.AssetType.ComputePlan,
+            schemas.Type.ComputePlan,
             path=f"{compute_plan_id}/update_ledger/",
             json=spec.dict(),
         )
@@ -129,7 +129,7 @@ class Remote(base.BaseBackend):
     def link_dataset_with_objective(self, dataset_key, objective_key):
         return self._client.request(
             'post',
-            schemas.AssetType.Dataset.to_server(),
+            schemas.Type.Dataset.to_server(),
             path=f"{dataset_key}/update_ledger/",
             data={'objective_key': objective_key, },
         )
@@ -141,7 +141,7 @@ class Remote(base.BaseBackend):
         }
         return self._client.request(
             'post',
-            schemas.AssetType.DataSample.to_server(),
+            schemas.Type.DataSample.to_server(),
             path="bulk_update/",
             data=data,
         )
@@ -166,7 +166,7 @@ class Remote(base.BaseBackend):
     def leaderboard(self, objective_key, sort='desc'):
         return self._client.request(
             'get',
-            schemas.AssetType.Objective.to_server(),
+            schemas.Type.Objective.to_server(),
             f'{objective_key}/leaderboard',
             params={'sort': sort},
         )
@@ -174,6 +174,6 @@ class Remote(base.BaseBackend):
     def cancel_compute_plan(self, compute_plan_id):
         return self._client.request(
             'post',
-            schemas.AssetType.ComputePlan.to_server(),
+            schemas.Type.ComputePlan.to_server(),
             path=f"{compute_plan_id}/cancel",
         )
