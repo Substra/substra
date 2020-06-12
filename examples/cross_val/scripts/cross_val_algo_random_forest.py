@@ -23,7 +23,6 @@ assets_keys_path = os.path.join(current_directory, '../../titanic/assets_keys.js
 folds_keys_path = os.path.join(current_directory, '../folds_keys.json')
 
 client = substra.Client(profile_name="node-1")
-client.login()
 
 print(f'Loading existing asset keys from {os.path.abspath(assets_keys_path)}...')
 with open(assets_keys_path, 'r') as f:
@@ -68,5 +67,5 @@ with open(folds_keys_path, 'w') as f:
 
 print(f'Tuples keys have been saved to {os.path.abspath(folds_keys_path)}')
 print('\nRun the following commands to track the status of the tuples:')
-print(f'    substra list traintuple -f "traintuple:tag:{tag}"')
-print(f'    substra list testtuple -f "testtuple:tag:{tag}"')
+print(f'    substra list traintuple -f "traintuple:tag:{tag}" --profile node-1')
+print(f'    substra list testtuple -f "testtuple:tag:{tag}" --profile node-1')

@@ -24,7 +24,6 @@ assets_keys_path = os.path.join(current_directory, '../../titanic/assets_keys.js
 compute_plan_keys_path = os.path.join(current_directory, '../compute_plan_keys.json')
 
 client = substra.Client(profile_name="node-1")
-client.login()
 
 print(f'Loading existing asset keys from {os.path.abspath(assets_keys_path)}...')
 with open(assets_keys_path, 'r') as f:
