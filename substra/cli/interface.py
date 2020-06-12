@@ -208,6 +208,20 @@ def error_printer(fn):
         except exceptions.BadLoginException:
             raise click.ClickException('Login failed: No active account found with the'
                                        ' given credentials.')
+        except exceptions.InvalidRequest as e:
+            if not isinstance(e.errors, dict):
+                raise click.ClickException(f"Request failed: {e.__class__.__name__}: {e}")
+
+            lines = []
+            for field, errors in e.errors.items():
+                for error in errors:
+                    lines.append(f"- {field}: {error}")
+
+            action = fn.__name__.replace('_', ' ')
+            pluralized_error = 'errors' if len(lines) > 1 else 'error'
+            lines.insert(0, f"Could not {action},"
+                            f"the server returned the following {pluralized_error}:")
+            raise click.ClickException("\n".join(lines))
         except exceptions.RequestException as e:
             raise click.ClickException(f"Request failed: {e.__class__.__name__}: {e}")
         except (exceptions.ConnectionError,
