@@ -69,7 +69,7 @@ class InvalidRequest(HTTPError):
             error = request_exception.response.json()
         except ValueError:
             error = request_exception.response
-        msg = error.get('message', None)
+        msg = error.get('message', str(error))
         return super().from_request_exception(request_exception, msg)
 
 
