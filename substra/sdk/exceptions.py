@@ -63,6 +63,10 @@ class GatewayUnavailable(HTTPError):
 
 
 class InvalidRequest(HTTPError):
+    def __init__(self, msg, status_code, errors=None):
+        super().__init__(msg, status_code)
+        self.errors = errors
+
     @classmethod
     def from_request_exception(cls, request_exception):
         try:
@@ -70,7 +74,13 @@ class InvalidRequest(HTTPError):
         except ValueError:
             error = request_exception.response
         msg = error.get('message', str(error))
-        return super().from_request_exception(request_exception, msg)
+
+        try:
+            status_code = request_exception.response.status_code
+        except AttributeError:
+            status_code = None
+
+        return cls(msg, status_code, error)
 
 
 class NotFound(HTTPError):
