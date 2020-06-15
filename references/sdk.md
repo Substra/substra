@@ -324,7 +324,7 @@ Create new testtuple asset.
 }
 ```
 
-An `AlreadyExists` exception will be raised if a traintuple already exists that:
+An `AlreadyExists` exception will be raised if a testtuple already exists that:
 * has the same `traintuple_key`, `objective_key`, `data_manager_key` and
   `test_data_sample_keys`
 * and was created through the same node you are using
