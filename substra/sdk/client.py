@@ -560,6 +560,7 @@ class Client(object):
                 "train_data_sample_keys": list[str],
                 "in_models_ids": list[str],
                 "tag": str,
+                "metadata": dict,
             }],
             "composite_traintuples": list[{
                 "composite_traintuple_id": str,
@@ -572,6 +573,7 @@ class Client(object):
                     "authorized_ids": list[str],
                 },
                 "tag": str,
+                "metadata": dict,
             }]
             "aggregatetuples": list[{
                 "aggregatetuple_id": str,
@@ -579,6 +581,7 @@ class Client(object):
                 "worker": str,
                 "in_models_ids": list[str],
                 "tag": str,
+                "metadata": dict,
             }],
             "testtuples": list[{
                 "objective_key": str,
@@ -586,9 +589,11 @@ class Client(object):
                 "test_data_sample_keys": list[str],
                 "traintuple_id": str,
                 "tag": str,
+                "metadata": dict,
             }],
             "clean_models": bool,
-            "tag": str
+            "tag": str,
+            "metadata": dict
         }
 ```
 
@@ -732,6 +737,7 @@ class Client(object):
                 "train_data_sample_keys": list[str],
                 "in_models_ids": list[str],
                 "tag": str,
+                "metadata": dict,
             }],
             "composite_traintuples": list[{
                 "composite_traintuple_id": str,
@@ -744,6 +750,7 @@ class Client(object):
                     "authorized_ids": list[str],
                 },
                 "tag": str,
+                "metadata": dict,
             }]
             "aggregatetuples": list[{
                 "aggregatetuple_id": str,
@@ -751,6 +758,7 @@ class Client(object):
                 "worker": str,
                 "in_models_ids": list[str],
                 "tag": str,
+                "metadata": dict,
             }],
             "testtuples": list[{
                 "objective_key": str,
@@ -758,6 +766,7 @@ class Client(object):
                 "test_data_sample_keys": list[str],
                 "traintuple_id": str,
                 "tag": str,
+                "metadata": dict,
             }]
         }
 ```

@@ -504,6 +504,7 @@ def add_compute_plan(ctx, tuples):
             "traintuple_id": str,
             "in_models_ids": list[str],
             "tag": str,
+            "metadata": dict
         }],
         "composite_traintuples": list[{
             "composite_traintuple_id": str,
@@ -516,6 +517,7 @@ def add_compute_plan(ctx, tuples):
                 "authorized_ids": list[str],
             },
             "tag": str,
+            "metadata": dict
         }]
         "aggregatetuples": list[{
             "aggregatetuple_id": str,
@@ -523,6 +525,7 @@ def add_compute_plan(ctx, tuples):
             "worker": str,
             "in_models_ids": list[str],
             "tag": str,
+            "metadata": dict
         }],
         "testtuples": list[{
             "objective_key": str,
@@ -530,6 +533,7 @@ def add_compute_plan(ctx, tuples):
             "test_data_sample_keys": list[str],
             "traintuple_id": str,
             "tag": str,
+            "metadata": dict
         }]
     }
 
@@ -1160,6 +1164,7 @@ def update_compute_plan(ctx, compute_plan_id, tuples):
             "traintuple_id": str,
             "in_models_ids": list[str],
             "tag": str,
+            "metadata": dict,
         }],
         "composite_traintuples": list[{
             "composite_traintuple_id": str,
@@ -1172,6 +1177,7 @@ def update_compute_plan(ctx, compute_plan_id, tuples):
                 "authorized_ids": list[str],
             },
             "tag": str,
+            "metadata": dict,
         }]
         "aggregatetuples": list[{
             "aggregatetuple_id": str,
@@ -1179,6 +1185,7 @@ def update_compute_plan(ctx, compute_plan_id, tuples):
             "worker": str,
             "in_models_ids": list[str],
             "tag": str,
+            "metadata": dict,
         }],
         "testtuples": list[{
             "objective_key": str,
@@ -1186,6 +1193,7 @@ def update_compute_plan(ctx, compute_plan_id, tuples):
             "test_data_sample_keys": list[str],
             "traintuple_id": str,
             "tag": str,
+            "metadata": dict,
         }]
     }
 

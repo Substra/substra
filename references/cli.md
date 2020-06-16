@@ -248,6 +248,7 @@ Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
           "traintuple_id": str,
           "in_models_ids": list[str],
           "tag": str,
+          "metadata": dict
       }],
       "composite_traintuples": list[{
           "composite_traintuple_id": str,
@@ -260,6 +261,7 @@ Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
               "authorized_ids": list[str],
           },
           "tag": str,
+          "metadata": dict
       }]
       "aggregatetuples": list[{
           "aggregatetuple_id": str,
@@ -267,6 +269,7 @@ Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
           "worker": str,
           "in_models_ids": list[str],
           "tag": str,
+          "metadata": dict
       }],
       "testtuples": list[{
           "objective_key": str,
@@ -274,6 +277,7 @@ Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
           "test_data_sample_keys": list[str],
           "traintuple_id": str,
           "tag": str,
+          "metadata": dict
       }]
   }
 
@@ -784,6 +788,7 @@ Usage: substra update compute_plan [OPTIONS] COMPUTE_PLAN_ID TUPLES_PATH
           "traintuple_id": str,
           "in_models_ids": list[str],
           "tag": str,
+          "metadata": dict,
       }],
       "composite_traintuples": list[{
           "composite_traintuple_id": str,
@@ -796,6 +801,7 @@ Usage: substra update compute_plan [OPTIONS] COMPUTE_PLAN_ID TUPLES_PATH
               "authorized_ids": list[str],
           },
           "tag": str,
+          "metadata": dict,
       }]
       "aggregatetuples": list[{
           "aggregatetuple_id": str,
@@ -803,6 +809,7 @@ Usage: substra update compute_plan [OPTIONS] COMPUTE_PLAN_ID TUPLES_PATH
           "worker": str,
           "in_models_ids": list[str],
           "tag": str,
+          "metadata": dict,
       }],
       "testtuples": list[{
           "objective_key": str,
@@ -810,6 +817,7 @@ Usage: substra update compute_plan [OPTIONS] COMPUTE_PLAN_ID TUPLES_PATH
           "test_data_sample_keys": list[str],
           "traintuple_id": str,
           "tag": str,
+          "metadata": dict,
       }]
   }
 
