@@ -83,7 +83,7 @@ class PermissionField(Field):
 
 class MetadataField(Field):
     def print_details(self, item, field_length, expand):
-        metadata = find_dict_composite_key_value(item, f'metadata')
+        metadata = find_dict_composite_key_value(item, 'metadata')
         if isinstance(metadata, dict) and len(metadata):
             name = self.name.upper().ljust(field_length)
             padding = ' ' * field_length
