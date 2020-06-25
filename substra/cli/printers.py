@@ -41,6 +41,8 @@ class Field:
     def print_details(self, item, field_length, expand):
         name = self.name.upper().ljust(field_length)
         value = self.get_value(item, expand)
+        if isinstance(value, dict):
+            value = [f'{k}: {v}' for k, v in value.items()]
 
         if isinstance(value, list):
             if value:
@@ -52,15 +54,6 @@ class Field:
                     else:
                         print(f'{padding}- {v}')
             else:
-                print(f'{name}None')
-        elif isinstance(value, dict):
-            if len(value):
-                padding = ' ' * field_length
-                print(f'{name}')
-                for k, v in value.items():
-                    print(f'{padding}- {k}: {v}')
-            else:
-                name = self.name.upper().ljust(field_length)
                 print(f'{name}None')
         else:
             print(f'{name}{value}')
@@ -275,7 +268,6 @@ class ComputePlanPrinter(AssetPrinter):
         ProgressField('Progress', 'doneCount', 'tupleCount'),
         Field('Status', 'status'),
         Field('Tag', 'tag'),
-        Field('Metadata', 'metadata'),
         Field('Clean model', 'clean_model'),
     )
     single_fields = (
@@ -384,7 +376,6 @@ class TraintuplePrinter(AssetPrinter):
         Field('Status', 'status'),
         Field('Rank', 'rank'),
         Field('Tag', 'tag'),
-        Field('Metadata', 'metadata'),
         Field('Compute Plan Id', 'computePlanID'),
     )
     single_fields = (
@@ -422,7 +413,6 @@ class AggregateTuplePrinter(AssetPrinter):
         Field('Status', 'status'),
         Field('Rank', 'rank'),
         Field('Tag', 'tag'),
-        Field('Metadata', 'metadata'),
         Field('Compute Plan Id', 'computePlanID'),
     )
     single_fields = (
@@ -459,7 +449,6 @@ class CompositeTraintuplePrinter(AssetPrinter):
         Field('Status', 'status'),
         Field('Rank', 'rank'),
         Field('Tag', 'tag'),
-        Field('Metadata', 'metadata'),
         Field('Compute Plan Id', 'computePlanID'),
     )
 
@@ -503,7 +492,6 @@ class TesttuplePrinter(AssetPrinter):
         Field('Perf', 'dataset.perf'),
         Field('Rank', 'rank'),
         Field('Tag', 'tag'),
-        Field('Metadata', 'metadata'),
         Field('Compute Plan Id', 'computePlanID'),
     )
     single_fields = (
@@ -523,7 +511,6 @@ class TesttuplePrinter(AssetPrinter):
         Field('Log', 'log'),
         Field('Creator', 'creator'),
         Field('Worker', 'dataset.worker'),
-        Field('Metadata', 'metadata'),
         PermissionField('Permissions', 'permissions'),
     )
     has_description = False
