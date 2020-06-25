@@ -274,6 +274,7 @@ class Client(object):
                 "public": bool,
                 "authorized_ids": list[str],
             },
+            "metadata": dict
         }
 ```
 
@@ -309,6 +310,7 @@ class Client(object):
                 "public": bool,
                 "authorized_ids": list[str],
             },
+            "metadata": dict
         }
 ```
 
@@ -341,6 +343,7 @@ class Client(object):
                 "public": bool,
                 "authorized_ids": list[str],
             },
+            "metadata": dict
         }
 ```
 
@@ -371,6 +374,7 @@ class Client(object):
                 "public": bool,
                 "authorizedIDs": list[str],
             },
+            "metadata": dict
         }
 ```
         If an aggregate algo with the same archive file already exists, an `AlreadyExists`
@@ -400,6 +404,7 @@ class Client(object):
                 "public": bool,
                 "authorized_ids": list[str],
             },
+            "metadata": dict
         }
 ```
         If a composite algo with the same archive file already exists, an `AlreadyExists` exception
@@ -429,6 +434,7 @@ class Client(object):
             "train_data_sample_keys": list[str],
             "in_models_keys": list[str],
             "tag": str,
+            "metadata": dict,
             "rank": int,
             "compute_plan_id": str,
         }
@@ -455,6 +461,7 @@ class Client(object):
             "algo_key": str,
             "in_models_keys": list[str],
             "tag": str,
+            "metadata": dict,
             "compute_plan_id": str,
             "rank": int,
             "worker": str,
@@ -487,6 +494,7 @@ class Client(object):
                 "authorized_ids": list[str],
             },
             "tag": str,
+            "metadata": dict,
             "rank": int,
             "compute_plan_id": str,
         }
@@ -522,6 +530,7 @@ class Client(object):
             "traintuple_key": str,
             "test_data_sample_keys": list[str],
             "tag": str,
+            "metadata": dict
         }
 ```
 

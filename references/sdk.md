@@ -115,6 +115,7 @@ Create new dataset asset.
         "public": bool,
         "authorized_ids": list[str],
     },
+    "metadata": dict
 }
 ```
 
@@ -144,6 +145,7 @@ Create new objective asset.
         "public": bool,
         "authorized_ids": list[str],
     },
+    "metadata": dict
 }
 ```
 
@@ -170,6 +172,7 @@ Create new algo asset.
         "public": bool,
         "authorized_ids": list[str],
     },
+    "metadata": dict
 }
 ```
 
@@ -194,6 +197,7 @@ Create new aggregate algo asset.
         "public": bool,
         "authorizedIDs": list[str],
     },
+    "metadata": dict
 }
 ```
 If an aggregate algo with the same archive file already exists, an `AlreadyExists`
@@ -217,6 +221,7 @@ Create new composite algo asset.
         "public": bool,
         "authorized_ids": list[str],
     },
+    "metadata": dict
 }
 ```
 If a composite algo with the same archive file already exists, an `AlreadyExists` exception
@@ -240,6 +245,7 @@ Create new traintuple asset.
     "train_data_sample_keys": list[str],
     "in_models_keys": list[str],
     "tag": str,
+    "metadata": dict,
     "rank": int,
     "compute_plan_id": str,
 }
@@ -262,6 +268,7 @@ Create new aggregatetuple asset.
     "algo_key": str,
     "in_models_keys": list[str],
     "tag": str,
+    "metadata": dict,
     "compute_plan_id": str,
     "rank": int,
     "worker": str,
@@ -290,6 +297,7 @@ Create new composite traintuple asset.
         "authorized_ids": list[str],
     },
     "tag": str,
+    "metadata": dict,
     "rank": int,
     "compute_plan_id": str,
 }
@@ -321,6 +329,7 @@ Create new testtuple asset.
     "traintuple_key": str,
     "test_data_sample_keys": list[str],
     "tag": str,
+    "metadata": dict
 }
 ```
 

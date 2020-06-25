@@ -36,6 +36,9 @@ OBJECTIVE = {
         "dataSampleKeys": [
             "e11aeec290749e4c50c91305e10463eced8dbf3808971ec0c6ea0e36cb7ab3e1",
         ]
+    },
+    "metadata": {
+        "foo": "bar"
     }
 }
 
@@ -62,6 +65,9 @@ DATASET = {
     "type": "Images",
     "trainDataSampleKeys": [],
     "testDataSampleKeys": [],
+    "metadata": {
+        "foo": "bar"
+    }
 }
 
 ALGO = {
@@ -82,7 +88,10 @@ ALGO = {
             "authorizedIDs": []
         }
     },
-    "pkhash": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5"
+    "pkhash": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
+    "metadata": {
+        "foo": "bar"
+    }
 }
 
 AGGREGATE_ALGO = {
@@ -103,7 +112,10 @@ AGGREGATE_ALGO = {
             "authorizedIDs": []
         }
     },
-    "pkhash": "7c9t9799bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5"
+    "pkhash": "7c9t9799bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
+    "metadata": {
+        "foo": "bar"
+    }
 }
 
 COMPOSITE_ALGO = {
@@ -120,7 +132,10 @@ COMPOSITE_ALGO = {
     "owner": "ab75010bacbd1a4b826dc2e9ead6f1e4e1c4beade2d62a8b708fdde48fb0edea",
     "permissions_public": False,
     "permissions_authorized_ids": [],
-    "pkhash": "7c9f9br9bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5"
+    "pkhash": "7c9f9br9bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
+    "metadata": {
+        "foo": "bar"
+    }
 }
 
 TRAINTUPLE = {
@@ -159,7 +174,10 @@ TRAINTUPLE = {
     },
     "rank": 0,
     "status": "failed",
-    "tag": "My super tag"
+    "tag": "My super tag",
+    "metadata": {
+        "foo": "bar"
+    }
 }
 
 AGGREGATETUPLE = {
@@ -198,7 +216,10 @@ AGGREGATETUPLE = {
     },
     "rank": 0,
     "status": "failed",
-    "tag": "My super tag"
+    "tag": "My super tag",
+    "metadata": {
+        "foo": "bar"
+    }
 }
 
 COMPOSITE_TRAINTUPLE = {
@@ -247,7 +268,10 @@ COMPOSITE_TRAINTUPLE = {
     },
     "rank": 0,
     "status": "failed",
-    "tag": "My super tag"
+    "tag": "My super tag",
+    "metadata": {
+        "foo": "bar"
+    }
 }
 
 TESTTUPLE = {
@@ -288,7 +312,10 @@ TESTTUPLE = {
         }
     },
     "status": "done",
-    "tag": ""
+    "tag": "",
+    "metadata": {
+        "foo": "bar"
+    }
 }
 
 LEADERBOARD = {
