@@ -21,16 +21,15 @@ import substra
 current_directory = os.path.dirname(__file__)
 assets_directory = os.path.join(current_directory, '../assets')
 
-with open(os.path.join(current_directory, '../../config.json'), 'r') as f:
-    config = json.load(f)
-
-client = substra.Client()
-client.add_profile(config['profile_name'], config['username'], config['password'],  config['url'])
-client.login()
+client = substra.Client(profile_name="node-1")
 
 ALGO = {
     'name': 'Constant death predictor',
-    'description': os.path.join(assets_directory, 'algo_constant/description.md')
+    'description': os.path.join(assets_directory, 'algo_constant/description.md'),
+    'permissions': {
+        'public': False,
+        'authorized_ids': []
+    },
 }
 ALGO_DOCKERFILE_FILES = [
     os.path.join(assets_directory, 'algo_constant/algo.py'),
@@ -64,6 +63,7 @@ algo_key = client.add_algo({
     'name': ALGO['name'],
     'file': ALGO['file'],
     'description': ALGO['description'],
+    'permissions': ALGO['permissions'],
 }, exist_ok=True)['pkhash']
 
 ########################################################
@@ -104,5 +104,5 @@ with open(assets_keys_path, 'w') as f:
 
 print(f'Assets keys have been saved to {os.path.abspath(assets_keys_path)}')
 print('\nRun the following commands to track the status of the tuples:')
-print(f'    substra get traintuple {traintuple_key}')
-print(f'    substra get testtuple {testtuple_key}')
+print(f'    substra get traintuple {traintuple_key} --profile node-1')
+print(f'    substra get testtuple {testtuple_key} --profile node-1')

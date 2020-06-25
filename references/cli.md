@@ -22,6 +22,7 @@
 - [substra cancel compute_plan](#substra-cancel-compute_plan)
 - [substra update data_sample](#substra-update-data_sample)
 - [substra update dataset](#substra-update-dataset)
+- [substra update compute_plan](#substra-update-compute_plan)
 
 
 # Commands
@@ -57,6 +58,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --help                          Show this message and exit.
 ```
@@ -83,6 +85,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --help                          Show this message and exit.
 ```
@@ -105,6 +108,7 @@ Usage: substra add dataset [OPTIONS] PATH
           "public": bool,
           "authorized_ids": list[str],
       },
+      "metadata": dict
   }
 
   Where:
@@ -124,10 +128,10 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -149,6 +153,7 @@ Usage: substra add objective [OPTIONS] PATH
           "public": bool,
           "authorized_ids": list[str],
       },
+      "metadata": dict
   }
 
   Where:
@@ -178,10 +183,10 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -202,6 +207,7 @@ Usage: substra add algo [OPTIONS] PATH
           "public": bool,
           "authorized_ids": list[str],
       },
+      "metadata": dict
   }
 
   Where:
@@ -218,10 +224,10 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -244,6 +250,7 @@ Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
           "tag": str,
       }],
       "composite_traintuples": list[{
+          "composite_traintuple_id": str,
           "algo_key": str,
           "data_manager_key": str,
           "train_data_sample_keys": list[str],
@@ -255,6 +262,7 @@ Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
           "tag": str,
       }]
       "aggregatetuples": list[{
+          "aggregatetuple_id": str,
           "algo_key": str,
           "worker": str,
           "in_models_ids": list[str],
@@ -264,7 +272,6 @@ Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
           "objective_key": str,
           "data_manager_key": str,
           "test_data_sample_keys": list[str],
-          "testtuple_id": str,
           "traintuple_id": str,
           "tag": str,
       }]
@@ -277,10 +284,10 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -301,6 +308,7 @@ Usage: substra add aggregate_algo [OPTIONS] PATH
           "public": bool,
           "authorized_ids": list[str],
       },
+      "metadata": dict
   }
 
   Where:
@@ -317,10 +325,10 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -341,6 +349,7 @@ Usage: substra add composite_algo [OPTIONS] PATH
           "public": bool,
           "authorized_ids": list[str],
       },
+      "metadata": dict
   }
 
   Where:
@@ -357,10 +366,10 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -393,10 +402,11 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
+  --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
 ```
 
@@ -408,7 +418,7 @@ Usage: substra add aggregatetuple [OPTIONS]
   Add aggregatetuple.
 
 Options:
-  --algo-key TEXT                 [required]
+  --algo-key TEXT                 Aggregate algo key.  [required]
   --in-model-key TEXT             In model traintuple key.
   --worker TEXT                   Node ID for worker execution.  [required]
   --rank INTEGER
@@ -419,10 +429,11 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
+  --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
 ```
 
@@ -465,10 +476,11 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
+  --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
 ```
 
@@ -501,10 +513,11 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
+  --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
 ```
 
@@ -525,10 +538,10 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -545,26 +558,23 @@ Options:
   -f, --filter TEXT               Only display assets that exactly match this
                                   filter. Valid syntax is:
                                   <asset>:<property>:<value>
+
   --and                           Combine filters using logical ANDs
   --or                            Combine filters using logical ORs
   --advanced-filters TEXT         Filter results using a complex search (must
                                   be a JSON array of valid filters).
                                   Incompatible with the --filter option
-  --is-complex                    When using filters using 'OR', the server
-                                  will return a list of matching assets for
-                                  each operand. By default these lists are
-                                  merged into a single list. When set, this
-                                  option disables the lists aggregation.
+
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -584,6 +594,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --help                          Show this message and exit.
 ```
@@ -609,6 +620,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --help                          Show this message and exit.
 ```
@@ -624,16 +636,17 @@ Options:
   --expand                        Display associated assets details
   --sort [asc|desc]               Sort models by highest to lowest perf or
                                   vice versa  [default: desc]
+
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -663,18 +676,24 @@ Usage: substra run-local [OPTIONS] ALGO
 Options:
   --train-opener FILE             opener.py file to use during training.
                                   [required]
+
   --test-opener FILE              opener.py file to use during testing.
                                   [required]
+
   --metrics PATH                  metrics directory or archive to use during
                                   both training and testing.  [required]
+
   --rank INTEGER                  will be passed to the algo during training.
   --train-data-samples DIRECTORY  directory of data samples directories to use
                                   during training.
+
   --test-data-samples DIRECTORY   directory of data samples directories to use
                                   during testing.
+
   --inmodel FILE                  model to use as input during training.
   --fake-data-samples             use fake data samples during both training
                                   and testing.
+
   --help                          Show this message and exit.
 ```
 
@@ -692,10 +711,10 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
-  --yaml                          Display output as yaml.
-  --json                          Display output as json.
-  --pretty                        Pretty print output  [default: True]
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 
@@ -724,6 +743,7 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
   --help                          Show this message and exit.
 ```
@@ -742,7 +762,68 @@ Options:
   --profile TEXT                  Profile name to use.
   --user FILE                     User file path to use (default ~/.substra-
                                   user).
+
   --verbose                       Enable verbose mode.
+  --help                          Show this message and exit.
+```
+
+## substra update compute_plan
+
+```bash
+Usage: substra update compute_plan [OPTIONS] COMPUTE_PLAN_ID TUPLES_PATH
+
+  Update compute plan.
+
+  The tuples path must point to a valid JSON file with the following schema:
+
+  {
+      "traintuples": list[{
+          "algo_key": str,
+          "data_manager_key": str,
+          "train_data_sample_keys": list[str],
+          "traintuple_id": str,
+          "in_models_ids": list[str],
+          "tag": str,
+      }],
+      "composite_traintuples": list[{
+          "composite_traintuple_id": str,
+          "algo_key": str,
+          "data_manager_key": str,
+          "train_data_sample_keys": list[str],
+          "in_head_model_id": str,
+          "in_trunk_model_id": str,
+          "out_trunk_model_permissions": {
+              "authorized_ids": list[str],
+          },
+          "tag": str,
+      }]
+      "aggregatetuples": list[{
+          "aggregatetuple_id": str,
+          "algo_key": str,
+          "worker": str,
+          "in_models_ids": list[str],
+          "tag": str,
+      }],
+      "testtuples": list[{
+          "objective_key": str,
+          "data_manager_key": str,
+          "test_data_sample_keys": list[str],
+          "traintuple_id": str,
+          "tag": str,
+      }]
+  }
+
+Options:
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --user FILE                     User file path to use (default ~/.substra-
+                                  user).
+
+  --verbose                       Enable verbose mode.
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
 

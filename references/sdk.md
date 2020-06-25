@@ -60,6 +60,9 @@ If `local` is false, `path` must refer to a directory located on the server
 filesystem. This directory must be accessible (readable) by the server.  This
 mode is well suited for all kind of file sizes.
 
+If a data sample with the same content already exists, an `AlreadyExists` exception will be
+raised.
+
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
@@ -90,6 +93,9 @@ This method is well suited for adding multiple small files only. For adding a
 large amount of data it is recommended to add them one by one. It allows a
 better control in case of failures.
 
+If data samples with the same content as any of the paths already exists, an `AlreadyExists`
+exception will be raised.
+
 ## add_dataset
 ```python
 Client.add_dataset(self, data, exist_ok=False)
@@ -109,8 +115,12 @@ Create new dataset asset.
         "public": bool,
         "authorized_ids": list[str],
     },
+    "metadata": dict
 }
 ```
+
+If a dataset with the same opener already exists, an `AlreadyExists` exception will be
+raised.
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
@@ -135,8 +145,12 @@ Create new objective asset.
         "public": bool,
         "authorized_ids": list[str],
     },
+    "metadata": dict
 }
 ```
+
+If an objective with the same description already exists, an `AlreadyExists` exception will
+be raised.
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
@@ -158,8 +172,12 @@ Create new algo asset.
         "public": bool,
         "authorized_ids": list[str],
     },
+    "metadata": dict
 }
 ```
+
+If an algo with the same archive file already exists, an `AlreadyExists` exception will be
+raised.
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
@@ -179,8 +197,12 @@ Create new aggregate algo asset.
         "public": bool,
         "authorizedIDs": list[str],
     },
+    "metadata": dict
 }
 ```
+If an aggregate algo with the same archive file already exists, an `AlreadyExists`
+exception will be raised.
+
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
@@ -199,8 +221,12 @@ Create new composite algo asset.
         "public": bool,
         "authorized_ids": list[str],
     },
+    "metadata": dict
 }
 ```
+If a composite algo with the same archive file already exists, an `AlreadyExists` exception
+will be raised.
+
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
@@ -219,10 +245,14 @@ Create new traintuple asset.
     "train_data_sample_keys": list[str],
     "in_models_keys": list[str],
     "tag": str,
+    "metadata": dict,
     "rank": int,
     "compute_plan_id": str,
 }
 ```
+An `AlreadyExists` exception will be raised if a traintuple already exists that:
+* has the same `algo_key`, `data_manager_key`, `train_data_sample_keys` and `in_models_keys`
+* and was created through the same node you are using
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
@@ -238,11 +268,16 @@ Create new aggregatetuple asset.
     "algo_key": str,
     "in_models_keys": list[str],
     "tag": str,
+    "metadata": dict,
     "compute_plan_id": str,
     "rank": int,
     "worker": str,
 }
 ```
+An `AlreadyExists` exception will be raised if an aggregatetuple already exists that:
+* has the same `algo_key` and `in_models_keys`
+* and was created through the same node you are using
+
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
@@ -262,6 +297,7 @@ Create new composite traintuple asset.
         "authorized_ids": list[str],
     },
     "tag": str,
+    "metadata": dict,
     "rank": int,
     "compute_plan_id": str,
 }
@@ -269,6 +305,11 @@ Create new composite traintuple asset.
 
 As specified in the data dict structure, output trunk models cannot be made
 public.
+
+An `AlreadyExists` exception will be raised if a traintuple already exists that:
+* has the same `algo_key`, `data_manager_key`, `train_data_sample_keys`,
+  `in_head_models_key` and `in_trunk_model_key`
+* and was created through the same node you are using
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
@@ -288,8 +329,14 @@ Create new testtuple asset.
     "traintuple_key": str,
     "test_data_sample_keys": list[str],
     "tag": str,
+    "metadata": dict
 }
 ```
+
+An `AlreadyExists` exception will be raised if a testtuple already exists that:
+* has the same `traintuple_key`, `objective_key`, `data_manager_key` and
+  `test_data_sample_keys`
+* and was created through the same node you are using
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
@@ -335,10 +382,11 @@ Data is a dict object with the following schema:
         "objective_key": str,
         "data_manager_key": str,
         "test_data_sample_keys": list[str],
-        "testtuple_id": str,
         "traintuple_id": str,
         "tag": str,
-    }]
+    }],
+    "clean_models": bool,
+    "tag": str
 }
 ```
 
@@ -397,57 +445,57 @@ Client.get_composite_traintuple(self, composite_traintuple_key)
 Get composite traintuple by key.
 ## list_algo
 ```python
-Client.list_algo(self, filters=None, is_complex=False)
+Client.list_algo(self, filters=None)
 ```
 List algos.
 ## list_compute_plan
 ```python
-Client.list_compute_plan(self, filters=None, is_complex=False)
+Client.list_compute_plan(self, filters=None)
 ```
 List compute plans.
 ## list_aggregate_algo
 ```python
-Client.list_aggregate_algo(self, filters=None, is_complex=False)
+Client.list_aggregate_algo(self, filters=None)
 ```
 List aggregate algos.
 ## list_composite_algo
 ```python
-Client.list_composite_algo(self, filters=None, is_complex=False)
+Client.list_composite_algo(self, filters=None)
 ```
 List composite algos.
 ## list_data_sample
 ```python
-Client.list_data_sample(self, filters=None, is_complex=False)
+Client.list_data_sample(self, filters=None)
 ```
 List data samples.
 ## list_dataset
 ```python
-Client.list_dataset(self, filters=None, is_complex=False)
+Client.list_dataset(self, filters=None)
 ```
 List datasets.
 ## list_objective
 ```python
-Client.list_objective(self, filters=None, is_complex=False)
+Client.list_objective(self, filters=None)
 ```
 List objectives.
 ## list_testtuple
 ```python
-Client.list_testtuple(self, filters=None, is_complex=False)
+Client.list_testtuple(self, filters=None)
 ```
 List testtuples.
 ## list_traintuple
 ```python
-Client.list_traintuple(self, filters=None, is_complex=False)
+Client.list_traintuple(self, filters=None)
 ```
 List traintuples.
 ## list_aggregatetuple
 ```python
-Client.list_aggregatetuple(self, filters=None, is_complex=False)
+Client.list_aggregatetuple(self, filters=None)
 ```
 List aggregatetuples.
 ## list_composite_traintuple
 ```python
-Client.list_composite_traintuple(self, filters=None, is_complex=False)
+Client.list_composite_traintuple(self, filters=None)
 ```
 List composite traintuples.
 ## list_node
@@ -460,6 +508,57 @@ List nodes.
 Client.update_dataset(self, dataset_key, data)
 ```
 Update dataset.
+## update_compute_plan
+```python
+Client.update_compute_plan(self, compute_plan_id, data)
+```
+Update compute plan.
+
+Data is a dict object with the following schema:
+
+```
+{
+    "traintuples": list[{
+        "traintuple_id": str,
+        "algo_key": str,
+        "data_manager_key": str,
+        "train_data_sample_keys": list[str],
+        "in_models_ids": list[str],
+        "tag": str,
+    }],
+    "composite_traintuples": list[{
+        "composite_traintuple_id": str,
+        "algo_key": str,
+        "data_manager_key": str,
+        "train_data_sample_keys": list[str],
+        "in_head_model_id": str,
+        "in_trunk_model_id": str,
+        "out_trunk_model_permissions": {
+            "authorized_ids": list[str],
+        },
+        "tag": str,
+    }]
+    "aggregatetuples": list[{
+        "aggregatetuple_id": str,
+        "algo_key": str,
+        "worker": str,
+        "in_models_ids": list[str],
+        "tag": str,
+    }],
+    "testtuples": list[{
+        "objective_key": str,
+        "data_manager_key": str,
+        "test_data_sample_keys": list[str],
+        "traintuple_id": str,
+        "tag": str,
+    }]
+}
+```
+
+As specified in the data dict structure, output trunk models of composite
+traintuples cannot be made public.
+
+
 ## link_dataset_with_objective
 ```python
 Client.link_dataset_with_objective(self, dataset_key, objective_key)

@@ -23,12 +23,7 @@ current_directory = os.path.dirname(__file__)
 assets_keys_path = os.path.join(current_directory, '../../titanic/assets_keys.json')
 compute_plan_keys_path = os.path.join(current_directory, '../compute_plan_keys.json')
 
-with open(os.path.join(current_directory, '../../config.json'), 'r') as f:
-    config = json.load(f)
-
-client = substra.Client()
-client.add_profile(config['profile_name'], config['username'], config['password'],  config['url'])
-client.login()
+client = substra.Client(profile_name="node-1")
 
 print(f'Loading existing asset keys from {os.path.abspath(assets_keys_path)}...')
 with open(assets_keys_path, 'r') as f:
@@ -48,11 +43,15 @@ with zipfile.ZipFile(archive_path, 'w') as z:
 algo_key = client.add_algo({
     'name': 'SGD classifier death predictor',
     'file': archive_path,
-    'description': os.path.join(algo_directory, 'description.md')
+    'description': os.path.join(algo_directory, 'description.md'),
+    'permissions': {
+        'public': False,
+        'authorized_ids': [],
+    }
 }, exist_ok=True)['pkhash']
 
 
-print(f'Generating compute plan...')
+print('Generating compute plan...')
 traintuples = []
 testtuples = []
 previous_id = None

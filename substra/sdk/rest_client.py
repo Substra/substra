@@ -35,10 +35,19 @@ class Client():
             self.set_config(config)
 
     def login(self):
+        # we do not use self._headers in order to avoid existing tokens to be sent alongside the
+        # required Accept header
+        if 'Accept' not in self._headers:
+            raise exceptions.SDKException("Cannot login: missing headers")
+
+        headers = {
+            'Accept': self._headers['Accept'],
+        }
+
         try:
             r = requests.post(f'{self._base_url}/api-token-auth/',
                               data=self._auth,
-                              headers=self._headers)
+                              headers=headers)
             r.raise_for_status()
         except requests.exceptions.ConnectionError as e:
             raise exceptions.ConnectionError.from_request_exception(e)
@@ -80,9 +89,16 @@ class Client():
             raise exceptions.BadConfiguration('Your configuration is outdated, please update it.')
 
         username = config['auth']['username']
+        password = keyring.get_password(profile_name, username)
+
+        if password is None:
+            raise exceptions.KeyringException(
+                'Fetching password error: Check your keyring installation'
+            )
+
         self._auth = {
             'username': username,
-            'password': keyring.get_password(profile_name, username)
+            'password': password
         }
 
     def __request(self, request_name, url, **request_kwargs):
@@ -98,6 +114,11 @@ class Client():
         # override default request arguments with input arguments
         kwargs = dict(self._default_kwargs)
         kwargs.update(request_kwargs)
+
+        # rewind files so that they are properly sent in retries as well
+        if 'files' in kwargs:
+            for file in kwargs['files'].values():
+                file.seek(0)
 
         # do HTTP request and catch generic exceptions
         try:
@@ -200,8 +221,8 @@ class Client():
             **request_kwargs,
         )
 
-        # when filtering 'complex' assets the server responds with a list per filter
-        # item, these list of list must then be flatten
+        # the server always responds with a list of lists (linked to the debug option "is_complex")
+        # which must then be flatten
         if isinstance(items, list) and all([isinstance(i, list) for i in items]):
             items = utils.flatten(items)
 

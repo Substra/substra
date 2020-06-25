@@ -50,7 +50,7 @@ def click_get_commands(name, command):
 def generate_help(commands, fh):
     # TODO use click context to generate help page:
     # https://github.com/click-contrib/click-man/blob/master/click_man/core.py#L20
-    fh.write(f"# Summary\n\n")
+    fh.write("# Summary\n\n")
 
     def _create_anchor(command):
         return "#{}".format(command.replace(' ', '-'))
@@ -61,7 +61,7 @@ def generate_help(commands, fh):
         fh.write(f"- [{command}]({anchor})\n")
 
     fh.write("\n\n")
-    fh.write(f"# Commands\n\n")
+    fh.write("# Commands\n\n")
 
     for command in commands:
         anchor = _create_anchor(command)

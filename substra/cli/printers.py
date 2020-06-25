@@ -128,6 +128,16 @@ class ProgressField(Field):
         return f'{done_count}/{tuple_count}'
 
 
+class MappingField(Field):
+    def get_value(self, item, expand=False):
+        mapping = super().get_value(item) or {}
+        if expand:
+            value = [f'{k}:{v}' for k, v in mapping.items()]
+        else:
+            value = f'{len(mapping)} values'
+        return value
+
+
 class BasePrinter:
     @staticmethod
     def _get_columns(items, fields):
@@ -255,6 +265,8 @@ class ComputePlanPrinter(AssetPrinter):
         CountField('Testtuples count', 'testtupleKeys'),
         ProgressField('Progress', 'doneCount', 'tupleCount'),
         Field('Status', 'status'),
+        Field('Tag', 'tag'),
+        Field('Clean model', 'clean_model'),
     )
     single_fields = (
         KeysField('Traintuple keys', 'traintupleKeys'),
@@ -263,6 +275,9 @@ class ComputePlanPrinter(AssetPrinter):
         KeysField('Testtuple keys', 'testtupleKeys'),
         ProgressField('Progress', 'doneCount', 'tupleCount'),
         Field('Status', 'status'),
+        Field('Tag', 'tag'),
+        Field('Clean model', 'clean_model'),
+        MappingField('ID to key mapping', 'IDToKey'),
     )
 
     def print_messages(self, item, profile=None):
@@ -376,6 +391,13 @@ class TraintuplePrinter(AssetPrinter):
     )
     has_description = False
 
+    def print_messages(self, item, profile=None):
+        key_value = self.key_field.get_value(item)
+        profile_arg = self.get_profile_arg(profile)
+
+        print('\nDisplay this traintuple\'s testtuples:')
+        print(f'\tsubstra list testtuple -f "testtuple:traintupleKey:{key_value}" {profile_arg}')
+
 
 class AggregateTuplePrinter(AssetPrinter):
     asset_name = 'aggregatetuple'
@@ -403,6 +425,13 @@ class AggregateTuplePrinter(AssetPrinter):
         PermissionField('Permissions', 'permissions'),
     )
     has_description = False
+
+    def print_messages(self, item, profile=None):
+        key_value = self.key_field.get_value(item)
+        profile_arg = self.get_profile_arg(profile)
+
+        print('\nDisplay this aggregatetuple\'s testtuples:')
+        print(f'\tsubstra list testtuple -f "testtuple:traintupleKey:{key_value}" {profile_arg}')
 
 
 class CompositeTraintuplePrinter(AssetPrinter):
@@ -436,6 +465,13 @@ class CompositeTraintuplePrinter(AssetPrinter):
         Field('Worker', 'dataset.worker'),
     )
     has_description = False
+
+    def print_messages(self, item, profile=None):
+        key_value = self.key_field.get_value(item)
+        profile_arg = self.get_profile_arg(profile)
+
+        print('\nDisplay this composite traintuple\'s testtuples:')
+        print(f'\tsubstra list testtuple -f "testtuple:traintupleKey:{key_value}" {profile_arg}')
 
 
 class TesttuplePrinter(AssetPrinter):

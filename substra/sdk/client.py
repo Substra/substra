@@ -17,6 +17,7 @@ import functools
 import logging
 import os
 import time
+import json
 
 import keyring
 
@@ -53,31 +54,6 @@ def get_asset_key(data):
     return data.get('pkhash') or data.get('key')
 
 
-def _flatten_permissions(data, field_name):
-    data = deepcopy(data)
-
-    p = data[field_name]  # should not raise as a default permissions is added if missing
-    data[f'{field_name}_public'] = p['public']
-    data[f'{field_name}_authorized_ids'] = p.get('authorized_ids', [])
-    del data[field_name]
-
-    return data
-
-
-def _update_permissions_field(data, permissions_field='permissions'):
-    if permissions_field not in data:
-        default_permissions = {
-            'public': False,
-            'authorized_ids': [],
-        }
-        data[permissions_field] = default_permissions
-    # XXX workaround because backend accepts only Form Data body. This is due to
-    #     the fact that backend expects both file objects and payload in the
-    #     same request
-    data = _flatten_permissions(data, field_name=permissions_field)
-    return data
-
-
 class Client(object):
 
     def __init__(self, config_path=None, profile_name=None, user_path=None,
@@ -110,6 +86,9 @@ class Client(object):
 
         """
 
+        if not self._current_profile:
+            raise exceptions.SDKException("No profile defined")
+
         res = self.client.login()
         token = res.json()['token']
         self._current_profile.update({
@@ -120,6 +99,7 @@ class Client(object):
 
     def _set_current_profile(self, profile_name, profile):
         """Set client current profile."""
+        self._profile_name = profile_name
         self._profiles[profile_name] = profile
         self._current_profile = profile
         self.client.set_config(self._current_profile, profile_name)
@@ -162,17 +142,20 @@ class Client(object):
         keyring.set_password(profile_name, username, password)
         return self._set_current_profile(profile_name, profile)
 
-    def _add(self, asset, data, files=None, exist_ok=False, json_encoding=False):
+    def _add(self, asset, data, files=None, exist_ok=False):
         """Add asset."""
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
-        files = files or {}
-        requests_kwargs = {}
         if files:
-            requests_kwargs['files'] = files
-        if json_encoding:
-            requests_kwargs['json'] = data
+            requests_kwargs = {
+                'data': {
+                    'json': json.dumps(data),
+                },
+                'files': files,
+            }
         else:
-            requests_kwargs['data'] = data
+            requests_kwargs = {
+                'json': data
+            }
 
         return self.client.add(
             asset,
@@ -216,11 +199,13 @@ class Client(object):
         filesystem. This directory must be accessible (readable) by the server.  This
         mode is well suited for all kind of file sizes.
 
+        If a data sample with the same content already exists, an `AlreadyExists` exception will be
+        raised.
+
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
 
         """
-        data = _update_permissions_field(data)
         if 'paths' in data:
             raise ValueError("data: invalid 'paths' field")
         if 'path' not in data:
@@ -262,8 +247,10 @@ class Client(object):
         This method is well suited for adding multiple small files only. For adding a
         large amount of data it is recommended to add them one by one. It allows a
         better control in case of failures.
+
+        If data samples with the same content as any of the paths already exists, an `AlreadyExists`
+        exception will be raised.
         """
-        data = _update_permissions_field(data)
         if 'path' in data:
             raise ValueError("data: invalid 'path' field")
         if 'paths' not in data:
@@ -287,13 +274,16 @@ class Client(object):
                 "public": bool,
                 "authorized_ids": list[str],
             },
+            "metadata": dict
         }
 ```
+
+        If a dataset with the same opener already exists, an `AlreadyExists` exception will be
+        raised.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = _update_permissions_field(data)
         attributes = ['data_opener', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(assets.DATASET, data, files=files, exist_ok=exist_ok)
@@ -320,13 +310,16 @@ class Client(object):
                 "public": bool,
                 "authorized_ids": list[str],
             },
+            "metadata": dict
         }
 ```
+
+        If an objective with the same description already exists, an `AlreadyExists` exception will
+        be raised.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = _update_permissions_field(data)
         attributes = ['metrics', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(assets.OBJECTIVE, data, files=files, exist_ok=exist_ok)
@@ -350,13 +343,16 @@ class Client(object):
                 "public": bool,
                 "authorized_ids": list[str],
             },
+            "metadata": dict
         }
 ```
+
+        If an algo with the same archive file already exists, an `AlreadyExists` exception will be
+        raised.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = _update_permissions_field(data)
         attributes = ['file', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(assets.ALGO, data, files=files, exist_ok=exist_ok)
@@ -378,12 +374,15 @@ class Client(object):
                 "public": bool,
                 "authorizedIDs": list[str],
             },
+            "metadata": dict
         }
 ```
+        If an aggregate algo with the same archive file already exists, an `AlreadyExists`
+        exception will be raised.
+
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = _update_permissions_field(data)
         attributes = ['file', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(assets.AGGREGATE_ALGO, data, files=files, exist_ok=exist_ok)
@@ -405,12 +404,15 @@ class Client(object):
                 "public": bool,
                 "authorized_ids": list[str],
             },
+            "metadata": dict
         }
 ```
+        If a composite algo with the same archive file already exists, an `AlreadyExists` exception
+        will be raised.
+
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = _update_permissions_field(data)
         attributes = ['file', 'description']
         with utils.extract_files(data, attributes) as (data, files):
             res = self._add(assets.COMPOSITE_ALGO, data, files=files, exist_ok=exist_ok)
@@ -432,10 +434,14 @@ class Client(object):
             "train_data_sample_keys": list[str],
             "in_models_keys": list[str],
             "tag": str,
+            "metadata": dict,
             "rank": int,
             "compute_plan_id": str,
         }
 ```
+        An `AlreadyExists` exception will be raised if a traintuple already exists that:
+        * has the same `algo_key`, `data_manager_key`, `train_data_sample_keys` and `in_models_keys`
+        * and was created through the same node you are using
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
@@ -455,11 +461,16 @@ class Client(object):
             "algo_key": str,
             "in_models_keys": list[str],
             "tag": str,
+            "metadata": dict,
             "compute_plan_id": str,
             "rank": int,
             "worker": str,
         }
 ```
+        An `AlreadyExists` exception will be raised if an aggregatetuple already exists that:
+        * has the same `algo_key` and `in_models_keys`
+        * and was created through the same node you are using
+
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
@@ -483,6 +494,7 @@ class Client(object):
                 "authorized_ids": list[str],
             },
             "tag": str,
+            "metadata": dict,
             "rank": int,
             "compute_plan_id": str,
         }
@@ -491,10 +503,14 @@ class Client(object):
         As specified in the data dict structure, output trunk models cannot be made
         public.
 
+        An `AlreadyExists` exception will be raised if a traintuple already exists that:
+        * has the same `algo_key`, `data_manager_key`, `train_data_sample_keys`,
+          `in_head_models_key` and `in_trunk_model_key`
+        * and was created through the same node you are using
+
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        data = _update_permissions_field(data, permissions_field='out_model_trunk_permissions')
         res = self._add(assets.COMPOSITE_TRAINTUPLE, data, exist_ok=exist_ok)
 
         # The backend has inconsistent API responses when getting or adding an asset (with much
@@ -514,8 +530,14 @@ class Client(object):
             "traintuple_key": str,
             "test_data_sample_keys": list[str],
             "tag": str,
+            "metadata": dict
         }
 ```
+
+        An `AlreadyExists` exception will be raised if a testtuple already exists that:
+        * has the same `traintuple_key`, `objective_key`, `data_manager_key` and
+          `test_data_sample_keys`
+        * and was created through the same node you are using
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
@@ -565,17 +587,18 @@ class Client(object):
                 "objective_key": str,
                 "data_manager_key": str,
                 "test_data_sample_keys": list[str],
-                "testtuple_id": str,
                 "traintuple_id": str,
                 "tag": str,
-            }]
+            }],
+            "clean_models": bool,
+            "tag": str
         }
 ```
 
         As specified in the data dict structure, output trunk models of composite
         traintuples cannot be made public.
         """
-        return self._add(assets.COMPUTE_PLAN, data, json_encoding=True)
+        return self._add(assets.COMPUTE_PLAN, data)
 
     @logit
     def get_algo(self, algo_key):
@@ -628,57 +651,57 @@ class Client(object):
         return self.client.get(assets.COMPOSITE_TRAINTUPLE, composite_traintuple_key)
 
     @logit
-    def list_algo(self, filters=None, is_complex=False):
+    def list_algo(self, filters=None):
         """List algos."""
         return self.client.list(assets.ALGO, filters=filters)
 
     @logit
-    def list_compute_plan(self, filters=None, is_complex=False):
+    def list_compute_plan(self, filters=None):
         """List compute plans."""
         return self.client.list(assets.COMPUTE_PLAN, filters=filters)
 
     @logit
-    def list_aggregate_algo(self, filters=None, is_complex=False):
+    def list_aggregate_algo(self, filters=None):
         """List aggregate algos."""
         return self.client.list(assets.AGGREGATE_ALGO, filters=filters)
 
     @logit
-    def list_composite_algo(self, filters=None, is_complex=False):
+    def list_composite_algo(self, filters=None):
         """List composite algos."""
         return self.client.list(assets.COMPOSITE_ALGO, filters=filters)
 
     @logit
-    def list_data_sample(self, filters=None, is_complex=False):
+    def list_data_sample(self, filters=None):
         """List data samples."""
         return self.client.list(assets.DATA_SAMPLE, filters=filters)
 
     @logit
-    def list_dataset(self, filters=None, is_complex=False):
+    def list_dataset(self, filters=None):
         """List datasets."""
         return self.client.list(assets.DATASET, filters=filters)
 
     @logit
-    def list_objective(self, filters=None, is_complex=False):
+    def list_objective(self, filters=None):
         """List objectives."""
         return self.client.list(assets.OBJECTIVE, filters=filters)
 
     @logit
-    def list_testtuple(self, filters=None, is_complex=False):
+    def list_testtuple(self, filters=None):
         """List testtuples."""
         return self.client.list(assets.TESTTUPLE, filters=filters)
 
     @logit
-    def list_traintuple(self, filters=None, is_complex=False):
+    def list_traintuple(self, filters=None):
         """List traintuples."""
         return self.client.list(assets.TRAINTUPLE, filters=filters)
 
     @logit
-    def list_aggregatetuple(self, filters=None, is_complex=False):
+    def list_aggregatetuple(self, filters=None):
         """List aggregatetuples."""
         return self.client.list(assets.AGGREGATETUPLE, filters=filters)
 
     @logit
-    def list_composite_traintuple(self, filters=None, is_complex=False):
+    def list_composite_traintuple(self, filters=None):
         """List composite traintuples."""
         return self.client.list(assets.COMPOSITE_TRAINTUPLE, filters=filters)
 
@@ -695,6 +718,62 @@ class Client(object):
             assets.DATASET,
             path=f"{dataset_key}/update_ledger/",
             data=data,
+        )
+
+    @logit
+    def update_compute_plan(self, compute_plan_id, data):
+        """Update compute plan.
+
+        Data is a dict object with the following schema:
+
+```
+        {
+            "traintuples": list[{
+                "traintuple_id": str,
+                "algo_key": str,
+                "data_manager_key": str,
+                "train_data_sample_keys": list[str],
+                "in_models_ids": list[str],
+                "tag": str,
+            }],
+            "composite_traintuples": list[{
+                "composite_traintuple_id": str,
+                "algo_key": str,
+                "data_manager_key": str,
+                "train_data_sample_keys": list[str],
+                "in_head_model_id": str,
+                "in_trunk_model_id": str,
+                "out_trunk_model_permissions": {
+                    "authorized_ids": list[str],
+                },
+                "tag": str,
+            }]
+            "aggregatetuples": list[{
+                "aggregatetuple_id": str,
+                "algo_key": str,
+                "worker": str,
+                "in_models_ids": list[str],
+                "tag": str,
+            }],
+            "testtuples": list[{
+                "objective_key": str,
+                "data_manager_key": str,
+                "test_data_sample_keys": list[str],
+                "traintuple_id": str,
+                "tag": str,
+            }]
+        }
+```
+
+        As specified in the data dict structure, output trunk models of composite
+        traintuples cannot be made public.
+
+        """
+        return self.client.request(
+            'post',
+            assets.COMPUTE_PLAN,
+            path=f"{compute_plan_id}/update_ledger/",
+            json=data,
         )
 
     @logit
