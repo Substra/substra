@@ -41,6 +41,8 @@ class Field:
     def print_details(self, item, field_length, expand):
         name = self.name.upper().ljust(field_length)
         value = self.get_value(item, expand)
+        if isinstance(value, dict):
+            value = [f'{k}: {v}' for k, v in value.items()]
 
         if isinstance(value, list):
             if value:
@@ -247,6 +249,7 @@ class BaseAlgoPrinter(AssetPrinter):
     single_fields = (
         Field('Name', 'name'),
         Field('Owner', 'owner'),
+        Field('Metadata', 'metadata'),
         PermissionField('Permissions', 'permissions'),
     )
 
@@ -276,6 +279,7 @@ class ComputePlanPrinter(AssetPrinter):
         ProgressField('Progress', 'doneCount', 'tupleCount'),
         Field('Status', 'status'),
         Field('Tag', 'tag'),
+        Field('Metadata', 'metadata'),
         Field('Clean model', 'clean_model'),
         MappingField('ID to key mapping', 'IDToKey'),
     )
@@ -325,6 +329,7 @@ class ObjectivePrinter(AssetPrinter):
         Field('Test dataset key', 'testDataset.dataManagerKey'),
         KeysField('Test data sample keys', 'testDataset.dataSampleKeys'),
         Field('Owner', 'owner'),
+        Field('Metadata', 'metadata'),
         PermissionField('Permissions', 'permissions'),
     )
     download_message = 'Download this objective\'s metric:'
@@ -358,6 +363,7 @@ class DatasetPrinter(AssetPrinter):
         KeysField('Train data sample keys', 'trainDataSampleKeys'),
         KeysField('Test data sample keys', 'testDataSampleKeys'),
         Field('Owner', 'owner'),
+        Field('Metadata', 'metadata'),
         PermissionField('Permissions', 'permissions'),
     )
     download_message = 'Download this data manager\'s opener:'
@@ -387,6 +393,7 @@ class TraintuplePrinter(AssetPrinter):
         Field('Log', 'log'),
         Field('Creator', 'creator'),
         Field('Worker', 'dataset.worker'),
+        Field('Metadata', 'metadata'),
         PermissionField('Permissions', 'permissions'),
     )
     has_description = False
@@ -422,6 +429,7 @@ class AggregateTuplePrinter(AssetPrinter):
         Field('Log', 'log'),
         Field('Creator', 'creator'),
         Field('Worker', 'dataset.worker'),
+        Field('Metadata', 'metadata'),
         PermissionField('Permissions', 'permissions'),
     )
     has_description = False
@@ -463,6 +471,7 @@ class CompositeTraintuplePrinter(AssetPrinter):
         Field('Log', 'log'),
         Field('Creator', 'creator'),
         Field('Worker', 'dataset.worker'),
+        Field('Metadata', 'metadata'),
     )
     has_description = False
 
@@ -499,6 +508,7 @@ class TesttuplePrinter(AssetPrinter):
         KeysField('Test data sample keys', 'dataset.keys'),
         Field('Rank', 'rank'),
         Field('Tag', 'tag'),
+        Field('Metadata', 'metadata'),
         Field('Compute Plan Id', 'computePlanID'),
         Field('Log', 'log'),
         Field('Creator', 'creator'),
