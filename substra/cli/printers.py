@@ -249,6 +249,7 @@ class BaseAlgoPrinter(AssetPrinter):
     single_fields = (
         Field('Name', 'name'),
         Field('Owner', 'owner'),
+        Field('Metadata', 'metadata'),
         PermissionField('Permissions', 'permissions'),
     )
 
@@ -507,6 +508,7 @@ class TesttuplePrinter(AssetPrinter):
         KeysField('Test data sample keys', 'dataset.keys'),
         Field('Rank', 'rank'),
         Field('Tag', 'tag'),
+        Field('Metadata', 'metadata'),
         Field('Compute Plan Id', 'computePlanID'),
         Field('Log', 'log'),
         Field('Creator', 'creator'),
