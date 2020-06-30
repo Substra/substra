@@ -38,3 +38,5 @@
 
 - Documentation [website](https://doc.substra.ai)
 - Documentation [repository](https://github.com/SubstraFoundation/substra-documentation)
+- Chat on [Slack](https://substra-workspace.slack.com)
+
