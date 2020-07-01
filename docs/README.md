@@ -7,12 +7,7 @@
 
 ## Implementing your assets in python
 
-- [Substra Tools](https://github.com/SubstraFoundation/substra-tools)
-- [Objective base class](https://github.com/SubstraFoundation/substra-tools/blob/dev/docs/api.md#metrics)
-- [Dataset base class](https://github.com/SubstraFoundation/substra-tools/blob/dev/docs/api.md#opener)
-- [Algo base class](https://github.com/SubstraFoundation/substra-tools/blob/master/docs/api.md#algo)
-- [Composite algo base class](https://github.com/SubstraFoundation/substra-tools/blob/master/docs/api.md#compositealgo)
-- [Aggregate algo base class](https://github.com/SubstraFoundation/substra-tools/blob/master/docs/api.md#aggregatealgo)
+To help you implement your assets in Python, please have a look to the [Substra Tools](https://github.com/SubstraFoundation/substra-tools).
 
 ## Learning about the Substra platform
 
@@ -39,4 +34,3 @@
 - Documentation [website](https://doc.substra.ai)
 - Documentation [repository](https://github.com/SubstraFoundation/substra-documentation)
 - Chat on [Slack](https://substra-workspace.slack.com)
-
