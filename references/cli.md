@@ -234,11 +234,11 @@ Options:
 ## substra add compute_plan
 
 ```bash
-Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
+Usage: substra add compute_plan [OPTIONS] PATH
 
   Add compute plan.
 
-  The tuples path must point to a valid JSON file with the following schema:
+  The path must point to a valid JSON file with the following schema:
 
   {
       "traintuples": list[{
@@ -278,7 +278,10 @@ Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
           "traintuple_id": str,
           "tag": str,
           "metadata": dict
-      }]
+      }],
+      "clean_models": bool,
+      "tag": str,
+      "metadata": dict
   }
 
 Options:

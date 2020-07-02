@@ -485,15 +485,15 @@ def add_algo(ctx, data):
 
 
 @add.command('compute_plan')
-@click.argument('tuples', type=click.Path(exists=True, dir_okay=False),
-                callback=load_json_from_path, metavar="TUPLES_PATH")
+@click.argument('data', type=click.Path(exists=True, dir_okay=False),
+                callback=load_json_from_path, metavar="PATH")
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
-def add_compute_plan(ctx, tuples):
+def add_compute_plan(ctx, data):
     """Add compute plan.
 
-    The tuples path must point to a valid JSON file with the following schema:
+    The path must point to a valid JSON file with the following schema:
 
     \b
     {
@@ -534,12 +534,15 @@ def add_compute_plan(ctx, tuples):
             "traintuple_id": str,
             "tag": str,
             "metadata": dict
-        }]
+        }],
+        "clean_models": bool,
+        "tag": str,
+        "metadata": dict
     }
 
     """
     client = get_client(ctx.obj)
-    res = client.add_compute_plan(tuples)
+    res = client.add_compute_plan(data)
     printer = printers.get_asset_printer(assets.COMPUTE_PLAN, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
