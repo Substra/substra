@@ -19,8 +19,6 @@ import os
 import time
 import json
 
-import keyring
-
 from substra.sdk import utils, assets, rest_client, exceptions
 from substra.sdk import config as cfg
 from substra.sdk import user as usr
@@ -57,7 +55,7 @@ def get_asset_key(data):
 class Client(object):
 
     def __init__(self, config_path=None, profile_name=None, user_path=None,
-                 retry_timeout=DEFAULT_RETRY_TIMEOUT):
+                 token=None, retry_timeout=DEFAULT_RETRY_TIMEOUT):
         self._cfg_manager = cfg.Manager(config_path or cfg.DEFAULT_PATH)
         self._usr_manager = usr.Manager(user_path or usr.DEFAULT_PATH)
         self._current_profile = None
@@ -73,24 +71,25 @@ class Client(object):
         # set current logged user if exists
         self.set_user()
 
+        if token:
+            self._set_token(token)
+
     @logit
-    def login(self):
-        """Login.
-
-        Allow to login to a remote server.
-
-        After setting your configuration with `substra config` using `-u` and `-p`
-        Launch `substra login`
-        You will get a token which will be stored by default in `~/.substra-user`
-        You can change that thanks to the --user option (works like the --profile option)
-
-        """
+    def login(self, username, password):
+        """Login to a remote server. """
 
         if not self._current_profile:
             raise exceptions.SDKException("No profile defined")
 
-        res = self.client.login()
+        res = self.client.login(username, password)
         token = res.json()['token']
+        self._set_token(token)
+        return token
+
+    def _set_token(self, token):
+        if not self._current_profile:
+            raise exceptions.SDKException("No profile defined")
+
         self._current_profile.update({
             'token': token,
         })
@@ -131,15 +130,13 @@ class Client(object):
                 })
                 self.client.set_config(self._current_profile, self._profile_name)
 
-    def add_profile(self, profile_name, username, password, url, version='0.0', insecure=False):
+    def add_profile(self, profile_name, url, version='0.0', insecure=False):
         """Add new profile (in-memory only)."""
         profile = cfg.create_profile(
             url=url,
             version=version,
             insecure=insecure,
-            username=username,
         )
-        keyring.set_password(profile_name, username, password)
         return self._set_current_profile(profile_name, profile)
 
     def _add(self, asset, data, files=None, exist_ok=False):

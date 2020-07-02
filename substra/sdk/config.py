@@ -17,23 +17,19 @@ import json
 import logging
 import os
 
-import keyring
-
 logger = logging.getLogger(__name__)
 
 DEFAULT_PATH = os.path.expanduser('~/.substra')
 DEFAULT_VERSION = '0.0'
 DEFAULT_URL = 'http://127.0.0.1:8000'
 DEFAULT_PROFILE_NAME = 'default'
+DEFAULT_INSECURE = False
 
 DEFAULT_CONFIG = {
-    'default': {
-        'url': 'http://127.0.0.1:8000',
-        'version': '0.0',
-        'auth': {
-            'username': 'foo'
-        },
-        'insecure': False,
+    DEFAULT_PROFILE_NAME: {
+        'url': DEFAULT_URL,
+        'version': DEFAULT_VERSION,
+        'insecure': DEFAULT_INSECURE,
     }
 }
 
@@ -62,19 +58,16 @@ def _write_config(path, config):
         json.dump(config, fh, indent=2, sort_keys=True)
 
 
-def create_profile(url, version, insecure, username):
+def create_profile(url, version, insecure):
     """Create profile object."""
     return {
         'url': url,
         'version': version,
         'insecure': insecure,
-        'auth': {
-            'username': username,
-        },
     }
 
 
-def _add_profile(path, name, url, username, version, insecure):
+def _add_profile(path, name, url, version, insecure):
     """Add profile to config file on disk."""
     # read config file
     try:
@@ -83,7 +76,7 @@ def _add_profile(path, name, url, username, version, insecure):
         config = copy.deepcopy(DEFAULT_CONFIG)
 
     # create profile
-    profile = create_profile(url, version, insecure, username)
+    profile = create_profile(url, version, insecure)
 
     # update config file
     if name in config:
@@ -114,18 +107,16 @@ class Manager():
     def __init__(self, path=DEFAULT_PATH):
         self.path = path
 
-    def add_profile(self, name, username, password, url=DEFAULT_URL,
+    def add_profile(self, name, url=DEFAULT_URL,
                     version=DEFAULT_VERSION, insecure=False):
         """Add profile to config file on disk."""
         config = _add_profile(
             self.path,
             name,
             url,
-            username,
             version=version,
             insecure=insecure,
         )
-        keyring.set_password(name, username, password)
         return config[name]
 
     def load_profile(self, name):

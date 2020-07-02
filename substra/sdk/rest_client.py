@@ -14,7 +14,6 @@
 import logging
 import time
 
-import keyring
 import requests
 
 from substra.sdk import exceptions, assets, utils
@@ -29,12 +28,11 @@ class Client():
         self._headers = {}
         self._default_kwargs = {}
         self._base_url = None
-        self._auth = {}
 
         if config:
             self.set_config(config)
 
-    def login(self):
+    def login(self, username, password):
         # we do not use self._headers in order to avoid existing tokens to be sent alongside the
         # required Accept header
         if 'Accept' not in self._headers:
@@ -43,10 +41,14 @@ class Client():
         headers = {
             'Accept': self._headers['Accept'],
         }
+        data = {
+            'username': username,
+            'password': password,
+        }
 
         try:
             r = requests.post(f'{self._base_url}/api-token-auth/',
-                              data=self._auth,
+                              data=data,
                               headers=headers)
             r.raise_for_status()
         except requests.exceptions.ConnectionError as e:
@@ -84,22 +86,6 @@ class Client():
         self._headers = headers
         self._default_kwargs = kwargs
         self._base_url = config['url'][:-1] if config['url'].endswith('/') else config['url']
-
-        if not isinstance(config['auth'], dict):
-            raise exceptions.BadConfiguration('Your configuration is outdated, please update it.')
-
-        username = config['auth']['username']
-        password = keyring.get_password(profile_name, username)
-
-        if password is None:
-            raise exceptions.KeyringException(
-                'Fetching password error: Check your keyring installation'
-            )
-
-        self._auth = {
-            'username': username,
-            'password': password
-        }
 
     def __request(self, request_name, url, **request_kwargs):
         """Base request helper."""
