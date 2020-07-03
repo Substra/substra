@@ -121,7 +121,7 @@ class Remote(base.BaseBackend):
     def update_compute_plan(self, compute_plan_id, spec):
         return self._client.request(
             'post',
-            schemas.Type.ComputePlan,
+            schemas.Type.ComputePlan.to_server(),
             path=f"{compute_plan_id}/update_ledger/",
             json=spec.dict(),
         )
