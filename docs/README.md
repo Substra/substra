@@ -11,14 +11,7 @@ To help you implement your assets in Python, please have a look to the [Substra 
 
 ## Learning about the Substra platform
 
-- [Concepts](https://doc.substra.ai/platform_description/concepts.html)
-  - [Objective](https://doc.substra.ai/platform_description/concepts.html#objective)
-  - [Dataset](https://doc.substra.ai/platform_description/concepts.html#dataset)
-  - [Algo](https://doc.substra.ai/platform_description/concepts.html#algo)
-  - [Model](https://doc.substra.ai/platform_description/concepts.html#model)
-  - [Traintuple](https://doc.substra.ai/platform_description/concepts.html#traintuple)
-  - [Testtupule](https://doc.substra.ai/platform_description/concepts.html#testtuple)
-  - [Machine Learning tasks](https://doc.substra.ai/platform_description/concepts.html#machine-learning-tasks)
+You can find more about Substra concepts in this [dedicated section](https://doc.substra.ai/platform_description/concepts.html) (objective, dataset, algo, model, traintuple, testtuple and machine learning tasks, etc.).
 
 ## Running the platform locally
 
