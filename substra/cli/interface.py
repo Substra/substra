@@ -36,7 +36,7 @@ def get_client(global_conf):
         client = Client.from_config_file(
             config_path=global_conf.config,
             profile_name=global_conf.profile,
-            token=global_conf.user,
+            user_path=global_conf.user,
         )
 
     except FileNotFoundError:
