@@ -114,9 +114,9 @@ class Client(object):
     @classmethod
     def from_config_file(
         cls,
-        profile_name: str,
+        profile_name: typing.Optional[str] = None,
         config_path: typing.Union[str, pathlib.Path, None] = None,
-        user_path: str = None,
+        user_path: typing.Union[str, pathlib.Path, None] = None,
         token: typing.Optional[str] = None,
         retry_timeout: int = DEFAULT_RETRY_TIMEOUT,
         backend: str = 'remote',

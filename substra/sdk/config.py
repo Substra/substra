@@ -109,8 +109,6 @@ def _from_config_file(path, name):
 
 class Manager:
     def __init__(self, path=DEFAULT_PATH):
-        if not path:
-            path = DEFAULT_PATH
         self.path = path
 
     def add_profile(
@@ -120,7 +118,7 @@ class Manager:
         config = _add_profile(self.path, name, url, version=version, insecure=insecure,)
         return config[name]
 
-    def from_config_file(self, name):
+    def from_config_file(self, name=DEFAULT_PROFILE_NAME):
         """Load profile from config file on disk.
 
         Raises:
