@@ -64,6 +64,9 @@ class _Spec(pydantic.BaseModel, abc.ABC):
     class Meta:
         file_attributes = None
 
+    class Config:
+        extra = 'forbid'
+
     def is_many(self):
         return False
 
@@ -82,9 +85,15 @@ class Permissions(pydantic.BaseModel):
     public: bool
     authorized_ids: typing.List[str]
 
+    class Config:
+        extra = 'forbid'
+
 
 class PrivatePermissions(pydantic.BaseModel):
     authorized_ids: typing.List[str]
+
+    class Config:
+        extra = 'forbid'
 
 
 class DataSampleSpec(_Spec):
@@ -279,4 +288,4 @@ class ComputePlanSpec(_BaseComputePlanSpec):
 
 
 class UpdateComputePlanSpec(_BaseComputePlanSpec):
-    pass
+    compute_plan_id: str
