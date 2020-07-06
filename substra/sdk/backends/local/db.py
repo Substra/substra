@@ -54,7 +54,7 @@ class InMemoryDb:
             return self._data[type_][key]
         except KeyError:
             logger.error(f"{type_} with key '{key}' not found.")
-            raise exceptions.NotFound(f"Wrong pk {key}", 400)
+            raise exceptions.NotFound(f"Wrong pk {key}", 404)
 
     def list(self, type_):
         """"List assets."""
