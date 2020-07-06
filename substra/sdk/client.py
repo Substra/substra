@@ -1,13 +1,13 @@
 # Copyright 2018 Owkin, inc.
 #
-# Licensed under the Apache License, Version 2.0 (the 'License');
+# Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
 #      http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an 'AS IS' BASIS,
+# distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
@@ -142,9 +142,9 @@ class Client(object):
 
 ```
         {
-            'path': str,
-            'data_manager_keys': list[str],
-            'test_only': bool,
+            "path": str,
+            "data_manager_keys": list[str],
+            "test_only": bool,
         }
 ```
         The `path` in the data dictionary must point to a directory representing the
@@ -172,7 +172,7 @@ class Client(object):
         if not spec.path:
             raise ValueError("data: missing 'path' field")
         spec_options = {
-            'local': local,
+            "local": local,
         }
         return self._backend.add(spec, exist_ok=exist_ok, spec_options=spec_options)
 
@@ -184,9 +184,9 @@ class Client(object):
 
 ```
         {
-            'paths': list[str],
-            'data_manager_keys': list[str],
-            'test_only': bool,
+            "paths": list[str],
+            "data_manager_keys": list[str],
+            "test_only": bool,
         }
 ```
         Create multiple data samples through a single HTTP request.
@@ -209,7 +209,7 @@ class Client(object):
         if not spec.paths:
             raise ValueError("data: missing 'paths' field")
         spec_options = {
-            'local': local,
+            "local": local,
         }
         return self._backend.add(spec, exist_ok=False, spec_options=spec_options)
 
@@ -221,16 +221,16 @@ class Client(object):
 
 ```
         {
-            'name': str,
-            'description': str,
-            'type': str,
-            'data_opener': str,
-            'objective_key': str,
-            'permissions': {
-                'public': bool,
-                'authorized_ids': list[str],
+            "name": str,
+            "description": str,
+            "type": str,
+            "data_opener": str,
+            "objective_key": str,
+            "permissions": {
+                "public": bool,
+                "authorized_ids": list[str],
             },
-            'metadata': dict
+            "metadata": dict
         }
 ```
 
@@ -251,17 +251,17 @@ class Client(object):
 
 ```
         {
-            'name': str,
-            'description': str,
-            'metrics_name': str,
-            'metrics': str,
-            'test_data_manager_key': str,
-            'test_data_sample_keys': list[str],
-            'permissions': {
-                'public': bool,
-                'authorized_ids': list[str],
+            "name": str,
+            "description": str,
+            "metrics_name": str,
+            "metrics": str,
+            "test_data_manager_key": str,
+            "test_data_sample_keys": list[str],
+            "permissions": {
+                "public": bool,
+                "authorized_ids": list[str],
             },
-            'metadata': dict
+            "metadata": dict
         }
 ```
 
@@ -282,14 +282,14 @@ class Client(object):
 
 ```
         {
-            'name': str,
-            'description': str,
-            'file': str,
-            'permissions': {
-                'public': bool,
-                'authorized_ids': list[str],
+            "name": str,
+            "description": str,
+            "file": str,
+            "permissions": {
+                "public": bool,
+                "authorized_ids": list[str],
             },
-            'metadata': dict
+            "metadata": dict
         }
 ```
 
@@ -308,14 +308,14 @@ class Client(object):
         `data` is a dict object with the following schema:
 ```
         {
-            'name': str,
-            'description': str,
-            'file': str,
-            'permissions': {
-                'public': bool,
-                'authorizedIDs': list[str],
+            "name": str,
+            "description": str,
+            "file": str,
+            "permissions": {
+                "public": bool,
+                "authorizedIDs": list[str],
             },
-            'metadata': dict
+            "metadata": dict
         }
 ```
         If an aggregate algo with the same archive file already exists, an `AlreadyExists`
@@ -333,14 +333,14 @@ class Client(object):
         `data` is a dict object with the following schema:
 ```
         {
-            'name': str,
-            'description': str,
-            'file': str,
-            'permissions': {
-                'public': bool,
-                'authorized_ids': list[str],
+            "name": str,
+            "description": str,
+            "file": str,
+            "permissions": {
+                "public": bool,
+                "authorized_ids": list[str],
             },
-            'metadata': dict
+            "metadata": dict
         }
 ```
         If a composite algo with the same archive file already exists, an `AlreadyExists` exception
@@ -360,14 +360,14 @@ class Client(object):
 
 ```
         {
-            'algo_key': str,
-            'data_manager_key': str,
-            'train_data_sample_keys': list[str],
-            'in_models_keys': list[str],
-            'tag': str,
-            'metadata': dict,
-            'rank': int,
-            'compute_plan_id': str,
+            "algo_key": str,
+            "data_manager_key": str,
+            "train_data_sample_keys": list[str],
+            "in_models_keys": list[str],
+            "tag": str,
+            "metadata": dict,
+            "rank": int,
+            "compute_plan_id": str,
         }
 ```
         An `AlreadyExists` exception will be raised if a traintuple already exists that:
@@ -386,13 +386,13 @@ class Client(object):
         `data` is a dict object with the following schema:
 ```
         {
-            'algo_key': str,
-            'in_models_keys': list[str],
-            'tag': str,
-            'metadata': dict,
-            'compute_plan_id': str,
-            'rank': int,
-            'worker': str,
+            "algo_key": str,
+            "in_models_keys": list[str],
+            "tag": str,
+            "metadata": dict,
+            "compute_plan_id": str,
+            "rank": int,
+            "worker": str,
         }
 ```
         An `AlreadyExists` exception will be raised if an aggregatetuple already exists that:
@@ -411,17 +411,17 @@ class Client(object):
         `data` is a dict object with the following schema:
 ```
         {
-            'algo_key': str,
-            'data_manager_key': str,
-            'in_head_model_key': str,
-            'in_trunk_model_key': str,
-            'out_trunk_model_permissions': {
-                'authorized_ids': list[str],
+            "algo_key": str,
+            "data_manager_key": str,
+            "in_head_model_key": str,
+            "in_trunk_model_key": str,
+            "out_trunk_model_permissions": {
+                "authorized_ids": list[str],
             },
-            'tag': str,
-            'metadata': dict,
-            'rank': int,
-            'compute_plan_id': str,
+            "tag": str,
+            "metadata": dict,
+            "rank": int,
+            "compute_plan_id": str,
         }
 ```
 
@@ -447,12 +447,12 @@ class Client(object):
 
 ```
         {
-            'objective_key': str,
-            'data_manager_key': str,
-            'traintuple_key': str,
-            'test_data_sample_keys': list[str],
-            'tag': str,
-            'metadata': dict
+            "objective_key": str,
+            "data_manager_key": str,
+            "traintuple_key": str,
+            "test_data_sample_keys": list[str],
+            "tag": str,
+            "metadata": dict
         }
 ```
 
