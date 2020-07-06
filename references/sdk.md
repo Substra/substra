@@ -24,9 +24,9 @@ Create new data sample asset.
 
 ```
 {
-    'path': str,
-    'data_manager_keys': list[str],
-    'test_only': bool,
+    "path": str,
+    "data_manager_keys": list[str],
+    "test_only": bool,
 }
 ```
 The `path` in the data dictionary must point to a directory representing the
@@ -58,9 +58,9 @@ Create many data sample assets.
 
 ```
 {
-    'paths': list[str],
-    'data_manager_keys': list[str],
-    'test_only': bool,
+    "paths": list[str],
+    "data_manager_keys": list[str],
+    "test_only": bool,
 }
 ```
 Create multiple data samples through a single HTTP request.
@@ -87,16 +87,16 @@ Create new dataset asset.
 
 ```
 {
-    'name': str,
-    'description': str,
-    'type': str,
-    'data_opener': str,
-    'objective_key': str,
-    'permissions': {
-        'public': bool,
-        'authorized_ids': list[str],
+    "name": str,
+    "description": str,
+    "type": str,
+    "data_opener": str,
+    "objective_key": str,
+    "permissions": {
+        "public": bool,
+        "authorized_ids": list[str],
     },
-    'metadata': dict
+    "metadata": dict
 }
 ```
 
@@ -116,17 +116,17 @@ Create new objective asset.
 
 ```
 {
-    'name': str,
-    'description': str,
-    'metrics_name': str,
-    'metrics': str,
-    'test_data_manager_key': str,
-    'test_data_sample_keys': list[str],
-    'permissions': {
-        'public': bool,
-        'authorized_ids': list[str],
+    "name": str,
+    "description": str,
+    "metrics_name": str,
+    "metrics": str,
+    "test_data_manager_key": str,
+    "test_data_sample_keys": list[str],
+    "permissions": {
+        "public": bool,
+        "authorized_ids": list[str],
     },
-    'metadata': dict
+    "metadata": dict
 }
 ```
 
@@ -146,14 +146,14 @@ Create new algo asset.
 
 ```
 {
-    'name': str,
-    'description': str,
-    'file': str,
-    'permissions': {
-        'public': bool,
-        'authorized_ids': list[str],
+    "name": str,
+    "description": str,
+    "file": str,
+    "permissions": {
+        "public": bool,
+        "authorized_ids": list[str],
     },
-    'metadata': dict
+    "metadata": dict
 }
 ```
 
@@ -171,14 +171,14 @@ Create new aggregate algo asset.
 `data` is a dict object with the following schema:
 ```
 {
-    'name': str,
-    'description': str,
-    'file': str,
-    'permissions': {
-        'public': bool,
-        'authorizedIDs': list[str],
+    "name": str,
+    "description": str,
+    "file": str,
+    "permissions": {
+        "public": bool,
+        "authorizedIDs": list[str],
     },
-    'metadata': dict
+    "metadata": dict
 }
 ```
 If an aggregate algo with the same archive file already exists, an `AlreadyExists`
@@ -195,14 +195,14 @@ Create new composite algo asset.
 `data` is a dict object with the following schema:
 ```
 {
-    'name': str,
-    'description': str,
-    'file': str,
-    'permissions': {
-        'public': bool,
-        'authorized_ids': list[str],
+    "name": str,
+    "description": str,
+    "file": str,
+    "permissions": {
+        "public": bool,
+        "authorized_ids": list[str],
     },
-    'metadata': dict
+    "metadata": dict
 }
 ```
 If a composite algo with the same archive file already exists, an `AlreadyExists` exception
@@ -221,14 +221,14 @@ Create new traintuple asset.
 
 ```
 {
-    'algo_key': str,
-    'data_manager_key': str,
-    'train_data_sample_keys': list[str],
-    'in_models_keys': list[str],
-    'tag': str,
-    'metadata': dict,
-    'rank': int,
-    'compute_plan_id': str,
+    "algo_key": str,
+    "data_manager_key": str,
+    "train_data_sample_keys": list[str],
+    "in_models_keys": list[str],
+    "tag": str,
+    "metadata": dict,
+    "rank": int,
+    "compute_plan_id": str,
 }
 ```
 An `AlreadyExists` exception will be raised if a traintuple already exists that:
@@ -246,13 +246,13 @@ Create new aggregatetuple asset.
 `data` is a dict object with the following schema:
 ```
 {
-    'algo_key': str,
-    'in_models_keys': list[str],
-    'tag': str,
-    'metadata': dict,
-    'compute_plan_id': str,
-    'rank': int,
-    'worker': str,
+    "algo_key": str,
+    "in_models_keys": list[str],
+    "tag": str,
+    "metadata": dict,
+    "compute_plan_id": str,
+    "rank": int,
+    "worker": str,
 }
 ```
 An `AlreadyExists` exception will be raised if an aggregatetuple already exists that:
@@ -270,17 +270,17 @@ Create new composite traintuple asset.
 `data` is a dict object with the following schema:
 ```
 {
-    'algo_key': str,
-    'data_manager_key': str,
-    'in_head_model_key': str,
-    'in_trunk_model_key': str,
-    'out_trunk_model_permissions': {
-        'authorized_ids': list[str],
+    "algo_key": str,
+    "data_manager_key": str,
+    "in_head_model_key": str,
+    "in_trunk_model_key": str,
+    "out_trunk_model_permissions": {
+        "authorized_ids": list[str],
     },
-    'tag': str,
-    'metadata': dict,
-    'rank': int,
-    'compute_plan_id': str,
+    "tag": str,
+    "metadata": dict,
+    "rank": int,
+    "compute_plan_id": str,
 }
 ```
 
@@ -305,12 +305,12 @@ Create new testtuple asset.
 
 ```
 {
-    'objective_key': str,
-    'data_manager_key': str,
-    'traintuple_key': str,
-    'test_data_sample_keys': list[str],
-    'tag': str,
-    'metadata': dict
+    "objective_key": str,
+    "data_manager_key": str,
+    "traintuple_key": str,
+    "test_data_sample_keys": list[str],
+    "tag": str,
+    "metadata": dict
 }
 ```
 
