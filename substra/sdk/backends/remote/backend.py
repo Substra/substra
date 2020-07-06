@@ -115,6 +115,9 @@ class Remote(base.BaseBackend):
         # The backend has inconsistent API responses when getting or adding an asset
         # (with much less data when responding to adds).
         # A second GET request hides the discrepancies.
+        if asset_type == schemas.Type.ComputePlan:
+            return response
+
         key = _get_asset_key(response)
         return self.get(asset_type, key)
 
@@ -123,7 +126,7 @@ class Remote(base.BaseBackend):
             'post',
             schemas.Type.ComputePlan.to_server(),
             path=f"{compute_plan_id}/update_ledger/",
-            json=spec.dict(),
+            json=spec.dict(exclude_none=True),
         )
 
     def link_dataset_with_objective(self, dataset_key, objective_key):
