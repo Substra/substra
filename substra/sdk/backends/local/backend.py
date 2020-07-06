@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import functools
 import shutil
 import uuid
 
@@ -222,16 +221,14 @@ class Local(base.BaseBackend):
         aggregatetuple_keys=None,
         testtuple_keys=None,
     ):
-        tuple_count = functools.reduce(
-            lambda x, y: x + (len(y) if y else 0),
-            [
+        tuple_count = sum([
+            (len(x) if x else 0) for x in [
                 traintuple_keys,
                 composite_traintuple_keys,
                 aggregatetuple_keys,
                 testtuple_keys,
-            ],
-            0,
-        )
+            ]
+        ])
         compute_plan = models.ComputePlan(
             compute_plan_id=uuid.uuid4().hex,
             status=models.Status.waiting.value,
