@@ -60,7 +60,7 @@ def objective_query(tmpdir):
         "metrics": str(metrics_path),
         "metrics_name": "name of the metrics",
         "description": str(desc_path),
-        "test_data_keys": [],
+        "test_data_manager_key": None,
         "test_data_sample_keys": [],
         "permissions": {"public": True, "authorized_ids": [], },
     }

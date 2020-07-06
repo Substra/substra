@@ -288,4 +288,4 @@ class ComputePlanSpec(_BaseComputePlanSpec):
 
 
 class UpdateComputePlanSpec(_BaseComputePlanSpec):
-    compute_plan_id: str
+    pass
