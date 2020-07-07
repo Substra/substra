@@ -308,21 +308,19 @@ def extract_archive_if_needed(path):
             yield tmp_dir
 
 
-def _compute(
-    algo_path,
-    train_opener_file,
-    test_opener_file,
-    metrics_path,
-    train_data_path,
-    test_data_path,
-    fake_data_samples,
-    n_fake_samples,
-    rank,
-    inmodels,
-    outmodel_path='model',
-    compute_path='./sandbox',
-    local_path='local',
-):
+def _compute(algo_path,
+             train_opener_file,
+             test_opener_file,
+             metrics_path,
+             train_data_path,
+             test_data_path,
+             fake_data_samples,
+             n_fake_samples,
+             rank,
+             inmodels,
+             outmodel_path='model',
+             compute_path='./sandbox',
+             local_path='local'):
 
     # assets absolute paths
     algo_path = _get_abspath(algo_path)
@@ -345,77 +343,67 @@ def _compute(
 
     docker_client = docker.from_env()
 
-    compute_train(
-        docker_client,
-        train_data_path,
-        algo_path,
-        fake_data_samples,
-        n_fake_samples,
-        outmodel_path,
-        local_path,
-        train_opener_file,
-        rank,
-        inmodels,
-        outmodel_file,
-    )
+    compute_train(docker_client,
+                  train_data_path,
+                  algo_path,
+                  fake_data_samples,
+                  n_fake_samples,
+                  outmodel_path,
+                  local_path,
+                  train_opener_file,
+                  rank,
+                  inmodels,
+                  outmodel_file)
 
     print(f'Successfully train model {outmodel_file}')
 
-    compute_test(
-        docker_client,
-        algo_path,
-        test_data_path,
-        test_pred_path,
-        outmodel_path,
-        test_opener_file,
-        fake_data_samples,
-        n_fake_samples,
-        metrics_path,
-    )
+    compute_test(docker_client,
+                 algo_path,
+                 test_data_path,
+                 test_pred_path,
+                 outmodel_path,
+                 test_opener_file,
+                 fake_data_samples,
+                 n_fake_samples,
+                 metrics_path)
 
     print(f'Evaluating performance - compute metric with {test_pred_path} '
           f'predictions against {test_data_path or "fake"} labels')
-    test_perf = compute_perf(
-        pred_path=test_pred_path,
-        opener_file=test_opener_file,
-        fake_data_samples=fake_data_samples,
-        n_fake_samples=n_fake_samples,
-        data_path=test_data_path,
-        docker_client=docker_client,
-    )
+    test_perf = compute_perf(pred_path=test_pred_path,
+                             opener_file=test_opener_file,
+                             fake_data_samples=fake_data_samples,
+                             n_fake_samples=n_fake_samples,
+                             data_path=test_data_path,
+                             docker_client=docker_client)
     print(f'Successfully test model {outmodel_file} with a score of {test_perf} on test data')
 
 
-def compute(
-    algo_path,
-    train_opener_file,
-    test_opener_file,
-    metrics_path,
-    train_data_path,
-    test_data_path,
-    fake_data_samples,
-    rank,
-    inmodels,
-    n_fake_samples=None,
-    outmodel_path='model',
-    compute_path='./sandbox',
-    local_path='local',
-):
-
-    with extract_archive_if_needed(algo_path) as algo_path, \
-            extract_archive_if_needed(metrics_path) as metrics_path:
-        _compute(
-            algo_path,
+def compute(algo_path,
             train_opener_file,
             test_opener_file,
             metrics_path,
             train_data_path,
             test_data_path,
             fake_data_samples,
-            n_fake_samples,
             rank,
             inmodels,
-            outmodel_path,
-            compute_path,
-            local_path,
-        )
+            n_fake_samples=None,
+            outmodel_path='model',
+            compute_path='./sandbox',
+            local_path='local'):
+
+    with extract_archive_if_needed(algo_path) as algo_path, \
+            extract_archive_if_needed(metrics_path) as metrics_path:
+        _compute(algo_path,
+                 train_opener_file,
+                 test_opener_file,
+                 metrics_path,
+                 train_data_path,
+                 test_data_path,
+                 fake_data_samples,
+                 n_fake_samples,
+                 rank,
+                 inmodels,
+                 outmodel_path,
+                 compute_path,
+                 local_path)
