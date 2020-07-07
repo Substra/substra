@@ -134,7 +134,7 @@ def _escape_filter(f):
     if f == 'OR':
         return '-OR-'
 
-    # handle filter value that contains ':'
+    # handle filter value that contains ":"
     try:
         asset, field, *value = f.split(':')
     except ValueError:
@@ -159,7 +159,6 @@ def parse_filters(filters):
 
 def retry_on_exception(exceptions, timeout=300):
     """Retry function in case of exception(s)."""
-
     def _retry(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
@@ -174,12 +173,12 @@ def retry_on_exception(exceptions, timeout=300):
                 except exceptions:
                     if timeout is not False and time.time() - tstart > timeout:
                         raise
-                    logging.warning(f'Function {f.__name__} failed: retrying in {delay}s')
+                    logging.warning(
+                        f'Function {f.__name__} failed: retrying in {delay}s')
                     time.sleep(delay)
                     delay *= backoff
 
         return wrapper
-
     return _retry
 
 
@@ -188,7 +187,7 @@ def response_get_destination_filename(response):
     disposition = response.headers.get('content-disposition')
     if not disposition:
         return None
-    filenames = re.findall('filename=(.+)', disposition)
+    filenames = re.findall("filename=(.+)", disposition)
     if not filenames:
         return None
     filename = filenames[0]
