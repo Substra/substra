@@ -579,11 +579,15 @@ class Local(base.BaseBackend):
                 for in_traintuple in in_traintuples
             ],
             metadata=spec.metadata if spec.metadata else dict(),
+            fake_data=spec.fake_data,
+            n_fake_samples=spec.n_fake_samples,
             **options,
         )
 
         traintuple = self._db.add(traintuple, exist_ok)
-        self._worker.schedule_traintuple(traintuple)
+        if traintuple.status == models.Status.waiting:
+            # Do not schedule again if already exists and has been executed
+            self._worker.schedule_traintuple(traintuple)
         return traintuple
 
     def _add_testtuple(self, spec, exist_ok, spec_options=None):
@@ -679,10 +683,14 @@ class Local(base.BaseBackend):
             rank=traintuple.rank,
             compute_plan_id=traintuple.compute_plan_id,
             metadata=spec.metadata if spec.metadata else dict(),
+            fake_data=spec.fake_data,
+            n_fake_samples=spec.n_fake_samples,
             **options,
         )
         testtuple = self._db.add(testtuple, exist_ok)
-        self._worker.schedule_testtuple(testtuple, traintuple_type)
+        if testtuple.status == models.Status.waiting:
+            # Do not execute again if it was already in the db
+            self._worker.schedule_testtuple(testtuple, traintuple_type)
         return testtuple
 
     def _add_composite_traintuple(
@@ -787,7 +795,9 @@ class Local(base.BaseBackend):
                 },
                 "out_model": None
             },
-            metadata=spec.metadata or dict()
+            metadata=spec.metadata or dict(),
+            fake_data=spec.fake_data,
+            n_fake_samples=spec.n_fake_samples,
         )
         composite_traintuple = self._db.add(composite_traintuple, exist_ok)
         if composite_traintuple.status == models.Status.waiting:

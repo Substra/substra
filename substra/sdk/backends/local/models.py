@@ -236,6 +236,8 @@ class Traintuple(_Model):
     in_models: List[InModel]
     out_model: Optional[OutModel]
     metadata: Dict[str, str]
+    fake_data: bool
+    n_fake_samples: Optional[int]
 
     type_: ClassVar[str] = schemas.Type.Traintuple
     algo_type: ClassVar[schemas.Type] = schemas.Type.Algo
@@ -291,6 +293,8 @@ class CompositeTraintuple(_Model):
     out_head_model: OutCompositeModel
     out_trunk_model: OutCompositeModel
     metadata: Dict[str, str]
+    fake_data: bool
+    n_fake_samples: Optional[int]
 
     type_: ClassVar[str] = schemas.Type.CompositeTraintuple
     algo_type: ClassVar[schemas.Type] = schemas.Type.CompositeAlgo
@@ -324,6 +328,8 @@ class Testtuple(_Model):
     compute_plan_id: str
     rank: int
     metadata: Dict[str, str]
+    fake_data: bool
+    n_fake_samples: Optional[int]
 
     type_: ClassVar[str] = schemas.Type.Testtuple
 

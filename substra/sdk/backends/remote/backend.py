@@ -102,6 +102,12 @@ class Remote(base.BaseBackend):
         spec_options = spec_options or {}
         asset_type = spec.__class__.type_
 
+        if getattr(spec, "fake_data", None):
+            raise exceptions.InvalidRequest(
+                "This backend does not support execution on fake data.",
+                400
+            )
+
         if asset_type == schemas.Type.DataSample:
             # data sample corner case
             return self._add_data_samples(

@@ -368,6 +368,8 @@ class Client(object):
             "metadata": dict,
             "rank": int,
             "compute_plan_id": str,
+            "fake_data": bool,
+            "n_fake_samples": int,
         }
 ```
         An `AlreadyExists` exception will be raised if a traintuple already exists that:
@@ -376,6 +378,10 @@ class Client(object):
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
+
+        If `fake_data` is true and the backend is local, the traintuple runs on fake data.
+        If `fake_data` is true and `n_fake_samples` is set, the traintuple
+        runs on n samples of fake data.
         """
         spec = self._get_spec(schemas.TraintupleSpec, data)
         return self._backend.add(spec, exist_ok=exist_ok)
@@ -422,6 +428,8 @@ class Client(object):
             "metadata": dict,
             "rank": int,
             "compute_plan_id": str,
+            "fake_data": bool,
+            "n_fake_samples": int,
         }
 ```
 
@@ -435,6 +443,10 @@ class Client(object):
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
+
+        If `fake_data` is true and the backend is local, the composite traintuple runs on fake data.
+        If `fake_data` is true and `n_fake_samples` is set, the composite
+        traintuple runs on n samples of fake data.
         """
         spec = self._get_spec(schemas.CompositeTraintupleSpec, data)
         return self._backend.add(spec, exist_ok=exist_ok)
@@ -453,6 +465,8 @@ class Client(object):
             "test_data_sample_keys": list[str],
             "tag": str,
             "metadata": dict
+            "fake_data": bool,
+            "n_fake_samples": int,
         }
 ```
 
@@ -463,6 +477,10 @@ class Client(object):
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
+
+        If `fake_data` is true and the backend is local, the testtuple runs on fake data.
+        If `fake_data` is true and `n_fake_samples` is set, the
+        testtuple runs on n samples of fake data.
         """
         spec = self._get_spec(schemas.TesttupleSpec, data)
         return self._backend.add(spec, exist_ok=exist_ok)
@@ -482,6 +500,8 @@ class Client(object):
                 "in_models_ids": list[str],
                 "tag": str,
                 "metadata": dict,
+                "fake_data": bool,
+                "n_fake_samples": int,
             }],
             "composite_traintuples": list[{
                 "composite_traintuple_id": str,
@@ -495,6 +515,8 @@ class Client(object):
                 },
                 "tag": str,
                 "metadata": dict,
+                "fake_data": bool,
+                "n_fake_samples": int,
             }]
             "aggregatetuples": list[{
                 "aggregatetuple_id": str,
@@ -511,6 +533,8 @@ class Client(object):
                 "traintuple_id": str,
                 "tag": str,
                 "metadata": dict,
+                "fake_data": bool,
+                "n_fake_samples": int,
             }],
             "clean_models": bool,
             "tag": str,

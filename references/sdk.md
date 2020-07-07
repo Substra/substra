@@ -213,7 +213,7 @@ existing asset will be returned.
 
 ## add_traintuple
 ```python
-Client.add_traintuple(self, data, exist_ok=False)
+Client.add_traintuple(self, data, exist_ok=False, fake_data=False, n_fake_samples=None)
 ```
 Create new traintuple asset.
 
@@ -238,9 +238,13 @@ An `AlreadyExists` exception will be raised if a traintuple already exists that:
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
+If `fake_data` is true and the backend is local, the traintuple runs on fake data.
+If `fake_data` is true and `n_fake_samples` is set, the traintuple
+runs on n samples of fake data.
+
 ## add_aggregatetuple
 ```python
-Client.add_aggregatetuple(self, data, exist_ok=False)
+Client.add_aggregatetuple(self, data, exist_ok=False, fake_data=False, n_fake_samples=None)
 ```
 Create new aggregatetuple asset.
 `data` is a dict object with the following schema:
@@ -262,9 +266,13 @@ An `AlreadyExists` exception will be raised if an aggregatetuple already exists 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
+If `fake_data` is true and the backend is local, the aggregatetuple runs on fake data.
+If `fake_data` is true and `n_fake_samples` is set, the aggregatetuple runs
+on n samples of fake data.
+
 ## add_composite_traintuple
 ```python
-Client.add_composite_traintuple(self, data, exist_ok=False)
+Client.add_composite_traintuple(self, data, exist_ok=False, fake_data=False, n_fake_samples=None)
 ```
 Create new composite traintuple asset.
 `data` is a dict object with the following schema:
@@ -295,9 +303,13 @@ An `AlreadyExists` exception will be raised if a traintuple already exists that:
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
+If `fake_data` is true and the backend is local, the composite traintuple runs on fake data.
+If `fake_data` is true and `n_fake_samples` is set, the composite
+traintuple runs on n samples of fake data.
+
 ## add_testtuple
 ```python
-Client.add_testtuple(self, data, exist_ok=False)
+Client.add_testtuple(self, data, exist_ok=False, fake_data=False, n_fake_samples=None)
 ```
 Create new testtuple asset.
 
@@ -321,6 +333,10 @@ An `AlreadyExists` exception will be raised if a testtuple already exists that:
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
+
+If `fake_data` is true and the backend is local, the testtuple runs on fake data.
+If `fake_data` is true and `n_fake_samples` is set, the
+testtuple runs on n samples of fake data.
 
 ## add_compute_plan
 ```python

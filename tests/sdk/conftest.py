@@ -15,6 +15,7 @@
 import pytest
 
 import substra
+from . import factory
 
 
 def pytest_configure(config):
@@ -113,3 +114,47 @@ def data_samples_query(tmpdir):
         "data_manager_keys": ["42"],
         "test_only": False,
     }
+
+
+@pytest.fixture
+def local_backend_client():
+    return substra.Client(backend="local")
+
+
+@pytest.fixture
+def asset_factory():
+    return factory.AssetsFactory("test_local")
+
+
+@pytest.fixture
+def local_backend_data(local_backend_client, asset_factory):
+
+    default_dataset_dict = asset_factory.create_dataset()
+    default_dataset = local_backend_client.add_dataset(default_dataset_dict)
+
+    # create train data samples
+    for _ in range(4):
+        spec = asset_factory.create_data_sample(
+            datasets=[default_dataset], test_only=False
+        )
+        local_backend_client.add_data_sample(spec)
+
+    # create test data sample
+    spec = asset_factory.create_data_sample(datasets=[default_dataset], test_only=True)
+    test_data_sample = local_backend_client.add_data_sample(spec)
+
+    # update default dataset with the one in the db that has all the samples
+    default_dataset = local_backend_client.get_dataset(key=default_dataset["key"])
+
+    default_objective_dict = asset_factory.create_objective(
+        dataset=default_dataset, data_samples=[test_data_sample]
+    )
+    default_objective = local_backend_client.add_objective(default_objective_dict)
+
+    return default_dataset, default_objective
+
+
+@pytest.fixture
+def local_backend_algo(local_backend_client, asset_factory):
+    spec = asset_factory.create_algo()
+    return local_backend_client.add_algo(spec)

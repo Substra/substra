@@ -18,7 +18,7 @@ import pathlib
 import shutil
 
 from substra.sdk import schemas
-from substra.runner import METRICS_NO_FAKE_Y, DOCKER_METRICS_TAG
+from substra.runner import METRICS_NO_FAKE_Y, DOCKER_METRICS_TAG, METRICS_FAKE_Y
 from substra.sdk.backends.local import db
 from substra.sdk.backends.local import models
 from substra.sdk.backends.local import fs
@@ -118,7 +118,7 @@ class Worker:
             # delete tuple working directory
             shutil.rmtree(tmp_dir, ignore_errors=True)
 
-    def schedule_traintuple(self, tuple_):
+    def schedule_traintuple(self, tuple_: models.Traintuple):
         """Schedules a ML task (blocking)."""
         with self._context(tuple_.key) as tuple_dir:
             tuple_.status = models.Status.doing
@@ -183,6 +183,10 @@ class Worker:
 
             # compute command
             command += f" --rank {tuple_.rank}"
+            if tuple_.fake_data:
+                command += " --fake-data"
+                if tuple_.n_fake_samples:
+                    command += f" --n-fake-samples {tuple_.n_fake_samples}"
 
             # Add the in_models to the command
             if isinstance(tuple_, models.CompositeTraintuple):
@@ -227,7 +231,10 @@ class Worker:
                 if compute_plan.done_count == compute_plan.tuple_count:
                     compute_plan.status = models.Status.done
 
-    def schedule_testtuple(self, tuple_, traintuple_type):
+    def schedule_testtuple(self,
+                           tuple_: models.Testtuple,
+                           traintuple_type,
+                           ):
         """Schedules a ML task (blocking)."""
         with self._context(tuple_.key) as tuple_dir:
             tuple_.status = models.Status.doing
@@ -264,6 +271,11 @@ class Worker:
 
             # compute testtuple command
             command = "predict"
+            if tuple_.fake_data:
+                command += " --fake-data"
+                if tuple_.n_fake_samples:
+                    command += f" --n-fake-samples {tuple_.n_fake_samples}"
+
             if traintuple_type == schemas.Type.Traintuple \
                     or traintuple_type == schemas.Type.Aggregatetuple:
 
@@ -306,7 +318,12 @@ class Worker:
                 data_volume: _VOLUME_INPUT_DATASAMPLES,
             }
 
-            command = f"--fake-data-mode {METRICS_NO_FAKE_Y}"
+            if tuple_.fake_data:
+                command = f"--fake-data-mode {METRICS_FAKE_Y}"
+                if tuple_.n_fake_samples:
+                    command += f" --n-fake-samples {tuple_.n_fake_samples}"
+            else:
+                command = f"--fake-data-mode {METRICS_NO_FAKE_Y}"
 
             container_name = DOCKER_METRICS_TAG
             logs_predict = self._spawner.spawn(

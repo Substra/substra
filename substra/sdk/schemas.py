@@ -138,6 +138,8 @@ class ComputePlanTraintupleSpec(_Spec):
     in_models_ids: Optional[List[str]]
     tag: Optional[str]
     metadata: Optional[Dict[str, str]]
+    fake_data: bool = False
+    n_fake_samples: Optional[int] = None
 
 
 class ComputePlanAggregatetupleSpec(_Spec):
@@ -159,6 +161,8 @@ class ComputePlanCompositeTraintupleSpec(_Spec):
     tag: Optional[str]
     out_trunk_model_permissions: Permissions
     metadata: Optional[Dict[str, str]]
+    fake_data: bool = False
+    n_fake_samples: Optional[int] = None
 
 
 class ComputePlanTesttupleSpec(_Spec):
@@ -168,6 +172,8 @@ class ComputePlanTesttupleSpec(_Spec):
     data_manager_key: Optional[str]
     test_data_sample_keys: Optional[List[str]]
     metadata: Optional[Dict[str, str]]
+    fake_data: bool = False
+    n_fake_samples: Optional[int] = None
 
 
 class _BaseComputePlanSpec(_Spec, abc.ABC):
@@ -252,6 +258,8 @@ class TraintupleSpec(_Spec):
     compute_plan_id: Optional[str]
     rank: Optional[int]
     metadata: Optional[Dict[str, str]]
+    fake_data: bool = False
+    n_fake_samples: Optional[int] = None
 
     compute_plan_attr_name: typing.ClassVar[str] = "traintuple_keys"
     algo_type: typing.ClassVar[Type] = Type.Algo
@@ -325,6 +333,8 @@ class CompositeTraintupleSpec(_Spec):
     out_trunk_model_permissions: PrivatePermissions
     rank: Optional[int]
     metadata: Optional[Dict[str, str]]
+    fake_data: bool = False
+    n_fake_samples: Optional[int] = None
 
     compute_plan_attr_name: typing.ClassVar[str] = "composite_traintuple_keys"
     type_: typing.ClassVar[Type] = Type.CompositeTraintuple
@@ -362,6 +372,8 @@ class TesttupleSpec(_Spec):
     data_manager_key: Optional[str]
     test_data_sample_keys: Optional[List[str]]
     metadata: Optional[Dict[str, str]]
+    fake_data: bool = False
+    n_fake_samples: Optional[int] = None
 
     type_: typing.ClassVar[Type] = Type.Testtuple
 
@@ -378,4 +390,6 @@ class TesttupleSpec(_Spec):
             data_manager_key=spec.data_manager_key,
             test_data_sample_keys=spec.test_data_sample_keys,
             metadata=spec.metadata,
+            fake_data=spec.fake_data,
+            n_fake_samples=spec.n_fake_samples
         )
