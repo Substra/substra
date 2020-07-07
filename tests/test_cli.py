@@ -338,7 +338,7 @@ def test_command_leaderboard(workdir, mocker):
 
 
 def test_command_update_dataset(workdir, mocker):
-    m = mock_client_call(mocker, 'update_dataset')
+    m = mock_client_call(mocker, 'link_dataset_with_objective')
     client_execute(workdir, ['update', 'dataset', 'key1', 'key2'])
     m.assert_called()
 

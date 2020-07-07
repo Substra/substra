@@ -14,6 +14,8 @@
 import pytest
 import substra
 
+import pydantic
+
 from .. import datastore
 from .utils import mock_requests
 
@@ -32,7 +34,7 @@ def test_add_dataset_invalid_args(client, dataset_query, mocker):
     mock_requests(mocker, "post", response=datastore.DATASET)
     del dataset_query['data_opener']
 
-    with pytest.raises(substra.sdk.exceptions.LoadDataException):
+    with pytest.raises(pydantic.error_wrappers.ValidationError):
         client.add_dataset(dataset_query)
 
 
