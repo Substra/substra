@@ -33,7 +33,11 @@ def get_client(global_conf):
     help_command = "substra config <url> ..."
 
     try:
-        client = Client(global_conf.config, global_conf.profile, global_conf.user)
+        client = Client.from_config_file(
+            config_path=global_conf.config,
+            profile_name=global_conf.profile,
+            user_path=global_conf.user,
+        )
 
     except FileNotFoundError:
         raise click.ClickException(

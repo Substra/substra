@@ -16,7 +16,7 @@ import time
 
 import requests
 
-from substra.sdk import exceptions, assets, utils
+from substra.sdk import exceptions, utils
 
 logger = logging.getLogger(__name__)
 
@@ -24,13 +24,17 @@ logger = logging.getLogger(__name__)
 class Client():
     """REST Client to communicate with Substra server."""
 
-    def __init__(self, config=None):
-        self._headers = {}
-        self._default_kwargs = {}
-        self._base_url = None
-
-        if config:
-            self.set_config(config)
+    def __init__(self, url, version, insecure, token):
+        self._default_kwargs = {
+            'verify': not insecure,
+        }
+        self._headers = {
+            'Authorization': f"Token {token}",
+            'Accept': f'application/json;version={version}',
+        }
+        if not url:
+            raise exceptions.SDKException("url required to connect to the Substra server")
+        self._base_url = url[:-1] if url.endswith('/') else url
 
     def login(self, username, password):
         # we do not use self._headers in order to avoid existing tokens to be sent alongside the
@@ -62,30 +66,12 @@ class Client():
                 raise exceptions.BadLoginException.from_request_exception(e)
 
             raise exceptions.HTTPError.from_request_exception(e)
-        else:
-            return r
 
-    def set_config(self, config, profile_name='default'):
-        """Reset internal attributes from config."""
-        # get default requests keyword arguments from config
-        kwargs = {}
+        token = r.json()['token']
 
-        if config['insecure']:
-            kwargs['verify'] = False
+        self._headers['Authorization'] = f"Token {token}"
 
-        # get default HTTP headers from config
-        headers = {
-            'Accept': 'application/json;version={}'.format(config['version']),
-        }
-
-        if 'token' in config:
-            headers.update({
-                'Authorization': f"Token {config['token']}"
-            })
-
-        self._headers = headers
-        self._default_kwargs = kwargs
-        self._base_url = config['url'][:-1] if config['url'].endswith('/') else config['url']
+        return token
 
     def __request(self, request_name, url, **request_kwargs):
         """Base request helper."""
@@ -168,7 +154,7 @@ class Client():
         """Base request."""
 
         path = path or ''
-        url = f"{self._base_url}/{assets.to_server_name(asset_name)}/{path}"
+        url = f"{self._base_url}/{asset_name}/{path}"
         if not url.endswith("/"):
             url = url + "/"  # server requires a suffix /
 
@@ -226,7 +212,7 @@ class Client():
             if not exist_ok:
                 raise
 
-            key = e.pkhash
+            key = e.pkhash or e.computePlanID
             is_many = isinstance(key, list)
             if is_many:
                 logger.warning("Many assets not compatible with 'exist_ok' option")

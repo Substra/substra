@@ -15,7 +15,8 @@
 import pytest
 import requests
 
-from substra.sdk import rest_client, exceptions
+from substra.sdk import exceptions
+from substra.sdk.backends.remote import rest_client
 
 from .utils import mock_response, mock_requests, mock_requests_responses
 
@@ -41,10 +42,19 @@ CONFIG_INSECURE = {
 CONFIGS = [CONFIG, CONFIG_SECURE, CONFIG_INSECURE]
 
 
+def _client_from_config(config):
+    return rest_client.Client(
+        config['url'],
+        config['version'],
+        config['insecure'],
+        None,
+    )
+
+
 @pytest.mark.parametrize("config", CONFIGS)
 def test_post_success(mocker, config):
     m = mock_requests(mocker, "post", response={})
-    rest_client.Client(config).add('http://foo', {})
+    _client_from_config(config).add('http://foo', {})
     assert len(m.call_args_list) == 1
 
 
@@ -68,15 +78,15 @@ def test_post_success(mocker, config):
 def test_request_http_errors(mocker, status_code, http_response, sdk_exception):
     m = mock_requests(mocker, "post", response=http_response, status=status_code)
     with pytest.raises(sdk_exception):
-        rest_client.Client(CONFIG).add('http://foo', {})
+        _client_from_config(CONFIG).add('http://foo', {})
     assert len(m.call_args_list) == 1
 
 
 def test_request_connection_error(mocker):
-    mocker.patch('substra.sdk.rest_client.requests.post',
+    mocker.patch('substra.sdk.backends.remote.rest_client.requests.post',
                  side_effect=requests.exceptions.ConnectionError)
     with pytest.raises(exceptions.ConnectionError):
-        rest_client.Client(CONFIG).add('foo', {})
+        _client_from_config(CONFIG).add('foo', {})
 
 
 def test_add_timeout_with_retry(mocker):
@@ -86,7 +96,7 @@ def test_add_timeout_with_retry(mocker):
         mock_response(response={"pkhash": "a-key"}),
     ]
     m_post = mock_requests_responses(mocker, "post", responses)
-    asset = rest_client.Client(CONFIG).add(asset_name, retry_timeout=60)
+    asset = _client_from_config(CONFIG).add(asset_name, retry_timeout=60)
     assert len(m_post.call_args_list) == 2
     assert asset == {"pkhash": "a-key"}
 
@@ -95,7 +105,7 @@ def test_add_exist_ok(mocker):
     asset_name = "traintuple"
     m_post = mock_requests(mocker, "post", response={"pkhash": "a-key"}, status=409)
     m_get = mock_requests(mocker, "get", response={"pkhash": "a-key"})
-    asset = rest_client.Client(CONFIG).add(asset_name, exist_ok=True)
+    asset = _client_from_config(CONFIG).add(asset_name, exist_ok=True)
     assert len(m_post.call_args_list) == 1
     assert len(m_get.call_args_list) == 1
     assert asset == {"pkhash": "a-key"}
