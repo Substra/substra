@@ -109,13 +109,19 @@ def _from_config_file(path, name):
 
 class Manager:
     def __init__(self, path=DEFAULT_PATH):
-        self.path = path
+        self.path = path or DEFAULT_PATH
 
     def add_profile(
         self, name, url=DEFAULT_URL, version=DEFAULT_VERSION, insecure=False
     ):
         """Add profile to config file on disk."""
-        config = _add_profile(self.path, name, url, version=version, insecure=insecure,)
+        config = _add_profile(
+            self.path,
+            name,
+            url or DEFAULT_URL,
+            version=version or DEFAULT_VERSION,
+            insecure=insecure,
+        )
         return config[name]
 
     def from_config_file(self, name=DEFAULT_PROFILE_NAME):
@@ -125,4 +131,4 @@ class Manager:
             FileNotFoundError: if config file does not exist.
             ProfileNotFoundError: if profile does not exist.
         """
-        return _from_config_file(self.path, name)
+        return _from_config_file(self.path, name or DEFAULT_PROFILE_NAME)

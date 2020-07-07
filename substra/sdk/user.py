@@ -16,7 +16,7 @@ def _read_user(path):
 
 class Manager():
     def __init__(self, path=DEFAULT_PATH):
-        self.path = path
+        self.path = path or DEFAULT_PATH
 
     def add_user(self, token):
         # create profile
