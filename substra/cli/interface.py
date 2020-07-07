@@ -1027,9 +1027,12 @@ def leaderboard(ctx, expand, objective_key, sort):
 @click.option('--fake-data-samples',
               is_flag=True,
               help='use fake data samples during both training and testing.')
+@click.option('--n-fake-samples',
+              type=click.INT,
+              help='Number of fake data samples requested')
 def run_local(algo, train_opener, test_opener, metrics, rank,
               train_data_samples, test_data_samples, inmodels,
-              fake_data_samples):
+              fake_data_samples, n_fake_samples):
     """Run local.
 
     Train and test the algo located in ALGO (directory or archive) locally.
@@ -1064,6 +1067,10 @@ def run_local(algo, train_opener, test_opener, metrics, rank,
     if not fake_data_samples and not train_data_samples and test_data_samples:
         raise click.BadOptionUsage('--train-data-samples',
                                    'Missing option --train-data-samples')
+    if not fake_data_samples and n_fake_samples:
+        raise click.BadOptionUsage('--n-fake-samples',
+                                   'Option --n-fake-samples cannot be used if'
+                                   '--fake-data-samples is not activated')
 
     try:
         runner.compute(algo_path=algo,
@@ -1074,7 +1081,8 @@ def run_local(algo, train_opener, test_opener, metrics, rank,
                        test_data_path=test_data_samples,
                        fake_data_samples=fake_data_samples,
                        rank=rank,
-                       inmodels=inmodels)
+                       inmodels=inmodels,
+                       n_fake_samples=n_fake_samples)
     except runner.PathTraversalException as e:
         raise click.ClickException(
             f'Archive "{e.archive_path}" includes at least 1 file or folder '
