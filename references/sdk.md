@@ -2,7 +2,7 @@
 
 # Client
 ```python
-Client(self, url: Union[str, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300, backend: str = 'remote', version: str = '0.0', insecure: bool = False)
+Client(self, url:Union[str, NoneType]=None, token:Union[str, NoneType]=None, retry_timeout:int=300, backend:str='remote', version:str='0.0', insecure:bool=False)
 ```
 Create the client.
 
