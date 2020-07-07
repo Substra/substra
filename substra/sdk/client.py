@@ -12,18 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from copy import deepcopy
 import functools
 import logging
 import os
+import pathlib
 import time
-import json
+import typing
 
-import keyring
-
-from substra.sdk import utils, assets, rest_client, exceptions
+from substra.sdk import exceptions
 from substra.sdk import config as cfg
-from substra.sdk import user as usr
+from substra.sdk import user
+from substra.sdk import backends
+from substra.sdk import schemas
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +32,7 @@ DEFAULT_RETRY_TIMEOUT = 5 * 60
 
 def logit(f):
     """Decorator used to log all high-level methods of the Substra client."""
+
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         logger.debug(f'{f.__name__}: call')
@@ -47,132 +48,91 @@ def logit(f):
             te = time.time()
             elaps = (te - ts) * 1000
             logger.info(f'{f.__name__}: done in {elaps:.2f}ms; error={error}')
+
     return wrapper
 
 
-def get_asset_key(data):
-    return data.get('pkhash') or data.get('key')
+def _load_token_from_file(path=None):
+    manager = user.Manager(path or user.DEFAULT_PATH)
+    try:
+        creds = manager.load_user()
+    except (exceptions.UserException, FileNotFoundError):
+        return None
+    return creds.get('token')
 
 
 class Client(object):
+    """Create the client.
 
-    def __init__(self, config_path=None, profile_name=None, user_path=None,
-                 retry_timeout=DEFAULT_RETRY_TIMEOUT):
-        self._cfg_manager = cfg.Manager(config_path or cfg.DEFAULT_PATH)
-        self._usr_manager = usr.Manager(user_path or usr.DEFAULT_PATH)
-        self._current_profile = None
-        self._profiles = {}
-        self.client = rest_client.Client()
-        self._profile_name = 'default'
+    Set the `backend` to 'local' to use the local debugging.
+    One client corresponds to one profile.
+    """
+
+    def __init__(
+        self,
+        url: typing.Optional[str] = None,
+        token: typing.Optional[str] = None,
+        retry_timeout: int = DEFAULT_RETRY_TIMEOUT,
+        backend: str = 'remote',
+        version: str = '0.0',
+        insecure: bool = False,
+    ):
+        self._backend_name = backend
         self._retry_timeout = retry_timeout
+        self._token = token
 
-        if profile_name:
-            self._profile_name = profile_name
-            self.set_profile(profile_name)
+        self._insecure = insecure
+        self._url = url
+        self._version = version
 
-        # set current logged user if exists
-        self.set_user()
+        self._backend = self._get_backend()
+
+    def _get_backend(self):
+        return backends.get(
+            self._backend_name,
+            url=self._url,
+            version=self._version,
+            insecure=self._insecure,
+            token=self._token,
+            retry_timeout=self._retry_timeout,
+        )
 
     @logit
-    def login(self):
-        """Login.
+    def login(self, username, password):
+        """Login to a remote server. """
+        if not self._backend:
+            raise exceptions.SDKException('No backend found')
+        self._token = self._backend.login(username, password)
+        return self._token
 
-        Allow to login to a remote server.
+    @staticmethod
+    def _get_spec(asset_type, data):
+        if isinstance(data, asset_type):
+            return data
+        return asset_type(**data)
 
-        After setting your configuration with `substra config` using `-u` and `-p`
-        Launch `substra login`
-        You will get a token which will be stored by default in `~/.substra-user`
-        You can change that thanks to the --user option (works like the --profile option)
-
-        """
-
-        if not self._current_profile:
-            raise exceptions.SDKException("No profile defined")
-
-        res = self.client.login()
-        token = res.json()['token']
-        self._current_profile.update({
-            'token': token,
-        })
-        self.client.set_config(self._current_profile, self._profile_name)
-        return token
-
-    def _set_current_profile(self, profile_name, profile):
-        """Set client current profile."""
-        self._profile_name = profile_name
-        self._profiles[profile_name] = profile
-        self._current_profile = profile
-        self.client.set_config(self._current_profile, profile_name)
-
-        return profile
-
-    def set_profile(self, profile_name):
-        """Set profile from profile name.
-
-        If profiles has not been defined through the `add_profile` method, it is loaded
-        from the config file.
-        """
-        try:
-            profile = self._profiles[profile_name]
-        except KeyError:
-            profile = self._cfg_manager.load_profile(profile_name)
-
-        return self._set_current_profile(profile_name, profile)
-
-    def set_user(self):
-        try:
-            user = self._usr_manager.load_user()
-        except (exceptions.UserException, FileNotFoundError):
-            pass
-        else:
-            if self._current_profile is not None and 'token' in user:
-                self._current_profile.update({
-                    'token': user['token'],
-                })
-                self.client.set_config(self._current_profile, self._profile_name)
-
-    def add_profile(self, profile_name, username, password, url, version='0.0', insecure=False):
-        """Add new profile (in-memory only)."""
-        profile = cfg.create_profile(
-            url=url,
-            version=version,
-            insecure=insecure,
-            username=username,
+    @classmethod
+    def from_config_file(
+        cls,
+        profile_name: typing.Optional[str] = None,
+        config_path: typing.Union[str, pathlib.Path, None] = None,
+        user_path: typing.Union[str, pathlib.Path, None] = None,
+        token: typing.Optional[str] = None,
+        retry_timeout: int = DEFAULT_RETRY_TIMEOUT,
+        backend: str = 'remote',
+    ):
+        cfg_manager = cfg.Manager(config_path)
+        profile = cfg_manager.from_config_file(name=profile_name)
+        if not token:
+            token = _load_token_from_file(user_path)
+        return Client(
+            token=token,
+            retry_timeout=retry_timeout,
+            backend=backend,
+            url=profile['url'],
+            version=profile['version'],
+            insecure=profile['insecure'],
         )
-        keyring.set_password(profile_name, username, password)
-        return self._set_current_profile(profile_name, profile)
-
-    def _add(self, asset, data, files=None, exist_ok=False):
-        """Add asset."""
-        data = deepcopy(data)  # make a deep copy for avoiding modification by reference
-        if files:
-            requests_kwargs = {
-                'data': {
-                    'json': json.dumps(data),
-                },
-                'files': files,
-            }
-        else:
-            requests_kwargs = {
-                'json': data
-            }
-
-        return self.client.add(
-            asset,
-            retry_timeout=self._retry_timeout,
-            exist_ok=exist_ok,
-            **requests_kwargs)
-
-    def _add_data_samples(self, data, local=True):
-        """Create new data sample(s) asset."""
-        if not local:
-            return self._add(
-                assets.DATA_SAMPLE, data,
-                exist_ok=False)
-        with utils.extract_data_sample_files(data) as (data, files):
-            return self._add(
-                assets.DATA_SAMPLE, data,
-                files=files, exist_ok=False)
 
     @logit
     def add_data_sample(self, data, local=True, exist_ok=False):
@@ -206,23 +166,15 @@ class Client(object):
         existing asset will be returned.
 
         """
-        if 'paths' in data:
+        spec = self._get_spec(schemas.DataSampleSpec, data)
+        if spec.paths:
             raise ValueError("data: invalid 'paths' field")
-        if 'path' not in data:
+        if not spec.path:
             raise ValueError("data: missing 'path' field")
-        try:
-            data_samples = self._add_data_samples(data, local=local)
-        except exceptions.AlreadyExists as e:
-            # exist_ok option must be handle separately for data samples as a get action
-            # is not allowed on data samples
-            if not exist_ok:
-                raise
-            key = e.pkhash[0]
-            logger.warning(f"data_sample already exists: key='{key}'")
-            data_samples = [{'pkhash': key}]
-        # there is currently a single route in the backend to add a single or many
-        # datasamples, this route always returned a list of created data sample keys
-        return data_samples[0]
+        spec_options = {
+            "local": local,
+        }
+        return self._backend.add(spec, exist_ok=exist_ok, spec_options=spec_options)
 
     @logit
     def add_data_samples(self, data, local=True):
@@ -251,11 +203,15 @@ class Client(object):
         If data samples with the same content as any of the paths already exists, an `AlreadyExists`
         exception will be raised.
         """
-        if 'path' in data:
+        spec = self._get_spec(schemas.DataSampleSpec, data)
+        if spec.path:
             raise ValueError("data: invalid 'path' field")
-        if 'paths' not in data:
+        if not spec.paths:
             raise ValueError("data: missing 'paths' field")
-        return self._add_data_samples(data, local=local)
+        spec_options = {
+            "local": local,
+        }
+        return self._backend.add(spec, exist_ok=False, spec_options=spec_options)
 
     @logit
     def add_dataset(self, data, exist_ok=False):
@@ -284,13 +240,8 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        attributes = ['data_opener', 'description']
-        with utils.extract_files(data, attributes) as (data, files):
-            res = self._add(assets.DATASET, data, files=files, exist_ok=exist_ok)
-
-        # The backend has inconsistent API responses when getting or adding an asset (with much
-        # less data when responding to adds). A second GET request hides the discrepancies.
-        return self.get_dataset(get_asset_key(res))
+        spec = self._get_spec(schemas.DatasetSpec, data)
+        return self._backend.add(spec, exist_ok=exist_ok)
 
     @logit
     def add_objective(self, data, exist_ok=False):
@@ -320,13 +271,8 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        attributes = ['metrics', 'description']
-        with utils.extract_files(data, attributes) as (data, files):
-            res = self._add(assets.OBJECTIVE, data, files=files, exist_ok=exist_ok)
-
-        # The backend has inconsistent API responses when getting or adding an asset (with much
-        # less data when responding to adds). A second GET request hides the discrepancies.
-        return self.get_objective(get_asset_key(res))
+        spec = self._get_spec(schemas.ObjectiveSpec, data)
+        return self._backend.add(spec, exist_ok=exist_ok)
 
     @logit
     def add_algo(self, data, exist_ok=False):
@@ -353,13 +299,8 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        attributes = ['file', 'description']
-        with utils.extract_files(data, attributes) as (data, files):
-            res = self._add(assets.ALGO, data, files=files, exist_ok=exist_ok)
-
-        # The backend has inconsistent API responses when getting or adding an asset (with much
-        # less data when responding to adds). A second GET request hides the discrepancies.
-        return self.get_algo(get_asset_key(res))
+        spec = self._get_spec(schemas.AlgoSpec, data)
+        return self._backend.add(spec, exist_ok=exist_ok)
 
     @logit
     def add_aggregate_algo(self, data, exist_ok=False):
@@ -383,13 +324,8 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        attributes = ['file', 'description']
-        with utils.extract_files(data, attributes) as (data, files):
-            res = self._add(assets.AGGREGATE_ALGO, data, files=files, exist_ok=exist_ok)
-
-        # The backend has inconsistent API responses when getting or adding an asset (with much
-        # less data when responding to adds). A second GET request hides the discrepancies.
-        return self.get_aggregate_algo(get_asset_key(res))
+        spec = self._get_spec(schemas.AggregateAlgoSpec, data)
+        return self._backend.add(spec, exist_ok=exist_ok)
 
     @logit
     def add_composite_algo(self, data, exist_ok=False):
@@ -413,13 +349,8 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        attributes = ['file', 'description']
-        with utils.extract_files(data, attributes) as (data, files):
-            res = self._add(assets.COMPOSITE_ALGO, data, files=files, exist_ok=exist_ok)
-
-        # The backend has inconsistent API responses when getting or adding an asset (with much
-        # less data when responding to adds). A second GET request hides the discrepancies.
-        return self.get_composite_algo(get_asset_key(res))
+        spec = self._get_spec(schemas.CompositeAlgoSpec, data)
+        return self._backend.add(spec, exist_ok=exist_ok)
 
     @logit
     def add_traintuple(self, data, exist_ok=False):
@@ -446,11 +377,8 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        res = self._add(assets.TRAINTUPLE, data, exist_ok=exist_ok)
-
-        # The backend has inconsistent API responses when getting or adding an asset (with much
-        # less data when responding to adds). A second GET request hides the discrepancies.
-        return self.get_traintuple(get_asset_key(res))
+        spec = self._get_spec(schemas.TraintupleSpec, data)
+        return self._backend.add(spec, exist_ok=exist_ok)
 
     @logit
     def add_aggregatetuple(self, data, exist_ok=False):
@@ -474,11 +402,8 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        res = self._add(assets.AGGREGATETUPLE, data, exist_ok=exist_ok)
-
-        # The backend has inconsistent API responses when getting or adding an asset (with much
-        # less data when responding to adds). A second GET request hides the discrepancies.
-        return self.get_aggregatetuple(get_asset_key(res))
+        spec = self._get_spec(schemas.AggregatetupleSpec, data)
+        return self._backend.add(spec, exist_ok=exist_ok)
 
     @logit
     def add_composite_traintuple(self, data, exist_ok=False):
@@ -511,11 +436,8 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        res = self._add(assets.COMPOSITE_TRAINTUPLE, data, exist_ok=exist_ok)
-
-        # The backend has inconsistent API responses when getting or adding an asset (with much
-        # less data when responding to adds). A second GET request hides the discrepancies.
-        return self.get_composite_traintuple(get_asset_key(res))
+        spec = self._get_spec(schemas.CompositeTraintupleSpec, data)
+        return self._backend.add(spec, exist_ok=exist_ok)
 
     @logit
     def add_testtuple(self, data, exist_ok=False):
@@ -542,18 +464,14 @@ class Client(object):
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
         """
-        res = self._add(assets.TESTTUPLE, data, exist_ok=exist_ok)
-
-        # The backend has inconsistent API responses when getting or adding an asset (with much
-        # less data when responding to adds). A second GET request hides the discrepancies.
-        return self.get_testtuple(get_asset_key(res))
+        spec = self._get_spec(schemas.TesttupleSpec, data)
+        return self._backend.add(spec, exist_ok=exist_ok)
 
     @logit
     def add_compute_plan(self, data):
         """Create compute plan.
 
         Data is a dict object with the following schema:
-
 ```
         {
             "traintuples": list[{
@@ -563,6 +481,7 @@ class Client(object):
                 "train_data_sample_keys": list[str],
                 "in_models_ids": list[str],
                 "tag": str,
+                "metadata": dict,
             }],
             "composite_traintuples": list[{
                 "composite_traintuple_id": str,
@@ -575,6 +494,7 @@ class Client(object):
                     "authorized_ids": list[str],
                 },
                 "tag": str,
+                "metadata": dict,
             }]
             "aggregatetuples": list[{
                 "aggregatetuple_id": str,
@@ -582,6 +502,7 @@ class Client(object):
                 "worker": str,
                 "in_models_ids": list[str],
                 "tag": str,
+                "metadata": dict,
             }],
             "testtuples": list[{
                 "objective_key": str,
@@ -589,143 +510,135 @@ class Client(object):
                 "test_data_sample_keys": list[str],
                 "traintuple_id": str,
                 "tag": str,
+                "metadata": dict,
             }],
             "clean_models": bool,
-            "tag": str
+            "tag": str,
+            "metadata": dict
         }
 ```
 
         As specified in the data dict structure, output trunk models of composite
         traintuples cannot be made public.
         """
-        return self._add(assets.COMPUTE_PLAN, data)
+        spec = self._get_spec(schemas.ComputePlanSpec, data)
+        return self._backend.add(spec)
 
     @logit
-    def get_algo(self, algo_key):
+    def get_algo(self, key):
         """Get algo by key."""
-        return self.client.get(assets.ALGO, algo_key)
+        return self._backend.get(schemas.Type.Algo, key)
 
     @logit
-    def get_compute_plan(self, compute_plan_key):
+    def get_compute_plan(self, key):
         """Get compute plan by key."""
-        return self.client.get(assets.COMPUTE_PLAN, compute_plan_key)
+        return self._backend.get(schemas.Type.ComputePlan, key)
 
     @logit
-    def get_aggregate_algo(self, aggregate_algo_key):
+    def get_aggregate_algo(self, key):
         """Get aggregate algo by key."""
-        return self.client.get(assets.AGGREGATE_ALGO, aggregate_algo_key)
+        return self._backend.get(schemas.Type.AggregateAlgo, key)
 
     @logit
-    def get_composite_algo(self, composite_algo_key):
+    def get_composite_algo(self, key):
         """Get composite algo by key."""
-        return self.client.get(assets.COMPOSITE_ALGO, composite_algo_key)
+        return self._backend.get(schemas.Type.CompositeAlgo, key)
 
     @logit
-    def get_dataset(self, dataset_key):
+    def get_dataset(self, key):
         """Get dataset by key."""
-        return self.client.get(assets.DATASET, dataset_key)
+        return self._backend.get(schemas.Type.Dataset, key)
 
     @logit
-    def get_objective(self, objective_key):
+    def get_objective(self, key):
         """Get objective by key."""
-        return self.client.get(assets.OBJECTIVE, objective_key)
+        return self._backend.get(schemas.Type.Objective, key)
 
     @logit
-    def get_testtuple(self, testtuple_key):
+    def get_testtuple(self, key):
         """Get testtuple by key."""
-        return self.client.get(assets.TESTTUPLE, testtuple_key)
+        return self._backend.get(schemas.Type.Testtuple, key)
 
     @logit
-    def get_traintuple(self, traintuple_key):
+    def get_traintuple(self, key):
         """Get traintuple by key."""
-        return self.client.get(assets.TRAINTUPLE, traintuple_key)
+        return self._backend.get(schemas.Type.Traintuple, key)
 
     @logit
-    def get_aggregatetuple(self, aggregatetuple_key):
+    def get_aggregatetuple(self, key):
         """Get aggregatetuple by key."""
-        return self.client.get(assets.AGGREGATETUPLE, aggregatetuple_key)
+        return self._backend.get(schemas.Type.Aggregatetuple, key)
 
     @logit
-    def get_composite_traintuple(self, composite_traintuple_key):
+    def get_composite_traintuple(self, key):
         """Get composite traintuple by key."""
-        return self.client.get(assets.COMPOSITE_TRAINTUPLE, composite_traintuple_key)
+        return self._backend.get(schemas.Type.CompositeTraintuple, key)
 
     @logit
     def list_algo(self, filters=None):
         """List algos."""
-        return self.client.list(assets.ALGO, filters=filters)
+        return self._backend.list(schemas.Type.Algo, filters)
 
     @logit
     def list_compute_plan(self, filters=None):
         """List compute plans."""
-        return self.client.list(assets.COMPUTE_PLAN, filters=filters)
+        return self._backend.list(schemas.Type.ComputePlan, filters)
 
     @logit
     def list_aggregate_algo(self, filters=None):
         """List aggregate algos."""
-        return self.client.list(assets.AGGREGATE_ALGO, filters=filters)
+        return self._backend.list(schemas.Type.AggregateAlgo, filters)
 
     @logit
     def list_composite_algo(self, filters=None):
         """List composite algos."""
-        return self.client.list(assets.COMPOSITE_ALGO, filters=filters)
+        return self._backend.list(schemas.Type.CompositeAlgo, filters)
 
     @logit
     def list_data_sample(self, filters=None):
         """List data samples."""
-        return self.client.list(assets.DATA_SAMPLE, filters=filters)
+        return self._backend.list(schemas.Type.DataSample, filters)
 
     @logit
     def list_dataset(self, filters=None):
         """List datasets."""
-        return self.client.list(assets.DATASET, filters=filters)
+        return self._backend.list(schemas.Type.Dataset, filters)
 
     @logit
     def list_objective(self, filters=None):
         """List objectives."""
-        return self.client.list(assets.OBJECTIVE, filters=filters)
+        return self._backend.list(schemas.Type.Objective, filters)
 
     @logit
     def list_testtuple(self, filters=None):
         """List testtuples."""
-        return self.client.list(assets.TESTTUPLE, filters=filters)
+        return self._backend.list(schemas.Type.Testtuple, filters)
 
     @logit
     def list_traintuple(self, filters=None):
         """List traintuples."""
-        return self.client.list(assets.TRAINTUPLE, filters=filters)
+        return self._backend.list(schemas.Type.Traintuple, filters)
 
     @logit
     def list_aggregatetuple(self, filters=None):
         """List aggregatetuples."""
-        return self.client.list(assets.AGGREGATETUPLE, filters=filters)
+        return self._backend.list(schemas.Type.Aggregatetuple, filters)
 
     @logit
     def list_composite_traintuple(self, filters=None):
         """List composite traintuples."""
-        return self.client.list(assets.COMPOSITE_TRAINTUPLE, filters=filters)
+        return self._backend.list(schemas.Type.CompositeTraintuple, filters)
 
     @logit
     def list_node(self, *args, **kwargs):
         """List nodes."""
-        return self.client.list(assets.NODE)
-
-    @logit
-    def update_dataset(self, dataset_key, data):
-        """Update dataset."""
-        return self.client.request(
-            'post',
-            assets.DATASET,
-            path=f"{dataset_key}/update_ledger/",
-            data=data,
-        )
+        return self._backend.list(schemas.Type.Node)
 
     @logit
     def update_compute_plan(self, compute_plan_id, data):
         """Update compute plan.
 
         Data is a dict object with the following schema:
-
 ```
         {
             "traintuples": list[{
@@ -735,6 +648,7 @@ class Client(object):
                 "train_data_sample_keys": list[str],
                 "in_models_ids": list[str],
                 "tag": str,
+                "metadata": dict,
             }],
             "composite_traintuples": list[{
                 "composite_traintuple_id": str,
@@ -747,6 +661,7 @@ class Client(object):
                     "authorized_ids": list[str],
                 },
                 "tag": str,
+                "metadata": dict,
             }]
             "aggregatetuples": list[{
                 "aggregatetuple_id": str,
@@ -754,6 +669,7 @@ class Client(object):
                 "worker": str,
                 "in_models_ids": list[str],
                 "tag": str,
+                "metadata": dict,
             }],
             "testtuples": list[{
                 "objective_key": str,
@@ -761,6 +677,7 @@ class Client(object):
                 "test_data_sample_keys": list[str],
                 "traintuple_id": str,
                 "tag": str,
+                "metadata": dict,
             }]
         }
 ```
@@ -769,155 +686,117 @@ class Client(object):
         traintuples cannot be made public.
 
         """
-        return self.client.request(
-            'post',
-            assets.COMPUTE_PLAN,
-            path=f"{compute_plan_id}/update_ledger/",
-            json=data,
-        )
+        spec = schemas.UpdateComputePlanSpec(**data)
+        return self._backend.update_compute_plan(compute_plan_id, spec)
 
     @logit
     def link_dataset_with_objective(self, dataset_key, objective_key):
         """Link dataset with objective."""
-        return self.update_dataset(
-            dataset_key, {'objective_key': objective_key, })
+        return self._backend.link_dataset_with_objective(dataset_key, objective_key)
 
     @logit
     def link_dataset_with_data_samples(self, dataset_key, data_sample_keys):
         """Link dataset with data samples."""
-        data = {
-            'data_manager_keys': [dataset_key],
-            'data_sample_keys': data_sample_keys,
-        }
-        return self.client.request(
-            'post',
-            assets.DATA_SAMPLE,
-            path="bulk_update/",
-            data=data,
+        return self._backend.link_dataset_with_data_samples(
+            dataset_key, data_sample_keys
         )
 
-    def _download(self, url, destination_folder, default_filename):
-        """Download request content in destination file.
-
-        Destination folder must exist.
-        """
-        response = self.client.get_data(url, stream=True)
-
-        destination_filename = utils.response_get_destination_filename(response)
-        if not destination_filename:
-            destination_filename = default_filename
-        destination_path = os.path.join(destination_folder,
-                                        destination_filename)
-
-        chunk_size = 1024
-        with open(destination_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size):
-                f.write(chunk)
-        return destination_path
-
     @logit
-    def download_dataset(self, asset_key, destination_folder):
+    def download_dataset(self, key, destination_folder):
         """Download data manager resource.
 
         Download opener script in destination folder.
         """
-        data = self.get_dataset(asset_key)
-        # download opener file
-        default_filename = 'opener.py'
-        url = data['opener']['storageAddress']
-        self._download(url, destination_folder, default_filename)
+        self._backend.download(
+            schemas.Type.Dataset,
+            'opener.storageAddress',
+            key,
+            os.path.join(destination_folder, 'opener.py'),
+        )
 
     @logit
-    def download_algo(self, asset_key, destination_folder):
+    def download_algo(self, key, destination_folder):
         """Download algo resource.
 
         Download algo package in destination folder.
         """
-        data = self.get_algo(asset_key)
-        # download algo package
-        default_filename = 'algo.tar.gz'
-        url = data['content']['storageAddress']
-        self._download(url, destination_folder, default_filename)
+        self._backend.download(
+            schemas.Type.Algo,
+            'content.storageAddress',
+            key,
+            os.path.join(destination_folder, 'algo.tar.gz'),
+        )
 
     @logit
-    def download_aggregate_algo(self, asset_key, destination_folder):
+    def download_aggregate_algo(self, key, destination_folder):
         """Download aggregate algo resource.
 
         Download aggregate algo package in destination folder.
         """
-        data = self.get_aggregate_algo(asset_key)
-        # download aggregate algo package
-        default_filename = 'aggregate_algo.tar.gz'
-        url = data['content']['storageAddress']
-        self._download(url, destination_folder, default_filename)
+        self._backend.download(
+            schemas.Type.AggregateAlgo,
+            'content.storageAddress',
+            key,
+            os.path.join(destination_folder, 'aggregate_algo.tar.gz'),
+        )
 
     @logit
-    def download_composite_algo(self, asset_key, destination_folder):
+    def download_composite_algo(self, key, destination_folder):
         """Download composite algo resource.
 
         Download composite algo package in destination folder.
         """
-        data = self.get_composite_algo(asset_key)
-        # download composite algo package
-        default_filename = 'composite_algo.tar.gz'
-        url = data['content']['storageAddress']
-        self._download(url, destination_folder, default_filename)
+        self._backend.download(
+            schemas.Type.CompositeAlgo,
+            'content.storageAddress',
+            key,
+            os.path.join(destination_folder, 'composite_algo.tar.gz'),
+        )
 
     @logit
-    def download_objective(self, asset_key, destination_folder):
+    def download_objective(self, key, destination_folder):
         """Download objective resource.
 
         Download metrics script in destination folder.
         """
-        data = self.get_objective(asset_key)
-        # download metrics script
-        default_filename = 'metrics.py'
-        url = data['metrics']['storageAddress']
-        self._download(url, destination_folder, default_filename)
-
-    def _describe(self, asset, asset_key):
-        """Get asset description."""
-        data = self.client.get(asset, asset_key)
-        url = data['description']['storageAddress']
-        r = self.client.get_data(url)
-        return r.text
+        self._backend.download(
+            schemas.Type.Objective,
+            'metrics.storageAddress',
+            key,
+            os.path.join(destination_folder, 'metrics.py'),
+        )
 
     @logit
-    def describe_algo(self, asset_key):
+    def describe_algo(self, key):
         """Get algo description."""
-        return self._describe(assets.ALGO, asset_key)
+        return self._backend.describe(schemas.Type.Algo, key)
 
     @logit
-    def describe_aggregate_algo(self, asset_key):
+    def describe_aggregate_algo(self, key):
         """Get aggregate algo description."""
-        return self._describe(assets.AGGREGATE_ALGO, asset_key)
+        return self._backend.describe(schemas.Type.AggregateAlgo, key)
 
     @logit
-    def describe_composite_algo(self, asset_key):
+    def describe_composite_algo(self, key):
         """Get composite algo description."""
-        return self._describe(assets.COMPOSITE_ALGO, asset_key)
+        return self._backend.describe(schemas.Type.CompositeAlgo, key)
 
     @logit
-    def describe_dataset(self, asset_key):
+    def describe_dataset(self, key):
         """Get dataset description."""
-        return self._describe(assets.DATASET, asset_key)
+        return self._backend.describe(schemas.Type.Dataset, key)
 
     @logit
-    def describe_objective(self, asset_key):
+    def describe_objective(self, key):
         """Get objective description."""
-        return self._describe(assets.OBJECTIVE, asset_key)
+        return self._backend.describe(schemas.Type.Objective, key)
 
     @logit
     def leaderboard(self, objective_key, sort='desc'):
         """Get objective leaderboard"""
-        return self.client.request('get', assets.OBJECTIVE, f'{objective_key}/leaderboard',
-                                   params={'sort': sort})
+        return self._backend.leaderboard(objective_key, sort='desc')
 
     @logit
     def cancel_compute_plan(self, compute_plan_id):
         """Cancel execution of compute plan."""
-        return self.client.request(
-            'post',
-            assets.COMPUTE_PLAN,
-            path=f"{compute_plan_id}/cancel",
-        )
+        return self._backend.cancel_compute_plan(compute_plan_id)

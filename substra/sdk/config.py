@@ -17,23 +17,19 @@ import json
 import logging
 import os
 
-import keyring
-
 logger = logging.getLogger(__name__)
 
 DEFAULT_PATH = os.path.expanduser('~/.substra')
 DEFAULT_VERSION = '0.0'
 DEFAULT_URL = 'http://127.0.0.1:8000'
 DEFAULT_PROFILE_NAME = 'default'
+DEFAULT_INSECURE = False
 
 DEFAULT_CONFIG = {
-    'default': {
-        'url': 'http://127.0.0.1:8000',
-        'version': '0.0',
-        'auth': {
-            'username': 'foo'
-        },
-        'insecure': False,
+    DEFAULT_PROFILE_NAME: {
+        'url': DEFAULT_URL,
+        'version': DEFAULT_VERSION,
+        'insecure': DEFAULT_INSECURE,
     }
 }
 
@@ -62,19 +58,16 @@ def _write_config(path, config):
         json.dump(config, fh, indent=2, sort_keys=True)
 
 
-def create_profile(url, version, insecure, username):
+def create_profile(url, version, insecure):
     """Create profile object."""
     return {
         'url': url,
         'version': version,
         'insecure': insecure,
-        'auth': {
-            'username': username,
-        },
     }
 
 
-def _add_profile(path, name, url, username, version, insecure):
+def _add_profile(path, name, url, version, insecure):
     """Add profile to config file on disk."""
     # read config file
     try:
@@ -83,7 +76,7 @@ def _add_profile(path, name, url, username, version, insecure):
         config = copy.deepcopy(DEFAULT_CONFIG)
 
     # create profile
-    profile = create_profile(url, version, insecure, username)
+    profile = create_profile(url, version, insecure)
 
     # update config file
     if name in config:
@@ -95,7 +88,7 @@ def _add_profile(path, name, url, username, version, insecure):
     return config
 
 
-def _load_profile(path, name):
+def _from_config_file(path, name):
     """Load profile from config file on disk.
 
     Raises:
@@ -103,36 +96,33 @@ def _load_profile(path, name):
         ProfileNotFoundError: if profile does not exist.
     """
     logger.debug(f"Loading profile '{name}' from '{path}'")
-    config = _read_config(path)
+    try:
+        config = _read_config(path)
+    except ConfigException:
+        config = copy.deepcopy(DEFAULT_CONFIG)
+
     try:
         return config[name]
     except KeyError:
         raise ProfileNotFoundError(name)
 
 
-class Manager():
+class Manager:
     def __init__(self, path=DEFAULT_PATH):
         self.path = path
 
-    def add_profile(self, name, username, password, url=DEFAULT_URL,
-                    version=DEFAULT_VERSION, insecure=False):
+    def add_profile(
+        self, name, url=DEFAULT_URL, version=DEFAULT_VERSION, insecure=False
+    ):
         """Add profile to config file on disk."""
-        config = _add_profile(
-            self.path,
-            name,
-            url,
-            username,
-            version=version,
-            insecure=insecure,
-        )
-        keyring.set_password(name, username, password)
+        config = _add_profile(self.path, name, url, version=version, insecure=insecure,)
         return config[name]
 
-    def load_profile(self, name):
+    def from_config_file(self, name=DEFAULT_PROFILE_NAME):
         """Load profile from config file on disk.
 
         Raises:
             FileNotFoundError: if config file does not exist.
             ProfileNotFoundError: if profile does not exist.
         """
-        return _load_profile(self.path, name)
+        return _from_config_file(self.path, name)

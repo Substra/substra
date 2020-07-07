@@ -10,7 +10,7 @@ The training and testing tasks take place in the node where data are located.
 
 ## Train and test data
 
-Each data asset is labelled as either *test* or *train* data. An objective then references which data assets should be used during the testing phase of an algorithm through the `test_data_keys` objective.
+Each data asset is labelled as either *test* or *train* data. An objective then references which data assets should be used during the testing phase of an algorithm through the `test_data_sample_keys` objective.
 Of course, only assets set as test data can be referenced as test data for an objective, and only the ones set as train data can be referenced by traintuples for training. This ensures test data can never be used during the training phase.
 However, it is possible to specify testing tasks with train data, in order to enable cross-validation.
 
@@ -44,7 +44,7 @@ It happens in two steps: 1) computation of predictions, 2) computation of the as
 
 For prediction, Substra creates a new docker container containing the algorithm with the following volumes:
 
-- **data** which contains the testing data (defined through the `test_data_keys` property of the objective),
+- **data** which contains the testing data (defined through the `test_data_sample_keys` property of the objective),
 - **opener** which contain the opener library provided by the dataset,
 - **model** which contain the model generated during the training phase,
 - **pred** where the prediction made on test data must be saved.

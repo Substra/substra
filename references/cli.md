@@ -35,13 +35,11 @@ Usage: substra config [OPTIONS] URL
   Add profile to config file.
 
 Options:
-  --config PATH        Config path (default ~/.substra).
-  --profile TEXT       Profile name to add
-  -k, --insecure       Do not verify SSL certificates
+  --config PATH       Config path (default ~/.substra).
+  --profile TEXT      Profile name to add
+  -k, --insecure      Do not verify SSL certificates
   -v, --version TEXT
-  -u, --username TEXT  [required]
-  -p, --password TEXT  [required]
-  --help               Show this message and exit.
+  --help              Show this message and exit.
 ```
 
 ## substra login
@@ -60,6 +58,8 @@ Options:
                                   user).
 
   --verbose                       Enable verbose mode.
+  -u, --username TEXT
+  -p, --password TEXT
   --help                          Show this message and exit.
 ```
 
@@ -234,11 +234,11 @@ Options:
 ## substra add compute_plan
 
 ```bash
-Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
+Usage: substra add compute_plan [OPTIONS] PATH
 
   Add compute plan.
 
-  The tuples path must point to a valid JSON file with the following schema:
+  The path must point to a valid JSON file with the following schema:
 
   {
       "traintuples": list[{
@@ -248,6 +248,7 @@ Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
           "traintuple_id": str,
           "in_models_ids": list[str],
           "tag": str,
+          "metadata": dict
       }],
       "composite_traintuples": list[{
           "composite_traintuple_id": str,
@@ -260,6 +261,7 @@ Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
               "authorized_ids": list[str],
           },
           "tag": str,
+          "metadata": dict
       }]
       "aggregatetuples": list[{
           "aggregatetuple_id": str,
@@ -267,6 +269,7 @@ Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
           "worker": str,
           "in_models_ids": list[str],
           "tag": str,
+          "metadata": dict
       }],
       "testtuples": list[{
           "objective_key": str,
@@ -274,7 +277,11 @@ Usage: substra add compute_plan [OPTIONS] TUPLES_PATH
           "test_data_sample_keys": list[str],
           "traintuple_id": str,
           "tag": str,
-      }]
+          "metadata": dict
+      }],
+      "clean_models": bool,
+      "tag": str,
+      "metadata": dict
   }
 
 Options:
@@ -784,6 +791,7 @@ Usage: substra update compute_plan [OPTIONS] COMPUTE_PLAN_ID TUPLES_PATH
           "traintuple_id": str,
           "in_models_ids": list[str],
           "tag": str,
+          "metadata": dict,
       }],
       "composite_traintuples": list[{
           "composite_traintuple_id": str,
@@ -796,6 +804,7 @@ Usage: substra update compute_plan [OPTIONS] COMPUTE_PLAN_ID TUPLES_PATH
               "authorized_ids": list[str],
           },
           "tag": str,
+          "metadata": dict,
       }]
       "aggregatetuples": list[{
           "aggregatetuple_id": str,
@@ -803,6 +812,7 @@ Usage: substra update compute_plan [OPTIONS] COMPUTE_PLAN_ID TUPLES_PATH
           "worker": str,
           "in_models_ids": list[str],
           "tag": str,
+          "metadata": dict,
       }],
       "testtuples": list[{
           "objective_key": str,
@@ -810,6 +820,7 @@ Usage: substra update compute_plan [OPTIONS] COMPUTE_PLAN_ID TUPLES_PATH
           "test_data_sample_keys": list[str],
           "traintuple_id": str,
           "tag": str,
+          "metadata": dict,
       }]
   }
 

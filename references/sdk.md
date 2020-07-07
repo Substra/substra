@@ -2,37 +2,18 @@
 
 # Client
 ```python
-Client(self, config_path=None, profile_name=None, user_path=None, retry_timeout=300)
+Client(self, url: Union[str, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300, backend: str = 'remote', version: str = '0.0', insecure: bool = False)
 ```
+Create the client.
+
+Set the `backend` to 'local' to use the local debugging.
+One client corresponds to one profile.
 
 ## login
 ```python
-Client.login(self)
+Client.login(self, username, password)
 ```
-Login.
-
-Allow to login to a remote server.
-
-After setting your configuration with `substra config` using `-u` and `-p`
-Launch `substra login`
-You will get a token which will be stored by default in `~/.substra-user`
-You can change that thanks to the --user option (works like the --profile option)
-
-
-## set_profile
-```python
-Client.set_profile(self, profile_name)
-```
-Set profile from profile name.
-
-If profiles has not been defined through the `add_profile` method, it is loaded
-from the config file.
-
-## add_profile
-```python
-Client.add_profile(self, profile_name, username, password, url, version='0.0', insecure=False)
-```
-Add new profile (in-memory only).
+Login to a remote server.
 ## add_data_sample
 ```python
 Client.add_data_sample(self, data, local=True, exist_ok=False)
@@ -348,7 +329,6 @@ Client.add_compute_plan(self, data)
 Create compute plan.
 
 Data is a dict object with the following schema:
-
 ```
 {
     "traintuples": list[{
@@ -358,6 +338,7 @@ Data is a dict object with the following schema:
         "train_data_sample_keys": list[str],
         "in_models_ids": list[str],
         "tag": str,
+        "metadata": dict,
     }],
     "composite_traintuples": list[{
         "composite_traintuple_id": str,
@@ -370,6 +351,7 @@ Data is a dict object with the following schema:
             "authorized_ids": list[str],
         },
         "tag": str,
+        "metadata": dict,
     }]
     "aggregatetuples": list[{
         "aggregatetuple_id": str,
@@ -377,6 +359,7 @@ Data is a dict object with the following schema:
         "worker": str,
         "in_models_ids": list[str],
         "tag": str,
+        "metadata": dict,
     }],
     "testtuples": list[{
         "objective_key": str,
@@ -384,9 +367,11 @@ Data is a dict object with the following schema:
         "test_data_sample_keys": list[str],
         "traintuple_id": str,
         "tag": str,
+        "metadata": dict,
     }],
     "clean_models": bool,
-    "tag": str
+    "tag": str,
+    "metadata": dict
 }
 ```
 
@@ -395,52 +380,52 @@ traintuples cannot be made public.
 
 ## get_algo
 ```python
-Client.get_algo(self, algo_key)
+Client.get_algo(self, key)
 ```
 Get algo by key.
 ## get_compute_plan
 ```python
-Client.get_compute_plan(self, compute_plan_key)
+Client.get_compute_plan(self, key)
 ```
 Get compute plan by key.
 ## get_aggregate_algo
 ```python
-Client.get_aggregate_algo(self, aggregate_algo_key)
+Client.get_aggregate_algo(self, key)
 ```
 Get aggregate algo by key.
 ## get_composite_algo
 ```python
-Client.get_composite_algo(self, composite_algo_key)
+Client.get_composite_algo(self, key)
 ```
 Get composite algo by key.
 ## get_dataset
 ```python
-Client.get_dataset(self, dataset_key)
+Client.get_dataset(self, key)
 ```
 Get dataset by key.
 ## get_objective
 ```python
-Client.get_objective(self, objective_key)
+Client.get_objective(self, key)
 ```
 Get objective by key.
 ## get_testtuple
 ```python
-Client.get_testtuple(self, testtuple_key)
+Client.get_testtuple(self, key)
 ```
 Get testtuple by key.
 ## get_traintuple
 ```python
-Client.get_traintuple(self, traintuple_key)
+Client.get_traintuple(self, key)
 ```
 Get traintuple by key.
 ## get_aggregatetuple
 ```python
-Client.get_aggregatetuple(self, aggregatetuple_key)
+Client.get_aggregatetuple(self, key)
 ```
 Get aggregatetuple by key.
 ## get_composite_traintuple
 ```python
-Client.get_composite_traintuple(self, composite_traintuple_key)
+Client.get_composite_traintuple(self, key)
 ```
 Get composite traintuple by key.
 ## list_algo
@@ -503,11 +488,6 @@ List composite traintuples.
 Client.list_node(self, *args, **kwargs)
 ```
 List nodes.
-## update_dataset
-```python
-Client.update_dataset(self, dataset_key, data)
-```
-Update dataset.
 ## update_compute_plan
 ```python
 Client.update_compute_plan(self, compute_plan_id, data)
@@ -515,7 +495,6 @@ Client.update_compute_plan(self, compute_plan_id, data)
 Update compute plan.
 
 Data is a dict object with the following schema:
-
 ```
 {
     "traintuples": list[{
@@ -525,6 +504,7 @@ Data is a dict object with the following schema:
         "train_data_sample_keys": list[str],
         "in_models_ids": list[str],
         "tag": str,
+        "metadata": dict,
     }],
     "composite_traintuples": list[{
         "composite_traintuple_id": str,
@@ -537,6 +517,7 @@ Data is a dict object with the following schema:
             "authorized_ids": list[str],
         },
         "tag": str,
+        "metadata": dict,
     }]
     "aggregatetuples": list[{
         "aggregatetuple_id": str,
@@ -544,6 +525,7 @@ Data is a dict object with the following schema:
         "worker": str,
         "in_models_ids": list[str],
         "tag": str,
+        "metadata": dict,
     }],
     "testtuples": list[{
         "objective_key": str,
@@ -551,6 +533,7 @@ Data is a dict object with the following schema:
         "test_data_sample_keys": list[str],
         "traintuple_id": str,
         "tag": str,
+        "metadata": dict,
     }]
 }
 ```
@@ -571,7 +554,7 @@ Client.link_dataset_with_data_samples(self, dataset_key, data_sample_keys)
 Link dataset with data samples.
 ## download_dataset
 ```python
-Client.download_dataset(self, asset_key, destination_folder)
+Client.download_dataset(self, key, destination_folder)
 ```
 Download data manager resource.
 
@@ -579,7 +562,7 @@ Download opener script in destination folder.
 
 ## download_algo
 ```python
-Client.download_algo(self, asset_key, destination_folder)
+Client.download_algo(self, key, destination_folder)
 ```
 Download algo resource.
 
@@ -587,7 +570,7 @@ Download algo package in destination folder.
 
 ## download_aggregate_algo
 ```python
-Client.download_aggregate_algo(self, asset_key, destination_folder)
+Client.download_aggregate_algo(self, key, destination_folder)
 ```
 Download aggregate algo resource.
 
@@ -595,7 +578,7 @@ Download aggregate algo package in destination folder.
 
 ## download_composite_algo
 ```python
-Client.download_composite_algo(self, asset_key, destination_folder)
+Client.download_composite_algo(self, key, destination_folder)
 ```
 Download composite algo resource.
 
@@ -603,7 +586,7 @@ Download composite algo package in destination folder.
 
 ## download_objective
 ```python
-Client.download_objective(self, asset_key, destination_folder)
+Client.download_objective(self, key, destination_folder)
 ```
 Download objective resource.
 
@@ -611,27 +594,27 @@ Download metrics script in destination folder.
 
 ## describe_algo
 ```python
-Client.describe_algo(self, asset_key)
+Client.describe_algo(self, key)
 ```
 Get algo description.
 ## describe_aggregate_algo
 ```python
-Client.describe_aggregate_algo(self, asset_key)
+Client.describe_aggregate_algo(self, key)
 ```
 Get aggregate algo description.
 ## describe_composite_algo
 ```python
-Client.describe_composite_algo(self, asset_key)
+Client.describe_composite_algo(self, key)
 ```
 Get composite algo description.
 ## describe_dataset
 ```python
-Client.describe_dataset(self, asset_key)
+Client.describe_dataset(self, key)
 ```
 Get dataset description.
 ## describe_objective
 ```python
-Client.describe_objective(self, asset_key)
+Client.describe_objective(self, key)
 ```
 Get objective description.
 ## leaderboard

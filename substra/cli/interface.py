@@ -33,7 +33,11 @@ def get_client(global_conf):
     help_command = "substra config <url> ..."
 
     try:
-        client = Client(global_conf.config, global_conf.profile, global_conf.user)
+        client = Client.from_config_file(
+            config_path=global_conf.config,
+            profile_name=global_conf.profile,
+            user_path=global_conf.user,
+        )
 
     except FileNotFoundError:
         raise click.ClickException(
@@ -265,14 +269,10 @@ def cli(ctx):
 @click.option('--insecure', '-k', is_flag=True,
               help='Do not verify SSL certificates')
 @click.option('--version', '-v', default=configuration.DEFAULT_VERSION)
-@click.option('--username', '-u', required=True)
-@click.option('--password', '-p', required=True)
-def add_profile_to_config(url, config, profile, insecure, version, username, password):
+def add_profile_to_config(url, config, profile, insecure, version):
     """Add profile to config file."""
     configuration.Manager(config).add_profile(
         profile,
-        username,
-        password,
         url,
         version=version,
         insecure=insecure,
@@ -283,14 +283,17 @@ def add_profile_to_config(url, config, profile, insecure, version, username, pas
 @click_global_conf
 @click.pass_context
 @error_printer
-def login(ctx):
+@click.option('--username', '-u', envvar='SUBSTRA_USERNAME', prompt=True)
+@click.option('--password', '-p', envvar='SUBSTRA_PASSWORD', prompt=True, hide_input=True)
+def login(ctx, username, password):
     """Login to the Substra platform."""
     usr.Manager(ctx.obj.user).clear_user()
     client = get_client(ctx.obj)
 
-    token = client.login()
+    token = client.login(username, password)
     # create temporary user data
     usr.Manager(ctx.obj.user).add_user(token)
+    display(f"Token: {token}")
 
 
 @cli.group()
@@ -486,15 +489,15 @@ def add_algo(ctx, data):
 
 
 @add.command('compute_plan')
-@click.argument('tuples', type=click.Path(exists=True, dir_okay=False),
-                callback=load_json_from_path, metavar="TUPLES_PATH")
+@click.argument('data', type=click.Path(exists=True, dir_okay=False),
+                callback=load_json_from_path, metavar="PATH")
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
-def add_compute_plan(ctx, tuples):
+def add_compute_plan(ctx, data):
     """Add compute plan.
 
-    The tuples path must point to a valid JSON file with the following schema:
+    The path must point to a valid JSON file with the following schema:
 
     \b
     {
@@ -505,6 +508,7 @@ def add_compute_plan(ctx, tuples):
             "traintuple_id": str,
             "in_models_ids": list[str],
             "tag": str,
+            "metadata": dict
         }],
         "composite_traintuples": list[{
             "composite_traintuple_id": str,
@@ -517,6 +521,7 @@ def add_compute_plan(ctx, tuples):
                 "authorized_ids": list[str],
             },
             "tag": str,
+            "metadata": dict
         }]
         "aggregatetuples": list[{
             "aggregatetuple_id": str,
@@ -524,6 +529,7 @@ def add_compute_plan(ctx, tuples):
             "worker": str,
             "in_models_ids": list[str],
             "tag": str,
+            "metadata": dict
         }],
         "testtuples": list[{
             "objective_key": str,
@@ -531,12 +537,16 @@ def add_compute_plan(ctx, tuples):
             "test_data_sample_keys": list[str],
             "traintuple_id": str,
             "tag": str,
-        }]
+            "metadata": dict
+        }],
+        "clean_models": bool,
+        "tag": str,
+        "metadata": dict
     }
 
     """
     client = get_client(ctx.obj)
-    res = client.add_compute_plan(tuples)
+    res = client.add_compute_plan(data)
     printer = printers.get_asset_printer(assets.COMPUTE_PLAN, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
@@ -1161,6 +1171,7 @@ def update_compute_plan(ctx, compute_plan_id, tuples):
             "traintuple_id": str,
             "in_models_ids": list[str],
             "tag": str,
+            "metadata": dict,
         }],
         "composite_traintuples": list[{
             "composite_traintuple_id": str,
@@ -1173,6 +1184,7 @@ def update_compute_plan(ctx, compute_plan_id, tuples):
                 "authorized_ids": list[str],
             },
             "tag": str,
+            "metadata": dict,
         }]
         "aggregatetuples": list[{
             "aggregatetuple_id": str,
@@ -1180,6 +1192,7 @@ def update_compute_plan(ctx, compute_plan_id, tuples):
             "worker": str,
             "in_models_ids": list[str],
             "tag": str,
+            "metadata": dict,
         }],
         "testtuples": list[{
             "objective_key": str,
@@ -1187,6 +1200,7 @@ def update_compute_plan(ctx, compute_plan_id, tuples):
             "test_data_sample_keys": list[str],
             "traintuple_id": str,
             "tag": str,
+            "metadata": dict,
         }]
     }
 

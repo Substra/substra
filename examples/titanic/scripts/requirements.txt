@@ -1,3 +1,4 @@
 tqdm
 sklearn
 pandas
+substratools==0.5.0

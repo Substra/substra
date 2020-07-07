@@ -21,7 +21,7 @@ import substra
 current_directory = os.path.dirname(__file__)
 assets_directory = os.path.join(current_directory, '../assets')
 
-client = substra.Client(profile_name="node-1")
+client = substra.Client.from_config_file(profile_name="node-1")
 
 ALGO = {
     'name': 'Constant death predictor',

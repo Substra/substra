@@ -73,7 +73,7 @@ class InvalidRequest(HTTPError):
             error = request_exception.response.json()
         except ValueError:
             error = request_exception.response
-        msg = error.get('message', str(error))
+        msg = error.get("message", str(error))
 
         try:
             status_code = request_exception.response.status_code
@@ -99,7 +99,9 @@ class RequestTimeout(HTTPError):
         r = request_exception.response.json()
 
         try:
-            pkhash = r['pkhash'] if 'pkhash' in r else r['message'].get('pkhash')
+            pkhash = r.get('computePlanID') or (
+                r['pkhash'] if 'pkhash' in r else r['message'].get('pkhash')
+            )
         except (AttributeError, KeyError):
             # XXX this is the case when doing a POST query to update the
             #     data manager for instance
@@ -154,9 +156,4 @@ class BadConfiguration(SDKException):
 
 class UserException(SDKException):
     """User Exception"""
-    pass
-
-
-class KeyringException(SDKException):
-    """Could not retrieve password from keyring"""
     pass
