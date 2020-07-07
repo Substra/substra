@@ -98,7 +98,8 @@ def _docker_run(docker_client, name, command, volumes, remove=True):
             err = e.stderr.decode("utf-8")
         except Exception:
             raise e
-        msg = f"Command '{command}' in image '{name}' returned non-zero exit " f"status {e.exit_status}:\n{err}"
+        msg = f"Command '{command}' in image '{name}' returned non-zero exit " \
+            f"status {e.exit_status}:\n{err}"
         raise Exception(msg)
 
     elaps = time.time() - start
@@ -128,7 +129,11 @@ def compute_train(
     else:
         print("Training algo fake data samples")
 
-    volumes = {outmodel_path: VOLUME_OUTPUT_MODEL, local_path: VOLUME_LOCAL, train_opener_file: VOLUME_OPENER}
+    volumes = {
+        outmodel_path: VOLUME_OUTPUT_MODEL,
+        local_path: VOLUME_LOCAL,
+        train_opener_file: VOLUME_OPENER
+    }
 
     if not fake_data_samples:
         volumes[train_data_path] = VOLUME_DATA
@@ -181,9 +186,14 @@ def compute_test(
     print("Testing model")
 
     test_data_path_str = test_data_path or "fake"
-    print(f"Testing model on {test_data_path_str} labels with {MODEL_FILENAME} " f"saved in {test_pred_path}")
+    print(f"Testing model on {test_data_path_str} labels with {MODEL_FILENAME} "
+          f"saved in {test_pred_path}")
 
-    volumes = {outmodel_path: VOLUME_OUTPUT_MODEL, test_pred_path: VOLUME_PRED, test_opener_file: VOLUME_OPENER}
+    volumes = {
+        outmodel_path: VOLUME_OUTPUT_MODEL,
+        test_pred_path: VOLUME_PRED,
+        test_opener_file: VOLUME_OPENER
+    }
     if not fake_data_samples:
         volumes[test_data_path] = VOLUME_DATA
 
@@ -197,7 +207,14 @@ def compute_test(
     _docker_build(docker_client, metrics_path, DOCKER_METRICS_TAG)
 
 
-def compute_perf(pred_path, opener_file, fake_data_samples, n_fake_samples, data_path, docker_client):
+def compute_perf(
+    pred_path,
+    opener_file,
+    fake_data_samples,
+    n_fake_samples,
+    data_path,
+    docker_client
+):
     volumes = {pred_path: VOLUME_PRED, opener_file: VOLUME_OPENER}
     if not fake_data_samples:
         volumes[data_path] = VOLUME_DATA
@@ -215,7 +232,8 @@ def compute_perf(pred_path, opener_file, fake_data_samples, n_fake_samples, data
 
 class PathTraversalException(Exception):
     def __init__(self, archive_path, issue_path):
-        self.msg = f"Path Traversal Error : archive {archive_path} contains " f"{issue_path} which is not safe."
+        self.msg = f"Path Traversal Error : archive {archive_path} contains " \
+                   f"{issue_path} which is not safe."
         super().__init__(self.msg)
         self.archive_path = archive_path
         self.issue_path = issue_path
@@ -370,7 +388,8 @@ def compute(
     local_path="local",
 ):
 
-    with extract_archive_if_needed(algo_path) as algo_path, extract_archive_if_needed(metrics_path) as metrics_path:
+    with extract_archive_if_needed(algo_path) as \
+            algo_path, extract_archive_if_needed(metrics_path) as metrics_path:
         _compute(
             algo_path,
             train_opener_file,
