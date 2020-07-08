@@ -14,6 +14,27 @@ One client corresponds to one profile.
 Client.login(self, username, password)
 ```
 Login to a remote server.
+## from_config_file
+```python
+Client.from_config_file(profile_name: Union[str, NoneType] = None, config_path: Union[str, pathlib.Path, NoneType] = None, tokens_path: Union[str, pathlib.Path, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300)
+```
+Returns a new Client configured with profile data from configuration files.
+
+Args:
+    profile_name (typing.Optional[str], optional): Name of the profile to load.
+        Defaults to None.
+    config_path (typing.Union[str, pathlib.Path, None], optional): Path to the
+        configuration file. Defaults to None.
+    tokens_path (typing.Union[str, pathlib.Path, None], optional): Path to the tokens file.
+        Defaults to None.
+    token (typing.Optional[str], optional): Token to use for authentication (will be used
+        instead of any token found at tokens_path). Defaults to None.
+    retry_timeout (int, optional): Number of seconds before attempting a retry call in case
+        of timeout. Defaults to 5 minutes.
+
+Returns:
+    [type]: [description]
+
 ## add_data_sample
 ```python
 Client.add_data_sample(self, data, local=True, exist_ok=False)
