@@ -104,13 +104,17 @@ class Client(object):
     @classmethod
     def from_config_file(
         cls,
-        profile_name: typing.Optional[str] = None,
+        profile_name: str = cfg.DEFAULT_PROFILE_NAME,
         config_path: typing.Union[str, pathlib.Path, None] = None,
         tokens_path: typing.Union[str, pathlib.Path, None] = None,
         token: typing.Optional[str] = None,
         retry_timeout: int = DEFAULT_RETRY_TIMEOUT,
     ):
         """Returns a new Client configured with profile data from configuration files.
+
+        The new Client will be configured for a remote backend. To get a local backend, use:
+
+        >>> client = Client(backend='local')
 
         Args:
             profile_name (typing.Optional[str], optional): Name of the profile to load.

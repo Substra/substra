@@ -16,9 +16,13 @@ Client.login(self, username, password)
 Login to a remote server.
 ## from_config_file
 ```python
-Client.from_config_file(profile_name: Union[str, NoneType] = None, config_path: Union[str, pathlib.Path, NoneType] = None, tokens_path: Union[str, pathlib.Path, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300)
+Client.from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path, NoneType] = None, tokens_path: Union[str, pathlib.Path, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300)
 ```
 Returns a new Client configured with profile data from configuration files.
+
+The new Client will be configured for a remote backend. To get a local backend, use:
+
+>>> client = Client(backend='local')
 
 Args:
     profile_name (typing.Optional[str], optional): Name of the profile to load.
