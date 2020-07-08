@@ -24,11 +24,11 @@ class TitanicOpener(tools.Opener):
         return pd.read_csv(path)
 
     def fake_X(self, n_samples=None):
-        data = self._fake_data()
+        data = self._fake_data(n_samples)
         return self._get_X(data)
 
     def fake_y(self, n_samples=None):
-        data = self._fake_data()
+        data = self._fake_data(n_samples)
         return self._get_y(data)
 
     @classmethod
