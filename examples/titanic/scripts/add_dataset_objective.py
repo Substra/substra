@@ -46,7 +46,8 @@ def progress_bar(length):
 current_directory = os.path.dirname(__file__)
 assets_directory = os.path.join(current_directory, '../assets')
 
-client = substra.Client.from_config_file(profile_name="node-1")
+path = os.path.expanduser('~/.substra')
+client = substra.Client.from_config_file(profile_name="node-1", config_path=path)
 
 DATASET = {
     'name': 'Titanic',

@@ -21,7 +21,8 @@ import substra
 current_directory = os.path.dirname(__file__)
 assets_directory = os.path.join(current_directory, '../assets')
 
-client = substra.Client.from_config_file(profile_name="node-1")
+path = os.path.expanduser('~/.substra')
+client = substra.Client.from_config_file(profile_name="node-1", config_path=path)
 
 ALGO_KEYS_JSON_FILENAME = 'algo_random_forest_keys.json'
 
