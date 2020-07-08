@@ -28,7 +28,7 @@ class InMemoryDb:
         # assets stored per type and per key
         self._data = collections.defaultdict(dict)
 
-    def add(self, asset, exist_ok=False):
+    def add(self, asset, exist_ok: bool = False):
         """Add an asset."""
         type_ = asset.__class__.type_
         if type_ == models.ComputePlan.type_:
@@ -48,7 +48,7 @@ class InMemoryDb:
             logger.info(f"{type_} with key '{key}' has been created.")
         return asset
 
-    def get(self, type_, key):
+    def get(self, type_, key: str):
         """Return asset."""
         try:
             return self._data[type_][key]

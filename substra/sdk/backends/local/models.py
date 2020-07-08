@@ -252,18 +252,9 @@ class Aggregatetuple(_Model):
     type_: ClassVar[str] = schemas.Type.Aggregatetuple
 
 
-class OutHeadModel(pydantic.BaseModel):
-    hash_: str = pydantic.Field(..., alias="hash")
-
-
-class OutCompositeTrunkModel(pydantic.BaseModel):
+class OutCompositeModel(pydantic.BaseModel):
     permissions: Permissions
     out_model: Optional[OutModel]
-
-
-class OutCompositeHeadModel(pydantic.BaseModel):
-    permissions: Permissions
-    out_model: Optional[OutHeadModel]
 
 
 class CompositeTraintuple(_Model):
@@ -280,8 +271,10 @@ class CompositeTraintuple(_Model):
     log: str
     in_head_model: Optional[InModel]
     in_trunk_model: Optional[InModel]
-    out_head_model: Optional[OutCompositeHeadModel]
-    out_trunk_model: Optional[OutCompositeTrunkModel]
+    # This is different from the remote backend
+    # We store the out head model storage address directly in the object
+    out_head_model: Optional[OutCompositeModel]
+    out_trunk_model: Optional[OutCompositeModel]
     metadata: Dict[str, str]
 
     type_: ClassVar[str] = schemas.Type.CompositeTraintuple
