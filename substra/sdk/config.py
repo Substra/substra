@@ -71,7 +71,6 @@ class _ProfileManager(abc.ABC):
 
 class ConfigManager(_ProfileManager):
     def set_profile(self, name, url, version=DEFAULT_VERSION, insecure=False):
-        """Add profile to config file on disk."""
         return super().set_profile(name, {
             'url': url,
             'version': version,
