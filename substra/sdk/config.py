@@ -35,8 +35,8 @@ class ProfileNotFoundError(ConfigException):
 
 
 class _ProfileManager(abc.ABC):
-    def __init__(self, path=None):
-        self._path = path or self.default_path
+    def __init__(self, path):
+        self._path = path
         self._profiles = self.load()
 
     def load(self):
@@ -70,8 +70,6 @@ class _ProfileManager(abc.ABC):
 
 
 class ConfigManager(_ProfileManager):
-    default_path = DEFAULT_PATH
-
     def set_profile(self, name, url, version=DEFAULT_VERSION, insecure=False):
         """Add profile to config file on disk."""
         return super().set_profile(name, {
@@ -82,8 +80,6 @@ class ConfigManager(_ProfileManager):
 
 
 class TokenManager(_ProfileManager):
-    default_path = DEFAULT_TOKENS_PATH
-
     def set_profile(self, name, token):
         return super().set_profile(name, {
             'token': token,

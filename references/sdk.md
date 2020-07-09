@@ -16,7 +16,7 @@ Client.login(self, username, password)
 Login to a remote server.
 ## from_config_file
 ```python
-Client.from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path, NoneType] = None, tokens_path: Union[str, pathlib.Path, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300)
+Client.from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '/Users/jeremy/.substra', tokens_path: Union[str, pathlib.Path] = '/Users/jeremy/.substra-tokens', token: Union[str, NoneType] = None, retry_timeout: int = 300)
 ```
 Returns a new Client configured with profile data from configuration files.
 
@@ -26,18 +26,18 @@ The new Client will be configured for a remote backend. To get a local backend, 
 
 Args:
     profile_name (typing.Optional[str], optional): Name of the profile to load.
-        Defaults to None.
+        Defaults to 'default'.
     config_path (typing.Union[str, pathlib.Path, None], optional): Path to the
-        configuration file. Defaults to None.
+        configuration file. Defaults to '~/.substra'.
     tokens_path (typing.Union[str, pathlib.Path, None], optional): Path to the tokens file.
-        Defaults to None.
+        Defaults to '~/.substra-tokens'.
     token (typing.Optional[str], optional): Token to use for authentication (will be used
         instead of any token found at tokens_path). Defaults to None.
     retry_timeout (int, optional): Number of seconds before attempting a retry call in case
         of timeout. Defaults to 5 minutes.
 
 Returns:
-    [type]: [description]
+    Client: The new client.
 
 ## add_data_sample
 ```python
