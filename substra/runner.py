@@ -110,8 +110,19 @@ def _docker_run(docker_client, name, command, volumes, remove=True):
     print(f'(duration {elaps:.2f} s )')
 
 
-def compute_train(docker_client, train_data_path, algo_path, fake_data_samples, outmodel_path,
-                  local_path, train_opener_file, rank, inmodels, outmodel_file):
+def compute_train(
+    docker_client,
+    train_data_path,
+    algo_path,
+    fake_data_samples,
+    n_fake_samples,
+    outmodel_path,
+    local_path,
+    train_opener_file,
+    rank,
+    inmodels,
+    outmodel_file,
+):
 
     print('Training starts')
 
@@ -132,6 +143,8 @@ def compute_train(docker_client, train_data_path, algo_path, fake_data_samples, 
     command = 'train'
     if fake_data_samples:
         command += " --fake-data"
+    if n_fake_samples:
+        command += f" --n-fake-samples {n_fake_samples}"
 
     if rank is not None:
         command += f" --rank {rank}"
@@ -158,8 +171,17 @@ def compute_train(docker_client, train_data_path, algo_path, fake_data_samples, 
         raise Exception(f"Model {outmodel_file} doesn't exist")
 
 
-def compute_test(docker_client, algo_path, test_data_path, test_pred_path, outmodel_path,
-                 test_opener_file, fake_data_samples, metrics_path):
+def compute_test(
+    docker_client,
+    algo_path,
+    test_data_path,
+    test_pred_path,
+    outmodel_path,
+    test_opener_file,
+    fake_data_samples,
+    n_fake_samples,
+    metrics_path,
+):
     print('Testing starts')
 
     _docker_build(docker_client, algo_path, DOCKER_METRICS_TAG)
@@ -179,19 +201,30 @@ def compute_test(docker_client, algo_path, test_data_path, test_pred_path, outmo
     command = f"predict {MODEL_FILENAME}"
     if fake_data_samples:
         command += " --fake-data"
+    if n_fake_samples:
+        command += f' --n-fake-samples {n_fake_samples}'
     _docker_run(docker_client, DOCKER_ALGO_TAG, command=command,
                 volumes=volumes)
 
     _docker_build(docker_client, metrics_path, DOCKER_METRICS_TAG)
 
 
-def compute_perf(pred_path, opener_file, fake_data_samples, data_path, docker_client):
+def compute_perf(
+    pred_path,
+    opener_file,
+    fake_data_samples,
+    n_fake_samples,
+    data_path,
+    docker_client
+):
     volumes = {pred_path: VOLUME_PRED,
                opener_file: VOLUME_OPENER}
     if not fake_data_samples:
         volumes[data_path] = VOLUME_DATA
 
     command = _get_metrics_command(fake_data_samples)
+    if n_fake_samples:
+        command += f' --n-fake-samples {n_fake_samples}'
     _docker_run(docker_client, DOCKER_METRICS_TAG, command=command,
                 volumes=volumes)
 
@@ -282,6 +315,7 @@ def _compute(algo_path,
              train_data_path,
              test_data_path,
              fake_data_samples,
+             n_fake_samples,
              rank,
              inmodels,
              outmodel_path='model',
@@ -313,6 +347,7 @@ def _compute(algo_path,
                   train_data_path,
                   algo_path,
                   fake_data_samples,
+                  n_fake_samples,
                   outmodel_path,
                   local_path,
                   train_opener_file,
@@ -329,6 +364,7 @@ def _compute(algo_path,
                  outmodel_path,
                  test_opener_file,
                  fake_data_samples,
+                 n_fake_samples,
                  metrics_path)
 
     print(f'Evaluating performance - compute metric with {test_pred_path} '
@@ -336,6 +372,7 @@ def _compute(algo_path,
     test_perf = compute_perf(pred_path=test_pred_path,
                              opener_file=test_opener_file,
                              fake_data_samples=fake_data_samples,
+                             n_fake_samples=n_fake_samples,
                              data_path=test_data_path,
                              docker_client=docker_client)
     print(f'Successfully test model {outmodel_file} with a score of {test_perf} on test data')
@@ -350,6 +387,7 @@ def compute(algo_path,
             fake_data_samples,
             rank,
             inmodels,
+            n_fake_samples=None,
             outmodel_path='model',
             compute_path='./sandbox',
             local_path='local'):
@@ -363,6 +401,7 @@ def compute(algo_path,
                  train_data_path,
                  test_data_path,
                  fake_data_samples,
+                 n_fake_samples,
                  rank,
                  inmodels,
                  outmodel_path,

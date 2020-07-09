@@ -701,6 +701,7 @@ Options:
   --fake-data-samples             use fake data samples during both training
                                   and testing.
 
+  --n-fake-samples INTEGER        Number of fake data samples requested
   --help                          Show this message and exit.
 ```
 

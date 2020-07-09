@@ -23,12 +23,12 @@ class TitanicOpener(tools.Opener):
     def get_predictions(self, path):
         return pd.read_csv(path)
 
-    def fake_X(self):
-        data = self._fake_data()
+    def fake_X(self, n_samples=None):
+        data = self._fake_data(n_samples)
         return self._get_X(data)
 
-    def fake_y(self):
-        data = self._fake_data()
+    def fake_y(self, n_samples=None):
+        data = self._fake_data(n_samples)
         return self._get_y(data)
 
     @classmethod
@@ -40,8 +40,8 @@ class TitanicOpener(tools.Opener):
         return pd.DataFrame(data=data.get('Survived'), columns=['Survived'])
 
     @classmethod
-    def _fake_data(cls):
-        N_SAMPLES = 100
+    def _fake_data(cls, n_samples=None):
+        N_SAMPLES = n_samples if n_samples and n_samples <= 100 else 100
 
         data = {
             'PassengerId': list(range(N_SAMPLES)),
