@@ -1,5 +1,5 @@
 # this base image works in both CPU and GPU enabled environments
-FROM substrafoundation/substra-tools:0.5.0
+FROM substrafoundation/substra-tools:0.6.0
 
 # install dependencies
 RUN pip3 install sklearn
