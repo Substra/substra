@@ -131,9 +131,11 @@ class Client(object):
         Returns:
             Client: The new client.
         """
+        config_path = os.path.expanduser(config_path)
         profile = cfg.ConfigManager(config_path).get_profile(profile_name)
         if not token:
             try:
+                tokens_path = os.path.expanduser(tokens_path)
                 token = cfg.TokenManager(tokens_path).get_profile(profile_name)
             except cfg.ProfileNotFoundError:
                 token = None

@@ -19,8 +19,8 @@ import os
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_PATH = os.path.expanduser('~/.substra')
-DEFAULT_TOKENS_PATH = os.path.expanduser('~/.substra-tokens')
+DEFAULT_PATH = '~/.substra'
+DEFAULT_TOKENS_PATH = '~/.substra-tokens'
 DEFAULT_VERSION = '0.0'
 DEFAULT_PROFILE_NAME = 'default'
 DEFAULT_INSECURE = False

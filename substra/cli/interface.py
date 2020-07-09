@@ -100,8 +100,8 @@ def click_global_conf_tokens(f):
         expose_value=False,
         type=click.Path(dir_okay=False, resolve_path=True),
         callback=update_global_conf,
-        default=configuration.DEFAULT_TOKENS_PATH,
-        help='Tokens file path to use (default ~/.substra-tokens).')(f)
+        default=os.path.expanduser(configuration.DEFAULT_TOKENS_PATH),
+        help=f'Tokens file path to use (default {configuration.DEFAULT_TOKENS_PATH}).')(f)
 
 
 def click_global_conf_config(f):
@@ -111,8 +111,8 @@ def click_global_conf_config(f):
         expose_value=False,
         type=click.Path(exists=True, resolve_path=True),
         callback=update_global_conf,
-        default=configuration.DEFAULT_PATH,
-        help='Config path (default ~/.substra).')(f)
+        default=os.path.expanduser(configuration.DEFAULT_PATH),
+        help=f'Config path (default {configuration.DEFAULT_PATH}).')(f)
 
 
 def click_global_conf_verbose(f):
@@ -261,8 +261,8 @@ def cli(ctx):
 @cli.command('config')
 @click.argument('url')
 @click.option('--config', type=click.Path(),
-              default=configuration.DEFAULT_PATH,
-              help='Config path (default ~/.substra).')
+              default=os.path.expanduser(configuration.DEFAULT_PATH),
+              help=f'Config path (default {configuration.DEFAULT_PATH}).')
 @click.option('--profile', default='default',
               help='Profile name to add')
 @click.option('--insecure', '-k', is_flag=True,
