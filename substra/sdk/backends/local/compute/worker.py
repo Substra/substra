@@ -218,22 +218,21 @@ class Worker:
             tuple_.status = models.Status.doing
 
             # fetch dependencies
-            algo = self._db.get(schemas.Type.Algo, tuple_.algo_key)
-            dataset = self._db.get(schemas.Type.Dataset, tuple_.dataset.key)
+            if isinstance(tuple_, models.Traintuple):
+                algo = self._db.get(schemas.Type.Algo, tuple_.algo_key)
+            else:
+                algo = self._db.get(schemas.Type.AggregateAlgo, tuple_.algo_key)
+
             compute_plan = None
             if tuple_.compute_plan_id:
                 compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_id)
 
             # prepare input models and datasamples
             models_volume = _mkdir(os.path.join(tuple_dir, "models"))
-            for model in tuple_.in_models:
-                os.link(model.storage_address, os.path.join(models_volume, model.key))
-
-            data_volume = self._get_data_volume(tuple_dir, tuple_)
+            for idx, model in enumerate(tuple_.in_models):
+                os.link(model.storage_address, os.path.join(models_volume, f"{idx}_{model.key}"))
 
             volumes = {
-                dataset.data_opener: _VOLUME_OPENER,
-                data_volume: _VOLUME_INPUT_DATASAMPLES,
                 models_volume: _VOLUME_MODELS_RW,
             }
 
@@ -245,10 +244,20 @@ class Worker:
                 )
                 volumes[local_volume] = _VOLUME_LOCAL
 
+            if isinstance(tuple_, models.Traintuple):
+                # if this is a traintuple, prepare the data
+                dataset = self._db.get(schemas.Type.Dataset, tuple_.dataset.key)
+                data_volume = self._get_data_volume(tuple_dir, tuple_)
+                volumes[dataset.data_opener] = _VOLUME_OPENER
+                volumes[data_volume] = _VOLUME_INPUT_DATASAMPLES
+                command = "train"
+            else:
+                command = "aggregate"
+
             # compute traintuple command
-            command = f"train --rank {tuple_.rank}"
-            for model in tuple_.in_models:
-                command += f" {model.key}"
+            command += f" --rank {tuple_.rank}"
+            for idx, model in enumerate(tuple_.in_models):
+                command += f" {idx}_{model.key}"
 
             container_name = f"algo-{algo.key}"
             logs = self._spawner.spawn(
@@ -310,7 +319,9 @@ class Worker:
                 volumes[local_volume] = _VOLUME_LOCAL
 
             # compute testtuple command
-            if traintuple_type == schemas.Type.Traintuple:
+            if traintuple_type == schemas.Type.Traintuple \
+                    or traintuple_type == schemas.Type.Aggregatetuple:
+
                 os.link(
                     traintuple.out_model.storage_address,
                     os.path.join(models_volume, traintuple.out_model.key),
@@ -336,8 +347,6 @@ class Worker:
                     models_volume=models_volume,
                     container_volume=_VOLUME_MODELS_RO,
                 )
-            else:
-                raise NotImplementedError("Testtuple for aggregate algo not implemented.")
 
             container_name = f"algo-{traintuple.algo_key}"
             logs = self._spawner.spawn(

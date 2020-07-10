@@ -63,11 +63,17 @@ class Permission(pydantic.BaseModel):
     public: bool
     authorized_ids: List[str]
 
+    class Config:
+        extra = 'forbid'
+
 
 class Permissions(pydantic.BaseModel):
     """Permissions structure stored in various asset types."""
 
     process: Permission
+
+    class Config:
+        extra = 'forbid'
 
 
 class _Model(pydantic.BaseModel, abc.ABC):
@@ -76,6 +82,9 @@ class _Model(pydantic.BaseModel, abc.ABC):
     class Meta:
         storage_only_fields = None
         alias_fields = None
+
+    class Config:
+        extra = 'forbid'
 
     def to_response(self):
         """Convert model to backend response object."""
@@ -242,6 +251,7 @@ class Aggregatetuple(_Model):
     algo_key: str
     permissions: Permissions
     tag: str
+    compute_plan_id: str
     rank: Optional[int]
     status: Status
     log: str

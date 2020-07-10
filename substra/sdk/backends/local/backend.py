@@ -510,13 +510,24 @@ class Local(base.BaseBackend):
             in_tuples.append(in_head_tuple)
 
         if spec.in_trunk_model_key:
-            in_trunk_tuple = self._db.get(schemas.Type.CompositeTraintuple, spec.in_trunk_model_key)
-            assert in_trunk_tuple.out_trunk_model
-            in_trunk_model = models.InModel(
-                hash=in_trunk_tuple.out_trunk_model.out_model.hash_,
-                storage_address=in_trunk_tuple.out_trunk_model.out_model.storage_address
-            )
-            in_tuples.append(in_trunk_tuple)
+            try:
+                in_trunk_tuple = self._db.get(
+                    schemas.Type.CompositeTraintuple, spec.in_trunk_model_key
+                )
+                assert in_trunk_tuple.out_trunk_model
+                in_trunk_model = models.InModel(
+                    hash=in_trunk_tuple.out_trunk_model.out_model.hash_,
+                    storage_address=in_trunk_tuple.out_trunk_model.out_model.storage_address
+                )
+                in_tuples.append(in_trunk_tuple)
+            except exceptions.NotFound:
+                in_trunk_tuple = self._db.get(schemas.Type.Aggregatetuple, spec.in_trunk_model_key)
+                assert in_trunk_tuple.out_model
+                in_trunk_model = models.InModel(
+                    hash=in_trunk_tuple.out_model.hash_,
+                    storage_address=in_trunk_tuple.out_model.storage_address
+                )
+                in_tuples.append(in_trunk_tuple)
 
         # Hash key
         #  * has the same `algo_key`, `data_manager_key`, `train_data_sample_keys`,
@@ -544,7 +555,7 @@ class Local(base.BaseBackend):
             permissions={
                 "process": {
                     "authorized_ids": spec.out_trunk_model_permissions.authorized_ids,
-                    "public": spec.out_trunk_model_permissions.public
+                    "public": False
                 }
             },
             tag=spec.tag or '',
@@ -559,11 +570,68 @@ class Local(base.BaseBackend):
             metadata=spec.metadata or dict()
         )
         composite_traintuple = self._db.add(composite_traintuple, exist_ok)
-        self._worker.schedule_composite_traintuple(composite_traintuple)
+        if composite_traintuple.status == models.Status.waiting:
+            self._worker.schedule_composite_traintuple(composite_traintuple)
         return composite_traintuple
 
-    def _add_aggregatetraintuple(self, spec, exist_ok, spec_options=None):
-        pass
+    def _add_aggregatetuple(self,
+                            spec: schemas.AggregatetupleSpec,
+                            exist_ok: bool,
+                            spec_options: dict = None,
+                            ):
+        # validation
+        self._db.get(schemas.Type.AggregateAlgo, spec.algo_key)
+        in_tuples = list()
+        in_models = list()
+        for model_key in spec.in_models_keys:
+            try:
+                in_tuple = self._db.get(schemas.Type.Traintuple, key=model_key)
+                in_models.append(in_tuple.out_model.dict(by_alias=True))
+            except exceptions.NotFound:
+                in_tuple = self._db.get(schemas.Type.CompositeTraintuple, key=model_key)
+                in_models.append(in_tuple.out_head_model.out_model.dict(by_alias=True))
+            in_tuples.append(in_tuple)
+
+        # Hash key
+        key_components = spec.in_models_keys + [spec.algo_key]
+        key = hasher.Hasher(values=key_components).compute()
+
+        # Compute plan
+        compute_plan_id, rank = self.__create_compute_plan_from_tuple(spec, key, in_tuples)
+
+        # Permissions
+        public = False
+        authorized_ids = set()
+        for in_tuple in in_tuples:
+            if in_tuple.permissions.process.public:
+                public = True
+            authorized_ids.update(in_tuple.permissions.process.authorized_ids)
+        authorized_ids = list(authorized_ids)
+
+        aggregatetuple = models.Aggregatetuple(
+            key=key,
+            creator=_BACKEND_ID,
+            worker=spec.worker,  # TODO see what it is and what checks it needs
+            algo_key=spec.algo_key,
+            permissions={
+                "process": {
+                    "authorized_ids": authorized_ids,
+                    "public": public
+                }
+            },
+            tag=spec.tag or '',
+            compute_plan_id=compute_plan_id,
+            rank=rank,
+            status=models.Status.waiting.value,
+            log='',
+            in_models=in_models,
+            out_model=None,
+            metadata=spec.metadata or dict()
+        )
+        aggregatetuple = self._db.add(aggregatetuple, exist_ok)
+        if aggregatetuple.status == models.Status.waiting:
+            self._worker.schedule_traintuple(aggregatetuple)
+        return aggregatetuple
 
     def _download_algo(self, url_field_path, key, destination):
         asset = self._db.get(type_=schemas.Type.Algo, key=key)
