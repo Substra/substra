@@ -60,6 +60,19 @@ class InMemoryDb:
         """"List assets."""
         return self._data[type_].values()
 
+    def update(self, asset):
+        type_ = asset.__class__.type_
+        if type_ == models.ComputePlan.type_:
+            key = asset.compute_plan_id
+        else:
+            key = asset.key
+
+        if key not in self._data[type_]:
+            raise exceptions.NotFound(f"Wrong pk {key}", 404)
+
+        self._data[type_][key] = asset
+        return asset
+
 
 _SHARED_DB = None
 
