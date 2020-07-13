@@ -728,21 +728,43 @@ class Local(base.BaseBackend):
     ):
 
         # validation
+        all_tuples = dict()
         traintuples = dict()
         if spec.traintuples:
             for traintuple in spec.traintuples:
                 if traintuple.in_models_ids is not None:
-                    traintuples[traintuple.traintuple_id] = traintuple
+                    all_tuples[traintuple.traintuple_id] = traintuple.in_models_ids
                 else:
-                    traintuples[traintuple.traintuple_id] = list()
+                    all_tuples[traintuple.traintuple_id] = list()
+                traintuples[traintuple.traintuple_id] = traintuple
 
-        # Define the rank of each traintuple
+        aggregatetuples = dict()
+        if spec.aggregatetuples:
+            for aggregatetuple in spec.aggregatetuples:
+                if aggregatetuple.in_models_ids is not None:
+                    all_tuples[aggregatetuple.aggregatetuple_id] = aggregatetuple.in_models_ids
+                else:
+                    all_tuples[aggregatetuple.aggregatetuple_id] = list()
+                aggregatetuples[aggregatetuple.aggregatetuple_id] = aggregatetuple
+
+        compositetuples = dict()
+        if spec.composite_traintuples:
+            for compositetuple in spec.composite_traintuples:
+                assert not compositetuple.out_trunk_model_permissions.public
+                all_tuples[compositetuple.composite_traintuple_id] = list()
+                if compositetuple.in_head_model_id is not None:
+                    all_tuples[compositetuple.composite_traintuple_id].append(compositetuple.in_head_model_id)
+                if compositetuple.in_trunk_model_id is not None:
+                    all_tuples[compositetuple.composite_traintuple_id].append(compositetuple.in_trunk_model_id)
+                compositetuples[compositetuple.composite_traintuple_id] = compositetuple
+
+        # Define the rank of each traintuple, aggregate tuple and composite tuple
         visited = dict()
-        while len(visited) != len(traintuples):
-            node = set(traintuples.keys()).difference(set(visited.keys())).pop()
-            self.__get_rank(node, visited, set(), traintuples)
+        while len(visited) != len(all_tuples):
+            node = set(all_tuples.keys()).difference(set(visited.keys())).pop()
+            self.__get_rank(node, visited, set(), all_tuples)
 
-        # TODO aggregate and composite tuples
+        # TODO testtuples
 
         compute_plan = models.ComputePlan(
             compute_plan_id=uuid.uuid4().hex,
@@ -755,28 +777,63 @@ class Local(base.BaseBackend):
         )
         compute_plan = self._db.add(compute_plan, exist_ok)
 
-        # go through the traintuples sorted by rank
+        # go through the tuples sorted by rank
         for id_, rank in {
             id_: rank
             for id_, rank
             in sorted(visited.items(), key=lambda item: item[1])
         }.items():
-            traintuple = traintuples[id_]
-            traintuple_spec = schemas.TraintupleSpec(
-                algo_key=traintuple.algo_key,
-                data_manager_key=traintuple.data_manager_key,
-                train_data_sample_keys=traintuple.train_data_sample_keys,
-                in_models_keys=[
-                    compute_plan.id_to_key[parent_id] for parent_id in traintuple.in_models_ids
-                ],
-                tag=traintuple.tag,
-                compute_plan_id=compute_plan.compute_plan_id,
-                rank=rank,
-                metadata=traintuple.metadata
-            )
-            traintuple = self.add(traintuple_spec, exist_ok, spec_options)
-            # Get the compute plan as it has been modified when adding the traintuple
-            compute_plan.id_to_key[id_] = traintuple["key"]
+            if id_ in traintuples:
+                traintuple = traintuples[id_]
+                traintuple_spec = schemas.TraintupleSpec(
+                    algo_key=traintuple.algo_key,
+                    data_manager_key=traintuple.data_manager_key,
+                    train_data_sample_keys=traintuple.train_data_sample_keys,
+                    in_models_keys=[
+                        compute_plan.id_to_key[parent_id] for parent_id in traintuple.in_models_ids
+                    ],
+                    tag=traintuple.tag,
+                    compute_plan_id=compute_plan.compute_plan_id,
+                    rank=rank,
+                    metadata=traintuple.metadata
+                )
+                traintuple = self.add(traintuple_spec, exist_ok, spec_options)
+                compute_plan.id_to_key[id_] = traintuple["key"]
+
+            elif id_ in aggregatetuples:
+                aggregatetuple = aggregatetuples[id_]
+                aggregatetuple_spec = schemas.AggregatetupleSpec(
+                    algo_key=aggregatetuple.algo_key,
+                    worker=aggregatetuple.worker,
+                    in_models_keys=[
+                        compute_plan.id_to_key[parent_id] for parent_id in aggregatetuple.in_models_ids
+                    ],
+                    tag=aggregatetuple.tag,
+                    compute_plan_id=compute_plan.compute_plan_id,
+                    rank=rank,
+                    metadata=aggregatetuple.metadata
+                )
+                aggregatetuple = self.add(aggregatetuple_spec, exist_ok, spec_options)
+                compute_plan.id_to_key[id_] = aggregatetuple["key"]
+
+            elif id_ in compositetuples:
+                compositetuple = compositetuples[id_]
+                compositetuple_spec = schemas.CompositeTraintupleSpec(
+                    algo_key=compositetuple.algo_key,
+                    data_manager_key=compositetuple.data_manager_key,
+                    train_data_sample_keys=compositetuple.train_data_sample_keys,
+                    in_head_model_key=compute_plan.id_to_key[compositetuple.in_head_model_id] if compositetuple.in_head_model_id else None,
+                    in_trunk_model_key=compute_plan.id_to_key[compositetuple.in_trunk_model_id] if compositetuple.in_trunk_model_id else None,
+                    out_trunk_model_permissions={
+                        "authorized_ids": compositetuple.out_trunk_model_permissions.authorized_ids
+                    },
+                    tag=compositetuple.tag,
+                    compute_plan_id=compute_plan.compute_plan_id,
+                    rank=rank,
+                    metadata=compositetuple.metadata
+                )
+                compositetuple = self.add(compositetuple_spec, exist_ok, spec_options)
+                compute_plan.id_to_key[id_] = compositetuple["key"]
 
         return compute_plan
 
@@ -787,12 +844,12 @@ class Local(base.BaseBackend):
             return visited[node]
         node_deps.add(node)
 
-        if len(tuples[node].in_models_ids) == 0:
+        if len(tuples[node]) == 0:
             rank = 0
         else:
             rank = 1 + max([
                 self.__get_rank(x, visited, node_deps, tuples)
-                for x in tuples[node].in_models_ids
+                for x in tuples[node]
             ])
         visited[node] = rank
         return rank
