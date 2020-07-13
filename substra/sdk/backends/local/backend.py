@@ -273,7 +273,8 @@ class Local(base.BaseBackend):
             # Add to the compute plan
             list_keys = getattr(compute_plan, spec.compute_plan_attr_name)
             if list_keys is None:
-                list_keys = [key]
+                list_keys = list()
+            list_keys.append(key)
             setattr(compute_plan, spec.compute_plan_attr_name, list_keys)
 
             compute_plan.tuple_count += 1
