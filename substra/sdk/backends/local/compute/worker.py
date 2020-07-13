@@ -181,26 +181,15 @@ class Worker:
             )
 
             # save move output models
-            tuple_.out_head_model = models.OutCompositeModel(
-                out_model=self._save_output_model(
-                    tuple_,
-                    'output_head_model',
-                    output_models_volume
-                ),
-                permissions=tuple_.permissions
+            tuple_.out_head_model.out_model = self._save_output_model(
+                tuple_,
+                'output_head_model',
+                output_models_volume
             )
-            tuple_.out_trunk_model = models.OutCompositeModel(
-                out_model=self._save_output_model(
-                    tuple_,
-                    'output_trunk_model',
-                    output_models_volume
-                ),
-                permissions={
-                    "process": {
-                        "public": False,
-                        "authorized_ids": [dataset.owner]
-                    }
-                }
+            tuple_.out_trunk_model.out_model = self._save_output_model(
+                tuple_,
+                'output_trunk_model',
+                output_models_volume
             )
 
             # set logs and status

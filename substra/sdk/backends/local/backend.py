@@ -232,7 +232,7 @@ class Local(base.BaseBackend):
         ])
         compute_plan = models.ComputePlan(
             compute_plan_id=uuid.uuid4().hex,
-            status=models.Status.waiting.value,
+            status=models.Status.waiting,
             traintuple_keys=traintuple_keys,
             composite_traintuple_keys=composite_traintuple_keys,
             aggregatetuple_keys=aggregatetuple_keys,
@@ -364,7 +364,7 @@ class Local(base.BaseBackend):
             compute_plan_id=compute_plan_id,
             rank=rank,
             tag=spec.tag or "",
-            status=models.Status.waiting.value,
+            status=models.Status.waiting,
             in_models=[
                 {
                     "hash": in_traintuple.out_model.hash_,
@@ -467,7 +467,7 @@ class Local(base.BaseBackend):
             },
             log="",
             tag=spec.tag or "",
-            status=models.Status.waiting.value,
+            status=models.Status.waiting,
             rank=traintuple.rank,
             compute_plan_id=traintuple.compute_plan_id,
             metadata=spec.metadata if spec.metadata else dict(),
@@ -541,6 +541,16 @@ class Local(base.BaseBackend):
         )
         trunk_model_permissions = self.__compute_permissions(trunk_model_permissions)
 
+        if spec.in_head_model_key:
+            head_model_permissions = in_head_tuple.out_head_model.permissions
+        else:
+            head_model_permissions = {
+                "process": {
+                    "public": False,
+                    "authorized_ids": [_BACKEND_ID]
+                }
+            }
+
         composite_traintuple = models.CompositeTraintuple(
             key=key,
             creator=_BACKEND_ID,
@@ -551,18 +561,23 @@ class Local(base.BaseBackend):
                 "keys": spec.train_data_sample_keys,
                 "worker": _BACKEND_ID,
             },
-            permissions={
-                "process": trunk_model_permissions.dict()
-            },
             tag=spec.tag or '',
             compute_plan_id=compute_plan_id,
             rank=rank,
-            status=models.Status.waiting.value,
+            status=models.Status.waiting,
             log='',
             in_head_model=in_head_model,
             in_trunk_model=in_trunk_model,
-            out_head_model=None,
-            out_trunk_model=None,
+            out_head_model={
+                "permissions": head_model_permissions,
+                "out_model": None
+            },
+            out_trunk_model={
+                "permissions": {
+                    "process": trunk_model_permissions.dict()
+                },
+                "out_model": None
+            },
             metadata=spec.metadata or dict()
         )
         composite_traintuple = self._db.add(composite_traintuple, exist_ok)
@@ -618,7 +633,7 @@ class Local(base.BaseBackend):
             tag=spec.tag or '',
             compute_plan_id=compute_plan_id,
             rank=rank,
-            status=models.Status.waiting.value,
+            status=models.Status.waiting,
             log='',
             in_models=in_models,
             out_model=None,

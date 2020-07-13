@@ -273,7 +273,6 @@ class CompositeTraintuple(_Model):
     worker: str
     algo_key: str
     dataset: _TraintupleDataset
-    permissions: Permissions
     tag: str
     compute_plan_id: str
     rank: Optional[int]
@@ -283,8 +282,8 @@ class CompositeTraintuple(_Model):
     in_trunk_model: Optional[InModel]
     # This is different from the remote backend
     # We store the out head model storage address directly in the object
-    out_head_model: Optional[OutCompositeModel]
-    out_trunk_model: Optional[OutCompositeModel]
+    out_head_model: OutCompositeModel
+    out_trunk_model: OutCompositeModel
     metadata: Dict[str, str]
 
     type_: ClassVar[str] = schemas.Type.CompositeTraintuple
