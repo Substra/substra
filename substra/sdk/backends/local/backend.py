@@ -726,6 +726,7 @@ class Local(base.BaseBackend):
         exist_ok: bool,
         spec_options: dict = None
     ):
+        # TODO compute_plan.clean_models ?
 
         # validation
         all_tuples = dict()
@@ -753,9 +754,13 @@ class Local(base.BaseBackend):
                 assert not compositetuple.out_trunk_model_permissions.public
                 all_tuples[compositetuple.composite_traintuple_id] = list()
                 if compositetuple.in_head_model_id is not None:
-                    all_tuples[compositetuple.composite_traintuple_id].append(compositetuple.in_head_model_id)
+                    all_tuples[compositetuple.composite_traintuple_id].append(
+                        compositetuple.in_head_model_id
+                    )
                 if compositetuple.in_trunk_model_id is not None:
-                    all_tuples[compositetuple.composite_traintuple_id].append(compositetuple.in_trunk_model_id)
+                    all_tuples[compositetuple.composite_traintuple_id].append(
+                        compositetuple.in_trunk_model_id
+                    )
                 compositetuples[compositetuple.composite_traintuple_id] = compositetuple
 
         # Define the rank of each traintuple, aggregate tuple and composite tuple
@@ -763,8 +768,6 @@ class Local(base.BaseBackend):
         while len(visited) != len(all_tuples):
             node = set(all_tuples.keys()).difference(set(visited.keys())).pop()
             self.__get_rank(node, visited, set(), all_tuples)
-
-        # TODO testtuples
 
         compute_plan = models.ComputePlan(
             compute_plan_id=uuid.uuid4().hex,
@@ -806,7 +809,8 @@ class Local(base.BaseBackend):
                     algo_key=aggregatetuple.algo_key,
                     worker=aggregatetuple.worker,
                     in_models_keys=[
-                        compute_plan.id_to_key[parent_id] for parent_id in aggregatetuple.in_models_ids
+                        compute_plan.id_to_key[parent_id]
+                        for parent_id in aggregatetuple.in_models_ids
                     ],
                     tag=aggregatetuple.tag,
                     compute_plan_id=compute_plan.compute_plan_id,
@@ -822,8 +826,10 @@ class Local(base.BaseBackend):
                     algo_key=compositetuple.algo_key,
                     data_manager_key=compositetuple.data_manager_key,
                     train_data_sample_keys=compositetuple.train_data_sample_keys,
-                    in_head_model_key=compute_plan.id_to_key[compositetuple.in_head_model_id] if compositetuple.in_head_model_id else None,
-                    in_trunk_model_key=compute_plan.id_to_key[compositetuple.in_trunk_model_id] if compositetuple.in_trunk_model_id else None,
+                    in_head_model_key=(compute_plan.id_to_key[compositetuple.in_head_model_id]
+                                       if compositetuple.in_head_model_id else None),
+                    in_trunk_model_key=(compute_plan.id_to_key[compositetuple.in_trunk_model_id]
+                                        if compositetuple.in_trunk_model_id else None),
                     out_trunk_model_permissions={
                         "authorized_ids": compositetuple.out_trunk_model_permissions.authorized_ids
                     },
@@ -835,6 +841,18 @@ class Local(base.BaseBackend):
                 compositetuple = self.add(compositetuple_spec, exist_ok, spec_options)
                 compute_plan.id_to_key[id_] = compositetuple["key"]
 
+        if spec.testtuples:
+            for testtuple in spec.testtuples:
+                testtuple_spec = schemas.TesttupleSpec(
+                    objective_key=testtuple.objective_key,
+                    traintuple_key=compute_plan.id_to_key[testtuple.traintuple_id],
+                    tag=testtuple.tag,
+                    data_manager_key=testtuple.data_manager_key,
+                    test_data_sample_keys=testtuple.test_data_sample_keys,
+                    metadata=testtuple.metadata,
+                )
+                testtuple = self.add(testtuple_spec, exist_ok, spec_options)
+                # TODO it seems that the testtuple are not in id_to_key ?
         return compute_plan
 
     def __get_rank(self, node, visited, edges, tuples):
