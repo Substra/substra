@@ -595,13 +595,16 @@ class Local(base.BaseBackend):
         self._db.get(schemas.Type.AggregateAlgo, spec.algo_key)
         in_tuples = list()
         in_models = list()
+        in_permissions = list()
         for model_key in spec.in_models_keys:
             try:
                 in_tuple = self._db.get(schemas.Type.Traintuple, key=model_key)
+                in_models.append(in_tuple.out_model.dict(by_alias=True))
+                in_permissions.append(in_tuple.permissions.process)
             except exceptions.NotFound:
-                composite_traintuple = self._db.get(schemas.Type.CompositeTraintuple, key=model_key)
-                in_tuple = composite_traintuple.out_head_model
-            in_models.append(in_tuple.out_model.dict(by_alias=True))
+                in_tuple = self._db.get(schemas.Type.CompositeTraintuple, key=model_key)
+                in_models.append(in_tuple.out_head_model.out_model.dict(by_alias=True))
+                in_permissions.append(in_tuple.out_head_model.permissions.process)
             in_tuples.append(in_tuple)
 
         # Hash key
@@ -614,10 +617,10 @@ class Local(base.BaseBackend):
         # Permissions
         public = False
         authorized_ids = set()
-        for in_tuple in in_tuples:
-            if in_tuple.permissions.process.public:
+        for in_permission in in_permissions:
+            if in_permission.public:
                 public = True
-            authorized_ids.update(in_tuple.permissions.process.authorized_ids)
+            authorized_ids.update(in_permission.authorized_ids)
         authorized_ids = list(authorized_ids)
 
         aggregatetuple = models.Aggregatetuple(
