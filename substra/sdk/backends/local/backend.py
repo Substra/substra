@@ -837,18 +837,21 @@ class Local(base.BaseBackend):
 
         return compute_plan
 
-    def __get_rank(self, node, visited, node_deps, tuples):
-        if node in node_deps:
-            raise exceptions.InvalidRequest("missing dependency among inModels IDs", 400)
+    def __get_rank(self, node, visited, edges, tuples):
         if node in visited:
             return visited[node]
-        node_deps.add(node)
+        for parent in tuples[node]:
+            edge = (node, parent)
+            if edge in edges:
+                raise exceptions.InvalidRequest("missing dependency among inModels IDs", 400)
+            else:
+                edges.add(edge)
 
         if len(tuples[node]) == 0:
             rank = 0
         else:
             rank = 1 + max([
-                self.__get_rank(x, visited, node_deps, tuples)
+                self.__get_rank(x, visited, edges, tuples)
                 for x in tuples[node]
             ])
         visited[node] = rank
