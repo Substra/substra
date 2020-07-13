@@ -598,10 +598,10 @@ class Local(base.BaseBackend):
         for model_key in spec.in_models_keys:
             try:
                 in_tuple = self._db.get(schemas.Type.Traintuple, key=model_key)
-                in_models.append(in_tuple.out_model.dict(by_alias=True))
             except exceptions.NotFound:
-                in_tuple = self._db.get(schemas.Type.CompositeTraintuple, key=model_key)
-                in_models.append(in_tuple.out_head_model.out_model.dict(by_alias=True))
+                composite_traintuple = self._db.get(schemas.Type.CompositeTraintuple, key=model_key)
+                in_tuple = composite_traintuple.out_head_model
+            in_models.append(in_tuple.out_model.dict(by_alias=True))
             in_tuples.append(in_tuple)
 
         # Hash key
