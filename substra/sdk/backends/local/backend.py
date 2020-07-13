@@ -501,25 +501,25 @@ class Local(base.BaseBackend):
             )
             in_tuples.append(in_head_tuple)
 
-        if spec.in_trunk_model_key:  # TODO can it be a traintuple ?
+        if spec.in_trunk_model_key:
             try:
+                # in trunk model is a composite traintuple out trunk model
                 in_trunk_tuple = self._db.get(
                     schemas.Type.CompositeTraintuple, spec.in_trunk_model_key
                 )
                 assert in_trunk_tuple.out_trunk_model
-                in_trunk_model = models.InModel(
-                    hash=in_trunk_tuple.out_trunk_model.out_model.hash_,
-                    storage_address=in_trunk_tuple.out_trunk_model.out_model.storage_address
-                )
-                in_tuples.append(in_trunk_tuple)
+                in_model = in_trunk_tuple.out_trunk_model.out_model
             except exceptions.NotFound:
+                # in trunk model is an aggregate tuple out model
                 in_trunk_tuple = self._db.get(schemas.Type.Aggregatetuple, spec.in_trunk_model_key)
                 assert in_trunk_tuple.out_model
-                in_trunk_model = models.InModel(
-                    hash=in_trunk_tuple.out_model.hash_,
-                    storage_address=in_trunk_tuple.out_model.storage_address
-                )
-                in_tuples.append(in_trunk_tuple)
+                in_model = in_trunk_tuple.out_model
+
+            in_trunk_model = models.InModel(
+                hash=in_model.hash_,
+                storage_address=in_model.storage_address
+            )
+            in_tuples.append(in_trunk_tuple)
 
         # Hash key
         #  * has the same `algo_key`, `data_manager_key`, `train_data_sample_keys`,
@@ -534,6 +534,13 @@ class Local(base.BaseBackend):
         # Compute plan
         compute_plan_id, rank = self.__create_compute_plan_from_tuple(spec, key, in_tuples)
 
+        # permissions
+        trunk_model_permissions = schemas.Permissions(
+            public=False,
+            authorized_ids=spec.out_trunk_model_permissions.authorized_ids
+        )
+        trunk_model_permissions = self.__compute_permissions(trunk_model_permissions)
+
         composite_traintuple = models.CompositeTraintuple(
             key=key,
             creator=_BACKEND_ID,
@@ -545,10 +552,7 @@ class Local(base.BaseBackend):
                 "worker": _BACKEND_ID,
             },
             permissions={
-                "process": {
-                    "authorized_ids": spec.out_trunk_model_permissions.authorized_ids,
-                    "public": False
-                }
+                "process": trunk_model_permissions.dict()
             },
             tag=spec.tag or '',
             compute_plan_id=compute_plan_id,
@@ -603,7 +607,7 @@ class Local(base.BaseBackend):
         aggregatetuple = models.Aggregatetuple(
             key=key,
             creator=_BACKEND_ID,
-            worker=spec.worker,  # TODO see what it is and what checks it needs
+            worker=spec.worker,
             algo_key=spec.algo_key,
             permissions={
                 "process": {
