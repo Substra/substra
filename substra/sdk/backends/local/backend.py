@@ -147,8 +147,8 @@ class Local(base.BaseBackend):
             # validate test data samples
             if spec.test_data_sample_keys is None:
                 spec.test_data_sample_keys = list()
-            for key in spec.test_data_sample_keys:
-                self._db.get(schemas.Type.DataSample, key)
+            self.__check_same_data_manager(spec.test_data_manager_key, spec.test_data_sample_keys)
+
             test_dataset = {
                 "dataset_key": spec.test_data_manager_key,
                 "data_sample_keys": spec.test_data_sample_keys,
@@ -271,20 +271,10 @@ class Local(base.BaseBackend):
                 )
 
             # Add to the compute plan
-            # TODO better way of doing this ?
-            if spec.__class__.type_ == schemas.TraintupleSpec:
-                compute_plan_attr_name = "traintuple_keys"
-            elif spec.__class__.type_ == schemas.CompositeTraintupleSpec:
-                compute_plan_attr_name = "composite_traintuple_keys"
-            elif spec.__class__.type_ == schemas.AggregatetupleSpec:
-                compute_plan_attr_name = "aggregatetuple_keys"
-
-            if compute_plan.traintuple_keys is None:
-                compute_plan.__setattr__(compute_plan_attr_name, [key])
-            else:
-                list_keys = compute_plan.__getattr__(compute_plan_attr_name)
-                list_keys.append(key)
-                compute_plan.__setattr__(compute_plan_attr_name, list_keys)
+            list_keys = getattr(compute_plan, spec.compute_plan_attr_name)
+            if list_keys is None:
+                list_keys = [key]
+            setattr(compute_plan, spec.compute_plan_attr_name, list_keys)
 
             compute_plan.tuple_count += 1
             compute_plan.status = models.Status.waiting
@@ -394,17 +384,20 @@ class Local(base.BaseBackend):
         # validation
         objective = self._db.get(schemas.Type.Objective, spec.objective_key)
 
-        # TODO: better way to handle this ?
-        try:
-            traintuple = self._db.get(schemas.Type.Traintuple, spec.traintuple_key)
-            traintuple_type = schemas.Type.Traintuple
-        except exceptions.NotFound:
+        traintuple = None
+        traintuple_type = None
+        for tuple_type in [
+                schemas.Type.Traintuple,
+                schemas.Type.CompositeTraintuple,
+                schemas.Type.Aggregatetuple
+        ]:
             try:
-                traintuple = self._db.get(schemas.Type.CompositeTraintuple, spec.traintuple_key)
-                traintuple_type = schemas.Type.CompositeTraintuple
+                traintuple = self._db.get(tuple_type, spec.traintuple_key)
+                traintuple_type = tuple_type
             except exceptions.NotFound:
-                traintuple = self._db.get(schemas.Type.Aggregatetuple, spec.traintuple_key)
-                traintuple_type = schemas.Type.Aggregatetuple
+                pass
+        if not traintuple:
+            raise exceptions.NotFound(f"Wrong pk {spec.traintuple_key}", 404)
 
         if traintuple.status in [models.Status.failed, models.Status.canceled]:
             raise substra.exceptions.InvalidRequest(
@@ -414,8 +407,8 @@ class Local(base.BaseBackend):
             )
         if spec.data_manager_key is not None:
             self._db.get(schemas.Type.Dataset, spec.data_manager_key)
-        if spec.test_data_sample_keys is not None:
-            self.__check_same_data_manager(spec.data_manager_key, spec.test_data_sample_keys)
+            if spec.test_data_sample_keys is not None:
+                self.__check_same_data_manager(spec.data_manager_key, spec.test_data_sample_keys)
 
         # Hash creation
         key_components = [_BACKEND_ID, spec.objective_key, spec.traintuple_key]
@@ -493,8 +486,7 @@ class Local(base.BaseBackend):
         # validation
         self._db.get(schemas.Type.CompositeAlgo, spec.algo_key)
         self._db.get(schemas.Type.Dataset, spec.data_manager_key)
-        for key in spec.train_data_sample_keys:
-            self._db.get(schemas.Type.DataSample, key)
+        self.__check_same_data_manager(spec.data_manager_key, spec.train_data_sample_keys)
 
         in_head_model = None
         in_trunk_model = None
@@ -509,7 +501,7 @@ class Local(base.BaseBackend):
             )
             in_tuples.append(in_head_tuple)
 
-        if spec.in_trunk_model_key:
+        if spec.in_trunk_model_key:  # TODO can it be a traintuple ?
             try:
                 in_trunk_tuple = self._db.get(
                     schemas.Type.CompositeTraintuple, spec.in_trunk_model_key

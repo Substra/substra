@@ -194,6 +194,8 @@ class TraintupleSpec(_Spec):
     rank: Optional[int]
     metadata: Optional[Dict[str, str]]
 
+    compute_plan_attr_name: str = "traintuple_keys"
+
     type_: typing.ClassVar[Type] = Type.Traintuple
 
 
@@ -205,6 +207,8 @@ class AggregatetupleSpec(_Spec):
     compute_plan_id: Optional[str]
     rank: Optional[int]
     metadata: Optional[Dict[str, str]]
+
+    compute_plan_attr_name: str = "aggregatetuple_keys"
 
     type_: typing.ClassVar[Type] = Type.Aggregatetuple
 
@@ -220,6 +224,8 @@ class CompositeTraintupleSpec(_Spec):
     out_trunk_model_permissions: PrivatePermissions
     rank: Optional[int]
     metadata: Optional[Dict[str, str]]
+
+    compute_plan_attr_name: str = "composite_traintuple_keys"
 
     type_: typing.ClassVar[Type] = Type.CompositeTraintuple
 
