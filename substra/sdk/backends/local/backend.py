@@ -281,7 +281,7 @@ class Local(base.BaseBackend):
             compute_plan_id = compute_plan.compute_plan_id
             if len(in_tuples) == 0:
                 rank = 0
-            else:
+            else:  # TODO Trust the user for the rank ?
                 rank = 1 + max(
                     [
                         in_tuple.rank
@@ -744,3 +744,68 @@ class Local(base.BaseBackend):
 
     def cancel_compute_plan(self, compute_plan_id):
         raise NotImplementedError
+
+    def _add_compute_plan(self, spec: schemas.ComputePlanSpec, exist_ok: bool, spec_options: dict = None):
+
+        # validation
+        traintuples = dict()
+        if spec.traintuples:
+            for traintuple in spec.traintuples:
+                if traintuple.in_models_ids is not None:
+                    traintuples[traintuple.traintuple_id] = traintuple
+                else:
+                    traintuples[traintuple.traintuple_id] = list()
+
+        # Define the rank of each traintuple
+        visited = dict()
+        while len(visited) != len(traintuples):
+            node = set(traintuples.keys()).difference(set(visited.keys())).pop()
+            self.__get_rank(node, visited, set(), traintuples)
+
+        # TODO aggregate and composite tuples
+
+        compute_plan = models.ComputePlan(
+            compute_plan_id=uuid.uuid4().hex,
+            tag=spec.tag or "",
+            status=models.Status.waiting,
+            metadata=spec.metadata or dict(),
+            id_to_key=dict(),
+            tuple_count=0,
+            done_count=0
+        )
+        compute_plan = self._db.add(compute_plan, exist_ok)
+
+        # go through the traintuples sorted by rank
+        for id_, rank in {id_: rank for id_, rank in sorted(visited.items(), key=lambda item: item[1])}.items():
+            traintuple = traintuples[id_]
+            traintuple_spec = schemas.TraintupleSpec(
+                algo_key=traintuple.algo_key,
+                data_manager_key=traintuple.data_manager_key,
+                train_data_sample_keys=traintuple.train_data_sample_keys,
+                in_models_keys=[compute_plan.id_to_key[parent_id] for parent_id in traintuple.in_models_ids],
+                tag=traintuple.tag,
+                compute_plan_id=compute_plan.compute_plan_id,
+                rank=rank,
+                metadata=traintuple.metadata
+            )
+            traintuple = self.add(traintuple_spec, exist_ok, spec_options)
+            # Get the compute plan as it has been modified when adding the traintuple
+            # compute_plan = self._db.get(schemas.Type.ComputePlan, key=compute_plan.compute_plan_id)
+            compute_plan.id_to_key[id_] = traintuple["key"]
+            # self._db.update(compute_plan)
+
+        return compute_plan
+
+    def __get_rank(self, node, visited, node_deps, tuples):
+        if node in node_deps:
+            raise Exception("Cycle !")
+        if node in visited:
+            return visited[node]
+
+        if len(tuples[node].in_models_ids) == 0:
+            rank = 0
+        else:
+            rank = 1 + max([self.__get_rank(x, visited, set(), tuples) for x in tuples[node].in_models_ids])
+        visited[node] = rank
+        node_deps.add(node)
+        return rank
