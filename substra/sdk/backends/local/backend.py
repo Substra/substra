@@ -395,6 +395,7 @@ class Local(base.BaseBackend):
             try:
                 traintuple = self._db.get(tuple_type, spec.traintuple_key)
                 traintuple_type = tuple_type
+                break
             except exceptions.NotFound:
                 pass
         if not traintuple:
