@@ -811,7 +811,7 @@ class Local(base.BaseBackend):
         spec_options: dict = None
     ):
         # TODO compute_plan.clean_models ?
-
+        self.__check_metadata(spec.metadata)
         # Get all the tuples and their dependencies
         (
             all_tuples,
