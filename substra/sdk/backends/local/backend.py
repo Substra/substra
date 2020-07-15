@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import shutil
+import typing
 import uuid
 
 import substra
@@ -40,6 +41,20 @@ class Local(base.BaseBackend):
         return [a.to_response() for a in assets]
 
     @staticmethod
+    def __check_metadata(metadata: typing.Optional[typing.Dict[str, str]]):
+        if metadata is not None:
+            if any([len(key) > 50 for key in metadata]):
+                raise exceptions.InvalidRequest(
+                    "The key in metadata cannot be more than 50 characters",
+                    400
+                )
+            if any([len(value) > 100 or len(value) == 0 for value in metadata.values()]):
+                raise exceptions.InvalidRequest(
+                    "Values in metadata cannot be empty or more than 100 characters",
+                    400
+                )
+
+    @staticmethod
     def __compute_permissions(permissions):
         """Compute the permissions
 
@@ -53,6 +68,7 @@ class Local(base.BaseBackend):
         return permissions
 
     def _add_dataset(self, spec, exist_ok, spec_options):
+        self.__check_metadata(spec.metadata)
         permissions = self.__compute_permissions(spec.permissions)
         asset = models.Dataset(
             key=fs.hash_file(spec.data_opener),
@@ -137,6 +153,7 @@ class Local(base.BaseBackend):
         return data_samples
 
     def _add_objective(self, spec, exist_ok, spec_options):
+        self.__check_metadata(spec.metadata)
         permissions = self.__compute_permissions(spec.permissions)
         objective_key = fs.hash_file(spec.metrics)
 
@@ -203,14 +220,17 @@ class Local(base.BaseBackend):
         return self._db.add(algo, exist_ok)
 
     def _add_algo(self, spec, exist_ok, spec_options=None):
+        self.__check_metadata(spec.metadata)
         return self.__add_algo(models.Algo, spec, exist_ok, spec_options=spec_options)
 
     def _add_aggregate_algo(self, spec, exist_ok, spec_options=None):
+        self.__check_metadata(spec.metadata)
         return self.__add_algo(
             models.AggregateAlgo, spec, exist_ok, spec_options=spec_options
         )
 
     def _add_composite_algo(self, spec, exist_ok, spec_options=None):
+        self.__check_metadata(spec.metadata)
         return self.__add_algo(
             models.CompositeAlgo, spec, exist_ok, spec_options=spec_options
         )
@@ -302,6 +322,7 @@ class Local(base.BaseBackend):
 
     def _add_traintuple(self, spec, exist_ok, spec_options=None):
         # validation
+        self.__check_metadata(spec.metadata)
         algo = self._db.get(schemas.Type.Algo, spec.algo_key)
         data_manager = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
         in_traintuples = (
@@ -383,6 +404,7 @@ class Local(base.BaseBackend):
 
     def _add_testtuple(self, spec, exist_ok, spec_options=None):
         # validation
+        self.__check_metadata(spec.metadata)
         objective = self._db.get(schemas.Type.Objective, spec.objective_key)
 
         traintuple = None
@@ -486,6 +508,7 @@ class Local(base.BaseBackend):
         spec_options=None
     ):
         # validation
+        self.__check_metadata(spec.metadata)
         self._db.get(schemas.Type.CompositeAlgo, spec.algo_key)
         self._db.get(schemas.Type.Dataset, spec.data_manager_key)
         self.__check_same_data_manager(spec.data_manager_key, spec.train_data_sample_keys)
@@ -593,6 +616,7 @@ class Local(base.BaseBackend):
                             spec_options: dict = None,
                             ):
         # validation
+        self.__check_metadata(spec.metadata)
         self._db.get(schemas.Type.AggregateAlgo, spec.algo_key)
         in_tuples = list()
         in_models = list()
