@@ -697,9 +697,6 @@ class Local(base.BaseBackend):
         else:
             return asset.to_response()
 
-    def update_compute_plan(self, compute_plan_id, spec):
-        raise NotImplementedError
-
     def link_dataset_with_objective(self, dataset_key, objective_key):
         # validation
         dataset = self._db.get(schemas.Type.Dataset, dataset_key)
@@ -743,7 +740,74 @@ class Local(base.BaseBackend):
         raise NotImplementedError
 
     def cancel_compute_plan(self, compute_plan_id):
+        # Execution is synchronous in the local backend so this
+        # function does not make sense.
         raise NotImplementedError
+
+    def update_compute_plan(self, compute_plan_id: str, spec: schemas.UpdateComputePlanSpec):
+        compute_plan = self._db.get(schemas.Type.ComputePlan, compute_plan_id)
+
+        # Get all the new tuples and their dependencies
+        (
+            all_tuples,
+            traintuples,
+            aggregatetuples,
+            compositetuples
+        ) = self.__get_all_tuples_compute_plan(spec)
+
+        # Define the rank of each traintuple, aggregate tuple and composite tuple
+        old_tuples = {id_: list() for id_ in compute_plan.id_to_key}
+        all_tuples.update(old_tuples)
+
+        # Get the rank of all the tuples already in the compute plan
+        visited = dict()
+        if compute_plan.traintuple_keys:
+            for key in compute_plan.traintuple_keys:
+                id_, rank = self.__get_id_rank_in_compute_plan(
+                    schemas.Type.Traintuple,
+                    key,
+                    compute_plan.id_to_key
+                )
+                visited[id_] = rank
+
+        if compute_plan.aggregatetuple_keys:
+            for key in compute_plan.aggregatetuple_keys:
+                id_, rank = self.__get_id_rank_in_compute_plan(
+                    schemas.Type.Traintuple,
+                    key,
+                    compute_plan.id_to_key
+                )
+                visited[id_] = rank
+
+        if compute_plan.composite_traintuple_keys:
+            for key in compute_plan.composite_traintuple_keys:
+                id_, rank = self.__get_id_rank_in_compute_plan(
+                    schemas.Type.Traintuple,
+                    key,
+                    compute_plan.id_to_key
+                )
+                visited[id_] = rank
+
+        while len(visited) != len(all_tuples):
+            node = set(all_tuples.keys()).difference(set(visited.keys())).pop()
+            self.__get_rank(node, visited, set(), all_tuples)
+
+        compute_plan = self.__execute_compute_plan(
+            spec,
+            compute_plan,
+            visited,
+            traintuples,
+            aggregatetuples,
+            compositetuples,
+            exist_ok=False,
+            spec_options=dict()
+        )
+        return compute_plan.to_response()
+
+    def __get_id_rank_in_compute_plan(self, type_, key, id_to_key):
+        tuple_ = self._db.get(schemas.Type.Traintuple, key)
+        id_ = next((k for k in id_to_key if id_to_key[k] == key), None)
+        return id_, tuple_.rank
 
     def _add_compute_plan(
         self,
@@ -753,7 +817,45 @@ class Local(base.BaseBackend):
     ):
         # TODO compute_plan.clean_models ?
 
-        # validation
+        # Get all the tuples and their dependencies
+        (
+            all_tuples,
+            traintuples,
+            aggregatetuples,
+            compositetuples
+        ) = self.__get_all_tuples_compute_plan(spec)
+
+        # Define the rank of each traintuple, aggregate tuple and composite tuple
+        visited = dict()
+        while len(visited) != len(all_tuples):
+            node = set(all_tuples.keys()).difference(set(visited.keys())).pop()
+            self.__get_rank(node, visited, set(), all_tuples)
+
+        compute_plan = models.ComputePlan(
+            compute_plan_id=uuid.uuid4().hex,
+            tag=spec.tag or "",
+            status=models.Status.waiting,
+            metadata=spec.metadata or dict(),
+            id_to_key=dict(),
+            tuple_count=0,
+            done_count=0
+        )
+        compute_plan = self._db.add(compute_plan, exist_ok)
+
+        # go through the tuples sorted by rank
+        compute_plan = self.__execute_compute_plan(
+            spec,
+            compute_plan,
+            visited,
+            traintuples,
+            aggregatetuples,
+            compositetuples,
+            exist_ok,
+            spec_options
+        )
+        return compute_plan
+
+    def __get_all_tuples_compute_plan(self, spec: schemas.UpdateComputePlanSpec):
         all_tuples = dict()
         traintuples = dict()
         if spec.traintuples:
@@ -788,24 +890,19 @@ class Local(base.BaseBackend):
                     )
                 compositetuples[compositetuple.composite_traintuple_id] = compositetuple
 
-        # Define the rank of each traintuple, aggregate tuple and composite tuple
-        visited = dict()
-        while len(visited) != len(all_tuples):
-            node = set(all_tuples.keys()).difference(set(visited.keys())).pop()
-            self.__get_rank(node, visited, set(), all_tuples)
+        return all_tuples, traintuples, aggregatetuples, compositetuples
 
-        compute_plan = models.ComputePlan(
-            compute_plan_id=uuid.uuid4().hex,
-            tag=spec.tag or "",
-            status=models.Status.waiting,
-            metadata=spec.metadata or dict(),
-            id_to_key=dict(),
-            tuple_count=0,
-            done_count=0
-        )
-        compute_plan = self._db.add(compute_plan, exist_ok)
-
-        # go through the tuples sorted by rank
+    def __execute_compute_plan(
+            self,
+            spec,
+            compute_plan,
+            visited,
+            traintuples,
+            aggregatetuples,
+            compositetuples,
+            exist_ok,
+            spec_options
+            ):
         for id_, rank in {
             id_: rank
             for id_, rank
@@ -878,9 +975,10 @@ class Local(base.BaseBackend):
                 )
                 testtuple = self.add(testtuple_spec, exist_ok, spec_options)
                 # TODO it seems that the testtuple are not in id_to_key ?
+
         return compute_plan
 
-    def __get_rank(self, node, visited, edges, tuples):
+    def __get_rank(self, node: str, visited, edges, tuples) -> int:
         if node in visited:
             return visited[node]
         for parent in tuples[node]:
