@@ -779,11 +779,6 @@ class Local(base.BaseBackend):
         )
         return compute_plan.to_response()
 
-    def __get_id_rank_in_compute_plan(self, type_, key, id_to_key):
-        tuple_ = self._db.get(schemas.Type.Traintuple, key)
-        id_ = next((k for k in id_to_key if id_to_key[k] == key), None)
-        return id_, tuple_.rank
-
     def _add_compute_plan(
         self,
         spec: schemas.ComputePlanSpec,
@@ -866,6 +861,11 @@ class Local(base.BaseBackend):
                 compositetuples[compositetuple.composite_traintuple_id] = compositetuple
 
         return all_tuples, traintuples, aggregatetuples, compositetuples
+
+    def __get_id_rank_in_compute_plan(self, type_, key, id_to_key):
+        tuple_ = self._db.get(schemas.Type.Traintuple, key)
+        id_ = next((k for k in id_to_key if id_to_key[k] == key), None)
+        return id_, tuple_.rank
 
     def __execute_compute_plan(
             self,
