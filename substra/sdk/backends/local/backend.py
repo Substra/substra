@@ -857,7 +857,10 @@ class Local(base.BaseBackend):
         exist_ok: bool,
         spec_options: dict = None
     ):
-        # TODO compute_plan.clean_models ?
+        if spec.clean_models:
+            raise ValueError(
+                "'clean_models=True' is not supported on the local backend."
+            )
         self.__check_metadata(spec.metadata)
         # Get all the tuples and their dependencies
         (
