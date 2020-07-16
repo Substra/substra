@@ -736,8 +736,53 @@ class Local(base.BaseBackend):
         with open(asset.description, "r", encoding="utf-8") as f:
             return f.read()
 
-    def leaderboard(self, objective_key, sort="desc"):
-        raise NotImplementedError
+    def __format_for_leaderboard(self, testtuple):
+        for tuple_type in [
+                schemas.Type.Traintuple,
+                schemas.Type.CompositeTraintuple,
+                schemas.Type.Aggregatetuple
+        ]:
+            try:
+                traintuple = self._db.get(tuple_type, testtuple.traintuple_key)
+                traintuple_type = tuple_type
+                break
+            except exceptions.NotFound:
+                pass
+        if traintuple_type == schemas.Type.Traintuple:
+            algo_type = schemas.Type.Algo
+        elif traintuple_type == schemas.Type.Aggregatetuple:
+            algo_type = schemas.Type.AggregateAlgo
+        elif traintuple_type == schemas.Type.CompositeTraintuple:
+            algo_type = schemas.Type.CompositeAlgo
+
+        algo = self._db.get(algo_type, traintuple.algo_key)
+        return {
+            'algo': {
+                'hash': algo.key,
+                'name': algo.name,
+                'storageAddress': str(algo.file)
+            },
+            'creator': testtuple.creator,
+            'key': testtuple.key,
+            'perf': testtuple.dataset.perf,
+            'tag': testtuple.tag,
+            'traintupleKey': testtuple.traintuple_key
+        }
+
+    def leaderboard(self, objective_key, sort='desc'):
+        objective = self._db.get(schemas.Type.Objective, objective_key)
+        testtuples = self._db.list(schemas.Type.Testtuple)
+        certified_testtuples = [
+            self.__format_for_leaderboard(t)
+            for t in testtuples
+            if t.objective_key == objective_key and t.certified
+        ]
+        certified_testtuples.sort(key=lambda x: x['perf'], reverse=(sort == 'desc'))
+        board = {
+            'objective': objective.to_response(),
+            'testtuples': certified_testtuples
+        }
+        return board
 
     def cancel_compute_plan(self, compute_plan_id):
         # Execution is synchronous in the local backend so this
