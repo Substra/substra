@@ -16,7 +16,7 @@ import typing
 import uuid
 
 import substra
-from substra.sdk import schemas, exceptions
+from substra.sdk import schemas, exceptions, assets
 from substra.sdk.backends import base
 from substra.sdk.backends.local import models
 from substra.sdk.backends.local import db
@@ -825,9 +825,7 @@ class Local(base.BaseBackend):
                 )
                 visited[id_] = rank
 
-        while len(visited) != len(all_tuples):
-            node = set(all_tuples.keys()).difference(set(visited.keys())).pop()
-            self.__get_rank(node, visited, set(), all_tuples)
+        assets.compute_ranks(spec_tuples_list=all_tuples, visited=visited)
 
         compute_plan = self.__execute_compute_plan(
             spec,
@@ -859,9 +857,7 @@ class Local(base.BaseBackend):
 
         # Define the rank of each traintuple, aggregate tuple and composite tuple
         visited = dict()
-        while len(visited) != len(all_tuples):
-            node = set(all_tuples.keys()).difference(set(visited.keys())).pop()
-            self.__get_rank(node, visited, set(), all_tuples)
+        assets.compute_ranks(spec_tuples_list=all_tuples, visited=visited)
 
         compute_plan = models.ComputePlan(
             compute_plan_id=uuid.uuid4().hex,
@@ -983,23 +979,3 @@ class Local(base.BaseBackend):
                 testtuple = self.add(testtuple_spec, exist_ok, spec_options)
 
         return compute_plan
-
-    def __get_rank(self, node: str, visited, edges, tuples) -> int:
-        if node in visited:
-            return visited[node]
-        for parent in tuples[node]:
-            edge = (node, parent)
-            if edge in edges:
-                raise exceptions.InvalidRequest("missing dependency among inModels IDs", 400)
-            else:
-                edges.add(edge)
-
-        if len(tuples[node]) == 0:
-            rank = 0
-        else:
-            rank = 1 + max([
-                self.__get_rank(x, visited, edges, tuples)
-                for x in tuples[node]
-            ])
-        visited[node] = rank
-        return rank
