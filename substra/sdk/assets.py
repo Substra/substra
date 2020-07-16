@@ -15,6 +15,20 @@ import typing
 
 from substra.sdk import exceptions
 
+ALGO = 'algo'
+AGGREGATE_ALGO = 'aggregate_algo'
+COMPOSITE_ALGO = 'composite_algo'
+DATA_SAMPLE = 'data_sample'
+DATASET = 'dataset'
+MODEL = 'model'
+OBJECTIVE = 'objective'
+TESTTUPLE = 'testtuple'
+TRAINTUPLE = 'traintuple'
+AGGREGATETUPLE = 'aggregatetuple'
+COMPOSITE_TRAINTUPLE = 'composite_traintuple'
+COMPUTE_PLAN = 'compute_plan'
+NODE = 'node'
+
 
 def __get_rank(
         node: str,
