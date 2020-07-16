@@ -263,6 +263,10 @@ class Aggregatetuple(_Model):
     type_: ClassVar[str] = schemas.Type.Aggregatetuple
     algo_type: ClassVar[schemas.Type] = schemas.Type.AggregateAlgo
 
+    class Meta:
+        storage_only_fields = None
+        alias_fields = {"compute_plan_id": "compute_plan_i_d"}
+
 
 class OutCompositeModel(pydantic.BaseModel):
     permissions: Permissions
