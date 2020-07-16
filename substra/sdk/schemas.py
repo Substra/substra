@@ -15,9 +15,10 @@
 import abc
 import contextlib
 import enum
+import json
 import pathlib
 import typing
-from typing import Optional, List, Dict, Union
+from typing import Optional, List, Dict
 
 import pydantic
 
@@ -73,7 +74,8 @@ class _Spec(pydantic.BaseModel, abc.ABC):
     @contextlib.contextmanager
     def build_request_kwargs(self):
         # TODO should be located in the backends/remote module
-        data = self.dict(exclude_unset=True)
+        # Serialize and deserialize to prevent errors eg with pathlib.Path
+        data = json.loads(self.json(exclude_unset=True))
         if self.Meta.file_attributes:
             with utils.extract_files(data, self.Meta.file_attributes) as (data, files):
                 yield (data, files)
@@ -97,8 +99,8 @@ class PrivatePermissions(pydantic.BaseModel):
 
 
 class DataSampleSpec(_Spec):
-    path: Optional[Union[str, pathlib.Path]]
-    paths: Optional[List[Union[str, pathlib.Path]]]
+    path: Optional[pathlib.Path]
+    paths: Optional[List[pathlib.Path]]
     test_only: bool
     data_manager_keys: typing.List[str]
 
@@ -119,7 +121,8 @@ class DataSampleSpec(_Spec):
     @contextlib.contextmanager
     def build_request_kwargs(self, local):
         # redefine kwargs builder to handle the local paths
-        data = self.dict(exclude_unset=True)
+        # Serialize and deserialize to prevent errors eg with pathlib.Path
+        data = json.loads(self.json(exclude_unset=True))
         if local:
             with utils.extract_data_sample_files(data) as (data, files):
                 yield (data, files)
@@ -129,9 +132,9 @@ class DataSampleSpec(_Spec):
 
 class DatasetSpec(_Spec):
     name: str
-    data_opener: Union[str, pathlib.Path]
+    data_opener: pathlib.Path
     type: str
-    description: Union[str, pathlib.Path]
+    description: pathlib.Path
     permissions: Permissions
     objective_key: Optional[str]
     metadata: Optional[Dict[str, str]]
@@ -144,9 +147,9 @@ class DatasetSpec(_Spec):
 
 class ObjectiveSpec(_Spec):
     name: str
-    description: Union[str, pathlib.Path]
+    description: pathlib.Path
     metrics_name: str
-    metrics: Union[str, pathlib.Path]
+    metrics: pathlib.Path
     test_data_sample_keys: Optional[List[str]]
     test_data_manager_key: Optional[str]
     permissions: Permissions
@@ -160,8 +163,8 @@ class ObjectiveSpec(_Spec):
 
 class _AlgoSpec(_Spec):
     name: str
-    description: Union[str, pathlib.Path]
-    file: Union[str, pathlib.Path]
+    description: pathlib.Path
+    file: pathlib.Path
     permissions: Permissions
     metadata: Optional[Dict[str, str]]
 
@@ -191,6 +194,8 @@ class TraintupleSpec(_Spec):
     rank: Optional[int]
     metadata: Optional[Dict[str, str]]
 
+    compute_plan_attr_name: typing.ClassVar[str] = "traintuple_keys"
+    algo_type: typing.ClassVar[Type] = Type.Algo
     type_: typing.ClassVar[Type] = Type.Traintuple
 
 
@@ -203,6 +208,8 @@ class AggregatetupleSpec(_Spec):
     rank: Optional[int]
     metadata: Optional[Dict[str, str]]
 
+    compute_plan_attr_name: typing.ClassVar[str] = "aggregatetuple_keys"
+    algo_type: typing.ClassVar[Type] = Type.AggregateAlgo
     type_: typing.ClassVar[Type] = Type.Aggregatetuple
 
 
@@ -218,6 +225,7 @@ class CompositeTraintupleSpec(_Spec):
     rank: Optional[int]
     metadata: Optional[Dict[str, str]]
 
+    compute_plan_attr_name: typing.ClassVar[str] = "composite_traintuple_keys"
     type_: typing.ClassVar[Type] = Type.CompositeTraintuple
 
 

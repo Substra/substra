@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import shutil
+import typing
 import uuid
 
 import substra
-from substra.sdk import schemas
+from substra.sdk import schemas, exceptions
 from substra.sdk.backends import base
 from substra.sdk.backends.local import models
 from substra.sdk.backends.local import db
@@ -39,7 +40,22 @@ class Local(base.BaseBackend):
         assets = self._db.list(asset_type)
         return [a.to_response() for a in assets]
 
-    def __compute_permissions(self, permissions):
+    @staticmethod
+    def __check_metadata(metadata: typing.Optional[typing.Dict[str, str]]):
+        if metadata is not None:
+            if any([len(key) > 50 for key in metadata]):
+                raise exceptions.InvalidRequest(
+                    "The key in metadata cannot be more than 50 characters",
+                    400
+                )
+            if any([len(value) > 100 or len(value) == 0 for value in metadata.values()]):
+                raise exceptions.InvalidRequest(
+                    "Values in metadata cannot be empty or more than 100 characters",
+                    400
+                )
+
+    @staticmethod
+    def __compute_permissions(permissions):
         """Compute the permissions
 
         If the permissions are private, the active node is
@@ -52,6 +68,7 @@ class Local(base.BaseBackend):
         return permissions
 
     def _add_dataset(self, spec, exist_ok, spec_options):
+        self.__check_metadata(spec.metadata)
         permissions = self.__compute_permissions(spec.permissions)
         asset = models.Dataset(
             key=fs.hash_file(spec.data_opener),
@@ -136,6 +153,7 @@ class Local(base.BaseBackend):
         return data_samples
 
     def _add_objective(self, spec, exist_ok, spec_options):
+        self.__check_metadata(spec.metadata)
         permissions = self.__compute_permissions(spec.permissions)
         objective_key = fs.hash_file(spec.metrics)
 
@@ -146,8 +164,8 @@ class Local(base.BaseBackend):
             # validate test data samples
             if spec.test_data_sample_keys is None:
                 spec.test_data_sample_keys = list()
-            for key in spec.test_data_sample_keys:
-                self._db.get(schemas.Type.DataSample, key)
+            self.__check_same_data_manager(spec.test_data_manager_key, spec.test_data_sample_keys)
+
             test_dataset = {
                 "dataset_key": spec.test_data_manager_key,
                 "data_sample_keys": spec.test_data_sample_keys,
@@ -202,14 +220,17 @@ class Local(base.BaseBackend):
         return self._db.add(algo, exist_ok)
 
     def _add_algo(self, spec, exist_ok, spec_options=None):
+        self.__check_metadata(spec.metadata)
         return self.__add_algo(models.Algo, spec, exist_ok, spec_options=spec_options)
 
     def _add_aggregate_algo(self, spec, exist_ok, spec_options=None):
+        self.__check_metadata(spec.metadata)
         return self.__add_algo(
             models.AggregateAlgo, spec, exist_ok, spec_options=spec_options
         )
 
     def _add_composite_algo(self, spec, exist_ok, spec_options=None):
+        self.__check_metadata(spec.metadata)
         return self.__add_algo(
             models.CompositeAlgo, spec, exist_ok, spec_options=spec_options
         )
@@ -231,7 +252,7 @@ class Local(base.BaseBackend):
         ])
         compute_plan = models.ComputePlan(
             compute_plan_id=uuid.uuid4().hex,
-            status=models.Status.waiting.value,
+            status=models.Status.waiting,
             traintuple_keys=traintuple_keys,
             composite_traintuple_keys=composite_traintuple_keys,
             aggregatetuple_keys=aggregatetuple_keys,
@@ -243,6 +264,47 @@ class Local(base.BaseBackend):
             metadata=dict(),
         )
         return self._db.add(compute_plan)
+
+    def __create_compute_plan_from_tuple(self, spec, key, in_tuples):
+        # compute plan and rank
+        if not spec.compute_plan_id and spec.rank == 0:
+            #  Create a compute plan
+            compute_plan = self.__add_compute_plan(traintuple_keys=[key])
+            rank = 0
+            compute_plan_id = compute_plan.compute_plan_id
+        elif not spec.compute_plan_id and spec.rank is not None:
+            raise substra.sdk.exceptions.InvalidRequest(
+                "invalid inputs, a new ComputePlan should have a rank 0", 400
+            )
+        elif spec.compute_plan_id:
+            compute_plan = self._db.get(schemas.Type.ComputePlan, spec.compute_plan_id)
+            compute_plan_id = compute_plan.compute_plan_id
+            if len(in_tuples) == 0:
+                rank = 0
+            else:
+                rank = 1 + max(
+                    [
+                        in_tuple.rank
+                        for in_tuple in in_tuples
+                        if in_tuple.compute_plan_id == compute_plan_id
+                    ]
+                )
+
+            # Add to the compute plan
+            list_keys = getattr(compute_plan, spec.compute_plan_attr_name)
+            if list_keys is None:
+                list_keys = list()
+            list_keys.append(key)
+            setattr(compute_plan, spec.compute_plan_attr_name, list_keys)
+
+            compute_plan.tuple_count += 1
+            compute_plan.status = models.Status.waiting
+
+        else:
+            compute_plan_id = ""
+            rank = 0
+
+        return compute_plan_id, rank
 
     def __check_same_data_manager(self, data_manager_key, data_sample_keys):
         """Check that all data samples are linked to this data manager"""
@@ -260,6 +322,7 @@ class Local(base.BaseBackend):
 
     def _add_traintuple(self, spec, exist_ok, spec_options=None):
         # validation
+        self.__check_metadata(spec.metadata)
         algo = self._db.get(schemas.Type.Algo, spec.algo_key)
         data_manager = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
         in_traintuples = (
@@ -298,40 +361,11 @@ class Local(base.BaseBackend):
             authorized_ids = list(authorized_ids)
 
         # compute plan and rank
-        if not spec.compute_plan_id and spec.rank == 0:
-            #  Create a compute plan
-            compute_plan = self.__add_compute_plan(traintuple_keys=[key])
-            rank = 0
-            compute_plan_id = compute_plan.compute_plan_id
-        elif not spec.compute_plan_id and spec.rank is not None:
-            raise substra.sdk.exceptions.InvalidRequest(
-                "invalid inputs, a new ComputePlan should have a rank 0", 400
-            )
-        elif spec.compute_plan_id:
-            compute_plan = self._db.get(schemas.Type.ComputePlan, spec.compute_plan_id)
-            compute_plan_id = compute_plan.compute_plan_id
-            if len(in_traintuples) == 0:
-                rank = 0
-            else:
-                rank = 1 + max(
-                    [
-                        in_traintuple.rank
-                        for in_traintuple in in_traintuples
-                        if in_traintuple.compute_plan_id == compute_plan_id
-                    ]
-                )
-
-            #  Add to the compute plan
-            if compute_plan.traintuple_keys is None:
-                compute_plan.traintuple_keys = [key]
-            else:
-                compute_plan.traintuple_keys.append(key)
-            compute_plan.tuple_count += 1
-            compute_plan.status = models.Status.waiting
-
-        else:
-            compute_plan_id = ""
-            rank = 0
+        compute_plan_id, rank = self.__create_compute_plan_from_tuple(
+            spec=spec,
+            key=key,
+            in_tuples=in_traintuples
+        )
 
         # create model
         options = {}
@@ -352,7 +386,7 @@ class Local(base.BaseBackend):
             compute_plan_id=compute_plan_id,
             rank=rank,
             tag=spec.tag or "",
-            status=models.Status.waiting.value,
+            status=models.Status.waiting,
             in_models=[
                 {
                     "hash": in_traintuple.out_model.hash_,
@@ -369,10 +403,26 @@ class Local(base.BaseBackend):
         return traintuple
 
     def _add_testtuple(self, spec, exist_ok, spec_options=None):
-
         # validation
+        self.__check_metadata(spec.metadata)
         objective = self._db.get(schemas.Type.Objective, spec.objective_key)
-        traintuple = self._db.get(schemas.Type.Traintuple, spec.traintuple_key)
+
+        traintuple = None
+        traintuple_type = None
+        for tuple_type in [
+                schemas.Type.Traintuple,
+                schemas.Type.CompositeTraintuple,
+                schemas.Type.Aggregatetuple
+        ]:
+            try:
+                traintuple = self._db.get(tuple_type, spec.traintuple_key)
+                traintuple_type = tuple_type
+                break
+            except exceptions.NotFound:
+                pass
+        if not traintuple:
+            raise exceptions.NotFound(f"Wrong pk {spec.traintuple_key}", 404)
+
         if traintuple.status in [models.Status.failed, models.Status.canceled]:
             raise substra.exceptions.InvalidRequest(
                 f"could not register this testtuple, \
@@ -381,8 +431,8 @@ class Local(base.BaseBackend):
             )
         if spec.data_manager_key is not None:
             self._db.get(schemas.Type.Dataset, spec.data_manager_key)
-        if spec.test_data_sample_keys is not None:
-            self.__check_same_data_manager(spec.data_manager_key, spec.test_data_sample_keys)
+            if spec.test_data_sample_keys is not None:
+                self.__check_same_data_manager(spec.data_manager_key, spec.test_data_sample_keys)
 
         # Hash creation
         key_components = [_BACKEND_ID, spec.objective_key, spec.traintuple_key]
@@ -441,15 +491,187 @@ class Local(base.BaseBackend):
             },
             log="",
             tag=spec.tag or "",
-            status=models.Status.waiting.value,
+            status=models.Status.waiting,
             rank=traintuple.rank,
             compute_plan_id=traintuple.compute_plan_id,
             metadata=spec.metadata if spec.metadata else dict(),
             **options,
         )
         testtuple = self._db.add(testtuple, exist_ok)
-        self._worker.schedule_testtuple(testtuple)
+        self._worker.schedule_testtuple(testtuple, traintuple_type)
         return testtuple
+
+    def _add_composite_traintuple(
+        self,
+        spec: schemas.CompositeTraintupleSpec,
+        exist_ok: bool,
+        spec_options=None
+    ):
+        # validation
+        self.__check_metadata(spec.metadata)
+        self._db.get(schemas.Type.CompositeAlgo, spec.algo_key)
+        self._db.get(schemas.Type.Dataset, spec.data_manager_key)
+        self.__check_same_data_manager(spec.data_manager_key, spec.train_data_sample_keys)
+
+        in_head_model = None
+        in_trunk_model = None
+        in_tuples = list()
+
+        if spec.in_head_model_key:
+            in_head_tuple = self._db.get(schemas.Type.CompositeTraintuple, spec.in_head_model_key)
+            assert in_head_tuple.out_head_model
+            in_head_model = models.InModel(
+                hash=in_head_tuple.out_head_model.out_model.hash_,
+                storage_address=in_head_tuple.out_head_model.out_model.storage_address
+            )
+            in_tuples.append(in_head_tuple)
+
+        if spec.in_trunk_model_key:
+            try:
+                # in trunk model is a composite traintuple out trunk model
+                in_trunk_tuple = self._db.get(
+                    schemas.Type.CompositeTraintuple, spec.in_trunk_model_key
+                )
+                assert in_trunk_tuple.out_trunk_model
+                in_model = in_trunk_tuple.out_trunk_model.out_model
+            except exceptions.NotFound:
+                # in trunk model is an aggregate tuple out model
+                in_trunk_tuple = self._db.get(schemas.Type.Aggregatetuple, spec.in_trunk_model_key)
+                assert in_trunk_tuple.out_model
+                in_model = in_trunk_tuple.out_model
+
+            in_trunk_model = models.InModel(
+                hash=in_model.hash_,
+                storage_address=in_model.storage_address
+            )
+            in_tuples.append(in_trunk_tuple)
+
+        # Hash key
+        #  * has the same `algo_key`, `data_manager_key`, `train_data_sample_keys`,
+        #  `in_head_models_key` and `in_trunk_model_key`
+        key_components = [spec.algo_key, spec.data_manager_key] + spec.train_data_sample_keys
+        if spec.in_head_model_key:
+            key_components.append(spec.in_head_model_key)
+        if spec.in_trunk_model_key:
+            key_components.append(spec.in_trunk_model_key)
+        key = hasher.Hasher(values=key_components).compute()
+
+        # Compute plan
+        compute_plan_id, rank = self.__create_compute_plan_from_tuple(spec, key, in_tuples)
+
+        # permissions
+        trunk_model_permissions = schemas.Permissions(
+            public=False,
+            authorized_ids=spec.out_trunk_model_permissions.authorized_ids
+        )
+        trunk_model_permissions = self.__compute_permissions(trunk_model_permissions)
+
+        if spec.in_head_model_key:
+            head_model_permissions = in_head_tuple.out_head_model.permissions
+        else:
+            head_model_permissions = {
+                "process": {
+                    "public": False,
+                    "authorized_ids": [_BACKEND_ID]
+                }
+            }
+
+        composite_traintuple = models.CompositeTraintuple(
+            key=key,
+            creator=_BACKEND_ID,
+            worker=_BACKEND_ID,
+            algo_key=spec.algo_key,
+            dataset={
+                "opener_hash": spec.data_manager_key,
+                "keys": spec.train_data_sample_keys,
+                "worker": _BACKEND_ID,
+            },
+            tag=spec.tag or '',
+            compute_plan_id=compute_plan_id,
+            rank=rank,
+            status=models.Status.waiting,
+            log='',
+            in_head_model=in_head_model,
+            in_trunk_model=in_trunk_model,
+            out_head_model={
+                "permissions": head_model_permissions,
+                "out_model": None
+            },
+            out_trunk_model={
+                "permissions": {
+                    "process": trunk_model_permissions.dict()
+                },
+                "out_model": None
+            },
+            metadata=spec.metadata or dict()
+        )
+        composite_traintuple = self._db.add(composite_traintuple, exist_ok)
+        if composite_traintuple.status == models.Status.waiting:
+            self._worker.schedule_traintuple(composite_traintuple)
+        return composite_traintuple
+
+    def _add_aggregatetuple(self,
+                            spec: schemas.AggregatetupleSpec,
+                            exist_ok: bool,
+                            spec_options: dict = None,
+                            ):
+        # validation
+        self.__check_metadata(spec.metadata)
+        self._db.get(schemas.Type.AggregateAlgo, spec.algo_key)
+        in_tuples = list()
+        in_models = list()
+        in_permissions = list()
+        for model_key in spec.in_models_keys:
+            try:
+                in_tuple = self._db.get(schemas.Type.Traintuple, key=model_key)
+                in_models.append(in_tuple.out_model.dict(by_alias=True))
+                in_permissions.append(in_tuple.permissions.process)
+            except exceptions.NotFound:
+                in_tuple = self._db.get(schemas.Type.CompositeTraintuple, key=model_key)
+                in_models.append(in_tuple.out_head_model.out_model.dict(by_alias=True))
+                in_permissions.append(in_tuple.out_head_model.permissions.process)
+            in_tuples.append(in_tuple)
+
+        # Hash key
+        key_components = spec.in_models_keys + [spec.algo_key]
+        key = hasher.Hasher(values=key_components).compute()
+
+        # Compute plan
+        compute_plan_id, rank = self.__create_compute_plan_from_tuple(spec, key, in_tuples)
+
+        # Permissions
+        public = False
+        authorized_ids = set()
+        for in_permission in in_permissions:
+            if in_permission.public:
+                public = True
+            authorized_ids.update(in_permission.authorized_ids)
+        authorized_ids = list(authorized_ids)
+
+        aggregatetuple = models.Aggregatetuple(
+            key=key,
+            creator=_BACKEND_ID,
+            worker=spec.worker,
+            algo_key=spec.algo_key,
+            permissions={
+                "process": {
+                    "authorized_ids": authorized_ids,
+                    "public": public
+                }
+            },
+            tag=spec.tag or '',
+            compute_plan_id=compute_plan_id,
+            rank=rank,
+            status=models.Status.waiting,
+            log='',
+            in_models=in_models,
+            out_model=None,
+            metadata=spec.metadata or dict()
+        )
+        aggregatetuple = self._db.add(aggregatetuple, exist_ok)
+        if aggregatetuple.status == models.Status.waiting:
+            self._worker.schedule_traintuple(aggregatetuple)
+        return aggregatetuple
 
     def _download_algo(self, url_field_path, key, destination):
         asset = self._db.get(type_=schemas.Type.Algo, key=key)
