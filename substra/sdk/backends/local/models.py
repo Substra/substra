@@ -238,6 +238,7 @@ class Traintuple(_Model):
     metadata: Dict[str, str]
 
     type_: ClassVar[str] = schemas.Type.Traintuple
+    algo_type: ClassVar[schemas.Type] = schemas.Type.Algo
 
     class Meta:
         storage_only_fields = None
@@ -260,6 +261,7 @@ class Aggregatetuple(_Model):
     metadata: Dict[str, str]
 
     type_: ClassVar[str] = schemas.Type.Aggregatetuple
+    algo_type: ClassVar[schemas.Type] = schemas.Type.AggregateAlgo
 
 
 class OutCompositeModel(pydantic.BaseModel):
@@ -287,6 +289,7 @@ class CompositeTraintuple(_Model):
     metadata: Dict[str, str]
 
     type_: ClassVar[str] = schemas.Type.CompositeTraintuple
+    algo_type: ClassVar[schemas.Type] = schemas.Type.CompositeAlgo
 
     class Meta:
         storage_only_fields = None

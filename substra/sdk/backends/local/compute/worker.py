@@ -273,14 +273,7 @@ class Worker:
             # fetch dependencies
             traintuple = self._db.get(traintuple_type, tuple_.traintuple_key)
 
-            if traintuple_type == schemas.Type.Traintuple:
-                algo_type = schemas.Type.Algo
-            elif traintuple_type == schemas.Type.Aggregatetuple:
-                algo_type = schemas.Type.AggregateAlgo
-            elif traintuple_type == schemas.Type.CompositeTraintuple:
-                algo_type = schemas.Type.CompositeAlgo
-
-            algo = self._db.get(algo_type, traintuple.algo_key)
+            algo = self._db.get(traintuple.algo_type, traintuple.algo_key)
             objective = self._db.get(schemas.Type.Objective, tuple_.objective_key)
             dataset = self._db.get(schemas.Type.Dataset, tuple_.dataset.key)
 
