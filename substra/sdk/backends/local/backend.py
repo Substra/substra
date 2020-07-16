@@ -37,8 +37,20 @@ class Local(base.BaseBackend):
         return self._db.get(asset_type, key).to_response()
 
     def list(self, asset_type, filters=None):
-        assets = self._db.list(asset_type)
-        return [a.to_response() for a in assets]
+        db_assets = self._db.list(asset_type)
+        if filters is None:
+            filters = list()
+        filters = {
+            filter_.split(':')[1]: ''.join(filter_.split(':')[2:])
+            for filter_ in filters
+        }
+        assets = [
+            a.to_response() for a in db_assets
+            if all([
+                a.to_response().get(key, None) == value for key, value in filters.items()
+            ])
+        ]
+        return assets
 
     @staticmethod
     def __check_metadata(metadata: typing.Optional[typing.Dict[str, str]]):
@@ -825,7 +837,7 @@ class Local(base.BaseBackend):
                 )
                 visited[id_] = rank
 
-        assets.compute_ranks(spec_tuples_list=all_tuples, visited=visited)
+        visited = assets.compute_ranks(node_graph=all_tuples, visited=visited)
 
         compute_plan = self.__execute_compute_plan(
             spec,
@@ -856,8 +868,7 @@ class Local(base.BaseBackend):
         ) = self.__get_all_tuples_compute_plan(spec)
 
         # Define the rank of each traintuple, aggregate tuple and composite tuple
-        visited = dict()
-        assets.compute_ranks(spec_tuples_list=all_tuples, visited=visited)
+        visited = assets.compute_ranks(node_graph=all_tuples)
 
         compute_plan = models.ComputePlan(
             compute_plan_id=uuid.uuid4().hex,
