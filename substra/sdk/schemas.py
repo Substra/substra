@@ -130,6 +130,65 @@ class DataSampleSpec(_Spec):
             yield data, None
 
 
+class ComputePlanTraintupleSpec(_Spec):
+    algo_key: str
+    data_manager_key: str
+    train_data_sample_keys: List[str]
+    traintuple_id: str
+    in_models_ids: Optional[List[str]]
+    tag: Optional[str]
+    metadata: Optional[Dict[str, str]]
+
+
+class ComputePlanAggregatetupleSpec(_Spec):
+    aggregatetuple_id: str
+    algo_key: str
+    worker: str
+    in_models_ids: Optional[List[str]]
+    tag: Optional[str]
+    metadata: Optional[Dict[str, str]]
+
+
+class ComputePlanCompositeTraintupleSpec(_Spec):
+    composite_traintuple_id: str
+    algo_key: str
+    data_manager_key: str
+    train_data_sample_keys: List[str]
+    in_head_model_id: Optional[str]
+    in_trunk_model_id: Optional[str]
+    tag: Optional[str]
+    out_trunk_model_permissions: Permissions
+    metadata: Optional[Dict[str, str]]
+
+
+class ComputePlanTesttupleSpec(_Spec):
+    objective_key: str
+    traintuple_id: str
+    tag: Optional[str]
+    data_manager_key: Optional[str]
+    test_data_sample_keys: Optional[List[str]]
+    metadata: Optional[Dict[str, str]]
+
+
+class _BaseComputePlanSpec(_Spec, abc.ABC):
+    traintuples: Optional[List[ComputePlanTraintupleSpec]]
+    composite_traintuples: Optional[List[ComputePlanCompositeTraintupleSpec]]
+    aggregatetuples: Optional[List[ComputePlanAggregatetupleSpec]]
+    testtuples: Optional[List[ComputePlanTesttupleSpec]]
+
+
+class ComputePlanSpec(_BaseComputePlanSpec):
+    tag: Optional[str]
+    clean_models: Optional[bool]
+    metadata: Optional[Dict[str, str]]
+
+    type_: typing.ClassVar[Type] = Type.ComputePlan
+
+
+class UpdateComputePlanSpec(_BaseComputePlanSpec):
+    pass
+
+
 class DatasetSpec(_Spec):
     name: str
     data_opener: pathlib.Path
@@ -198,6 +257,27 @@ class TraintupleSpec(_Spec):
     algo_type: typing.ClassVar[Type] = Type.Algo
     type_: typing.ClassVar[Type] = Type.Traintuple
 
+    @classmethod
+    def from_compute_plan(
+        cls,
+        compute_plan_id: str,
+        id_to_key: typing.Dict[str, str],
+        rank: int,
+        spec: ComputePlanTraintupleSpec
+    ) -> "TraintupleSpec":
+        return TraintupleSpec(
+            algo_key=spec.algo_key,
+            data_manager_key=spec.data_manager_key,
+            train_data_sample_keys=spec.train_data_sample_keys,
+            in_models_keys=[
+                id_to_key[parent_id] for parent_id in spec.in_models_ids
+            ],
+            tag=spec.tag,
+            compute_plan_id=compute_plan_id,
+            rank=rank,
+            metadata=spec.metadata
+        )
+
 
 class AggregatetupleSpec(_Spec):
     algo_key: str
@@ -211,6 +291,27 @@ class AggregatetupleSpec(_Spec):
     compute_plan_attr_name: typing.ClassVar[str] = "aggregatetuple_keys"
     algo_type: typing.ClassVar[Type] = Type.AggregateAlgo
     type_: typing.ClassVar[Type] = Type.Aggregatetuple
+
+    @classmethod
+    def from_compute_plan(
+        cls,
+        compute_plan_id: str,
+        id_to_key: typing.Dict[str, str],
+        rank: int,
+        spec: ComputePlanAggregatetupleSpec
+    ) -> "AggregatetupleSpec":
+        return AggregatetupleSpec(
+            algo_key=spec.algo_key,
+            worker=spec.worker,
+            in_models_keys=[
+                id_to_key[parent_id]
+                for parent_id in spec.in_models_ids
+            ],
+            tag=spec.tag,
+            compute_plan_id=compute_plan_id,
+            rank=rank,
+            metadata=spec.metadata
+        )
 
 
 class CompositeTraintupleSpec(_Spec):
@@ -228,6 +329,31 @@ class CompositeTraintupleSpec(_Spec):
     compute_plan_attr_name: typing.ClassVar[str] = "composite_traintuple_keys"
     type_: typing.ClassVar[Type] = Type.CompositeTraintuple
 
+    @classmethod
+    def from_compute_plan(
+        cls,
+        compute_plan_id: str,
+        id_to_key: typing.Dict[str, str],
+        rank: int,
+        spec: ComputePlanCompositeTraintupleSpec
+    ) -> "CompositeTraintupleSpec":
+        return CompositeTraintupleSpec(
+            algo_key=spec.algo_key,
+            data_manager_key=spec.data_manager_key,
+            train_data_sample_keys=spec.train_data_sample_keys,
+            in_head_model_key=(id_to_key[spec.in_head_model_id]
+                               if spec.in_head_model_id else None),
+            in_trunk_model_key=(id_to_key[spec.in_trunk_model_id]
+                                if spec.in_trunk_model_id else None),
+            out_trunk_model_permissions={
+                "authorized_ids": spec.out_trunk_model_permissions.authorized_ids
+            },
+            tag=spec.tag,
+            compute_plan_id=compute_plan_id,
+            rank=rank,
+            metadata=spec.metadata
+        )
+
 
 class TesttupleSpec(_Spec):
     objective_key: str
@@ -239,61 +365,17 @@ class TesttupleSpec(_Spec):
 
     type_: typing.ClassVar[Type] = Type.Testtuple
 
-
-class ComputePlanTraintupleSpec(_Spec):
-    algo_key: str
-    data_manager_key: str
-    train_data_sample_keys: List[str]
-    traintuple_id: str
-    in_models_ids: Optional[List[str]]
-    tag: Optional[str]
-    metadata: Optional[Dict[str, str]]
-
-
-class ComputePlanAggregatetupleSpec(_Spec):
-    aggregatetuple_id: str
-    algo_key: str
-    worker: str
-    in_models_ids: Optional[List[str]]
-    tag: Optional[str]
-    metadata: Optional[Dict[str, str]]
-
-
-class ComputePlanCompositeTraintupleSpec(_Spec):
-    composite_traintuple_id: str
-    algo_key: str
-    data_manager_key: str
-    train_data_sample_keys: List[str]
-    in_head_model_id: Optional[str]
-    in_trunk_model_id: Optional[str]
-    tag: Optional[str]
-    out_trunk_model_permissions: Permissions
-    metadata: Optional[Dict[str, str]]
-
-
-class ComputePlanTesttupleSpec(_Spec):
-    objective_key: str
-    traintuple_id: str
-    tag: Optional[str]
-    data_manager_key: Optional[str]
-    test_data_sample_keys: Optional[List[str]]
-    metadata: Optional[Dict[str, str]]
-
-
-class _BaseComputePlanSpec(_Spec, abc.ABC):
-    traintuples: Optional[List[ComputePlanTraintupleSpec]]
-    composite_traintuples: Optional[List[ComputePlanCompositeTraintupleSpec]]
-    aggregatetuples: Optional[List[ComputePlanAggregatetupleSpec]]
-    testtuples: Optional[List[ComputePlanTesttupleSpec]]
-
-
-class ComputePlanSpec(_BaseComputePlanSpec):
-    tag: Optional[str]
-    clean_models: Optional[bool]
-    metadata: Optional[Dict[str, str]]
-
-    type_: typing.ClassVar[Type] = Type.ComputePlan
-
-
-class UpdateComputePlanSpec(_BaseComputePlanSpec):
-    pass
+    @classmethod
+    def from_compute_plan(
+        cls,
+        id_to_key: typing.Dict[str, str],
+        spec: ComputePlanTesttupleSpec
+    ) -> "TesttupleSpec":
+        return TesttupleSpec(
+            objective_key=spec.objective_key,
+            traintuple_key=id_to_key[spec.traintuple_id],
+            tag=spec.tag,
+            data_manager_key=spec.data_manager_key,
+            test_data_sample_keys=spec.test_data_sample_keys,
+            metadata=spec.metadata,
+        )

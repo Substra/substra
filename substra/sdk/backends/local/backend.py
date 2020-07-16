@@ -744,18 +744,10 @@ class Local(base.BaseBackend):
         ]:
             try:
                 traintuple = self._db.get(tuple_type, testtuple.traintuple_key)
-                traintuple_type = tuple_type
                 break
             except exceptions.NotFound:
                 pass
-        if traintuple_type == schemas.Type.Traintuple:
-            algo_type = schemas.Type.Algo
-        elif traintuple_type == schemas.Type.Aggregatetuple:
-            algo_type = schemas.Type.AggregateAlgo
-        elif traintuple_type == schemas.Type.CompositeTraintuple:
-            algo_type = schemas.Type.CompositeAlgo
-
-        algo = self._db.get(algo_type, traintuple.algo_key)
+        algo = self._db.get(traintuple.algo_type, traintuple.algo_key)
         return {
             'algo': {
                 'hash': algo.key,
@@ -948,78 +940,47 @@ class Local(base.BaseBackend):
             exist_ok,
             spec_options
             ):
-        for id_, rank in {
-            id_: rank
-            for id_, rank
-            in sorted(visited.items(), key=lambda item: item[1])
-        }.items():
+        for id_, rank in sorted(visited.items(), key=lambda item: item[1]):
             if id_ in traintuples:
                 traintuple = traintuples[id_]
-                traintuple_spec = schemas.TraintupleSpec(
-                    algo_key=traintuple.algo_key,
-                    data_manager_key=traintuple.data_manager_key,
-                    train_data_sample_keys=traintuple.train_data_sample_keys,
-                    in_models_keys=[
-                        compute_plan.id_to_key[parent_id] for parent_id in traintuple.in_models_ids
-                    ],
-                    tag=traintuple.tag,
+                traintuple_spec = schemas.TraintupleSpec.from_compute_plan(
                     compute_plan_id=compute_plan.compute_plan_id,
+                    id_to_key=compute_plan.id_to_key,
                     rank=rank,
-                    metadata=traintuple.metadata
+                    spec=traintuple
                 )
                 traintuple = self.add(traintuple_spec, exist_ok, spec_options)
                 compute_plan.id_to_key[id_] = traintuple["key"]
 
             elif id_ in aggregatetuples:
                 aggregatetuple = aggregatetuples[id_]
-                aggregatetuple_spec = schemas.AggregatetupleSpec(
-                    algo_key=aggregatetuple.algo_key,
-                    worker=aggregatetuple.worker,
-                    in_models_keys=[
-                        compute_plan.id_to_key[parent_id]
-                        for parent_id in aggregatetuple.in_models_ids
-                    ],
-                    tag=aggregatetuple.tag,
+                aggregatetuple_spec = schemas.AggregatetupleSpec.from_compute_plan(
                     compute_plan_id=compute_plan.compute_plan_id,
+                    id_to_key=compute_plan.id_to_key,
                     rank=rank,
-                    metadata=aggregatetuple.metadata
+                    spec=aggregatetuple
                 )
                 aggregatetuple = self.add(aggregatetuple_spec, exist_ok, spec_options)
                 compute_plan.id_to_key[id_] = aggregatetuple["key"]
 
             elif id_ in compositetuples:
                 compositetuple = compositetuples[id_]
-                compositetuple_spec = schemas.CompositeTraintupleSpec(
-                    algo_key=compositetuple.algo_key,
-                    data_manager_key=compositetuple.data_manager_key,
-                    train_data_sample_keys=compositetuple.train_data_sample_keys,
-                    in_head_model_key=(compute_plan.id_to_key[compositetuple.in_head_model_id]
-                                       if compositetuple.in_head_model_id else None),
-                    in_trunk_model_key=(compute_plan.id_to_key[compositetuple.in_trunk_model_id]
-                                        if compositetuple.in_trunk_model_id else None),
-                    out_trunk_model_permissions={
-                        "authorized_ids": compositetuple.out_trunk_model_permissions.authorized_ids
-                    },
-                    tag=compositetuple.tag,
+                compositetuple_spec = schemas.CompositeTraintupleSpec.from_compute_plan(
                     compute_plan_id=compute_plan.compute_plan_id,
+                    id_to_key=compute_plan.id_to_key,
                     rank=rank,
-                    metadata=compositetuple.metadata
+                    spec=compositetuple
                 )
                 compositetuple = self.add(compositetuple_spec, exist_ok, spec_options)
                 compute_plan.id_to_key[id_] = compositetuple["key"]
 
         if spec.testtuples:
             for testtuple in spec.testtuples:
-                testtuple_spec = schemas.TesttupleSpec(
-                    objective_key=testtuple.objective_key,
-                    traintuple_key=compute_plan.id_to_key[testtuple.traintuple_id],
-                    tag=testtuple.tag,
-                    data_manager_key=testtuple.data_manager_key,
-                    test_data_sample_keys=testtuple.test_data_sample_keys,
-                    metadata=testtuple.metadata,
+                testtuple_spec = schemas.TesttupleSpec.from_compute_plan(
+                    id_to_key=compute_plan.id_to_key,
+                    spec=testtuple
                 )
                 testtuple = self.add(testtuple_spec, exist_ok, spec_options)
-                # TODO it seems that the testtuple are not in id_to_key ?
 
         return compute_plan
 
