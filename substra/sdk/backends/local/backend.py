@@ -607,7 +607,7 @@ class Local(base.BaseBackend):
         )
         composite_traintuple = self._db.add(composite_traintuple, exist_ok)
         if composite_traintuple.status == models.Status.waiting:
-            self._worker.schedule_composite_traintuple(composite_traintuple)
+            self._worker.schedule_traintuple(composite_traintuple)
         return composite_traintuple
 
     def _add_aggregatetuple(self,
