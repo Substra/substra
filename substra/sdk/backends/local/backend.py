@@ -16,7 +16,7 @@ import typing
 import uuid
 
 import substra
-from substra.sdk import schemas, exceptions, assets
+from substra.sdk import schemas, exceptions, utils
 from substra.sdk.backends import base
 from substra.sdk.backends.local import models
 from substra.sdk.backends.local import db
@@ -123,11 +123,20 @@ class Local(base.BaseBackend):
         elif spec.compute_plan_id:
             compute_plan = self._db.get(schemas.Type.ComputePlan, spec.compute_plan_id)
             compute_plan_id = compute_plan.compute_plan_id
-            if len(in_tuples) == 0:
-                rank = 0
-            else:
+            if spec.rank is not None:
                 # Use the rank given by the user
                 rank = spec.rank
+            else:
+                if len(in_tuples) == 0:
+                    rank = 0
+                else:
+                    rank = 1 + max(
+                        [
+                            in_tuple.rank
+                            for in_tuple in in_tuples
+                            if in_tuple.compute_plan_id == compute_plan_id
+                        ]
+                    )
 
             # Add to the compute plan
             list_keys = getattr(compute_plan, spec.compute_plan_attr_name)
@@ -469,7 +478,7 @@ class Local(base.BaseBackend):
         ) = self.__get_all_tuples_compute_plan(spec)
 
         # Define the rank of each traintuple, aggregate tuple and composite tuple
-        visited = assets.compute_ranks(node_graph=all_tuples)
+        visited = utils.compute_ranks(node_graph=all_tuples)
 
         compute_plan = models.ComputePlan(
             compute_plan_id=uuid.uuid4().hex,
@@ -975,7 +984,7 @@ class Local(base.BaseBackend):
                 )
                 visited[id_] = rank
 
-        visited = assets.compute_ranks(node_graph=all_tuples, visited=visited)
+        visited = utils.compute_ranks(node_graph=all_tuples, visited=visited)
 
         compute_plan = self.__execute_compute_plan(
             spec,
