@@ -125,14 +125,9 @@ class Local(base.BaseBackend):
             compute_plan_id = compute_plan.compute_plan_id
             if len(in_tuples) == 0:
                 rank = 0
-            else:  # TODO Trust the user for the rank ?
-                rank = 1 + max(
-                    [
-                        in_tuple.rank
-                        for in_tuple in in_tuples
-                        if in_tuple.compute_plan_id == compute_plan_id
-                    ]
-                )
+            else:
+                # Use the rank given by the user
+                rank = spec.rank
 
             # Add to the compute plan
             list_keys = getattr(compute_plan, spec.compute_plan_attr_name)
