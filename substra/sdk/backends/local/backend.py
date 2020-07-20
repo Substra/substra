@@ -518,7 +518,7 @@ class Local(base.BaseBackend):
 
         key_components = (
             [_BACKEND_ID, spec.algo_key, spec.data_manager_key]
-            + spec.train_data_sample_keys
+            + spec.train_data_sample_keys if not spec.fake_data else [uuid.uuid4().hex]
             + spec.in_models_keys
             if spec.in_models_keys is not None
             else []
@@ -624,7 +624,9 @@ class Local(base.BaseBackend):
 
         # Hash creation
         key_components = [_BACKEND_ID, spec.objective_key, spec.traintuple_key]
-        if spec.test_data_sample_keys is not None:
+        if spec.fake_data:
+            key_components.append(uuid.uuid4().hex)
+        elif spec.test_data_sample_keys is not None:
             key_components += spec.test_data_sample_keys
         if spec.data_manager_key is not None:
             key_components += spec.data_manager_key
@@ -741,7 +743,11 @@ class Local(base.BaseBackend):
         # Hash key
         #  * has the same `algo_key`, `data_manager_key`, `train_data_sample_keys`,
         #  `in_head_models_key` and `in_trunk_model_key`
-        key_components = [spec.algo_key, spec.data_manager_key] + spec.train_data_sample_keys
+        key_components = [spec.algo_key, spec.data_manager_key]
+        if spec.fake_data:
+            key_components.append(uuid.uuid4().hex)
+        else:
+            key_components += spec.train_data_sample_keys
         if spec.in_head_model_key:
             key_components.append(spec.in_head_model_key)
         if spec.in_trunk_model_key:
