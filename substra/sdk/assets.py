@@ -25,32 +25,3 @@ AGGREGATETUPLE = 'aggregatetuple'
 COMPOSITE_TRAINTUPLE = 'composite_traintuple'
 COMPUTE_PLAN = 'compute_plan'
 NODE = 'node'
-
-_SERVER_MAPPER = {
-    DATASET: 'data_manager',
-}
-
-
-def get_all():
-    return (
-        ALGO,
-        AGGREGATE_ALGO,
-        COMPOSITE_ALGO,
-        DATA_SAMPLE,
-        DATASET,
-        MODEL,
-        OBJECTIVE,
-        TESTTUPLE,
-        TRAINTUPLE,
-        AGGREGATETUPLE,
-        COMPOSITE_TRAINTUPLE,
-        COMPUTE_PLAN,
-        NODE,
-    )
-
-
-def to_server_name(asset):
-    try:
-        return _SERVER_MAPPER[asset]
-    except KeyError:
-        return asset

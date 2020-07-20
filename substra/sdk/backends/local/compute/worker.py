@@ -86,10 +86,10 @@ class Worker:
             model_trunk_key = tuple_.out_trunk_model.out_model.hash_
         else:
             if tuple_.in_head_model:
-                model_head_key = tuple_.in_head_model.key
+                model_head_key = "input_head_model"
 
             if tuple_.in_trunk_model:
-                model_trunk_key = tuple_.in_trunk_model.key
+                model_trunk_key = "input_trunk_model"
 
         if model_head_key:
             head_model_container_address = _get_address_in_container(
@@ -138,12 +138,12 @@ class Worker:
                 if tuple_.in_head_model:
                     os.link(
                         tuple_.in_head_model.storage_address,
-                        os.path.join(input_models_volume, tuple_.in_head_model.key)
+                        os.path.join(input_models_volume, "input_head_model")
                     )
                 if tuple_.in_trunk_model:
                     os.link(
                         tuple_.in_trunk_model.storage_address,
-                        os.path.join(input_models_volume, tuple_.in_trunk_model.key)
+                        os.path.join(input_models_volume, "input_trunk_model")
                     )
 
                 volumes[input_models_volume] = _VOLUME_INPUT_MODELS_RO

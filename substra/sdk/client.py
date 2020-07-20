@@ -522,7 +522,7 @@ class Client(object):
         traintuples cannot be made public.
         """
         spec = self._get_spec(schemas.ComputePlanSpec, data)
-        return self._backend.add(spec)
+        return self._backend.add(spec, exist_ok=False)
 
     @logit
     def get_algo(self, key):
