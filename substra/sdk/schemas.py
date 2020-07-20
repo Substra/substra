@@ -283,7 +283,9 @@ class TraintupleSpec(_Spec):
             tag=spec.tag,
             compute_plan_id=compute_plan_id,
             rank=rank,
-            metadata=spec.metadata
+            metadata=spec.metadata,
+            fake_data=spec.fake_data,
+            n_fake_samples=spec.n_fake_samples,
         )
 
 
@@ -361,7 +363,9 @@ class CompositeTraintupleSpec(_Spec):
             tag=spec.tag,
             compute_plan_id=compute_plan_id,
             rank=rank,
-            metadata=spec.metadata
+            metadata=spec.metadata,
+            fake_data=spec.fake_data,
+            n_fake_samples=spec.n_fake_samples,
         )
 
 
@@ -391,5 +395,5 @@ class TesttupleSpec(_Spec):
             test_data_sample_keys=spec.test_data_sample_keys,
             metadata=spec.metadata,
             fake_data=spec.fake_data,
-            n_fake_samples=spec.n_fake_samples
+            n_fake_samples=spec.n_fake_samples,
         )
