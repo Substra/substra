@@ -97,16 +97,31 @@ class Remote(base.BaseBackend):
         # datasamples, this route always returned a list of created data sample keys
         return data_samples if spec.is_many() else data_samples[0]
 
-    def add(self, spec, exist_ok=False, spec_options=None):
-        """Add an asset."""
-        spec_options = spec_options or {}
-        asset_type = spec.__class__.type_
-
+    @staticmethod
+    def _check_fake_data(spec):
         if getattr(spec, "fake_data", None):
             raise exceptions.InvalidRequest(
                 "This backend does not support execution on fake data.",
                 400
             )
+
+    def add(self, spec, exist_ok=False, spec_options=None):
+        """Add an asset."""
+        spec_options = spec_options or {}
+        asset_type = spec.__class__.type_
+
+        # Check that the user does not try to use fake data with the remote backend.
+        self._check_fake_data(spec)
+        if asset_type == schemas.Type.ComputePlan:
+            if spec.traintuples is not None:
+                for tuple_spec in spec.traintuples:
+                    self._check_fake_data(tuple_spec)
+            if spec.composite_traintuples is not None:
+                for tuple_spec in spec.composite_traintuples:
+                    self._check_fake_data(tuple_spec)
+            if spec.testtuples is not None:
+                for tuple_spec in spec.testtuples:
+                    self._check_fake_data(tuple_spec)
 
         if asset_type == schemas.Type.DataSample:
             # data sample corner case
