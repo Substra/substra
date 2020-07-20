@@ -213,7 +213,7 @@ existing asset will be returned.
 
 ## add_traintuple
 ```python
-Client.add_traintuple(self, data, exist_ok=False, fake_data=False, n_fake_samples=None)
+Client.add_traintuple(self, data, exist_ok=False)
 ```
 Create new traintuple asset.
 
@@ -229,6 +229,8 @@ Create new traintuple asset.
     "metadata": dict,
     "rank": int,
     "compute_plan_id": str,
+    "fake_data": bool,
+    "n_fake_samples": int,
 }
 ```
 An `AlreadyExists` exception will be raised if a traintuple already exists that:
@@ -244,7 +246,7 @@ runs on n samples of fake data.
 
 ## add_aggregatetuple
 ```python
-Client.add_aggregatetuple(self, data, exist_ok=False, fake_data=False, n_fake_samples=None)
+Client.add_aggregatetuple(self, data, exist_ok=False)
 ```
 Create new aggregatetuple asset.
 `data` is a dict object with the following schema:
@@ -266,13 +268,9 @@ An `AlreadyExists` exception will be raised if an aggregatetuple already exists 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
-If `fake_data` is true and the backend is local, the aggregatetuple runs on fake data.
-If `fake_data` is true and `n_fake_samples` is set, the aggregatetuple runs
-on n samples of fake data.
-
 ## add_composite_traintuple
 ```python
-Client.add_composite_traintuple(self, data, exist_ok=False, fake_data=False, n_fake_samples=None)
+Client.add_composite_traintuple(self, data, exist_ok=False)
 ```
 Create new composite traintuple asset.
 `data` is a dict object with the following schema:
@@ -289,6 +287,8 @@ Create new composite traintuple asset.
     "metadata": dict,
     "rank": int,
     "compute_plan_id": str,
+    "fake_data": bool,
+    "n_fake_samples": int,
 }
 ```
 
@@ -309,7 +309,7 @@ traintuple runs on n samples of fake data.
 
 ## add_testtuple
 ```python
-Client.add_testtuple(self, data, exist_ok=False, fake_data=False, n_fake_samples=None)
+Client.add_testtuple(self, data, exist_ok=False)
 ```
 Create new testtuple asset.
 
@@ -323,6 +323,8 @@ Create new testtuple asset.
     "test_data_sample_keys": list[str],
     "tag": str,
     "metadata": dict
+    "fake_data": bool,
+    "n_fake_samples": int,
 }
 ```
 
@@ -355,6 +357,8 @@ Data is a dict object with the following schema:
         "in_models_ids": list[str],
         "tag": str,
         "metadata": dict,
+        "fake_data": bool,
+        "n_fake_samples": int,
     }],
     "composite_traintuples": list[{
         "composite_traintuple_id": str,
@@ -368,6 +372,8 @@ Data is a dict object with the following schema:
         },
         "tag": str,
         "metadata": dict,
+        "fake_data": bool,
+        "n_fake_samples": int,
     }]
     "aggregatetuples": list[{
         "aggregatetuple_id": str,
@@ -384,6 +390,8 @@ Data is a dict object with the following schema:
         "traintuple_id": str,
         "tag": str,
         "metadata": dict,
+        "fake_data": bool,
+        "n_fake_samples": int,
     }],
     "clean_models": bool,
     "tag": str,
