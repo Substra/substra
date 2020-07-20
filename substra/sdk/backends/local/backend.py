@@ -514,7 +514,13 @@ class Local(base.BaseBackend):
             if spec.in_models_keys is not None
             else []
         )
-        self.__check_same_data_manager(spec.data_manager_key, spec.train_data_sample_keys)
+        if not spec.fake_data:
+            if len(spec.train_data_sample_keys) == 0:
+                raise exceptions.InvalidRequest(
+                    "'train_data_sample_keys': ['Ensure this field has at least 1 elements.']",
+                    400
+                )
+            self.__check_same_data_manager(spec.data_manager_key, spec.train_data_sample_keys)
 
         key_components = (
             [_BACKEND_ID, spec.algo_key, spec.data_manager_key]
@@ -705,7 +711,13 @@ class Local(base.BaseBackend):
         self.__check_metadata(spec.metadata)
         self._db.get(schemas.Type.CompositeAlgo, spec.algo_key)
         self._db.get(schemas.Type.Dataset, spec.data_manager_key)
-        self.__check_same_data_manager(spec.data_manager_key, spec.train_data_sample_keys)
+        if not spec.fake_data:
+            if len(spec.train_data_sample_keys) == 0:
+                raise exceptions.InvalidRequest(
+                    "'train_data_sample_keys': ['Ensure this field has at least 1 elements.']",
+                    400
+                )
+            self.__check_same_data_manager(spec.data_manager_key, spec.train_data_sample_keys)
 
         in_head_model = None
         in_trunk_model = None
