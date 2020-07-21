@@ -25,18 +25,17 @@ from substra.cli import printers
 from substra.sdk import assets, exceptions
 from substra.sdk import config as configuration
 from substra.sdk.client import Client
-from substra.sdk import user as usr
 
 
 def get_client(global_conf):
-    """Initialize substra client from config file, profile name and user file."""
+    """Initialize substra client from config file, profile name and tokens file."""
     help_command = "substra config <url> ..."
 
     try:
         client = Client.from_config_file(
             config_path=global_conf.config,
             profile_name=global_conf.profile,
-            user_path=global_conf.user,
+            tokens_path=global_conf.tokens,
         )
 
     except FileNotFoundError:
@@ -75,7 +74,7 @@ class GlobalConf:
     def __init__(self):
         self.profile = None
         self.config = None
-        self.user = None
+        self.tokens = None
         self.verbose = None
         self.output_format = None
 
@@ -94,15 +93,15 @@ def click_global_conf_profile(f):
         help='Profile name to use.')(f)
 
 
-def click_global_conf_user(f):
-    """Add user option to command."""
+def click_global_conf_tokens(f):
+    """Add tokens option to command."""
     return click.option(
-        '--user',
+        '--tokens',
         expose_value=False,
         type=click.Path(dir_okay=False, resolve_path=True),
         callback=update_global_conf,
-        default=usr.DEFAULT_PATH,
-        help='User file path to use (default ~/.substra-user).')(f)
+        default=os.path.expanduser(configuration.DEFAULT_TOKENS_PATH),
+        help=f'Tokens file path to use (default {configuration.DEFAULT_TOKENS_PATH}).')(f)
 
 
 def click_global_conf_config(f):
@@ -112,8 +111,8 @@ def click_global_conf_config(f):
         expose_value=False,
         type=click.Path(exists=True, resolve_path=True),
         callback=update_global_conf,
-        default=os.path.expanduser('~/.substra'),
-        help='Config path (default ~/.substra).')(f)
+        default=os.path.expanduser(configuration.DEFAULT_PATH),
+        help=f'Config path (default {configuration.DEFAULT_PATH}).')(f)
 
 
 def click_global_conf_verbose(f):
@@ -158,7 +157,7 @@ def click_global_conf_output_format(f):
 
 def click_global_conf(f):
     f = click_global_conf_verbose(f)
-    f = click_global_conf_user(f)
+    f = click_global_conf_tokens(f)
     f = click_global_conf_profile(f)
     f = click_global_conf_config(f)
     f = click_global_conf_log_level(f)
@@ -262,8 +261,8 @@ def cli(ctx):
 @cli.command('config')
 @click.argument('url')
 @click.option('--config', type=click.Path(),
-              default=configuration.DEFAULT_PATH,
-              help='Config path (default ~/.substra).')
+              default=os.path.expanduser(configuration.DEFAULT_PATH),
+              help=f'Config path (default {configuration.DEFAULT_PATH}).')
 @click.option('--profile', default='default',
               help='Profile name to add')
 @click.option('--insecure', '-k', is_flag=True,
@@ -271,12 +270,9 @@ def cli(ctx):
 @click.option('--version', '-v', default=configuration.DEFAULT_VERSION)
 def add_profile_to_config(url, config, profile, insecure, version):
     """Add profile to config file."""
-    configuration.Manager(config).add_profile(
-        profile,
-        url,
-        version=version,
-        insecure=insecure,
-    )
+    manager = configuration.ConfigManager(config)
+    manager.set_profile(name=profile, url=url, version=version, insecure=insecure)
+    manager.save()
 
 
 @cli.command('login')
@@ -287,12 +283,15 @@ def add_profile_to_config(url, config, profile, insecure, version):
 @click.option('--password', '-p', envvar='SUBSTRA_PASSWORD', prompt=True, hide_input=True)
 def login(ctx, username, password):
     """Login to the Substra platform."""
-    usr.Manager(ctx.obj.user).clear_user()
     client = get_client(ctx.obj)
 
     token = client.login(username, password)
-    # create temporary user data
-    usr.Manager(ctx.obj.user).add_user(token)
+
+    # save token to tokens file
+    manager = configuration.TokenManager(ctx.obj.tokens)
+    manager.set_profile(ctx.obj.profile, token)
+    manager.save()
+
     display(f"Token: {token}")
 
 

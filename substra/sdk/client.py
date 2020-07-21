@@ -21,7 +21,6 @@ import typing
 
 from substra.sdk import exceptions
 from substra.sdk import config as cfg
-from substra.sdk import user
 from substra.sdk import backends
 from substra.sdk import schemas
 
@@ -50,15 +49,6 @@ def logit(f):
             logger.info(f'{f.__name__}: done in {elaps:.2f}ms; error={error}')
 
     return wrapper
-
-
-def _load_token_from_file(path=None):
-    manager = user.Manager(path or user.DEFAULT_PATH)
-    try:
-        creds = manager.load_user()
-    except (exceptions.UserException, FileNotFoundError):
-        return None
-    return creds.get('token')
 
 
 class Client(object):
@@ -114,21 +104,45 @@ class Client(object):
     @classmethod
     def from_config_file(
         cls,
-        profile_name: typing.Optional[str] = None,
-        config_path: typing.Union[str, pathlib.Path, None] = None,
-        user_path: typing.Union[str, pathlib.Path, None] = None,
+        profile_name: str = cfg.DEFAULT_PROFILE_NAME,
+        config_path: typing.Union[str, pathlib.Path] = cfg.DEFAULT_PATH,
+        tokens_path: typing.Union[str, pathlib.Path] = cfg.DEFAULT_TOKENS_PATH,
         token: typing.Optional[str] = None,
         retry_timeout: int = DEFAULT_RETRY_TIMEOUT,
-        backend: str = 'remote',
     ):
-        cfg_manager = cfg.Manager(config_path)
-        profile = cfg_manager.from_config_file(name=profile_name)
+        """Returns a new Client configured with profile data from configuration files.
+
+        The new Client will be configured for a remote backend. To get a local backend, use:
+
+        >>> client = Client(backend='local')
+
+        Args:
+            profile_name (typing.Optional[str], optional): Name of the profile to load.
+                Defaults to 'default'.
+            config_path (typing.Union[str, pathlib.Path, None], optional): Path to the
+                configuration file. Defaults to '~/.substra'.
+            tokens_path (typing.Union[str, pathlib.Path, None], optional): Path to the tokens file.
+                Defaults to '~/.substra-tokens'.
+            token (typing.Optional[str], optional): Token to use for authentication (will be used
+                instead of any token found at tokens_path). Defaults to None.
+            retry_timeout (int, optional): Number of seconds before attempting a retry call in case
+                of timeout. Defaults to 5 minutes.
+
+        Returns:
+            Client: The new client.
+        """
+        config_path = os.path.expanduser(config_path)
+        profile = cfg.ConfigManager(config_path).get_profile(profile_name)
         if not token:
-            token = _load_token_from_file(user_path)
+            try:
+                tokens_path = os.path.expanduser(tokens_path)
+                token = cfg.TokenManager(tokens_path).get_profile(profile_name)
+            except cfg.ProfileNotFoundError:
+                token = None
         return Client(
             token=token,
             retry_timeout=retry_timeout,
-            backend=backend,
+            backend='remote',
             url=profile['url'],
             version=profile['version'],
             insecure=profile['insecure'],
