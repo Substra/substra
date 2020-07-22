@@ -45,93 +45,59 @@ class DataAccess:
     def add(self, asset, exist_ok: bool = False):
         return self._db.add(asset, exist_ok=exist_ok)
 
-    def download_dataset(self, key: str):
-        if key.startswith('local_'):
-            return self._db.get(schemas.Type.Dataset, key)
-        elif self._remote:
-            dataset = self._get_response(
-                schemas.Type.Dataset,
-                self._remote.get(schemas.Type.Dataset, key)
-            )
+    def _get_asset_name(self, type_):
+        if type_ in [
+            schemas.Type.Algo,
+            schemas.Type.AggregateAlgo,
+            schemas.Type.CompositeAlgo
+        ]:
+            asset_name = "algo.tar.gz"
+            field_name = "content"
 
-            tmp_directory = self.tmp_dir / key
-            dataset_description_path = tmp_directory / "dataset_description.md"
+        elif type_ == schemas.Type.Dataset:
+            asset_name = "opener.py"
+            field_name = "opener"
 
-            if not tmp_directory.exists():
-                pathlib.Path.mkdir(tmp_directory)
-                self._remote.download(
-                    schemas.Type.Dataset,
-                    'opener.storageAddress',
-                    key,
-                    tmp_directory / 'opener.py',
-                )
+        elif type_ == schemas.Type.Objective:
+            asset_name = "metrics.zip"
+            field_name = "metrics"
 
-                dataset_description = self._remote.describe(schemas.Type.Dataset, key=key)
-                with dataset_description_path.open("w", encoding='utf-8') as f:
-                    f.write(dataset_description)
-
-            dataset.description.storage_address = dataset_description_path
-            dataset.opener.storage_address = tmp_directory / "opener.py"
-
-            return dataset
         else:
-            raise exceptions.NotFound(f"Wrong pk {key}", 404)
+            raise ValueError(f"Cannot download this type of asset {type_}")
 
-    def download_algo(self, key: str):
+        return asset_name, field_name
+
+    def download(self, type_: schemas.Type, key: str):
         if key.startswith('local_'):
-            return self._db.get(schemas.Type.Algo, key)
-        elif self._remote:
-            algo = self._get_response(
-                schemas.Type.Algo,
-                self._remote.get(schemas.Type.Algo, key)
-            )
-            tmp_directory = self.tmp_dir / key
-            algo_path = tmp_directory / 'algo.zip'
-            algo_description_path = tmp_directory / "algo_description.md"
-            if not tmp_directory.exists():
-                pathlib.Path.mkdir(tmp_directory)
-                self._remote.download(
-                    schemas.Type.Algo,
-                    'content.storageAddress',
-                    key,
-                    algo_path
-                )
-                algo_description = self._remote.describe(schemas.Type.Algo, key)
-                with algo_description_path.open("w", encoding='utf-8') as f:
-                    f.write(algo_description)
-            algo.content.storage_address = algo_path
-            algo.description.storage_address = algo_description_path
-            return algo
+            return self._db.get(type_, key)
         else:
-            raise exceptions.NotFound(f"Wrong pk {key}", 404)
-
-    def download_objective(self, key: str):
-        if key.startswith('local_'):
-            return self._db.get(schemas.Type.Objective, key)
-        elif self._remote:
-            objective = self._get_response(
-                schemas.Type.Objective,
-                self._remote.get(schemas.Type.Objective, key)
+            asset_name, field_name = self._get_asset_name(type_)
+            asset = self._get_response(
+                type_,
+                self._remote.get(type_, key)
             )
             tmp_directory = self.tmp_dir / key
-            metrics_path = tmp_directory / 'metrics.zip'
             description_path = tmp_directory / "description.md"
+            asset_path = tmp_directory / asset_name
+
             if not tmp_directory.exists():
                 pathlib.Path.mkdir(tmp_directory)
+
                 self._remote.download(
-                    schemas.Type.Objective,
-                    'metrics.storageAddress',
+                    type_,
+                    field_name + ".storageAddress",
                     key,
-                    metrics_path
+                    asset_path,
                 )
-                description = self._remote.describe(schemas.Type.Objective, key)
+
+                description = self._remote.describe(type_, key)
                 with description_path.open("w", encoding='utf-8') as f:
                     f.write(description)
-            objective.metrics.storage_address = metrics_path
-            objective.description.storage_address = description_path
-            return objective
-        else:
-            raise exceptions.NotFound(f"Wrong pk {key}", 404)
+
+            attr = getattr(asset, field_name)
+            attr.storage_address = asset_path
+            asset.description.storage_address = description_path
+            return asset
 
     def get(self, type_, key: str):
         # Test on whether the key starts with local_
