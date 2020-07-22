@@ -19,7 +19,7 @@ import substra
 from substra.sdk import schemas, exceptions, utils
 from substra.sdk.backends import base
 from substra.sdk.backends.local import models
-from substra.sdk.backends.local import db
+from substra.sdk.backends.local import dal
 from substra.sdk.backends.local import fs
 from substra.sdk.backends.local import hasher
 from substra.sdk.backends.local import compute
@@ -28,10 +28,13 @@ _BACKEND_ID = "local-backend"
 
 
 class Local(base.BaseBackend):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, backend, *args, **kwargs):
         # create a store to abstract the db
-        self._db = db.get()
+        self._db = dal.DataAccess(backend)
         self._worker = compute.Worker()
+
+    def login(self, username, password):
+        self._db.login(username, password)
 
     def get(self, asset_type, key):
         return self._db.get(asset_type, key).to_response()
@@ -95,7 +98,7 @@ class Local(base.BaseBackend):
             ]
         ])
         compute_plan = models.ComputePlan(
-            compute_plan_id=uuid.uuid4().hex,
+            compute_plan_id="local_"+uuid.uuid4().hex,
             status=models.Status.waiting,
             traintuple_keys=traintuple_keys,
             composite_traintuple_keys=composite_traintuple_keys,
@@ -481,7 +484,7 @@ class Local(base.BaseBackend):
         visited = utils.compute_ranks(node_graph=all_tuples)
 
         compute_plan = models.ComputePlan(
-            compute_plan_id=uuid.uuid4().hex,
+            compute_plan_id="local_"+uuid.uuid4().hex,
             tag=spec.tag or "",
             status=models.Status.waiting,
             metadata=spec.metadata or dict(),

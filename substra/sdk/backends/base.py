@@ -3,7 +3,7 @@ import abc
 
 class BaseBackend(abc.ABC):
 
-    def login(self, uername, password):
+    def login(self, username, password):
         pass
 
     def get(self, asset_type, key):

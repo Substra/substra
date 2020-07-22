@@ -58,7 +58,7 @@ class InMemoryDb:
 
     def list(self, type_):
         """"List assets."""
-        return self._data[type_].values()
+        return list(self._data[type_].values())
 
     def update(self, asset):
         type_ = asset.__class__.type_
