@@ -211,7 +211,7 @@ class Worker:
             # Execute the tuple
             container_name = f"algo-{algo.key}"
             logs = self._spawner.spawn(
-                container_name, str(algo.file), command, volumes=volumes
+                container_name, str(algo.content.storage_address), command, volumes=volumes
             )
 
             # save move output models
@@ -316,7 +316,7 @@ class Worker:
 
             container_name = f"algo-{traintuple.algo_key}"
             logs = self._spawner.spawn(
-                container_name, str(algo.file), command, volumes=volumes
+                container_name, str(algo.content.storage_address), command, volumes=volumes
             )
 
             # Calculate the metrics

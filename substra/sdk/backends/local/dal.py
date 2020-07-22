@@ -86,7 +86,7 @@ class DataAccess:
                 self._remote.get(schemas.Type.Algo, key)
             )
             tmp_directory = self.tmp_dir / key
-            algo_path = tmp_directory / 'algo.tar.gz'
+            algo_path = tmp_directory / 'algo.zip'
             algo_description_path = tmp_directory / "algo_description.md"
             if not tmp_directory.exists():
                 pathlib.Path.mkdir(tmp_directory)
@@ -99,7 +99,7 @@ class DataAccess:
                 algo_description = self._remote.describe(schemas.Type.Algo, key)
                 with algo_description_path.open("w", encoding='utf-8') as f:
                     f.write(algo_description)
-            algo.file = algo_path
+            algo.content.storage_address = algo_path
             algo.description.storage_address = algo_description_path
             return algo
         else:

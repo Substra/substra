@@ -201,8 +201,8 @@ class _Algo(_Model):
     permissions: Permissions
     metadata: Dict[str, str]
 
-    description: UriPath
-    file: UriPath
+    description: _File
+    content: _File
 
     class Meta:
         storage_only_fields = ("file",)

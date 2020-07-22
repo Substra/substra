@@ -277,7 +277,7 @@ class Local(base.BaseBackend):
             'algo': {
                 'hash': algo.key,
                 'name': algo.name,
-                'storageAddress': str(algo.file)
+                'storageAddress': str(algo.content.storage_address)
             },
             'creator': testtuple.creator,
             'key': testtuple.key,
@@ -303,9 +303,10 @@ class Local(base.BaseBackend):
 
     def __add_algo(self, model_class, spec, exist_ok, spec_options=None):
         permissions = self.__compute_permissions(spec.permissions)
+        key = fs.hash_file(spec.file)
         algo = model_class(
-            key=fs.hash_file(spec.file),
-            pkhash=fs.hash_file(spec.file),
+            key=key,
+            pkhash=key,
             name=spec.name,
             owner=_BACKEND_ID,
             permissions={
@@ -314,8 +315,14 @@ class Local(base.BaseBackend):
                     "authorized_ids": permissions.authorized_ids,
                 },
             },
-            file=str(spec.file),
-            description=str(spec.description),
+            content={
+                "hash_": key,
+                "storage_address": spec.file
+            },
+            description={
+                "hash_": fs.hash_file(spec.description),
+                "storage_address": spec.description
+            },
             metadata=spec.metadata if spec.metadata else dict(),
         )
         return self._db.add(algo, exist_ok)
