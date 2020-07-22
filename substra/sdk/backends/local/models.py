@@ -17,21 +17,22 @@ import abc
 import enum
 import json
 import re
-from typing import ClassVar, Dict, List, Optional
+from typing import ClassVar, Dict, List, Optional, Union
 
 import pydantic
-from pydantic import DirectoryPath, FilePath
+from pydantic import DirectoryPath, FilePath, AnyUrl
 
 from substra.sdk import schemas
 
-
+UriPath = Union[FilePath, AnyUrl]
 CAMEL_TO_SNAKE_PATTERN = re.compile(r'(.)([A-Z][a-z]+)')
 CAMEL_TO_SNAKE_PATTERN_2 = re.compile(r'([a-z0-9])([A-Z])')
 
 
 def _to_snake_case(camel_str):
     name = CAMEL_TO_SNAKE_PATTERN.sub(r'\1_\2', camel_str)
-    return CAMEL_TO_SNAKE_PATTERN_2.sub(r'\1_\2', name).lower()
+    name = CAMEL_TO_SNAKE_PATTERN_2.sub(r'\1_\2', name).lower()
+    return name.replace('_i_d', '_id')
 
 
 def _to_camel_case(snake_str):
@@ -124,15 +125,20 @@ class _Model(pydantic.BaseModel, abc.ABC):
 
 
 class DataSample(_Model):
-    key: str
+    # TODO check changes
     pkhash: str
-    owner: str
-    data_manager_keys: List[str]
+    owner: Optional[str]
+    data_manager_keys: Optional[List[str]]
     path: DirectoryPath
     validated: bool = True
-    test_only: bool
+    test_only: bool = False
 
     type_: ClassVar[str] = schemas.Type.DataSample
+
+
+class _File(pydantic.BaseModel):
+    hash_: str = pydantic.Field(..., alias="hash")
+    storage_address: UriPath
 
 
 class Dataset(_Model):
@@ -145,8 +151,8 @@ class Dataset(_Model):
     type: str
     train_data_sample_keys: List[str]
     test_data_sample_keys: List[str]
-    data_opener: FilePath
-    description: FilePath
+    opener: _File
+    description: _File
     metadata: Dict[str, str]
 
     type_: ClassVar[str] = schemas.Type.Dataset
@@ -157,8 +163,15 @@ class Dataset(_Model):
 
 
 class _ObjectiveDataset(pydantic.BaseModel):
-    dataset_key: str
+    data_manager_key: str
     data_sample_keys: List[str]
+    metadata: Dict[str, str]
+
+
+class _Metric(pydantic.BaseModel):
+    name: str
+    hash_: str = pydantic.Field(..., alias="hash")
+    storage_address: UriPath
 
 
 class Objective(_Model):
@@ -170,8 +183,8 @@ class Objective(_Model):
     metadata: Dict[str, str]
     permissions: Permissions
 
-    description: FilePath
-    metrics: FilePath
+    description: _File
+    metrics: _Metric
 
     type_: ClassVar[str] = schemas.Type.Objective
 
@@ -188,8 +201,8 @@ class _Algo(_Model):
     permissions: Permissions
     metadata: Dict[str, str]
 
-    description: FilePath
-    file: FilePath
+    description: UriPath
+    file: UriPath
 
     class Meta:
         storage_only_fields = ("file",)
@@ -220,7 +233,7 @@ class _TraintupleDataset(pydantic.BaseModel):
 
 class InModel(pydantic.BaseModel):
     hash_: str = pydantic.Field(..., alias="hash")
-    storage_address: FilePath
+    storage_address: UriPath
 
     @property
     def key(self):
@@ -229,7 +242,7 @@ class InModel(pydantic.BaseModel):
 
 class OutModel(pydantic.BaseModel):
     hash_: str = pydantic.Field(..., alias="hash")
-    storage_address: FilePath
+    storage_address: UriPath
 
     @property
     def key(self):

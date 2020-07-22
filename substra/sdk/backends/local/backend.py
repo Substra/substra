@@ -31,7 +31,7 @@ class Local(base.BaseBackend):
     def __init__(self, backend, *args, **kwargs):
         # create a store to abstract the db
         self._db = dal.DataAccess(backend)
-        self._worker = compute.Worker()
+        self._worker = compute.Worker(self._db)
 
     def login(self, username, password):
         self._db.login(username, password)
@@ -81,6 +81,13 @@ class Local(base.BaseBackend):
         elif not permissions.public and _BACKEND_ID not in permissions.authorized_ids:
             permissions.authorized_ids.append(_BACKEND_ID)
         return permissions
+
+    @staticmethod
+    def _is_local(key: str):
+        """Check if la clé correspond à un asset local
+        ou d'une plateforme déployée.
+        """
+        return key.startswith("local_")
 
     def __add_compute_plan(
         self,
@@ -281,17 +288,18 @@ class Local(base.BaseBackend):
 
     def __check_same_data_manager(self, data_manager_key, data_sample_keys):
         """Check that all data samples are linked to this data manager"""
-        same_data_manager = all(
-            [
-                data_manager_key
-                in self._db.get(schemas.Type.DataSample, key).data_manager_keys
-                for key in data_sample_keys
-            ]
-        )
-        if not same_data_manager:
-            raise substra.exceptions.InvalidRequest(
-                "dataSample do not belong to the same dataManager", 400
+        if self._is_local(data_manager_key):
+            same_data_manager = all(
+                [
+                    data_manager_key
+                    in self._db.get(schemas.Type.DataSample, key).data_manager_keys
+                    for key in data_sample_keys
+                ]
             )
+            if not same_data_manager:
+                raise substra.exceptions.InvalidRequest(
+                    "dataSample do not belong to the same dataManager", 400
+                )
 
     def __add_algo(self, model_class, spec, exist_ok, spec_options=None):
         permissions = self.__compute_permissions(spec.permissions)
@@ -331,9 +339,10 @@ class Local(base.BaseBackend):
     def _add_dataset(self, spec, exist_ok, spec_options):
         self.__check_metadata(spec.metadata)
         permissions = self.__compute_permissions(spec.permissions)
+        key = fs.hash_file(spec.data_opener)
         asset = models.Dataset(
-            key=fs.hash_file(spec.data_opener),
-            pkhash=fs.hash_file(spec.data_opener),
+            key=key,
+            pkhash=key,
             owner=_BACKEND_ID,
             name=spec.name,
             objective_key=spec.objective_key if spec.objective_key else "",
@@ -346,8 +355,14 @@ class Local(base.BaseBackend):
             type=spec.type,
             train_data_sample_keys=[],
             test_data_sample_keys=[],
-            data_opener=str(spec.data_opener),
-            description=str(spec.description),
+            data_opener={
+                "hash_": key,
+                "storage_address": spec.data_opener
+            },
+            description={
+                "hash_": fs.hash_file(spec.description),
+                "storage_address": spec.description
+            },
             metadata=spec.metadata if spec.metadata else dict(),
         )
         return self._db.add(asset, exist_ok)
@@ -428,8 +443,9 @@ class Local(base.BaseBackend):
             self.__check_same_data_manager(spec.test_data_manager_key, spec.test_data_sample_keys)
 
             test_dataset = {
-                "dataset_key": spec.test_data_manager_key,
+                "data_manager_key": spec.test_data_manager_key,
                 "data_sample_keys": spec.test_data_sample_keys,
+                "metadata": dict()
             }
             if not dataset.objective_key:
                 dataset.objective_key = objective_key
@@ -451,8 +467,15 @@ class Local(base.BaseBackend):
                     "authorized_ids": permissions.authorized_ids,
                 },
             },
-            description=str(spec.description),
-            metrics=str(spec.metrics),
+            description={
+                "hash_": fs.hash_file(spec.description),
+                "storage_address": spec.description
+            },
+            metrics={
+                "name": spec.metrics_name,
+                "hash_": objective_key,
+                "storage_address": spec.metrics
+            },
             metadata=spec.metadata if spec.metadata else dict(),
         )
 
@@ -640,7 +663,7 @@ class Local(base.BaseBackend):
             test_data_sample_keys = spec.test_data_sample_keys
             certified = (
                 objective.test_dataset is not None
-                and objective.test_dataset.dataset_key == spec.data_manager_key
+                and objective.test_dataset.data_manager_key == spec.data_manager_key
                 and set(objective.test_dataset.data_sample_keys)
                 == set(spec.test_data_sample_keys)
             )
@@ -648,7 +671,7 @@ class Local(base.BaseBackend):
             assert (
                 objective.test_dataset
             ), "can not create a certified testtuple, no data associated with objective"
-            dataset_opener = objective.test_dataset.dataset_key
+            dataset_opener = objective.test_dataset.data_manager_key
             test_data_sample_keys = objective.test_dataset.data_sample_keys
             certified = True
 

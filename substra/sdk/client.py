@@ -124,6 +124,7 @@ class Client(object):
         tokens_path: typing.Union[str, pathlib.Path] = cfg.DEFAULT_TOKENS_PATH,
         token: typing.Optional[str] = None,
         retry_timeout: int = DEFAULT_RETRY_TIMEOUT,
+        debug: bool = False
     ):
         """Returns a new Client configured with profile data from configuration files.
 
@@ -160,7 +161,7 @@ class Client(object):
             url=profile['url'],
             version=profile['version'],
             insecure=profile['insecure'],
-            debug=False,
+            debug=debug,
         )
 
     @logit

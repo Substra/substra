@@ -18,8 +18,8 @@ import pathlib
 import shutil
 
 from substra.sdk import schemas
-from substra.runner import METRICS_NO_FAKE_Y, DOCKER_METRICS_TAG
-from substra.sdk.backends.local import db
+from substra.runner import METRICS_FAKE_Y, METRICS_NO_FAKE_Y, DOCKER_METRICS_TAG
+from substra.sdk.backends.local import dal
 from substra.sdk.backends.local import models
 from substra.sdk.backends.local import fs
 from substra.sdk.backends.local.compute import spawner
@@ -55,10 +55,17 @@ def _get_address_in_container(model_key, volume, container_volume):
 class Worker:
     """ML Worker."""
 
-    def __init__(self):
+    def __init__(self, db: dal.DataAccess):
         self._wdir = os.path.join(os.getcwd(), "local-worker")
-        self._db = db.get()
+        self._db = db
         self._spawner = spawner.get()
+
+    @staticmethod
+    def _is_local(key: str):
+        """Check if la clé correspond à un asset local
+        ou d'une plateforme déployée.
+        """
+        return key.startswith("local_")
 
     def _get_data_volume(self, tuple_dir, tuple_):
         data_volume = _mkdir(os.path.join(tuple_dir, "data"))
@@ -67,7 +74,7 @@ class Worker:
         ]
         for sample in samples:
             # TODO more efficient link (symlink?)
-            shutil.copytree(sample.path, os.path.join(data_volume, sample.key))
+            shutil.copytree(sample.path, os.path.join(data_volume, sample.pkhash))
         return data_volume
 
     def _save_output_model(self, tuple_, model_name, models_volume) -> models.OutModel:
@@ -124,7 +131,7 @@ class Worker:
             tuple_.status = models.Status.doing
 
             # fetch dependencies
-            algo = self._db.get(tuple_.algo_type, tuple_.algo_key)
+            algo = self._db.download_algo(tuple_.algo_key)
 
             compute_plan = None
             if tuple_.compute_plan_id:
@@ -162,10 +169,11 @@ class Worker:
 
             if not isinstance(tuple_, models.Aggregatetuple):
                 # if this is a traintuple or composite traintuple, prepare the data
-                dataset = self._db.get(schemas.Type.Dataset, tuple_.dataset.key)
-                data_volume = self._get_data_volume(tuple_dir, tuple_)
-                volumes[dataset.data_opener] = _VOLUME_OPENER
-                volumes[data_volume] = _VOLUME_INPUT_DATASAMPLES
+                dataset = self._db.download_dataset(tuple_.dataset.key)
+                volumes[dataset.opener.storage_address] = _VOLUME_OPENER
+                if self._is_local(tuple_.dataset.key):
+                    data_volume = self._get_data_volume(tuple_dir, tuple_)
+                    volumes[data_volume] = _VOLUME_INPUT_DATASAMPLES
 
             if tuple_.compute_plan_id:
                 #  Shared compute plan volume
@@ -183,6 +191,11 @@ class Worker:
 
             # compute command
             command += f" --rank {tuple_.rank}"
+            if not isinstance(tuple_, models.Aggregatetuple):
+                if not self._is_local(tuple_.dataset.key):
+                    command += " --fake-data"
+                    command += f" --n-fake-samples {len(tuple_.dataset.keys)}"
+
 
             # Add the in_models to the command
             if isinstance(tuple_, models.CompositeTraintuple):
@@ -196,7 +209,7 @@ class Worker:
                 for idx, model in enumerate(tuple_.in_models):
                     command += f" {idx}_{model.key}"
 
-            # Execue the tuple
+            # Execute the tuple
             container_name = f"algo-{algo.key}"
             logs = self._spawner.spawn(
                 container_name, str(algo.file), command, volumes=volumes
@@ -235,25 +248,29 @@ class Worker:
             # fetch dependencies
             traintuple = self._db.get(traintuple_type, tuple_.traintuple_key)
 
-            algo = self._db.get(traintuple.algo_type, traintuple.algo_key)
-            objective = self._db.get(schemas.Type.Objective, tuple_.objective_key)
-            dataset = self._db.get(schemas.Type.Dataset, tuple_.dataset.key)
+            algo = self._db.download_algo(traintuple.algo_key)
+            objective = self._db.download_objective(tuple_.objective_key)
+            dataset = self._db.download_dataset(tuple_.dataset.key)
 
             compute_plan = None
             if tuple_.compute_plan_id:
                 compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_id)
 
             # prepare model and datasamples
-            data_volume = self._get_data_volume(tuple_dir, tuple_)
             predictions_volume = _mkdir(os.path.join(tuple_dir, "pred"))
             models_volume = _mkdir(os.path.join(tuple_dir, "models"))
 
             volumes = {
-                dataset.data_opener: _VOLUME_OPENER,
-                data_volume: _VOLUME_INPUT_DATASAMPLES,
+                dataset.opener.storage_address: _VOLUME_OPENER,
                 models_volume: _VOLUME_MODELS_RO,
                 predictions_volume: _VOLUME_OUTPUT_PRED,
             }
+
+            # If use fake data, no data volume
+            if self._is_local(dataset.key):
+                data_volume = self._get_data_volume(tuple_dir, tuple_)
+                volumes[data_volume] = _VOLUME_INPUT_DATASAMPLES
+
             if tuple_.compute_plan_id:
                 local_volume = _mkdir(
                     os.path.join(
@@ -264,9 +281,13 @@ class Worker:
 
             # compute testtuple command
             command = "predict"
+
+            if not self._is_local(dataset.key):
+                command += " --fake-data"
+                command += f" --n-fake-samples {len(objective.test_dataset.data_sample_keys)}"
+
             if traintuple_type == schemas.Type.Traintuple \
                     or traintuple_type == schemas.Type.Aggregatetuple:
-
                 os.link(
                     traintuple.out_model.storage_address,
                     os.path.join(models_volume, traintuple.out_model.key),
@@ -302,15 +323,19 @@ class Worker:
             # Calculate the metrics
             volumes = {
                 predictions_volume: _VOLUME_OUTPUT_PRED,
-                dataset.data_opener: _VOLUME_OPENER,
-                data_volume: _VOLUME_INPUT_DATASAMPLES,
+                dataset.opener.storage_address: _VOLUME_OPENER,
             }
 
-            command = f"--fake-data-mode {METRICS_NO_FAKE_Y}"
+            if self._is_local(dataset.key):
+                volumes[data_volume] = _VOLUME_INPUT_DATASAMPLES
+                command = f"--fake-data-mode {METRICS_NO_FAKE_Y}"
+            else:
+                command = f"--fake-data-mode {METRICS_FAKE_Y}"
+                command += f" --n-fake-samples {len(objective.test_dataset.data_sample_keys)}"
 
             container_name = DOCKER_METRICS_TAG
             logs_predict = self._spawner.spawn(
-                container_name, str(objective.metrics), command=command, volumes=volumes
+                container_name, str(objective.metrics.storage_address), command=command, volumes=volumes
             )
 
             # save move performances
