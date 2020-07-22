@@ -98,7 +98,7 @@ class Local(base.BaseBackend):
             ]
         ])
         compute_plan = models.ComputePlan(
-            compute_plan_id="local_"+uuid.uuid4().hex,
+            compute_plan_id="local_" + uuid.uuid4().hex,
             status=models.Status.waiting,
             traintuple_keys=traintuple_keys,
             composite_traintuple_keys=composite_traintuple_keys,

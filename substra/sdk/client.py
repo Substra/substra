@@ -65,7 +65,7 @@ class Client(object):
         retry_timeout: int = DEFAULT_RETRY_TIMEOUT,
         version: str = '0.0',
         insecure: bool = False,
-        debug: bool = True,
+        debug: bool = False,
     ):
         self._retry_timeout = retry_timeout
         self._token = token
@@ -78,7 +78,7 @@ class Client(object):
 
     def _get_backend(self, debug: bool):
         backend = None
-        if self._url:
+        if (debug and self._url) or not debug:
             backend = backends.get(
                 "remote",
                 url=self._url,
@@ -92,7 +92,15 @@ class Client(object):
                 "local",
                 backend,
             )
-        return backend
+        else:
+            return backends.get(
+                "remote",
+                url=self._url,
+                version=self._version,
+                insecure=self._insecure,
+                token=self._token,
+                retry_timeout=self._retry_timeout,
+            )
 
     @logit
     def login(self, username, password):
@@ -149,10 +157,10 @@ class Client(object):
         return Client(
             token=token,
             retry_timeout=retry_timeout,
-            backend='remote',
             url=profile['url'],
             version=profile['version'],
             insecure=profile['insecure'],
+            debug=False,
         )
 
     @logit

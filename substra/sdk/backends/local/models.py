@@ -16,12 +16,22 @@
 import abc
 import enum
 import json
+import re
 from typing import ClassVar, Dict, List, Optional
 
 import pydantic
 from pydantic import DirectoryPath, FilePath
 
 from substra.sdk import schemas
+
+
+CAMEL_TO_SNAKE_PATTERN = re.compile(r'(.)([A-Z][a-z]+)')
+CAMEL_TO_SNAKE_PATTERN_2 = re.compile(r'([a-z0-9])([A-Z])')
+
+
+def _to_snake_case(camel_str):
+    name = CAMEL_TO_SNAKE_PATTERN.sub(r'\1_\2', camel_str)
+    return CAMEL_TO_SNAKE_PATTERN_2.sub(r'\1_\2', name).lower()
 
 
 def _to_camel_case(snake_str):
@@ -85,6 +95,11 @@ class _Model(pydantic.BaseModel, abc.ABC):
 
     class Config:
         extra = 'forbid'
+
+    @classmethod
+    def from_response(cls, data):
+        data_snake = _replace_dict_keys(data, _to_snake_case)
+        return cls(**data_snake)
 
     def to_response(self):
         """Convert model to backend response object."""
@@ -350,3 +365,16 @@ class ComputePlan(_Model):
     class Meta:
         storage_only_fields = None
         alias_fields = {"compute_plan_id": "compute_plan_i_d"}
+
+
+SCHEMA_TO_MODEL = {
+    schemas.Type.Algo: Algo,
+    schemas.Type.CompositeAlgo: CompositeAlgo,
+    schemas.Type.CompositeTraintuple: CompositeTraintuple,
+    schemas.Type.ComputePlan: ComputePlan,
+    schemas.Type.DataSample: DataSample,
+    schemas.Type.Dataset: Dataset,
+    schemas.Type.Objective: Objective,
+    schemas.Type.Testtuple: Testtuple,
+    schemas.Type.Traintuple: Traintuple
+}

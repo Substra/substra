@@ -11,11 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import re
 import typing
 
 from substra.sdk import exceptions
 from substra.sdk.backends.remote import backend
-from substra.sdk.backends.local import db
+from substra.sdk.backends.local import db, models
 
 
 class DataAccess:
@@ -23,6 +24,7 @@ class DataAccess:
 
     This is an intermediate layer between the backend and the local/remote data access.
     """
+
     def __init__(self, remote_backend: typing.Optional[backend.Remote]):
         self._db = db.get()
         self._remote = remote_backend
@@ -35,22 +37,25 @@ class DataAccess:
         return self._db.add(asset, exist_ok=exist_ok)
 
     def get(self, type_, key: str):
-        # TODO check len(key) always 64 even for the compute plan
-        if len(key) == 64 and not self._remote:
-            raise exceptions.NotFound(f"Wrong pk {key}", 404)
-        if len(key) == 64 and self._remote:
-            return self._remote.get(type_, key)
-        if len(key) == 70:
+        # Test on whether the key starts with local_
+        if key.startswith('local_'):
             return self._db.get(type_, key)
-
-        raise exceptions.NotFound(f"Wrong pk {key}", 404)
+        elif self._remote:
+            return models.SCHEMA_TO_MODEL[type_].from_response(
+                self._remote.get(type_, key)
+            )
+        else:
+            raise exceptions.NotFound(f"Wrong pk {key}", 404)
 
     def list(self, type_):
         """"List assets."""
         local_assets = self._db.list(type_)
         remote_assets = list()
         if self._remote:
-            remote_assets = self._remote.list(type_)
+            for asset in self._remote.list(type_):
+                remote_assets.append(
+                    models.SCHEMA_TO_MODEL[type_].from_response(asset)
+                )
         return local_assets + remote_assets
 
     def update(self, asset):
