@@ -196,7 +196,6 @@ class Worker:
                     command += " --fake-data"
                     command += f" --n-fake-samples {len(tuple_.dataset.keys)}"
 
-
             # Add the in_models to the command
             if isinstance(tuple_, models.CompositeTraintuple):
                 command += self._get_command_models_composite(
@@ -335,7 +334,10 @@ class Worker:
 
             container_name = DOCKER_METRICS_TAG
             logs_predict = self._spawner.spawn(
-                container_name, str(objective.metrics.storage_address), command=command, volumes=volumes
+                container_name,
+                str(objective.metrics.storage_address),
+                command=command,
+                volumes=volumes,
             )
 
             # save move performances

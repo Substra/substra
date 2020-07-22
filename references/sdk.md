@@ -2,7 +2,7 @@
 
 # Client
 ```python
-Client(self, url: Union[str, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300, backend: str = 'remote', version: str = '0.0', insecure: bool = False)
+Client(self, url: Union[str, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300, version: str = '0.0', insecure: bool = False, debug: bool = False)
 ```
 Create the client.
 
@@ -16,7 +16,7 @@ Client.login(self, username, password)
 Login to a remote server.
 ## from_config_file
 ```python
-Client.from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Union[str, NoneType] = None, retry_timeout: int = 300)
+Client.from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Union[str, NoneType] = None, retry_timeout: int = 300, debug: bool = False)
 ```
 Returns a new Client configured with profile data from configuration files.
 
