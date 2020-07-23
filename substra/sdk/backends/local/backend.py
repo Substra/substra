@@ -372,7 +372,6 @@ class Local(base.BaseBackend):
 
     def _add_data_sample(self, key, spec, spec_options=None):
         # TODO: actual nice error for the user
-
         assert len(spec.data_manager_keys) > 0
         datasets = [
             self._db.get(schemas.Type.Dataset, dataset_key)
