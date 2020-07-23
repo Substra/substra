@@ -84,8 +84,8 @@ class Local(base.BaseBackend):
 
     @staticmethod
     def _is_local(key: str):
-        """Check if la clé correspond à un asset local
-        ou d'une plateforme déployée.
+        """Check if the key corresponds to a local
+        or remote asset.
         """
         return key.startswith("local_")
 
