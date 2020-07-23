@@ -50,7 +50,7 @@ assets_directory = current_directory.parent / "titanic" / "assets"
 algo_directory = current_directory.parent / "compute_plan" / "assets" / "algo_sgd"
 
 # Define the client
-client = substra.Client(backend="local")
+client = substra.Client(debug=True)
 
 DATASET = {
     "name": "Titanic",
