@@ -34,7 +34,7 @@ class InMemoryDb:
         if type_ == models.ComputePlan.type_:
             key = asset.compute_plan_id
         else:
-            key = asset.key
+            key = getattr(asset, 'pkhash', None) or getattr(asset, 'key', None)
 
         if key in self._data[type_]:
             if not exist_ok:

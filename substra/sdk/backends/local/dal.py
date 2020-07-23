@@ -35,6 +35,13 @@ class DataAccess:
     def tmp_dir(self):
         return pathlib.Path(self._tmp_dir.name)
 
+    @staticmethod
+    def _is_local(key: str):
+        """Check if la clé correspond à un asset local
+        ou d'une plateforme déployée.
+        """
+        return key.startswith("local_")
+
     def _get_response(self, type_, asset):
         return models.SCHEMA_TO_MODEL[type_].from_response(asset)
 
@@ -66,6 +73,16 @@ class DataAccess:
             raise ValueError(f"Cannot download this type of asset {type_}")
 
         return asset_name, field_name
+
+    def get_description(self, asset_type, key):
+        if self._is_local(key):
+            asset = self._db.get(type_=asset_type, key=key)
+            if not hasattr(asset, "description") or not asset.description:
+                raise ValueError("This element does not have a description.")
+            with open(asset.description.storage_address, "r", encoding="utf-8") as f:
+                return f.read()
+        else:
+            return self._remote.describe(asset_type, key)
 
     def download(self, type_: schemas.Type, key: str):
         if key.startswith('local_'):

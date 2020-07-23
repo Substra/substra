@@ -316,11 +316,11 @@ class Local(base.BaseBackend):
                 },
             },
             content={
-                "hash_": key,
+                "hash": key,
                 "storage_address": spec.file
             },
             description={
-                "hash_": fs.hash_file(spec.description),
+                "hash": fs.hash_file(spec.description),
                 "storage_address": spec.description
             },
             metadata=spec.metadata if spec.metadata else dict(),
@@ -362,12 +362,12 @@ class Local(base.BaseBackend):
             type=spec.type,
             train_data_sample_keys=[],
             test_data_sample_keys=[],
-            data_opener={
-                "hash_": key,
+            opener={
+                "hash": key,
                 "storage_address": spec.data_opener
             },
             description={
-                "hash_": fs.hash_file(spec.description),
+                "hash": fs.hash_file(spec.description),
                 "storage_address": spec.description
             },
             metadata=spec.metadata if spec.metadata else dict(),
@@ -382,7 +382,6 @@ class Local(base.BaseBackend):
         ]
 
         data_sample = models.DataSample(
-            key=fs.hash_directory(spec.path),
             pkhash=fs.hash_directory(spec.path),
             owner=_BACKEND_ID,
             path=str(spec.path),
@@ -397,8 +396,8 @@ class Local(base.BaseBackend):
                 samples_list = dataset.test_data_sample_keys
             else:
                 samples_list = dataset.train_data_sample_keys
-            if data_sample.key not in samples_list:
-                samples_list.append(data_sample.key)
+            if data_sample.pkhash not in samples_list:
+                samples_list.append(data_sample.pkhash)
 
         return data_sample
 
@@ -430,8 +429,8 @@ class Local(base.BaseBackend):
                 samples_list = dataset.train_data_sample_keys
 
             for data_sample in data_samples:
-                if data_sample.key not in samples_list:
-                    samples_list.append(data_sample.key)
+                if data_sample.pkhash not in samples_list:
+                    samples_list.append(data_sample.pkhash)
 
         return data_samples
 
@@ -475,12 +474,12 @@ class Local(base.BaseBackend):
                 },
             },
             description={
-                "hash_": fs.hash_file(spec.description),
+                "hash": fs.hash_file(spec.description),
                 "storage_address": spec.description
             },
             metrics={
                 "name": spec.metrics_name,
-                "hash_": objective_key,
+                "hash": objective_key,
                 "storage_address": spec.metrics
             },
             metadata=spec.metadata if spec.metadata else dict(),
@@ -896,7 +895,7 @@ class Local(base.BaseBackend):
 
     def _download_dataset(self, url_field_path, key, destination):
         asset = self._db.get(type_=schemas.Type.Dataset, key=key)
-        shutil.copyfile(asset.data_opener, destination)
+        shutil.copyfile(asset.opener.storage_address, destination)
 
     def _download_objective(self, url_field_path, key, destination):
         asset = self._db.get(type_=schemas.Type.Objective, key=key)
@@ -947,13 +946,17 @@ class Local(base.BaseBackend):
         download_asset(url_field_path, key, destination)
 
     def describe(self, asset_type, key):
-        asset = self._db.get(type_=asset_type, key=key)
-        if not hasattr(asset, "description") or not asset.description:
-            raise ValueError("This element does not have a description.")
-        with open(asset.description, "r", encoding="utf-8") as f:
-            return f.read()
+        if self._is_local(key):
+            asset = self._db.get(type_=asset_type, key=key)
+            if not hasattr(asset, "description") or not asset.description:
+                raise ValueError("This element does not have a description.")
+            with open(asset.description.storage_address, "r", encoding="utf-8") as f:
+                return f.read()
+        else:
+            return self._db.get_description(asset_type, key)
 
     def leaderboard(self, objective_key, sort='desc'):
+        # TODO update with hybrid debugging
         objective = self._db.get(schemas.Type.Objective, objective_key)
         testtuples = self._db.list(schemas.Type.Testtuple)
         certified_testtuples = [

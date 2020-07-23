@@ -131,7 +131,7 @@ class Worker:
             tuple_.status = models.Status.doing
 
             # fetch dependencies
-            algo = self._db.download(schemas.Type.Algo, tuple_.algo_key)
+            algo = self._db.download(tuple_.algo_type, tuple_.algo_key)
 
             compute_plan = None
             if tuple_.compute_plan_id:
@@ -247,7 +247,7 @@ class Worker:
             # fetch dependencies
             traintuple = self._db.get(traintuple_type, tuple_.traintuple_key)
 
-            algo = self._db.download(schemas.Type.Algo, traintuple.algo_key)
+            algo = self._db.download(traintuple.algo_type, traintuple.algo_key)
             objective = self._db.download(schemas.Type.Objective, tuple_.objective_key)
             dataset = self._db.download(schemas.Type.Dataset, tuple_.dataset.key)
 

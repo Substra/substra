@@ -158,7 +158,7 @@ class Dataset(_Model):
     type_: ClassVar[str] = schemas.Type.Dataset
 
     class Meta:
-        storage_only_fields = ("data_opener",)
+        storage_only_fields = ("opener",)
         alias_fields = None
 
 
@@ -205,7 +205,7 @@ class _Algo(_Model):
     content: _File
 
     class Meta:
-        storage_only_fields = ("file",)
+        storage_only_fields = ("content",)
         alias_fields = None
 
 

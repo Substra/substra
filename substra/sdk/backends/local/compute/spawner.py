@@ -44,7 +44,7 @@ def _uncompress(archive, to_):
         except Exception:
             pass
     if not success:
-        raise exceptions.InvalidRequest(f"Cannot uncompres '{archive}'", 400)
+        raise exceptions.InvalidRequest(f"Cannot uncompress '{archive}'", 400)
 
 
 class ExecutionError(Exception):

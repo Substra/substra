@@ -53,9 +53,6 @@ def logit(f):
 
 class Client(object):
     """Create the client.
-
-    Set the `backend` to 'local' to use the local debugging.
-    One client corresponds to one profile.
     """
 
     def __init__(
@@ -67,6 +64,25 @@ class Client(object):
         insecure: bool = False,
         debug: bool = False,
     ):
+        """Create a client
+
+        Args:
+            url (typing.Optional[str], optional): URL of the Substra platform. Mandatory
+                to connect to a Substra platform. If no URL is given and debug is True, all
+                assets must be created locally.
+                Defaults to None.
+            token (typing.Optional[str], optional): Token to authenticate to the Substra platform.
+                If no token is given, use the 'login' function to authenticate.
+                Defaults to None.
+            retry_timeout (int, optional): Number of seconds before attempting a retry call in case
+                of timeout.
+                Defaults to 5 minutes.
+            version (str, optional): [description]. Defaults to '0.0'.
+            insecure (bool, optional): [description]. Defaults to False.
+            debug (bool, optional): Whether to use the default or debug mode. In debug mode, new assets are created
+                locally but can access remote assets. The deployed platform is in read-only mode.
+                Defaults to False.
+        """
         self._retry_timeout = retry_timeout
         self._token = token
 
@@ -92,15 +108,7 @@ class Client(object):
                 "local",
                 backend,
             )
-        else:
-            return backends.get(
-                "remote",
-                url=self._url,
-                version=self._version,
-                insecure=self._insecure,
-                token=self._token,
-                retry_timeout=self._retry_timeout,
-            )
+        return backend
 
     @logit
     def login(self, username, password):
@@ -143,6 +151,9 @@ class Client(object):
                 instead of any token found at tokens_path). Defaults to None.
             retry_timeout (int, optional): Number of seconds before attempting a retry call in case
                 of timeout. Defaults to 5 minutes.
+            debug (bool): Whether to use the default or debug mode. In debug mode, new assets are created
+                locally but can access remote assets. The deployed platform is in read-only mode.
+                Defaults to False.
 
         Returns:
             Client: The new client.
