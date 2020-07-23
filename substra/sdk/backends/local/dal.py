@@ -85,7 +85,7 @@ class DataAccess:
             return self._remote.describe(asset_type, key)
 
     def download(self, type_: schemas.Type, key: str):
-        if key.startswith('local_'):
+        if self._is_local(key):
             return self._db.get(type_, key)
         else:
             asset_name, field_name = self._get_asset_name(type_)
@@ -118,7 +118,7 @@ class DataAccess:
 
     def get(self, type_, key: str):
         # Test on whether the key starts with local_
-        if key.startswith('local_'):
+        if self._is_local(key):
             return self._db.get(type_, key)
         elif self._remote:
             return self._get_response(type_, self._remote.get(type_, key))
