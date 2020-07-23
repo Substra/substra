@@ -79,8 +79,9 @@ class Client(object):
                 Defaults to 5 minutes.
             version (str, optional): [description]. Defaults to '0.0'.
             insecure (bool, optional): [description]. Defaults to False.
-            debug (bool, optional): Whether to use the default or debug mode. In debug mode, new assets are created
-                locally but can access remote assets. The deployed platform is in read-only mode.
+            debug (bool, optional): Whether to use the default or debug mode.
+                In debug mode, new assets are created locally but can access remote assets.
+                The deployed platform is in read-only mode.
                 Defaults to False.
         """
         self._retry_timeout = retry_timeout
@@ -136,10 +137,6 @@ class Client(object):
     ):
         """Returns a new Client configured with profile data from configuration files.
 
-        The new Client will be configured for a remote backend. To get a local backend, use:
-
-        >>> client = Client(backend='local')
-
         Args:
             profile_name (typing.Optional[str], optional): Name of the profile to load.
                 Defaults to 'default'.
@@ -151,8 +148,9 @@ class Client(object):
                 instead of any token found at tokens_path). Defaults to None.
             retry_timeout (int, optional): Number of seconds before attempting a retry call in case
                 of timeout. Defaults to 5 minutes.
-            debug (bool): Whether to use the default or debug mode. In debug mode, new assets are created
-                locally but can access remote assets. The deployed platform is in read-only mode.
+            debug (bool): Whether to use the default or debug mode. In debug mode, new assets are
+                created locally but can get remote assets. The deployed platform is in
+                read-only mode.
                 Defaults to False.
 
         Returns:
