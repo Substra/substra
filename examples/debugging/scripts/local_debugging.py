@@ -92,7 +92,7 @@ with zipfile.ZipFile(archive_path, "w") as z:
 ALGO = {
     "name": "Titanic: Random Forest",
     "description": assets_directory / "algo_random_forest" / "description.md",
-    "file": current_directory / "algo_random_forest.zip",
+    "file": current_directory / "tmp" / "algo_random_forest.zip",
     "permissions": {"public": False, "authorized_ids": []},
 }
 

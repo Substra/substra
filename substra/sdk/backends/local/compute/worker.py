@@ -230,7 +230,7 @@ class Worker:
                 tuple_.out_model = self._save_output_model(tuple_, 'model', models_volume)
 
             # set logs and status
-            tuple_.log = "\n".join(logs)
+            tuple_.log = logs
             tuple_.status = models.Status.done
 
             if tuple_.compute_plan_id:
@@ -350,8 +350,8 @@ class Worker:
                 tuple_.dataset.perf = json.load(f).get('all')
 
             # set logs and status
-            tuple_.log = "\n".join(logs)
-            tuple_.log += "\n".join(logs_predict)
+            tuple_.log = logs
+            tuple_.log += logs_predict
             tuple_.status = models.Status.done
 
             if compute_plan:

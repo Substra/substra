@@ -19,13 +19,8 @@ import substra
 # Define the client
 client = substra.Client.from_config_file(profile_name="node-1", debug=True)
 
-# Define the current and asset directories
-current_directory = pathlib.Path(__file__).resolve().parents[1]
-assets_directory = current_directory.parent / "titanic" / "assets"
-algo_directory = current_directory.parent / "compute_plan" / "assets" / "algo_sgd"
-
 # Load the keys of the Titanic example assets
-assets_keys_path = assets_directory.parent / "assets_keys.json"
+assets_keys_path = pathlib.Path(__file__).resolve().parents[2] / "titanic" / "assets_keys.json"
 print(f'Loading existing asset keys from {assets_keys_path}...')
 with assets_keys_path.open('r') as f:
     assets_keys = json.load(f)
@@ -46,6 +41,7 @@ traintuple = client.add_traintuple(
 )
 traintuple_key = traintuple.get("key") or traintuple.get("pkhash")
 assert traintuple_key, "Missing traintuple key"
+print(f"Logs of the traintuple execution: {traintuple['log']}")
 
 #################
 #   Testtuple   #
