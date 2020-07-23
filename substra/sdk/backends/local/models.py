@@ -100,7 +100,16 @@ class _Model(pydantic.BaseModel, abc.ABC):
     @classmethod
     def from_response(cls, data):
         data_snake = _replace_dict_keys(data, _to_snake_case)
-        return cls(**data_snake)
+        # For CompositeTraintuple, the remote returns an empty string for the storage address
+        # of in_head_model, we want an Optional[FilePath]
+        if data_snake.get("in_head_model") and data_snake["in_head_model"]["storage_address"] == "":
+            data_snake["in_head_model"]["storage_address"] = None
+        try:
+            result = cls(**data_snake)
+        except Exception as e:
+            print(f"{cls.__name__}: {data_snake}")
+            raise e
+        return result
 
     def to_response(self):
         """Convert model to backend response object."""
@@ -169,7 +178,7 @@ class _ObjectiveDataset(pydantic.BaseModel):
 
 
 class _Metric(pydantic.BaseModel):
-    name: str
+    name: Optional[str]
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: UriPath
 
@@ -249,11 +258,20 @@ class OutModel(pydantic.BaseModel):
         return self.hash_
 
 
+class _TraintupleAlgo(pydantic.BaseModel):
+    hash_: str = pydantic.Field(..., alias="hash")
+    storage_address: UriPath
+    name: str
+
+    @property
+    def key(self):
+        return self.hash_
+
+
 class Traintuple(_Model):
     key: str
     creator: str
-    worker: str
-    algo_key: str
+    algo: _TraintupleAlgo
     dataset: _TraintupleDataset
     permissions: Permissions
     tag: str
@@ -261,7 +279,7 @@ class Traintuple(_Model):
     rank: int
     status: Status
     log: str
-    in_models: List[InModel]
+    in_models: Optional[List[InModel]]
     out_model: Optional[OutModel]
     metadata: Dict[str, str]
 
@@ -277,7 +295,7 @@ class Aggregatetuple(_Model):
     key: str
     creator: str
     worker: str
-    algo_key: str
+    algo: _TraintupleAlgo
     permissions: Permissions
     tag: str
     compute_plan_id: str
@@ -296,7 +314,30 @@ class Aggregatetuple(_Model):
         alias_fields = {"compute_plan_id": "compute_plan_i_d"}
 
 
-class OutCompositeModel(pydantic.BaseModel):
+class InHeadModel(pydantic.BaseModel):
+    hash_: str = pydantic.Field(..., alias="hash")
+    storage_address: Optional[FilePath]  # Defined for local assets but not remote ones
+
+    @property
+    def key(self):
+        return self.hash_
+
+
+class OutHeadModel(pydantic.BaseModel):
+    hash_: str = pydantic.Field(..., alias="hash")
+    storage_address: Optional[FilePath]  # Defined for local assets but not remote ones
+
+    @property
+    def key(self):
+        return self.hash_
+
+
+class OutCompositeHeadModel(pydantic.BaseModel):
+    permissions: Permissions
+    out_model: Optional[OutHeadModel]
+
+
+class OutCompositeTrunkModel(pydantic.BaseModel):
     permissions: Permissions
     out_model: Optional[OutModel]
 
@@ -304,20 +345,19 @@ class OutCompositeModel(pydantic.BaseModel):
 class CompositeTraintuple(_Model):
     key: str
     creator: str
-    worker: str
-    algo_key: str
+    algo: _TraintupleAlgo
     dataset: _TraintupleDataset
     tag: str
     compute_plan_id: str
     rank: Optional[int]
     status: Status
     log: str
-    in_head_model: Optional[InModel]
+    in_head_model: Optional[InHeadModel]
     in_trunk_model: Optional[InModel]
     # This is different from the remote backend
     # We store the out head model storage address directly in the object
-    out_head_model: OutCompositeModel
-    out_trunk_model: OutCompositeModel
+    out_head_model: OutCompositeHeadModel
+    out_trunk_model: OutCompositeTrunkModel
     metadata: Dict[str, str]
 
     type_: ClassVar[str] = schemas.Type.CompositeTraintuple
@@ -339,10 +379,20 @@ class _TesttupleDataset(pydantic.BaseModel):
         return self.opener_hash
 
 
+class _TesttupleObjective(pydantic.BaseModel):
+    hash_: str = pydantic.Field(..., alias="hash")
+    metrics: _Metric
+
+    @property
+    def key(self):
+        return self.hash_
+
+
 class Testtuple(_Model):
     key: str
     creator: str
-    objective_key: str
+    algo: _TraintupleAlgo
+    objective: _TesttupleObjective
     traintuple_key: str
     certified: bool
     dataset: _TesttupleDataset
@@ -351,6 +401,7 @@ class Testtuple(_Model):
     status: Status
     compute_plan_id: str
     rank: int
+    traintuple_type: str
     metadata: Dict[str, str]
 
     type_: ClassVar[str] = schemas.Type.Testtuple
@@ -381,6 +432,8 @@ class ComputePlan(_Model):
 
 
 SCHEMA_TO_MODEL = {
+    schemas.Type.AggregateAlgo: AggregateAlgo,
+    schemas.Type.Aggregatetuple: Aggregatetuple,
     schemas.Type.Algo: Algo,
     schemas.Type.CompositeAlgo: CompositeAlgo,
     schemas.Type.CompositeTraintuple: CompositeTraintuple,

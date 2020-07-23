@@ -131,7 +131,7 @@ class Worker:
             tuple_.status = models.Status.doing
 
             # fetch dependencies
-            algo = self._db.download(tuple_.algo_type, tuple_.algo_key)
+            algo = self._db.download(tuple_.algo_type, tuple_.algo.key)
 
             compute_plan = None
             if tuple_.compute_plan_id:
@@ -156,7 +156,7 @@ class Worker:
                 volumes[input_models_volume] = _VOLUME_INPUT_MODELS_RO
                 volumes[output_models_volume] = _VOLUME_OUTPUT_MODELS_RW
 
-            else:
+            elif tuple_.in_models is not None:
                 # in models for traintuple and aggregatetuple
                 models_volume = _mkdir(os.path.join(tuple_dir, "models"))
                 for idx, model in enumerate(tuple_.in_models):
@@ -204,7 +204,7 @@ class Worker:
                     models_volume=input_models_volume,
                     container_volume=_VOLUME_INPUT_MODELS_RO,
                 )
-            else:
+            elif tuple_.in_models is not None:
                 for idx, model in enumerate(tuple_.in_models):
                     command += f" {idx}_{model.key}"
 
@@ -239,16 +239,17 @@ class Worker:
                 if compute_plan.done_count == compute_plan.tuple_count:
                     compute_plan.status = models.Status.done
 
-    def schedule_testtuple(self, tuple_, traintuple_type):
+    def schedule_testtuple(self, tuple_):
         """Schedules a ML task (blocking)."""
         with self._context(tuple_.key) as tuple_dir:
             tuple_.status = models.Status.doing
 
             # fetch dependencies
+            traintuple_type = schemas.Type(tuple_.traintuple_type)
             traintuple = self._db.get(traintuple_type, tuple_.traintuple_key)
 
-            algo = self._db.download(traintuple.algo_type, traintuple.algo_key)
-            objective = self._db.download(schemas.Type.Objective, tuple_.objective_key)
+            algo = self._db.download(traintuple.algo_type, traintuple.algo.key)
+            objective = self._db.download(schemas.Type.Objective, tuple_.objective.key)
             dataset = self._db.download(schemas.Type.Dataset, tuple_.dataset.key)
 
             compute_plan = None
@@ -314,7 +315,7 @@ class Worker:
                     container_volume=_VOLUME_MODELS_RO,
                 )
 
-            container_name = f"algo-{traintuple.algo_key}"
+            container_name = f"algo-{traintuple.algo.key}"
             logs = self._spawner.spawn(
                 container_name, str(algo.content.storage_address), command, volumes=volumes
             )

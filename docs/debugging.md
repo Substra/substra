@@ -28,7 +28,8 @@ client = substra.Client.from_config_file(profile_name="node-1", debug=True)
 ```
 
 With this, you gain access to the platform in 'read-only' mode and can create assets locally. The assets you create are saved in-memory,
-which means they are deleted at the end of the script, so all of your code should run from one script.
+which means they are deleted at the end of the script, so all of your code should run from one script.  
+To help differentiate between local and remote assets, the key or pkhash of local assets starts with `local_`.
 
 Also, a traintuple, testtuple or any other tuple created locally cannot depend on a tuple from the platform. They can however
 use datasets, algo and objectives from the platform.

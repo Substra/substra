@@ -117,12 +117,12 @@ class DataAccess:
             return asset
 
     def get(self, type_, key: str):
-        # Test on whether the key starts with local_
         if self._is_local(key):
             return self._db.get(type_, key)
         elif self._remote:
             return self._get_response(type_, self._remote.get(type_, key))
         else:
+            # TODO: better error that says do not have a remote ?
             raise exceptions.NotFound(f"Wrong pk {key}", 404)
 
     def list(self, type_):

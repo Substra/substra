@@ -588,8 +588,11 @@ class Local(base.BaseBackend):
         traintuple = models.Traintuple(
             key=key,
             creator=_BACKEND_ID,
-            worker=_BACKEND_ID,
-            algo_key=spec.algo_key,
+            algo={
+                "hash": spec.algo_key,
+                "name": algo.name,
+                "storage_address": algo.content.storage_address
+            },
             dataset={
                 "opener_hash": spec.data_manager_key,
                 "keys": spec.train_data_sample_keys,
@@ -624,7 +627,6 @@ class Local(base.BaseBackend):
         objective = self._db.get(schemas.Type.Objective, spec.objective_key)
 
         traintuple = None
-        traintuple_type = None
         for tuple_type in [
                 schemas.Type.Traintuple,
                 schemas.Type.CompositeTraintuple,
@@ -632,7 +634,6 @@ class Local(base.BaseBackend):
         ]:
             try:
                 traintuple = self._db.get(tuple_type, spec.traintuple_key)
-                traintuple_type = tuple_type
                 break
             except exceptions.NotFound:
                 pass
@@ -696,8 +697,13 @@ class Local(base.BaseBackend):
         testtuple = models.Testtuple(
             key=key,
             creator=_BACKEND_ID,
-            objective_key=spec.objective_key,
+            objective={
+                "hash": spec.objective_key,
+                "metrics": objective.metrics
+            },
             traintuple_key=spec.traintuple_key,
+            traintuple_type=traintuple.type_.value,
+            algo=traintuple.algo,
             certified=certified,
             dataset={
                 "opener_hash": dataset_opener,
@@ -714,7 +720,7 @@ class Local(base.BaseBackend):
             **options,
         )
         testtuple = self._db.add(testtuple, exist_ok)
-        self._worker.schedule_testtuple(testtuple, traintuple_type)
+        self._worker.schedule_testtuple(testtuple)
         return testtuple
 
     def _add_composite_traintuple(
@@ -725,7 +731,7 @@ class Local(base.BaseBackend):
     ):
         # validation
         self.__check_metadata(spec.metadata)
-        self._db.get(schemas.Type.CompositeAlgo, spec.algo_key)
+        algo = self._db.get(schemas.Type.CompositeAlgo, spec.algo_key)
         self._db.get(schemas.Type.Dataset, spec.data_manager_key)
         self.__check_same_data_manager(spec.data_manager_key, spec.train_data_sample_keys)
 
@@ -736,7 +742,7 @@ class Local(base.BaseBackend):
         if spec.in_head_model_key:
             in_head_tuple = self._db.get(schemas.Type.CompositeTraintuple, spec.in_head_model_key)
             assert in_head_tuple.out_head_model
-            in_head_model = models.InModel(
+            in_head_model = models.InHeadModel(
                 hash=in_head_tuple.out_head_model.out_model.hash_,
                 storage_address=in_head_tuple.out_head_model.out_model.storage_address
             )
@@ -795,8 +801,11 @@ class Local(base.BaseBackend):
         composite_traintuple = models.CompositeTraintuple(
             key=key,
             creator=_BACKEND_ID,
-            worker=_BACKEND_ID,
-            algo_key=spec.algo_key,
+            algo={
+                "hash": spec.algo_key,
+                "name": algo.name,
+                "storage_address": algo.content.storage_address
+            },
             dataset={
                 "opener_hash": spec.data_manager_key,
                 "keys": spec.train_data_sample_keys,
@@ -833,7 +842,7 @@ class Local(base.BaseBackend):
                             ):
         # validation
         self.__check_metadata(spec.metadata)
-        self._db.get(schemas.Type.AggregateAlgo, spec.algo_key)
+        algo = self._db.get(schemas.Type.AggregateAlgo, spec.algo_key)
         in_tuples = list()
         in_models = list()
         in_permissions = list()
@@ -868,7 +877,11 @@ class Local(base.BaseBackend):
             key=key,
             creator=_BACKEND_ID,
             worker=spec.worker,
-            algo_key=spec.algo_key,
+            algo={
+                "hash": spec.algo_key,
+                "name": algo.name,
+                "storage_address": algo.content.storage_address
+            },
             permissions={
                 "process": {
                     "authorized_ids": authorized_ids,
