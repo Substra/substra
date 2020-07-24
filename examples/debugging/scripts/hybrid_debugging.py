@@ -41,7 +41,6 @@ traintuple = client.add_traintuple(
 )
 traintuple_key = traintuple.get("key") or traintuple.get("pkhash")
 assert traintuple_key, "Missing traintuple key"
-print(f"Logs of the traintuple execution: {traintuple['log']}")
 
 #################
 #   Testtuple   #

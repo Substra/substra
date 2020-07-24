@@ -74,15 +74,8 @@ class DataAccess:
 
         return asset_name, field_name
 
-    def get_description(self, asset_type, key):
-        if self._is_local(key):
-            asset = self._db.get(type_=asset_type, key=key)
-            if not hasattr(asset, "description") or not asset.description:
-                raise ValueError("This element does not have a description.")
-            with open(asset.description.storage_address, "r", encoding="utf-8") as f:
-                return f.read()
-        else:
-            return self._remote.describe(asset_type, key)
+    def get_remote_description(self, asset_type, key):
+        return self._remote.describe(asset_type, key)
 
     def download(self, type_: schemas.Type, key: str):
         if self._is_local(key):

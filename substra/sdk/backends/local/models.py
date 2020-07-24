@@ -129,10 +129,11 @@ class _Model(pydantic.BaseModel, abc.ABC):
 class DataSample(_Model):
     # TODO check changes
     pkhash: str
-    owner: Optional[str]
-    data_manager_keys: Optional[List[str]]
+    owner: Optional[str]  # Delete it completely ?
+    data_manager_keys: Optional[List[str]]  # Delete it completely ?
     path: DirectoryPath
     validated: bool = True
+    # The backend does not return this but it is needed for link_dataset_with_data_samples
     test_only: bool = False
 
     type_: ClassVar[str] = schemas.Type.DataSample

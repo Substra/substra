@@ -191,10 +191,10 @@ class Worker:
 
             # compute command
             command += f" --rank {tuple_.rank}"
-            if not isinstance(tuple_, models.Aggregatetuple):
-                if not self._is_local(tuple_.dataset.key):
-                    command += " --fake-data"
-                    command += f" --n-fake-samples {len(tuple_.dataset.keys)}"
+            if not isinstance(tuple_, models.Aggregatetuple) \
+                    and not self._is_local(tuple_.dataset.key):
+                command += " --fake-data"
+                command += f" --n-fake-samples {len(tuple_.dataset.keys)}"
 
             # Add the in_models to the command
             if isinstance(tuple_, models.CompositeTraintuple):
@@ -352,6 +352,7 @@ class Worker:
 
             # set logs and status
             tuple_.log = logs
+            tuple_.log += "\n\n"
             tuple_.log += logs_predict
             tuple_.status = models.Status.done
 

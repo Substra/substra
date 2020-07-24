@@ -280,6 +280,8 @@ class Local(base.BaseBackend):
 
     def __check_same_data_manager(self, data_manager_key, data_sample_keys):
         """Check that all data samples are linked to this data manager"""
+        # If the dataset is remote: the backend does not return the datasets
+        # linked to each sample, so no check (already done in the backend).
         if self._is_local(data_manager_key):
             same_data_manager = all(
                 [
@@ -443,7 +445,7 @@ class Local(base.BaseBackend):
             test_dataset = {
                 "data_manager_key": spec.test_data_manager_key,
                 "data_sample_keys": spec.test_data_sample_keys,
-                "metadata": dict()
+                "metadata": dataset.metadata
             }
             if not dataset.objective_key:
                 dataset.objective_key = objective_key
@@ -505,7 +507,7 @@ class Local(base.BaseBackend):
         visited = utils.compute_ranks(node_graph=all_tuples)
 
         compute_plan = models.ComputePlan(
-            compute_plan_id="local_"+uuid.uuid4().hex,
+            compute_plan_id="local_" + uuid.uuid4().hex,
             tag=spec.tag or "",
             status=models.Status.waiting,
             metadata=spec.metadata or dict(),
@@ -951,7 +953,14 @@ class Local(base.BaseBackend):
         download_asset(url_field_path, key, destination)
 
     def describe(self, asset_type, key):
-        return self._db.get_description(asset_type, key)
+        if self._is_local(key):
+            asset = self._db.get(type_=asset_type, key=key)
+            if not hasattr(asset, "description") or not asset.description:
+                raise ValueError("This element does not have a description.")
+            with open(asset.description.storage_address, "r", encoding="utf-8") as f:
+                return f.read()
+        else:
+            return self._db.get_remote_description(asset_type, key)
 
     def leaderboard(self, objective_key, sort='desc'):
         objective = self._db.get(schemas.Type.Objective, objective_key)
