@@ -395,7 +395,7 @@ class Testtuple(_Model):
     status: Status
     compute_plan_id: str
     rank: int
-    traintuple_type: str
+    traintuple_type: schemas.Type
     metadata: Dict[str, str]
 
     type_: ClassVar[str] = schemas.Type.Testtuple
@@ -403,6 +403,13 @@ class Testtuple(_Model):
     class Meta:
         storage_only_fields = None
         alias_fields = {"compute_plan_id": "compute_plan_i_d"}
+
+    @pydantic.validator('traintuple_type', pre=True)
+    def to_traintuple_type(cls, traintuple_type):
+        # Convert the traintuple type from string to
+        # a valid schema.Type value
+        # Needed for the camelCase values returned by the backend
+        return _to_snake_case(traintuple_type)
 
 
 class ComputePlan(_Model):

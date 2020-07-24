@@ -262,8 +262,7 @@ class Local(base.BaseBackend):
         return compute_plan
 
     def __format_for_leaderboard(self, testtuple):
-        traintuple_type = schemas.Type(testtuple.traintuple_type)
-        traintuple = self._db.get(traintuple_type, testtuple.traintuple_key)
+        traintuple = self._db.get(testtuple.traintuple_type, testtuple.traintuple_key)
         algo = self._db.get(traintuple.algo_type, traintuple.algo.key)
         return {
             'algo': {

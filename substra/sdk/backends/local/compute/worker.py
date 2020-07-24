@@ -245,8 +245,7 @@ class Worker:
             tuple_.status = models.Status.doing
 
             # fetch dependencies
-            traintuple_type = schemas.Type(tuple_.traintuple_type)
-            traintuple = self._db.get(traintuple_type, tuple_.traintuple_key)
+            traintuple = self._db.get(tuple_.traintuple_type, tuple_.traintuple_key)
 
             algo = self._db.download(traintuple.algo_type, traintuple.algo.key)
             objective = self._db.download(schemas.Type.Objective, tuple_.objective.key)
@@ -286,8 +285,8 @@ class Worker:
                 command += " --fake-data"
                 command += f" --n-fake-samples {len(objective.test_dataset.data_sample_keys)}"
 
-            if traintuple_type == schemas.Type.Traintuple \
-                    or traintuple_type == schemas.Type.Aggregatetuple:
+            if tuple_.traintuple_type == schemas.Type.Traintuple \
+                    or tuple_.traintuple_type == schemas.Type.Aggregatetuple:
                 os.link(
                     traintuple.out_model.storage_address,
                     os.path.join(models_volume, traintuple.out_model.key),
@@ -299,7 +298,7 @@ class Worker:
                     _VOLUME_MODELS_RW
                 )
                 command += f" {model_container_address}"
-            elif traintuple_type == schemas.Type.CompositeTraintuple:
+            elif tuple_.traintuple_type == schemas.Type.CompositeTraintuple:
                 os.link(
                     traintuple.out_head_model.out_model.storage_address,
                     os.path.join(models_volume, traintuple.out_head_model.out_model.hash_)
