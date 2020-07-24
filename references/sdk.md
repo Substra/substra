@@ -4,10 +4,33 @@
 ```python
 Client(self, url: Union[str, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300, version: str = '0.0', insecure: bool = False, debug: bool = False)
 ```
-Create the client.
+Create a client
 
-Set the `backend` to 'local' to use the local debugging.
-One client corresponds to one profile.
+Args:
+
+    url (typing.Optional[str], optional): URL of the Substra platform. Mandatory
+        to connect to a Substra platform. If no URL is given and debug is True, all
+        assets must be created locally.
+        Defaults to None.
+
+    token (typing.Optional[str], optional): Token to authenticate to the Substra platform.
+        If no token is given, use the 'login' function to authenticate.
+        Defaults to None.
+
+    retry_timeout (int, optional): Number of seconds before attempting a retry call in case
+        of timeout.
+        Defaults to 5 minutes.
+
+    version (str, optional): API version, do not change it. Defaults to '0.0'.
+
+    insecure (bool, optional): If True, the client can call a not-certifed backend. This is
+        for debugging purposes.
+        Defaults to False.
+
+    debug (bool, optional): Whether to use the default or debug mode.
+        In debug mode, new assets are created locally but can access assets from
+        the deployed Substra platform. The platform is in read-only mode.
+        Defaults to False.
 
 ## login
 ```python
@@ -20,21 +43,28 @@ Client.from_config_file(profile_name: str = 'default', config_path: Union[str, p
 ```
 Returns a new Client configured with profile data from configuration files.
 
-The new Client will be configured for a remote backend. To get a local backend, use:
-
->>> client = Client(backend='local')
-
 Args:
+
     profile_name (typing.Optional[str], optional): Name of the profile to load.
         Defaults to 'default'.
+
     config_path (typing.Union[str, pathlib.Path, None], optional): Path to the
-        configuration file. Defaults to '~/.substra'.
+        configuration file.
+        Defaults to '~/.substra'.
+
     tokens_path (typing.Union[str, pathlib.Path, None], optional): Path to the tokens file.
         Defaults to '~/.substra-tokens'.
+
     token (typing.Optional[str], optional): Token to use for authentication (will be used
         instead of any token found at tokens_path). Defaults to None.
+
     retry_timeout (int, optional): Number of seconds before attempting a retry call in case
         of timeout. Defaults to 5 minutes.
+
+    debug (bool): Whether to use the default or debug mode. In debug mode, new assets are
+        created locally but can get remote assets. The deployed platform is in
+        read-only mode.
+        Defaults to False.
 
 Returns:
     Client: The new client.
