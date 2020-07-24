@@ -24,7 +24,9 @@ from pydantic import DirectoryPath, FilePath, AnyUrl
 
 from substra.sdk import schemas
 
-UriPath = Union[FilePath, AnyUrl]
+# The remote can return an URL or an empty string for paths
+UriPath = Union[FilePath, AnyUrl, str]
+
 CAMEL_TO_SNAKE_PATTERN = re.compile(r'(.)([A-Z][a-z]+)')
 CAMEL_TO_SNAKE_PATTERN_2 = re.compile(r'([a-z0-9])([A-Z])')
 
@@ -100,16 +102,7 @@ class _Model(pydantic.BaseModel, abc.ABC):
     @classmethod
     def from_response(cls, data):
         data_snake = _replace_dict_keys(data, _to_snake_case)
-        # For CompositeTraintuple, the remote returns an empty string for the storage address
-        # of in_head_model, we want an Optional[FilePath]
-        if data_snake.get("in_head_model") and data_snake["in_head_model"]["storage_address"] == "":
-            data_snake["in_head_model"]["storage_address"] = None
-        try:
-            result = cls(**data_snake)
-        except Exception as e:
-            print(f"{cls.__name__}: {data_snake}")
-            raise e
-        return result
+        return cls(**data_snake)
 
     def to_response(self):
         """Convert model to backend response object."""
@@ -316,7 +309,7 @@ class Aggregatetuple(_Model):
 
 class InHeadModel(pydantic.BaseModel):
     hash_: str = pydantic.Field(..., alias="hash")
-    storage_address: Optional[FilePath]  # Defined for local assets but not remote ones
+    storage_address: Optional[UriPath]  # Defined for local assets but not remote ones
 
     @property
     def key(self):

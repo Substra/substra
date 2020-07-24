@@ -262,17 +262,9 @@ class Local(base.BaseBackend):
         return compute_plan
 
     def __format_for_leaderboard(self, testtuple):
-        for tuple_type in [
-                schemas.Type.Traintuple,
-                schemas.Type.CompositeTraintuple,
-                schemas.Type.Aggregatetuple
-        ]:
-            try:
-                traintuple = self._db.get(tuple_type, testtuple.traintuple_key)
-                break
-            except exceptions.NotFound:
-                pass
-        algo = self._db.get(traintuple.algo_type, traintuple.algo_key)
+        traintuple_type = schemas.Type(testtuple.traintuple_type)
+        traintuple = self._db.get(traintuple_type, testtuple.traintuple_key)
+        algo = self._db.get(traintuple.algo_type, traintuple.algo.key)
         return {
             'algo': {
                 'hash': algo.key,
@@ -962,13 +954,12 @@ class Local(base.BaseBackend):
         return self._db.get_description(asset_type, key)
 
     def leaderboard(self, objective_key, sort='desc'):
-        # TODO update with hybrid debugging
         objective = self._db.get(schemas.Type.Objective, objective_key)
         testtuples = self._db.list(schemas.Type.Testtuple)
         certified_testtuples = [
             self.__format_for_leaderboard(t)
             for t in testtuples
-            if t.objective_key == objective_key and t.certified
+            if t.objective.key == objective_key and t.certified
         ]
         certified_testtuples.sort(key=lambda x: x['perf'], reverse=(sort == 'desc'))
         board = {
