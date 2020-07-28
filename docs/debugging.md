@@ -1,12 +1,15 @@
 # Debugging your scripts locally
 
+For a complete example, see the [debugging example](../examples/debugging/README.md).
+
 - [Debugging your scripts locally](#debugging-your-scripts-locally)
   - [Dependencies](#dependencies)
   - [Run your code locally](#run-your-code-locally)
     - [Use assets from a deployed Substra platform and local assets](#use-assets-from-a-deployed-substra-platform-and-local-assets)
     - [Dependency between assets](#dependency-between-assets)
-    - [Debugging objectives and algos](#debugging-objectives-and-algos)
-      - [Example](#example)
+    - [Debugging with logs and breakpoints](#debugging-with-logs-and-breakpoints)
+      - [Access the logs](#access-the-logs)
+      - [Debug with pdb](#debug-with-pdb)
 
 ## Dependencies
 
@@ -55,14 +58,29 @@ or from a compute plan defined on the platform.
 Since no data can leave the platform, a task depending on a dataset from the platform uses the fake data generated from the opener. The
 number of fake samples generated is equal to the number of samples the task would have used.
 
-### Debugging objectives and algos
+### Debugging with logs and breakpoints
+
+#### Access the logs
+
+In debug mode, the logs of the execution of the traintuples and testtuples are saved
+in the `log` field.
+
+To display them:
+
+```python
+traintuple = client.add_traintuple(...)
+print(traintuple["log"])
+```
+
+Moreover, if there is an error in the execution, those logs are displayed in the call stack.  
+So any `print` or warning in the algo file for example will be displayed.
+
+#### Debug with pdb
 
 The execution is done synchronously, so the script waits for the task in progress to end before continuing.  
 The execution of the tuples happens in Docker containers that are spawned on the fly and removed once the execution is done.
 If you want access to the container while it runs, you can use [`pdb`](https://docs.python.org/3.6/library/pdb.html#pdb.set_trace) to pause the execution 
 until you connect to the container.
-
-#### Example
 
 For example, I want to debug an algo. In the `algo.py` file, in the train function, I put a breakpoint with pdb:
 
@@ -75,19 +93,25 @@ class Algo(tools.algo.Algo):
     pdb.set_trace()
 ```
 
-I create the algo and a traintuple that depends on it in debug mode. When I add the traintuple to the client, it is immediately executed 
+I add the algo and a traintuple that depends on it to the client in debug mode. When I add the traintuple to the client, it is immediately executed 
 and pauses on the pdb breakpoint.
 
-I can then list the running Docker containers:
-```shell
-docker ps -a
+For this, I need the algo key (or pkhash):
+```python
+algo_key = client.add_algo(...)["key"]
+print(algo_key)
 ```
 
-and attach to the right container:
+Then I open a new terminal and list the running Docker containers:
 ```shell
-docker attach algo_{algo_key}
+docker ps -a | grep algo-{algo_key}
 ```
-where {algo_key} is the key of the algo in Substra.
+where {algo_key} is the key of the algo in Substra. This gives me the ID of the
+container (first column).
 
+I attach to the container:
+```shell
+docker attach {container_id}
+```
 
-For a complete example, see the [debugging example](../examples/debugging/README.md).
+and can now use `pdb` commands.
