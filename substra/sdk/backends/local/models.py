@@ -176,6 +176,10 @@ class _Metric(pydantic.BaseModel):
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: UriPath
 
+    @property
+    def key(self):
+        return self.hash_
+
 
 class Objective(_Model):
     key: str

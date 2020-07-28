@@ -897,7 +897,7 @@ class Local(base.BaseBackend):
 
     def _download_algo(self, url_field_path, key, destination):
         asset = self._db.get(type_=schemas.Type.Algo, key=key)
-        shutil.copyfile(asset.file, destination)
+        shutil.copyfile(asset.content.storage_address, destination)
 
     def _download_dataset(self, url_field_path, key, destination):
         asset = self._db.get(type_=schemas.Type.Dataset, key=key)
@@ -905,7 +905,7 @@ class Local(base.BaseBackend):
 
     def _download_objective(self, url_field_path, key, destination):
         asset = self._db.get(type_=schemas.Type.Objective, key=key)
-        shutil.copyfile(asset.metrics, destination)
+        shutil.copyfile(asset.metrics.storage_address, destination)
 
     def add(self, spec, exist_ok, spec_options=None):
         # find dynamically the method to call to create the asset
