@@ -1,8 +1,12 @@
-# Debugging your scripts locally (using the SDK)
+# Debugging your scripts locally
 
-- [Debugging your scripts locally (using the SDK)](#debugging-your-scripts-locally-using-the-sdk)
+- [Debugging your scripts locally](#debugging-your-scripts-locally)
   - [Dependencies](#dependencies)
   - [Run your code locally](#run-your-code-locally)
+    - [Use assets from a deployed Substra platform and local assets](#use-assets-from-a-deployed-substra-platform-and-local-assets)
+    - [Dependency between assets](#dependency-between-assets)
+    - [Debugging objectives and algos](#debugging-objectives-and-algos)
+      - [Example](#example)
 
 ## Dependencies
 
@@ -27,17 +31,63 @@ set the `debug` parameter to `True` when creating the client.
 client = substra.Client.from_config_file(profile_name="node-1", debug=True)
 ```
 
-With this, you gain access to the platform in 'read-only' mode and can create assets locally. The assets you create are saved in-memory,
-which means they are deleted at the end of the script, so all of your code should run from one script.  
-To help differentiate between local and remote assets, the key or pkhash of local assets starts with `local_`.
+### Use assets from a deployed Substra platform and local assets
 
-Also, a traintuple, testtuple or any other tuple created locally cannot depend on a tuple from the platform. They can however
-use datasets, algo and objectives from the platform.
+With this, you gain access to the platform in 'read-only' mode and any asset you create is created locally.
+
+This means that any function to get, describe or download an asset works with assets from the platform and local assets. Functions to
+list assets will list the assets from the platform and the local ones.  
+Functions that create a new asset (they start with `add`) only create local assets.  
+To differentiate between a local asset and a remote one, look at their key (or pkhash): for local assets, it starts with `local_`.
+
+Local assets are saved in-memory, so they are deleted at the end of the script.
+
+### Dependency between assets
+
+Any asset created locally can depend on an asset from the platform or on another local asset:
+- a traintuple can use an algo and dataset from the platform
+- a testtuple can use an objective from the platform
+- etc.
+
+There is one exception: a traintuple, testtuple or any other tuple created locally cannot depend on a tuple from the platform 
+or from a compute plan defined on the platform.
+
 Since no data can leave the platform, a task depending on a dataset from the platform uses the fake data generated from the opener. The
 number of fake samples generated is equal to the number of samples the task would have used.
 
+### Debugging objectives and algos
+
 The execution is done synchronously, so the script waits for the task in progress to end before continuing.  
 The execution of the tuples happens in Docker containers that are spawned on the fly and removed once the execution is done.
-If you want access to the container while it runs, use the [`input`](https://docs.python.org/3.6/library/functions.html#input) function or any function that needs a user input to terminate to pause the execution until you connect to the container.
+If you want access to the container while it runs, you can use [`pdb`](https://docs.python.org/3.6/library/pdb.html#pdb.set_trace) to pause the execution 
+until you connect to the container.
 
-For an example, see the [debugging example](../examples/debugging/README.md).
+#### Example
+
+For example, I want to debug an algo. In the `algo.py` file, in the train function, I put a breakpoint with pdb:
+
+```python
+import pdb
+
+class Algo(tools.algo.Algo):
+
+  def train(self, X, y, models, rank):
+    pdb.set_trace()
+```
+
+I create the algo and a traintuple that depends on it in debug mode. When I add the traintuple to the client, it is immediately executed 
+and pauses on the pdb breakpoint.
+
+I can then list the running Docker containers:
+```shell
+docker ps -a
+```
+
+and attach to the right container:
+```shell
+docker attach algo_{algo_key}
+```
+where {algo_key} is the key of the algo in Substra.
+
+
+For a complete example, see the [debugging example](../examples/debugging/README.md).

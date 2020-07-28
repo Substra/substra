@@ -25,6 +25,6 @@
 - [[Recommended] Using kubernetes and skaffold](./local_install_skaffold.md)
 - [[Alternative] Using docker-compose](./local_install_docker_compose.md)
 
-## Debug your scripts locally (using the SDK)
+## Debug your scripts locally
 
 - [Debugging](./debugging.md)
