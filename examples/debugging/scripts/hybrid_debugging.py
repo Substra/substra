@@ -13,11 +13,17 @@
 # limitations under the License.
 import json
 import pathlib
+import zipfile
 
 import substra
 
 # Define the client
 client = substra.Client.from_config_file(profile_name="node-1", debug=True)
+
+# Define the current and asset directories
+current_directory = pathlib.Path(__file__).resolve().parents[1]
+assets_directory = current_directory.parent / "titanic" / "assets"
+algo_directory = current_directory.parent / "compute_plan" / "assets" / "algo_sgd"
 
 # Load the keys of the Titanic example assets
 assets_keys_path = pathlib.Path(__file__).resolve().parents[2] / "titanic" / "assets_keys.json"
@@ -25,15 +31,53 @@ print(f'Loading existing asset keys from {assets_keys_path}...')
 with assets_keys_path.open('r') as f:
     assets_keys = json.load(f)
 
+#################
+#   Algorithm   #
+#################
+
+#  Create the algorithm archive and asset
+ALGO = {
+    "name": "Titanic: Random Forest",
+    "description": assets_directory / "algo_random_forest" / "description.md",
+    "file": current_directory / "tmp" / "algo_random_forest.zip",
+    "permissions": {"public": False, "authorized_ids": []},
+}
+
+ALGO_DOCKERFILE_FILES = [
+    assets_directory / "algo_random_forest" / "algo.py",
+    assets_directory / "algo_random_forest" / "Dockerfile",
+]
+
+with zipfile.ZipFile(ALGO["file"], "w") as z:
+    for filepath in ALGO_DOCKERFILE_FILES:
+        z.write(filepath, arcname=filepath.name)
+
+# Add the algorithm
+print("Adding algo locally...")
+algo_key = client.add_algo(
+    {
+        "name": ALGO["name"],
+        "file": str(ALGO["file"]),
+        "description": str(ALGO["description"]),
+        "permissions": ALGO["permissions"],
+    },
+    exist_ok=True,
+)["pkhash"]
+print(f"Algo key: {algo_key}")
+
 ##################
 #   Traintuple   #
 ##################
 
-#  Add the traintuple
-print("Registering traintuple...")
+# Add the traintuple
+
+# The traintuple depends on the algo created above and the dataset and data samples
+# from the Substra platform.
+print("Registering traintuple locally...")
+print(f"Name of the Docker container: algo-{algo_key}")
 traintuple = client.add_traintuple(
     {
-        "algo_key": assets_keys["algo_random_forest"]["algo_key"],
+        "algo_key": algo_key,
         "data_manager_key": assets_keys["dataset_key"],
         "train_data_sample_keys": assets_keys["train_data_sample_keys"],
     },
@@ -42,11 +86,13 @@ traintuple = client.add_traintuple(
 traintuple_key = traintuple.get("key") or traintuple.get("pkhash")
 assert traintuple_key, "Missing traintuple key"
 
+print(f"\n--- Logs of the execution of the traintuple --- \n{traintuple['log']}\n")
+
 #################
 #   Testtuple   #
 #################
 
-#  Add the testtuple
+# Add the testtuple
 print("Registering testtuple...")
 testtuple = client.add_testtuple(
     {
@@ -56,6 +102,8 @@ testtuple = client.add_testtuple(
 )
 testtuple_key = testtuple.get("key") or testtuple.get("pkhash")
 assert testtuple_key, "Missing testtuple key"
+
+print(f"\n--- Logs of the execution of the testtuple --- \n{testtuple['log']}\n")
 
 ###################
 #   Performance   #
