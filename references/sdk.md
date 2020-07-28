@@ -8,12 +8,12 @@ Create a client
 
 Args:
 
-    url (typing.Optional[str], optional): URL of the Substra platform. Mandatory
+    url (str, optional): URL of the Substra platform. Mandatory
         to connect to a Substra platform. If no URL is given and debug is True, all
         assets must be created locally.
         Defaults to None.
 
-    token (typing.Optional[str], optional): Token to authenticate to the Substra platform.
+    token (str, optional): Token to authenticate to the Substra platform.
         If no token is given, use the 'login' function to authenticate.
         Defaults to None.
 
@@ -45,17 +45,17 @@ Returns a new Client configured with profile data from configuration files.
 
 Args:
 
-    profile_name (typing.Optional[str], optional): Name of the profile to load.
+    profile_name (str, optional): Name of the profile to load.
         Defaults to 'default'.
 
-    config_path (typing.Union[str, pathlib.Path, None], optional): Path to the
+    config_path (typing.Union[str, pathlib.Path], optional): Path to the
         configuration file.
         Defaults to '~/.substra'.
 
-    tokens_path (typing.Union[str, pathlib.Path, None], optional): Path to the tokens file.
+    tokens_path (typing.Union[str, pathlib.Path], optional): Path to the tokens file.
         Defaults to '~/.substra-tokens'.
 
-    token (typing.Optional[str], optional): Token to use for authentication (will be used
+    token (str, optional): Token to use for authentication (will be used
         instead of any token found at tokens_path). Defaults to None.
 
     retry_timeout (int, optional): Number of seconds before attempting a retry call in case

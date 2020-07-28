@@ -73,7 +73,7 @@ print(f"Algo key: {algo_key}")
 
 # The traintuple depends on the algo created above and the dataset and data samples
 # from the Substra platform.
-print("Registering traintuple locally...")
+print("Registering traintuple locally, training on fake data...")
 print(f"Name of the Docker container: algo-{algo_key}")
 traintuple = client.add_traintuple(
     {
@@ -92,7 +92,7 @@ print(f"\n--- Logs of the execution of the traintuple --- \n{traintuple['log']}\
 #   Testtuple   #
 #################
 
-# Add the testtuple
+# Add the testtuple
 print("Registering testtuple...")
 testtuple = client.add_testtuple(
     {
@@ -111,4 +111,4 @@ print(f"\n--- Logs of the execution of the testtuple --- \n{testtuple['log']}\n"
 
 #  Get the performance
 testtuple = client.get_testtuple(key=testtuple_key)
-print(f"The performance on the test set is {testtuple['dataset']['perf']:.4f}")
+print(f"The performance on the fake test data is {testtuple['dataset']['perf']:.4f}")

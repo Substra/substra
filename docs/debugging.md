@@ -53,7 +53,7 @@ Any asset created locally can depend on an asset from the platform or on another
 - etc.
 
 There is one exception: a traintuple, testtuple or any other tuple created locally cannot depend on a tuple from the platform 
-or from a compute plan defined on the platform.
+or from a compute plan defined on the platform. This is impossible because it is forbidden to download models from the platform.
 
 Since no data can leave the platform, a task depending on a dataset from the platform uses the fake data generated from the opener. The
 number of fake samples generated is equal to the number of samples the task would have used.
