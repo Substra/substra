@@ -895,18 +895,6 @@ class Local(base.BaseBackend):
             self._worker.schedule_traintuple(aggregatetuple)
         return aggregatetuple
 
-    def _download_algo(self, url_field_path, key, destination):
-        asset = self._db.get(type_=schemas.Type.Algo, key=key)
-        shutil.copyfile(asset.content.storage_address, destination)
-
-    def _download_dataset(self, url_field_path, key, destination):
-        asset = self._db.get(type_=schemas.Type.Dataset, key=key)
-        shutil.copyfile(asset.opener.storage_address, destination)
-
-    def _download_objective(self, url_field_path, key, destination):
-        asset = self._db.get(type_=schemas.Type.Objective, key=key)
-        shutil.copyfile(asset.metrics.storage_address, destination)
-
     def add(self, spec, exist_ok, spec_options=None):
         # find dynamically the method to call to create the asset
         method_name = f"_add_{spec.__class__.type_.value}"
@@ -947,9 +935,17 @@ class Local(base.BaseBackend):
             data_samples.append(data_sample)
 
     def download(self, asset_type, url_field_path, key, destination):
-        method_name = f"_download_{asset_type.value}"
-        download_asset = getattr(self, method_name)
-        download_asset(url_field_path, key, destination)
+        if self._is_local(key):
+            asset = self._db.get(type_=asset_type, key=key)
+            # Get the field containing the path to the file.
+            attribute_name = models.to_snake_case(url_field_path)
+            file_path = asset
+            for field in attribute_name.split("."):
+                file_path = getattr(file_path, field, None)
+            # Copy the file to the destination folder
+            shutil.copyfile(file_path, destination)
+        else:
+            self._db.remote_download(asset_type, url_field_path, key, destination)
 
     def describe(self, asset_type, key):
         if self._is_local(key):

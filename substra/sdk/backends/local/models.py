@@ -31,7 +31,7 @@ CAMEL_TO_SNAKE_PATTERN = re.compile(r'(.)([A-Z][a-z]+)')
 CAMEL_TO_SNAKE_PATTERN_2 = re.compile(r'([a-z0-9])([A-Z])')
 
 
-def _to_snake_case(camel_str):
+def to_snake_case(camel_str):
     name = CAMEL_TO_SNAKE_PATTERN.sub(r'\1_\2', camel_str)
     name = CAMEL_TO_SNAKE_PATTERN_2.sub(r'\1_\2', name).lower()
     return name.replace('_i_d', '_id')
@@ -101,7 +101,7 @@ class _Model(pydantic.BaseModel, abc.ABC):
 
     @classmethod
     def from_response(cls, data):
-        data_snake = _replace_dict_keys(data, _to_snake_case)
+        data_snake = _replace_dict_keys(data, to_snake_case)
         return cls(**data_snake)
 
     def to_response(self):
@@ -413,7 +413,7 @@ class Testtuple(_Model):
         # Convert the traintuple type from string to
         # a valid schema.Type value
         # Needed for the camelCase values returned by the backend
-        return _to_snake_case(traintuple_type)
+        return to_snake_case(traintuple_type)
 
 
 class ComputePlan(_Model):

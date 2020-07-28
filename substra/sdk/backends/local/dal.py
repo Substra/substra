@@ -42,16 +42,6 @@ class DataAccess:
         """
         return key.startswith("local_")
 
-    def _get_response(self, type_, asset):
-        return models.SCHEMA_TO_MODEL[type_].from_response(asset)
-
-    def login(self, username, password):
-        if self._remote:
-            self._remote.login(username, password)
-
-    def add(self, asset, exist_ok: bool = False):
-        return self._db.add(asset, exist_ok=exist_ok)
-
     def _get_asset_name(self, type_):
         if type_ in [
             schemas.Type.Algo,
@@ -74,10 +64,24 @@ class DataAccess:
 
         return asset_name, field_name
 
+    def _get_response(self, type_, asset):
+        return models.SCHEMA_TO_MODEL[type_].from_response(asset)
+
+    def login(self, username, password):
+        if self._remote:
+            self._remote.login(username, password)
+
+    def add(self, asset, exist_ok: bool = False):
+        return self._db.add(asset, exist_ok=exist_ok)
+
+    def remote_download(self, asset_type, url_field_path, key, destination):
+        self._remote.download(asset_type, url_field_path, key, destination)
+
     def get_remote_description(self, asset_type, key):
         return self._remote.describe(asset_type, key)
 
-    def download(self, type_: schemas.Type, key: str):
+    def get_with_files(self, type_: schemas.Type, key: str):
+        """Get the asset with files on the local disk for execution"""
         if self._is_local(key):
             return self._db.get(type_, key)
         else:

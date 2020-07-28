@@ -131,7 +131,7 @@ class Worker:
             tuple_.status = models.Status.doing
 
             # fetch dependencies
-            algo = self._db.download(tuple_.algo_type, tuple_.algo.key)
+            algo = self._db.get_with_files(tuple_.algo_type, tuple_.algo.key)
 
             compute_plan = None
             if tuple_.compute_plan_id:
@@ -169,7 +169,7 @@ class Worker:
 
             if not isinstance(tuple_, models.Aggregatetuple):
                 # if this is a traintuple or composite traintuple, prepare the data
-                dataset = self._db.download(schemas.Type.Dataset, tuple_.dataset.key)
+                dataset = self._db.get_with_files(schemas.Type.Dataset, tuple_.dataset.key)
                 volumes[dataset.opener.storage_address] = _VOLUME_OPENER
                 if self._is_local(tuple_.dataset.key):
                     data_volume = self._get_data_volume(tuple_dir, tuple_)
@@ -247,9 +247,9 @@ class Worker:
             # fetch dependencies
             traintuple = self._db.get(tuple_.traintuple_type, tuple_.traintuple_key)
 
-            algo = self._db.download(traintuple.algo_type, traintuple.algo.key)
-            objective = self._db.download(schemas.Type.Objective, tuple_.objective.key)
-            dataset = self._db.download(schemas.Type.Dataset, tuple_.dataset.key)
+            algo = self._db.get_with_files(traintuple.algo_type, traintuple.algo.key)
+            objective = self._db.get_with_files(schemas.Type.Objective, tuple_.objective.key)
+            dataset = self._db.get_with_files(schemas.Type.Dataset, tuple_.dataset.key)
 
             compute_plan = None
             if tuple_.compute_plan_id:
