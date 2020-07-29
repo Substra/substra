@@ -207,6 +207,31 @@ def load_data_samples_keys(data_samples, option="--data-samples-path"):
         raise click.BadParameter('File must contain a "keys" attribute.', param_hint=f'"{option}"')
 
 
+def _error_message(fn, errors):
+    action = fn.__name__.replace('_', ' ')
+
+    def _error_lines(errors_):
+        lines_ = []
+        for field, field_errors in errors_.items():
+            for field_error in field_errors:
+                lines_.append(f"- {field}: {field_error}")
+        return lines_
+
+    lines = []
+    if isinstance(errors, dict):
+        lines += _error_lines(errors)
+    elif isinstance(errors, list):
+        for error in errors:
+            lines += _error_lines(error)
+    else:
+        lines.append(f"- {errors}")
+
+    pluralized_error = 'errors' if len(lines) > 1 else 'error'
+    lines.insert(0, f"Could not {action},"
+                    f"the server returned the following {pluralized_error}:")
+    return "\n".join(lines)
+
+
 def error_printer(fn):
     """Command decorator to pretty print a few selected exceptions from sdk."""
     @functools.wraps(fn)
@@ -222,19 +247,11 @@ def error_printer(fn):
             raise click.ClickException('Login failed: No active account found with the'
                                        ' given credentials.')
         except exceptions.InvalidRequest as e:
-            if not isinstance(e.errors, dict):
-                raise click.ClickException(f"Request failed: {e.__class__.__name__}: {e}")
-
-            lines = []
-            for field, errors in e.errors.items():
-                for error in errors:
-                    lines.append(f"- {field}: {error}")
-
-            action = fn.__name__.replace('_', ' ')
-            pluralized_error = 'errors' if len(lines) > 1 else 'error'
-            lines.insert(0, f"Could not {action},"
-                            f"the server returned the following {pluralized_error}:")
-            raise click.ClickException("\n".join(lines))
+            try:
+                errors = e.errors['message']
+            except KeyError:
+                errors = e.errors
+            raise click.ClickException(_error_message(fn, errors))
         except exceptions.RequestException as e:
             raise click.ClickException(f"Request failed: {e.__class__.__name__}: {e}")
         except (exceptions.ConnectionError,
