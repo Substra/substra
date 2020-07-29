@@ -11,7 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import logging
 import pathlib
+import shutil
 import tempfile
 import typing
 
@@ -20,6 +22,7 @@ from substra.sdk.backends.remote import backend
 from substra.sdk.backends.local import db, models
 
 _LOCAL_KEY = "local_"
+logger = logging.getLogger(__name__)
 
 
 class DataAccess:
@@ -31,11 +34,11 @@ class DataAccess:
     def __init__(self, remote_backend: typing.Optional[backend.Remote]):
         self._db = db.get()
         self._remote = remote_backend
-        self._tmp_dir = tempfile.TemporaryDirectory(prefix="/tmp/")
+        self.__tmp_dir = tempfile.TemporaryDirectory(prefix="/tmp/")
 
     @property
-    def tmp_dir(self):
-        return pathlib.Path(self._tmp_dir.name)
+    def _tmp_dir(self):
+        return pathlib.Path(self.__tmp_dir.name)
 
     @staticmethod
     def is_local(key: str):
@@ -79,8 +82,36 @@ class DataAccess:
         if self._remote:
             self._remote.login(username, password)
 
-    def add(self, asset, exist_ok: bool = False):
-        return self._db.add(asset, exist_ok=exist_ok)
+    def add(self, asset):
+        return self._db.add(asset)
+
+    def check_exist(self, type_, key: str, exist_ok: bool = False):
+        """Check if an asset exists.
+
+        If the asset does not exist: return None
+        If the asset exists and exist_ok = True: return the asset
+        If the asset exists and exists_ok = False: raise an error
+
+        Args:
+            type_ : Type of asset
+            key (str): Key of the asset
+            exist_ok (bool): Whether to raise an exception if the object already exists
+
+        Raises:
+            exceptions.AlreadyExists: if the asset exists and exist_ok is False
+
+        Returns:
+            typing.Optional[models._Model]: None if the asset does not exist, otherwise the asset
+        """
+        try:
+            asset = self.get(type_, key)
+            if exist_ok:
+                logger.info(f"{type_} with key '{key}' has not been created: already exists.")
+                return asset
+            else:
+                raise exceptions.AlreadyExists(key, 409)
+        except exceptions.NotFound:
+            return None
 
     def remote_download(self, asset_type, url_field_path, key, destination):
         self._remote.download(asset_type, url_field_path, key, destination)
@@ -136,6 +167,40 @@ class DataAccess:
                     self._get_response(type_, asset)
                 )
         return local_assets + remote_assets
+
+    def save_file(self,
+                  file_path: typing.Union[str, pathlib.Path],
+                  key: str):
+        """Copy file or directory into the local temp dir to mimick
+        the remote backend that saves the files given by the user.
+        """
+        tmp_directory = self._tmp_dir / key
+        tmp_file = tmp_directory / pathlib.Path(file_path).name
+
+        if not tmp_directory.exists():
+            pathlib.Path.mkdir(tmp_directory)
+
+        if tmp_file.exists():
+            raise exceptions.AlreadyExists(
+                f"File {tmp_file.name} already exists for asset {key}",
+                409
+            )
+        elif pathlib.Path(file_path).is_file():
+            shutil.copyfile(
+                file_path,
+                tmp_file
+            )
+        elif pathlib.Path(file_path).is_dir():
+            shutil.copytree(
+                file_path,
+                tmp_file
+            )
+        else:
+            raise exceptions.InvalidRequest(
+                f"Could not copy {file_path}",
+                400
+            )
+        return tmp_file
 
     def update(self, asset):
         return self._db.update(asset)

@@ -288,8 +288,15 @@ class Local(base.BaseBackend):
                 )
 
     def __add_algo(self, model_class, spec, exist_ok, spec_options=None):
-        permissions = self.__compute_permissions(spec.permissions)
         key = self._db.get_local_key(fs.hash_file(spec.file))
+
+        asset = self._db.check_exist(type_=model_class.type_, key=key, exist_ok=exist_ok)
+        if asset:
+            return asset
+
+        permissions = self.__compute_permissions(spec.permissions)
+        algo_file_path = self._db.save_file(spec.file, key)
+        algo_description_path = self._db.save_file(spec.description, key)
         algo = model_class(
             key=key,
             pkhash=key,
@@ -303,15 +310,15 @@ class Local(base.BaseBackend):
             },
             content={
                 "hash": key,
-                "storage_address": spec.file
+                "storage_address": algo_file_path
             },
             description={
-                "hash": self._db.get_local_key(fs.hash_file(spec.description)),
-                "storage_address": spec.description
+                "hash": self._db.get_local_key(fs.hash_file(algo_description_path)),
+                "storage_address": algo_description_path
             },
             metadata=spec.metadata if spec.metadata else dict(),
         )
-        return self._db.add(algo, exist_ok)
+        return self._db.add(algo)
 
     def _add_algo(self, spec, exist_ok, spec_options=None):
         self.__check_metadata(spec.metadata)
@@ -330,9 +337,16 @@ class Local(base.BaseBackend):
         )
 
     def _add_dataset(self, spec, exist_ok, spec_options):
+        key = self._db.get_local_key(fs.hash_file(spec.data_opener))
+        asset = self._db.check_exist(type_=schemas.Type.Dataset, key=key, exist_ok=exist_ok)
+        if asset:
+            return asset
+
         self.__check_metadata(spec.metadata)
         permissions = self.__compute_permissions(spec.permissions)
-        key = self._db.get_local_key(fs.hash_file(spec.data_opener))
+
+        dataset_file_path = self._db.save_file(spec.data_opener, key)
+        dataset_description_path = self._db.save_file(spec.description, key)
         asset = models.Dataset(
             key=key,
             pkhash=key,
@@ -350,32 +364,38 @@ class Local(base.BaseBackend):
             test_data_sample_keys=list(),
             opener={
                 "hash": key,
-                "storage_address": spec.data_opener
+                "storage_address": dataset_file_path
             },
             description={
-                "hash": self._db.get_local_key(fs.hash_file(spec.description)),
-                "storage_address": spec.description
+                "hash": self._db.get_local_key(fs.hash_file(dataset_description_path)),
+                "storage_address": dataset_description_path
             },
             metadata=spec.metadata if spec.metadata else dict(),
         )
-        return self._db.add(asset, exist_ok)
+        return self._db.add(asset)
 
     def _add_data_sample(self, spec, exist_ok, spec_options):
+        key = self._db.get_local_key(fs.hash_directory(spec.path))
+        asset = self._db.check_exist(type_=schemas.Type.DataSample, key=key, exist_ok=exist_ok)
+        if asset:
+            return asset
+
         assert len(spec.data_manager_keys) > 0
         datasets = [
             self._db.get(schemas.Type.Dataset, dataset_key)
             for dataset_key in spec.data_manager_keys
         ]
-        key = self._db.get_local_key(fs.hash_directory(spec.path))
+
+        data_sample_file_path = self._db.save_file(spec.path, key)
         data_sample = models.DataSample(
             key=key,
             pkhash=key,
             owner=_BACKEND_ID,
-            path=str(spec.path),
+            path=data_sample_file_path,
             data_manager_keys=spec.data_manager_keys,
             test_only=spec.test_only,
         )
-        data_sample = self._db.add(data_sample, exist_ok)
+        data_sample = self._db.add(data_sample)
 
         # update dataset(s) accordingly
         for dataset in datasets:
@@ -389,42 +409,28 @@ class Local(base.BaseBackend):
         return data_sample
 
     def _add_data_samples(self, spec, exist_ok, spec_options):
-        datasets = [
-            self._db.get(schemas.Type.Dataset, dataset_key)
-            for dataset_key in spec.data_manager_keys
-        ]
-
-        data_samples = [
-            models.DataSample(
-                key=self._db.get_local_key(fs.hash_directory(str(p))),
-                pkhash=self._db.get_local_key(fs.hash_directory(str(p))),
-                owner=_BACKEND_ID,
-                path=str(p),
-                data_manager_keys=spec.data_manager_keys,
-                test_only=spec.test_only,
+        data_samples = list()
+        for path in spec.paths:
+            data_sample = self._add_data_sample(
+                schemas.DataSampleSpec(
+                    path=path,
+                    data_manager_keys=spec.data_manager_keys,
+                    test_only=spec.test_only,
+                ),
+                exist_ok,
+                spec_options,
             )
-            for p in spec.paths
-        ]
-
-        data_samples = [self._db.add(a) for a in data_samples]
-
-        # update dataset(s) accordingly
-        for dataset in datasets:
-            if spec.test_only:
-                samples_list = dataset.test_data_sample_keys
-            else:
-                samples_list = dataset.train_data_sample_keys
-
-            for data_sample in data_samples:
-                if data_sample.key not in samples_list:
-                    samples_list.append(data_sample.key)
-
+            data_samples.append(data_sample)
         return data_samples
 
     def _add_objective(self, spec, exist_ok, spec_options):
+        objective_key = self._db.get_local_key(fs.hash_file(spec.metrics))
+        asset = self._db.check_exist(type_=schemas.Type.Objective, key=objective_key, exist_ok=exist_ok)
+        if asset:
+            return asset
+
         self.__check_metadata(spec.metadata)
         permissions = self.__compute_permissions(spec.permissions)
-        objective_key = self._db.get_local_key(fs.hash_file(spec.metrics))
 
         # validate spec
         test_dataset = None
@@ -447,6 +453,10 @@ class Local(base.BaseBackend):
                     "dataManager is already associated with a objective", 400
                 )
 
+        # Copy files to the local dir
+        objective_file_path = self._db.save_file(spec.metrics, objective_key)
+        objective_description_path = self._db.save_file(spec.description, objective_key)
+
         # create objective model instance
         objective = models.Objective(
             key=objective_key,
@@ -461,19 +471,19 @@ class Local(base.BaseBackend):
                 },
             },
             description={
-                "hash": self._db.get_local_key(fs.hash_file(spec.description)),
-                "storage_address": spec.description
+                "hash": self._db.get_local_key(fs.hash_file(objective_description_path)),
+                "storage_address": objective_description_path
             },
             metrics={
                 "name": spec.metrics_name,
                 "hash": objective_key,
-                "storage_address": spec.metrics
+                "storage_address": objective_file_path
             },
             metadata=spec.metadata if spec.metadata else dict(),
         )
 
         # add objective to storage and update optionnally the associated dataset
-        objective = self._db.add(objective, exist_ok)
+        objective = self._db.add(objective)
 
         return objective
 
@@ -483,6 +493,15 @@ class Local(base.BaseBackend):
         exist_ok: bool,
         spec_options: dict = None
     ):
+        compute_plan_id = self._db.get_local_key(uuid.uuid4().hex)
+        asset = self._db.check_exist(
+            type_=schemas.Type.ComputePlan,
+            key=compute_plan_id,
+            exist_ok=exist_ok
+        )
+        if asset:
+            return asset
+
         if spec.clean_models:
             raise ValueError(
                 "'clean_models=True' is not supported on the local backend."
@@ -500,7 +519,7 @@ class Local(base.BaseBackend):
         visited = utils.compute_ranks(node_graph=all_tuples)
 
         compute_plan = models.ComputePlan(
-            compute_plan_id=self._db.get_local_key(uuid.uuid4().hex),
+            compute_plan_id=compute_plan_id,
             tag=spec.tag or "",
             status=models.Status.waiting,
             metadata=spec.metadata or dict(),
@@ -508,7 +527,7 @@ class Local(base.BaseBackend):
             tuple_count=0,
             done_count=0
         )
-        compute_plan = self._db.add(compute_plan, exist_ok)
+        compute_plan = self._db.add(compute_plan)
 
         # go through the tuples sorted by rank
         compute_plan = self.__execute_compute_plan(
@@ -525,6 +544,16 @@ class Local(base.BaseBackend):
 
     def _add_traintuple(self, spec, exist_ok, spec_options=None):
         # validation
+        key_components = (
+            [_BACKEND_ID, spec.algo_key, spec.data_manager_key]
+            + spec.train_data_sample_keys
+            + spec.in_models_keys or list()
+        )
+        key = self._db.get_local_key(hasher.Hasher(values=key_components).compute())
+        asset = self._db.check_exist(type_=schemas.Type.Traintuple, key=key, exist_ok=exist_ok)
+        if asset:
+            return asset
+
         self.__check_metadata(spec.metadata)
         algo = self._db.get(schemas.Type.Algo, spec.algo_key)
         data_manager = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
@@ -534,13 +563,6 @@ class Local(base.BaseBackend):
             else []
         )
         self.__check_same_data_manager(spec.data_manager_key, spec.train_data_sample_keys)
-
-        key_components = (
-            [_BACKEND_ID, spec.algo_key, spec.data_manager_key]
-            + spec.train_data_sample_keys
-            + spec.in_models_keys or list()
-        )
-        key = self._db.get_local_key(hasher.Hasher(values=key_components).compute())
 
         # permissions
         with_permissions = [algo, data_manager] + in_traintuples
@@ -602,12 +624,25 @@ class Local(base.BaseBackend):
             **options,
         )
 
-        traintuple = self._db.add(traintuple, exist_ok)
+        traintuple = self._db.add(traintuple)
         self._worker.schedule_traintuple(traintuple)
         return traintuple
 
     def _add_testtuple(self, spec, exist_ok, spec_options=None):
+
+        # Hash creation
+        key_components = [_BACKEND_ID, spec.objective_key, spec.traintuple_key]
+        if spec.test_data_sample_keys is not None:
+            key_components += spec.test_data_sample_keys
+        if spec.data_manager_key is not None:
+            key_components += spec.data_manager_key
+        key = self._db.get_local_key(hasher.Hasher(values=key_components).compute())
+
         # validation
+        asset = self._db.check_exist(type_=schemas.Type.Testtuple, key=key, exist_ok=exist_ok)
+        if asset:
+            return asset
+
         self.__check_metadata(spec.metadata)
         objective = self._db.get(schemas.Type.Objective, spec.objective_key)
 
@@ -635,14 +670,6 @@ class Local(base.BaseBackend):
             self._db.get(schemas.Type.Dataset, spec.data_manager_key)
             if spec.test_data_sample_keys is not None:
                 self.__check_same_data_manager(spec.data_manager_key, spec.test_data_sample_keys)
-
-        # Hash creation
-        key_components = [_BACKEND_ID, spec.objective_key, spec.traintuple_key]
-        if spec.test_data_sample_keys is not None:
-            key_components += spec.test_data_sample_keys
-        if spec.data_manager_key is not None:
-            key_components += spec.data_manager_key
-        key = self._db.get_local_key(hasher.Hasher(values=key_components).compute())
 
         # create model
         # if dataset is not defined, take it from objective
@@ -704,7 +731,7 @@ class Local(base.BaseBackend):
             metadata=spec.metadata if spec.metadata else dict(),
             **options,
         )
-        testtuple = self._db.add(testtuple, exist_ok)
+        testtuple = self._db.add(testtuple)
         self._worker.schedule_testtuple(testtuple)
         return testtuple
 
@@ -714,7 +741,19 @@ class Local(base.BaseBackend):
         exist_ok: bool,
         spec_options=None
     ):
+        # Hash key
+        key_components = [spec.algo_key, spec.data_manager_key] + spec.train_data_sample_keys
+        if spec.in_head_model_key:
+            key_components.append(spec.in_head_model_key)
+        if spec.in_trunk_model_key:
+            key_components.append(spec.in_trunk_model_key)
+        key = self._db.get_local_key(hasher.Hasher(values=key_components).compute())
+
         # validation
+        asset = self._db.check_exist(type_=schemas.Type.CompositeTraintuple, key=key, exist_ok=exist_ok)
+        if asset:
+            return asset
+
         self.__check_metadata(spec.metadata)
         algo = self._db.get(schemas.Type.CompositeAlgo, spec.algo_key)
         self._db.get(schemas.Type.Dataset, spec.data_manager_key)
@@ -752,16 +791,6 @@ class Local(base.BaseBackend):
                 storage_address=in_model.storage_address
             )
             in_tuples.append(in_trunk_tuple)
-
-        # Hash key
-        #  * has the same `algo_key`, `data_manager_key`, `train_data_sample_keys`,
-        #  `in_head_models_key` and `in_trunk_model_key`
-        key_components = [spec.algo_key, spec.data_manager_key] + spec.train_data_sample_keys
-        if spec.in_head_model_key:
-            key_components.append(spec.in_head_model_key)
-        if spec.in_trunk_model_key:
-            key_components.append(spec.in_trunk_model_key)
-        key = self._db.get_local_key(hasher.Hasher(values=key_components).compute())
 
         # Compute plan
         compute_plan_id, rank = self.__create_compute_plan_from_tuple(spec, key, in_tuples)
@@ -815,7 +844,7 @@ class Local(base.BaseBackend):
             },
             metadata=spec.metadata or dict()
         )
-        composite_traintuple = self._db.add(composite_traintuple, exist_ok)
+        composite_traintuple = self._db.add(composite_traintuple)
         if composite_traintuple.status == models.Status.waiting:
             self._worker.schedule_traintuple(composite_traintuple)
         return composite_traintuple
@@ -825,7 +854,15 @@ class Local(base.BaseBackend):
                             exist_ok: bool,
                             spec_options: dict = None,
                             ):
+        # Hash key
+        key_components = spec.in_models_keys + [spec.algo_key]
+        key = self._db.get_local_key(hasher.Hasher(values=key_components).compute())
+
         # validation
+        asset = self._db.check_exist(type_=schemas.Type.Aggregatetuple, key=key, exist_ok=exist_ok)
+        if asset:
+            return asset
+
         self.__check_metadata(spec.metadata)
         algo = self._db.get(schemas.Type.AggregateAlgo, spec.algo_key)
         in_tuples = list()
@@ -841,10 +878,6 @@ class Local(base.BaseBackend):
                 in_models.append(in_tuple.out_head_model.out_model.dict(by_alias=True))
                 in_permissions.append(in_tuple.out_head_model.permissions.process)
             in_tuples.append(in_tuple)
-
-        # Hash key
-        key_components = spec.in_models_keys + [spec.algo_key]
-        key = self._db.get_local_key(hasher.Hasher(values=key_components).compute())
 
         # Compute plan
         compute_plan_id, rank = self.__create_compute_plan_from_tuple(spec, key, in_tuples)
@@ -882,7 +915,7 @@ class Local(base.BaseBackend):
             out_model=None,
             metadata=spec.metadata or dict()
         )
-        aggregatetuple = self._db.add(aggregatetuple, exist_ok)
+        aggregatetuple = self._db.add(aggregatetuple)
         if aggregatetuple.status == models.Status.waiting:
             self._worker.schedule_traintuple(aggregatetuple)
         return aggregatetuple

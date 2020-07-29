@@ -28,20 +28,17 @@ class InMemoryDb:
         # assets stored per type and per key
         self._data = collections.defaultdict(dict)
 
-    def add(self, asset, exist_ok: bool = False):
+    def add(self, asset):
         """Add an asset."""
         type_ = asset.__class__.type_
+
         if type_ == models.ComputePlan.type_:
             key = asset.compute_plan_id
         else:
             key = asset.key
 
         if key in self._data[type_]:
-            if not exist_ok:
-                raise exceptions.AlreadyExists(key, 409)
-            # it already exists, fetch the existing one
-            asset = self._data[type_][key]
-            logger.info(f"{type_} with key '{key}' has not been created: already exists.")
+            raise exceptions.AlreadyExists(key, 409)
         else:
             self._data[type_][key] = asset
             logger.info(f"{type_} with key '{key}' has been created.")
