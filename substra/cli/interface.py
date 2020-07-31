@@ -207,10 +207,10 @@ def load_data_samples_keys(data_samples, option="--data-samples-path"):
         raise click.BadParameter('File must contain a "keys" attribute.', param_hint=f'"{option}"')
 
 
-def _error_message(fn, errors):
+def _format_server_errors(fn, errors):
     action = fn.__name__.replace('_', ' ')
 
-    def _error_lines(errors_):
+    def _format_error_lines(errors_):
         lines_ = []
         for field, field_errors in errors_.items():
             for field_error in field_errors:
@@ -219,10 +219,10 @@ def _error_message(fn, errors):
 
     lines = []
     if isinstance(errors, dict):
-        lines += _error_lines(errors)
+        lines += _format_error_lines(errors)
     elif isinstance(errors, list):
         for error in errors:
-            lines += _error_lines(error)
+            lines += _format_error_lines(error)
     else:
         lines.append(f"- {errors}")
 
@@ -251,7 +251,7 @@ def error_printer(fn):
                 errors = e.errors['message']
             except KeyError:
                 errors = e.errors
-            raise click.ClickException(_error_message(fn, errors))
+            raise click.ClickException(_format_server_errors(fn, errors))
         except exceptions.RequestException as e:
             raise click.ClickException(f"Request failed: {e.__class__.__name__}: {e}")
         except (exceptions.ConnectionError,
