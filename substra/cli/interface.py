@@ -214,7 +214,7 @@ def _format_server_errors(fn, errors):
         lines_ = []
         for field, field_errors in errors_.items():
             for field_error in field_errors:
-                lines_.append(f"- {field}: {field_error}")
+                lines_.append(f"{field}: {field_error}")
         return lines_
 
     lines = []
@@ -224,12 +224,11 @@ def _format_server_errors(fn, errors):
         for error in errors:
             lines += _format_error_lines(error)
     else:
-        lines.append(f"- {errors}")
+        lines.append(errors)
 
+    lines = [f"\n- {line}" for line in lines]
     pluralized_error = 'errors' if len(lines) > 1 else 'error'
-    lines.insert(0, f"Could not {action},"
-                    f"the server returned the following {pluralized_error}:")
-    return "\n".join(lines)
+    return f"Could not {action}, the server returned the following {pluralized_error}:" + lines
 
 
 def error_printer(fn):
