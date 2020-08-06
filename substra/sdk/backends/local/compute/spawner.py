@@ -36,16 +36,12 @@ def _unzip(archive, to_):
 
 def _uncompress(archive, to_):
     """Uncompress tar or zip archive to destination."""
-    success = False
-    errors = list()
-    for handler in [_unzip, _untar]:
-        try:
-            handler(archive, to_)
-            success = True
-        except Exception as e:
-            errors.append(e)
-    if not success:
-        raise exceptions.InvalidRequest(f"Cannot uncompress '{archive}', error: \n{errors}", 400)
+    if tarfile.is_tarfile(archive):
+        _untar(archive, to_)
+    elif zipfile.is_zipfile(archive):
+        _unzip(archive, to_)
+    else:
+        raise exceptions.InvalidRequest(f"Cannot uncompress '{archive}'", 400)
 
 
 class ExecutionError(Exception):

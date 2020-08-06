@@ -98,7 +98,7 @@ class Local(base.BaseBackend):
             ]
         ])
         compute_plan = models.ComputePlan(
-            compute_plan_id=LOCAL_KEY + uuid.uuid4().hex,
+            compute_plan_id=self._db.get_local_key(uuid.uuid4().hex),
             status=models.Status.waiting,
             traintuple_keys=traintuple_keys,
             composite_traintuple_keys=composite_traintuple_keys,
@@ -498,7 +498,7 @@ class Local(base.BaseBackend):
         visited = utils.compute_ranks(node_graph=all_tuples)
 
         compute_plan = models.ComputePlan(
-            compute_plan_id=LOCAL_KEY + uuid.uuid4().hex,
+            compute_plan_id=self._db.get_local_key(uuid.uuid4().hex),
             tag=spec.tag or "",
             status=models.Status.waiting,
             metadata=spec.metadata or dict(),
