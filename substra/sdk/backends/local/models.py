@@ -127,9 +127,11 @@ class _Model(pydantic.BaseModel, abc.ABC):
 
 
 class DataSample(_Model):
-    pkhash: str
+    key: str
+    owner: str
+    pkhash: str = ''
     data_manager_keys: Optional[List[str]]
-    path: DirectoryPath
+    path: Optional[DirectoryPath]
     validated: bool = True
     # The backend does not return this but it is needed for link_dataset_with_data_samples
     test_only: bool = False
@@ -144,14 +146,14 @@ class _File(pydantic.BaseModel):
 
 class Dataset(_Model):
     key: str
-    pkhash: str
+    pkhash: str = ''
     name: str
     owner: str
     objective_key: Optional[str]
     permissions: Permissions
     type: str
-    train_data_sample_keys: List[str]
-    test_data_sample_keys: List[str]
+    train_data_sample_keys: List[str] = list()
+    test_data_sample_keys: List[str] = list()
     opener: _File
     description: _File
     metadata: Dict[str, str]
@@ -181,7 +183,7 @@ class _Metric(pydantic.BaseModel):
 
 class Objective(_Model):
     key: str
-    pkhash: str
+    pkhash: str = ''
     name: str
     owner: str
     test_dataset: Optional[_ObjectiveDataset]
@@ -200,7 +202,7 @@ class Objective(_Model):
 
 class _Algo(_Model):
     key: str
-    pkhash: str
+    pkhash: str = ''
     name: str
     owner: str
     permissions: Permissions
@@ -426,6 +428,7 @@ class ComputePlan(_Model):
     tuple_count: int
     done_count: int
     metadata: Dict[str, str]
+    clean_models: bool = False
 
     type_: ClassVar[str] = schemas.Type.ComputePlan
 

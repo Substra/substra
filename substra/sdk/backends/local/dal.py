@@ -45,7 +45,7 @@ class DataAccess:
         return key.startswith(_LOCAL_KEY)
 
     @staticmethod
-    def get__LOCAL_KEY(key: str):
+    def get_local_key(key: str):
         """Transform a key into a 'local' key.
         """
         return _LOCAL_KEY + key

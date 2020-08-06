@@ -67,7 +67,7 @@ class Worker:
         ]
         for sample in samples:
             # TODO more efficient link (symlink?)
-            shutil.copytree(sample.path, os.path.join(data_volume, sample.pkhash))
+            shutil.copytree(sample.path, os.path.join(data_volume, sample.key))
         return data_volume
 
     def _save_output_model(self, tuple_, model_name, models_volume) -> models.OutModel:

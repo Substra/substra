@@ -279,7 +279,7 @@ class Local(base.BaseBackend):
                 [
                     data_manager_key
                     in self._db.get(schemas.Type.DataSample, key).data_manager_keys
-                    for key in data_sample_keys
+                    for key in data_sample_keys or list()
                 ]
             )
             if not same_data_manager:
@@ -335,7 +335,6 @@ class Local(base.BaseBackend):
         key = self._db.get_local_key(fs.hash_file(spec.data_opener))
         asset = models.Dataset(
             key=key,
-            pkhash=key,
             owner=_BACKEND_ID,
             name=spec.name,
             objective_key=spec.objective_key if spec.objective_key else "",
@@ -346,8 +345,8 @@ class Local(base.BaseBackend):
                 },
             },
             type=spec.type,
-            train_data_sample_keys=[],
-            test_data_sample_keys=[],
+            train_data_sample_keys=list(),
+            test_data_sample_keys=list(),
             opener={
                 "hash": key,
                 "storage_address": spec.data_opener
@@ -366,9 +365,11 @@ class Local(base.BaseBackend):
             self._db.get(schemas.Type.Dataset, dataset_key)
             for dataset_key in spec.data_manager_keys
         ]
-
+        key = self._db.get_local_key(fs.hash_directory(spec.path))
         data_sample = models.DataSample(
-            pkhash=self._db.get_local_key(fs.hash_directory(spec.path)),
+            key=key,
+            pkhash=key,
+            owner=_BACKEND_ID,
             path=str(spec.path),
             data_manager_keys=spec.data_manager_keys,
             test_only=spec.test_only,
@@ -381,8 +382,8 @@ class Local(base.BaseBackend):
                 samples_list = dataset.test_data_sample_keys
             else:
                 samples_list = dataset.train_data_sample_keys
-            if data_sample.pkhash not in samples_list:
-                samples_list.append(data_sample.pkhash)
+            if data_sample.key not in samples_list:
+                samples_list.append(data_sample.key)
 
         return data_sample
 
@@ -414,8 +415,8 @@ class Local(base.BaseBackend):
                 samples_list = dataset.train_data_sample_keys
 
             for data_sample in data_samples:
-                if data_sample.pkhash not in samples_list:
-                    samples_list.append(data_sample.pkhash)
+                if data_sample.key not in samples_list:
+                    samples_list.append(data_sample.key)
 
         return data_samples
 
@@ -536,9 +537,7 @@ class Local(base.BaseBackend):
         key_components = (
             [_BACKEND_ID, spec.algo_key, spec.data_manager_key]
             + spec.train_data_sample_keys
-            + spec.in_models_keys
-            if spec.in_models_keys is not None
-            else []
+            + spec.in_models_keys or list()
         )
         key = self._db.get_local_key(hasher.Hasher(values=key_components).compute())
 
