@@ -57,7 +57,7 @@ whereas the algo, traintuple and testtuple are created locally.
 For this, run the [Titanic example](../titanic/README.md) and keep the Substra platform running. You will need
 the `assets_keys.json` generated while running the Titanic example.
 
-The [`hybrid_debugging.py`](./scripts/hybrid_debugging.py) script contains the code to load the
+The [`debugging.py`](./scripts/debugging.py) script contains the code to load the
 Titanic asset keys then create a traintuple and testtuple using those.
 In this setup, you can also create any asset you want, as in the example with only local assets.
 

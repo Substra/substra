@@ -19,7 +19,7 @@ import substra
 from substra.sdk import schemas, exceptions, utils
 from substra.sdk.backends import base
 from substra.sdk.backends.local import models
-from substra.sdk.backends.local import dal
+from substra.sdk.backends.local import dal, LOCAL_KEY
 from substra.sdk.backends.local import fs
 from substra.sdk.backends.local import hasher
 from substra.sdk.backends.local import compute
@@ -82,13 +82,6 @@ class Local(base.BaseBackend):
             permissions.authorized_ids.append(_BACKEND_ID)
         return permissions
 
-    @staticmethod
-    def _is_local(key: str):
-        """Check if the key corresponds to a local
-        or remote asset.
-        """
-        return key.startswith("local_")
-
     def __add_compute_plan(
         self,
         traintuple_keys=None,
@@ -105,7 +98,7 @@ class Local(base.BaseBackend):
             ]
         ])
         compute_plan = models.ComputePlan(
-            compute_plan_id="local_" + uuid.uuid4().hex,
+            compute_plan_id=LOCAL_KEY + uuid.uuid4().hex,
             status=models.Status.waiting,
             traintuple_keys=traintuple_keys,
             composite_traintuple_keys=composite_traintuple_keys,
@@ -281,7 +274,7 @@ class Local(base.BaseBackend):
         """Check that all data samples are linked to this data manager"""
         # If the dataset is remote: the backend does not return the datasets
         # linked to each sample, so no check (already done in the backend).
-        if self._is_local(data_manager_key):
+        if self._db.is_local(data_manager_key):
             same_data_manager = all(
                 [
                     data_manager_key
@@ -296,7 +289,7 @@ class Local(base.BaseBackend):
 
     def __add_algo(self, model_class, spec, exist_ok, spec_options=None):
         permissions = self.__compute_permissions(spec.permissions)
-        key = fs.hash_file(spec.file)
+        key = self._db.get_local_key(fs.hash_file(spec.file))
         algo = model_class(
             key=key,
             pkhash=key,
@@ -313,7 +306,7 @@ class Local(base.BaseBackend):
                 "storage_address": spec.file
             },
             description={
-                "hash": fs.hash_file(spec.description),
+                "hash": self._db.get_local_key(fs.hash_file(spec.description)),
                 "storage_address": spec.description
             },
             metadata=spec.metadata if spec.metadata else dict(),
@@ -339,7 +332,7 @@ class Local(base.BaseBackend):
     def _add_dataset(self, spec, exist_ok, spec_options):
         self.__check_metadata(spec.metadata)
         permissions = self.__compute_permissions(spec.permissions)
-        key = fs.hash_file(spec.data_opener)
+        key = self._db.get_local_key(fs.hash_file(spec.data_opener))
         asset = models.Dataset(
             key=key,
             pkhash=key,
@@ -360,7 +353,7 @@ class Local(base.BaseBackend):
                 "storage_address": spec.data_opener
             },
             description={
-                "hash": fs.hash_file(spec.description),
+                "hash": self._db.get_local_key(fs.hash_file(spec.description)),
                 "storage_address": spec.description
             },
             metadata=spec.metadata if spec.metadata else dict(),
@@ -375,8 +368,7 @@ class Local(base.BaseBackend):
         ]
 
         data_sample = models.DataSample(
-            pkhash=fs.hash_directory(spec.path),
-            owner=_BACKEND_ID,
+            pkhash=self._db.get_local_key(fs.hash_directory(spec.path)),
             path=str(spec.path),
             data_manager_keys=spec.data_manager_keys,
             test_only=spec.test_only,
@@ -402,8 +394,8 @@ class Local(base.BaseBackend):
 
         data_samples = [
             models.DataSample(
-                key=fs.hash_directory(str(p)),
-                pkhash=fs.hash_directory(str(p)),
+                key=self._db.get_local_key(fs.hash_directory(str(p))),
+                pkhash=self._db.get_local_key(fs.hash_directory(str(p))),
                 owner=_BACKEND_ID,
                 path=str(p),
                 data_manager_keys=spec.data_manager_keys,
@@ -430,7 +422,7 @@ class Local(base.BaseBackend):
     def _add_objective(self, spec, exist_ok, spec_options):
         self.__check_metadata(spec.metadata)
         permissions = self.__compute_permissions(spec.permissions)
-        objective_key = fs.hash_file(spec.metrics)
+        objective_key = self._db.get_local_key(fs.hash_file(spec.metrics))
 
         # validate spec
         test_dataset = None
@@ -467,7 +459,7 @@ class Local(base.BaseBackend):
                 },
             },
             description={
-                "hash": fs.hash_file(spec.description),
+                "hash": self._db.get_local_key(fs.hash_file(spec.description)),
                 "storage_address": spec.description
             },
             metrics={
@@ -506,7 +498,7 @@ class Local(base.BaseBackend):
         visited = utils.compute_ranks(node_graph=all_tuples)
 
         compute_plan = models.ComputePlan(
-            compute_plan_id="local_" + uuid.uuid4().hex,
+            compute_plan_id=LOCAL_KEY + uuid.uuid4().hex,
             tag=spec.tag or "",
             status=models.Status.waiting,
             metadata=spec.metadata or dict(),
@@ -548,7 +540,7 @@ class Local(base.BaseBackend):
             if spec.in_models_keys is not None
             else []
         )
-        key = hasher.Hasher(values=key_components).compute()
+        key = self._db.get_local_key(hasher.Hasher(values=key_components).compute())
 
         # permissions
         with_permissions = [algo, data_manager] + in_traintuples
@@ -650,7 +642,7 @@ class Local(base.BaseBackend):
             key_components += spec.test_data_sample_keys
         if spec.data_manager_key is not None:
             key_components += spec.data_manager_key
-        key = hasher.Hasher(values=key_components).compute()
+        key = self._db.get_local_key(hasher.Hasher(values=key_components).compute())
 
         # create model
         # if dataset is not defined, take it from objective
@@ -769,7 +761,7 @@ class Local(base.BaseBackend):
             key_components.append(spec.in_head_model_key)
         if spec.in_trunk_model_key:
             key_components.append(spec.in_trunk_model_key)
-        key = hasher.Hasher(values=key_components).compute()
+        key = self._db.get_local_key(hasher.Hasher(values=key_components).compute())
 
         # Compute plan
         compute_plan_id, rank = self.__create_compute_plan_from_tuple(spec, key, in_tuples)
@@ -852,7 +844,7 @@ class Local(base.BaseBackend):
 
         # Hash key
         key_components = spec.in_models_keys + [spec.algo_key]
-        key = hasher.Hasher(values=key_components).compute()
+        key = self._db.get_local_key(hasher.Hasher(values=key_components).compute())
 
         # Compute plan
         compute_plan_id, rank = self.__create_compute_plan_from_tuple(spec, key, in_tuples)
@@ -935,7 +927,7 @@ class Local(base.BaseBackend):
             data_samples.append(data_sample)
 
     def download(self, asset_type, url_field_path, key, destination):
-        if self._is_local(key):
+        if self._db.is_local(key):
             asset = self._db.get(type_=asset_type, key=key)
             # Get the field containing the path to the file.
             attribute_name = models.to_snake_case(url_field_path)
@@ -948,7 +940,7 @@ class Local(base.BaseBackend):
             self._db.remote_download(asset_type, url_field_path, key, destination)
 
     def describe(self, asset_type, key):
-        if self._is_local(key):
+        if self._db.is_local(key):
             asset = self._db.get(type_=asset_type, key=key)
             if not hasattr(asset, "description") or not asset.description:
                 raise ValueError("This element does not have a description.")

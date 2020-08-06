@@ -14,4 +14,4 @@ class Hasher:
         self._h.update(v)
 
     def compute(self):
-        return "local_" + self._h.hexdigest()
+        return self._h.hexdigest()

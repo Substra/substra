@@ -60,13 +60,6 @@ class Worker:
         self._db = db
         self._spawner = spawner.get()
 
-    @staticmethod
-    def _is_local(key: str):
-        """Check if the key corresponds to a local
-        or remote asset.
-        """
-        return key.startswith("local_")
-
     def _get_data_volume(self, tuple_dir, tuple_):
         data_volume = _mkdir(os.path.join(tuple_dir, "data"))
         samples = [
@@ -171,7 +164,7 @@ class Worker:
                 # if this is a traintuple or composite traintuple, prepare the data
                 dataset = self._db.get_with_files(schemas.Type.Dataset, tuple_.dataset.key)
                 volumes[dataset.opener.storage_address] = _VOLUME_OPENER
-                if self._is_local(tuple_.dataset.key):
+                if self._db.is_local(tuple_.dataset.key):
                     data_volume = self._get_data_volume(tuple_dir, tuple_)
                     volumes[data_volume] = _VOLUME_INPUT_DATASAMPLES
 
@@ -192,7 +185,7 @@ class Worker:
             # compute command
             command += f" --rank {tuple_.rank}"
             if not isinstance(tuple_, models.Aggregatetuple) \
-                    and not self._is_local(tuple_.dataset.key):
+                    and not self._db.is_local(tuple_.dataset.key):
                 command += " --fake-data"
                 command += f" --n-fake-samples {len(tuple_.dataset.keys)}"
 
@@ -266,7 +259,7 @@ class Worker:
             }
 
             # If use fake data, no data volume
-            if self._is_local(dataset.key):
+            if self._db.is_local(dataset.key):
                 data_volume = self._get_data_volume(tuple_dir, tuple_)
                 volumes[data_volume] = _VOLUME_INPUT_DATASAMPLES
 
@@ -281,7 +274,7 @@ class Worker:
             # compute testtuple command
             command = "predict"
 
-            if not self._is_local(dataset.key):
+            if not self._db.is_local(dataset.key):
                 command += " --fake-data"
                 command += f" --n-fake-samples {len(objective.test_dataset.data_sample_keys)}"
 
@@ -325,7 +318,7 @@ class Worker:
                 dataset.opener.storage_address: _VOLUME_OPENER,
             }
 
-            if self._is_local(dataset.key):
+            if self._db.is_local(dataset.key):
                 volumes[data_volume] = _VOLUME_INPUT_DATASAMPLES
                 command = f"--fake-data-mode {METRICS_NO_FAKE_Y}"
             else:

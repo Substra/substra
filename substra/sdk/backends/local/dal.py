@@ -19,6 +19,8 @@ from substra.sdk import exceptions, schemas
 from substra.sdk.backends.remote import backend
 from substra.sdk.backends.local import db, models
 
+LOCAL_KEY = "local_"
+
 
 class DataAccess:
     """Data access layer.
@@ -36,11 +38,17 @@ class DataAccess:
         return pathlib.Path(self._tmp_dir.name)
 
     @staticmethod
-    def _is_local(key: str):
+    def is_local(key: str):
         """Check if the key corresponds to a local
         or remote asset.
         """
-        return key.startswith("local_")
+        return key.startswith(LOCAL_KEY)
+
+    @staticmethod
+    def get_local_key(key: str):
+        """Transform a key into a 'local' key.
+        """
+        return LOCAL_KEY + key
 
     def _get_asset_name(self, type_):
         if type_ in [
