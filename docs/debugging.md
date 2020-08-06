@@ -13,14 +13,11 @@ For a complete example, see the [debugging example](../examples/debugging/README
 
 ## Dependencies
 
-The required dependencies are:
+- Substra must be installed.
 
-- Docker:
+- Docker is required since the training and testing tasks are run in Docker containers:
   - Mac: [Docker Desktop](https://www.docker.com/products/docker-desktop)
-  - Ubuntu/Debian: `sudo apt install docker docker-compose`
-- Python 3 (recommended 3.6 or 3.7)
-  - It is recommended to use a virtual environment to install Substra packages (for instance [virtualenv](https://virtualenv.pypa.io/en/latest/))
-- Substra package
+  - Ubuntu/Debian: `sudo apt install docker`
 
 If you want to debug your script using assets from the Substra platform, you also need access to the platform the assets are on.
 
@@ -34,6 +31,9 @@ set the `debug` parameter to `True` when creating the client.
 client = substra.Client.from_config_file(profile_name="node-1", debug=True)
 ```
 
+Contrary to the default execution, the execution is done synchronously, so the script waits for the task in progress to end before continuing.  
+The execution of the tuples happens in Docker containers that are spawned on the fly and removed once the execution is done.
+
 ### Use assets from a deployed Substra platform and local assets
 
 With this, you gain access to the platform in 'read-only' mode and any asset you create is created locally.
@@ -43,7 +43,7 @@ list assets will list the assets from the platform and the local ones.
 Functions that create a new asset (they start with `add`) only create local assets.  
 To differentiate between a local asset and a remote one, look at their key (or pkhash): for local assets, it starts with `local_`.
 
-Local assets are saved in-memory, so they are deleted at the end of the script.
+Local assets are saved in-memory, they have the same lifetime as the Client object (deleted at the end of the script).
 
 ### Dependency between assets
 
@@ -77,8 +77,7 @@ So any `print` or warning in the algo file for example will be displayed.
 
 #### Debug with pdb
 
-The execution is done synchronously, so the script waits for the task in progress to end before continuing.  
-The execution of the tuples happens in Docker containers that are spawned on the fly and removed once the execution is done.
+As said above, the tuples are executed in Docker containers spawned on the fly and deleted at the end of the execution.  
 If you want access to the container while it runs, you can use [`pdb`](https://docs.python.org/3.6/library/pdb.html#pdb.set_trace) to pause the execution 
 until you connect to the container.
 

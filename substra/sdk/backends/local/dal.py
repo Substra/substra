@@ -19,7 +19,7 @@ from substra.sdk import exceptions, schemas
 from substra.sdk.backends.remote import backend
 from substra.sdk.backends.local import db, models
 
-LOCAL_KEY = "local_"
+_LOCAL_KEY = "local_"
 
 
 class DataAccess:
@@ -42,15 +42,15 @@ class DataAccess:
         """Check if the key corresponds to a local
         or remote asset.
         """
-        return key.startswith(LOCAL_KEY)
+        return key.startswith(_LOCAL_KEY)
 
     @staticmethod
-    def get_local_key(key: str):
+    def get__LOCAL_KEY(key: str):
         """Transform a key into a 'local' key.
         """
-        return LOCAL_KEY + key
+        return _LOCAL_KEY + key
 
-    def _get_asset_name(self, type_):
+    def _get_asset_content_filename(self, type_):
         if type_ in [
             schemas.Type.Algo,
             schemas.Type.AggregateAlgo,
@@ -89,17 +89,18 @@ class DataAccess:
         return self._remote.describe(asset_type, key)
 
     def get_with_files(self, type_: schemas.Type, key: str):
-        """Get the asset with files on the local disk for execution"""
-        if self._is_local(key):
+        """Get the asset with files on the local disk for execution.
+        This does not load the description as it is not required for execution.
+        """
+        if self.is_local(key):
             return self._db.get(type_, key)
         else:
-            asset_name, field_name = self._get_asset_name(type_)
+            asset_name, field_name = self._get_asset_content_filename(type_)
             asset = self._get_response(
                 type_,
                 self._remote.get(type_, key)
             )
             tmp_directory = self.tmp_dir / key
-            description_path = tmp_directory / "description.md"
             asset_path = tmp_directory / asset_name
 
             if not tmp_directory.exists():
@@ -112,17 +113,12 @@ class DataAccess:
                     asset_path,
                 )
 
-                description = self._remote.describe(type_, key)
-                with description_path.open("w", encoding='utf-8') as f:
-                    f.write(description)
-
             attr = getattr(asset, field_name)
             attr.storage_address = asset_path
-            asset.description.storage_address = description_path
             return asset
 
     def get(self, type_, key: str):
-        if self._is_local(key):
+        if self.is_local(key):
             return self._db.get(type_, key)
         elif self._remote:
             return self._get_response(type_, self._remote.get(type_, key))

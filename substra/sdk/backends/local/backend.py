@@ -19,7 +19,7 @@ import substra
 from substra.sdk import schemas, exceptions, utils
 from substra.sdk.backends import base
 from substra.sdk.backends.local import models
-from substra.sdk.backends.local import dal, LOCAL_KEY
+from substra.sdk.backends.local import dal
 from substra.sdk.backends.local import fs
 from substra.sdk.backends.local import hasher
 from substra.sdk.backends.local import compute

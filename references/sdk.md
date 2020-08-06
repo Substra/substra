@@ -24,7 +24,7 @@ Args:
     version (str, optional): API version, do not change it. Defaults to '0.0'.
 
     insecure (bool, optional): If True, the client can call a not-certifed backend. This is
-        for debugging purposes.
+        for development purposes.
         Defaults to False.
 
     debug (bool, optional): Whether to use the default or debug mode.
