@@ -34,7 +34,7 @@ class InMemoryDb:
         if type_ == models.ComputePlan.type_:
             key = asset.compute_plan_id
         else:
-            key = getattr(asset, 'pkhash', None) or getattr(asset, 'key', None)
+            key = asset.key
 
         if key in self._data[type_]:
             if not exist_ok:
@@ -42,10 +42,10 @@ class InMemoryDb:
             # it already exists, fetch the existing one
             asset = self._data[type_][key]
             logger.info(f"{type_} with key '{key}' has not been created: already exists.")
-
         else:
             self._data[type_][key] = asset
             logger.info(f"{type_} with key '{key}' has been created.")
+
         return asset
 
     def get(self, type_, key: str):

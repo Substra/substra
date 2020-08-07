@@ -335,6 +335,7 @@ class Local(base.BaseBackend):
         key = self._db.get_local_key(fs.hash_file(spec.data_opener))
         asset = models.Dataset(
             key=key,
+            pkhash=key,
             owner=_BACKEND_ID,
             name=spec.name,
             objective_key=spec.objective_key if spec.objective_key else "",
