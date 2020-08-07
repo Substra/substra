@@ -425,7 +425,11 @@ class Local(base.BaseBackend):
 
     def _add_objective(self, spec, exist_ok, spec_options):
         objective_key = self._db.get_local_key(fs.hash_file(spec.metrics))
-        asset = self._db.check_exist(type_=schemas.Type.Objective, key=objective_key, exist_ok=exist_ok)
+        asset = self._db.check_exist(
+            type_=schemas.Type.Objective,
+            key=objective_key,
+            exist_ok=exist_ok
+        )
         if asset:
             return asset
 
@@ -750,7 +754,11 @@ class Local(base.BaseBackend):
         key = self._db.get_local_key(hasher.Hasher(values=key_components).compute())
 
         # validation
-        asset = self._db.check_exist(type_=schemas.Type.CompositeTraintuple, key=key, exist_ok=exist_ok)
+        asset = self._db.check_exist(
+            type_=schemas.Type.CompositeTraintuple,
+            key=key,
+            exist_ok=exist_ok
+        )
         if asset:
             return asset
 
