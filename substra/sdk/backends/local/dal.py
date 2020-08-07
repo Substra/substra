@@ -131,7 +131,7 @@ class DataAccess:
                 type_,
                 self._remote.get(type_, key)
             )
-            tmp_directory = self.tmp_dir / key
+            tmp_directory = self._tmp_dir / key
             asset_path = tmp_directory / asset_name
 
             if not tmp_directory.exists():
