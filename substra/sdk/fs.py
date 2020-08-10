@@ -13,7 +13,7 @@
 # limitations under the License.
 import os
 
-from substra.sdk.backends.local.hasher import Hasher
+from substra.sdk.hasher import Hasher
 
 
 _BLOCK_SIZE = 64 * 1024

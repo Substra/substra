@@ -57,7 +57,7 @@ class Client(object):
     Args:
 
         url (str, optional): URL of the Substra platform. Mandatory
-            to connect to a Substra platform. If no URL is given and debug is True, all
+            to connect to a Substra platform. If no URL is given debug must be True and all
             assets must be created locally.
             Defaults to None.
 

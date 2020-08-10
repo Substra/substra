@@ -19,10 +19,11 @@ import json
 import pathlib
 import typing
 from typing import Optional, List, Dict
+import uuid
 
 import pydantic
 
-from substra.sdk import utils
+from substra.sdk import utils, fs, hasher
 
 # TODO create a sub-package schemas:
 # types
@@ -82,6 +83,9 @@ class _Spec(pydantic.BaseModel, abc.ABC):
         else:
             yield data, None
 
+    def compute_key() -> str:
+        raise NotImplementedError
+
 
 class Permissions(pydantic.BaseModel):
     public: bool
@@ -128,6 +132,9 @@ class DataSampleSpec(_Spec):
                 yield (data, files)
         else:
             yield data, None
+
+    def compute_key(self) -> str:
+        return fs.hash_directory(self.path)
 
 
 class ComputePlanTraintupleSpec(_Spec):
@@ -184,6 +191,10 @@ class ComputePlanSpec(_BaseComputePlanSpec):
 
     type_: typing.ClassVar[Type] = Type.ComputePlan
 
+    @staticmethod
+    def compute_key() -> str:
+        return uuid.uuid4().hex
+
 
 class UpdateComputePlanSpec(_BaseComputePlanSpec):
     pass
@@ -203,6 +214,9 @@ class DatasetSpec(_Spec):
     class Meta:
         file_attributes = ('data_opener', 'description', )
 
+    def compute_key(self) -> str:
+        return fs.hash_file(self.data_opener)
+
 
 class ObjectiveSpec(_Spec):
     name: str
@@ -219,6 +233,9 @@ class ObjectiveSpec(_Spec):
     class Meta:
         file_attributes = ('metrics', 'description', )
 
+    def compute_key(self) -> str:
+        return fs.hash_file(self.metrics)
+
 
 class _AlgoSpec(_Spec):
     name: str
@@ -229,6 +246,9 @@ class _AlgoSpec(_Spec):
 
     class Meta:
         file_attributes = ('file', 'description', )
+
+    def compute_key(self) -> str:
+        return fs.hash_file(self.file)
 
 
 class AlgoSpec(_AlgoSpec):
@@ -278,6 +298,14 @@ class TraintupleSpec(_Spec):
             metadata=spec.metadata
         )
 
+    def compute_key(self) -> str:
+        key_components = (
+            [self.algo_key, self.data_manager_key]
+            + self.train_data_sample_keys
+            + self.in_models_keys or list()
+        )
+        return hasher.Hasher(values=key_components).compute()
+
 
 class AggregatetupleSpec(_Spec):
     algo_key: str
@@ -312,6 +340,10 @@ class AggregatetupleSpec(_Spec):
             rank=rank,
             metadata=spec.metadata
         )
+
+    def compute_key(self) -> str:
+        key_components = self.in_models_keys + [self.algo_key]
+        return hasher.Hasher(values=key_components).compute()
 
 
 class CompositeTraintupleSpec(_Spec):
@@ -354,6 +386,14 @@ class CompositeTraintupleSpec(_Spec):
             metadata=spec.metadata
         )
 
+    def compute_key(self) -> str:
+        key_components = [self.algo_key, self.data_manager_key] + self.train_data_sample_keys
+        if self.in_head_model_key:
+            key_components.append(self.in_head_model_key)
+        if self.in_trunk_model_key:
+            key_components.append(self.in_trunk_model_key)
+        return hasher.Hasher(values=key_components).compute()
+
 
 class TesttupleSpec(_Spec):
     objective_key: str
@@ -379,3 +419,9 @@ class TesttupleSpec(_Spec):
             test_data_sample_keys=spec.test_data_sample_keys,
             metadata=spec.metadata,
         )
+
+    def compute_key(self) -> str:
+        key_components = [self.objective_key, self.traintuple_key]
+        key_components += self.test_data_sample_keys or list()
+        key_components += self.data_manager_key or list()
+        return hasher.Hasher(values=key_components).compute()
