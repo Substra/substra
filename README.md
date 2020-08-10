@@ -4,12 +4,20 @@ CLI and SDK for interacting with Substra platform.
 
 ## Table of contents
 
-- [Install](#install)
-- [Running the Substra platform locally](#running-the-substra-platform-locally)
-- [Usage](#usage)
-- [Documentation](#documentation)
-- [Compatibility table](#compatibility-table)
-- [Contributing](#contributing)
+- [!Substra](#img-srcsubstra-logosvg-altsubstra)
+  - [Table of contents](#table-of-contents)
+  - [Install](#install)
+  - [Running the Substra platform locally](#running-the-substra-platform-locally)
+  - [Usage](#usage)
+    - [CLI](#cli)
+    - [SDK](#sdk)
+  - [Documentation](#documentation)
+  - [Examples](#examples)
+  - [Compatibility table](#compatibility-table)
+  - [Contributing](#contributing)
+    - [Setup](#setup)
+    - [Documentation](#documentation-1)
+    - [Deploy](#deploy)
 
 ## Install
 
@@ -80,12 +88,14 @@ Learning about the Substra platform:
 - [Machine Learning tasks](./docs/ml_tasks.md)
 - [Adding a full pipeline](./docs/full_pipeline_workflow.md)
 - [Adding data samples](./docs/add_data_samples.md)
+- [Debugging](./docs/debugging.md)
 
 ## Examples
 
 - [Titanic](./examples/titanic/README.md)
 - [Cross-validation](./examples/cross_val/README.md)
 - [Compute plan](./examples/compute_plan/README.md)
+- [Debugging](./examples/debugging/README.md)
 
 ## Compatibility table
 

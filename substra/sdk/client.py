@@ -52,10 +52,33 @@ def logit(f):
 
 
 class Client(object):
-    """Create the client.
+    """Create a client
 
-    Set the `backend` to 'local' to use the local debugging.
-    One client corresponds to one profile.
+    Args:
+
+        url (str, optional): URL of the Substra platform. Mandatory
+            to connect to a Substra platform. If no URL is given debug must be True and all
+            assets must be created locally.
+            Defaults to None.
+
+        token (str, optional): Token to authenticate to the Substra platform.
+            If no token is given, use the 'login' function to authenticate.
+            Defaults to None.
+
+        retry_timeout (int, optional): Number of seconds before attempting a retry call in case
+            of timeout.
+            Defaults to 5 minutes.
+
+        version (str, optional): API version, do not change it. Defaults to '0.0'.
+
+        insecure (bool, optional): If True, the client can call a not-certifed backend. This is
+            for development purposes.
+            Defaults to False.
+
+        debug (bool, optional): Whether to use the default or debug mode.
+            In debug mode, new assets are created locally but can access assets from
+            the deployed Substra platform. The platform is in read-only mode.
+            Defaults to False.
     """
 
     def __init__(
@@ -63,11 +86,10 @@ class Client(object):
         url: typing.Optional[str] = None,
         token: typing.Optional[str] = None,
         retry_timeout: int = DEFAULT_RETRY_TIMEOUT,
-        backend: str = 'remote',
         version: str = '0.0',
         insecure: bool = False,
+        debug: bool = False,
     ):
-        self._backend_name = backend
         self._retry_timeout = retry_timeout
         self._token = token
 
@@ -75,17 +97,32 @@ class Client(object):
         self._url = url
         self._version = version
 
-        self._backend = self._get_backend()
+        self._backend = self._get_backend(debug)
 
-    def _get_backend(self):
-        return backends.get(
-            self._backend_name,
-            url=self._url,
-            version=self._version,
-            insecure=self._insecure,
-            token=self._token,
-            retry_timeout=self._retry_timeout,
-        )
+    def _get_backend(self, debug: bool):
+        # Three possibilites:
+        # - debug is False: get a remote backend
+        # - debug is True and no url is defined: fully local backend
+        # - debug is True and url is defined: local backend that connects to
+        #                           a remote backend (read-only)
+        backend = None
+        if (debug and self._url) or not debug:
+            backend = backends.get(
+                "remote",
+                url=self._url,
+                version=self._version,
+                insecure=self._insecure,
+                token=self._token,
+                retry_timeout=self._retry_timeout,
+            )
+        if debug:
+            # Hybrid mode: the local backend also connects to
+            # a remote backend in read-only mode.
+            return backends.get(
+                "local",
+                backend,
+            )
+        return backend
 
     @logit
     def login(self, username, password):
@@ -109,24 +146,32 @@ class Client(object):
         tokens_path: typing.Union[str, pathlib.Path] = cfg.DEFAULT_TOKENS_PATH,
         token: typing.Optional[str] = None,
         retry_timeout: int = DEFAULT_RETRY_TIMEOUT,
+        debug: bool = False
     ):
         """Returns a new Client configured with profile data from configuration files.
 
-        The new Client will be configured for a remote backend. To get a local backend, use:
-
-        >>> client = Client(backend='local')
-
         Args:
-            profile_name (typing.Optional[str], optional): Name of the profile to load.
+
+            profile_name (str, optional): Name of the profile to load.
                 Defaults to 'default'.
-            config_path (typing.Union[str, pathlib.Path, None], optional): Path to the
-                configuration file. Defaults to '~/.substra'.
-            tokens_path (typing.Union[str, pathlib.Path, None], optional): Path to the tokens file.
+
+            config_path (typing.Union[str, pathlib.Path], optional): Path to the
+                configuration file.
+                Defaults to '~/.substra'.
+
+            tokens_path (typing.Union[str, pathlib.Path], optional): Path to the tokens file.
                 Defaults to '~/.substra-tokens'.
-            token (typing.Optional[str], optional): Token to use for authentication (will be used
+
+            token (str, optional): Token to use for authentication (will be used
                 instead of any token found at tokens_path). Defaults to None.
+
             retry_timeout (int, optional): Number of seconds before attempting a retry call in case
                 of timeout. Defaults to 5 minutes.
+
+            debug (bool): Whether to use the default or debug mode. In debug mode, new assets are
+                created locally but can get remote assets. The deployed platform is in
+                read-only mode.
+                Defaults to False.
 
         Returns:
             Client: The new client.
@@ -142,10 +187,10 @@ class Client(object):
         return Client(
             token=token,
             retry_timeout=retry_timeout,
-            backend='remote',
             url=profile['url'],
             version=profile['version'],
             insecure=profile['insecure'],
+            debug=debug,
         )
 
     @logit

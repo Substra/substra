@@ -16,12 +16,25 @@
 import abc
 import enum
 import json
-from typing import ClassVar, Dict, List, Optional
+import re
+from typing import ClassVar, Dict, List, Optional, Union
 
 import pydantic
-from pydantic import DirectoryPath, FilePath
+from pydantic import DirectoryPath, FilePath, AnyUrl
 
 from substra.sdk import schemas
+
+# The remote can return an URL or an empty string for paths
+UriPath = Union[FilePath, AnyUrl, str]
+
+CAMEL_TO_SNAKE_PATTERN = re.compile(r'(.)([A-Z][a-z]+)')
+CAMEL_TO_SNAKE_PATTERN_2 = re.compile(r'([a-z0-9])([A-Z])')
+
+
+def to_snake_case(camel_str):
+    name = CAMEL_TO_SNAKE_PATTERN.sub(r'\1_\2', camel_str)
+    name = CAMEL_TO_SNAKE_PATTERN_2.sub(r'\1_\2', name).lower()
+    return name.replace('_i_d', '_id')
 
 
 def _to_camel_case(snake_str):
@@ -86,6 +99,11 @@ class _Model(pydantic.BaseModel, abc.ABC):
     class Config:
         extra = 'forbid'
 
+    @classmethod
+    def from_response(cls, data):
+        data_snake = _replace_dict_keys(data, to_snake_case)
+        return cls(**data_snake)
+
     def to_response(self):
         """Convert model to backend response object."""
         # serialize and deserialzie to JSON to ensure all field types are converted
@@ -110,53 +128,70 @@ class _Model(pydantic.BaseModel, abc.ABC):
 
 class DataSample(_Model):
     key: str
-    pkhash: str
     owner: str
-    data_manager_keys: List[str]
-    path: DirectoryPath
+    pkhash: str = ''
+    data_manager_keys: Optional[List[str]]
+    path: Optional[DirectoryPath]
     validated: bool = True
-    test_only: bool
+    # The backend does not return this but it is needed for link_dataset_with_data_samples
+    test_only: bool = False
 
     type_: ClassVar[str] = schemas.Type.DataSample
 
 
+class _File(pydantic.BaseModel):
+    hash_: str = pydantic.Field(..., alias="hash")
+    storage_address: UriPath
+
+
 class Dataset(_Model):
     key: str
-    pkhash: str
+    pkhash: str = ''
     name: str
     owner: str
     objective_key: Optional[str]
     permissions: Permissions
     type: str
-    train_data_sample_keys: List[str]
-    test_data_sample_keys: List[str]
-    data_opener: FilePath
-    description: FilePath
+    train_data_sample_keys: List[str] = list()
+    test_data_sample_keys: List[str] = list()
+    opener: _File
+    description: _File
     metadata: Dict[str, str]
 
     type_: ClassVar[str] = schemas.Type.Dataset
 
     class Meta:
-        storage_only_fields = ("data_opener",)
+        storage_only_fields = ("opener",)
         alias_fields = None
 
 
 class _ObjectiveDataset(pydantic.BaseModel):
-    dataset_key: str
+    data_manager_key: str
     data_sample_keys: List[str]
+    metadata: Dict[str, str]
+
+
+class _Metric(pydantic.BaseModel):
+    name: Optional[str]
+    hash_: str = pydantic.Field(..., alias="hash")
+    storage_address: UriPath
+
+    @property
+    def key(self):
+        return self.hash_
 
 
 class Objective(_Model):
     key: str
-    pkhash: str
+    pkhash: str = ''
     name: str
     owner: str
     test_dataset: Optional[_ObjectiveDataset]
     metadata: Dict[str, str]
     permissions: Permissions
 
-    description: FilePath
-    metrics: FilePath
+    description: _File
+    metrics: _Metric
 
     type_: ClassVar[str] = schemas.Type.Objective
 
@@ -167,17 +202,17 @@ class Objective(_Model):
 
 class _Algo(_Model):
     key: str
-    pkhash: str
+    pkhash: str = ''
     name: str
     owner: str
     permissions: Permissions
     metadata: Dict[str, str]
 
-    description: FilePath
-    file: FilePath
+    description: _File
+    content: _File
 
     class Meta:
-        storage_only_fields = ("file",)
+        storage_only_fields = ("content",)
         alias_fields = None
 
 
@@ -205,7 +240,7 @@ class _TraintupleDataset(pydantic.BaseModel):
 
 class InModel(pydantic.BaseModel):
     hash_: str = pydantic.Field(..., alias="hash")
-    storage_address: FilePath
+    storage_address: UriPath
 
     @property
     def key(self):
@@ -214,7 +249,17 @@ class InModel(pydantic.BaseModel):
 
 class OutModel(pydantic.BaseModel):
     hash_: str = pydantic.Field(..., alias="hash")
-    storage_address: FilePath
+    storage_address: UriPath
+
+    @property
+    def key(self):
+        return self.hash_
+
+
+class _TraintupleAlgo(pydantic.BaseModel):
+    hash_: str = pydantic.Field(..., alias="hash")
+    storage_address: UriPath
+    name: str
 
     @property
     def key(self):
@@ -224,8 +269,7 @@ class OutModel(pydantic.BaseModel):
 class Traintuple(_Model):
     key: str
     creator: str
-    worker: str
-    algo_key: str
+    algo: _TraintupleAlgo
     dataset: _TraintupleDataset
     permissions: Permissions
     tag: str
@@ -233,7 +277,7 @@ class Traintuple(_Model):
     rank: int
     status: Status
     log: str
-    in_models: List[InModel]
+    in_models: Optional[List[InModel]]
     out_model: Optional[OutModel]
     metadata: Dict[str, str]
 
@@ -249,7 +293,7 @@ class Aggregatetuple(_Model):
     key: str
     creator: str
     worker: str
-    algo_key: str
+    algo: _TraintupleAlgo
     permissions: Permissions
     tag: str
     compute_plan_id: str
@@ -268,7 +312,30 @@ class Aggregatetuple(_Model):
         alias_fields = {"compute_plan_id": "compute_plan_i_d"}
 
 
-class OutCompositeModel(pydantic.BaseModel):
+class InHeadModel(pydantic.BaseModel):
+    hash_: str = pydantic.Field(..., alias="hash")
+    storage_address: Optional[UriPath]  # Defined for local assets but not remote ones
+
+    @property
+    def key(self):
+        return self.hash_
+
+
+class OutHeadModel(pydantic.BaseModel):
+    hash_: str = pydantic.Field(..., alias="hash")
+    storage_address: Optional[FilePath]  # Defined for local assets but not remote ones
+
+    @property
+    def key(self):
+        return self.hash_
+
+
+class OutCompositeHeadModel(pydantic.BaseModel):
+    permissions: Permissions
+    out_model: Optional[OutHeadModel]
+
+
+class OutCompositeTrunkModel(pydantic.BaseModel):
     permissions: Permissions
     out_model: Optional[OutModel]
 
@@ -276,20 +343,19 @@ class OutCompositeModel(pydantic.BaseModel):
 class CompositeTraintuple(_Model):
     key: str
     creator: str
-    worker: str
-    algo_key: str
+    algo: _TraintupleAlgo
     dataset: _TraintupleDataset
     tag: str
     compute_plan_id: str
     rank: Optional[int]
     status: Status
     log: str
-    in_head_model: Optional[InModel]
+    in_head_model: Optional[InHeadModel]
     in_trunk_model: Optional[InModel]
     # This is different from the remote backend
     # We store the out head model storage address directly in the object
-    out_head_model: OutCompositeModel
-    out_trunk_model: OutCompositeModel
+    out_head_model: OutCompositeHeadModel
+    out_trunk_model: OutCompositeTrunkModel
     metadata: Dict[str, str]
 
     type_: ClassVar[str] = schemas.Type.CompositeTraintuple
@@ -311,10 +377,20 @@ class _TesttupleDataset(pydantic.BaseModel):
         return self.opener_hash
 
 
+class _TesttupleObjective(pydantic.BaseModel):
+    hash_: str = pydantic.Field(..., alias="hash")
+    metrics: _Metric
+
+    @property
+    def key(self):
+        return self.hash_
+
+
 class Testtuple(_Model):
     key: str
     creator: str
-    objective_key: str
+    algo: _TraintupleAlgo
+    objective: _TesttupleObjective
     traintuple_key: str
     certified: bool
     dataset: _TesttupleDataset
@@ -323,6 +399,7 @@ class Testtuple(_Model):
     status: Status
     compute_plan_id: str
     rank: int
+    traintuple_type: schemas.Type
     metadata: Dict[str, str]
 
     type_: ClassVar[str] = schemas.Type.Testtuple
@@ -330,6 +407,13 @@ class Testtuple(_Model):
     class Meta:
         storage_only_fields = None
         alias_fields = {"compute_plan_id": "compute_plan_i_d"}
+
+    @pydantic.validator('traintuple_type', pre=True)
+    def to_traintuple_type(cls, traintuple_type):
+        # Convert the traintuple type from string to
+        # a valid schema.Type value
+        # Needed for the camelCase values returned by the backend
+        return to_snake_case(traintuple_type)
 
 
 class ComputePlan(_Model):
@@ -344,9 +428,25 @@ class ComputePlan(_Model):
     tuple_count: int
     done_count: int
     metadata: Dict[str, str]
+    clean_models: bool = False
 
     type_: ClassVar[str] = schemas.Type.ComputePlan
 
     class Meta:
         storage_only_fields = None
         alias_fields = {"compute_plan_id": "compute_plan_i_d"}
+
+
+SCHEMA_TO_MODEL = {
+    schemas.Type.AggregateAlgo: AggregateAlgo,
+    schemas.Type.Aggregatetuple: Aggregatetuple,
+    schemas.Type.Algo: Algo,
+    schemas.Type.CompositeAlgo: CompositeAlgo,
+    schemas.Type.CompositeTraintuple: CompositeTraintuple,
+    schemas.Type.ComputePlan: ComputePlan,
+    schemas.Type.DataSample: DataSample,
+    schemas.Type.Dataset: Dataset,
+    schemas.Type.Objective: Objective,
+    schemas.Type.Testtuple: Testtuple,
+    schemas.Type.Traintuple: Traintuple
+}

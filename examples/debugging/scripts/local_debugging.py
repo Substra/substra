@@ -50,7 +50,7 @@ assets_directory = current_directory.parent / "titanic" / "assets"
 algo_directory = current_directory.parent / "compute_plan" / "assets" / "algo_sgd"
 
 # Define the client
-client = substra.Client(backend="local")
+client = substra.Client(debug=True)
 
 DATASET = {
     "name": "Titanic",
@@ -92,7 +92,7 @@ with zipfile.ZipFile(archive_path, "w") as z:
 ALGO = {
     "name": "Titanic: Random Forest",
     "description": assets_directory / "algo_random_forest" / "description.md",
-    "file": current_directory / "algo_random_forest.zip",
+    "file": current_directory / "tmp" / "algo_random_forest.zip",
     "permissions": {"public": False, "authorized_ids": []},
 }
 
