@@ -85,34 +85,6 @@ class DataAccess:
     def add(self, asset):
         return self._db.add(asset)
 
-    def check_exist(self, type_, key: str, exist_ok: bool = False):
-        """Check if an asset exists.
-
-        If the asset does not exist: return None
-        If the asset exists and exist_ok = True: return the asset
-        If the asset exists and exists_ok = False: raise an error
-
-        Args:
-            type_ : Type of asset
-            key (str): Key of the asset
-            exist_ok (bool): Whether to raise an exception if the object already exists
-
-        Raises:
-            exceptions.AlreadyExists: if the asset exists and exist_ok is False
-
-        Returns:
-            typing.Optional[models._Model]: None if the asset does not exist, otherwise the asset
-        """
-        try:
-            asset = self.get(type_, key)
-            if exist_ok:
-                logger.info(f"{type_} with key '{key}' has not been created: already exists.")
-                return asset
-            else:
-                raise exceptions.AlreadyExists(key, 409)
-        except exceptions.NotFound:
-            return None
-
     def remote_download(self, asset_type, url_field_path, key, destination):
         self._remote.download(asset_type, url_field_path, key, destination)
 
