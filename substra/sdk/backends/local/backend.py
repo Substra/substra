@@ -13,6 +13,7 @@
 # limitations under the License.
 import shutil
 import typing
+import warnings
 
 import substra
 from substra.sdk import schemas, exceptions, utils, fs
@@ -22,6 +23,8 @@ from substra.sdk.backends.local import dal
 from substra.sdk.backends.local import compute
 
 _BACKEND_ID = "local-backend"
+_MAX_LEN_KEY_METADATA = 50
+_MAX_LEN_VALUE_METADATA = 100
 
 
 class Local(base.BaseBackend):
@@ -37,35 +40,52 @@ class Local(base.BaseBackend):
         return self._db.get(asset_type, key).to_response()
 
     def list(self, asset_type, filters=None):
-        # TODO
-        # unfactorize to make it more readable
-        #  explain filters are applied on camel case asset
-        # explained this is a simplified version
+        """List the assets
+
+        This is a simplified version of the backend 'list' function,
+        with limited support for filters.
+
+        The format of the filters is 'asset_type:field_name:field_value',
+        the function returns the assets whose fields equal those values.
+        It does not support more advanced filtering methods.
+
+        Args:
+            asset_type (schemas.Type): Type of asset to return
+            filters (str, optional): Filter the list of results. Defaults to None.
+
+        Returns:
+            typing.List[models._BaseModel]: List of results
+        """
         db_assets = self._db.list(asset_type)
-        if filters is None:
-            filters = list()
-        filters = {
-            filter_.split(':')[1]: ''.join(filter_.split(':')[2:])
-            for filter_ in filters
-        }
-        assets = [
-            a.to_response() for a in db_assets
-            if all([
-                a.to_response().get(key, None) == value for key, value in filters.items()
-            ])
-        ]
-        return assets
+        # Parse the filters
+        parsed_filters = dict()
+        if filters is not None:
+            for filter_ in filters:
+                splitted = filter_.split(':')
+                field_name = splitted[1]
+                field_value = ''.join(splitted[2:])
+                parsed_filters[field_name] = field_value
+        # Filter the list of assets
+        result = list()
+        for a in db_assets:
+            # the filters use the 'response' (ie camel case) format
+            a_response = a.to_response()
+            if all([a_response.get(key, None) == value for key, value in filters.items()]):
+                result.append(a_response)
+        return result
 
     @staticmethod
     def __check_metadata(metadata: typing.Optional[typing.Dict[str, str]]):
         if metadata is not None:
-            # TODO 50 and 100 as global variables
-            if any([len(key) > 50 for key in metadata]):
+            if any([len(key) > _MAX_LEN_KEY_METADATA for key in metadata]):
                 raise exceptions.InvalidRequest(
                     "The key in metadata cannot be more than 50 characters",
                     400
                 )
-            if any([len(value) > 100 or len(value) == 0 for value in metadata.values()]):
+            if any([
+                len(value) > _MAX_LEN_VALUE_METADATA or len(value) == 0
+                for value in metadata.values()
+            ]):
                 raise exceptions.InvalidRequest(
                     "Values in metadata cannot be empty or more than 100 characters",
                     400
@@ -160,43 +180,47 @@ class Local(base.BaseBackend):
 
         return compute_plan_id, rank
 
-    def __get_all_tuples_compute_plan(self, spec: schemas.UpdateComputePlanSpec):  # TODO type = UpdateComputePlanSpec or ComputePlan
-        # rename all_tuples in tuple_dependencies or better
-        all_tuples = dict()
+    def __get_all_tuples_compute_plan(
+        self,
+        spec: typing.Union[schemas.ComputePlanSpec, schemas.UpdateComputePlanSpec]
+    ):
+        """Get the tuple dependency graph and, for each type of tuple, a mapping table id/tuple.
+        """
+        tuple_graph = dict()
         traintuples = dict()
         if spec.traintuples:
             for traintuple in spec.traintuples:
                 if traintuple.in_models_ids is not None:
-                    all_tuples[traintuple.traintuple_id] = traintuple.in_models_ids
+                    tuple_graph[traintuple.traintuple_id] = traintuple.in_models_ids
                 else:
-                    all_tuples[traintuple.traintuple_id] = list()
+                    tuple_graph[traintuple.traintuple_id] = list()
                 traintuples[traintuple.traintuple_id] = traintuple
 
         aggregatetuples = dict()
         if spec.aggregatetuples:
             for aggregatetuple in spec.aggregatetuples:
                 if aggregatetuple.in_models_ids is not None:
-                    all_tuples[aggregatetuple.aggregatetuple_id] = aggregatetuple.in_models_ids
+                    tuple_graph[aggregatetuple.aggregatetuple_id] = aggregatetuple.in_models_ids
                 else:
-                    all_tuples[aggregatetuple.aggregatetuple_id] = list()
+                    tuple_graph[aggregatetuple.aggregatetuple_id] = list()
                 aggregatetuples[aggregatetuple.aggregatetuple_id] = aggregatetuple
 
         compositetuples = dict()
         if spec.composite_traintuples:
             for compositetuple in spec.composite_traintuples:
                 assert not compositetuple.out_trunk_model_permissions.public
-                all_tuples[compositetuple.composite_traintuple_id] = list()
+                tuple_graph[compositetuple.composite_traintuple_id] = list()
                 if compositetuple.in_head_model_id is not None:
-                    all_tuples[compositetuple.composite_traintuple_id].append(
+                    tuple_graph[compositetuple.composite_traintuple_id].append(
                         compositetuple.in_head_model_id
                     )
                 if compositetuple.in_trunk_model_id is not None:
-                    all_tuples[compositetuple.composite_traintuple_id].append(
+                    tuple_graph[compositetuple.composite_traintuple_id].append(
                         compositetuple.in_trunk_model_id
                     )
                 compositetuples[compositetuple.composite_traintuple_id] = compositetuple
 
-        return all_tuples, traintuples, aggregatetuples, compositetuples
+        return tuple_graph, traintuples, aggregatetuples, compositetuples
 
     def __get_id_rank_in_compute_plan(self, type_, key, id_to_key):
         tuple_ = self._db.get(schemas.Type.Traintuple, key)
@@ -371,8 +395,11 @@ class Local(base.BaseBackend):
         return self._db.add(asset)
 
     def _add_data_sample(self, key, spec, spec_options=None):
-        # TODO: actual nice error for the user
-        assert len(spec.data_manager_keys) > 0
+        if len(spec.data_manager_keys) == 0:
+            raise exceptions.InvalidRequest(
+                "Please add at least one data manager for the data sample",
+                400
+            )
         datasets = [
             self._db.get(schemas.Type.Dataset, dataset_key)
             for dataset_key in spec.data_manager_keys
@@ -490,14 +517,14 @@ class Local(base.BaseBackend):
         self.__check_metadata(spec.metadata)
         # Get all the tuples and their dependencies
         (
-            all_tuples,
+            tuple_graph,
             traintuples,
             aggregatetuples,
             compositetuples
         ) = self.__get_all_tuples_compute_plan(spec)
 
         # Define the rank of each traintuple, aggregate tuple and composite tuple
-        visited = utils.compute_ranks(node_graph=all_tuples)
+        visited = utils.compute_ranks(node_graph=tuple_graph)
 
         compute_plan = models.ComputePlan(
             compute_plan_id=key,
@@ -957,7 +984,7 @@ class Local(base.BaseBackend):
 
         # Get all the new tuples and their dependencies
         (
-            all_tuples,
+            tuple_graph,
             traintuples,
             aggregatetuples,
             compositetuples
@@ -965,7 +992,7 @@ class Local(base.BaseBackend):
 
         # Define the rank of each traintuple, aggregate tuple and composite tuple
         old_tuples = {id_: list() for id_ in compute_plan.id_to_key}
-        all_tuples.update(old_tuples)
+        tuple_graph.update(old_tuples)
 
         # Get the rank of all the tuples already in the compute plan
         visited = dict()
@@ -996,7 +1023,7 @@ class Local(base.BaseBackend):
                 )
                 visited[id_] = rank
 
-        visited = utils.compute_ranks(node_graph=all_tuples, visited=visited)
+        visited = utils.compute_ranks(node_graph=tuple_graph, visited=visited)
 
         compute_plan = self.__execute_compute_plan(
             spec,
