@@ -24,6 +24,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.md'), 'r', 'utf-8') as fp:
     readme = fp.read()
 
+
 about = {}
 with open(os.path.join(here, 'substra', '__version__.py'), 'r', 'utf-8') as fp:
     exec(fp.read(), about)
