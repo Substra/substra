@@ -21,7 +21,6 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_PATH = '~/.substra'
 DEFAULT_TOKENS_PATH = '~/.substra-tokens'
-DEFAULT_VERSION = '0.0'
 DEFAULT_PROFILE_NAME = 'default'
 DEFAULT_INSECURE = False
 

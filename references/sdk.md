@@ -2,7 +2,7 @@
 
 # Client
 ```python
-Client(self, url: Union[str, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300, version: str = '0.0', insecure: bool = False, debug: bool = False)
+Client(self, url: Union[str, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300, insecure: bool = False, debug: bool = False)
 ```
 Create a client
 
@@ -20,8 +20,6 @@ Args:
     retry_timeout (int, optional): Number of seconds before attempting a retry call in case
         of timeout.
         Defaults to 5 minutes.
-
-    version (str, optional): API version, do not change it. Defaults to '0.0'.
 
     insecure (bool, optional): If True, the client can call a not-certifed backend. This is
         for development purposes.
