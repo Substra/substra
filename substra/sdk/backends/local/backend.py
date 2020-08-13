@@ -479,7 +479,7 @@ class Local(base.BaseBackend):
             traintuples,
             aggregatetuples,
             compositetuples
-        ) = utils.get_all_tuples_compute_plan(spec)
+        ) = spec.get_dependency_graph()
 
         # Define the rank of each traintuple, aggregate tuple and composite tuple
         visited = utils.compute_ranks(node_graph=tuple_graph)
@@ -946,7 +946,7 @@ class Local(base.BaseBackend):
             traintuples,
             aggregatetuples,
             compositetuples
-        ) = utils.get_all_tuples_compute_plan(spec)
+        ) = spec.get_dependency_graph()
 
         # Define the rank of each traintuple, aggregate tuple and composite tuple
         old_tuples = {id_: list() for id_ in compute_plan.id_to_key}

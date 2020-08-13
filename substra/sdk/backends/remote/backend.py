@@ -111,15 +111,19 @@ class Remote(base.BaseBackend):
                 exist_ok=exist_ok,
                 spec_options=spec_options,
             )
+        elif asset_type == schemas.Type.ComputePlan:
+            # Compute plan auto batching feature
+            return self.__auto_batching_compute_plan(
+                spec=spec,
+                exist_ok=exist_ok,
+                spec_options=spec_options,
+            )
 
         with spec.build_request_kwargs(**spec_options) as (data, files):
             response = self._add(asset_type, data, files=files, exist_ok=exist_ok)
         # The backend has inconsistent API responses when getting or adding an asset
         # (with much less data when responding to adds).
         # A second GET request hides the discrepancies.
-        if asset_type == schemas.Type.ComputePlan:
-            return response
-
         key = _get_asset_key(response)
         return self.get(asset_type, key)
 
@@ -130,7 +134,7 @@ class Remote(base.BaseBackend):
         traintuples,
         aggregatetuples,
         composite_traintuples,
-        testtuples
+        testtuples_by_train_id,
     ):
         for elem_id in tuple_graph:
             if elem_id in traintuples:
@@ -139,33 +143,37 @@ class Remote(base.BaseBackend):
                 spec.aggregatetuples.append(aggregatetuples[elem_id])
             elif elem_id in composite_traintuples:
                 spec.composite_traintuples.append(composite_traintuples[elem_id])
-            if elem_id in testtuples:
-                spec.testtuples.append(testtuples[elem_id])
+            if elem_id in testtuples_by_train_id:
+                spec.testtuples.append(testtuples_by_train_id[elem_id])
 
     def __get_testtuples_by_train_id(self, spec):
-        testtuples = dict()
+        testtuples_by_train_id = dict()
         for testtuple in spec.testtuples:
-            testtuples[testtuple.traintuple_id] = testtuple
-        return testtuples
+            testtuples_by_train_id[testtuple.traintuple_id] = testtuple
+        return testtuples_by_train_id
 
-    def _add_compute_plan(self, spec, exist_ok, spec_options):
+    def __auto_batching_compute_plan(self,
+                                     spec,
+                                     compute_plan_id=None,
+                                     exist_ok=None,
+                                     spec_options=None):
         # Auto batching of the compute plan tuples
+        # if compute_plan_id is None, we first create the compute plan
         (
             tuple_graph,
             traintuples,
             aggregatetuples,
             composite_traintuples
-        ) = utils.get_all_tuples_compute_plan(spec)
+        ) = spec.get_dependency_graph()
         visited = utils.compute_ranks(node_graph=tuple_graph)
         sorted_by_rank = sorted(visited.items(), key=lambda item: item[1])
-        testtuples = self.__get_testtuples_by_train_id(spec)
+        testtuples_by_train_id = self.__get_testtuples_by_train_id(spec)
         compute_plan_parts = list()
+        compute_plan = None
         for i in range(math.ceil(len(sorted_by_rank) / COMPUTE_PLAN_BATCH_SIZE)):
             start = i * COMPUTE_PLAN_BATCH_SIZE
             end = min(len(sorted_by_rank), (i + 1) * COMPUTE_PLAN_BATCH_SIZE)
-            if i == 0:
-                # Create the compute plan
-                # TODO
+            if i == 0 and compute_plan_id is None:
                 tmp_spec = deepcopy(spec)
                 tmp_spec.traintuples = list()
                 tmp_spec.composite_traintuples = list()
@@ -177,7 +185,7 @@ class Remote(base.BaseBackend):
                     traintuples,
                     aggregatetuples,
                     composite_traintuples,
-                    testtuples
+                    testtuples_by_train_id
                 )
                 with tmp_spec.build_request_kwargs(**spec_options) as (data, files):
                     compute_plan = self._add(
@@ -186,6 +194,7 @@ class Remote(base.BaseBackend):
                         files=files,
                         exist_ok=exist_ok
                     )
+                compute_plan_id = compute_plan['compute_plan_id']
             else:
                 tmp_spec = schemas.UpdateComputePlanSpec(
                     traintuples=list(),
@@ -199,25 +208,23 @@ class Remote(base.BaseBackend):
                     traintuples,
                     aggregatetuples,
                     composite_traintuples,
-                    testtuples
+                    testtuples_by_train_id
                 )
                 compute_plan_part = self._client.request(
-                                        'post',
-                                        schemas.Type.ComputePlan.to_server(),
-                                        path=f"{compute_plan['compute_plan_id']}/update_ledger/",
-                                        json=tmp_spec.dict(exclude_none=True),
-                                    )
+                    'post',
+                    schemas.Type.ComputePlan.to_server(),
+                    path=f"{compute_plan_id}/update_ledger/",
+                    json=tmp_spec.dict(exclude_none=True),
+                )
                 compute_plan_parts.append(compute_plan_part)
         # TODO assemble compute_plan and compute_plan_parts to return response
         result = compute_plan
         return result
 
     def update_compute_plan(self, compute_plan_id, spec):
-        return self._client.request(
-            'post',
-            schemas.Type.ComputePlan.to_server(),
-            path=f"{compute_plan_id}/update_ledger/",
-            json=spec.dict(exclude_none=True),
+        return self.__auto_batching_compute_plan(
+            spec=spec,
+            compute_plan_id=compute_plan_id
         )
 
     def link_dataset_with_objective(self, dataset_key, objective_key):
