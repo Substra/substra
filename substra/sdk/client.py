@@ -69,8 +69,6 @@ class Client(object):
             of timeout.
             Defaults to 5 minutes.
 
-        version (str, optional): API version, do not change it. Defaults to '0.0'.
-
         insecure (bool, optional): If True, the client can call a not-certifed backend. This is
             for development purposes.
             Defaults to False.
@@ -86,7 +84,6 @@ class Client(object):
         url: typing.Optional[str] = None,
         token: typing.Optional[str] = None,
         retry_timeout: int = DEFAULT_RETRY_TIMEOUT,
-        version: str = '0.0',
         insecure: bool = False,
         debug: bool = False,
     ):
@@ -95,7 +92,6 @@ class Client(object):
 
         self._insecure = insecure
         self._url = url
-        self._version = version
 
         self._backend = self._get_backend(debug)
 
@@ -110,7 +106,6 @@ class Client(object):
             backend = backends.get(
                 "remote",
                 url=self._url,
-                version=self._version,
                 insecure=self._insecure,
                 token=self._token,
                 retry_timeout=self._retry_timeout,
@@ -188,7 +183,6 @@ class Client(object):
             token=token,
             retry_timeout=retry_timeout,
             url=profile['url'],
-            version=profile['version'],
             insecure=profile['insecure'],
             debug=debug,
         )

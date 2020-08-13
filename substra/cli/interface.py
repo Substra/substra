@@ -283,11 +283,10 @@ def cli(ctx):
               help='Profile name to add')
 @click.option('--insecure', '-k', is_flag=True,
               help='Do not verify SSL certificates')
-@click.option('--version', '-v', default=configuration.DEFAULT_VERSION)
-def add_profile_to_config(url, config, profile, insecure, version):
+def add_profile_to_config(url, config, profile, insecure):
     """Add profile to config file."""
     manager = configuration.ConfigManager(config)
-    manager.set_profile(name=profile, url=url, version=version, insecure=insecure)
+    manager.set_profile(name=profile, url=url, insecure=insecure)
     manager.save()
 
 

@@ -21,7 +21,6 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_PATH = '~/.substra'
 DEFAULT_TOKENS_PATH = '~/.substra-tokens'
-DEFAULT_VERSION = '0.0'
 DEFAULT_PROFILE_NAME = 'default'
 DEFAULT_INSECURE = False
 
@@ -70,10 +69,9 @@ class _ProfileManager(abc.ABC):
 
 
 class ConfigManager(_ProfileManager):
-    def set_profile(self, name, url, version=DEFAULT_VERSION, insecure=False):
+    def set_profile(self, name, url, insecure=False):
         return super().set_profile(name, {
             'url': url,
-            'version': version,
             'insecure': insecure,
         })
 
