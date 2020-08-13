@@ -20,7 +20,7 @@ import logging
 import click
 import consolemd
 
-from substra import runner
+from substra import __version__, runner
 from substra.cli import printers
 from substra.sdk import assets, exceptions
 from substra.sdk import config as configuration
@@ -263,6 +263,7 @@ def error_printer(fn):
 
 
 @click.group()
+@click.version_option(__version__)
 @click.pass_context
 def cli(ctx):
     """Substra Command Line Interface.

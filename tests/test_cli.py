@@ -64,6 +64,11 @@ def test_command_help():
     assert 'Usage:' in output
 
 
+def test_command_version():
+    output = execute(['--version'])
+    assert substra.__version__ in output
+
+
 def test_command_config(workdir):
     cfgfile = workdir / "cli.cfg"
 

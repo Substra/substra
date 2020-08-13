@@ -13,9 +13,11 @@
 # limitations under the License.
 
 from substra.sdk import Client, exceptions
+from substra.__version__ import __version__
 
 
 __all__ = [
+    '__version__',
     'Client',
     'exceptions',
 ]
