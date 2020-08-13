@@ -24,13 +24,13 @@ logger = logging.getLogger(__name__)
 class Client():
     """REST Client to communicate with Substra server."""
 
-    def __init__(self, url, version, insecure, token):
+    def __init__(self, url, insecure, token):
         self._default_kwargs = {
             'verify': not insecure,
         }
         self._headers = {
             'Authorization': f"Token {token}",
-            'Accept': f'application/json;version={version}',
+            'Accept': f'application/json',
         }
         if not url:
             raise exceptions.SDKException("url required to connect to the Substra server")

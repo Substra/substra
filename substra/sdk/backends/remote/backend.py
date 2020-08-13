@@ -38,8 +38,8 @@ def _find_asset_field(data, field):
 
 class Remote(base.BaseBackend):
 
-    def __init__(self, url, version, insecure, token, retry_timeout):
-        self._client = rest_client.Client(url, version, insecure, token)
+    def __init__(self, url, insecure, token, retry_timeout):
+        self._client = rest_client.Client(url, insecure, token)
         self._retry_timeout = retry_timeout or DEFAULT_RETRY_TIMEOUT
 
     def login(self, username, password):

@@ -106,7 +106,6 @@ class Client(object):
             backend = backends.get(
                 "remote",
                 url=self._url,
-                version='0.0',
                 insecure=self._insecure,
                 token=self._token,
                 retry_timeout=self._retry_timeout,
