@@ -70,7 +70,7 @@ class Local(base.BaseBackend):
         for a in db_assets:
             # the filters use the 'response' (ie camel case) format
             a_response = a.to_response()
-            if all([a_response.get(key, None) == value for key, value in filters.items()]):
+            if all([a_response.get(key, None) == value for key, value in parsed_filters.items()]):
                 result.append(a_response)
         return result
 
