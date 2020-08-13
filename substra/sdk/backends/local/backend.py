@@ -180,48 +180,6 @@ class Local(base.BaseBackend):
 
         return compute_plan_id, rank
 
-    def __get_all_tuples_compute_plan(
-        self,
-        spec: typing.Union[schemas.ComputePlanSpec, schemas.UpdateComputePlanSpec]
-    ):
-        """Get the tuple dependency graph and, for each type of tuple, a mapping table id/tuple.
-        """
-        tuple_graph = dict()
-        traintuples = dict()
-        if spec.traintuples:
-            for traintuple in spec.traintuples:
-                if traintuple.in_models_ids is not None:
-                    tuple_graph[traintuple.traintuple_id] = traintuple.in_models_ids
-                else:
-                    tuple_graph[traintuple.traintuple_id] = list()
-                traintuples[traintuple.traintuple_id] = traintuple
-
-        aggregatetuples = dict()
-        if spec.aggregatetuples:
-            for aggregatetuple in spec.aggregatetuples:
-                if aggregatetuple.in_models_ids is not None:
-                    tuple_graph[aggregatetuple.aggregatetuple_id] = aggregatetuple.in_models_ids
-                else:
-                    tuple_graph[aggregatetuple.aggregatetuple_id] = list()
-                aggregatetuples[aggregatetuple.aggregatetuple_id] = aggregatetuple
-
-        compositetuples = dict()
-        if spec.composite_traintuples:
-            for compositetuple in spec.composite_traintuples:
-                assert not compositetuple.out_trunk_model_permissions.public
-                tuple_graph[compositetuple.composite_traintuple_id] = list()
-                if compositetuple.in_head_model_id is not None:
-                    tuple_graph[compositetuple.composite_traintuple_id].append(
-                        compositetuple.in_head_model_id
-                    )
-                if compositetuple.in_trunk_model_id is not None:
-                    tuple_graph[compositetuple.composite_traintuple_id].append(
-                        compositetuple.in_trunk_model_id
-                    )
-                compositetuples[compositetuple.composite_traintuple_id] = compositetuple
-
-        return tuple_graph, traintuples, aggregatetuples, compositetuples
-
     def __get_id_rank_in_compute_plan(self, type_, key, id_to_key):
         tuple_ = self._db.get(schemas.Type.Traintuple, key)
         id_ = next((k for k in id_to_key if id_to_key[k] == key), None)
@@ -521,7 +479,7 @@ class Local(base.BaseBackend):
             traintuples,
             aggregatetuples,
             compositetuples
-        ) = self.__get_all_tuples_compute_plan(spec)
+        ) = utils.get_all_tuples_compute_plan(spec)
 
         # Define the rank of each traintuple, aggregate tuple and composite tuple
         visited = utils.compute_ranks(node_graph=tuple_graph)
@@ -988,7 +946,7 @@ class Local(base.BaseBackend):
             traintuples,
             aggregatetuples,
             compositetuples
-        ) = self.__get_all_tuples_compute_plan(spec)
+        ) = utils.get_all_tuples_compute_plan(spec)
 
         # Define the rank of each traintuple, aggregate tuple and composite tuple
         old_tuples = {id_: list() for id_ in compute_plan.id_to_key}

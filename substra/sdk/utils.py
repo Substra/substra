@@ -27,7 +27,7 @@ import zipfile
 
 import ntpath
 
-from substra.sdk import exceptions
+from substra.sdk import exceptions, schemas
 
 
 def path_leaf(path):
@@ -220,6 +220,49 @@ def __get_rank(
         ])
     visited[node] = rank
     return rank
+
+
+def get_all_tuples_compute_plan(spec: typing.Union[
+                                        schemas.ComputePlanSpec,
+                                        schemas.UpdateComputePlanSpec]):
+    # TODO: should this be in a function of the _BaseComputePlanSpec ?
+    """Get the tuple dependency graph and, for each type of tuple, a mapping table id/tuple.
+    """
+    tuple_graph = dict()
+    traintuples = dict()
+    if spec.traintuples:
+        for traintuple in spec.traintuples:
+            if traintuple.in_models_ids is not None:
+                tuple_graph[traintuple.traintuple_id] = traintuple.in_models_ids
+            else:
+                tuple_graph[traintuple.traintuple_id] = list()
+            traintuples[traintuple.traintuple_id] = traintuple
+
+    aggregatetuples = dict()
+    if spec.aggregatetuples:
+        for aggregatetuple in spec.aggregatetuples:
+            if aggregatetuple.in_models_ids is not None:
+                tuple_graph[aggregatetuple.aggregatetuple_id] = aggregatetuple.in_models_ids
+            else:
+                tuple_graph[aggregatetuple.aggregatetuple_id] = list()
+            aggregatetuples[aggregatetuple.aggregatetuple_id] = aggregatetuple
+
+    compositetuples = dict()
+    if spec.composite_traintuples:
+        for compositetuple in spec.composite_traintuples:
+            assert not compositetuple.out_trunk_model_permissions.public
+            tuple_graph[compositetuple.composite_traintuple_id] = list()
+            if compositetuple.in_head_model_id is not None:
+                tuple_graph[compositetuple.composite_traintuple_id].append(
+                    compositetuple.in_head_model_id
+                )
+            if compositetuple.in_trunk_model_id is not None:
+                tuple_graph[compositetuple.composite_traintuple_id].append(
+                    compositetuple.in_trunk_model_id
+                )
+            compositetuples[compositetuple.composite_traintuple_id] = compositetuple
+
+    return tuple_graph, traintuples, aggregatetuples, compositetuples
 
 
 def compute_ranks(

@@ -14,15 +14,17 @@
 
 from copy import deepcopy
 import logging
+import math
 import json
 
-from substra.sdk import exceptions, schemas
+from substra.sdk import exceptions, schemas, utils
 from substra.sdk.backends import base
 from substra.sdk.backends.remote import rest_client
 
 logger = logging.getLogger(__name__)
 
 DEFAULT_RETRY_TIMEOUT = 5 * 60
+COMPUTE_PLAN_BATCH_SIZE = 100
 
 
 def _get_asset_key(data):
@@ -120,6 +122,95 @@ class Remote(base.BaseBackend):
 
         key = _get_asset_key(response)
         return self.get(asset_type, key)
+
+    def __fill_tuple_lists(
+        self,
+        spec,
+        tuple_graph,
+        traintuples,
+        aggregatetuples,
+        composite_traintuples,
+        testtuples
+    ):
+        for elem_id in tuple_graph:
+            if elem_id in traintuples:
+                spec.traintuples.append(traintuples[elem_id])
+            elif elem_id in aggregatetuples:
+                spec.aggregatetuples.append(aggregatetuples[elem_id])
+            elif elem_id in composite_traintuples:
+                spec.composite_traintuples.append(composite_traintuples[elem_id])
+            if elem_id in testtuples:
+                spec.testtuples.append(testtuples[elem_id])
+
+    def __get_testtuples_by_train_id(self, spec):
+        testtuples = dict()
+        for testtuple in spec.testtuples:
+            testtuples[testtuple.traintuple_id] = testtuple
+        return testtuples
+
+    def _add_compute_plan(self, spec, exist_ok, spec_options):
+        # Auto batching of the compute plan tuples
+        (
+            tuple_graph,
+            traintuples,
+            aggregatetuples,
+            composite_traintuples
+        ) = utils.get_all_tuples_compute_plan(spec)
+        visited = utils.compute_ranks(node_graph=tuple_graph)
+        sorted_by_rank = sorted(visited.items(), key=lambda item: item[1])
+        testtuples = self.__get_testtuples_by_train_id(spec)
+        compute_plan_parts = list()
+        for i in range(math.ceil(len(sorted_by_rank) / COMPUTE_PLAN_BATCH_SIZE)):
+            start = i * COMPUTE_PLAN_BATCH_SIZE
+            end = min(len(sorted_by_rank), (i + 1) * COMPUTE_PLAN_BATCH_SIZE)
+            if i == 0:
+                # Create the compute plan
+                # TODO
+                tmp_spec = deepcopy(spec)
+                tmp_spec.traintuples = list()
+                tmp_spec.composite_traintuples = list()
+                tmp_spec.aggregatetuples = list()
+                tmp_spec.testtuples = list()
+                self.__fill_tuple_lists(
+                    tmp_spec,
+                    sorted_by_rank[start:end],
+                    traintuples,
+                    aggregatetuples,
+                    composite_traintuples,
+                    testtuples
+                )
+                with tmp_spec.build_request_kwargs(**spec_options) as (data, files):
+                    compute_plan = self._add(
+                        schemas.Type.ComputePlan,
+                        data,
+                        files=files,
+                        exist_ok=exist_ok
+                    )
+            else:
+                tmp_spec = schemas.UpdateComputePlanSpec(
+                    traintuples=list(),
+                    composite_traintuples=list(),
+                    aggregatetuples=list(),
+                    testtuples=list(),
+                )
+                self.__fill_tuple_lists(
+                    tmp_spec,
+                    sorted_by_rank[start:end],
+                    traintuples,
+                    aggregatetuples,
+                    composite_traintuples,
+                    testtuples
+                )
+                compute_plan_part = self._client.request(
+                                        'post',
+                                        schemas.Type.ComputePlan.to_server(),
+                                        path=f"{compute_plan['compute_plan_id']}/update_ledger/",
+                                        json=tmp_spec.dict(exclude_none=True),
+                                    )
+                compute_plan_parts.append(compute_plan_part)
+        # TODO assemble compute_plan and compute_plan_parts to return response
+        result = compute_plan
+        return result
 
     def update_compute_plan(self, compute_plan_id, spec):
         return self._client.request(
