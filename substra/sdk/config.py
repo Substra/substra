@@ -70,10 +70,9 @@ class _ProfileManager(abc.ABC):
 
 
 class ConfigManager(_ProfileManager):
-    def set_profile(self, name, url, version=DEFAULT_VERSION, insecure=False):
+    def set_profile(self, name, url, insecure=False):
         return super().set_profile(name, {
             'url': url,
-            'version': version,
             'insecure': insecure,
         })
 

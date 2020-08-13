@@ -20,7 +20,7 @@ import logging
 import click
 import consolemd
 
-from substra import __version__, runner
+from substra import runner
 from substra.cli import printers
 from substra.sdk import assets, exceptions
 from substra.sdk import config as configuration
@@ -263,7 +263,6 @@ def error_printer(fn):
 
 
 @click.group()
-@click.version_option(__version__)
 @click.pass_context
 def cli(ctx):
     """Substra Command Line Interface.
@@ -283,11 +282,10 @@ def cli(ctx):
               help='Profile name to add')
 @click.option('--insecure', '-k', is_flag=True,
               help='Do not verify SSL certificates')
-@click.option('--version', '-v', default=configuration.DEFAULT_VERSION)
-def add_profile_to_config(url, config, profile, insecure, version):
+def add_profile_to_config(url, config, profile, insecure):
     """Add profile to config file."""
     manager = configuration.ConfigManager(config)
-    manager.set_profile(name=profile, url=url, version=version, insecure=insecure)
+    manager.set_profile(name=profile, url=url, insecure=insecure)
     manager.save()
 
 
