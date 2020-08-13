@@ -30,7 +30,7 @@ class Client():
         }
         self._headers = {
             'Authorization': f"Token {token}",
-            'Accept': f'application/json',
+            'Accept': 'application/json',
         }
         if not url:
             raise exceptions.SDKException("url required to connect to the Substra server")
