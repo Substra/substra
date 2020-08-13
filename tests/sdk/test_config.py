@@ -21,7 +21,6 @@ import substra.sdk.config as configuration
 DUMMY_CONFIG = {
     configuration.DEFAULT_PROFILE_NAME: {
         'url': 'http://example.com',
-        'version': configuration.DEFAULT_VERSION,
         'insecure': configuration.DEFAULT_INSECURE,
     }
 }
@@ -39,8 +38,7 @@ def test_add_from_config_file(tmpdir):
 
     profile_1 = manager_1.set_profile(
         'owkin',
-        url='http://substra-backend.owkin.xyz:8000',
-        version='0.0')
+        url='http://substra-backend.owkin.xyz:8000')
     manager_1.save()
 
     manager_2 = configuration.ConfigManager(str(path))
@@ -54,7 +52,6 @@ def test_add_from_config_file_from_file(tmpdir):
         "node-1": {
             "insecure": False,
             "url": "http://substra-backend.node-1.com",
-            "version": "0.0",
         },
     }
 
