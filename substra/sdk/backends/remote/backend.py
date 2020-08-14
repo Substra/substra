@@ -160,22 +160,46 @@ class Remote(base.BaseBackend):
                                      exist_ok=None,
                                      spec_options=None):
         # Auto batching of the compute plan tuples
-        # if compute_plan_id is None, we first create the compute plan
+
         (
             tuple_graph,
             traintuples,
             aggregatetuples,
             composite_traintuples
         ) = spec.get_dependency_graph()
-        visited = utils.compute_ranks(node_graph=tuple_graph)
+
+        compute_plan = None
+        visited = dict()
+        existing_keys = dict()
+        if compute_plan_id is not None:
+            # If we are updating an existing compute plan, we need the
+            # existing tuples to compute the new tuples ranks.
+            compute_plan = self.get(schemas.Type.ComputePlan, compute_plan_id)
+            # TODO find a good way of doing this
+            # We need the id and rank of each tuple that is in the dependency graph
+            # and already exists --> too long to get each existing tuple from the backend !!!
+            # Temporary solution: all new tuples
+            # have a rank equal (a minima) to nb_existing_tuples + 1
+            min_rank = compute_plan["tupleCount"]
+            existing_keys = {key: min_rank for dependencies in tuple_graph.values() for key in dependencies if key not in tuple_graph}
+
+        visited.update(existing_keys)
+        tuple_graph.update(existing_keys)
+        visited = utils.compute_ranks(node_graph=tuple_graph, visited=visited)
+        for key in existing_keys:
+            visited.pop(key)
         sorted_by_rank = sorted(visited.items(), key=lambda item: item[1])
+
         testtuples_by_train_id = self.__get_testtuples_by_train_id(spec)
         compute_plan_parts = list()
-        compute_plan = None
+
+        # Create / update by batch
         for i in range(math.ceil(len(sorted_by_rank) / COMPUTE_PLAN_BATCH_SIZE)):
             start = i * COMPUTE_PLAN_BATCH_SIZE
             end = min(len(sorted_by_rank), (i + 1) * COMPUTE_PLAN_BATCH_SIZE)
-            if i == 0 and compute_plan_id is None:
+
+            if compute_plan_id is None:
+                # if compute_plan_id is None, we first create the compute plan
                 tmp_spec = deepcopy(spec)
                 tmp_spec.traintuples = list()
                 tmp_spec.composite_traintuples = list()
@@ -219,19 +243,16 @@ class Remote(base.BaseBackend):
                     json=tmp_spec.dict(exclude_none=True),
                 )
                 compute_plan_parts.append(compute_plan_part)
-        # TODO assemble compute_plan and compute_plan_parts to return response
         tuple_field_names = [
             "traintupleKeys",
             "aggregatetupleKeys",
             "compositeTraintupleKeys",
             "testtupleKeys"
         ]
-        if compute_plan:
+        for part in compute_plan_parts:
             for key in tuple_field_names:
-                compute_plan[key] = compute_plan[key] or list()
-            for part in compute_plan_parts:
-                for key in tuple_field_names:
-                    compute_plan[key] = (compute_plan[key] or list()) + (part[key] or list())
+                compute_plan[key] = (compute_plan[key] or list()) + (part[key] or list())
+        # TODO in case of an update we should not return the full compute plan object
         result = compute_plan
         return result
 
