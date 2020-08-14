@@ -136,13 +136,15 @@ class Remote(base.BaseBackend):
         composite_traintuples,
         testtuples_by_train_id,
     ):
-        for elem_id in tuple_graph:
+        for elem_id, _ in tuple_graph:
             if elem_id in traintuples:
                 spec.traintuples.append(traintuples[elem_id])
             elif elem_id in aggregatetuples:
                 spec.aggregatetuples.append(aggregatetuples[elem_id])
             elif elem_id in composite_traintuples:
                 spec.composite_traintuples.append(composite_traintuples[elem_id])
+            else:
+                raise Exception("ERROR")
             if elem_id in testtuples_by_train_id:
                 spec.testtuples.append(testtuples_by_train_id[elem_id])
 
@@ -194,7 +196,7 @@ class Remote(base.BaseBackend):
                         files=files,
                         exist_ok=exist_ok
                     )
-                compute_plan_id = compute_plan['compute_plan_id']
+                compute_plan_id = compute_plan['computePlanID']
             else:
                 tmp_spec = schemas.UpdateComputePlanSpec(
                     traintuples=list(),
@@ -218,6 +220,18 @@ class Remote(base.BaseBackend):
                 )
                 compute_plan_parts.append(compute_plan_part)
         # TODO assemble compute_plan and compute_plan_parts to return response
+        tuple_field_names = [
+            "traintupleKeys",
+            "aggregatetupleKeys",
+            "compositeTraintupleKeys",
+            "testtupleKeys"
+        ]
+        if compute_plan:
+            for key in tuple_field_names:
+                compute_plan[key] = compute_plan[key] or list()
+            for part in compute_plan_parts:
+                for key in tuple_field_names:
+                    compute_plan[key] = (compute_plan[key] or list()) + (part[key] or list())
         result = compute_plan
         return result
 
