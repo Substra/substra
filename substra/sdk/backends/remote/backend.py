@@ -134,7 +134,6 @@ class Remote(base.BaseBackend):
                                     spec_options=None):
         """Auto batching of the compute plan tuples
         """
-        is_update = compute_plan_id is not None
         # Create the dependency graph and get the dict
         # of tuples by id
         (
@@ -169,7 +168,6 @@ class Remote(base.BaseBackend):
         testtuples_by_train_id = {
             testtuple.traintuple_id: testtuple for testtuple in spec.testtuples
         }
-        compute_plan_part = None
 
         # Create / update by batch
         for i in range(math.ceil(len(sorted_by_rank) / COMPUTE_PLAN_BATCH_SIZE)):
@@ -198,7 +196,7 @@ class Remote(base.BaseBackend):
                     composite_traintuples,
                     testtuples_by_train_id
                 )
-                compute_plan_part = self._client.request(
+                compute_plan = self._client.request(
                     'post',
                     schemas.Type.ComputePlan.to_server(),
                     path=f"{compute_plan_id}/update_ledger/",
@@ -229,23 +227,6 @@ class Remote(base.BaseBackend):
                     )
                 compute_plan_id = compute_plan['computePlanID']
 
-        if is_update:
-            # return an UpdateComputePlan object
-            return compute_plan_part
-        elif compute_plan_part:
-            # return an ComputePlan object
-            tuple_field_names = [
-                "traintupleKeys",
-                "aggregatetupleKeys",
-                "compositeTraintupleKeys",
-                "testtupleKeys"
-            ]
-            for key in tuple_field_names:
-                compute_plan[key] = (
-                    compute_plan[key] or list()
-                ) + (
-                    compute_plan_part[key] or list()
-                )
         return compute_plan
 
     def update_compute_plan(self, compute_plan_id, spec):
