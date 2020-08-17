@@ -5,9 +5,13 @@ from substra.sdk import exceptions, schemas
 
 def _get_rank(node: str, visited: typing.Dict[str,
                                               int], edges: typing.Set[str],
-              node_graph: typing.Dict[str, typing.List[str]]) -> int:
+              node_graph: typing.Dict[str, typing.List[str]],
+              node_to_ignore: typing.List[str]) -> int:
     if node in visited:
         return visited[node]
+    if node in node_to_ignore:
+        # Nodes to ignore have a rank of -1
+        return -1
     for parent in node_graph[node]:
         edge = (node, parent)
         if edge in edges:
@@ -20,7 +24,7 @@ def _get_rank(node: str, visited: typing.Dict[str,
         rank = 0
     else:
         rank = 1 + max([
-            _get_rank(x, visited, edges, node_graph) for x in node_graph[node]
+            _get_rank(x, visited, edges, node_graph, node_to_ignore) for x in node_graph[node]
         ])
     visited[node] = rank
     return rank
@@ -28,7 +32,8 @@ def _get_rank(node: str, visited: typing.Dict[str,
 
 def compute_ranks(
     node_graph: typing.Dict[str, typing.List[str]],
-    visited: typing.Optional[typing.Dict[str, int]] = None
+    visited: typing.Optional[typing.Dict[str, int]] = None,
+    node_to_ignore: typing.List[str] = None,
 ) -> typing.Dict[str, int]:
     """Compute the rank of the objects
 
@@ -40,6 +45,8 @@ def compute_ranks(
         whose rank is computed (read-only).
         visited (typing.Optional[typing.Dict[str, int]]): Dict id-rank of the
         tuple specifications whose rank has been computed (in place update).
+        node_to_ignore (typing.List[str]): These nodes are ignored when encountered, a
+        dependency on such a node is like no dependency
 
     Raises:
         exceptions.InvalidRequest: if there is a circular dependency between the tuples.
@@ -50,17 +57,19 @@ def compute_ranks(
     """
     if visited is None:
         visited = dict()
+    if node_to_ignore is None:
+        node_to_ignore = list()
     while len(visited) != len(node_graph):
         node = set(node_graph.keys()).difference(set(visited.keys())).pop()
         _get_rank(node=node,
                   visited=visited,
                   edges=set(),
-                  node_graph=node_graph)
+                  node_graph=node_graph,
+                  node_to_ignore=node_to_ignore)
     return visited
 
 
-def fill_tuple_lists(
-    spec: schemas._BaseComputePlanSpec,
+def filter_tuples_in_list(
     tuple_graph: typing.Dict[str, typing.List[str]],
     traintuples: typing.Dict[str, schemas.ComputePlanTraintupleSpec],
     aggregatetuples: typing.Dict[str, schemas.ComputePlanAggregatetupleSpec],
@@ -68,15 +77,26 @@ def fill_tuple_lists(
         str, schemas.ComputePlanCompositeTraintupleSpec],
     testtuples_by_train_id: typing.Dict[str, schemas.ComputePlanTesttupleSpec],
 ):
-    """Update spec with the tuples in tuple_graph
+    """Return the tuple lists with only the elements which are in the tuple graph.
     """
+    filtered_traintuples = list()
+    filtered_aggregatetuples = list()
+    filtered_composite_traintuples = list()
+    filtered_testtuples = list()
     for elem_id, _ in tuple_graph:
         if elem_id in traintuples:
-            spec.traintuples.append(traintuples[elem_id])
+            filtered_traintuples.append(traintuples[elem_id])
         elif elem_id in aggregatetuples:
-            spec.aggregatetuples.append(aggregatetuples[elem_id])
+            filtered_aggregatetuples.append(aggregatetuples[elem_id])
         elif elem_id in composite_traintuples:
-            spec.composite_traintuples.append(composite_traintuples[elem_id])
+            filtered_composite_traintuples.append(composite_traintuples[elem_id])
 
         if elem_id in testtuples_by_train_id:
-            spec.testtuples.append(testtuples_by_train_id[elem_id])
+            filtered_testtuples.append(testtuples_by_train_id[elem_id])
+
+    return (
+        filtered_traintuples,
+        filtered_aggregatetuples,
+        filtered_composite_traintuples,
+        filtered_testtuples
+    )
