@@ -23,7 +23,7 @@ import uuid
 
 import pydantic
 
-from substra.sdk import utils, fs, hasher
+from substra.sdk import utils, fs, hasher, exceptions
 
 # TODO create a sub-package schemas:
 # types
@@ -190,6 +190,8 @@ class _BaseComputePlanSpec(_Spec, abc.ABC):
         traintuples = dict()
         if self.traintuples:
             for traintuple in self.traintuples:
+                if traintuple.traintuple_id in tuple_graph:
+                    raise exceptions.InvalidRequest("Two tuples cannot have the same id.")
                 if traintuple.in_models_ids is not None:
                     tuple_graph[traintuple.traintuple_id] = traintuple.in_models_ids
                 else:
@@ -199,6 +201,8 @@ class _BaseComputePlanSpec(_Spec, abc.ABC):
         aggregatetuples = dict()
         if self.aggregatetuples:
             for aggregatetuple in self.aggregatetuples:
+                if aggregatetuple.aggregatetuple_id in tuple_graph:
+                    raise exceptions.InvalidRequest("Two tuples cannot have the same id.")
                 if aggregatetuple.in_models_ids is not None:
                     tuple_graph[aggregatetuple.aggregatetuple_id] = aggregatetuple.in_models_ids
                 else:
@@ -210,6 +214,8 @@ class _BaseComputePlanSpec(_Spec, abc.ABC):
             for compositetuple in self.composite_traintuples:
                 assert not compositetuple.out_trunk_model_permissions.public
                 tuple_graph[compositetuple.composite_traintuple_id] = list()
+                if compositetuple.composite_traintuple_id in tuple_graph:
+                    raise exceptions.InvalidRequest("Two tuples cannot have the same id.")
                 if compositetuple.in_head_model_id is not None:
                     tuple_graph[compositetuple.composite_traintuple_id].append(
                         compositetuple.in_head_model_id

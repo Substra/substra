@@ -17,7 +17,7 @@ import logging
 import math
 import json
 
-from substra.sdk import exceptions, schemas, utils
+from substra.sdk import exceptions, schemas, graph
 from substra.sdk.backends import base
 from substra.sdk.backends.remote import rest_client
 
@@ -102,7 +102,7 @@ class Remote(base.BaseBackend):
     def add(self, spec, exist_ok=False, spec_options=None):
         """Add an asset."""
         spec_options = spec_options or {}
-        asset_type = spec.__class__.type_
+        asset_type = spec._class__.type_
 
         if asset_type == schemas.Type.DataSample:
             # data sample corner case
@@ -113,7 +113,7 @@ class Remote(base.BaseBackend):
             )
         elif asset_type == schemas.Type.ComputePlan:
             # Compute plan auto batching feature
-            return self.__auto_batching_compute_plan(
+            return self._auto_batching_compute_plan(
                 spec=spec,
                 exist_ok=exist_ok,
                 spec_options=spec_options,
@@ -127,40 +127,18 @@ class Remote(base.BaseBackend):
         key = _get_asset_key(response)
         return self.get(asset_type, key)
 
-    def __fill_tuple_lists(
-        self,
-        spec,
-        tuple_graph,
-        traintuples,
-        aggregatetuples,
-        composite_traintuples,
-        testtuples_by_train_id,
-    ):
-        for elem_id, _ in tuple_graph:
-            if elem_id in traintuples:
-                spec.traintuples.append(traintuples[elem_id])
-            elif elem_id in aggregatetuples:
-                spec.aggregatetuples.append(aggregatetuples[elem_id])
-            elif elem_id in composite_traintuples:
-                spec.composite_traintuples.append(composite_traintuples[elem_id])
-            else:
-                raise Exception("ERROR")
-            if elem_id in testtuples_by_train_id:
-                spec.testtuples.append(testtuples_by_train_id[elem_id])
-
-    def __get_testtuples_by_train_id(self, spec):
+    def _get_testtuples_by_train_id(self, spec):
         testtuples_by_train_id = dict()
         for testtuple in spec.testtuples:
             testtuples_by_train_id[testtuple.traintuple_id] = testtuple
         return testtuples_by_train_id
 
-    def __auto_batching_compute_plan(self,
-                                     spec,
-                                     compute_plan_id=None,
-                                     exist_ok=None,
-                                     spec_options=None):
+    def _auto_batching_compute_plan(self,
+                                    spec,
+                                    compute_plan_id=None,
+                                    exist_ok=None,
+                                    spec_options=None):
         # Auto batching of the compute plan tuples
-
         (
             tuple_graph,
             traintuples,
@@ -170,27 +148,28 @@ class Remote(base.BaseBackend):
 
         compute_plan = None
         visited = dict()
-        existing_keys = dict()
-        if compute_plan_id is not None:
-            # If we are updating an existing compute plan, we need the
-            # existing tuples to compute the new tuples ranks.
+        already_created_keys = dict()
+        if compute_plan_id:
             compute_plan = self.get(schemas.Type.ComputePlan, compute_plan_id)
-            # TODO find a good way of doing this
-            # We need the id and rank of each tuple that is in the dependency graph
-            # and already exists --> too long to get each existing tuple from the backend !!!
-            # Temporary solution: all new tuples
-            # have a rank equal (a minima) to nb_existing_tuples + 1
-            min_rank = compute_plan["tupleCount"]
-            existing_keys = {key: min_rank for dependencies in tuple_graph.values() for key in dependencies if key not in tuple_graph}
-
-        visited.update(existing_keys)
-        tuple_graph.update(existing_keys)
-        visited = utils.compute_ranks(node_graph=tuple_graph, visited=visited)
-        for key in existing_keys:
+            for dependencies in tuple_graph.values():
+                for dependency_key in dependencies:
+                    if dependency_key not in tuple_graph:
+                        # Here we get the pre-existing tuples and assign them the minimal rank
+                        already_created_keys[dependency_key] = 0
+        visited.update(already_created_keys)
+        tuple_graph.update(already_created_keys)
+        # Compute the relative ranks of the new tuples (relatively to each other, these
+        # are not their actual ranks in the compute plan)
+        visited = graph.compute_ranks(node_graph=tuple_graph, visited=visited)
+        # Remove the already created tuples
+        for key in already_created_keys:
             visited.pop(key)
+        # Sort the tuples by rank
         sorted_by_rank = sorted(visited.items(), key=lambda item: item[1])
 
-        testtuples_by_train_id = self.__get_testtuples_by_train_id(spec)
+        testtuples_by_train_id = {
+            testtuple.traintuple_id: testtuple for testtuple in spec.testtuples
+        }
         compute_plan_parts = list()
 
         # Create / update by batch
@@ -205,7 +184,7 @@ class Remote(base.BaseBackend):
                 tmp_spec.composite_traintuples = list()
                 tmp_spec.aggregatetuples = list()
                 tmp_spec.testtuples = list()
-                self.__fill_tuple_lists(
+                graph.fill_tuple_lists(
                     tmp_spec,
                     sorted_by_rank[start:end],
                     traintuples,
@@ -228,7 +207,7 @@ class Remote(base.BaseBackend):
                     aggregatetuples=list(),
                     testtuples=list(),
                 )
-                self.__fill_tuple_lists(
+                graph.fill_tuple_lists(
                     tmp_spec,
                     sorted_by_rank[start:end],
                     traintuples,
@@ -257,7 +236,7 @@ class Remote(base.BaseBackend):
         return result
 
     def update_compute_plan(self, compute_plan_id, spec):
-        return self.__auto_batching_compute_plan(
+        return self._auto_batching_compute_plan(
             spec=spec,
             compute_plan_id=compute_plan_id
         )
