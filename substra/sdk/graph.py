@@ -17,7 +17,7 @@ import sys
 
 from substra.sdk import exceptions, schemas
 
-sys.setrecursionlimit(15000)
+sys.setrecursionlimit(30000)
 
 
 def _get_rank(
@@ -28,10 +28,11 @@ def _get_rank(
     node_to_ignore: typing.List[str],
 ) -> int:
     if node in visited:
-        rank = visited[node]
+        return visited[node]
     elif node in node_to_ignore:
         # Nodes to ignore have a rank of -1
-        rank = -1
+        # They should not be in "visited"
+        return -1
     else:
         for parent in node_graph[node]:
             edge = (node, parent)

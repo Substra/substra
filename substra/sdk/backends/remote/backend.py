@@ -141,6 +141,8 @@ class Remote(base.BaseBackend):
                                     spec_options=None):
         """Auto batching of the compute plan tuples
         """
+        spec_options = spec_options or dict()
+
         # Create the dependency graph and get the dict
         # of tuples by id
         (
@@ -177,6 +179,19 @@ class Remote(base.BaseBackend):
 
         # Sort the tuples by rank
         sorted_by_rank = sorted(visited.items(), key=lambda item: item[1])
+
+        # Special case: no tuples
+        if len(sorted_by_rank) == 0:
+            spec_options.setdefault(AUTO_BATCHING, False)
+            spec_options[AUTO_BATCHING] = False
+            if compute_plan_id:
+                return self.update_compute_plan(
+                    compute_plan_id=compute_plan_id,
+                    spec=spec,
+                    spec_options=spec_options
+                )
+            else:
+                return self.add(spec=spec, exist_ok=exist_ok, spec_options=spec_options)
 
         # Create / update by batch
         for i in range(math.ceil(len(sorted_by_rank) / COMPUTE_PLAN_BATCH_SIZE)):
