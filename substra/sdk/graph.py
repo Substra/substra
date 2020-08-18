@@ -13,11 +13,8 @@
 # limitations under the License.
 
 import typing
-import sys
 
 from substra.sdk import exceptions, schemas
-
-sys.setrecursionlimit(30000)
 
 
 def _get_rank(
@@ -68,11 +65,11 @@ def compute_ranks(
 
     Args:
         node_graph (typing.Dict[str, typing.List[str]]): List of tuple specifications
-        whose rank is computed (read-only).
+            whose rank is computed (read-only).
         visited (typing.Optional[typing.Dict[str, int]]): Dict id-rank of the
-        tuple specifications whose rank has been computed (in place update).
+            tuple specifications whose rank has been computed (in place update).
         node_to_ignore (typing.List[str]): These nodes are ignored when encountered, a
-        dependency on such a node is like no dependency
+            dependency on such a node is like no dependency
 
     Raises:
         exceptions.InvalidRequest: if there is a circular dependency between the tuples.
@@ -85,8 +82,9 @@ def compute_ranks(
         visited = dict()
     if node_to_ignore is None:
         node_to_ignore = list()
-    while len(visited) != len(node_graph):
-        node = set(node_graph.keys()).difference(set(visited.keys())).pop()
+    nodes_to_visit = set(node_graph.keys()).difference(set(node_to_ignore))
+    while len(visited) != len(nodes_to_visit):
+        node = nodes_to_visit.difference(set(visited.keys())).pop()
         _get_rank(
             node=node,
             visited=visited,

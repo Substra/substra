@@ -59,3 +59,10 @@ def test_compute_ranks_update_visited_failure(node_graph):
         visited = graph.compute_ranks(node_graph=node_graph, visited=visited)
 
     assert 'missing dependency among inModels IDs' in str(e.value)
+
+
+def test_compute_ranks_ignore(node_graph):
+    node_to_ignore = list(range(5))
+    visited = graph.compute_ranks(node_graph=node_graph, node_to_ignore=node_to_ignore)
+    for key, rank in visited.items():
+        assert rank == key - 5
