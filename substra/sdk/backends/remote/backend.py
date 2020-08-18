@@ -24,7 +24,7 @@ from substra.sdk.backends.remote import rest_client
 logger = logging.getLogger(__name__)
 
 DEFAULT_RETRY_TIMEOUT = 5 * 60
-COMPUTE_PLAN_BATCH_SIZE = 100
+COMPUTE_PLAN_BATCH_SIZE = 50
 
 
 def _get_asset_key(data):
@@ -162,12 +162,14 @@ class Remote(base.BaseBackend):
             node_to_ignore=already_created_keys
         )
 
+        # Add the testtuples to 'visited' to take them into account in the batches
+        testtuples = dict()
+        for testtuple in spec.testtuples:
+            visited['test_' + testtuple.traintuple_id] = visited[testtuple.traintuple_id] + 1
+            testtuples['test_' + testtuple.traintuple_id] = testtuple
+
         # Sort the tuples by rank
         sorted_by_rank = sorted(visited.items(), key=lambda item: item[1])
-
-        testtuples_by_train_id = {
-            testtuple.traintuple_id: testtuple for testtuple in spec.testtuples
-        }
 
         # Create / update by batch
         for i in range(math.ceil(len(sorted_by_rank) / COMPUTE_PLAN_BATCH_SIZE)):
@@ -194,7 +196,7 @@ class Remote(base.BaseBackend):
                     traintuples,
                     aggregatetuples,
                     composite_traintuples,
-                    testtuples_by_train_id
+                    testtuples
                 )
                 compute_plan = self._client.request(
                     'post',
@@ -216,7 +218,7 @@ class Remote(base.BaseBackend):
                     traintuples,
                     aggregatetuples,
                     composite_traintuples,
-                    testtuples_by_train_id
+                    testtuples
                 )
                 with tmp_spec.build_request_kwargs(**spec_options) as (data, files):
                     compute_plan = self._add(

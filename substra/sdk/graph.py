@@ -89,7 +89,7 @@ def filter_tuples_in_list(
     aggregatetuples: typing.Dict[str, schemas.ComputePlanAggregatetupleSpec],
     composite_traintuples: typing.Dict[
         str, schemas.ComputePlanCompositeTraintupleSpec],
-    testtuples_by_train_id: typing.Dict[str, schemas.ComputePlanTesttupleSpec],
+    testtuples: typing.Dict[str, schemas.ComputePlanTesttupleSpec],
 ):
     """Return the tuple lists with only the elements which are in the tuple graph.
     """
@@ -104,9 +104,8 @@ def filter_tuples_in_list(
             filtered_aggregatetuples.append(aggregatetuples[elem_id])
         elif elem_id in composite_traintuples:
             filtered_composite_traintuples.append(composite_traintuples[elem_id])
-
-        if elem_id in testtuples_by_train_id:
-            filtered_testtuples.append(testtuples_by_train_id[elem_id])
+        elif elem_id in testtuples:
+            filtered_testtuples.append(testtuples[elem_id])
 
     return (
         filtered_traintuples,
