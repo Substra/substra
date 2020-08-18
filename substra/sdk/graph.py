@@ -17,10 +17,11 @@ import typing
 from substra.sdk import exceptions, schemas
 
 
-def _get_rank(node: str, visited: typing.Dict[str,
-                                              int], edges: typing.Set[str],
-              node_graph: typing.Dict[str, typing.List[str]],
-              node_to_ignore: typing.List[str]) -> int:
+def _get_rank(  node: str,
+                visited: typing.Dict[str, int],
+                edges: typing.Set[str],
+                node_graph: typing.Dict[str, typing.List[str]],
+                node_to_ignore: typing.List[str]) -> int:
     if node in visited:
         return visited[node]
     if node in node_to_ignore:

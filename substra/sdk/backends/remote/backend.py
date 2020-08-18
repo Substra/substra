@@ -24,7 +24,8 @@ from substra.sdk.backends.remote import rest_client
 logger = logging.getLogger(__name__)
 
 DEFAULT_RETRY_TIMEOUT = 5 * 60
-COMPUTE_PLAN_BATCH_SIZE = 50
+COMPUTE_PLAN_BATCH_SIZE = 10000000000
+AUTO_BATCHING = "auto_batching"
 
 
 def _get_asset_key(data):
@@ -111,7 +112,9 @@ class Remote(base.BaseBackend):
                 exist_ok=exist_ok,
                 spec_options=spec_options,
             )
-        elif asset_type == schemas.Type.ComputePlan:
+        elif asset_type == schemas.Type.ComputePlan and \
+                (AUTO_BATCHING not in spec_options or spec_options[AUTO_BATCHING]):
+            spec_options.pop(AUTO_BATCHING, None)
             # Compute plan auto batching feature
             return self._auto_batching_compute_plan(
                 spec=spec,
@@ -124,6 +127,10 @@ class Remote(base.BaseBackend):
         # The backend has inconsistent API responses when getting or adding an asset
         # (with much less data when responding to adds).
         # A second GET request hides the discrepancies.
+        # Do not do this with a compute plan or we lose the id_to_key field
+        if asset_type == schemas.Type.ComputePlan:
+            return response
+
         key = _get_asset_key(response)
         return self.get(asset_type, key)
 
@@ -148,7 +155,6 @@ class Remote(base.BaseBackend):
         already_created_keys = dict()
         if compute_plan_id:
             # Here we get the pre-existing tuples and assign them the minimal rank
-            compute_plan = self.get(schemas.Type.ComputePlan, compute_plan_id)
             for dependencies in tuple_graph.values():
                 for dependency_key in dependencies:
                     if dependency_key not in tuple_graph:
@@ -178,7 +184,7 @@ class Remote(base.BaseBackend):
 
             logger.info(f"Compute plan in progress, uploading tasks {start} to {end-1}.")
 
-            if compute_plan:
+            if compute_plan_id:
                 # Compute plan exists: we update it
                 tmp_spec = schemas.UpdateComputePlanSpec(
                     traintuples=list(),
@@ -231,11 +237,21 @@ class Remote(base.BaseBackend):
 
         return compute_plan
 
-    def update_compute_plan(self, compute_plan_id, spec):
-        return self._auto_batching_compute_plan(
-            spec=spec,
-            compute_plan_id=compute_plan_id
-        )
+    def update_compute_plan(self, compute_plan_id, spec, spec_options=None):
+        spec_options = spec_options or {}
+        if AUTO_BATCHING in spec_options and not spec_options[AUTO_BATCHING]:
+            # Disable auto batching
+            return self._client.request(
+                'post',
+                schemas.Type.ComputePlan.to_server(),
+                path=f"{compute_plan_id}/update_ledger/",
+                json=spec.dict(exclude_none=True),
+            )
+        else:
+            return self._auto_batching_compute_plan(
+                spec=spec,
+                compute_plan_id=compute_plan_id
+            )
 
     def link_dataset_with_objective(self, dataset_key, objective_key):
         return self._client.request(

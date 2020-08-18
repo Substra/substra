@@ -521,7 +521,7 @@ class Client(object):
         return self._backend.add(spec, exist_ok=exist_ok)
 
     @logit
-    def add_compute_plan(self, data):
+    def add_compute_plan(self, data, auto_batching: bool = True):
         """Create compute plan.
 
         Data is a dict object with the following schema:
@@ -573,9 +573,13 @@ class Client(object):
 
         As specified in the data dict structure, output trunk models of composite
         traintuples cannot be made public.
+        Set 'auto_batching' to False to disable the auto batching of the tuples
         """
         spec = self._get_spec(schemas.ComputePlanSpec, data)
-        return self._backend.add(spec, exist_ok=False)
+        spec_options = {
+            "auto_batching": auto_batching,
+        }
+        return self._backend.add(spec, exist_ok=False, spec_options=spec_options)
 
     @logit
     def get_algo(self, key):
@@ -688,7 +692,7 @@ class Client(object):
         return self._backend.list(schemas.Type.Node)
 
     @logit
-    def update_compute_plan(self, compute_plan_id, data):
+    def update_compute_plan(self, compute_plan_id, data, auto_batching: bool = True):
         """Update compute plan.
 
         Data is a dict object with the following schema:
@@ -740,7 +744,10 @@ class Client(object):
 
         """
         spec = schemas.UpdateComputePlanSpec(**data)
-        return self._backend.update_compute_plan(compute_plan_id, spec)
+        spec_options = {
+            "auto_batching": auto_batching
+        }
+        return self._backend.update_compute_plan(compute_plan_id, spec, spec_options=spec_options)
 
     @logit
     def link_dataset_with_objective(self, dataset_key, objective_key):
