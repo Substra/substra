@@ -17,7 +17,7 @@ import zipfile
 
 import pytest
 
-from substra.sdk import utils, exceptions
+from substra.sdk import utils
 
 
 def _unzip(fp, destination):
@@ -90,47 +90,3 @@ def test_parse_filters(raw, parsed, exception):
             utils.parse_filters(raw)
     else:
         assert utils.parse_filters(raw) == parsed
-
-
-@pytest.fixture
-def node_graph():
-    return {
-        key: list(range(key))
-        for key in range(10)
-    }
-
-
-def test_compute_ranks(node_graph):
-    visited = utils.compute_ranks(node_graph=node_graph)
-    for key, rank in visited.items():
-        assert key == rank
-
-
-def test_compute_ranks_failure(node_graph):
-    node_graph[5].append(9)
-    with pytest.raises(exceptions.InvalidRequest) as e:
-        utils.compute_ranks(node_graph=node_graph)
-
-    assert 'missing dependency among inModels IDs' in str(e.value)
-
-
-def test_compute_ranks_update_visited(node_graph):
-    visited = {
-        key: key
-        for key in range(5)
-    }
-    visited = utils.compute_ranks(node_graph=node_graph, visited=visited)
-    for key, rank in visited.items():
-        assert key == rank
-
-
-def test_compute_ranks_update_visited_failure(node_graph):
-    visited = {
-        key: key
-        for key in range(5)
-    }
-    node_graph[5].append(9)
-    with pytest.raises(exceptions.InvalidRequest) as e:
-        visited = utils.compute_ranks(node_graph=node_graph, visited=visited)
-
-    assert 'missing dependency among inModels IDs' in str(e.value)
