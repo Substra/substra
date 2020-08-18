@@ -6,20 +6,18 @@ CLI and SDK for interacting with Substra platform.
 
 ## Table of contents
 
-- [Substra](#img-srcsubstra-logosvg-altsubstra)
-  - [Table of contents](#table-of-contents)
-  - [Install](#install)
-  - [Running the Substra platform locally](#running-the-substra-platform-locally)
-  - [Usage](#usage)
-    - [CLI](#cli)
-    - [SDK](#sdk)
-  - [Documentation](#documentation)
-  - [Examples](#examples)
-  - [Compatibility table](#compatibility-table)
-  - [Contributing](#contributing)
-    - [Setup](#setup)
-    - [Documentation](#documentation-1)
-    - [Deploy](#deploy)
+- [Install](#install)
+- [Running the Substra platform locally](#running-the-substra-platform-locally)
+- [Usage](#usage)
+  - [CLI](#cli)
+  - [SDK](#sdk)
+- [Documentation](#documentation)
+- [Examples](#examples)
+- [Compatibility table](#compatibility-table)
+- [Contributing](#contributing)
+  - [Setup](#setup)
+  - [Documentation](#documentation-1)
+  - [Deploy](#deploy)
 
 ## Install
 
@@ -108,7 +106,7 @@ These sets of versions have been tested for compatilibility:
 
 - Please ensure that all the tests from [`substra-tests`](https://github.com/SubstraFoundation/substra-tests/) pass
 
-```
+```sh
 $ cd substra-tests
 $ make test
 ```
@@ -144,7 +142,6 @@ pydocmd simple substra.sdk+ substra.sdk.Client+ > references/sdk.md
 ```
 
 Documentation will be available in *docs/* directory.
-
 
 ### Deploy
 
