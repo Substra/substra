@@ -2,29 +2,28 @@
 
 ## Interacting with the Substra platform
 
-- [Command line interface](../references/cli.md)
-- [SDK](../references/sdk.md)
+- [Command Line Interface](../references/cli.md)
+- [Software Development Kit](../references/sdk.md)
 
 ## Implementing your assets in python
 
-- [Objective base class](https://github.com/SubstraFoundation/substra-tools/blob/dev/docs/api.md#metrics)
-- [Dataset base class](https://github.com/SubstraFoundation/substra-tools/blob/dev/docs/api.md#opener)
-- [Algo base class](https://github.com/SubstraFoundation/substra-tools/blob/master/docs/api.md#algo)
-- [Composite algo base class](https://github.com/SubstraFoundation/substra-tools/blob/master/docs/api.md#compositealgo)
-- [Aggregate algo base class](https://github.com/SubstraFoundation/substra-tools/blob/master/docs/api.md#aggregatealgo)
+To help you implement your assets in Python, please have a look to the [Substra Tools](https://github.com/SubstraFoundation/substra-tools).
 
 ## Learning about the Substra platform
 
-- [Concepts](./concepts.md)
-- [Machine Learning tasks](./ml_tasks.md)
-- [Adding a full pipeline](./full_pipeline_workflow.md)
-- [Adding data samples](./add_data_samples.md)
+You can find more about Substra concepts in this [dedicated section](https://doc.substra.ai/platform_description/concepts.html) (objective, dataset, algo, model, traintuple, testtuple and machine learning tasks, etc.).
 
 ## Running the platform locally
 
-- [[Recommended] Using kubernetes and skaffold](./local_install_skaffold.md)
-- [[Alternative] Using docker-compose](./local_install_docker_compose.md)
+- [Recommended] [Using kubernetes and skaffold](https://doc.substra.ai/getting_started/installation/local_install_skaffold.html)
+- [Alternative] [Using docker-compose](https://doc.substra.ai/getting_started/installation/local_install_docker_compose.html)
 
 ## Debug your scripts locally
 
 - [Debugging](./debugging.md)
+
+## Resources
+
+- Documentation [website](https://doc.substra.ai)
+- Documentation [repository](https://github.com/SubstraFoundation/substra-documentation)
+- Chat on [Slack](https://substra-workspace.slack.com)

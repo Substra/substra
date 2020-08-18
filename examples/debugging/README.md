@@ -1,7 +1,8 @@
 # Debugging
 
 This example shows how to run the [Titanic example](../titanic/README.md) locally to debug your code.  
-For more information on the debug mode, see the [documentation](../../docs/debugging.md).
+For more information on the debug mode, see the [documentation](https://doc.substra.ai/debugging.html).
+
 
 - [Debugging](#debugging)
   - [Debug using only local assets](#debug-using-only-local-assets)
