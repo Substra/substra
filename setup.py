@@ -48,7 +48,7 @@ setup(
         'Programming Language :: Python :: 3.6',
     ],
     keywords=['cli', 'substra'],
-    packages=find_packages(exclude=['docs', 'tests*']),
+    packages=find_packages(exclude=['tests*']),
     include_package_data=True,
     install_requires=['click', 'requests', 'docker', 'consolemd', 'pyyaml', 'pydantic>=1.5.1'],
     python_requires='>=3.6',
