@@ -69,26 +69,22 @@ client = substra.Client()
 
 ## Documentation
 
+- Documentation [website](https://doc.substra.ai)
+- Documentation [repository](https://github.com/SubstraFoundation/substra-documentation)
+- Chat on [Slack](https://substra-workspace.slack.com)
+
 Interacting with the Substra platform:
 
 - [Command line interface](./references/cli.md)
 - [SDK](./references/sdk.md)
 
-Implementing your assets in python:
+Implementing your assets in python (thanks to [the substratools library](https://github.com/substrafoundation/substra-tools))
 
 - [Objective base class](https://github.com/SubstraFoundation/substra-tools/blob/master/docs/api.md#metrics)
 - [Dataset base class](https://github.com/SubstraFoundation/substra-tools/blob/master/docs/api.md#opener)
 - [Algo base class](https://github.com/SubstraFoundation/substra-tools/blob/master/docs/api.md#algo)
 - [Composite algo base class](https://github.com/SubstraFoundation/substra-tools/blob/master/docs/api.md#compositealgo)
 - [Aggregate algo base class](https://github.com/SubstraFoundation/substra-tools/blob/master/docs/api.md#aggregatealgo)
-
-Learning about the Substra platform:
-
-- [Concepts](./docs/concepts.md)
-- [Machine Learning tasks](./docs/ml_tasks.md)
-- [Adding a full pipeline](./docs/full_pipeline_workflow.md)
-- [Adding data samples](./docs/add_data_samples.md)
-- [Debugging](./docs/debugging.md)
 
 ## Examples
 
