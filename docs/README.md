@@ -19,7 +19,7 @@ You can find more about Substra concepts in this [dedicated section](https://doc
 
 ## Debug your scripts locally
 
-- [Debugging](./debugging.md)
+- [Debugging](https://doc.substra.ai/debugging.html)
 
 ## Resources
 
