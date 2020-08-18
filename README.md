@@ -2,9 +2,11 @@
 
 CLI and SDK for interacting with Substra platform.
 
+[Documentation website](https://doc.substra.ai/)
+
 ## Table of contents
 
-- [!Substra](#img-srcsubstra-logosvg-altsubstra)
+- [Substra](#img-srcsubstra-logosvg-altsubstra)
   - [Table of contents](#table-of-contents)
   - [Install](#install)
   - [Running the Substra platform locally](#running-the-substra-platform-locally)
