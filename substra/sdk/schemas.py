@@ -191,7 +191,7 @@ class _BaseComputePlanSpec(_Spec, abc.ABC):
         if self.traintuples:
             for traintuple in self.traintuples:
                 if traintuple.traintuple_id in tuple_graph:
-                    raise exceptions.InvalidRequest("Two tuples cannot have the same id.")
+                    raise exceptions.InvalidRequest("Two tuples cannot have the same id.", 400)
                 if traintuple.in_models_ids is not None:
                     tuple_graph[traintuple.traintuple_id] = traintuple.in_models_ids
                 else:
@@ -202,7 +202,7 @@ class _BaseComputePlanSpec(_Spec, abc.ABC):
         if self.aggregatetuples:
             for aggregatetuple in self.aggregatetuples:
                 if aggregatetuple.aggregatetuple_id in tuple_graph:
-                    raise exceptions.InvalidRequest("Two tuples cannot have the same id.")
+                    raise exceptions.InvalidRequest("Two tuples cannot have the same id.", 400)
                 if aggregatetuple.in_models_ids is not None:
                     tuple_graph[aggregatetuple.aggregatetuple_id] = aggregatetuple.in_models_ids
                 else:
@@ -215,7 +215,7 @@ class _BaseComputePlanSpec(_Spec, abc.ABC):
                 assert not compositetuple.out_trunk_model_permissions.public
                 tuple_graph[compositetuple.composite_traintuple_id] = list()
                 if compositetuple.composite_traintuple_id in tuple_graph:
-                    raise exceptions.InvalidRequest("Two tuples cannot have the same id.")
+                    raise exceptions.InvalidRequest("Two tuples cannot have the same id.", 400)
                 if compositetuple.in_head_model_id is not None:
                     tuple_graph[compositetuple.composite_traintuple_id].append(
                         compositetuple.in_head_model_id

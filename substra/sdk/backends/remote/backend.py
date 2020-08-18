@@ -170,9 +170,10 @@ class Remote(base.BaseBackend):
 
         # Add the testtuples to 'visited' to take them into account in the batches
         testtuples = dict()
-        for testtuple in spec.testtuples:
-            visited['test_' + testtuple.traintuple_id] = visited[testtuple.traintuple_id] + 1
-            testtuples['test_' + testtuple.traintuple_id] = testtuple
+        if spec.testtuples:
+            for testtuple in spec.testtuples:
+                visited['test_' + testtuple.traintuple_id] = visited[testtuple.traintuple_id] + 1
+                testtuples['test_' + testtuple.traintuple_id] = testtuple
 
         # Sort the tuples by rank
         sorted_by_rank = sorted(visited.items(), key=lambda item: item[1])
@@ -234,7 +235,6 @@ class Remote(base.BaseBackend):
                         exist_ok=exist_ok
                     )
                 compute_plan_id = compute_plan['computePlanID']
-
         return compute_plan
 
     def update_compute_plan(self, compute_plan_id, spec, spec_options=None):

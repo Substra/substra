@@ -13,34 +13,44 @@
 # limitations under the License.
 
 import typing
+import sys
 
 from substra.sdk import exceptions, schemas
 
+sys.setrecursionlimit(15000)
 
-def _get_rank(  node: str,
-                visited: typing.Dict[str, int],
-                edges: typing.Set[str],
-                node_graph: typing.Dict[str, typing.List[str]],
-                node_to_ignore: typing.List[str]) -> int:
+
+def _get_rank(
+    node: str,
+    visited: typing.Dict[str, int],
+    edges: typing.Set[str],
+    node_graph: typing.Dict[str, typing.List[str]],
+    node_to_ignore: typing.List[str],
+) -> int:
     if node in visited:
-        return visited[node]
-    if node in node_to_ignore:
+        rank = visited[node]
+    elif node in node_to_ignore:
         # Nodes to ignore have a rank of -1
-        return -1
-    for parent in node_graph[node]:
-        edge = (node, parent)
-        if edge in edges:
-            raise exceptions.InvalidRequest(
-                "missing dependency among inModels IDs", 400)
-        else:
-            edges.add(edge)
-
-    if len(node_graph[node]) == 0:
-        rank = 0
+        rank = -1
     else:
-        rank = 1 + max([
-            _get_rank(x, visited, edges, node_graph, node_to_ignore) for x in node_graph[node]
-        ])
+        for parent in node_graph[node]:
+            edge = (node, parent)
+            if edge in edges:
+                raise exceptions.InvalidRequest(
+                    "missing dependency among inModels IDs", 400
+                )
+            else:
+                edges.add(edge)
+
+        if len(node_graph[node]) == 0:
+            rank = 0
+        else:
+            rank = 1 + max(
+                [
+                    _get_rank(x, visited, edges, node_graph, node_to_ignore)
+                    for x in node_graph[node]
+                ]
+            )
     visited[node] = rank
     return rank
 
@@ -76,11 +86,13 @@ def compute_ranks(
         node_to_ignore = list()
     while len(visited) != len(node_graph):
         node = set(node_graph.keys()).difference(set(visited.keys())).pop()
-        _get_rank(node=node,
-                  visited=visited,
-                  edges=set(),
-                  node_graph=node_graph,
-                  node_to_ignore=node_to_ignore)
+        _get_rank(
+            node=node,
+            visited=visited,
+            edges=set(),
+            node_graph=node_graph,
+            node_to_ignore=node_to_ignore,
+        )
     return visited
 
 
@@ -88,8 +100,7 @@ def filter_tuples_in_list(
     tuple_graph: typing.Dict[str, typing.List[str]],
     traintuples: typing.Dict[str, schemas.ComputePlanTraintupleSpec],
     aggregatetuples: typing.Dict[str, schemas.ComputePlanAggregatetupleSpec],
-    composite_traintuples: typing.Dict[
-        str, schemas.ComputePlanCompositeTraintupleSpec],
+    composite_traintuples: typing.Dict[str, schemas.ComputePlanCompositeTraintupleSpec],
     testtuples: typing.Dict[str, schemas.ComputePlanTesttupleSpec],
 ):
     """Return the tuple lists with only the elements which are in the tuple graph.
@@ -112,5 +123,5 @@ def filter_tuples_in_list(
         filtered_traintuples,
         filtered_aggregatetuples,
         filtered_composite_traintuples,
-        filtered_testtuples
+        filtered_testtuples,
     )
