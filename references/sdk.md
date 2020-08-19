@@ -2,7 +2,7 @@
 
 # Client
 ```python
-Client(self, url:Union[str, NoneType]=None, token:Union[str, NoneType]=None, retry_timeout:int=300, insecure:bool=False, debug:bool=False)
+Client(self, url: Union[str, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300, insecure: bool = False, debug: bool = False)
 ```
 Create a client
 
@@ -37,7 +37,7 @@ Client.login(self, username, password)
 Login to a remote server.
 ## from_config_file
 ```python
-Client.from_config_file(profile_name:str='default', config_path:Union[str, pathlib.Path]='~/.substra', tokens_path:Union[str, pathlib.Path]='~/.substra-tokens', token:Union[str, NoneType]=None, retry_timeout:int=300, debug:bool=False)
+Client.from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Union[str, NoneType] = None, retry_timeout: int = 300, debug: bool = False)
 ```
 Returns a new Client configured with profile data from configuration files.
 
@@ -377,7 +377,7 @@ existing asset will be returned.
 
 ## add_compute_plan
 ```python
-Client.add_compute_plan(self, data, auto_batching:bool=True)
+Client.add_compute_plan(self, data, auto_batching: bool = True)
 ```
 Create compute plan.
 
@@ -545,7 +545,7 @@ Client.list_node(self, *args, **kwargs)
 List nodes.
 ## update_compute_plan
 ```python
-Client.update_compute_plan(self, compute_plan_id, data, auto_batching:bool=True)
+Client.update_compute_plan(self, compute_plan_id, data, auto_batching: bool = True)
 ```
 Update compute plan.
 
