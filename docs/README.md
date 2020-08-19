@@ -11,16 +11,15 @@ To help you implement your assets in Python, please have a look to the [Substra 
 
 ## Learning about the Substra platform
 
-You can find more about Substra concepts in this [dedicated section](https://doc.substra.ai/platform_description/concepts.html) (objective, dataset, algo, model, traintuple, testtuple and machine learning tasks, etc.).
+You can find more about Substra concepts in this [dedicated section](https://doc.substra.ai/concepts.html) (objective, dataset, algo, model, traintuple, testtuple and machine learning tasks, etc.).
 
 ## Running the platform locally
 
-- [Recommended] [Using kubernetes and skaffold](https://doc.substra.ai/getting_started/installation/local_install_skaffold.html)
-- [Alternative] [Using docker-compose](https://doc.substra.ai/getting_started/installation/local_install_docker_compose.html)
+- [Setup](https://doc.substra.ai/setup/local_install_skaffold.html)
 
 ## Debug your scripts locally
 
-- [Debugging](./debugging.md)
+- [Debugging](https://doc.substra.ai/debugging.html)
 
 ## Resources
 
