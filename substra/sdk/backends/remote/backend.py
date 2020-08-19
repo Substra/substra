@@ -16,6 +16,7 @@ from copy import deepcopy
 import logging
 import math
 import json
+import os
 
 from substra.sdk import exceptions, schemas, graph
 from substra.sdk.backends import base
@@ -24,7 +25,7 @@ from substra.sdk.backends.remote import rest_client
 logger = logging.getLogger(__name__)
 
 DEFAULT_RETRY_TIMEOUT = 5 * 60
-COMPUTE_PLAN_BATCH_SIZE = 10000000000
+DEFAULT_COMPUTE_PLAN_BATCH_SIZE = 10000000000
 AUTO_BATCHING = "auto_batching"
 
 
@@ -192,9 +193,10 @@ class Remote(base.BaseBackend):
                 return self.add(spec=spec, exist_ok=exist_ok, spec_options=spec_options)
 
         # Create / update by batch
-        for i in range(math.ceil(len(sorted_by_rank) / COMPUTE_PLAN_BATCH_SIZE)):
-            start = i * COMPUTE_PLAN_BATCH_SIZE
-            end = min(len(sorted_by_rank), (i + 1) * COMPUTE_PLAN_BATCH_SIZE)
+        batch_size = os.getenv('COMPUTE_PLAN_BATCH_SIZE', DEFAULT_COMPUTE_PLAN_BATCH_SIZE)
+        for i in range(math.ceil(len(sorted_by_rank) / batch_size)):
+            start = i * batch_size
+            end = min(len(sorted_by_rank), (i + 1) * batch_size)
 
             logger.info(f"Compute plan in progress, uploading tasks {start} to {end-1}.")
 
