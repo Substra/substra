@@ -18,6 +18,13 @@ import math
 from substra.sdk import schemas, graph, exceptions
 
 
+def _insert_into_graph(tuple_graph, tuple_id, in_model_ids):
+    if tuple_id in tuple_graph:
+        raise exceptions.InvalidRequest("Two tuples cannot have the same id.", 400)
+    in_model_ids = in_model_ids or list()
+    tuple_graph[tuple_id] = in_model_ids
+
+
 def get_dependency_graph(spec: schemas._BaseComputePlanSpec):
     """Get the tuple dependency graph and, for each type of tuple, a mapping table id/tuple.
     """
@@ -25,40 +32,39 @@ def get_dependency_graph(spec: schemas._BaseComputePlanSpec):
     traintuples = dict()
     if spec.traintuples:
         for traintuple in spec.traintuples:
-            if traintuple.traintuple_id in tuple_graph:
-                raise exceptions.InvalidRequest("Two tuples cannot have the same id.", 400)
-            if traintuple.in_models_ids is not None:
-                tuple_graph[traintuple.traintuple_id] = traintuple.in_models_ids
-            else:
-                tuple_graph[traintuple.traintuple_id] = list()
+            _insert_into_graph(
+                tuple_graph=tuple_graph,
+                tuple_id=traintuple.traintuple_id,
+                in_model_ids=traintuple.in_models_ids,
+            )
             traintuples[traintuple.traintuple_id] = traintuple
 
     aggregatetuples = dict()
     if spec.aggregatetuples:
         for aggregatetuple in spec.aggregatetuples:
-            if aggregatetuple.aggregatetuple_id in tuple_graph:
-                raise exceptions.InvalidRequest("Two tuples cannot have the same id.", 400)
-            if aggregatetuple.in_models_ids is not None:
-                tuple_graph[aggregatetuple.aggregatetuple_id] = aggregatetuple.in_models_ids
-            else:
-                tuple_graph[aggregatetuple.aggregatetuple_id] = list()
+            _insert_into_graph(
+                tuple_graph=tuple_graph,
+                tuple_id=aggregatetuple.aggregatetuple_id,
+                in_model_ids=aggregatetuple.in_models_ids,
+            )
             aggregatetuples[aggregatetuple.aggregatetuple_id] = aggregatetuple
 
     compositetuples = dict()
     if spec.composite_traintuples:
         for compositetuple in spec.composite_traintuples:
             assert not compositetuple.out_trunk_model_permissions.public
-            tuple_graph[compositetuple.composite_traintuple_id] = list()
-            if compositetuple.composite_traintuple_id in tuple_graph:
-                raise exceptions.InvalidRequest("Two tuples cannot have the same id.", 400)
-            if compositetuple.in_head_model_id is not None:
-                tuple_graph[compositetuple.composite_traintuple_id].append(
-                    compositetuple.in_head_model_id
-                )
-            if compositetuple.in_trunk_model_id is not None:
-                tuple_graph[compositetuple.composite_traintuple_id].append(
-                    compositetuple.in_trunk_model_id
-                )
+            _insert_into_graph(
+                tuple_graph=tuple_graph,
+                tuple_id=compositetuple.composite_traintuple_id,
+                in_model_ids=[
+                    model
+                    for model in [
+                        compositetuple.in_head_model_id,
+                        compositetuple.in_trunk_model_id,
+                    ]
+                    if model
+                ],
+            )
             compositetuples[compositetuple.composite_traintuple_id] = compositetuple
 
     return tuple_graph, traintuples, aggregatetuples, compositetuples
@@ -74,7 +80,7 @@ def auto_batching(spec, is_creation: bool = True, batch_size: int = 20):
         tuple_graph,
         traintuples,
         aggregatetuples,
-        composite_traintuples
+        composite_traintuples,
     ) = get_dependency_graph(spec)
 
     already_created_keys = set()
@@ -88,16 +94,17 @@ def auto_batching(spec, is_creation: bool = True, batch_size: int = 20):
     # Compute the relative ranks of the new tuples (relatively to each other, these
     # are not their actual ranks in the compute plan)
     visited = graph.compute_ranks(
-        node_graph=tuple_graph,
-        node_to_ignore=already_created_keys
+        node_graph=tuple_graph, node_to_ignore=already_created_keys
     )
 
     # Add the testtuples to 'visited' to take them into account in the batches
     testtuples = dict()
     if spec.testtuples:
         for testtuple in spec.testtuples:
-            visited['test_' + testtuple.traintuple_id] = visited[testtuple.traintuple_id] + 1
-            testtuples['test_' + testtuple.traintuple_id] = testtuple
+            visited["test_" + testtuple.traintuple_id] = (
+                visited[testtuple.traintuple_id] + 1
+            )
+            testtuples["test_" + testtuple.traintuple_id] = testtuple
 
     # Sort the tuples by rank
     sorted_by_rank = sorted(visited.items(), key=lambda item: item[1])
@@ -115,13 +122,13 @@ def auto_batching(spec, is_creation: bool = True, batch_size: int = 20):
                 tmp_spec.traintuples,
                 tmp_spec.aggregatetuples,
                 tmp_spec.composite_traintuples,
-                tmp_spec.testtuples
+                tmp_spec.testtuples,
             ) = graph.filter_tuples_in_list(
                 sorted_by_rank[start:end],
                 traintuples,
                 aggregatetuples,
                 composite_traintuples,
-                testtuples
+                testtuples,
             )
             yield tmp_spec
         else:
@@ -136,13 +143,13 @@ def auto_batching(spec, is_creation: bool = True, batch_size: int = 20):
                 tmp_spec.traintuples,
                 tmp_spec.aggregatetuples,
                 tmp_spec.composite_traintuples,
-                tmp_spec.testtuples
+                tmp_spec.testtuples,
             ) = graph.filter_tuples_in_list(
                 sorted_by_rank[start:end],
                 traintuples,
                 aggregatetuples,
                 composite_traintuples,
-                testtuples
+                testtuples,
             )
             yield tmp_spec
 

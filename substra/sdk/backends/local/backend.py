@@ -16,7 +16,7 @@ import typing
 import warnings
 
 import substra
-from substra.sdk import schemas, exceptions, utils, fs, compute_plan as compute_plan_module
+from substra.sdk import schemas, exceptions, fs, graph, compute_plan as compute_plan_module
 from substra.sdk.backends import base
 from substra.sdk.backends.local import models
 from substra.sdk.backends.local import dal
@@ -482,7 +482,7 @@ class Local(base.BaseBackend):
         ) = compute_plan_module.get_dependency_graph(spec)
 
         # Define the rank of each traintuple, aggregate tuple and composite tuple
-        visited = utils.compute_ranks(node_graph=tuple_graph)
+        visited = graph.compute_ranks(node_graph=tuple_graph)
 
         compute_plan = models.ComputePlan(
             compute_plan_id=key,
@@ -937,7 +937,12 @@ class Local(base.BaseBackend):
         # function does not make sense.
         raise NotImplementedError
 
-    def update_compute_plan(self, compute_plan_id: str, spec: schemas.UpdateComputePlanSpec):
+    def update_compute_plan(
+            self,
+            compute_plan_id: str,
+            spec: schemas.UpdateComputePlanSpec,
+            spec_options: dict = None
+        ):
         compute_plan = self._db.get(schemas.Type.ComputePlan, compute_plan_id)
 
         # Get all the new tuples and their dependencies
@@ -981,7 +986,7 @@ class Local(base.BaseBackend):
                 )
                 visited[id_] = rank
 
-        visited = utils.compute_ranks(node_graph=tuple_graph, visited=visited)
+        visited = graph.compute_ranks(node_graph=tuple_graph, ranks=visited)
 
         compute_plan = self.__execute_compute_plan(
             spec,
