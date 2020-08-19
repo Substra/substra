@@ -25,18 +25,22 @@ def node_graph():
     }
 
 
+@pytest.fixture
+def node_graph_linear():
+    return {
+        key: [key - 1] if key > 0 else list()
+        for key in range(10)
+    }
+
+
 def test_compute_ranks(node_graph):
     visited = graph.compute_ranks(node_graph=node_graph)
     for key, rank in visited.items():
         assert key == rank
 
 
-def test_compute_ranks_linear():
-    node_graph = {
-        key: [key - 1] if key > 0 else list()
-        for key in range(10)
-    }
-    visited = graph.compute_ranks(node_graph=node_graph)
+def test_compute_ranks_linear(node_graph_linear):
+    visited = graph.compute_ranks(node_graph=node_graph_linear)
     for key, rank in visited.items():
         assert key == rank
 
@@ -55,6 +59,14 @@ def test_compute_ranks_cycle(node_graph):
     node_graph[5].append(9)
     with pytest.raises(exceptions.InvalidRequest) as e:
         graph.compute_ranks(node_graph=node_graph)
+
+    assert 'missing dependency among inModels IDs' in str(e.value)
+
+
+def test_compute_ranks_closed_cycle(node_graph_linear):
+    node_graph_linear[0] = [9]
+    with pytest.raises(exceptions.InvalidRequest) as e:
+        graph.compute_ranks(node_graph=node_graph_linear)
 
     assert 'missing dependency among inModels IDs' in str(e.value)
 

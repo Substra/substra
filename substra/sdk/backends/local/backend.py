@@ -16,7 +16,7 @@ import typing
 import warnings
 
 import substra
-from substra.sdk import schemas, exceptions, utils, fs
+from substra.sdk import schemas, exceptions, utils, fs, compute_plan as compute_plan_module
 from substra.sdk.backends import base
 from substra.sdk.backends.local import models
 from substra.sdk.backends.local import dal
@@ -479,7 +479,7 @@ class Local(base.BaseBackend):
             traintuples,
             aggregatetuples,
             compositetuples
-        ) = spec.get_dependency_graph()
+        ) = compute_plan_module.get_dependency_graph(spec)
 
         # Define the rank of each traintuple, aggregate tuple and composite tuple
         visited = utils.compute_ranks(node_graph=tuple_graph)
@@ -946,7 +946,7 @@ class Local(base.BaseBackend):
             traintuples,
             aggregatetuples,
             compositetuples
-        ) = spec.get_dependency_graph()
+        ) = compute_plan_module.get_dependency_graph(spec)
 
         # Define the rank of each traintuple, aggregate tuple and composite tuple
         old_tuples = {id_: list() for id_ in compute_plan.id_to_key}

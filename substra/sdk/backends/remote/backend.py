@@ -14,19 +14,17 @@
 
 from copy import deepcopy
 import logging
-import math
 import json
-import os
 
-from substra.sdk import exceptions, schemas, graph
+from substra.sdk import exceptions, schemas, compute_plan
 from substra.sdk.backends import base
 from substra.sdk.backends.remote import rest_client
 
 logger = logging.getLogger(__name__)
 
 DEFAULT_RETRY_TIMEOUT = 5 * 60
-DEFAULT_COMPUTE_PLAN_BATCH_SIZE = 10000000000
 AUTO_BATCHING = "auto_batching"
+BATCH_SIZE = 'batch_size'
 
 
 def _get_asset_key(data):
@@ -105,6 +103,8 @@ class Remote(base.BaseBackend):
         """Add an asset."""
         spec_options = spec_options or {}
         asset_type = spec.__class__.type_
+        # Remove batch_size from spec_options
+        batch_size = spec_options.pop(BATCH_SIZE, None)
 
         if asset_type == schemas.Type.DataSample:
             # data sample corner case
@@ -113,13 +113,13 @@ class Remote(base.BaseBackend):
                 exist_ok=exist_ok,
                 spec_options=spec_options,
             )
-        elif asset_type == schemas.Type.ComputePlan and \
-                (AUTO_BATCHING not in spec_options or spec_options[AUTO_BATCHING]):
-            spec_options.pop(AUTO_BATCHING, None)
+        elif asset_type == schemas.Type.ComputePlan and spec_options.pop(AUTO_BATCHING, False):
+            assert batch_size
             # Compute plan auto batching feature
             return self._auto_batching_compute_plan(
                 spec=spec,
                 exist_ok=exist_ok,
+                batch_size=batch_size,
                 spec_options=spec_options,
             )
 
@@ -137,52 +137,23 @@ class Remote(base.BaseBackend):
 
     def _auto_batching_compute_plan(self,
                                     spec,
+                                    batch_size,
                                     compute_plan_id=None,
                                     exist_ok=None,
                                     spec_options=None):
         """Auto batching of the compute plan tuples
         """
         spec_options = spec_options or dict()
-
-        # Create the dependency graph and get the dict
-        # of tuples by id
-        (
-            tuple_graph,
-            traintuples,
-            aggregatetuples,
-            composite_traintuples
-        ) = spec.get_dependency_graph()
-
-        compute_plan = None
-        already_created_keys = set()
-        if compute_plan_id:
-            # Here we get the pre-existing tuples and assign them the minimal rank
-            for dependencies in tuple_graph.values():
-                for dependency_key in dependencies:
-                    if dependency_key not in tuple_graph:
-                        already_created_keys.add(dependency_key)
-
-        # Compute the relative ranks of the new tuples (relatively to each other, these
-        # are not their actual ranks in the compute plan)
-        visited = graph.compute_ranks(
-            node_graph=tuple_graph,
-            node_to_ignore=already_created_keys
+        batches = compute_plan.auto_batching(
+            spec,
+            is_creation=compute_plan_id is None,
+            batch_size=batch_size,
         )
 
-        # Add the testtuples to 'visited' to take them into account in the batches
-        testtuples = dict()
-        if spec.testtuples:
-            for testtuple in spec.testtuples:
-                visited['test_' + testtuple.traintuple_id] = visited[testtuple.traintuple_id] + 1
-                testtuples['test_' + testtuple.traintuple_id] = testtuple
-
-        # Sort the tuples by rank
-        sorted_by_rank = sorted(visited.items(), key=lambda item: item[1])
-
         # Special case: no tuples
-        if len(sorted_by_rank) == 0:
-            spec_options.setdefault(AUTO_BATCHING, False)
+        if batches is None:
             spec_options[AUTO_BATCHING] = False
+            spec_options[BATCH_SIZE] = batch_size
             if compute_plan_id:
                 return self.update_compute_plan(
                     compute_plan_id=compute_plan_id,
@@ -193,79 +164,46 @@ class Remote(base.BaseBackend):
                 return self.add(spec=spec, exist_ok=exist_ok, spec_options=spec_options)
 
         # Create / update by batch
-        batch_size = os.getenv('COMPUTE_PLAN_BATCH_SIZE', DEFAULT_COMPUTE_PLAN_BATCH_SIZE)
-        for i in range(math.ceil(len(sorted_by_rank) / batch_size)):
-            start = i * batch_size
-            end = min(len(sorted_by_rank), (i + 1) * batch_size)
-
-            logger.info(f"Compute plan in progress, uploading tasks {start} to {end-1}.")
-
+        id_to_keys = dict()
+        for tmp_spec in batches:
             if compute_plan_id:
-                # Compute plan exists: we update it
-                tmp_spec = schemas.UpdateComputePlanSpec(
-                    traintuples=list(),
-                    composite_traintuples=list(),
-                    aggregatetuples=list(),
-                    testtuples=list(),
-                )
-                (
-                    tmp_spec.traintuples,
-                    tmp_spec.aggregatetuples,
-                    tmp_spec.composite_traintuples,
-                    tmp_spec.testtuples
-                ) = graph.filter_tuples_in_list(
-                    sorted_by_rank[start:end],
-                    traintuples,
-                    aggregatetuples,
-                    composite_traintuples,
-                    testtuples
-                )
-                compute_plan = self._client.request(
+                asset = self._client.request(
                     'post',
                     schemas.Type.ComputePlan.to_server(),
                     path=f"{compute_plan_id}/update_ledger/",
                     json=tmp_spec.dict(exclude_none=True),
                 )
+                id_to_keys.update(asset['IDToKey'])
             else:
-                # Compute plan does not exist (ie first batch of a creation):
-                # we create it
-                tmp_spec = deepcopy(spec)
-                (
-                    tmp_spec.traintuples,
-                    tmp_spec.aggregatetuples,
-                    tmp_spec.composite_traintuples,
-                    tmp_spec.testtuples
-                ) = graph.filter_tuples_in_list(
-                    sorted_by_rank[start:end],
-                    traintuples,
-                    aggregatetuples,
-                    composite_traintuples,
-                    testtuples
-                )
                 with tmp_spec.build_request_kwargs(**spec_options) as (data, files):
-                    compute_plan = self._add(
+                    asset = self._add(
                         schemas.Type.ComputePlan,
                         data,
                         files=files,
                         exist_ok=exist_ok
                     )
-                compute_plan_id = compute_plan['computePlanID']
-        return compute_plan
+                compute_plan_id = asset['computePlanID']
+            id_to_keys.update(asset['IDToKey'])
+        asset['IDToKey'] = id_to_keys
+        return asset
 
     def update_compute_plan(self, compute_plan_id, spec, spec_options=None):
         spec_options = spec_options or {}
-        if AUTO_BATCHING in spec_options and not spec_options[AUTO_BATCHING]:
+        batch_size = spec_options.pop(BATCH_SIZE)
+        if spec_options.pop(AUTO_BATCHING):
+            return self._auto_batching_compute_plan(
+                spec=spec,
+                compute_plan_id=compute_plan_id,
+                batch_size=batch_size,
+                spec_options=spec_options,
+            )
+        else:
             # Disable auto batching
             return self._client.request(
                 'post',
                 schemas.Type.ComputePlan.to_server(),
                 path=f"{compute_plan_id}/update_ledger/",
                 json=spec.dict(exclude_none=True),
-            )
-        else:
-            return self._auto_batching_compute_plan(
-                spec=spec,
-                compute_plan_id=compute_plan_id
             )
 
     def link_dataset_with_objective(self, dataset_key, objective_key):

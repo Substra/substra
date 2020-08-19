@@ -23,7 +23,7 @@ import uuid
 
 import pydantic
 
-from substra.sdk import utils, fs, hasher, exceptions
+from substra.sdk import utils, fs, hasher
 
 # TODO create a sub-package schemas:
 # types
@@ -182,51 +182,6 @@ class _BaseComputePlanSpec(_Spec, abc.ABC):
     composite_traintuples: Optional[List[ComputePlanCompositeTraintupleSpec]]
     aggregatetuples: Optional[List[ComputePlanAggregatetupleSpec]]
     testtuples: Optional[List[ComputePlanTesttupleSpec]]
-
-    def get_dependency_graph(self):
-        """Get the tuple dependency graph and, for each type of tuple, a mapping table id/tuple.
-        """
-        tuple_graph = dict()
-        traintuples = dict()
-        if self.traintuples:
-            for traintuple in self.traintuples:
-                if traintuple.traintuple_id in tuple_graph:
-                    raise exceptions.InvalidRequest("Two tuples cannot have the same id.", 400)
-                if traintuple.in_models_ids is not None:
-                    tuple_graph[traintuple.traintuple_id] = traintuple.in_models_ids
-                else:
-                    tuple_graph[traintuple.traintuple_id] = list()
-                traintuples[traintuple.traintuple_id] = traintuple
-
-        aggregatetuples = dict()
-        if self.aggregatetuples:
-            for aggregatetuple in self.aggregatetuples:
-                if aggregatetuple.aggregatetuple_id in tuple_graph:
-                    raise exceptions.InvalidRequest("Two tuples cannot have the same id.", 400)
-                if aggregatetuple.in_models_ids is not None:
-                    tuple_graph[aggregatetuple.aggregatetuple_id] = aggregatetuple.in_models_ids
-                else:
-                    tuple_graph[aggregatetuple.aggregatetuple_id] = list()
-                aggregatetuples[aggregatetuple.aggregatetuple_id] = aggregatetuple
-
-        compositetuples = dict()
-        if self.composite_traintuples:
-            for compositetuple in self.composite_traintuples:
-                assert not compositetuple.out_trunk_model_permissions.public
-                tuple_graph[compositetuple.composite_traintuple_id] = list()
-                if compositetuple.composite_traintuple_id in tuple_graph:
-                    raise exceptions.InvalidRequest("Two tuples cannot have the same id.", 400)
-                if compositetuple.in_head_model_id is not None:
-                    tuple_graph[compositetuple.composite_traintuple_id].append(
-                        compositetuple.in_head_model_id
-                    )
-                if compositetuple.in_trunk_model_id is not None:
-                    tuple_graph[compositetuple.composite_traintuple_id].append(
-                        compositetuple.in_trunk_model_id
-                    )
-                compositetuples[compositetuple.composite_traintuple_id] = compositetuple
-
-        return tuple_graph, traintuples, aggregatetuples, compositetuples
 
 
 class ComputePlanSpec(_BaseComputePlanSpec):

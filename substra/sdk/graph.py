@@ -54,7 +54,8 @@ def compute_ranks(
     inverted_node_graph = _get_inverted_node_graph(node_graph, node_to_ignore)
 
     # Number of nodes to visit
-    n_nodes = len(set(node_graph.keys()).difference(node_to_ignore))
+    # TODO check whether this is necessary
+    n_nodes = len(node_graph.keys())  # len(set(node_graph.keys()).difference(node_to_ignore))
 
     # Assign rank 0 to nodes without deps
     ranks = dict()
@@ -75,7 +76,7 @@ def compute_ranks(
 
             # Cycle detection
             edge = (current_node, child)
-            if edge in edges or (edge[1], edge[0]) in edges:
+            if (edge[1], edge[0]) in edges:  # if edge in edges or
                 raise exceptions.InvalidRequest(
                     "missing dependency among inModels IDs", 400
                 )
