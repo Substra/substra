@@ -153,20 +153,18 @@ class Remote(base.BaseBackend):
         ) = spec.get_dependency_graph()
 
         compute_plan = None
-        visited = dict()
-        already_created_keys = dict()
+        already_created_keys = set()
         if compute_plan_id:
             # Here we get the pre-existing tuples and assign them the minimal rank
             for dependencies in tuple_graph.values():
                 for dependency_key in dependencies:
                     if dependency_key not in tuple_graph:
-                        already_created_keys[dependency_key] = 0
+                        already_created_keys.add(dependency_key)
 
         # Compute the relative ranks of the new tuples (relatively to each other, these
         # are not their actual ranks in the compute plan)
         visited = graph.compute_ranks(
             node_graph=tuple_graph,
-            visited=visited,
             node_to_ignore=already_created_keys
         )
 

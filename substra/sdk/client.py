@@ -573,7 +573,8 @@ class Client(object):
 
         As specified in the data dict structure, output trunk models of composite
         traintuples cannot be made public.
-        Set 'auto_batching' to False to disable the auto batching of the tuples
+        Set 'auto_batching' to False to upload all the tuples of the
+        compute plan at once.
         """
         spec = self._get_spec(schemas.ComputePlanSpec, data)
         spec_options = {
@@ -741,7 +742,8 @@ class Client(object):
 
         As specified in the data dict structure, output trunk models of composite
         traintuples cannot be made public.
-
+        Set 'auto_batching' to False to upload all the tuples of the
+        compute plan at once.
         """
         spec = schemas.UpdateComputePlanSpec(**data)
         spec_options = {

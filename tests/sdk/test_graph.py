@@ -31,7 +31,27 @@ def test_compute_ranks(node_graph):
         assert key == rank
 
 
-def test_compute_ranks_failure(node_graph):
+def test_compute_ranks_linear():
+    node_graph = {
+        key: [key - 1] if key > 0 else list()
+        for key in range(10)
+    }
+    visited = graph.compute_ranks(node_graph=node_graph)
+    for key, rank in visited.items():
+        assert key == rank
+
+
+def test_compute_ranks_no_correlation():
+    node_graph = {
+        key: list()
+        for key in range(10)
+    }
+    visited = graph.compute_ranks(node_graph=node_graph)
+    for _, rank in visited.items():
+        assert rank == 0
+
+
+def test_compute_ranks_cycle(node_graph):
     node_graph[5].append(9)
     with pytest.raises(exceptions.InvalidRequest) as e:
         graph.compute_ranks(node_graph=node_graph)
@@ -39,30 +59,8 @@ def test_compute_ranks_failure(node_graph):
     assert 'missing dependency among inModels IDs' in str(e.value)
 
 
-def test_compute_ranks_update_visited(node_graph):
-    visited = {
-        key: key
-        for key in range(5)
-    }
-    visited = graph.compute_ranks(node_graph=node_graph, visited=visited)
-    for key, rank in visited.items():
-        assert key == rank
-
-
-def test_compute_ranks_update_visited_failure(node_graph):
-    visited = {
-        key: key
-        for key in range(5)
-    }
-    node_graph[5].append(9)
-    with pytest.raises(exceptions.InvalidRequest) as e:
-        visited = graph.compute_ranks(node_graph=node_graph, visited=visited)
-
-    assert 'missing dependency among inModels IDs' in str(e.value)
-
-
 def test_compute_ranks_ignore(node_graph):
-    node_to_ignore = list(range(5))
+    node_to_ignore = set(range(5))
     visited = graph.compute_ranks(node_graph=node_graph, node_to_ignore=node_to_ignore)
     for key, rank in visited.items():
         assert rank == key - 5

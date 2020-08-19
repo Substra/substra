@@ -17,82 +17,72 @@ import typing
 from substra.sdk import exceptions, schemas
 
 
-def _get_rank(
-    node: str,
-    visited: typing.Dict[str, int],
-    edges: typing.Set[str],
+def _get_inverted_node_graph(node_graph, node_to_ignore):
+    """Get the graph {node_id: nodes that depend on this one}
+    Also this graph does not contain the nodes to ignore
+    """
+    inverted = dict()
+    for node, dependencies in node_graph.items():
+        if node not in node_to_ignore:
+            for dependency in dependencies:
+                if dependency not in node_to_ignore:
+                    inverted.setdefault(dependency, list())
+                    inverted[dependency].append(node)
+    return inverted
+
+
+def _get_current_node(visited, ranks):
+    """Find the next node to visit: node with the minimum rank not yet visited."""
+    current_node = None
+    current_rank = None
+    for node, rank in ranks.items():
+        if node not in visited and (current_rank is None or rank < current_rank):
+            current_node = node
+            current_rank = rank
+    # Failure means that there is a closed cycle: A -> B -> ... -> A
+    if current_node is None:
+        raise exceptions.InvalidRequest("missing dependency among inModels IDs", 400)
+    return current_node
+
+
+def compute_ranks(
     node_graph: typing.Dict[str, typing.List[str]],
-    node_to_ignore: typing.List[str],
-) -> int:
-    if node in visited:
-        return visited[node]
-    elif node in node_to_ignore:
-        # Nodes to ignore have a rank of -1
-        # They should not be in "visited"
-        return -1
-    else:
-        for parent in node_graph[node]:
-            edge = (node, parent)
-            if edge in edges:
+    node_to_ignore: typing.Set[str] = None,
+) -> typing.Dict[str, int]:
+
+    node_to_ignore = node_to_ignore or set()
+    inverted_node_graph = _get_inverted_node_graph(node_graph, node_to_ignore)
+
+    # Number of nodes to visit
+    n_nodes = len(set(node_graph.keys()).difference(node_to_ignore))
+
+    # Assign rank 0 to nodes without deps
+    ranks = dict()
+    for node, dependencies in node_graph.items():
+        if node not in node_to_ignore:
+            actual_deps = [dep for dep in dependencies if dep not in node_to_ignore]
+            if len(actual_deps) == 0:
+                ranks[node] = 0
+
+    visited = set()
+    edges = set()
+
+    while len(visited) != n_nodes:
+        current_node = _get_current_node(visited, ranks)
+        visited.add(current_node)
+        for child in inverted_node_graph.get(current_node, list()):
+            ranks[child] = max(ranks[current_node] + 1, ranks.get(child, -1))
+
+            # Cycle detection
+            edge = (current_node, child)
+            if edge in edges or (edge[1], edge[0]) in edges:
                 raise exceptions.InvalidRequest(
                     "missing dependency among inModels IDs", 400
                 )
             else:
                 edges.add(edge)
 
-        if len(node_graph[node]) == 0:
-            rank = 0
-        else:
-            rank = 1 + max(
-                [
-                    _get_rank(x, visited, edges, node_graph, node_to_ignore)
-                    for x in node_graph[node]
-                ]
-            )
-    visited[node] = rank
-    return rank
-
-
-def compute_ranks(
-    node_graph: typing.Dict[str, typing.List[str]],
-    visited: typing.Optional[typing.Dict[str, int]] = None,
-    node_to_ignore: typing.List[str] = None,
-) -> typing.Dict[str, int]:
-    """Compute the rank of the objects
-
-    If visited is not empty, it should contain the id of the objects
-    that already have a rank, these ids do not have to be in node_graph.
-
-    Args:
-        node_graph (typing.Dict[str, typing.List[str]]): List of tuple specifications
-            whose rank is computed (read-only).
-        visited (typing.Optional[typing.Dict[str, int]]): Dict id-rank of the
-            tuple specifications whose rank has been computed (in place update).
-        node_to_ignore (typing.List[str]): These nodes are ignored when encountered, a
-            dependency on such a node is like no dependency
-
-    Raises:
-        exceptions.InvalidRequest: if there is a circular dependency between the tuples.
-
-    Returns:
-        typing.Dict[str, int]: visited
-            dict id - rank with all the ids from the node_graph
-    """
-    if visited is None:
-        visited = dict()
-    if node_to_ignore is None:
-        node_to_ignore = list()
-    nodes_to_visit = set(node_graph.keys()).difference(set(node_to_ignore))
-    while len(visited) != len(nodes_to_visit):
-        node = nodes_to_visit.difference(set(visited.keys())).pop()
-        _get_rank(
-            node=node,
-            visited=visited,
-            edges=set(),
-            node_graph=node_graph,
-            node_to_ignore=node_to_ignore,
-        )
-    return visited
+    return ranks
 
 
 def filter_tuples_in_list(
