@@ -114,7 +114,9 @@ class Remote(base.BaseBackend):
                 spec_options=spec_options,
             )
         elif asset_type == schemas.Type.ComputePlan and spec_options.pop(AUTO_BATCHING, False):
-            assert batch_size
+            if not batch_size:
+                raise ValueError("Batch size must be defined to create a compute plan \
+                    with the auto-batching feature.")
             # Compute plan auto batching feature
             return self._auto_batching_compute_plan(
                 spec=spec,

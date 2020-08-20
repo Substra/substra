@@ -14,7 +14,7 @@
 
 import typing
 
-from substra.sdk import exceptions, schemas
+from substra.sdk import exceptions
 
 
 def _get_inverted_node_graph(node_graph, node_to_ignore):
@@ -70,7 +70,10 @@ def compute_ranks(
     visited = set()
     node_to_ignore = node_to_ignore or set()
 
-    assert len(set(node_graph.keys()).intersection(node_to_ignore)) == 0
+    extra_nodes = set(node_graph.keys()).intersection(node_to_ignore)
+    if len(extra_nodes) > 0:
+        raise ValueError(f"node_graph keys should not contain any node to ignore: {extra_nodes}")
+
     inverted_node_graph = _get_inverted_node_graph(node_graph, node_to_ignore)
 
     # Assign rank 0 to nodes without deps
@@ -92,40 +95,10 @@ def compute_ranks(
             edge = (current_node, child)
             if (edge[1], edge[0]) in edges:
                 raise exceptions.InvalidRequest(
-                    "missing dependency among inModels IDs", 400
+                    f"missing dependency among inModels IDs, \
+                        circular dependency between {edge[0]} and {edge[1]}", 400
                 )
             else:
                 edges.add(edge)
 
     return ranks
-
-
-def filter_tuples_in_list(
-    tuple_graph: typing.Dict[str, typing.List[str]],
-    traintuples: typing.Dict[str, schemas.ComputePlanTraintupleSpec],
-    aggregatetuples: typing.Dict[str, schemas.ComputePlanAggregatetupleSpec],
-    composite_traintuples: typing.Dict[str, schemas.ComputePlanCompositeTraintupleSpec],
-    testtuples: typing.Dict[str, schemas.ComputePlanTesttupleSpec],
-):
-    """Return the tuple lists with only the elements which are in the tuple graph.
-    """
-    filtered_traintuples = list()
-    filtered_aggregatetuples = list()
-    filtered_composite_traintuples = list()
-    filtered_testtuples = list()
-    for elem_id, _ in tuple_graph:
-        if elem_id in traintuples:
-            filtered_traintuples.append(traintuples[elem_id])
-        elif elem_id in aggregatetuples:
-            filtered_aggregatetuples.append(aggregatetuples[elem_id])
-        elif elem_id in composite_traintuples:
-            filtered_composite_traintuples.append(composite_traintuples[elem_id])
-        elif elem_id in testtuples:
-            filtered_testtuples.append(testtuples[elem_id])
-
-    return (
-        filtered_traintuples,
-        filtered_aggregatetuples,
-        filtered_composite_traintuples,
-        filtered_testtuples,
-    )
