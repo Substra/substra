@@ -73,6 +73,8 @@ def test_compute_ranks_closed_cycle(node_graph_linear):
 
 def test_compute_ranks_ignore(node_graph):
     node_to_ignore = set(range(5))
+    for i in range(5):
+        node_graph.pop(i)
     visited = graph.compute_ranks(node_graph=node_graph, node_to_ignore=node_to_ignore)
     for key, rank in visited.items():
         assert rank == key - 5

@@ -150,21 +150,9 @@ class Remote(base.BaseBackend):
             batch_size=batch_size,
         )
 
-        # Special case: no tuples
-        if batches is None:
-            spec_options[AUTO_BATCHING] = False
-            spec_options[BATCH_SIZE] = batch_size
-            if compute_plan_id:
-                return self.update_compute_plan(
-                    compute_plan_id=compute_plan_id,
-                    spec=spec,
-                    spec_options=spec_options
-                )
-            else:
-                return self.add(spec=spec, exist_ok=exist_ok, spec_options=spec_options)
-
         # Create / update by batch
         id_to_keys = dict()
+        asset = None
         for tmp_spec in batches:
             if compute_plan_id:
                 asset = self._client.request(
@@ -184,6 +172,20 @@ class Remote(base.BaseBackend):
                     )
                 compute_plan_id = asset['computePlanID']
             id_to_keys.update(asset['IDToKey'])
+
+        # Special case: no tuples
+        if asset is None:
+            spec_options[AUTO_BATCHING] = False
+            spec_options[BATCH_SIZE] = batch_size
+            if compute_plan_id:
+                return self.update_compute_plan(
+                    compute_plan_id=compute_plan_id,
+                    spec=spec,
+                    spec_options=spec_options
+                )
+            else:
+                return self.add(spec=spec, exist_ok=exist_ok, spec_options=spec_options)
+
         asset['IDToKey'] = id_to_keys
         return asset
 

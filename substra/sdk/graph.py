@@ -53,8 +53,10 @@ def compute_ranks(
     """Compute the ranks of the nodes in the graph.
 
     Args:
-        node_graph (typing.Dict[str, typing.List[str]]): Dict {node_id: list of nodes it depends on}
-        node_to_ignore (typing.Set[str], optional): List of nodes to ignore (like if their rank is -1). 
+        node_graph (typing.Dict[str, typing.List[str]]):
+            Dict {node_id: list of nodes it depends on}.
+            Node graph keys must not contain any node to ignore.
+        node_to_ignore (typing.Set[str], optional): List of nodes to ignore.
             Defaults to None.
         ranks (typing.Dict[str, int]): Already computed ranks. Defaults to None.
 
@@ -67,11 +69,9 @@ def compute_ranks(
     ranks = ranks or dict()
     visited = set()
     node_to_ignore = node_to_ignore or set()
-    inverted_node_graph = _get_inverted_node_graph(node_graph, node_to_ignore)
 
-    # Number of nodes to visit
-    # TODO check whether this is necessary
-    n_nodes = len(node_graph.keys())  # len(set(node_graph.keys()).difference(node_to_ignore))
+    assert len(set(node_graph.keys()).intersection(node_to_ignore)) == 0
+    inverted_node_graph = _get_inverted_node_graph(node_graph, node_to_ignore)
 
     # Assign rank 0 to nodes without deps
     for node, dependencies in node_graph.items():
@@ -82,7 +82,7 @@ def compute_ranks(
 
     edges = set()
 
-    while len(visited) != n_nodes:
+    while len(visited) != len(node_graph):
         current_node = _get_current_node(visited, ranks)
         visited.add(current_node)
         for child in inverted_node_graph.get(current_node, list()):
@@ -90,7 +90,7 @@ def compute_ranks(
 
             # Cycle detection
             edge = (current_node, child)
-            if (edge[1], edge[0]) in edges:  # if edge in edges or
+            if (edge[1], edge[0]) in edges:
                 raise exceptions.InvalidRequest(
                     "missing dependency among inModels IDs", 400
                 )

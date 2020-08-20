@@ -101,8 +101,9 @@ def auto_batching(spec, is_creation: bool = True, batch_size: int = 20):
     testtuples = dict()
     if spec.testtuples:
         for testtuple in spec.testtuples:
+            # Rank 0 if testtuple.traintuple_id is in the nodes to ignore
             visited["test_" + testtuple.traintuple_id] = (
-                visited[testtuple.traintuple_id] + 1
+                visited.get(testtuple.traintuple_id, -1) + 1
             )
             testtuples["test_" + testtuple.traintuple_id] = testtuple
 
@@ -152,6 +153,3 @@ def auto_batching(spec, is_creation: bool = True, batch_size: int = 20):
                 testtuples,
             )
             yield tmp_spec
-
-    # Special case: no tuples
-    return None
