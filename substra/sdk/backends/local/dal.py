@@ -109,7 +109,6 @@ class DataAccess:
             if not tmp_directory.exists():
                 pathlib.Path.mkdir(tmp_directory)
 
-            if not asset_path.exists():
                 self._remote.download(
                     type_,
                     field_name + ".storageAddress",
