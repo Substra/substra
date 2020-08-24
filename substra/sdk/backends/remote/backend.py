@@ -144,49 +144,46 @@ class Remote(base.BaseBackend):
                                     exist_ok=None,
                                     spec_options=None):
         """Auto batching of the compute plan tuples
+
+        It computes the batches then, for each batch, it calls the 'add' and
+        'update_compute_plan' methods with auto_batching=False.
         """
         spec_options = spec_options or dict()
+        spec_options[AUTO_BATCHING] = False
+        spec_options[BATCH_SIZE] = batch_size
+
         batches = compute_plan.auto_batching(
             spec,
             is_creation=compute_plan_id is None,
             batch_size=batch_size,
         )
 
-        # Create / update by batch
         id_to_keys = dict()
         asset = None
+
+        # Create the compute plan if it does not exist
+        if not compute_plan_id:
+            first_spec = next(batches, None)
+            tmp_spec = first_spec or spec  # Special case: no tuples
+            asset = self.add(spec=tmp_spec, exist_ok=exist_ok, spec_options=spec_options)
+            compute_plan_id = asset['computePlanID']
+            id_to_keys = asset['IDToKey']
+
+        # Update the compute plan
         for tmp_spec in batches:
-            if compute_plan_id:
-                asset = self._client.request(
-                    'post',
-                    schemas.Type.ComputePlan.to_server(),
-                    path=f"{compute_plan_id}/update_ledger/",
-                    json=tmp_spec.dict(exclude_none=True),
-                )
-                id_to_keys.update(asset['IDToKey'])
-            else:
-                with tmp_spec.build_request_kwargs(**spec_options) as (data, files):
-                    asset = self._add(
-                        schemas.Type.ComputePlan,
-                        data,
-                        files=files,
-                        exist_ok=exist_ok
-                    )
-                compute_plan_id = asset['computePlanID']
+            asset = self.update_compute_plan(
+                compute_plan_id=compute_plan_id,
+                spec=tmp_spec,
+                spec_options=spec_options
+            )
             id_to_keys.update(asset['IDToKey'])
 
         # Special case: no tuples
         if asset is None:
-            spec_options[AUTO_BATCHING] = False
-            spec_options[BATCH_SIZE] = batch_size
-            if compute_plan_id:
-                return self.update_compute_plan(
-                    compute_plan_id=compute_plan_id,
-                    spec=spec,
-                    spec_options=spec_options
-                )
-            else:
-                return self.add(spec=spec, exist_ok=exist_ok, spec_options=spec_options)
+            return self.get(
+                asset_type=schemas.Type.ComputePlan,
+                key=compute_plan_id,
+            )
 
         asset['IDToKey'] = id_to_keys
         return asset

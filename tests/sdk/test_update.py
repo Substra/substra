@@ -32,8 +32,10 @@ def test_update_dataset(client, mocker):
 def test_update_compute_plan(client, mocker):
     item = datastore.COMPUTE_PLAN
     m = mock_requests(mocker, "post", response=item)
+    m_get = mock_requests(mocker, "get", response=datastore.COMPUTE_PLAN)
 
     response = client.update_compute_plan('foo', {})
 
     assert response == item
     m.assert_called
+    m_get.assert_called
