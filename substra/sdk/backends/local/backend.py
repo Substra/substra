@@ -16,7 +16,7 @@ import typing
 import warnings
 
 import substra
-from substra.sdk import schemas, exceptions, utils, fs
+from substra.sdk import schemas, exceptions, fs, graph, compute_plan as compute_plan_module
 from substra.sdk.backends import base
 from substra.sdk.backends.local import models
 from substra.sdk.backends.local import dal
@@ -179,48 +179,6 @@ class Local(base.BaseBackend):
             rank = 0
 
         return compute_plan_id, rank
-
-    def __get_all_tuples_compute_plan(
-        self,
-        spec: typing.Union[schemas.ComputePlanSpec, schemas.UpdateComputePlanSpec]
-    ):
-        """Get the tuple dependency graph and, for each type of tuple, a mapping table id/tuple.
-        """
-        tuple_graph = dict()
-        traintuples = dict()
-        if spec.traintuples:
-            for traintuple in spec.traintuples:
-                if traintuple.in_models_ids is not None:
-                    tuple_graph[traintuple.traintuple_id] = traintuple.in_models_ids
-                else:
-                    tuple_graph[traintuple.traintuple_id] = list()
-                traintuples[traintuple.traintuple_id] = traintuple
-
-        aggregatetuples = dict()
-        if spec.aggregatetuples:
-            for aggregatetuple in spec.aggregatetuples:
-                if aggregatetuple.in_models_ids is not None:
-                    tuple_graph[aggregatetuple.aggregatetuple_id] = aggregatetuple.in_models_ids
-                else:
-                    tuple_graph[aggregatetuple.aggregatetuple_id] = list()
-                aggregatetuples[aggregatetuple.aggregatetuple_id] = aggregatetuple
-
-        compositetuples = dict()
-        if spec.composite_traintuples:
-            for compositetuple in spec.composite_traintuples:
-                assert not compositetuple.out_trunk_model_permissions.public
-                tuple_graph[compositetuple.composite_traintuple_id] = list()
-                if compositetuple.in_head_model_id is not None:
-                    tuple_graph[compositetuple.composite_traintuple_id].append(
-                        compositetuple.in_head_model_id
-                    )
-                if compositetuple.in_trunk_model_id is not None:
-                    tuple_graph[compositetuple.composite_traintuple_id].append(
-                        compositetuple.in_trunk_model_id
-                    )
-                compositetuples[compositetuple.composite_traintuple_id] = compositetuple
-
-        return tuple_graph, traintuples, aggregatetuples, compositetuples
 
     def __get_id_rank_in_compute_plan(self, type_, key, id_to_key):
         tuple_ = self._db.get(schemas.Type.Traintuple, key)
@@ -521,10 +479,10 @@ class Local(base.BaseBackend):
             traintuples,
             aggregatetuples,
             compositetuples
-        ) = self.__get_all_tuples_compute_plan(spec)
+        ) = compute_plan_module.get_dependency_graph(spec)
 
         # Define the rank of each traintuple, aggregate tuple and composite tuple
-        visited = utils.compute_ranks(node_graph=tuple_graph)
+        visited = graph.compute_ranks(node_graph=tuple_graph)
 
         compute_plan = models.ComputePlan(
             compute_plan_id=key,
@@ -979,7 +937,10 @@ class Local(base.BaseBackend):
         # function does not make sense.
         raise NotImplementedError
 
-    def update_compute_plan(self, compute_plan_id: str, spec: schemas.UpdateComputePlanSpec):
+    def update_compute_plan(self,
+                            compute_plan_id: str,
+                            spec: schemas.UpdateComputePlanSpec,
+                            spec_options: dict = None):
         compute_plan = self._db.get(schemas.Type.ComputePlan, compute_plan_id)
 
         # Get all the new tuples and their dependencies
@@ -988,7 +949,7 @@ class Local(base.BaseBackend):
             traintuples,
             aggregatetuples,
             compositetuples
-        ) = self.__get_all_tuples_compute_plan(spec)
+        ) = compute_plan_module.get_dependency_graph(spec)
 
         # Define the rank of each traintuple, aggregate tuple and composite tuple
         old_tuples = {id_: list() for id_ in compute_plan.id_to_key}
@@ -1023,7 +984,7 @@ class Local(base.BaseBackend):
                 )
                 visited[id_] = rank
 
-        visited = utils.compute_ranks(node_graph=tuple_graph, visited=visited)
+        visited = graph.compute_ranks(node_graph=tuple_graph, ranks=visited)
 
         compute_plan = self.__execute_compute_plan(
             spec,

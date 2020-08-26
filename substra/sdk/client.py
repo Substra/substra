@@ -27,6 +27,7 @@ from substra.sdk import schemas
 logger = logging.getLogger(__name__)
 
 DEFAULT_RETRY_TIMEOUT = 5 * 60
+DEFAULT_BATCH_SIZE = 20
 
 
 def logit(f):
@@ -521,7 +522,12 @@ class Client(object):
         return self._backend.add(spec, exist_ok=exist_ok)
 
     @logit
-    def add_compute_plan(self, data):
+    def add_compute_plan(
+        self,
+        data,
+        auto_batching: bool = True,
+        batch_size: int = DEFAULT_BATCH_SIZE
+    ):
         """Create compute plan.
 
         Data is a dict object with the following schema:
@@ -573,9 +579,17 @@ class Client(object):
 
         As specified in the data dict structure, output trunk models of composite
         traintuples cannot be made public.
+        Set 'auto_batching' to False to upload all the tuples of the
+        compute plan at once.
+        If 'auto_batching' is True, change `batch_size` to define the number of
+        tuples uploaded in each batch (default 20).
         """
         spec = self._get_spec(schemas.ComputePlanSpec, data)
-        return self._backend.add(spec, exist_ok=False)
+        spec_options = {
+            "auto_batching": auto_batching,
+            "batch_size": batch_size,
+        }
+        return self._backend.add(spec, exist_ok=False, spec_options=spec_options)
 
     @logit
     def get_algo(self, key):
@@ -688,7 +702,13 @@ class Client(object):
         return self._backend.list(schemas.Type.Node)
 
     @logit
-    def update_compute_plan(self, compute_plan_id, data):
+    def update_compute_plan(
+        self,
+        compute_plan_id,
+        data,
+        auto_batching: bool = True,
+        batch_size: int = DEFAULT_BATCH_SIZE
+    ):
         """Update compute plan.
 
         Data is a dict object with the following schema:
@@ -737,10 +757,17 @@ class Client(object):
 
         As specified in the data dict structure, output trunk models of composite
         traintuples cannot be made public.
-
+        Set 'auto_batching' to False to upload all the tuples of the
+        compute plan at once.
+        If 'auto_batching' is True, change `batch_size` to define the number of
+        tuples uploaded in each batch (default 20).
         """
         spec = schemas.UpdateComputePlanSpec(**data)
-        return self._backend.update_compute_plan(compute_plan_id, spec)
+        spec_options = {
+            "auto_batching": auto_batching,
+            "batch_size": batch_size,
+        }
+        return self._backend.update_compute_plan(compute_plan_id, spec, spec_options=spec_options)
 
     @logit
     def link_dataset_with_objective(self, dataset_key, objective_key):

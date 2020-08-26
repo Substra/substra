@@ -16,13 +16,15 @@ from copy import deepcopy
 import logging
 import json
 
-from substra.sdk import exceptions, schemas
+from substra.sdk import exceptions, schemas, compute_plan
 from substra.sdk.backends import base
 from substra.sdk.backends.remote import rest_client
 
 logger = logging.getLogger(__name__)
 
 DEFAULT_RETRY_TIMEOUT = 5 * 60
+AUTO_BATCHING = "auto_batching"
+BATCH_SIZE = 'batch_size'
 
 
 def _get_asset_key(data):
@@ -101,6 +103,8 @@ class Remote(base.BaseBackend):
         """Add an asset."""
         spec_options = spec_options or {}
         asset_type = spec.__class__.type_
+        # Remove batch_size from spec_options
+        batch_size = spec_options.pop(BATCH_SIZE, None)
 
         if asset_type == schemas.Type.DataSample:
             # data sample corner case
@@ -109,25 +113,99 @@ class Remote(base.BaseBackend):
                 exist_ok=exist_ok,
                 spec_options=spec_options,
             )
+        elif asset_type == schemas.Type.ComputePlan and spec_options.pop(AUTO_BATCHING, False):
+            if not batch_size:
+                raise ValueError("Batch size must be defined to create a compute plan \
+                    with the auto-batching feature.")
+            # Compute plan auto batching feature
+            return self._auto_batching_compute_plan(
+                spec=spec,
+                exist_ok=exist_ok,
+                batch_size=batch_size,
+                spec_options=spec_options,
+            )
 
         with spec.build_request_kwargs(**spec_options) as (data, files):
             response = self._add(asset_type, data, files=files, exist_ok=exist_ok)
         # The backend has inconsistent API responses when getting or adding an asset
         # (with much less data when responding to adds).
         # A second GET request hides the discrepancies.
+        # Do not do this with a compute plan or we lose the id_to_key field
         if asset_type == schemas.Type.ComputePlan:
             return response
 
         key = _get_asset_key(response)
         return self.get(asset_type, key)
 
-    def update_compute_plan(self, compute_plan_id, spec):
-        return self._client.request(
-            'post',
-            schemas.Type.ComputePlan.to_server(),
-            path=f"{compute_plan_id}/update_ledger/",
-            json=spec.dict(exclude_none=True),
+    def _auto_batching_compute_plan(self,
+                                    spec,
+                                    batch_size,
+                                    compute_plan_id=None,
+                                    exist_ok=None,
+                                    spec_options=None):
+        """Auto batching of the compute plan tuples
+
+        It computes the batches then, for each batch, it calls the 'add' and
+        'update_compute_plan' methods with auto_batching=False.
+        """
+        spec_options = spec_options or dict()
+        spec_options[AUTO_BATCHING] = False
+        spec_options[BATCH_SIZE] = batch_size
+
+        batches = compute_plan.auto_batching(
+            spec,
+            is_creation=compute_plan_id is None,
+            batch_size=batch_size,
         )
+
+        id_to_keys = dict()
+        asset = None
+
+        # Create the compute plan if it does not exist
+        if not compute_plan_id:
+            first_spec = next(batches, None)
+            tmp_spec = first_spec or spec  # Special case: no tuples
+            asset = self.add(spec=tmp_spec, exist_ok=exist_ok, spec_options=deepcopy(spec_options))
+            compute_plan_id = asset['computePlanID']
+            id_to_keys = asset['IDToKey']
+
+        # Update the compute plan
+        for tmp_spec in batches:
+            asset = self.update_compute_plan(
+                compute_plan_id=compute_plan_id,
+                spec=tmp_spec,
+                spec_options=deepcopy(spec_options)
+            )
+            id_to_keys.update(asset['IDToKey'])
+
+        # Special case: no tuples
+        if asset is None:
+            return self.get(
+                asset_type=schemas.Type.ComputePlan,
+                key=compute_plan_id,
+            )
+
+        asset['IDToKey'] = id_to_keys
+        return asset
+
+    def update_compute_plan(self, compute_plan_id, spec, spec_options=None):
+        spec_options = spec_options or {}
+        batch_size = spec_options.pop(BATCH_SIZE)
+        if spec_options.pop(AUTO_BATCHING):
+            return self._auto_batching_compute_plan(
+                spec=spec,
+                compute_plan_id=compute_plan_id,
+                batch_size=batch_size,
+                spec_options=spec_options,
+            )
+        else:
+            # Disable auto batching
+            return self._client.request(
+                'post',
+                schemas.Type.ComputePlan.to_server(),
+                path=f"{compute_plan_id}/update_ledger/",
+                json=spec.dict(exclude_none=True),
+            )
 
     def link_dataset_with_objective(self, dataset_key, objective_key):
         return self._client.request(

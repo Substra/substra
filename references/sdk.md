@@ -377,7 +377,7 @@ existing asset will be returned.
 
 ## add_compute_plan
 ```python
-Client.add_compute_plan(self, data)
+Client.add_compute_plan(self, data, auto_batching: bool = True, batch_size: int = 20)
 ```
 Create compute plan.
 
@@ -430,6 +430,10 @@ Data is a dict object with the following schema:
 
 As specified in the data dict structure, output trunk models of composite
 traintuples cannot be made public.
+Set 'auto_batching' to False to upload all the tuples of the
+compute plan at once.
+If 'auto_batching' is True, change `batch_size` to define the number of
+tuples uploaded in each batch (default 20).
 
 ## get_algo
 ```python
@@ -543,7 +547,7 @@ Client.list_node(self, *args, **kwargs)
 List nodes.
 ## update_compute_plan
 ```python
-Client.update_compute_plan(self, compute_plan_id, data)
+Client.update_compute_plan(self, compute_plan_id, data, auto_batching: bool = True, batch_size: int = 20)
 ```
 Update compute plan.
 
@@ -593,7 +597,10 @@ Data is a dict object with the following schema:
 
 As specified in the data dict structure, output trunk models of composite
 traintuples cannot be made public.
-
+Set 'auto_batching' to False to upload all the tuples of the
+compute plan at once.
+If 'auto_batching' is True, change `batch_size` to define the number of
+tuples uploaded in each batch (default 20).
 
 ## link_dataset_with_objective
 ```python
