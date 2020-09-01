@@ -289,7 +289,9 @@ Usage: substra add compute_plan [OPTIONS] PATH
 
 Options:
   -n, --no-auto-batching          Disable the auto batching feature
-  -b, --batch-size INTEGER        Batch size for the auto batching
+  -b, --batch-size INTEGER        Batch size for the auto batching  [default:
+                                  20]
+
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
@@ -836,7 +838,9 @@ Usage: substra update compute_plan [OPTIONS] COMPUTE_PLAN_ID TUPLES_PATH
 
 Options:
   -n, --no-auto-batching          Disable the auto batching feature
-  -b, --batch-size INTEGER        Batch size for the auto batching
+  -b, --batch-size INTEGER        Batch size for the auto batching  [default:
+                                  20]
+
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
