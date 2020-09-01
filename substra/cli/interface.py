@@ -24,7 +24,7 @@ from substra import __version__, runner
 from substra.cli import printers
 from substra.sdk import assets, exceptions
 from substra.sdk import config as configuration
-from substra.sdk.client import Client
+from substra.sdk.client import Client, DEFAULT_BATCH_SIZE
 
 
 def get_client(global_conf):
@@ -505,10 +505,15 @@ def add_algo(ctx, data):
 @add.command('compute_plan')
 @click.argument('data', type=click.Path(exists=True, dir_okay=False),
                 callback=load_json_from_path, metavar="PATH")
+@click.option('--no-auto-batching', '-n', is_flag=True,
+              help='Disable the auto batching feature')
+@click.option('--batch-size', '-b', type=int,
+              help='Batch size for the auto batching',
+              default=DEFAULT_BATCH_SIZE, show_default=True)
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
-def add_compute_plan(ctx, data):
+def add_compute_plan(ctx, data, no_auto_batching, batch_size):
     """Add compute plan.
 
     The path must point to a valid JSON file with the following schema:
@@ -558,9 +563,17 @@ def add_compute_plan(ctx, data):
         "metadata": dict
     }
 
+    Disable the auto batching to upload all the tuples of the
+    compute plan at once.
+    If the auto batching is enabled, change the `batch_size` to define the number of
+    tuples uploaded in each batch (default 20).
     """
+    if no_auto_batching and batch_size:
+        raise click.BadOptionUsage('--batch_size',
+                                   "The --batch_size option cannot be used when using "
+                                   "--no_auto_batching.")
     client = get_client(ctx.obj)
-    res = client.add_compute_plan(data)
+    res = client.add_compute_plan(data, auto_batching=not no_auto_batching, batch_size=batch_size)
     printer = printers.get_asset_printer(assets.COMPUTE_PLAN, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
@@ -1176,10 +1189,15 @@ def update_dataset(ctx, dataset_key, objective_key):
 @click.argument('compute_plan_id', type=click.STRING)
 @click.argument('tuples', type=click.Path(exists=True, dir_okay=False),
                 callback=load_json_from_path, metavar="TUPLES_PATH")
+@click.option('--no-auto-batching', '-n', is_flag=True,
+              help='Disable the auto batching feature')
+@click.option('--batch-size', '-b', type=int,
+              help='Batch size for the auto batching',
+              default=DEFAULT_BATCH_SIZE, show_default=True)
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
-def update_compute_plan(ctx, compute_plan_id, tuples):
+def update_compute_plan(ctx, compute_plan_id, tuples, no_auto_batching, batch_size):
     """Update compute plan.
 
     The tuples path must point to a valid JSON file with the following schema:
@@ -1226,9 +1244,17 @@ def update_compute_plan(ctx, compute_plan_id, tuples):
         }]
     }
 
+    Disable the auto batching to upload all the tuples of the
+    compute plan at once.
+    If the auto batching is enabled, change the `batch_size` to define the number of
+    tuples uploaded in each batch (default 20).
     """
+    if no_auto_batching and batch_size:
+        raise click.BadOptionUsage('--batch_size',
+                                   "The --batch_size option cannot be used when using "
+                                   "--no_auto_batching.")
     client = get_client(ctx.obj)
-    res = client.update_compute_plan(compute_plan_id, tuples)
+    res = client.update_compute_plan(compute_plan_id, tuples, not no_auto_batching, batch_size)
     printer = printers.get_asset_printer(assets.COMPUTE_PLAN, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
