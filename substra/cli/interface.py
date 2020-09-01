@@ -24,7 +24,7 @@ from substra import __version__, runner
 from substra.cli import printers
 from substra.sdk import assets, exceptions
 from substra.sdk import config as configuration
-from substra.sdk.client import Client
+from substra.sdk.client import Client, DEFAULT_BATCH_SIZE
 
 
 def get_client(global_conf):
@@ -508,7 +508,8 @@ def add_algo(ctx, data):
 @click.option('--no-auto-batching', '-n', is_flag=True,
               help='Disable the auto batching feature')
 @click.option('--batch-size', '-b', type=int,
-              help='Batch size for the auto batching')
+              help='Batch size for the auto batching',
+              default=DEFAULT_BATCH_SIZE, show_default=True)
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
@@ -1191,7 +1192,8 @@ def update_dataset(ctx, dataset_key, objective_key):
 @click.option('--no-auto-batching', '-n', is_flag=True,
               help='Disable the auto batching feature')
 @click.option('--batch-size', '-b', type=int,
-              help='Batch size for the auto batching')
+              help='Batch size for the auto batching',
+              default=DEFAULT_BATCH_SIZE, show_default=True)
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
