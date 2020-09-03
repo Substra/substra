@@ -124,7 +124,8 @@ class DataAccess:
         if self.is_local(key):
             return self._db.get(type_, key)
         elif self._remote:
-            return self._get_response(type_, self._remote.get(type_, key))
+            remote_object = self._remote.get(type_, key)
+            return self._get_response(type_, remote_object)
         else:
             # TODO: better error that says do not have a remote ?
             raise exceptions.NotFound(f"Wrong pk {key}", 404)

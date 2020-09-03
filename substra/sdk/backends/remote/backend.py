@@ -55,7 +55,7 @@ class Remote(base.BaseBackend):
         """List assets per asset type."""
         return self._client.list(asset_type.to_server(), filters)
 
-    def _add(self, asset, data, files=None, exist_ok=False, get_asset=True):
+    def _add(self, asset, data, files=None, exist_ok=False):
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
         if files:
             kwargs = {
@@ -74,7 +74,6 @@ class Remote(base.BaseBackend):
             asset.to_server(),
             retry_timeout=self._retry_timeout,
             exist_ok=exist_ok,
-            get_asset=get_asset,
             **kwargs,
         )
 
