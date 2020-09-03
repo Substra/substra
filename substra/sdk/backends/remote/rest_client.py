@@ -212,7 +212,7 @@ class Client():
             if not exist_ok:
                 raise
 
-            key = e.key or e.computePlanID
+            key = e.key
             is_many = isinstance(key, list)
             if is_many:
                 logger.warning("Many assets not compatible with 'exist_ok' option")
