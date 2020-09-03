@@ -189,7 +189,7 @@ class Client(object):
         )
 
     @logit
-    def add_data_sample(self, data, local=True, exist_ok=False):
+    def add_data_sample(self, data, local=True, exist_ok=False, get_asset=True):
         """Create new data sample asset.
 
         `data` is a dict object with the following schema:
@@ -228,10 +228,10 @@ class Client(object):
         spec_options = {
             "local": local,
         }
-        return self._backend.add(spec, exist_ok=exist_ok, spec_options=spec_options)
+        return self._backend.add(spec, exist_ok=exist_ok, get_asset=get_asset, spec_options=spec_options)
 
     @logit
-    def add_data_samples(self, data, local=True):
+    def add_data_samples(self, data, local=True, get_asset=True):
         """Create many data sample assets.
 
         `data` is a dict object with the following schema:
@@ -265,10 +265,10 @@ class Client(object):
         spec_options = {
             "local": local,
         }
-        return self._backend.add(spec, exist_ok=False, spec_options=spec_options)
+        return self._backend.add(spec, exist_ok=False, spec_options=spec_options, get_asset=get_asset)
 
     @logit
-    def add_dataset(self, data, exist_ok=False):
+    def add_dataset(self, data, exist_ok=False, get_asset=True):
         """Create new dataset asset.
 
         `data` is a dict object with the following schema:
@@ -295,10 +295,10 @@ class Client(object):
         existing asset will be returned.
         """
         spec = self._get_spec(schemas.DatasetSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok)
+        return self._backend.add(spec, exist_ok=exist_ok, get_asset=get_asset)
 
     @logit
-    def add_objective(self, data, exist_ok=False):
+    def add_objective(self, data, exist_ok=False, get_asset=True):
         """Create new objective asset.
 
         `data` is a dict object with the following schema:
@@ -326,10 +326,10 @@ class Client(object):
         existing asset will be returned.
         """
         spec = self._get_spec(schemas.ObjectiveSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok)
+        return self._backend.add(spec, exist_ok=exist_ok, get_asset=get_asset)
 
     @logit
-    def add_algo(self, data, exist_ok=False):
+    def add_algo(self, data, exist_ok=False, get_asset=True):
         """Create new algo asset.
 
         `data` is a dict object with the following schema:
@@ -354,10 +354,10 @@ class Client(object):
         existing asset will be returned.
         """
         spec = self._get_spec(schemas.AlgoSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok)
+        return self._backend.add(spec, exist_ok=exist_ok, get_asset=get_asset)
 
     @logit
-    def add_aggregate_algo(self, data, exist_ok=False):
+    def add_aggregate_algo(self, data, exist_ok=False, get_asset=True):
         """Create new aggregate algo asset.
         `data` is a dict object with the following schema:
 ```
@@ -379,10 +379,10 @@ class Client(object):
         existing asset will be returned.
         """
         spec = self._get_spec(schemas.AggregateAlgoSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok)
+        return self._backend.add(spec, exist_ok=exist_ok, get_asset=get_asset)
 
     @logit
-    def add_composite_algo(self, data, exist_ok=False):
+    def add_composite_algo(self, data, exist_ok=False, get_asset=True):
         """Create new composite algo asset.
         `data` is a dict object with the following schema:
 ```
@@ -404,10 +404,10 @@ class Client(object):
         existing asset will be returned.
         """
         spec = self._get_spec(schemas.CompositeAlgoSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok)
+        return self._backend.add(spec, exist_ok=exist_ok, get_asset=get_asset)
 
     @logit
-    def add_traintuple(self, data, exist_ok=False):
+    def add_traintuple(self, data, exist_ok=False, get_asset=True):
         """Create new traintuple asset.
 
         `data` is a dict object with the following schema:
@@ -432,10 +432,10 @@ class Client(object):
         existing asset will be returned.
         """
         spec = self._get_spec(schemas.TraintupleSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok)
+        return self._backend.add(spec, exist_ok=exist_ok, get_asset=get_asset)
 
     @logit
-    def add_aggregatetuple(self, data, exist_ok=False):
+    def add_aggregatetuple(self, data, exist_ok=False, get_asset=True):
         """Create new aggregatetuple asset.
         `data` is a dict object with the following schema:
 ```
@@ -457,10 +457,10 @@ class Client(object):
         existing asset will be returned.
         """
         spec = self._get_spec(schemas.AggregatetupleSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok)
+        return self._backend.add(spec, exist_ok=exist_ok, get_asset=get_asset)
 
     @logit
-    def add_composite_traintuple(self, data, exist_ok=False):
+    def add_composite_traintuple(self, data, exist_ok=False, get_asset=True):
         """Create new composite traintuple asset.
         `data` is a dict object with the following schema:
 ```
@@ -491,10 +491,10 @@ class Client(object):
         existing asset will be returned.
         """
         spec = self._get_spec(schemas.CompositeTraintupleSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok)
+        return self._backend.add(spec, exist_ok=exist_ok, get_asset=get_asset)
 
     @logit
-    def add_testtuple(self, data, exist_ok=False):
+    def add_testtuple(self, data, exist_ok=False, get_asset=True):
         """Create new testtuple asset.
 
         `data` is a dict object with the following schema:
@@ -519,7 +519,7 @@ class Client(object):
         existing asset will be returned.
         """
         spec = self._get_spec(schemas.TesttupleSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok)
+        return self._backend.add(spec, exist_ok=exist_ok, get_asset=get_asset)
 
     @logit
     def add_compute_plan(
