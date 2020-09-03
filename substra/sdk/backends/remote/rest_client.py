@@ -212,7 +212,7 @@ class Client():
             if not exist_ok:
                 raise
 
-            key = e.pkhash or e.computePlanID
+            key = e.key or e.computePlanID
             is_many = isinstance(key, list)
             if is_many:
                 logger.warning("Many assets not compatible with 'exist_ok' option")
@@ -233,7 +233,7 @@ class Client():
             return self._add(name, exist_ok=exist_ok, **request_kwargs)
 
         except exceptions.RequestTimeout as e:
-            key = e.pkhash
+            key = e.key
             is_many = isinstance(key, list)  # timeout on many objects is not handled
             if not retry_timeout or is_many:
                 raise e

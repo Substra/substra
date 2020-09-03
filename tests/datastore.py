@@ -88,7 +88,7 @@ ALGO = {
             "authorizedIDs": []
         }
     },
-    "pkhash": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
+    "key": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
     "metadata": {
         "foo": "bar"
     }
@@ -112,7 +112,7 @@ AGGREGATE_ALGO = {
             "authorizedIDs": []
         }
     },
-    "pkhash": "7c9t9799bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
+    "key": "7c9t9799bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
     "metadata": {
         "foo": "bar"
     }
@@ -132,7 +132,7 @@ COMPOSITE_ALGO = {
     "owner": "ab75010bacbd1a4b826dc2e9ead6f1e4e1c4beade2d62a8b708fdde48fb0edea",
     "permissions_public": False,
     "permissions_authorized_ids": [],
-    "pkhash": "7c9f9br9bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
+    "key": "7c9f9br9bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
     "metadata": {
         "foo": "bar"
     }

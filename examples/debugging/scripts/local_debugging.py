@@ -108,7 +108,7 @@ with zipfile.ZipFile(ALGO["file"], "w") as z:
 
 # Add the dataset to Substra
 print("Adding dataset...")
-dataset_key = client.add_dataset(DATASET, exist_ok=True)["pkhash"]
+dataset_key = client.add_dataset(DATASET, exist_ok=True)["key"]
 assert dataset_key, "Missing data manager key"
 
 # Add the data samples to Substra
@@ -143,7 +143,7 @@ for conf in data_samples_configs:
                 local=True,
                 exist_ok=True,
             )
-            data_sample_key = data_sample["pkhash"]
+            data_sample_key = data_sample["key"]
             conf["data_sample_keys"].append(data_sample_key)
             progress.update()
     assert len(conf["data_sample_keys"]), conf["missing_message"]
@@ -169,7 +169,7 @@ objective_key = client.add_objective(
         "permissions": OBJECTIVE["permissions"],
     },
     exist_ok=True,
-)["pkhash"]
+)["key"]
 assert objective_key, "Missing objective key"
 
 # Add the algorithm
@@ -182,7 +182,7 @@ algo_key = client.add_algo(
         "permissions": ALGO["permissions"],
     },
     exist_ok=True,
-)["pkhash"]
+)["key"]
 
 #  Add the traintuple
 print("Registering traintuple...")
@@ -194,7 +194,7 @@ traintuple = client.add_traintuple(
     },
     exist_ok=True,
 )
-traintuple_key = traintuple.get("key") or traintuple.get("pkhash")
+traintuple_key = traintuple.get("key")
 assert traintuple_key, "Missing traintuple key"
 
 #  Add the testtuple
@@ -202,7 +202,7 @@ print("Registering testtuple...")
 testtuple = client.add_testtuple(
     {"objective_key": objective_key, "traintuple_key": traintuple_key}, exist_ok=True
 )
-testtuple_key = testtuple.get("key") or testtuple.get("pkhash")
+testtuple_key = testtuple.get("key")
 assert testtuple_key, "Missing testtuple key"
 
 #  Get the performance

@@ -62,7 +62,7 @@ algo_key = client.add_algo(
         "permissions": ALGO["permissions"],
     },
     exist_ok=True,
-)["pkhash"]
+)["key"]
 print(f"Algo key: {algo_key}")
 
 ##################
@@ -83,7 +83,7 @@ traintuple = client.add_traintuple(
     },
     exist_ok=True,
 )
-traintuple_key = traintuple.get("key") or traintuple.get("pkhash")
+traintuple_key = traintuple.get("key")
 assert traintuple_key, "Missing traintuple key"
 
 print(f"\n--- Logs of the execution of the traintuple --- \n{traintuple['log']}\n")
@@ -100,7 +100,7 @@ testtuple = client.add_testtuple(
         "traintuple_key": traintuple_key
     }, exist_ok=True
 )
-testtuple_key = testtuple.get("key") or testtuple.get("pkhash")
+testtuple_key = testtuple.get("key")
 assert testtuple_key, "Missing testtuple key"
 
 print(f"\n--- Logs of the execution of the testtuple --- \n{testtuple['log']}\n")
