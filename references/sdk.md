@@ -69,7 +69,7 @@ Returns:
 
 ## add_data_sample
 ```python
-Client.add_data_sample(self, data, local=True, exist_ok=False)
+Client.add_data_sample(self, data, local=True, exist_ok=False, get_asset=False)
 ```
 Create new data sample asset.
 
@@ -100,10 +100,12 @@ raised.
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
+If `get_asset` is False, only the key is returned, otherwise the object is returned.
+
 
 ## add_data_samples
 ```python
-Client.add_data_samples(self, data, local=True)
+Client.add_data_samples(self, data, local=True, get_asset=False)
 ```
 Create many data sample assets.
 
@@ -123,6 +125,8 @@ points to a directory representing one data sample.
 
 For the `local` argument, please refer to the method `Client.add_data_sample`.
 
+If `get_asset` is False, only the key is returned, otherwise the object is returned.
+
 This method is well suited for adding multiple small files only. For adding a
 large amount of data it is recommended to add them one by one. It allows a
 better control in case of failures.
@@ -132,7 +136,7 @@ exception will be raised.
 
 ## add_dataset
 ```python
-Client.add_dataset(self, data, exist_ok=False)
+Client.add_dataset(self, data, exist_ok=False, get_asset=False)
 ```
 Create new dataset asset.
 
@@ -159,9 +163,11 @@ raised.
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
+If `get_asset` is False, only the key is returned, otherwise the object is returned.
+
 ## add_objective
 ```python
-Client.add_objective(self, data, exist_ok=False)
+Client.add_objective(self, data, exist_ok=False, get_asset=False)
 ```
 Create new objective asset.
 
@@ -189,9 +195,11 @@ be raised.
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
+If `get_asset` is False, only the key is returned, otherwise the object is returned.
+
 ## add_algo
 ```python
-Client.add_algo(self, data, exist_ok=False)
+Client.add_algo(self, data, exist_ok=False, get_asset=False)
 ```
 Create new algo asset.
 
@@ -216,9 +224,11 @@ raised.
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
+If `get_asset` is False, only the key is returned, otherwise the object is returned.
+
 ## add_aggregate_algo
 ```python
-Client.add_aggregate_algo(self, data, exist_ok=False)
+Client.add_aggregate_algo(self, data, exist_ok=False, get_asset=False)
 ```
 Create new aggregate algo asset.
 `data` is a dict object with the following schema:
@@ -240,9 +250,11 @@ exception will be raised.
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
+If `get_asset` is False, only the key is returned, otherwise the object is returned.
+
 ## add_composite_algo
 ```python
-Client.add_composite_algo(self, data, exist_ok=False)
+Client.add_composite_algo(self, data, exist_ok=False, get_asset=False)
 ```
 Create new composite algo asset.
 `data` is a dict object with the following schema:
@@ -264,9 +276,11 @@ will be raised.
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
+If `get_asset` is False, only the key is returned, otherwise the object is returned.
+
 ## add_traintuple
 ```python
-Client.add_traintuple(self, data, exist_ok=False)
+Client.add_traintuple(self, data, exist_ok=False, get_asset=False)
 ```
 Create new traintuple asset.
 
@@ -291,9 +305,11 @@ An `AlreadyExists` exception will be raised if a traintuple already exists that:
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
+If `get_asset` is False, only the key is returned, otherwise the object is returned.
+
 ## add_aggregatetuple
 ```python
-Client.add_aggregatetuple(self, data, exist_ok=False)
+Client.add_aggregatetuple(self, data, exist_ok=False, get_asset=False)
 ```
 Create new aggregatetuple asset.
 `data` is a dict object with the following schema:
@@ -315,9 +331,11 @@ An `AlreadyExists` exception will be raised if an aggregatetuple already exists 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
+If `get_asset` is False, only the key is returned, otherwise the object is returned.
+
 ## add_composite_traintuple
 ```python
-Client.add_composite_traintuple(self, data, exist_ok=False)
+Client.add_composite_traintuple(self, data, exist_ok=False, get_asset=False)
 ```
 Create new composite traintuple asset.
 `data` is a dict object with the following schema:
@@ -348,9 +366,11 @@ An `AlreadyExists` exception will be raised if a traintuple already exists that:
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
+If `get_asset` is False, only the key is returned, otherwise the object is returned.
+
 ## add_testtuple
 ```python
-Client.add_testtuple(self, data, exist_ok=False)
+Client.add_testtuple(self, data, exist_ok=False, get_asset=False)
 ```
 Create new testtuple asset.
 
@@ -374,6 +394,8 @@ An `AlreadyExists` exception will be raised if a testtuple already exists that:
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
+
+If `get_asset` is False, only the key is returned, otherwise the object is returned.
 
 ## add_compute_plan
 ```python
