@@ -99,7 +99,7 @@ class Remote(base.BaseBackend):
         # datasamples, this route always returned a list of created data sample keys
         return data_samples if spec.is_many() else data_samples[0]
 
-    def add(self, spec, exist_ok=False, spec_options=None, get_asset=True):
+    def add(self, spec, exist_ok=False, spec_options=None, get_asset=False):
         """Add an asset."""
         spec_options = spec_options or {}
         asset_type = spec.__class__.type_

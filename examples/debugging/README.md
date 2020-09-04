@@ -76,7 +76,7 @@ of data samples that the traintuple or testtuple uses.
 In the Titanic example, there are 10 data samples, so the traintuple we create in the script uses 10 samples:
 
 ```python
-traintuple = client.add_traintuple(
+traintuple_key = client.add_traintuple(
     {
         ...
         "train_data_sample_keys": assets_keys["train_data_sample_keys"],

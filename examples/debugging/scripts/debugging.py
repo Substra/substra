@@ -62,7 +62,7 @@ algo_key = client.add_algo(
         "permissions": ALGO["permissions"],
     },
     exist_ok=True,
-)["key"]
+)
 print(f"Algo key: {algo_key}")
 
 ##################
@@ -75,7 +75,7 @@ print(f"Algo key: {algo_key}")
 # from the Substra platform.
 print("Registering traintuple locally, training on fake data...")
 print(f"Name of the Docker container: algo-{algo_key}")
-traintuple = client.add_traintuple(
+traintuple_key = client.add_traintuple(
     {
         "algo_key": algo_key,
         "data_manager_key": assets_keys["dataset_key"],
@@ -83,7 +83,6 @@ traintuple = client.add_traintuple(
     },
     exist_ok=True,
 )
-traintuple_key = traintuple.get("key")
 assert traintuple_key, "Missing traintuple key"
 
 print(f"\n--- Logs of the execution of the traintuple --- \n{traintuple['log']}\n")
@@ -94,13 +93,12 @@ print(f"\n--- Logs of the execution of the traintuple --- \n{traintuple['log']}\
 
 # Add the testtuple
 print("Registering testtuple...")
-testtuple = client.add_testtuple(
+testtuple_key = client.add_testtuple(
     {
         "objective_key": assets_keys["objective_key"],
         "traintuple_key": traintuple_key
     }, exist_ok=True
 )
-testtuple_key = testtuple.get("key")
 assert testtuple_key, "Missing testtuple key"
 
 print(f"\n--- Logs of the execution of the testtuple --- \n{testtuple['log']}\n")
