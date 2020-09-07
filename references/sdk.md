@@ -2,7 +2,7 @@
 
 # Client
 ```python
-Client(self, url:Union[str, NoneType]=None, token:Union[str, NoneType]=None, retry_timeout:int=300, insecure:bool=False, debug:bool=False)
+Client(self, url: Union[str, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300, insecure: bool = False, debug: bool = False)
 ```
 Create a client
 
@@ -37,7 +37,7 @@ Client.login(self, username, password)
 Login to a remote server.
 ## from_config_file
 ```python
-Client.from_config_file(profile_name:str='default', config_path:Union[str, pathlib.Path]='~/.substra', tokens_path:Union[str, pathlib.Path]='~/.substra-tokens', token:Union[str, NoneType]=None, retry_timeout:int=300, debug:bool=False)
+Client.from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Union[str, NoneType] = None, retry_timeout: int = 300, debug: bool = False)
 ```
 Returns a new Client configured with profile data from configuration files.
 
@@ -394,7 +394,7 @@ If `get_asset` is False, only the key is returned, otherwise the object is retur
 
 ## add_compute_plan
 ```python
-Client.add_compute_plan(self, data, auto_batching:bool=True, batch_size:int=20)
+Client.add_compute_plan(self, data, auto_batching: bool = True, batch_size: int = 20)
 ```
 Create compute plan.
 
@@ -564,7 +564,7 @@ Client.list_node(self, *args, **kwargs)
 List nodes.
 ## update_compute_plan
 ```python
-Client.update_compute_plan(self, compute_plan_id, data, auto_batching:bool=True, batch_size:int=20)
+Client.update_compute_plan(self, compute_plan_id, data, auto_batching: bool = True, batch_size: int = 20)
 ```
 Update compute plan.
 
