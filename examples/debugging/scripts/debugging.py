@@ -85,6 +85,7 @@ traintuple_key = client.add_traintuple(
 )
 assert traintuple_key, "Missing traintuple key"
 
+traintuple = client.get_traintuple(traintuple_key)
 print(f"\n--- Logs of the execution of the traintuple --- \n{traintuple['log']}\n")
 
 #################
@@ -101,6 +102,7 @@ testtuple_key = client.add_testtuple(
 )
 assert testtuple_key, "Missing testtuple key"
 
+testtuple = client.get_testtuple(testtuple_key)
 print(f"\n--- Logs of the execution of the testtuple --- \n{testtuple['log']}\n")
 
 ###################

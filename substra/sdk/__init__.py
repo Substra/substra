@@ -13,5 +13,9 @@
 # limitations under the License.
 
 from substra.sdk.client import Client
+from substra.sdk.utils import retry_on_exception
 
-__all__ = ['Client']
+__all__ = [
+    'Client',
+    'retry_on_exception',
+]
