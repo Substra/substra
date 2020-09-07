@@ -49,9 +49,6 @@ Usage: substra login [OPTIONS]
   Login to the Substra platform.
 
 Options:
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: pretty]
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
@@ -81,9 +78,6 @@ Options:
   --local / --remote              Data sample(s) location.
   --multiple                      Add multiple data samples at once.
   --test-only                     Data sample(s) used as test data only.
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: pretty]
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
@@ -92,6 +86,9 @@ Options:
                                   tokens).
 
   --verbose                       Enable verbose mode.
+  --timeout INTEGER               Set timeout (seconds) for retrying a call
+                                  [default: 300]
+
   --help                          Show this message and exit.
 ```
 
@@ -127,9 +124,6 @@ Usage: substra add dataset [OPTIONS] PATH
 
 Options:
   --objective-key TEXT
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: pretty]
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
@@ -140,6 +134,9 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
+  --timeout INTEGER               Set timeout (seconds) for retrying a call
+                                  [default: 300]
+
   --help                          Show this message and exit.
 ```
 
@@ -185,9 +182,6 @@ Usage: substra add objective [OPTIONS] PATH
 Options:
   --dataset-key TEXT
   --data-samples-path FILE        Test data samples.
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: pretty]
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
@@ -198,6 +192,9 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
+  --timeout INTEGER               Set timeout (seconds) for retrying a call
+                                  [default: 300]
+
   --help                          Show this message and exit.
 ```
 
@@ -229,9 +226,6 @@ Usage: substra add algo [OPTIONS] PATH
   - permissions: define asset access permissions
 
 Options:
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: pretty]
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
@@ -242,6 +236,9 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
+  --timeout INTEGER               Set timeout (seconds) for retrying a call
+                                  [default: 300]
+
   --help                          Show this message and exit.
 ```
 
@@ -349,9 +346,6 @@ Usage: substra add aggregate_algo [OPTIONS] PATH
   - permissions: define asset access permissions
 
 Options:
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: pretty]
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
@@ -362,6 +356,9 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
+  --timeout INTEGER               Set timeout (seconds) for retrying a call
+                                  [default: 300]
+
   --help                          Show this message and exit.
 ```
 
@@ -393,9 +390,6 @@ Usage: substra add composite_algo [OPTIONS] PATH
   - permissions: define asset access permissions
 
 Options:
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: pretty]
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
@@ -406,6 +400,9 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
+  --timeout INTEGER               Set timeout (seconds) for retrying a call
+                                  [default: 300]
+
   --help                          Show this message and exit.
 ```
 
@@ -432,9 +429,6 @@ Options:
   --data-samples-path FILE        [required]
   --in-model-key TEXT             In model traintuple key.
   --tag TEXT
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: pretty]
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
@@ -445,6 +439,9 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
+  --timeout INTEGER               Set timeout (seconds) for retrying a call
+                                  [default: 300]
+
   --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
 ```
@@ -462,9 +459,6 @@ Options:
   --worker TEXT                   Node ID for worker execution.  [required]
   --rank INTEGER
   --tag TEXT
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: pretty]
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
@@ -475,6 +469,9 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
+  --timeout INTEGER               Set timeout (seconds) for retrying a call
+                                  [default: 300]
+
   --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
 ```
@@ -512,9 +509,6 @@ Options:
   --out-trunk-model-permissions-path FILE
                                   Load a permissions file.
   --tag TEXT
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: pretty]
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
@@ -525,6 +519,9 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
+  --timeout INTEGER               Set timeout (seconds) for retrying a call
+                                  [default: 300]
+
   --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
 ```
@@ -552,9 +549,6 @@ Options:
   --traintuple-key TEXT           [required]
   --data-samples-path FILE
   --tag TEXT
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: pretty]
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
@@ -565,6 +559,9 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
+  --timeout INTEGER               Set timeout (seconds) for retrying a call
+                                  [default: 300]
+
   --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
 ```
@@ -580,9 +577,6 @@ Usage: substra get [OPTIONS] [algo|compute_plan|composite_algo|aggregate_algo|
 
 Options:
   --expand                        Display associated assets details
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: pretty]
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
@@ -616,9 +610,6 @@ Options:
                                   be a JSON array of valid filters).
                                   Incompatible with the --filter option
 
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: pretty]
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
@@ -642,9 +633,6 @@ Usage: substra describe [OPTIONS]
   Display asset description.
 
 Options:
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: pretty]
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
@@ -671,9 +659,6 @@ Usage: substra download [OPTIONS]
 
 Options:
   --folder PATH                   destination folder
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: pretty]
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
@@ -696,9 +681,6 @@ Options:
   --expand                        Display associated assets details
   --sort [asc|desc]               Sort models by highest to lowest perf or
                                   vice versa  [default: desc]
-
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: pretty]
 
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
@@ -769,9 +751,6 @@ Usage: substra cancel compute_plan [OPTIONS] COMPUTE_PLAN_ID
   Cancel execution of a compute plan.
 
 Options:
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: pretty]
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
@@ -804,9 +783,6 @@ Usage: substra update data_sample [OPTIONS] DATA_SAMPLES_PATH
 
 Options:
   --dataset-key TEXT              [required]
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: pretty]
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
@@ -826,9 +802,6 @@ Usage: substra update dataset [OPTIONS] DATASET_KEY OBJECTIVE_KEY
   Link dataset with objective.
 
 Options:
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: pretty]
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
@@ -896,6 +869,7 @@ Usage: substra update compute_plan [OPTIONS] COMPUTE_PLAN_ID TUPLES_PATH
 
 Options:
 <<<<<<< HEAD
+<<<<<<< HEAD
   -n, --no-auto-batching          Disable the auto batching feature
   -b, --batch-size INTEGER        Batch size for the auto batching  [default:
                                   20]
@@ -904,6 +878,8 @@ Options:
                                   [default: pretty]
 >>>>>>> update CLI + add + get
 
+=======
+>>>>>>> CLI + fix CLI tetss
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).

@@ -150,10 +150,12 @@ def test_command_list_node(workdir, mocker):
 def test_command_add(asset_name, params, workdir, mocker):
     method_name = f'add_{asset_name}'
 
-    m = mock_client_call(mocker, method_name, response='foo')
-
+    if asset_name == 'compute_plan':
+        m = mock_client_call(mocker, method_name, response={'key': 'foo'})
+    else:
+        m = mock_client_call(mocker, method_name, response='foo')
     item = getattr(datastore, asset_name.upper())
-    m = mock_client_call(mocker, f'get_{asset_name}', item)
+    mock_client_call(mocker, f'get_{asset_name}', item)
 
     json_file = workdir / "valid_json_file.json"
     json_file.write_text(json.dumps({}))

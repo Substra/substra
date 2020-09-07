@@ -164,26 +164,12 @@ def click_global_conf_output_format(f):
     )(f)
 
 
-def click_global_conf_retry_timeout(f):
-    """Add output option to command."""
-    return click.option(
-        '--timeout', 'timeout',
-        type=click.INT,
-        expose_value=False,
-        default=DEFAULT_RETRY_TIMEOUT,
-        show_default=True,
-        callback=update_global_conf,
-        help='Set timeout (seconds) for retrying a call'
-    )(f)
-
-
 def click_global_conf(f):
     f = click_global_conf_verbose(f)
     f = click_global_conf_tokens(f)
     f = click_global_conf_profile(f)
     f = click_global_conf_config(f)
     f = click_global_conf_log_level(f)
-    f = click_global_conf_retry_timeout(f)
     return f
 
 
@@ -209,6 +195,19 @@ def click_option_expand(f):
         '--expand',
         is_flag=True,
         help="Display associated assets details"
+    )(f)
+
+
+def click_global_conf_retry_timeout(f):
+    """Add timeout option to command."""
+    return click.option(
+        '--timeout', 'timeout',
+        type=click.INT,
+        expose_value=False,
+        default=DEFAULT_RETRY_TIMEOUT,
+        show_default=True,
+        callback=update_global_conf,
+        help='Set timeout (seconds) for retrying a call'
     )(f)
 
 
@@ -350,6 +349,7 @@ def add(ctx):
 @click.option('--test-only', is_flag=True, default=False,
               help='Data sample(s) used as test data only.')
 @click_global_conf
+@click_global_conf_retry_timeout
 @click.pass_context
 @error_printer
 def add_data_sample(ctx, path, dataset_key, local, multiple, test_only):
@@ -386,6 +386,7 @@ def add_data_sample(ctx, path, dataset_key, local, multiple, test_only):
                 metavar="PATH")
 @click.option('--objective-key')
 @click_global_conf_with_output_format
+@click_global_conf_retry_timeout
 @click.pass_context
 @error_printer
 def add_dataset(ctx, data, objective_key):
@@ -434,6 +435,7 @@ def add_dataset(ctx, data, objective_key):
               type=click.Path(exists=True, resolve_path=True, dir_okay=False),
               callback=load_json_from_path, help='Test data samples.')
 @click_global_conf_with_output_format
+@click_global_conf_retry_timeout
 @click.pass_context
 @error_printer
 def add_objective(ctx, data, dataset_key, data_samples):
@@ -493,6 +495,7 @@ def add_objective(ctx, data, dataset_key, data_samples):
 @click.argument('data', type=click.Path(exists=True, dir_okay=False), callback=load_json_from_path,
                 metavar="PATH")
 @click_global_conf_with_output_format
+@click_global_conf_retry_timeout
 @click.pass_context
 @error_printer
 def add_algo(ctx, data):
@@ -608,6 +611,7 @@ def add_compute_plan(ctx, data, no_auto_batching, batch_size):
 @click.argument('data', type=click.Path(exists=True, dir_okay=False), callback=load_json_from_path,
                 metavar="PATH")
 @click_global_conf_with_output_format
+@click_global_conf_retry_timeout
 @click.pass_context
 @error_printer
 def add_aggregate_algo(ctx, data):
@@ -647,6 +651,7 @@ def add_aggregate_algo(ctx, data):
 @click.argument('data', type=click.Path(exists=True, dir_okay=False), callback=load_json_from_path,
                 metavar="PATH")
 @click_global_conf_with_output_format
+@click_global_conf_retry_timeout
 @click.pass_context
 @error_printer
 def add_composite_algo(ctx, data):
@@ -692,6 +697,7 @@ def add_composite_algo(ctx, data):
               help='In model traintuple key.')
 @click.option('--tag')
 @click_global_conf_with_output_format
+@click_global_conf_retry_timeout
 @click_option_metadata
 @click.pass_context
 @error_printer
@@ -741,6 +747,7 @@ def add_traintuple(ctx, algo_key, dataset_key, data_samples, in_models_keys, tag
 @click.option('--rank', type=click.INT)
 @click.option('--tag')
 @click_global_conf_with_output_format
+@click_global_conf_retry_timeout
 @click_option_metadata
 @click.pass_context
 @error_printer
@@ -785,6 +792,7 @@ def add_aggregatetuple(ctx, algo_key, in_models_keys, worker, rank, tag, metadat
               help='Load a permissions file.')
 @click.option('--tag')
 @click_global_conf_with_output_format
+@click_global_conf_retry_timeout
 @click_option_metadata
 @click.pass_context
 @error_printer
@@ -856,6 +864,7 @@ def add_composite_traintuple(ctx, algo_key, dataset_key, data_samples, head_mode
               callback=load_json_from_path)
 @click.option('--tag')
 @click_global_conf_with_output_format
+@click_global_conf_retry_timeout
 @click_option_metadata
 @click.pass_context
 @error_printer
