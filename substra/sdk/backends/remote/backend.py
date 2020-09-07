@@ -82,7 +82,6 @@ class Remote(base.BaseBackend):
             with spec.build_request_kwargs(**spec_options) as (data, files):
                 data_samples = self._add(
                     schemas.Type.DataSample, data, files, exist_ok=exist_ok)
-
         except exceptions.AlreadyExists as e:
             if not exist_ok or spec.is_many():
                 raise
@@ -93,7 +92,7 @@ class Remote(base.BaseBackend):
 
         # there is currently a single route in the backend to add a single or many
         # datasamples, this route always returned a list of created data sample keys
-        return data_samples if spec.is_many() else data_samples[0]
+        return [data_sample['key'] for data_sample in data_samples] if spec.is_many() else data_samples[0]['key']
 
     def add(self, spec, exist_ok=False, spec_options=None):
         """Add an asset."""
