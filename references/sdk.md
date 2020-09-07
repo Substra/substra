@@ -2,7 +2,7 @@
 
 # Client
 ```python
-Client(self, url: Union[str, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300, insecure: bool = False, debug: bool = False)
+Client(self, url:Union[str, NoneType]=None, token:Union[str, NoneType]=None, retry_timeout:int=300, insecure:bool=False, debug:bool=False)
 ```
 Create a client
 
@@ -37,7 +37,7 @@ Client.login(self, username, password)
 Login to a remote server.
 ## from_config_file
 ```python
-Client.from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Union[str, NoneType] = None, retry_timeout: int = 300, debug: bool = False)
+Client.from_config_file(profile_name:str='default', config_path:Union[str, pathlib.Path]='~/.substra', tokens_path:Union[str, pathlib.Path]='~/.substra-tokens', token:Union[str, NoneType]=None, retry_timeout:int=300, debug:bool=False)
 ```
 Returns a new Client configured with profile data from configuration files.
 
@@ -69,7 +69,7 @@ Returns:
 
 ## add_data_sample
 ```python
-Client.add_data_sample(self, data, local=True, exist_ok=False, get_asset=False)
+Client.add_data_sample(self, data, local=True, exist_ok=False)
 ```
 Create new data sample asset.
 
@@ -100,12 +100,9 @@ raised.
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
 existing asset will be returned.
 
-If `get_asset` is False, only the key is returned, otherwise the object is returned.
-
-
 ## add_data_samples
 ```python
-Client.add_data_samples(self, data, local=True, get_asset=False)
+Client.add_data_samples(self, data, local=True)
 ```
 Create many data sample assets.
 
@@ -124,8 +121,6 @@ The `paths` in the data dictionary must be a list of paths where each path
 points to a directory representing one data sample.
 
 For the `local` argument, please refer to the method `Client.add_data_sample`.
-
-If `get_asset` is False, only the key is returned, otherwise the object is returned.
 
 This method is well suited for adding multiple small files only. For adding a
 large amount of data it is recommended to add them one by one. It allows a
@@ -399,7 +394,7 @@ If `get_asset` is False, only the key is returned, otherwise the object is retur
 
 ## add_compute_plan
 ```python
-Client.add_compute_plan(self, data, auto_batching: bool = True, batch_size: int = 20)
+Client.add_compute_plan(self, data, auto_batching:bool=True, batch_size:int=20)
 ```
 Create compute plan.
 
@@ -569,7 +564,7 @@ Client.list_node(self, *args, **kwargs)
 List nodes.
 ## update_compute_plan
 ```python
-Client.update_compute_plan(self, compute_plan_id, data, auto_batching: bool = True, batch_size: int = 20)
+Client.update_compute_plan(self, compute_plan_id, data, auto_batching:bool=True, batch_size:int=20)
 ```
 Update compute plan.
 
