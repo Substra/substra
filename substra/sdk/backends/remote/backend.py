@@ -89,13 +89,13 @@ class Remote(base.BaseBackend):
 
             key = e.key[0]
             logger.warning(f"data_sample already exists: key='{key}'")
-            data_samples = [{'key': key}]
+            data_samples = [key]
 
         # there is currently a single route in the backend to add a single or many
         # datasamples, this route always returned a list of created data sample keys
         return data_samples if spec.is_many() else data_samples[0]
 
-    def add(self, spec, exist_ok=False, spec_options=None, get_asset=False):
+    def add(self, spec, exist_ok=False, spec_options=None):
         """Add an asset."""
         spec_options = spec_options or {}
         asset_type = spec.__class__.type_
@@ -128,10 +128,7 @@ class Remote(base.BaseBackend):
         if asset_type == schemas.Type.ComputePlan:
             return response
 
-        if get_asset:
-            return self.get(asset_type, response['key'])
-        else:
-            return response['key']
+        return response['key']
 
     def _auto_batching_compute_plan(self,
                                     spec,

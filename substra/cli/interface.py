@@ -397,7 +397,7 @@ def add_dataset(ctx, data, objective_key):
     if objective_key:  # overwrite data values if set
         data['objective_key'] = objective_key
 
-    res = client.add_dataset(data, get_asset=True)
+    res = client.add_dataset(data)
     printer = printers.get_asset_printer(assets.DATASET, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
@@ -459,7 +459,7 @@ def add_objective(ctx, data, dataset_key, data_samples):
     if data_samples:
         data['test_data_sample_keys'] = load_data_samples_keys(data_samples)
 
-    res = client.add_objective(data, get_asset=True)
+    res = client.add_objective(data)
     printer = printers.get_asset_printer(assets.OBJECTIVE, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
@@ -497,7 +497,7 @@ def add_algo(ctx, data):
     """
 
     client = get_client(ctx.obj)
-    res = client.add_algo(data, get_asset=True)
+    res = client.add_algo(data)
     printer = printers.get_asset_printer(assets.ALGO, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
@@ -611,7 +611,7 @@ def add_aggregate_algo(ctx, data):
     """
 
     client = get_client(ctx.obj)
-    res = client.add_aggregate_algo(data, get_asset=True)
+    res = client.add_aggregate_algo(data)
     printer = printers.get_asset_printer(assets.AGGREGATE_ALGO, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
@@ -649,7 +649,7 @@ def add_composite_algo(ctx, data):
     """
 
     client = get_client(ctx.obj)
-    res = client.add_composite_algo(data, get_asset=True)
+    res = client.add_composite_algo(data)
     printer = printers.get_asset_printer(assets.COMPOSITE_ALGO, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
@@ -699,7 +699,7 @@ def add_traintuple(ctx, algo_key, dataset_key, data_samples, in_models_keys, tag
 
     if in_models_keys:
         data['in_models_keys'] = in_models_keys
-    res = client.add_traintuple(data, get_asset=True)
+    res = client.add_traintuple(data)
     printer = printers.get_asset_printer(assets.TRAINTUPLE, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
@@ -734,7 +734,7 @@ def add_aggregatetuple(ctx, algo_key, in_models_keys, worker, rank, tag, metadat
 
     if metadata:
         data['metadata'] = metadata
-    res = client.add_aggregatetuple(data, get_asset=True)
+    res = client.add_aggregatetuple(data)
     printer = printers.get_asset_printer(assets.AGGREGATETUPLE, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
@@ -811,7 +811,7 @@ def add_composite_traintuple(ctx, algo_key, dataset_key, data_samples, head_mode
 
     if metadata:
         data['metadata'] = metadata
-    res = client.add_composite_traintuple(data, get_asset=True)
+    res = client.add_composite_traintuple(data)
     printer = printers.get_asset_printer(assets.COMPOSITE_TRAINTUPLE, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
@@ -858,7 +858,7 @@ def add_testtuple(ctx, objective_key, dataset_key, traintuple_key, data_samples,
 
     if metadata:
         data['metadata'] = metadata
-    res = client.add_testtuple(data, get_asset=True)
+    res = client.add_testtuple(data)
     printer = printers.get_asset_printer(assets.TESTTUPLE, ctx.obj.output_format)
     printer.print(res, is_list=False)
 

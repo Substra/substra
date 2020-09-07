@@ -217,7 +217,7 @@ class Client(object):
         raised.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        existing asset key will be returned.
         """
         spec = self._get_spec(schemas.DataSampleSpec, data)
         if spec.paths:
@@ -230,7 +230,6 @@ class Client(object):
         return self._backend.add(
             spec,
             exist_ok=exist_ok,
-            get_asset=False,
             spec_options=spec_options
         )
 
@@ -273,11 +272,10 @@ class Client(object):
             spec,
             exist_ok=False,
             spec_options=spec_options,
-            get_asset=False,
         )
 
     @logit
-    def add_dataset(self, data, exist_ok=False, get_asset=False):
+    def add_dataset(self, data, exist_ok=False):
         """Create new dataset asset.
 
         `data` is a dict object with the following schema:
@@ -301,15 +299,15 @@ class Client(object):
         raised.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        existing asset key will be returned.
 
-        If `get_asset` is False, only the key is returned, otherwise the object is returned.
+        This returns the key of the created asset.
         """
         spec = self._get_spec(schemas.DatasetSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok, get_asset=get_asset)
+        return self._backend.add(spec, exist_ok=exist_ok)
 
     @logit
-    def add_objective(self, data, exist_ok=False, get_asset=False):
+    def add_objective(self, data, exist_ok=False):
         """Create new objective asset.
 
         `data` is a dict object with the following schema:
@@ -334,15 +332,15 @@ class Client(object):
         be raised.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        existing asset key will be returned.
 
-        If `get_asset` is False, only the key is returned, otherwise the object is returned.
+        This returns the key of the created asset.
         """
         spec = self._get_spec(schemas.ObjectiveSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok, get_asset=get_asset)
+        return self._backend.add(spec, exist_ok=exist_ok)
 
     @logit
-    def add_algo(self, data, exist_ok=False, get_asset=False):
+    def add_algo(self, data, exist_ok=False):
         """Create new algo asset.
 
         `data` is a dict object with the following schema:
@@ -364,15 +362,15 @@ class Client(object):
         raised.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        existing asset key will be returned.
 
-        If `get_asset` is False, only the key is returned, otherwise the object is returned.
+        This returns the key of the created asset.
         """
         spec = self._get_spec(schemas.AlgoSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok, get_asset=get_asset)
+        return self._backend.add(spec, exist_ok=exist_ok)
 
     @logit
-    def add_aggregate_algo(self, data, exist_ok=False, get_asset=False):
+    def add_aggregate_algo(self, data, exist_ok=False):
         """Create new aggregate algo asset.
         `data` is a dict object with the following schema:
 ```
@@ -391,15 +389,15 @@ class Client(object):
         exception will be raised.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        existing asset key will be returned.
 
-        If `get_asset` is False, only the key is returned, otherwise the object is returned.
+        This returns the key of the created asset.
         """
         spec = self._get_spec(schemas.AggregateAlgoSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok, get_asset=get_asset)
+        return self._backend.add(spec, exist_ok=exist_ok)
 
     @logit
-    def add_composite_algo(self, data, exist_ok=False, get_asset=False):
+    def add_composite_algo(self, data, exist_ok=False):
         """Create new composite algo asset.
         `data` is a dict object with the following schema:
 ```
@@ -418,15 +416,15 @@ class Client(object):
         will be raised.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        existing asset key will be returned.
 
-        If `get_asset` is False, only the key is returned, otherwise the object is returned.
+        This returns the key of the created asset.
         """
         spec = self._get_spec(schemas.CompositeAlgoSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok, get_asset=get_asset)
+        return self._backend.add(spec, exist_ok=exist_ok)
 
     @logit
-    def add_traintuple(self, data, exist_ok=False, get_asset=False):
+    def add_traintuple(self, data, exist_ok=False):
         """Create new traintuple asset.
 
         `data` is a dict object with the following schema:
@@ -448,15 +446,15 @@ class Client(object):
         * and was created through the same node you are using
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        existing asset key will be returned.
 
-        If `get_asset` is False, only the key is returned, otherwise the object is returned.
+        This returns the key of the created asset.
         """
         spec = self._get_spec(schemas.TraintupleSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok, get_asset=get_asset)
+        return self._backend.add(spec, exist_ok=exist_ok)
 
     @logit
-    def add_aggregatetuple(self, data, exist_ok=False, get_asset=False):
+    def add_aggregatetuple(self, data, exist_ok=False):
         """Create new aggregatetuple asset.
         `data` is a dict object with the following schema:
 ```
@@ -475,15 +473,15 @@ class Client(object):
         * and was created through the same node you are using
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        existing asset key will be returned.
 
-        If `get_asset` is False, only the key is returned, otherwise the object is returned.
+        This returns the key of the created asset.
         """
         spec = self._get_spec(schemas.AggregatetupleSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok, get_asset=get_asset)
+        return self._backend.add(spec, exist_ok=exist_ok)
 
     @logit
-    def add_composite_traintuple(self, data, exist_ok=False, get_asset=False):
+    def add_composite_traintuple(self, data, exist_ok=False):
         """Create new composite traintuple asset.
         `data` is a dict object with the following schema:
 ```
@@ -511,15 +509,15 @@ class Client(object):
         * and was created through the same node you are using
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        existing asset key will be returned.
 
-        If `get_asset` is False, only the key is returned, otherwise the object is returned.
+        This returns the key of the created asset.
         """
         spec = self._get_spec(schemas.CompositeTraintupleSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok, get_asset=get_asset)
+        return self._backend.add(spec, exist_ok=exist_ok)
 
     @logit
-    def add_testtuple(self, data, exist_ok=False, get_asset=False):
+    def add_testtuple(self, data, exist_ok=False):
         """Create new testtuple asset.
 
         `data` is a dict object with the following schema:
@@ -541,12 +539,12 @@ class Client(object):
         * and was created through the same node you are using
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        existing asset key will be returned.
 
-        If `get_asset` is False, only the key is returned, otherwise the object is returned.
+        This returns the key of the created asset.
         """
         spec = self._get_spec(schemas.TesttupleSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok, get_asset=get_asset)
+        return self._backend.add(spec, exist_ok=exist_ok)
 
     @logit
     def add_compute_plan(

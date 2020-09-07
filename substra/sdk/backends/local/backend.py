@@ -206,7 +206,7 @@ class Local(base.BaseBackend):
                     rank=rank,
                     spec=traintuple
                 )
-                traintuple_key = self.add(traintuple_spec, exist_ok, spec_options, get_asset=False)
+                traintuple_key = self.add(traintuple_spec, exist_ok, spec_options)
                 compute_plan.id_to_key[id_] = traintuple_key
 
             elif id_ in aggregatetuples:
@@ -221,7 +221,6 @@ class Local(base.BaseBackend):
                     aggregatetuple_spec,
                     exist_ok,
                     spec_options,
-                    get_asset=False,
                 )
                 compute_plan.id_to_key[id_] = aggregatetuple_key
 
@@ -237,7 +236,6 @@ class Local(base.BaseBackend):
                     compositetuple_spec,
                     exist_ok,
                     spec_options,
-                    get_asset=False
                 )
                 compute_plan.id_to_key[id_] = compositetuple_key
 
@@ -247,7 +245,7 @@ class Local(base.BaseBackend):
                     id_to_key=compute_plan.id_to_key,
                     spec=testtuple
                 )
-                self.add(testtuple_spec, exist_ok, spec_options, get_asset=False)
+                self.add(testtuple_spec, exist_ok, spec_options)
 
         return compute_plan
 
@@ -849,7 +847,7 @@ class Local(base.BaseBackend):
             self._worker.schedule_traintuple(aggregatetuple)
         return aggregatetuple
 
-    def add(self, spec, exist_ok=False, spec_options=None, get_asset=False):
+    def add(self, spec, exist_ok=False, spec_options=None):
         # find dynamically the method to call to create the asset
         method_name = f"_add_{spec.__class__.type_.value}"
         if spec.is_many():
@@ -858,7 +856,7 @@ class Local(base.BaseBackend):
         if spec.is_many():
             # 'exist_ok' is not supported
             asset = add_asset(spec, spec_options)
-            return [a.to_response() for a in asset]
+            return [a.to_response()['key'] for a in asset]
         else:
             # Check if the asset exists, return it if 'exist_ok' is True
             key = self._db.get_local_key(spec.compute_key())
@@ -868,10 +866,10 @@ class Local(base.BaseBackend):
                 pass
             else:
                 if exist_ok:
-                    return asset.to_response()
+                    return key
                 raise exceptions.AlreadyExists(key, 409)
             asset = add_asset(key, spec, spec_options)
-            if get_asset or spec.__class__.type_ == schemas.Type.ComputePlan:
+            if spec.__class__.type_ == schemas.Type.ComputePlan:
                 return asset.to_response()
             else:
                 return key

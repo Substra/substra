@@ -23,7 +23,8 @@ from .utils import mock_requests
 def test_add_dataset(client, dataset_query, mocker):
     m_post = mock_requests(mocker, "post", response=datastore.DATASET)
     m_get = mock_requests(mocker, "get", response=datastore.DATASET)
-    response = client.add_dataset(dataset_query, get_asset=True)
+    key = client.add_dataset(dataset_query)
+    response = client.get_dataset(key)
 
     assert response == datastore.DATASET
     m_post.assert_called()
@@ -35,21 +36,21 @@ def test_add_dataset_invalid_args(client, dataset_query, mocker):
     del dataset_query['data_opener']
 
     with pytest.raises(pydantic.error_wrappers.ValidationError):
-        client.add_dataset(dataset_query, get_asset=True)
+        client.add_dataset(dataset_query)
 
 
 def test_add_dataset_response_failure_500(client, dataset_query, mocker):
     mock_requests(mocker, "post", status=500)
 
     with pytest.raises(substra.sdk.exceptions.InternalServerError):
-        client.add_dataset(dataset_query, get_asset=True)
+        client.add_dataset(dataset_query)
 
 
 def test_add_dataset_response_failure_409(client, dataset_query, mocker):
     mock_requests(mocker, "post", response={"key": "42"}, status=409)
 
     with pytest.raises(substra.sdk.exceptions.AlreadyExists) as exc_info:
-        client.add_dataset(dataset_query, get_asset=True)
+        client.add_dataset(dataset_query)
 
     assert exc_info.value.key == "42"
 
@@ -57,7 +58,8 @@ def test_add_dataset_response_failure_409(client, dataset_query, mocker):
 def test_add_objective(client, objective_query, mocker):
     m_post = mock_requests(mocker, "post", response=datastore.OBJECTIVE)
     m_get = mock_requests(mocker, "get", response=datastore.OBJECTIVE)
-    response = client.add_objective(objective_query, get_asset=True)
+    key = client.add_objective(objective_query)
+    response = client.get_objective(key)
 
     assert response == datastore.OBJECTIVE
     m_post.assert_called()
@@ -67,7 +69,8 @@ def test_add_objective(client, objective_query, mocker):
 def test_add_algo(client, algo_query, mocker):
     m_post = mock_requests(mocker, "post", response=datastore.ALGO)
     m_get = mock_requests(mocker, "get", response=datastore.ALGO)
-    response = client.add_algo(algo_query, get_asset=True)
+    key = client.add_algo(algo_query)
+    response = client.get_algo(key)
 
     assert response == datastore.ALGO
     m_post.assert_called()
@@ -77,7 +80,8 @@ def test_add_algo(client, algo_query, mocker):
 def test_add_aggregate_algo(client, algo_query, mocker):
     m_post = mock_requests(mocker, "post", response=datastore.AGGREGATE_ALGO)
     m_get = mock_requests(mocker, "get", response=datastore.AGGREGATE_ALGO)
-    response = client.add_aggregate_algo(algo_query, get_asset=True)
+    key = client.add_aggregate_algo(algo_query)
+    response = client.get_aggregate_algo(key)
 
     assert response == datastore.AGGREGATE_ALGO
     m_post.assert_called()
@@ -87,7 +91,8 @@ def test_add_aggregate_algo(client, algo_query, mocker):
 def test_add_composite_algo(client, algo_query, mocker):
     m_post = mock_requests(mocker, "post", response=datastore.COMPOSITE_ALGO)
     m_get = mock_requests(mocker, "get", response=datastore.COMPOSITE_ALGO)
-    response = client.add_composite_algo(algo_query, get_asset=True)
+    key = client.add_composite_algo(algo_query)
+    response = client.get_composite_algo(key)
 
     assert response == datastore.COMPOSITE_ALGO
     m_post.assert_called()
@@ -95,7 +100,7 @@ def test_add_composite_algo(client, algo_query, mocker):
 
 
 def test_add_data_sample(client, data_sample_query, mocker):
-    server_response = [{"key": "42"}]
+    server_response = ["42"]
     m = mock_requests(mocker, "post", response=server_response)
     response = client.add_data_sample(data_sample_query)
 
@@ -107,7 +112,7 @@ def test_add_data_sample_already_exists(client, data_sample_query, mocker):
     m = mock_requests(mocker, "post", response=[{"key": "42"}], status=409)
     response = client.add_data_sample(data_sample_query, exist_ok=True)
 
-    assert response == {"key": "42"}
+    assert response == "42"
     m.assert_called()
 
 
@@ -118,7 +123,7 @@ def test_add_data_sample_with_paths(client, data_samples_query):
 
 
 def test_add_data_samples(client, data_samples_query, mocker):
-    server_response = [{"key": "42"}]
+    server_response = ["42"]
     m = mock_requests(mocker, "post", response=server_response)
     response = client.add_data_samples(data_samples_query)
 
