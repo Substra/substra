@@ -189,7 +189,7 @@ class Client(object):
         )
 
     @logit
-    def add_data_sample(self, data, local=True, exist_ok=False, get_asset=False):
+    def add_data_sample(self, data, local=True, exist_ok=False):
         """Create new data sample asset.
 
         `data` is a dict object with the following schema:
@@ -218,9 +218,6 @@ class Client(object):
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
         existing asset will be returned.
-
-        If `get_asset` is False, only the key is returned, otherwise the object is returned.
-
         """
         spec = self._get_spec(schemas.DataSampleSpec, data)
         if spec.paths:
@@ -233,12 +230,12 @@ class Client(object):
         return self._backend.add(
             spec,
             exist_ok=exist_ok,
-            get_asset=get_asset,
+            get_asset=False,
             spec_options=spec_options
         )
 
     @logit
-    def add_data_samples(self, data, local=True, get_asset=False):
+    def add_data_samples(self, data, local=True):
         """Create many data sample assets.
 
         `data` is a dict object with the following schema:
@@ -256,8 +253,6 @@ class Client(object):
         points to a directory representing one data sample.
 
         For the `local` argument, please refer to the method `Client.add_data_sample`.
-
-        If `get_asset` is False, only the key is returned, otherwise the object is returned.
 
         This method is well suited for adding multiple small files only. For adding a
         large amount of data it is recommended to add them one by one. It allows a
@@ -278,7 +273,7 @@ class Client(object):
             spec,
             exist_ok=False,
             spec_options=spec_options,
-            get_asset=get_asset
+            get_asset=False,
         )
 
     @logit

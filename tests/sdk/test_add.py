@@ -97,7 +97,7 @@ def test_add_composite_algo(client, algo_query, mocker):
 def test_add_data_sample(client, data_sample_query, mocker):
     server_response = [{"key": "42"}]
     m = mock_requests(mocker, "post", response=server_response)
-    response = client.add_data_sample(data_sample_query, get_asset=True)
+    response = client.add_data_sample(data_sample_query)
 
     assert response == server_response[0]
     m.assert_called()
@@ -105,7 +105,7 @@ def test_add_data_sample(client, data_sample_query, mocker):
 
 def test_add_data_sample_already_exists(client, data_sample_query, mocker):
     m = mock_requests(mocker, "post", response=[{"key": "42"}], status=409)
-    response = client.add_data_sample(data_sample_query, exist_ok=True, get_asset=True)
+    response = client.add_data_sample(data_sample_query, exist_ok=True)
 
     assert response == {"key": "42"}
     m.assert_called()
@@ -114,13 +114,13 @@ def test_add_data_sample_already_exists(client, data_sample_query, mocker):
 # We try to add multiple data samples instead of a single one
 def test_add_data_sample_with_paths(client, data_samples_query):
     with pytest.raises(ValueError):
-        client.add_data_sample(data_samples_query, get_asset=True)
+        client.add_data_sample(data_samples_query)
 
 
 def test_add_data_samples(client, data_samples_query, mocker):
     server_response = [{"key": "42"}]
     m = mock_requests(mocker, "post", response=server_response)
-    response = client.add_data_samples(data_samples_query, get_asset=True)
+    response = client.add_data_samples(data_samples_query)
 
     assert response == server_response
     m.assert_called()
@@ -129,4 +129,4 @@ def test_add_data_samples(client, data_samples_query, mocker):
 # We try to add a single data sample instead of multiple ones
 def test_add_data_samples_with_path(client, data_sample_query):
     with pytest.raises(ValueError):
-        client.add_data_samples(data_sample_query, get_asset=True)
+        client.add_data_samples(data_sample_query)

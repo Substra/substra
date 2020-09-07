@@ -27,10 +27,6 @@ AUTO_BATCHING = "auto_batching"
 BATCH_SIZE = 'batch_size'
 
 
-def _get_asset_key(data):
-    return data.get('key') or data.get('computePlanID')
-
-
 def _find_asset_field(data, field):
     """Find data value where location is defined as `field.subfield...`."""
     for f in field.split('.'):
@@ -133,8 +129,7 @@ class Remote(base.BaseBackend):
             return response
 
         if get_asset:
-            key = _get_asset_key(response)
-            return self.get(asset_type, key)
+            return self.get(asset_type, response['key'])
         else:
             return response['key']
 
