@@ -120,9 +120,9 @@ class DataAccess:
             attr.storage_address = asset_path
             return asset
 
-    def get(self, type_, key: str, log: bool = True):
+    def get(self, type_, key: str):
         if self.is_local(key):
-            return self._db.get(type_, key, log)
+            return self._db.get(type_, key)
         elif self._remote:
             remote_object = self._remote.get(type_, key)
             return self._get_response(type_, remote_object)

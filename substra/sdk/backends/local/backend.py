@@ -861,7 +861,7 @@ class Local(base.BaseBackend):
             # Check if the asset exists, return it if 'exist_ok' is True
             key = self._db.get_local_key(spec.compute_key())
             try:
-                asset = self._db.get(type_=spec.__class__.type_, key=key, log=False)
+                asset = self._db.get(type_=spec.__class__.type_, key=key)
             except exceptions.NotFound:
                 pass
             else:
