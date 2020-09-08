@@ -88,46 +88,46 @@ class NotFound(HTTPError):
 
 
 class RequestTimeout(HTTPError):
-    def __init__(self, pkhash, status_code):
-        self.pkhash = pkhash
-        msg = f"Operation on object with key(s) '{pkhash}' timed out."
+    def __init__(self, key, status_code):
+        self.key = key
+        msg = f"Operation on object with key(s) '{key}' timed out."
         super().__init__(msg, status_code)
 
     @classmethod
     def from_request_exception(cls, request_exception):
-        # parse response and fetch pkhash
+        # parse response and fetch key
         r = request_exception.response.json()
 
         try:
-            pkhash = r.get('computePlanID') or (
-                r['pkhash'] if 'pkhash' in r else r['message'].get('pkhash')
+            key = r.get('computePlanID') or (
+                r['key'] if 'key' in r else r['message'].get('key')
             )
         except (AttributeError, KeyError):
             # XXX this is the case when doing a POST query to update the
             #     data manager for instance
-            pkhash = None
+            key = None
 
-        return cls(pkhash, request_exception.response.status_code)
+        return cls(key, request_exception.response.status_code)
 
 
 class AlreadyExists(HTTPError):
-    def __init__(self, pkhash, status_code):
-        self.pkhash = pkhash
-        msg = f"Object with key(s) '{pkhash}' already exists."
+    def __init__(self, key, status_code):
+        self.key = key
+        msg = f"Object with key(s) '{key}' already exists."
         super().__init__(msg, status_code)
 
     @classmethod
     def from_request_exception(cls, request_exception):
-        # parse response and fetch pkhash
+        # parse response and fetch key
         r = request_exception.response.json()
-        # XXX support list of pkhashes; this could be the case when adding
+        # XXX support list of keyes; this could be the case when adding
         #     a list of data samples through a single POST request
         if isinstance(r, list):
-            pkhash = [x['pkhash'] for x in r]
+            key = [x['key'] for x in r]
         else:
-            pkhash = r['pkhash']
+            key = r['key']
 
-        return cls(pkhash, request_exception.response.status_code)
+        return cls(key, request_exception.response.status_code)
 
 
 class InvalidResponse(SDKException):

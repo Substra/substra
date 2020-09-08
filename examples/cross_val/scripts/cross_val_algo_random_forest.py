@@ -48,7 +48,7 @@ for i, fold in enumerate(folds_keys['folds']):
         'train_data_sample_keys': fold['train_data_sample_keys'],
         'tag': tag,
     }, exist_ok=True)
-    traintuple_key = traintuple.get('key') or traintuple.get('pkhash')
+    traintuple_key = traintuple.get('key')
     fold['traintuple_key'] = traintuple_key
 
     # testtuple
@@ -59,7 +59,7 @@ for i, fold in enumerate(folds_keys['folds']):
         'test_data_sample_keys': fold['test_data_sample_keys'],
         'tag': tag,
     }, exist_ok=True)
-    testtuple_key = testtuple.get('key') or testtuple.get('pkhash')
+    testtuple_key = testtuple.get('key')
     fold['testtuple_key'] = testtuple_key
 
 with open(folds_keys_path, 'w') as f:

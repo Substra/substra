@@ -48,7 +48,7 @@ algo_key = client.add_algo({
         'public': False,
         'authorized_ids': [],
     }
-}, exist_ok=True)['pkhash']
+}, exist_ok=True)['key']
 
 
 print('Generating compute plan...')

@@ -28,7 +28,7 @@ BATCH_SIZE = 'batch_size'
 
 
 def _get_asset_key(data):
-    return data.get('pkhash') or data.get('key') or data.get('computePlanID')
+    return data.get('key') or data.get('computePlanID')
 
 
 def _find_asset_field(data, field):
@@ -91,9 +91,9 @@ class Remote(base.BaseBackend):
             if not exist_ok or spec.is_many():
                 raise
 
-            key = e.pkhash[0]
+            key = e.key[0]
             logger.warning(f"data_sample already exists: key='{key}'")
-            data_samples = [{'pkhash': key}]
+            data_samples = [{'key': key}]
 
         # there is currently a single route in the backend to add a single or many
         # datasamples, this route always returned a list of created data sample keys

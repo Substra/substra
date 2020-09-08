@@ -66,7 +66,7 @@ algo_key = client.add_algo({
     'file': ALGO['file'],
     'description': ALGO['description'],
     'permissions': ALGO['permissions'],
-}, exist_ok=True)['pkhash']
+}, exist_ok=True)['key']
 
 ########################################################
 #         Add traintuple
@@ -78,7 +78,7 @@ traintuple = client.add_traintuple({
     'data_manager_key': assets_keys['dataset_key'],
     'train_data_sample_keys': assets_keys['train_data_sample_keys']
 }, exist_ok=True)
-traintuple_key = traintuple.get('key') or traintuple.get('pkhash')
+traintuple_key = traintuple.get('key')
 assert traintuple_key, 'Missing traintuple key'
 
 ########################################################
@@ -89,7 +89,7 @@ testtuple = client.add_testtuple({
     'objective_key': assets_keys['objective_key'],
     'traintuple_key': traintuple_key
 }, exist_ok=True)
-testtuple_key = testtuple.get('key') or testtuple.get('pkhash')
+testtuple_key = testtuple.get('key')
 assert testtuple_key, 'Missing testtuple key'
 
 ########################################################

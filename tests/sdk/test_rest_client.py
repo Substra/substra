@@ -63,11 +63,11 @@ def test_post_success(mocker, config):
 
     (404, {"message": "Not Found"}, exceptions.NotFound),
 
-    (408, {"pkhash": "a-key"}, exceptions.RequestTimeout),
+    (408, {"key": "a-key"}, exceptions.RequestTimeout),
     (408, {}, exceptions.RequestTimeout),
 
-    (409, {"pkhash": "a-key"}, exceptions.AlreadyExists),
-    (409, {"pkhash": ["a-key", "other-key"]}, exceptions.AlreadyExists),
+    (409, {"key": "a-key"}, exceptions.AlreadyExists),
+    (409, {"key": ["a-key", "other-key"]}, exceptions.AlreadyExists),
 
     (500, "CRASH", exceptions.InternalServerError),
 ])
@@ -88,20 +88,20 @@ def test_request_connection_error(mocker):
 def test_add_timeout_with_retry(mocker):
     asset_name = "traintuple"
     responses = [
-        mock_response(response={"pkhash": "a-key"}, status=408),
-        mock_response(response={"pkhash": "a-key"}),
+        mock_response(response={"key": "a-key"}, status=408),
+        mock_response(response={"key": "a-key"}),
     ]
     m_post = mock_requests_responses(mocker, "post", responses)
     asset = _client_from_config(CONFIG).add(asset_name, retry_timeout=60)
     assert len(m_post.call_args_list) == 2
-    assert asset == {"pkhash": "a-key"}
+    assert asset == {"key": "a-key"}
 
 
 def test_add_exist_ok(mocker):
     asset_name = "traintuple"
-    m_post = mock_requests(mocker, "post", response={"pkhash": "a-key"}, status=409)
-    m_get = mock_requests(mocker, "get", response={"pkhash": "a-key"})
+    m_post = mock_requests(mocker, "post", response={"key": "a-key"}, status=409)
+    m_get = mock_requests(mocker, "get", response={"key": "a-key"})
     asset = _client_from_config(CONFIG).add(asset_name, exist_ok=True)
     assert len(m_post.call_args_list) == 1
     assert len(m_get.call_args_list) == 1
-    assert asset == {"pkhash": "a-key"}
+    assert asset == {"key": "a-key"}

@@ -281,7 +281,6 @@ class Local(base.BaseBackend):
         algo_description_path = self._db.save_file(spec.description, key)
         algo = model_class(
             key=key,
-            pkhash=key,
             name=spec.name,
             owner=_BACKEND_ID,
             permissions={
@@ -327,7 +326,6 @@ class Local(base.BaseBackend):
         dataset_description_path = self._db.save_file(spec.description, key)
         asset = models.Dataset(
             key=key,
-            pkhash=key,
             owner=_BACKEND_ID,
             name=spec.name,
             objective_key=spec.objective_key if spec.objective_key else "",
@@ -366,7 +364,6 @@ class Local(base.BaseBackend):
         data_sample_file_path = self._db.save_file(spec.path, key)
         data_sample = models.DataSample(
             key=key,
-            pkhash=key,
             owner=_BACKEND_ID,
             path=data_sample_file_path,
             data_manager_keys=spec.data_manager_keys,
@@ -435,7 +432,6 @@ class Local(base.BaseBackend):
         # create objective model instance
         objective = models.Objective(
             key=key,
-            pkhash=key,
             name=spec.name,
             owner=_BACKEND_ID,
             test_dataset=test_dataset,
@@ -877,7 +873,7 @@ class Local(base.BaseBackend):
             )
 
         dataset.objective_key = objective_key
-        return {"pkhash": dataset.key}
+        return {"key": dataset.key}
 
     def link_dataset_with_data_samples(self, dataset_key, data_sample_keys):
         dataset = self._db.get(schemas.Type.Dataset, dataset_key)
