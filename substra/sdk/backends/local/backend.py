@@ -274,7 +274,7 @@ class Local(base.BaseBackend):
                 [
                     data_manager_key
                     in self._db.get(schemas.Type.DataSample, key).data_manager_keys
-                    for key in data_sample_keys or list()
+                    for key in (data_sample_keys or list())
                 ]
             )
             if not same_data_manager:
