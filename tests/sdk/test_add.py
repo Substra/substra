@@ -100,11 +100,11 @@ def test_add_composite_algo(client, algo_query, mocker):
 
 
 def test_add_data_sample(client, data_sample_query, mocker):
-    server_response = ["42"]
+    server_response = [{"key": "42"}]
     m = mock_requests(mocker, "post", response=server_response)
     response = client.add_data_sample(data_sample_query)
 
-    assert response == server_response[0]
+    assert response == server_response[0]['key']
     m.assert_called()
 
 
@@ -123,11 +123,11 @@ def test_add_data_sample_with_paths(client, data_samples_query):
 
 
 def test_add_data_samples(client, data_samples_query, mocker):
-    server_response = ["42"]
+    server_response = [{"key": "42"}]
     m = mock_requests(mocker, "post", response=server_response)
     response = client.add_data_samples(data_samples_query)
 
-    assert response == server_response
+    assert response == ['42']
     m.assert_called()
 
 

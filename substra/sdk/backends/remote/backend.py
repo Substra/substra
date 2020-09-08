@@ -88,11 +88,13 @@ class Remote(base.BaseBackend):
 
             key = e.key[0]
             logger.warning(f"data_sample already exists: key='{key}'")
-            data_samples = [key]
+            data_samples = [{'key': key}]
 
         # there is currently a single route in the backend to add a single or many
         # datasamples, this route always returned a list of created data sample keys
-        return [data_sample['key'] for data_sample in data_samples] if spec.is_many() else data_samples[0]['key']
+        return [
+            data_sample['key'] for data_sample in data_samples
+            ] if spec.is_many() else data_samples[0]['key']
 
     def add(self, spec, exist_ok=False, spec_options=None):
         """Add an asset."""
