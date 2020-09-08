@@ -173,6 +173,7 @@ def retry_on_exception(exceptions, timeout=300):
                 timeout=300,
             )
     retry(my_function)(arg1, arg2)
+    ```
     """
     def _retry(f):
         @functools.wraps(f)

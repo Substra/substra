@@ -724,4 +724,5 @@ retry = retry_on_exception(
             timeout=300,
         )
 retry(my_function)(arg1, arg2)
+```
 
