@@ -21,5 +21,5 @@ script:
   - python setup.py test
   - python bin/generate_cli_documentation.py --output-path references/cli.md.tmp
   - cmp --silent references/cli.md references/cli.md.tmp
-  - pydocmd simple substra.sdk+ substra.sdk.Client+ > references/sdk.md.tmp
+  - pydocmd simple substra.sdk+ substra.sdk.Client+ substra.sdk.retry_on_exception+ > references/sdk.md.tmp
   - cmp --silent references/sdk.md references/sdk.md.tmp
