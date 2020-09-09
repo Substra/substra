@@ -86,8 +86,8 @@ Options:
                                   tokens).
 
   --verbose                       Enable verbose mode.
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: 300]
+  --timeout INTEGER               Max number of seconds the operation will be
+                                  retried for  [default: 300]
 
   --help                          Show this message and exit.
 ```
@@ -134,8 +134,8 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: 300]
+  --timeout INTEGER               Max number of seconds the operation will be
+                                  retried for  [default: 300]
 
   --help                          Show this message and exit.
 ```
@@ -192,8 +192,8 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: 300]
+  --timeout INTEGER               Max number of seconds the operation will be
+                                  retried for  [default: 300]
 
   --help                          Show this message and exit.
 ```
@@ -236,8 +236,8 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: 300]
+  --timeout INTEGER               Max number of seconds the operation will be
+                                  retried for  [default: 300]
 
   --help                          Show this message and exit.
 ```
@@ -303,8 +303,7 @@ Options:
   -n, --no-auto-batching          Disable the auto batching feature
   -b, --batch-size INTEGER        Batch size for the auto batching  [default:
                                   20]
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: pretty]
+
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
@@ -356,8 +355,8 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: 300]
+  --timeout INTEGER               Max number of seconds the operation will be
+                                  retried for  [default: 300]
 
   --help                          Show this message and exit.
 ```
@@ -400,8 +399,8 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: 300]
+  --timeout INTEGER               Max number of seconds the operation will be
+                                  retried for  [default: 300]
 
   --help                          Show this message and exit.
 ```
@@ -439,8 +438,8 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: 300]
+  --timeout INTEGER               Max number of seconds the operation will be
+                                  retried for  [default: 300]
 
   --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
@@ -469,8 +468,8 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: 300]
+  --timeout INTEGER               Max number of seconds the operation will be
+                                  retried for  [default: 300]
 
   --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
@@ -519,8 +518,8 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: 300]
+  --timeout INTEGER               Max number of seconds the operation will be
+                                  retried for  [default: 300]
 
   --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
@@ -559,8 +558,8 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: 300]
+  --timeout INTEGER               Max number of seconds the operation will be
+                                  retried for  [default: 300]
 
   --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
@@ -868,18 +867,10 @@ Usage: substra update compute_plan [OPTIONS] COMPUTE_PLAN_ID TUPLES_PATH
   the number of tuples uploaded in each batch (default 20).
 
 Options:
-<<<<<<< HEAD
-<<<<<<< HEAD
   -n, --no-auto-batching          Disable the auto batching feature
   -b, --batch-size INTEGER        Batch size for the auto batching  [default:
                                   20]
-=======
-  --timeout INTEGER               Set timeout (seconds) for retrying a call
-                                  [default: pretty]
->>>>>>> update CLI + add + get
 
-=======
->>>>>>> CLI + fix CLI tetss
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
