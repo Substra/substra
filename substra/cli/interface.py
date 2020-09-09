@@ -207,7 +207,7 @@ def click_global_conf_retry_timeout(f):
         default=DEFAULT_RETRY_TIMEOUT,
         show_default=True,
         callback=update_global_conf,
-        help='Set timeout (seconds) for retrying a call'
+        help='Max number of seconds the operation will be retried for'
     )(f)
 
 
