@@ -94,7 +94,7 @@ class Remote(base.BaseBackend):
         # datasamples, this route always returned a list of created data sample keys
         return [
             data_sample['key'] for data_sample in data_samples
-            ] if spec.is_many() else data_samples[0]['key']
+        ] if spec.is_many() else data_samples[0]['key']
 
     def add(self, spec, exist_ok=False, spec_options=None):
         """Add an asset."""
@@ -160,8 +160,8 @@ class Remote(base.BaseBackend):
             first_spec = next(batches, None)
             tmp_spec = first_spec or spec  # Special case: no tuples
             asset = self.add(spec=tmp_spec, exist_ok=exist_ok, spec_options=deepcopy(spec_options))
-            compute_plan_id = asset['computePlanID']
-            id_to_keys = asset['IDToKey']
+            compute_plan_id = asset['compute_plan_id']
+            id_to_keys = asset['id_to_key']
 
         # Update the compute plan
         for tmp_spec in batches:
@@ -170,7 +170,7 @@ class Remote(base.BaseBackend):
                 spec=tmp_spec,
                 spec_options=deepcopy(spec_options)
             )
-            id_to_keys.update(asset['IDToKey'])
+            id_to_keys.update(asset['id_to_key'])
 
         # Special case: no tuples
         if asset is None:
@@ -179,7 +179,7 @@ class Remote(base.BaseBackend):
                 key=compute_plan_id,
             )
 
-        asset['IDToKey'] = id_to_keys
+        asset['id_to_key'] = id_to_keys
         return asset
 
     def update_compute_plan(self, compute_plan_id, spec, spec_options=None):
@@ -234,7 +234,7 @@ class Remote(base.BaseBackend):
 
     def describe(self, asset_type, key):
         data = self.get(asset_type, key)
-        url = data['description']['storageAddress']
+        url = data['description']['storage_address']
         r = self._client.get_data(url)
         return r.text
 

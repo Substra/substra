@@ -99,7 +99,7 @@ class RequestTimeout(HTTPError):
         r = request_exception.response.json()
 
         try:
-            key = r.get('computePlanID') or (
+            key = r.get('compute_plan_id') or (
                 r['key'] if 'key' in r else r['message'].get('key')
             )
         except (AttributeError, KeyError):

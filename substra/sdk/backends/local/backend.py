@@ -256,13 +256,13 @@ class Local(base.BaseBackend):
             'algo': {
                 'hash': algo.key,
                 'name': algo.name,
-                'storageAddress': str(algo.content.storage_address)
+                'storage_address': str(algo.content.storage_address)
             },
             'creator': testtuple.creator,
             'key': testtuple.key,
             'perf': testtuple.dataset.perf,
             'tag': testtuple.tag,
-            'traintupleKey': testtuple.traintuple_key
+            'traintuple_key': testtuple.traintuple_key
         }
 
     def __check_same_data_manager(self, data_manager_key, data_sample_keys):

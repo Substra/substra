@@ -79,7 +79,7 @@ compute_plan = client.add_compute_plan({
     'composite_traintuples': [],
     'aggregatetuples': [],
 })
-compute_plan_id = compute_plan.get('computePlanID')
+compute_plan_id = compute_plan.get('compute_plan_id')
 
 with open(compute_plan_keys_path, 'w') as f:
     json.dump(compute_plan, f, indent=2)

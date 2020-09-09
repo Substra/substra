@@ -111,7 +111,7 @@ class DataAccess:
 
                 self._remote.download(
                     type_,
-                    field_name + ".storageAddress",
+                    field_name + ".storage_address",
                     key,
                     asset_path,
                 )

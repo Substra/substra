@@ -380,7 +380,7 @@ class Client(object):
             "file": str,
             "permissions": {
                 "public": bool,
-                "authorizedIDs": list[str],
+                "authorized_ids": list[str],
             },
             "metadata": dict
         }
@@ -814,7 +814,7 @@ class Client(object):
         """
         self._backend.download(
             schemas.Type.Dataset,
-            'opener.storageAddress',
+            'opener.storage_address',
             key,
             os.path.join(destination_folder, 'opener.py'),
         )
@@ -827,7 +827,7 @@ class Client(object):
         """
         self._backend.download(
             schemas.Type.Algo,
-            'content.storageAddress',
+            'content.storage_address',
             key,
             os.path.join(destination_folder, 'algo.tar.gz'),
         )
@@ -840,7 +840,7 @@ class Client(object):
         """
         self._backend.download(
             schemas.Type.AggregateAlgo,
-            'content.storageAddress',
+            'content.storage_address',
             key,
             os.path.join(destination_folder, 'aggregate_algo.tar.gz'),
         )
@@ -853,7 +853,7 @@ class Client(object):
         """
         self._backend.download(
             schemas.Type.CompositeAlgo,
-            'content.storageAddress',
+            'content.storage_address',
             key,
             os.path.join(destination_folder, 'composite_algo.tar.gz'),
         )
@@ -866,7 +866,7 @@ class Client(object):
         """
         self._backend.download(
             schemas.Type.Objective,
-            'metrics.storageAddress',
+            'metrics.storage_address',
             key,
             os.path.join(destination_folder, 'metrics.py'),
         )
