@@ -289,7 +289,8 @@ class ComputePlanPrinter(AssetPrinter):
         profile_arg = self.get_profile_arg(profile)
 
         print('\nDisplay this compute_plan\'s traintuples:')
-        print(f'\tsubstra list traintuple -f "traintuple:compute_plan_id:{key_value}" {profile_arg}')
+        print(f'\tsubstra list traintuple -f '
+              f'"traintuple:compute_plan_id:{key_value}" {profile_arg}')
 
         print('\nDisplay this compute_plan\'s composite_traintuples:')
         print(f'\tsubstra list composite_traintuple'
