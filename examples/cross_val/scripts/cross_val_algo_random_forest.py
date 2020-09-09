@@ -42,24 +42,22 @@ folds_keys['tag'] = tag
 for i, fold in enumerate(folds_keys['folds']):
     print(f'Adding train and test tuples for fold #{i+1}...')
     # traintuple
-    traintuple = client.add_traintuple({
+    traintuple_key = client.add_traintuple({
         'algo_key': algo_key,
         'data_manager_key': dataset_key,
         'train_data_sample_keys': fold['train_data_sample_keys'],
         'tag': tag,
     }, exist_ok=True)
-    traintuple_key = traintuple.get('key')
     fold['traintuple_key'] = traintuple_key
 
     # testtuple
-    testtuple = client.add_testtuple({
+    testtuple_key = client.add_testtuple({
         'objective_key': objective_key,
         'traintuple_key': traintuple_key,
         'data_manager_key': dataset_key,
         'test_data_sample_keys': fold['test_data_sample_keys'],
         'tag': tag,
     }, exist_ok=True)
-    testtuple_key = testtuple.get('key')
     fold['testtuple_key'] = testtuple_key
 
 with open(folds_keys_path, 'w') as f:

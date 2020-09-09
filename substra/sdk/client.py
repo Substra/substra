@@ -217,8 +217,7 @@ class Client(object):
         raised.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
-
+        existing asset key will be returned.
         """
         spec = self._get_spec(schemas.DataSampleSpec, data)
         if spec.paths:
@@ -228,7 +227,11 @@ class Client(object):
         spec_options = {
             "local": local,
         }
-        return self._backend.add(spec, exist_ok=exist_ok, spec_options=spec_options)
+        return self._backend.add(
+            spec,
+            exist_ok=exist_ok,
+            spec_options=spec_options
+        )
 
     @logit
     def add_data_samples(self, data, local=True):
@@ -265,7 +268,11 @@ class Client(object):
         spec_options = {
             "local": local,
         }
-        return self._backend.add(spec, exist_ok=False, spec_options=spec_options)
+        return self._backend.add(
+            spec,
+            exist_ok=False,
+            spec_options=spec_options,
+        )
 
     @logit
     def add_dataset(self, data, exist_ok=False):
@@ -292,7 +299,9 @@ class Client(object):
         raised.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        existing asset key will be returned.
+
+        This returns the key of the created asset.
         """
         spec = self._get_spec(schemas.DatasetSpec, data)
         return self._backend.add(spec, exist_ok=exist_ok)
@@ -323,7 +332,9 @@ class Client(object):
         be raised.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        existing asset key will be returned.
+
+        This returns the key of the created asset.
         """
         spec = self._get_spec(schemas.ObjectiveSpec, data)
         return self._backend.add(spec, exist_ok=exist_ok)
@@ -351,7 +362,9 @@ class Client(object):
         raised.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        existing asset key will be returned.
+
+        This returns the key of the created asset.
         """
         spec = self._get_spec(schemas.AlgoSpec, data)
         return self._backend.add(spec, exist_ok=exist_ok)
@@ -376,7 +389,9 @@ class Client(object):
         exception will be raised.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        existing asset key will be returned.
+
+        This returns the key of the created asset.
         """
         spec = self._get_spec(schemas.AggregateAlgoSpec, data)
         return self._backend.add(spec, exist_ok=exist_ok)
@@ -401,7 +416,9 @@ class Client(object):
         will be raised.
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        existing asset key will be returned.
+
+        This returns the key of the created asset.
         """
         spec = self._get_spec(schemas.CompositeAlgoSpec, data)
         return self._backend.add(spec, exist_ok=exist_ok)
@@ -429,7 +446,9 @@ class Client(object):
         * and was created through the same node you are using
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        existing asset key will be returned.
+
+        This returns the key of the created asset.
         """
         spec = self._get_spec(schemas.TraintupleSpec, data)
         return self._backend.add(spec, exist_ok=exist_ok)
@@ -454,7 +473,9 @@ class Client(object):
         * and was created through the same node you are using
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        existing asset key will be returned.
+
+        This returns the key of the created asset.
         """
         spec = self._get_spec(schemas.AggregatetupleSpec, data)
         return self._backend.add(spec, exist_ok=exist_ok)
@@ -488,7 +509,9 @@ class Client(object):
         * and was created through the same node you are using
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        existing asset key will be returned.
+
+        This returns the key of the created asset.
         """
         spec = self._get_spec(schemas.CompositeTraintupleSpec, data)
         return self._backend.add(spec, exist_ok=exist_ok)
@@ -516,7 +539,9 @@ class Client(object):
         * and was created through the same node you are using
 
         If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
+        existing asset key will be returned.
+
+        This returns the key of the created asset.
         """
         spec = self._get_spec(schemas.TesttupleSpec, data)
         return self._backend.add(spec, exist_ok=exist_ok)

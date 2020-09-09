@@ -86,6 +86,9 @@ Options:
                                   tokens).
 
   --verbose                       Enable verbose mode.
+  --timeout INTEGER               Max number of seconds the operation will be
+                                  retried for  [default: 300]
+
   --help                          Show this message and exit.
 ```
 
@@ -131,6 +134,9 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
+  --timeout INTEGER               Max number of seconds the operation will be
+                                  retried for  [default: 300]
+
   --help                          Show this message and exit.
 ```
 
@@ -186,6 +192,9 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
+  --timeout INTEGER               Max number of seconds the operation will be
+                                  retried for  [default: 300]
+
   --help                          Show this message and exit.
 ```
 
@@ -227,6 +236,9 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
+  --timeout INTEGER               Max number of seconds the operation will be
+                                  retried for  [default: 300]
+
   --help                          Show this message and exit.
 ```
 
@@ -343,6 +355,9 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
+  --timeout INTEGER               Max number of seconds the operation will be
+                                  retried for  [default: 300]
+
   --help                          Show this message and exit.
 ```
 
@@ -384,6 +399,9 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
+  --timeout INTEGER               Max number of seconds the operation will be
+                                  retried for  [default: 300]
+
   --help                          Show this message and exit.
 ```
 
@@ -420,6 +438,9 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
+  --timeout INTEGER               Max number of seconds the operation will be
+                                  retried for  [default: 300]
+
   --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
 ```
@@ -447,6 +468,9 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
+  --timeout INTEGER               Max number of seconds the operation will be
+                                  retried for  [default: 300]
+
   --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
 ```
@@ -494,6 +518,9 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
+  --timeout INTEGER               Max number of seconds the operation will be
+                                  retried for  [default: 300]
+
   --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
 ```
@@ -531,6 +558,9 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
+  --timeout INTEGER               Max number of seconds the operation will be
+                                  retried for  [default: 300]
+
   --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
 ```

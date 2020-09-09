@@ -158,7 +158,26 @@ def parse_filters(filters):
 
 
 def retry_on_exception(exceptions, timeout=300):
-    """Retry function in case of exception(s)."""
+    """Retry function in case of exception(s).
+
+    Arguments:
+        exceptions: list of exception types that trigger a retry
+        timeout (int): timeout in seconds
+
+    Example:
+        ```python
+        from substra.sdk import exceptions, retry_on_exception
+
+        def my_function(arg1, arg2):
+            pass
+
+        retry = retry_on_exception(
+                    exceptions=(exceptions.RequestTimeout),
+                    timeout=300,
+                )
+        retry(my_function)(arg1, arg2)
+        ```
+    """
     def _retry(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):

@@ -108,7 +108,7 @@ with zipfile.ZipFile(ALGO["file"], "w") as z:
 
 # Add the dataset to Substra
 print("Adding dataset...")
-dataset_key = client.add_dataset(DATASET, exist_ok=True)["key"]
+dataset_key = client.add_dataset(DATASET, exist_ok=True)
 assert dataset_key, "Missing data manager key"
 
 # Add the data samples to Substra
@@ -134,7 +134,7 @@ for conf in data_samples_configs:
     print(conf["message"])
     with progress_bar(len(conf["paths"])) as progress:
         for path in conf["paths"]:
-            data_sample = client.add_data_sample(
+            data_sample_key = client.add_data_sample(
                 {
                     "data_manager_keys": [dataset_key],
                     "test_only": conf["test_only"],
@@ -143,7 +143,6 @@ for conf in data_samples_configs:
                 local=True,
                 exist_ok=True,
             )
-            data_sample_key = data_sample["key"]
             conf["data_sample_keys"].append(data_sample_key)
             progress.update()
     assert len(conf["data_sample_keys"]), conf["missing_message"]
@@ -169,7 +168,7 @@ objective_key = client.add_objective(
         "permissions": OBJECTIVE["permissions"],
     },
     exist_ok=True,
-)["key"]
+)
 assert objective_key, "Missing objective key"
 
 # Add the algorithm
@@ -182,11 +181,11 @@ algo_key = client.add_algo(
         "permissions": ALGO["permissions"],
     },
     exist_ok=True,
-)["key"]
+)
 
 #  Add the traintuple
 print("Registering traintuple...")
-traintuple = client.add_traintuple(
+traintuple_key = client.add_traintuple(
     {
         "algo_key": algo_key,
         "data_manager_key": dataset_key,
@@ -194,15 +193,13 @@ traintuple = client.add_traintuple(
     },
     exist_ok=True,
 )
-traintuple_key = traintuple.get("key")
 assert traintuple_key, "Missing traintuple key"
 
 #  Add the testtuple
 print("Registering testtuple...")
-testtuple = client.add_testtuple(
+testtuple_key = client.add_testtuple(
     {"objective_key": objective_key, "traintuple_key": traintuple_key}, exist_ok=True
 )
-testtuple_key = testtuple.get("key")
 assert testtuple_key, "Missing testtuple key"
 
 #  Get the performance

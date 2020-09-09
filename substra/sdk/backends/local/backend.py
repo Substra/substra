@@ -206,8 +206,8 @@ class Local(base.BaseBackend):
                     rank=rank,
                     spec=traintuple
                 )
-                traintuple = self.add(traintuple_spec, exist_ok, spec_options)
-                compute_plan.id_to_key[id_] = traintuple["key"]
+                traintuple_key = self.add(traintuple_spec, exist_ok, spec_options)
+                compute_plan.id_to_key[id_] = traintuple_key
 
             elif id_ in aggregatetuples:
                 aggregatetuple = aggregatetuples[id_]
@@ -217,8 +217,12 @@ class Local(base.BaseBackend):
                     rank=rank,
                     spec=aggregatetuple
                 )
-                aggregatetuple = self.add(aggregatetuple_spec, exist_ok, spec_options)
-                compute_plan.id_to_key[id_] = aggregatetuple["key"]
+                aggregatetuple_key = self.add(
+                    aggregatetuple_spec,
+                    exist_ok,
+                    spec_options,
+                )
+                compute_plan.id_to_key[id_] = aggregatetuple_key
 
             elif id_ in compositetuples:
                 compositetuple = compositetuples[id_]
@@ -228,8 +232,12 @@ class Local(base.BaseBackend):
                     rank=rank,
                     spec=compositetuple
                 )
-                compositetuple = self.add(compositetuple_spec, exist_ok, spec_options)
-                compute_plan.id_to_key[id_] = compositetuple["key"]
+                compositetuple_key = self.add(
+                    compositetuple_spec,
+                    exist_ok,
+                    spec_options,
+                )
+                compute_plan.id_to_key[id_] = compositetuple_key
 
         if spec.testtuples:
             for testtuple in spec.testtuples:
@@ -237,7 +245,7 @@ class Local(base.BaseBackend):
                     id_to_key=compute_plan.id_to_key,
                     spec=testtuple
                 )
-                testtuple = self.add(testtuple_spec, exist_ok, spec_options)
+                self.add(testtuple_spec, exist_ok, spec_options)
 
         return compute_plan
 
@@ -266,7 +274,7 @@ class Local(base.BaseBackend):
                 [
                     data_manager_key
                     in self._db.get(schemas.Type.DataSample, key).data_manager_keys
-                    for key in data_sample_keys or list()
+                    for key in (data_sample_keys or list())
                 ]
             )
             if not same_data_manager:
@@ -839,7 +847,7 @@ class Local(base.BaseBackend):
             self._worker.schedule_traintuple(aggregatetuple)
         return aggregatetuple
 
-    def add(self, spec, exist_ok, spec_options=None):
+    def add(self, spec, exist_ok=False, spec_options=None):
         # find dynamically the method to call to create the asset
         method_name = f"_add_{spec.__class__.type_.value}"
         if spec.is_many():
@@ -848,7 +856,7 @@ class Local(base.BaseBackend):
         if spec.is_many():
             # 'exist_ok' is not supported
             asset = add_asset(spec, spec_options)
-            return [a.to_response() for a in asset]
+            return [a.to_response()['key'] for a in asset]
         else:
             # Check if the asset exists, return it if 'exist_ok' is True
             key = self._db.get_local_key(spec.compute_key())
@@ -858,10 +866,13 @@ class Local(base.BaseBackend):
                 pass
             else:
                 if exist_ok:
-                    return asset.to_response()
+                    return key
                 raise exceptions.AlreadyExists(key, 409)
             asset = add_asset(key, spec, spec_options)
-            return asset.to_response()
+            if spec.__class__.type_ == schemas.Type.ComputePlan:
+                return asset.to_response()
+            else:
+                return key
 
     def link_dataset_with_objective(self, dataset_key, objective_key):
         # validation

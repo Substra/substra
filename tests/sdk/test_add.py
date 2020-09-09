@@ -23,7 +23,8 @@ from .utils import mock_requests
 def test_add_dataset(client, dataset_query, mocker):
     m_post = mock_requests(mocker, "post", response=datastore.DATASET)
     m_get = mock_requests(mocker, "get", response=datastore.DATASET)
-    response = client.add_dataset(dataset_query)
+    key = client.add_dataset(dataset_query)
+    response = client.get_dataset(key)
 
     assert response == datastore.DATASET
     m_post.assert_called()
@@ -57,7 +58,8 @@ def test_add_dataset_response_failure_409(client, dataset_query, mocker):
 def test_add_objective(client, objective_query, mocker):
     m_post = mock_requests(mocker, "post", response=datastore.OBJECTIVE)
     m_get = mock_requests(mocker, "get", response=datastore.OBJECTIVE)
-    response = client.add_objective(objective_query)
+    key = client.add_objective(objective_query)
+    response = client.get_objective(key)
 
     assert response == datastore.OBJECTIVE
     m_post.assert_called()
@@ -67,7 +69,8 @@ def test_add_objective(client, objective_query, mocker):
 def test_add_algo(client, algo_query, mocker):
     m_post = mock_requests(mocker, "post", response=datastore.ALGO)
     m_get = mock_requests(mocker, "get", response=datastore.ALGO)
-    response = client.add_algo(algo_query)
+    key = client.add_algo(algo_query)
+    response = client.get_algo(key)
 
     assert response == datastore.ALGO
     m_post.assert_called()
@@ -77,7 +80,8 @@ def test_add_algo(client, algo_query, mocker):
 def test_add_aggregate_algo(client, algo_query, mocker):
     m_post = mock_requests(mocker, "post", response=datastore.AGGREGATE_ALGO)
     m_get = mock_requests(mocker, "get", response=datastore.AGGREGATE_ALGO)
-    response = client.add_aggregate_algo(algo_query)
+    key = client.add_aggregate_algo(algo_query)
+    response = client.get_aggregate_algo(key)
 
     assert response == datastore.AGGREGATE_ALGO
     m_post.assert_called()
@@ -87,7 +91,8 @@ def test_add_aggregate_algo(client, algo_query, mocker):
 def test_add_composite_algo(client, algo_query, mocker):
     m_post = mock_requests(mocker, "post", response=datastore.COMPOSITE_ALGO)
     m_get = mock_requests(mocker, "get", response=datastore.COMPOSITE_ALGO)
-    response = client.add_composite_algo(algo_query)
+    key = client.add_composite_algo(algo_query)
+    response = client.get_composite_algo(key)
 
     assert response == datastore.COMPOSITE_ALGO
     m_post.assert_called()
@@ -99,7 +104,7 @@ def test_add_data_sample(client, data_sample_query, mocker):
     m = mock_requests(mocker, "post", response=server_response)
     response = client.add_data_sample(data_sample_query)
 
-    assert response == server_response[0]
+    assert response == server_response[0]['key']
     m.assert_called()
 
 
@@ -107,7 +112,7 @@ def test_add_data_sample_already_exists(client, data_sample_query, mocker):
     m = mock_requests(mocker, "post", response=[{"key": "42"}], status=409)
     response = client.add_data_sample(data_sample_query, exist_ok=True)
 
-    assert response == {"key": "42"}
+    assert response == "42"
     m.assert_called()
 
 
@@ -122,7 +127,7 @@ def test_add_data_samples(client, data_samples_query, mocker):
     m = mock_requests(mocker, "post", response=server_response)
     response = client.add_data_samples(data_samples_query)
 
-    assert response == server_response
+    assert response == ['42']
     m.assert_called()
 
 

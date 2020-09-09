@@ -150,7 +150,13 @@ def test_command_list_node(workdir, mocker):
 def test_command_add(asset_name, params, workdir, mocker):
     method_name = f'add_{asset_name}'
 
-    m = mock_client_call(mocker, method_name, response={})
+    if asset_name == 'compute_plan':
+        m = mock_client_call(mocker, method_name, response={'key': 'foo'})
+    else:
+        m = mock_client_call(mocker, method_name, response='foo')
+    item = getattr(datastore, asset_name.upper())
+    mock_client_call(mocker, f'get_{asset_name}', item)
+
     json_file = workdir / "valid_json_file.json"
     json_file.write_text(json.dumps({}))
     client_execute(workdir, ['add', asset_name] + params + [str(json_file)])
@@ -172,7 +178,10 @@ def test_command_add_objective(workdir, mocker):
     json_file = workdir / "valid_json_file.json"
     json_file.write_text(json.dumps({}))
 
-    m = mock_client_call(mocker, 'add_objective', response={})
+    m = mock_client_call(mocker, 'add_objective', response='foo')
+    item = getattr(datastore, 'OBJECTIVE')
+    m = mock_client_call(mocker, 'get_objective', item)
+
     client_execute(workdir, ['add', 'objective', str(json_file), '--dataset-key', 'foo',
                              '--data-samples-path', str(json_file)])
     m.assert_called()
@@ -207,7 +216,9 @@ def test_command_add_objective(workdir, mocker):
     (['--head-model-key', 'e', '--trunk-model-key', 'e'])
 ])
 def test_command_add_composite_traintuple(mocker, workdir, params):
-    m = mock_client_call(mocker, 'add_composite_traintuple', response={})
+    m = mock_client_call(mocker, 'add_composite_traintuple', response='foo')
+    item = getattr(datastore, 'composite_traintuple'.upper())
+    m = mock_client_call(mocker, 'get_composite_traintuple', item)
     json_file = workdir / "valid_json_file.json"
     json_file.write_text(json.dumps({}))
     client_execute(workdir, ['add', 'composite_traintuple', '--algo-key', 'foo', '--dataset-key',
@@ -233,14 +244,18 @@ def test_command_add_composite_traintuple_missing_model_key(mocker, workdir, par
     ['--in-model-key', 'bar']
 ])
 def test_command_add_aggregatetuple(mocker, workdir, params):
-    m = mock_client_call(mocker, 'add_aggregatetuple', response={})
+    m = mock_client_call(mocker, 'add_aggregatetuple', response='foo')
+    item = getattr(datastore, 'aggregatetuple'.upper())
+    m = mock_client_call(mocker, 'get_aggregatetuple', item)
     client_execute(workdir, ['add', 'aggregatetuple', '--algo-key', 'foo',
                              '--in-model-key', 'foo'] + params + ['--worker', 'foo'])
     m.assert_called()
 
 
 def test_command_add_testtuple_no_data_samples(mocker, workdir):
-    m = mock_client_call(mocker, 'add_testtuple', response={})
+    m = mock_client_call(mocker, 'add_testtuple', response='foo')
+    item = getattr(datastore, 'testtuple'.upper())
+    m = mock_client_call(mocker, 'get_testtuple', item)
     client_execute(workdir, ['add', 'testtuple', '--objective-key', 'foo',
                              '--traintuple-key', 'foo'])
     m.assert_called()

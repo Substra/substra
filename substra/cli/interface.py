@@ -22,9 +22,11 @@ import consolemd
 
 from substra import __version__, runner
 from substra.cli import printers
-from substra.sdk import assets, exceptions
+from substra.sdk import assets, exceptions, utils
 from substra.sdk import config as configuration
 from substra.sdk.client import Client, DEFAULT_BATCH_SIZE
+
+DEFAULT_RETRY_TIMEOUT = 300
 
 
 def get_client(global_conf):
@@ -77,6 +79,13 @@ class GlobalConf:
         self.tokens = None
         self.verbose = None
         self.output_format = None
+        self.retry_timeout = DEFAULT_RETRY_TIMEOUT
+
+    def retry(self, func):
+        return utils.retry_on_exception(
+            exceptions=(exceptions.RequestTimeout),
+            timeout=float(self.retry_timeout),
+        )(func)
 
 
 def update_global_conf(ctx, param, value):
@@ -186,6 +195,19 @@ def click_option_expand(f):
         '--expand',
         is_flag=True,
         help="Display associated assets details"
+    )(f)
+
+
+def click_global_conf_retry_timeout(f):
+    """Add timeout option to command."""
+    return click.option(
+        '--timeout', 'timeout',
+        type=click.INT,
+        expose_value=False,
+        default=DEFAULT_RETRY_TIMEOUT,
+        show_default=True,
+        callback=update_global_conf,
+        help='Max number of seconds the operation will be retried for'
     )(f)
 
 
@@ -327,6 +349,7 @@ def add(ctx):
 @click.option('--test-only', is_flag=True, default=False,
               help='Data sample(s) used as test data only.')
 @click_global_conf
+@click_global_conf_retry_timeout
 @click.pass_context
 @error_printer
 def add_data_sample(ctx, path, dataset_key, local, multiple, test_only):
@@ -354,8 +377,8 @@ def add_data_sample(ctx, path, dataset_key, local, multiple, test_only):
     }
     if test_only:
         data['test_only'] = True
-    res = client.add_data_samples(data, local=local)
-    display(res)
+    key = client.add_data_samples(data, local=local)
+    display(key)
 
 
 @add.command('dataset')
@@ -363,6 +386,7 @@ def add_data_sample(ctx, path, dataset_key, local, multiple, test_only):
                 metavar="PATH")
 @click.option('--objective-key')
 @click_global_conf_with_output_format
+@click_global_conf_retry_timeout
 @click.pass_context
 @error_printer
 def add_dataset(ctx, data, objective_key):
@@ -397,7 +421,8 @@ def add_dataset(ctx, data, objective_key):
     if objective_key:  # overwrite data values if set
         data['objective_key'] = objective_key
 
-    res = client.add_dataset(data)
+    key = client.add_dataset(data)
+    res = ctx.obj.retry(client.get_dataset)(key)
     printer = printers.get_asset_printer(assets.DATASET, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
@@ -410,6 +435,7 @@ def add_dataset(ctx, data, objective_key):
               type=click.Path(exists=True, resolve_path=True, dir_okay=False),
               callback=load_json_from_path, help='Test data samples.')
 @click_global_conf_with_output_format
+@click_global_conf_retry_timeout
 @click.pass_context
 @error_printer
 def add_objective(ctx, data, dataset_key, data_samples):
@@ -459,7 +485,8 @@ def add_objective(ctx, data, dataset_key, data_samples):
     if data_samples:
         data['test_data_sample_keys'] = load_data_samples_keys(data_samples)
 
-    res = client.add_objective(data)
+    key = client.add_objective(data)
+    res = ctx.obj.retry(client.get_objective)(key)
     printer = printers.get_asset_printer(assets.OBJECTIVE, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
@@ -468,6 +495,7 @@ def add_objective(ctx, data, dataset_key, data_samples):
 @click.argument('data', type=click.Path(exists=True, dir_okay=False), callback=load_json_from_path,
                 metavar="PATH")
 @click_global_conf_with_output_format
+@click_global_conf_retry_timeout
 @click.pass_context
 @error_printer
 def add_algo(ctx, data):
@@ -497,7 +525,8 @@ def add_algo(ctx, data):
     """
 
     client = get_client(ctx.obj)
-    res = client.add_algo(data)
+    key = client.add_algo(data)
+    res = ctx.obj.retry(client.get_algo)(key)
     printer = printers.get_asset_printer(assets.ALGO, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
@@ -582,6 +611,7 @@ def add_compute_plan(ctx, data, no_auto_batching, batch_size):
 @click.argument('data', type=click.Path(exists=True, dir_okay=False), callback=load_json_from_path,
                 metavar="PATH")
 @click_global_conf_with_output_format
+@click_global_conf_retry_timeout
 @click.pass_context
 @error_printer
 def add_aggregate_algo(ctx, data):
@@ -611,7 +641,8 @@ def add_aggregate_algo(ctx, data):
     """
 
     client = get_client(ctx.obj)
-    res = client.add_aggregate_algo(data)
+    key = client.add_aggregate_algo(data)
+    res = ctx.obj.retry(client.get_aggregate_algo)(key)
     printer = printers.get_asset_printer(assets.AGGREGATE_ALGO, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
@@ -620,6 +651,7 @@ def add_aggregate_algo(ctx, data):
 @click.argument('data', type=click.Path(exists=True, dir_okay=False), callback=load_json_from_path,
                 metavar="PATH")
 @click_global_conf_with_output_format
+@click_global_conf_retry_timeout
 @click.pass_context
 @error_printer
 def add_composite_algo(ctx, data):
@@ -649,7 +681,8 @@ def add_composite_algo(ctx, data):
     """
 
     client = get_client(ctx.obj)
-    res = client.add_composite_algo(data)
+    key = client.add_composite_algo(data)
+    res = ctx.obj.retry(client.get_composite_algo)(key)
     printer = printers.get_asset_printer(assets.COMPOSITE_ALGO, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
@@ -664,6 +697,7 @@ def add_composite_algo(ctx, data):
               help='In model traintuple key.')
 @click.option('--tag')
 @click_global_conf_with_output_format
+@click_global_conf_retry_timeout
 @click_option_metadata
 @click.pass_context
 @error_printer
@@ -699,7 +733,8 @@ def add_traintuple(ctx, algo_key, dataset_key, data_samples, in_models_keys, tag
 
     if in_models_keys:
         data['in_models_keys'] = in_models_keys
-    res = client.add_traintuple(data)
+    key = client.add_traintuple(data)
+    res = ctx.obj.retry(client.get_traintuple)(key)
     printer = printers.get_asset_printer(assets.TRAINTUPLE, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
@@ -712,6 +747,7 @@ def add_traintuple(ctx, algo_key, dataset_key, data_samples, in_models_keys, tag
 @click.option('--rank', type=click.INT)
 @click.option('--tag')
 @click_global_conf_with_output_format
+@click_global_conf_retry_timeout
 @click_option_metadata
 @click.pass_context
 @error_printer
@@ -734,7 +770,8 @@ def add_aggregatetuple(ctx, algo_key, in_models_keys, worker, rank, tag, metadat
 
     if metadata:
         data['metadata'] = metadata
-    res = client.add_aggregatetuple(data)
+    key = client.add_aggregatetuple(data)
+    res = ctx.obj.retry(client.get_aggregatetuple)(key)
     printer = printers.get_asset_printer(assets.AGGREGATETUPLE, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
@@ -755,6 +792,7 @@ def add_aggregatetuple(ctx, algo_key, in_models_keys, worker, rank, tag, metadat
               help='Load a permissions file.')
 @click.option('--tag')
 @click_global_conf_with_output_format
+@click_global_conf_retry_timeout
 @click_option_metadata
 @click.pass_context
 @error_printer
@@ -811,7 +849,8 @@ def add_composite_traintuple(ctx, algo_key, dataset_key, data_samples, head_mode
 
     if metadata:
         data['metadata'] = metadata
-    res = client.add_composite_traintuple(data)
+    key = client.add_composite_traintuple(data)
+    res = ctx.obj.retry(client.get_composite_traintuple)(key)
     printer = printers.get_asset_printer(assets.COMPOSITE_TRAINTUPLE, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
@@ -825,6 +864,7 @@ def add_composite_traintuple(ctx, algo_key, dataset_key, data_samples, head_mode
               callback=load_json_from_path)
 @click.option('--tag')
 @click_global_conf_with_output_format
+@click_global_conf_retry_timeout
 @click_option_metadata
 @click.pass_context
 @error_printer
@@ -858,7 +898,8 @@ def add_testtuple(ctx, objective_key, dataset_key, traintuple_key, data_samples,
 
     if metadata:
         data['metadata'] = metadata
-    res = client.add_testtuple(data)
+    key = client.add_testtuple(data)
+    res = ctx.obj.retry(client.get_testtuple)(key)
     printer = printers.get_asset_printer(assets.TESTTUPLE, ctx.obj.output_format)
     printer.print(res, is_list=False)
 

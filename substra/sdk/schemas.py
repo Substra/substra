@@ -302,7 +302,7 @@ class TraintupleSpec(_Spec):
         key_components = (
             [self.algo_key, self.data_manager_key]
             + self.train_data_sample_keys
-            + self.in_models_keys or list()
+            + (self.in_models_keys or list())
         )
         return hasher.Hasher(values=key_components).compute()
 

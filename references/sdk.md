@@ -98,8 +98,7 @@ If a data sample with the same content already exists, an `AlreadyExists` except
 raised.
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset will be returned.
-
+existing asset key will be returned.
 
 ## add_data_samples
 ```python
@@ -157,7 +156,9 @@ If a dataset with the same opener already exists, an `AlreadyExists` exception w
 raised.
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset will be returned.
+existing asset key will be returned.
+
+This returns the key of the created asset.
 
 ## add_objective
 ```python
@@ -187,7 +188,9 @@ If an objective with the same description already exists, an `AlreadyExists` exc
 be raised.
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset will be returned.
+existing asset key will be returned.
+
+This returns the key of the created asset.
 
 ## add_algo
 ```python
@@ -214,7 +217,9 @@ If an algo with the same archive file already exists, an `AlreadyExists` excepti
 raised.
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset will be returned.
+existing asset key will be returned.
+
+This returns the key of the created asset.
 
 ## add_aggregate_algo
 ```python
@@ -238,7 +243,9 @@ If an aggregate algo with the same archive file already exists, an `AlreadyExist
 exception will be raised.
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset will be returned.
+existing asset key will be returned.
+
+This returns the key of the created asset.
 
 ## add_composite_algo
 ```python
@@ -262,7 +269,9 @@ If a composite algo with the same archive file already exists, an `AlreadyExists
 will be raised.
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset will be returned.
+existing asset key will be returned.
+
+This returns the key of the created asset.
 
 ## add_traintuple
 ```python
@@ -289,7 +298,9 @@ An `AlreadyExists` exception will be raised if a traintuple already exists that:
 * and was created through the same node you are using
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset will be returned.
+existing asset key will be returned.
+
+This returns the key of the created asset.
 
 ## add_aggregatetuple
 ```python
@@ -313,7 +324,9 @@ An `AlreadyExists` exception will be raised if an aggregatetuple already exists 
 * and was created through the same node you are using
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset will be returned.
+existing asset key will be returned.
+
+This returns the key of the created asset.
 
 ## add_composite_traintuple
 ```python
@@ -346,7 +359,9 @@ An `AlreadyExists` exception will be raised if a traintuple already exists that:
 * and was created through the same node you are using
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset will be returned.
+existing asset key will be returned.
+
+This returns the key of the created asset.
 
 ## add_testtuple
 ```python
@@ -373,7 +388,9 @@ An `AlreadyExists` exception will be raised if a testtuple already exists that:
 * and was created through the same node you are using
 
 If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset will be returned.
+existing asset key will be returned.
+
+This returns the key of the created asset.
 
 ## add_compute_plan
 ```python
@@ -687,3 +704,27 @@ Get objective leaderboard
 Client.cancel_compute_plan(self, compute_plan_id)
 ```
 Cancel execution of compute plan.
+# retry_on_exception
+```python
+retry_on_exception(exceptions, timeout=300)
+```
+Retry function in case of exception(s).
+
+Arguments:
+    exceptions: list of exception types that trigger a retry
+    timeout (int): timeout in seconds
+
+Example:
+    ```python
+    from substra.sdk import exceptions, retry_on_exception
+
+    def my_function(arg1, arg2):
+        pass
+
+    retry = retry_on_exception(
+                exceptions=(exceptions.RequestTimeout),
+                timeout=300,
+            )
+    retry(my_function)(arg1, arg2)
+    ```
+

@@ -27,10 +27,6 @@ AUTO_BATCHING = "auto_batching"
 BATCH_SIZE = 'batch_size'
 
 
-def _get_asset_key(data):
-    return data.get('key') or data.get('computePlanID')
-
-
 def _find_asset_field(data, field):
     """Find data value where location is defined as `field.subfield...`."""
     for f in field.split('.'):
@@ -86,7 +82,6 @@ class Remote(base.BaseBackend):
             with spec.build_request_kwargs(**spec_options) as (data, files):
                 data_samples = self._add(
                     schemas.Type.DataSample, data, files, exist_ok=exist_ok)
-
         except exceptions.AlreadyExists as e:
             if not exist_ok or spec.is_many():
                 raise
@@ -97,7 +92,9 @@ class Remote(base.BaseBackend):
 
         # there is currently a single route in the backend to add a single or many
         # datasamples, this route always returned a list of created data sample keys
-        return data_samples if spec.is_many() else data_samples[0]
+        return [
+            data_sample['key'] for data_sample in data_samples
+            ] if spec.is_many() else data_samples[0]['key']
 
     def add(self, spec, exist_ok=False, spec_options=None):
         """Add an asset."""
@@ -127,15 +124,12 @@ class Remote(base.BaseBackend):
 
         with spec.build_request_kwargs(**spec_options) as (data, files):
             response = self._add(asset_type, data, files=files, exist_ok=exist_ok)
-        # The backend has inconsistent API responses when getting or adding an asset
-        # (with much less data when responding to adds).
-        # A second GET request hides the discrepancies.
-        # Do not do this with a compute plan or we lose the id_to_key field
+        # The backend returns only the key, except for the compute plan: it returns the
+        # whole object (otherwise we lose the id_to_key field)
         if asset_type == schemas.Type.ComputePlan:
             return response
 
-        key = _get_asset_key(response)
-        return self.get(asset_type, key)
+        return response['key']
 
     def _auto_batching_compute_plan(self,
                                     spec,
