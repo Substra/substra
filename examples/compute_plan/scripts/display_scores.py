@@ -27,7 +27,7 @@ with open(compute_plan_keys_path, 'r') as f:
     compute_plan_keys = json.load(f)
 
 # fetch all data
-testtuple_keys = compute_plan_keys['testtupleKeys']
+testtuple_keys = compute_plan_keys['testtuple_keys']
 columns = [
     ['STEP'],
     ['SCORE'],
@@ -39,7 +39,7 @@ for i, testtuple_key in enumerate(testtuple_keys):
     score = testtuple['dataset']['perf'] if testtuple['status'] == 'done' else testtuple['status']
     columns[0].append(str(i+1))
     columns[1].append(str(score))
-    columns[2].append(testtuple['traintupleKey'])
+    columns[2].append(testtuple['traintuple_key'])
     columns[3].append(testtuple['key'])
 
 # display data
