@@ -16,7 +16,6 @@
 import abc
 import enum
 import json
-import re
 from typing import ClassVar, Dict, List, Optional, Union
 
 import pydantic
@@ -26,41 +25,6 @@ from substra.sdk import schemas
 
 # The remote can return an URL or an empty string for paths
 UriPath = Union[FilePath, AnyUrl, str]
-
-CAMEL_TO_SNAKE_PATTERN = re.compile(r'(.)([A-Z][a-z]+)')
-CAMEL_TO_SNAKE_PATTERN_2 = re.compile(r'([a-z0-9])([A-Z])')
-
-
-def to_snake_case(camel_str):
-    name = CAMEL_TO_SNAKE_PATTERN.sub(r'\1_\2', camel_str)
-    name = CAMEL_TO_SNAKE_PATTERN_2.sub(r'\1_\2', name).lower()
-    return name.replace('_i_d', '_id')
-
-
-def _to_camel_case(snake_str):
-    """Convert a snake case string to a camel case string."""
-    components = snake_str.split("_")
-    # we capitalize the first letter of each component except the first one
-    # with the 'title' method and join them together.
-    return components[0] + "".join(x.title() for x in components[1:])
-
-
-def _replace_dict_keys(d, converter):
-    """Replace fields in a dict and return updated dict (recursive).
-
-    Apply converter to each dict field.
-    """
-    assert isinstance(d, dict)
-    new_d = {}
-    for key, value in d.items():
-        if isinstance(value, dict):
-            value = _replace_dict_keys(value, converter)
-        elif isinstance(value, list):
-            if all([isinstance(v, dict) for v in value]):
-                value = [_replace_dict_keys(v, converter) for v in value]
-
-        new_d[converter(key)] = value
-    return new_d
 
 
 class Status(enum.Enum):
@@ -94,33 +58,21 @@ class _Model(pydantic.BaseModel, abc.ABC):
 
     class Meta:
         storage_only_fields = None
-        alias_fields = None
 
     class Config:
         extra = 'forbid'
-
-    @classmethod
-    def from_response(cls, data):
-        data_snake = _replace_dict_keys(data, to_snake_case)
-        return cls(**data_snake)
 
     def to_response(self):
         """Convert model to backend response object."""
         # serialize and deserialzie to JSON to ensure all field types are converted
         # to JSON compatible formats (this is necessary to handle properly the FilePath
         # fields for isntance).
-        data = json.loads(self.json(exclude_none=False))
+        data = json.loads(self.json(exclude_none=False, by_alias=True))
         if self.__class__.Meta.storage_only_fields:
             for field in self.__class__.Meta.storage_only_fields:
                 data.pop(field)
 
-        if self.__class__.Meta.alias_fields:
-            for field, field_response in self.__class__.Meta.alias_fields.items():
-                value = data.pop(field)
-                data[field_response] = value
-
-        # convert snake case to camel case fields
-        return _replace_dict_keys(data, _to_camel_case)
+        return data
 
     def __str__(self):
         return f"{self.__class__.type_.value}(key={self.key})"
@@ -160,7 +112,6 @@ class Dataset(_Model):
 
     class Meta:
         storage_only_fields = ("opener",)
-        alias_fields = None
 
 
 class _ObjectiveDataset(pydantic.BaseModel):
@@ -194,7 +145,6 @@ class Objective(_Model):
 
     class Meta:
         storage_only_fields = None
-        alias_fields = None
 
 
 class _Algo(_Model):
@@ -209,7 +159,6 @@ class _Algo(_Model):
 
     class Meta:
         storage_only_fields = ("content",)
-        alias_fields = None
 
 
 class Algo(_Algo):
@@ -282,7 +231,6 @@ class Traintuple(_Model):
 
     class Meta:
         storage_only_fields = None
-        alias_fields = {"compute_plan_id": "compute_plan_i_d"}
 
 
 class Aggregatetuple(_Model):
@@ -305,7 +253,7 @@ class Aggregatetuple(_Model):
 
     class Meta:
         storage_only_fields = None
-        alias_fields = {"compute_plan_id": "compute_plan_i_d"}
+
 
 
 class InHeadModel(pydantic.BaseModel):
@@ -359,7 +307,6 @@ class CompositeTraintuple(_Model):
 
     class Meta:
         storage_only_fields = None
-        alias_fields = {"compute_plan_id": "compute_plan_i_d"}
 
 
 class _TesttupleDataset(pydantic.BaseModel):
@@ -402,14 +349,6 @@ class Testtuple(_Model):
 
     class Meta:
         storage_only_fields = None
-        alias_fields = {"compute_plan_id": "compute_plan_i_d"}
-
-    @pydantic.validator('traintuple_type', pre=True)
-    def to_traintuple_type(cls, traintuple_type):
-        # Convert the traintuple type from string to
-        # a valid schema.Type value
-        # Needed for the camelCase values returned by the backend
-        return to_snake_case(traintuple_type)
 
 
 class ComputePlan(_Model):
@@ -430,7 +369,6 @@ class ComputePlan(_Model):
 
     class Meta:
         storage_only_fields = None
-        alias_fields = {"compute_plan_id": "compute_plan_i_d"}
 
 
 SCHEMA_TO_MODEL = {

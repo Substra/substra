@@ -905,9 +905,8 @@ class Local(base.BaseBackend):
         if self._db.is_local(key):
             asset = self._db.get(type_=asset_type, key=key)
             # Get the field containing the path to the file.
-            attribute_name = models.to_snake_case(url_field_path)
             file_path = asset
-            for field in attribute_name.split("."):
+            for field in url_field_path.split("."):
                 file_path = getattr(file_path, field, None)
             # Copy the file to the destination folder
             shutil.copyfile(file_path, destination)
