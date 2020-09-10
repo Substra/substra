@@ -15,7 +15,6 @@
 import contextlib
 import copy
 import io
-import itertools
 import functools
 import logging
 import time
@@ -103,14 +102,6 @@ def extract_data_sample_files(data):
     finally:
         for f in files.values():
             f.close()
-
-
-def flatten(list_of_list):
-    res = []
-    for item in itertools.chain.from_iterable(list_of_list):
-        if item not in res:
-            res.append(item)
-    return res
 
 
 def _join_and_groups(items):

@@ -42,16 +42,6 @@ def test_list_asset(asset_name, client, mocker):
     m.assert_called()
 
 
-def test_list_asset_flatten(client, mocker):
-    items = [datastore.ALGO]
-    m = mock_requests(mocker, "get", response=[items])
-
-    response = client.list_algo()
-
-    assert response == items
-    m.assert_called()
-
-
 def test_list_asset_with_filters(client, mocker):
     items = [datastore.ALGO]
     m = mock_requests(mocker, "get", response=[items])
