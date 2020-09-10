@@ -292,7 +292,7 @@ TESTTUPLE = {
     },
     "log": "Test - CPU:90.07 % - Mem:0.13 GB - GPU:0.00 % - GPU Mem:0.00 GB;",
     "model": {
-        "traintupleKey": "593b8c8a94cf5d372f239c79ac2a4089f7ba4717cda8dc4753599a078e86493d",
+        "traintuple_key": "593b8c8a94cf5d372f239c79ac2a4089f7ba4717cda8dc4753599a078e86493d",
         "hash": "523882e8aaa3fd65bfd5f4bd0153ad6a21487f55c50b922bbf26015c6e975965",
         "storage_address": "",
     },
@@ -348,8 +348,8 @@ LEADERBOARD = {
 }
 
 NODES = [
-    {'id': 'foo', 'isCurrent': False},
-    {'id': 'bar', 'isCurrent': True},
+    {'id': 'foo', 'is_current': False},
+    {'id': 'bar', 'is_current': True},
 ]
 
 COMPUTE_PLAN = {
