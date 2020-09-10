@@ -150,11 +150,11 @@ TRAINTUPLE = {
             "31510dc1d8be788f7c5d28d05714f7efb9edb667762966b9adc02eadeaacebe9",
             "03a1f878768ea8624942d46a3b438c37992e626c2cf655023bcc3bed69d485d1"
         ],
-        "openerHash": "8dd01465003a9b1e01c99c904d86aa518b3a5dd9dc8d40fe7d075c726ac073ca",
+        "opener_hash": "8dd01465003a9b1e01c99c904d86aa518b3a5dd9dc8d40fe7d075c726ac073ca",
         "perf": 0
     },
     "compute_plan_id": "",
-    "inModels": None,
+    "in_models": None,
     "log": "[00-01-0032-d415995]",
     "objective": {
         "hash": "3d70ab46d710dacb0f48cb42db4874fac14e048a0d415e266aad38c09591ee71",
@@ -163,7 +163,7 @@ TRAINTUPLE = {
             "storage_address": ""
         }
     },
-    "outModel": None,
+    "out_model": None,
     "permissions": {
         "process": {
             "public": False,
@@ -192,11 +192,11 @@ AGGREGATETUPLE = {
             "31510dc1d8be788f7c5d28d05714f7efbfedb667762966b9adc02eadeaacebe9",
             "03a1f878768ea8624942d46a3b438c379f2e626c2cf655023bcc3bed69d485d1"
         ],
-        "openerHash": "8dd01465003a9b1e01c99c904d86aa518b3afdd9dc8d40fe7d075c726ac073ca",
+        "opener_hash": "8dd01465003a9b1e01c99c904d86aa518b3afdd9dc8d40fe7d075c726ac073ca",
         "perf": 0
     },
     "compute_plan_id": "",
-    "inModels": None,
+    "in_models": None,
     "log": "[00-01-0032-d415995]",
     "objective": {
         "hash": "3d70ab46d710dacb0f48cb42db4874fac14e048afd415e266aad38c09591ee71",
@@ -205,7 +205,7 @@ AGGREGATETUPLE = {
             "storage_address": ""
         }
     },
-    "outModel": None,
+    "out_model": None,
     "permissions": {
         "process": {
             "public": False,
@@ -227,10 +227,10 @@ COMPOSITE_TRAINTUPLE = {
         "hash": "0acc5180e09b6a6ac250f4e3c172e2893f617aa1c22ef1f379019d20fe44142f",
         "storage_address": ""
     },
-    "inHeadModel": {
+    "in_head_model": {
         "key": "0acc5180e09b6a6ac250f4e3d972e2893f617aa1c22ef1f379019d20fe44142e",
     },
-    "inTrunkModel": {
+    "in_trunk_model": {
         "key": "0acc5180e09b6a6ac250f4e3d972e2893f617aa1c22ef1f379019d20fe44142f",
     },
     "creator": "e75db4df2532dc1313ebb5c2462e1eb813b94c3e67de29f6e4b2272ae60385f5",
@@ -240,7 +240,7 @@ COMPOSITE_TRAINTUPLE = {
             "31510dc1d8be788f7c5d28d05714f7efb9edb667762966b9adc02eadeaacebe9",
             "03a1f878768ea8624942d46a3b438c37992e626c2cf655023bcc3bed69d485d1"
         ],
-        "openerHash": "8dd01465003a9b1e01c99c904d86aa518b3a5dd9dc8d40fe7d075c726ac073ca",
+        "opener_hash": "8dd01465003a9b1e01c99c904d86aa518b3a5dd9dc8d40fe7d075c726ac073ca",
         "perf": 0
     },
     "compute_plan_id": "",
@@ -252,15 +252,15 @@ COMPOSITE_TRAINTUPLE = {
             "storage_address": ""
         }
     },
-    "outHeadModel": {
+    "out_head_model": {
         "permissions": {},
-        "outModel": {
+        "out_model": {
             "hash": "8a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
         }
     },
-    "outTrunkModel": {
+    "out_trunk_model": {
         "permissions": {},
-        "outModel": {
+        "out_model": {
             "hash": "9a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
         }
     },
@@ -287,7 +287,7 @@ TESTTUPLE = {
             "17d58b67ae2028018108c9bf555fa58b2ddcfe560e0117294196e79d26140b2a",
             "8bf3bf4f753a32f27d18c86405e7a406a83a55610d91abcca9acc525061b8ecf"
         ],
-        "openerHash": "ce9f292c72e9b82697445117f9c2d1d18ce0f8ed07ff91dadb17d668bddf8932",
+        "opener_hash": "ce9f292c72e9b82697445117f9c2d1d18ce0f8ed07ff91dadb17d668bddf8932",
         "perf": 0
     },
     "log": "Test - CPU:90.07 % - Mem:0.13 GB - GPU:0.00 % - GPU Mem:0.00 GB;",
@@ -301,7 +301,7 @@ TESTTUPLE = {
         "metrics": {
             "hash": "c42dca31fbc2ebb5705643e3bb6ee666bbfd956de13dd03727f825ad8445b4d7",
             "storage_address": "",
-          }
+        }
     },
     "permissions": {
         "process": {
