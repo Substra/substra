@@ -76,7 +76,7 @@ class DataAccess:
         return asset_name, field_name
 
     def _get_response(self, type_, asset):
-        return models.SCHEMA_TO_MODEL[type_](asset)
+        return models.SCHEMA_TO_MODEL[type_](**asset)
 
     def login(self, username, password):
         if self._remote:

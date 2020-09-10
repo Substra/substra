@@ -255,7 +255,6 @@ class Aggregatetuple(_Model):
         storage_only_fields = None
 
 
-
 class InHeadModel(pydantic.BaseModel):
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: Optional[UriPath]  # Defined for local assets but not remote ones
