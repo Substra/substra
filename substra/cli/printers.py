@@ -523,7 +523,7 @@ class NodePrinter(AssetPrinter):
     asset_name = 'node'
     key_field = Field('NODE ID', 'id')
     list_fields = (
-        CurrentNodeField('', 'isCurrent'),
+        CurrentNodeField('', 'is_current'),
     )
 
 
