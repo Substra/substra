@@ -44,7 +44,7 @@ def test_list_asset(asset_name, client, mocker):
 
 def test_list_asset_with_filters(client, mocker):
     items = [datastore.ALGO]
-    m = mock_requests(mocker, "get", response=[items])
+    m = mock_requests(mocker, "get", response=items)
 
     filters = ["algo:name:ABC", "OR", "data_manager:name:EFG"]
     response = client.list_algo(filters)
@@ -55,7 +55,7 @@ def test_list_asset_with_filters(client, mocker):
 
 def test_list_asset_with_filters_failure(client, mocker):
     items = [datastore.ALGO]
-    m = mock_requests(mocker, "get", response=[items])
+    m = mock_requests(mocker, "get", response=items)
 
     filters = 'foo'
     with pytest.raises(ValueError) as exc_info:
