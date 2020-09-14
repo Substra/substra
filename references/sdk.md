@@ -234,7 +234,7 @@ Create new aggregate algo asset.
     "file": str,
     "permissions": {
         "public": bool,
-        "authorizedIDs": list[str],
+        "authorized_ids": list[str],
     },
     "metadata": dict
 }

@@ -113,7 +113,7 @@ def test_command_login(workdir, mocker):
     ('traintuple', 'key'),
     ('aggregatetuple', 'key'),
     ('composite_traintuple', 'key'),
-    ('compute_plan', 'computePlanID'),
+    ('compute_plan', 'compute_plan_id'),
 ])
 def test_command_list(asset_name, key_field, workdir, mocker):
     item = getattr(datastore, asset_name.upper())
@@ -317,7 +317,7 @@ def test_command_add_data_sample_already_exists(workdir, mocker):
     ('traintuple', 'key'),
     ('aggregatetuple', 'key'),
     ('composite_traintuple', 'key'),
-    ('compute_plan', 'computePlanID'),
+    ('compute_plan', 'compute_plan_id'),
 ])
 def test_command_get(asset_name, key_field, workdir, mocker):
     item = getattr(datastore, asset_name.upper())
