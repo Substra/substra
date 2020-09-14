@@ -14,6 +14,7 @@
 
 import pytest
 import substra
+from substra.sdk import models, schemas
 
 from .. import datastore
 from .utils import mock_requests
@@ -39,7 +40,7 @@ def test_get_asset(asset_name, client, mocker):
 
     response = method("magic-key")
 
-    assert response == item
+    assert response == models.SCHEMA_TO_MODEL[schemas.Type(asset_name)](**item)
     m.assert_called()
 
 

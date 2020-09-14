@@ -19,7 +19,7 @@ import typing
 
 from substra.sdk import exceptions, schemas
 from substra.sdk.backends.remote import backend
-from substra.sdk.backends.local import db, models
+from substra.sdk.backends.local import db
 
 _LOCAL_KEY = "local_"
 logger = logging.getLogger(__name__)
@@ -75,9 +75,6 @@ class DataAccess:
 
         return asset_name, field_name
 
-    def _get_response(self, type_, asset):
-        return models.SCHEMA_TO_MODEL[type_](**asset)
-
     def login(self, username, password):
         if self._remote:
             self._remote.login(username, password)
@@ -99,10 +96,7 @@ class DataAccess:
             return self._db.get(type_, key)
         else:
             asset_name, field_name = self._get_asset_content_filename(type_)
-            asset = self._get_response(
-                type_,
-                self._remote.get(type_, key)
-            )
+            asset = self._remote.get(type_, key)
             tmp_directory = self._tmp_dir / key
             asset_path = tmp_directory / asset_name
 
@@ -124,8 +118,7 @@ class DataAccess:
         if self.is_local(key):
             return self._db.get(type_, key, log)
         elif self._remote:
-            remote_object = self._remote.get(type_, key)
-            return self._get_response(type_, remote_object)
+            return self._remote.get(type_, key)
         else:
             # TODO: better error that says do not have a remote ?
             raise exceptions.NotFound(f"Wrong pk {key}", 404)
@@ -135,10 +128,7 @@ class DataAccess:
         local_assets = self._db.list(type_)
         remote_assets = list()
         if self._remote:
-            for asset in self._remote.list(type_):
-                remote_assets.append(
-                    self._get_response(type_, asset)
-                )
+            remote_assets = self._remote.list(type_)
         return local_assets + remote_assets
 
     def save_file(self,

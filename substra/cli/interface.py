@@ -248,9 +248,9 @@ def _format_server_errors(fn, errors):
     else:
         lines.append(errors)
 
-    lines = [f"\n- {line}" for line in lines]
     pluralized_error = 'errors' if len(lines) > 1 else 'error'
-    return f"Could not {action}, the server returned the following {pluralized_error}:" + lines
+    return f"Could not {action}, the server returned the following \
+        {pluralized_error}:\n- " + '\n- '.join(lines)
 
 
 def error_printer(fn):
@@ -990,7 +990,8 @@ def list_(ctx, asset_name, filters, filters_logical_clause, advanced_filters):
         filters = advanced_filters
     res = method(filters)
     printer = printers.get_asset_printer(asset_name, ctx.obj.output_format)
-    printer.print(res, is_list=True)
+    dict_res = [result.dict(exclude_none=False, by_alias=True) for result in res]
+    printer.print(dict_res, is_list=True)
 
 
 @cli.command()

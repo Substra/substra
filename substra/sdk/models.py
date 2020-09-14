@@ -11,11 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
 import abc
 import enum
-import json
+import re
+
 from typing import ClassVar, Dict, List, Optional, Union
 
 import pydantic
@@ -25,9 +24,17 @@ from substra.sdk import schemas
 
 # The remote can return an URL or an empty string for paths
 UriPath = Union[FilePath, AnyUrl, str]
+CAMEL_TO_SNAKE_PATTERN = re.compile(r'(.)([A-Z][a-z]+)')
+CAMEL_TO_SNAKE_PATTERN_2 = re.compile(r'([a-z0-9])([A-Z])')
 
 
-class Status(enum.Enum):
+def _to_snake_case(camel_str):
+    name = CAMEL_TO_SNAKE_PATTERN.sub(r'\1_\2', camel_str)
+    name = CAMEL_TO_SNAKE_PATTERN_2.sub(r'\1_\2', name).lower()
+    return name.replace('_i_d', '_id')
+
+
+class Status(str, enum.Enum):
     doing = "doing"
     done = "done"
     failed = "failed"
@@ -36,43 +43,18 @@ class Status(enum.Enum):
     canceled = "canceled"
 
 
-class Permission(pydantic.BaseModel):
+class Permission(schemas._PydanticConfig):
     public: bool
     authorized_ids: List[str]
 
-    class Config:
-        extra = 'forbid'
 
-
-class Permissions(pydantic.BaseModel):
+class Permissions(schemas._PydanticConfig):
     """Permissions structure stored in various asset types."""
-
     process: Permission
 
-    class Config:
-        extra = 'forbid'
 
-
-class _Model(pydantic.BaseModel, abc.ABC):
+class _Model(schemas._PydanticConfig, abc.ABC):
     """Asset creation specification base class."""
-
-    class Meta:
-        storage_only_fields = None
-
-    class Config:
-        extra = 'forbid'
-
-    def to_response(self):
-        """Convert model to backend response object."""
-        # serialize and deserialzie to JSON to ensure all field types are converted
-        # to JSON compatible formats (this is necessary to handle properly the FilePath
-        # fields for isntance).
-        data = json.loads(self.json(exclude_none=False, by_alias=True))
-        if self.__class__.Meta.storage_only_fields:
-            for field in self.__class__.Meta.storage_only_fields:
-                data.pop(field)
-
-        return data
 
     def __str__(self):
         return f"{self.__class__.type_.value}(key={self.key})"
@@ -90,7 +72,7 @@ class DataSample(_Model):
     type_: ClassVar[str] = schemas.Type.DataSample
 
 
-class _File(pydantic.BaseModel):
+class _File(schemas._PydanticConfig):
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: UriPath
 
@@ -110,17 +92,15 @@ class Dataset(_Model):
 
     type_: ClassVar[str] = schemas.Type.Dataset
 
-    class Meta:
-        storage_only_fields = ("opener",)
 
-
-class _ObjectiveDataset(pydantic.BaseModel):
+class _ObjectiveDataset(schemas._PydanticConfig):
     data_manager_key: str
     data_sample_keys: List[str]
     metadata: Dict[str, str]
+    worker: Optional[str]
 
 
-class _Metric(pydantic.BaseModel):
+class _Metric(schemas._PydanticConfig):
     name: Optional[str]
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: UriPath
@@ -143,9 +123,6 @@ class Objective(_Model):
 
     type_: ClassVar[str] = schemas.Type.Objective
 
-    class Meta:
-        storage_only_fields = None
-
 
 class _Algo(_Model):
     key: str
@@ -156,9 +133,6 @@ class _Algo(_Model):
 
     description: _File
     content: _File
-
-    class Meta:
-        storage_only_fields = ("content",)
 
 
 class Algo(_Algo):
@@ -173,17 +147,28 @@ class CompositeAlgo(_Algo):
     type_: ClassVar[str] = schemas.Type.CompositeAlgo
 
 
-class _TraintupleDataset(pydantic.BaseModel):
+class _TraintupleDataset(schemas._PydanticConfig):
     opener_hash: str
     keys: List[str]
     worker: str
+    metadata: Optional[Dict[str, str]]
 
     @property
     def key(self):
         return self.opener_hash
 
 
-class InModel(pydantic.BaseModel):
+class InModel(schemas._PydanticConfig):
+    hash_: str = pydantic.Field(..., alias="hash")
+    storage_address: UriPath
+    traintuple_key: Optional[str]
+
+    @property
+    def key(self):
+        return self.hash_
+
+
+class OutModel(schemas._PydanticConfig):
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: UriPath
 
@@ -192,16 +177,7 @@ class InModel(pydantic.BaseModel):
         return self.hash_
 
 
-class OutModel(pydantic.BaseModel):
-    hash_: str = pydantic.Field(..., alias="hash")
-    storage_address: UriPath
-
-    @property
-    def key(self):
-        return self.hash_
-
-
-class _TraintupleAlgo(pydantic.BaseModel):
+class _TraintupleAlgo(schemas._PydanticConfig):
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: UriPath
     name: str
@@ -229,9 +205,6 @@ class Traintuple(_Model):
     type_: ClassVar[str] = schemas.Type.Traintuple
     algo_type: ClassVar[schemas.Type] = schemas.Type.Algo
 
-    class Meta:
-        storage_only_fields = None
-
 
 class Aggregatetuple(_Model):
     key: str
@@ -251,20 +224,18 @@ class Aggregatetuple(_Model):
     type_: ClassVar[str] = schemas.Type.Aggregatetuple
     algo_type: ClassVar[schemas.Type] = schemas.Type.AggregateAlgo
 
-    class Meta:
-        storage_only_fields = None
 
-
-class InHeadModel(pydantic.BaseModel):
+class InHeadModel(schemas._PydanticConfig):
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: Optional[UriPath]  # Defined for local assets but not remote ones
+    traintuple_key: Optional[str]
 
     @property
     def key(self):
         return self.hash_
 
 
-class OutHeadModel(pydantic.BaseModel):
+class OutHeadModel(schemas._PydanticConfig):
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: Optional[FilePath]  # Defined for local assets but not remote ones
 
@@ -273,12 +244,12 @@ class OutHeadModel(pydantic.BaseModel):
         return self.hash_
 
 
-class OutCompositeHeadModel(pydantic.BaseModel):
+class OutCompositeHeadModel(schemas._PydanticConfig):
     permissions: Permissions
     out_model: Optional[OutHeadModel]
 
 
-class OutCompositeTrunkModel(pydantic.BaseModel):
+class OutCompositeTrunkModel(schemas._PydanticConfig):
     permissions: Permissions
     out_model: Optional[OutModel]
 
@@ -304,11 +275,8 @@ class CompositeTraintuple(_Model):
     type_: ClassVar[str] = schemas.Type.CompositeTraintuple
     algo_type: ClassVar[schemas.Type] = schemas.Type.CompositeAlgo
 
-    class Meta:
-        storage_only_fields = None
 
-
-class _TesttupleDataset(pydantic.BaseModel):
+class _TesttupleDataset(schemas._PydanticConfig):
     opener_hash: str
     perf: float
     keys: List[str]
@@ -319,7 +287,7 @@ class _TesttupleDataset(pydantic.BaseModel):
         return self.opener_hash
 
 
-class _TesttupleObjective(pydantic.BaseModel):
+class _TesttupleObjective(schemas._PydanticConfig):
     hash_: str = pydantic.Field(..., alias="hash")
     metrics: _Metric
 
@@ -346,8 +314,9 @@ class Testtuple(_Model):
 
     type_: ClassVar[str] = schemas.Type.Testtuple
 
-    class Meta:
-        storage_only_fields = None
+    @pydantic.validator('traintuple_type', pre=True)
+    def traintuple_type_snake_case(cls, v):
+        return _to_snake_case(v)
 
 
 class ComputePlan(_Model):
@@ -366,8 +335,13 @@ class ComputePlan(_Model):
 
     type_: ClassVar[str] = schemas.Type.ComputePlan
 
-    class Meta:
-        storage_only_fields = None
+    def __str__(self):
+        return f"{self.__class__.type_.value}(key={self.compute_plan_id})"
+
+
+class Node(schemas._PydanticConfig):
+    id: str
+    is_current: bool
 
 
 SCHEMA_TO_MODEL = {
@@ -381,5 +355,6 @@ SCHEMA_TO_MODEL = {
     schemas.Type.Dataset: Dataset,
     schemas.Type.Objective: Objective,
     schemas.Type.Testtuple: Testtuple,
-    schemas.Type.Traintuple: Traintuple
+    schemas.Type.Traintuple: Traintuple,
+    schemas.Type.Node: Node
 }

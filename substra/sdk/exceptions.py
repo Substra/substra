@@ -120,12 +120,16 @@ class AlreadyExists(HTTPError):
     def from_request_exception(cls, request_exception):
         # parse response and fetch key
         r = request_exception.response.json()
-        # XXX support list of keyes; this could be the case when adding
+        # XXX support list of keys; this could be the case when adding
         #     a list of data samples through a single POST request
         if isinstance(r, list):
             key = [x['key'] for x in r]
+        elif isinstance(r, dict):
+            key = r.get('key', None)
+            if not key:
+                key = r['pkhash']
         else:
-            key = r['key']
+            key = r
 
         return cls(key, request_exception.response.status_code)
 

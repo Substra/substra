@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 OBJECTIVE = {
     "description": {
         "hash": "7a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
@@ -35,7 +34,8 @@ OBJECTIVE = {
         "data_manager_key": "ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994",
         "data_sample_keys": [
             "e11aeec290749e4c50c91305e10463eced8dbf3808971ec0c6ea0e36cb7ab3e1",
-        ]
+        ],
+        "metadata": {},
     },
     "metadata": {
         "foo": "bar"
@@ -61,7 +61,7 @@ DATASET = {
             "authorized_ids": []
         }
     },
-    "size": 100,
+    # "size": 100,
     "type": "Images",
     "train_data_sample_keys": [],
     "test_data_sample_keys": [],
@@ -129,8 +129,12 @@ COMPOSITE_ALGO = {
         "storage_address": ""
     },
     "owner": "ab75010bacbd1a4b826dc2e9ead6f1e4e1c4beade2d62a8b708fdde48fb0edea",
-    "permissions_public": False,
-    "permissions_authorized_ids": [],
+    "permissions": {
+        "process": {
+            "public": False,
+            "authorized_ids": [],
+        },
+    },
     "metadata": {
         "foo": "bar"
     }
@@ -151,18 +155,10 @@ TRAINTUPLE = {
             "03a1f878768ea8624942d46a3b438c37992e626c2cf655023bcc3bed69d485d1"
         ],
         "opener_hash": "8dd01465003a9b1e01c99c904d86aa518b3a5dd9dc8d40fe7d075c726ac073ca",
-        "perf": 0
     },
     "compute_plan_id": "",
     "in_models": None,
     "log": "[00-01-0032-d415995]",
-    "objective": {
-        "hash": "3d70ab46d710dacb0f48cb42db4874fac14e048a0d415e266aad38c09591ee71",
-        "metrics": {
-            "hash": "c42dca31fbc2ebb5705643e3bb6ee666bbfd956de13dd03727f825ad8445b4d7",
-            "storage_address": ""
-        }
-    },
     "out_model": None,
     "permissions": {
         "process": {
@@ -186,25 +182,9 @@ AGGREGATETUPLE = {
         "storage_address": ""
     },
     "creator": "e75db4df2532dc1313ebb5c2462f1eb813b94c3e67de29f6e4b2272ae60385f5",
-    "dataset": {
-        "worker": "e75db4df2532dc1313ebb5c2f62e1eb813b94c3e67de29f6e4b2272ae60385f5",
-        "keys": [
-            "31510dc1d8be788f7c5d28d05714f7efbfedb667762966b9adc02eadeaacebe9",
-            "03a1f878768ea8624942d46a3b438c379f2e626c2cf655023bcc3bed69d485d1"
-        ],
-        "opener_hash": "8dd01465003a9b1e01c99c904d86aa518b3afdd9dc8d40fe7d075c726ac073ca",
-        "perf": 0
-    },
     "compute_plan_id": "",
-    "in_models": None,
+    "in_models": [],
     "log": "[00-01-0032-d415995]",
-    "objective": {
-        "hash": "3d70ab46d710dacb0f48cb42db4874fac14e048afd415e266aad38c09591ee71",
-        "metrics": {
-            "hash": "c42dca31fbc2ebb5705643e3bb6ee666bbfdf56de13dd03727f825ad8445b4d7",
-            "storage_address": ""
-        }
-    },
     "out_model": None,
     "permissions": {
         "process": {
@@ -217,7 +197,8 @@ AGGREGATETUPLE = {
     "tag": "My super tag",
     "metadata": {
         "foo": "bar"
-    }
+    },
+    "worker": ""
 }
 
 COMPOSITE_TRAINTUPLE = {
@@ -228,10 +209,11 @@ COMPOSITE_TRAINTUPLE = {
         "storage_address": ""
     },
     "in_head_model": {
-        "key": "0acc5180e09b6a6ac250f4e3d972e2893f617aa1c22ef1f379019d20fe44142e",
+        "hash": "0acc5180e09b6a6ac250f4e3d972e2893f617aa1c22ef1f379019d20fe44142e",
     },
     "in_trunk_model": {
-        "key": "0acc5180e09b6a6ac250f4e3d972e2893f617aa1c22ef1f379019d20fe44142f",
+        "hash": "0acc5180e09b6a6ac250f4e3d972e2893f617aa1c22ef1f379019d20fe44142f",
+        "storage_address": ""
     },
     "creator": "e75db4df2532dc1313ebb5c2462e1eb813b94c3e67de29f6e4b2272ae60385f5",
     "dataset": {
@@ -241,27 +223,30 @@ COMPOSITE_TRAINTUPLE = {
             "03a1f878768ea8624942d46a3b438c37992e626c2cf655023bcc3bed69d485d1"
         ],
         "opener_hash": "8dd01465003a9b1e01c99c904d86aa518b3a5dd9dc8d40fe7d075c726ac073ca",
-        "perf": 0
     },
     "compute_plan_id": "",
     "log": "[00-01-0032-d415995]",
-    "objective": {
-        "hash": "3d70ab46d710dacb0f48cb42db4874fac14e048a0d415e266aad38c09591ee71",
-        "metrics": {
-            "hash": "c42dca31fbc2ebb5705643e3bb6ee666bbfd956de13dd03727f825ad8445b4d7",
-            "storage_address": ""
-        }
-    },
     "out_head_model": {
-        "permissions": {},
+        "permissions": {
+            "process": {
+                "public": False,
+                "authorized_ids": []
+            }
+        },
         "out_model": {
             "hash": "8a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
         }
     },
     "out_trunk_model": {
-        "permissions": {},
+        "permissions": {
+            "process": {
+                "public": False,
+                "authorized_ids": []
+            }
+        },
         "out_model": {
             "hash": "9a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
+            "storage_address": ""
         }
     },
     "rank": 0,
@@ -274,6 +259,10 @@ COMPOSITE_TRAINTUPLE = {
 
 TESTTUPLE = {
     "key": "97b53511e94cab17ea8b1c31982e0b0d8b9311e10d35f82bdafab4ea429b7414",
+    "traintuple_key": "1197bbfc4a189ea037a6835895a81bb80db37f52f82cc40d74e285b7194f4c91",
+    "traintuple_type": "traintuple",
+    "compute_plan_id": "",
+    "rank": 0,
     "algo": {
         "name": "Logistic regression",
         "hash": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
@@ -291,22 +280,11 @@ TESTTUPLE = {
         "perf": 0
     },
     "log": "Test - CPU:90.07 % - Mem:0.13 GB - GPU:0.00 % - GPU Mem:0.00 GB;",
-    "model": {
-        "traintuple_key": "593b8c8a94cf5d372f239c79ac2a4089f7ba4717cda8dc4753599a078e86493d",
-        "hash": "523882e8aaa3fd65bfd5f4bd0153ad6a21487f55c50b922bbf26015c6e975965",
-        "storage_address": "",
-    },
     "objective": {
         "hash": "3d70ab46d710dacb0f48cb42db4874fac14e048a0d415e266aad38c09591ee71",
         "metrics": {
             "hash": "c42dca31fbc2ebb5705643e3bb6ee666bbfd956de13dd03727f825ad8445b4d7",
             "storage_address": "",
-        }
-    },
-    "permissions": {
-        "process": {
-            "public": False,
-            "authorized_ids": []
         }
     },
     "status": "done",
@@ -369,5 +347,8 @@ COMPUTE_PLAN = {
     "id_to_key": {
         "62378ca1b5c84e73a3d588adab7e20b2":
         "1197bbfc4a189ea037a6835895a81bb80db37f52f82cc40d74e285b7194f4c91",
+    },
+    "metadata": {
+        "foo": "bar"
     }
 }

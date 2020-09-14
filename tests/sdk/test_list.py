@@ -14,6 +14,8 @@
 
 import pytest
 
+from substra.sdk import models, schemas
+
 from .. import datastore
 from .utils import mock_requests
 
@@ -38,7 +40,7 @@ def test_list_asset(asset_name, client, mocker):
 
     response = method()
 
-    assert response == [item]
+    assert response == [models.SCHEMA_TO_MODEL[schemas.Type(asset_name)](**item)]
     m.assert_called()
 
 
@@ -49,7 +51,7 @@ def test_list_asset_with_filters(client, mocker):
     filters = ["algo:name:ABC", "OR", "data_manager:name:EFG"]
     response = client.list_algo(filters)
 
-    assert response == items
+    assert response == [models.Algo(**item) for item in items]
     m.assert_called()
 
 

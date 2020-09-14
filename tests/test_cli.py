@@ -23,6 +23,7 @@ from click.testing import CliRunner
 import pytest
 
 import substra
+from substra.sdk import models
 from substra.cli.interface import cli, error_printer
 
 from . import datastore
@@ -103,29 +104,29 @@ def test_command_login(workdir, mocker):
     m.assert_called()
 
 
-@pytest.mark.parametrize('asset_name,key_field', [
-    ('objective', 'key'),
-    ('dataset', 'key'),
-    ('algo', 'key'),
-    ('aggregate_algo', 'key'),
-    ('composite_algo', 'key'),
-    ('testtuple', 'key'),
-    ('traintuple', 'key'),
-    ('aggregatetuple', 'key'),
-    ('composite_traintuple', 'key'),
-    ('compute_plan', 'compute_plan_id'),
+@pytest.mark.parametrize('asset_name,key_field,model', [
+    ('objective', 'key', models.Objective),
+    ('dataset', 'key', models.Dataset),
+    ('algo', 'key', models.Algo),
+    ('aggregate_algo', 'key', models.AggregateAlgo),
+    ('composite_algo', 'key', models.CompositeAlgo),
+    ('testtuple', 'key', models.Testtuple),
+    ('traintuple', 'key', models.Traintuple),
+    ('aggregatetuple', 'key', models.Aggregatetuple),
+    ('composite_traintuple', 'key', models.CompositeTraintuple),
+    ('compute_plan', 'compute_plan_id', models.ComputePlan),
 ])
-def test_command_list(asset_name, key_field, workdir, mocker):
-    item = getattr(datastore, asset_name.upper())
+def test_command_list(asset_name, key_field, model, workdir, mocker):
+    item = model(**getattr(datastore, asset_name.upper()))
     method_name = f'list_{asset_name}'
     m = mock_client_call(mocker, method_name, [item])
     output = client_execute(workdir, ['list', asset_name])
     m.assert_called()
-    assert item[key_field] in output
+    assert getattr(item, key_field) in output
 
 
 def test_command_list_node(workdir, mocker):
-    mock_client_call(mocker, 'list_node', datastore.NODES)
+    mock_client_call(mocker, 'list_node', [models.Node(**node) for node in datastore.NODES])
     output = client_execute(workdir, ['list', 'node'])
     assert output == ('NODE ID                     \n'
                       'foo                         \n'
@@ -307,25 +308,25 @@ def test_command_add_data_sample_already_exists(workdir, mocker):
     m.assert_called()
 
 
-@pytest.mark.parametrize('asset_name,key_field', [
-    ('objective', 'key'),
-    ('dataset', 'key'),
-    ('algo', 'key'),
-    ('aggregate_algo', 'key'),
-    ('composite_algo', 'key'),
-    ('testtuple', 'key'),
-    ('traintuple', 'key'),
-    ('aggregatetuple', 'key'),
-    ('composite_traintuple', 'key'),
-    ('compute_plan', 'compute_plan_id'),
+@pytest.mark.parametrize('asset_name,key_field,model', [
+    ('objective', 'key', models.Objective),
+    ('dataset', 'key', models.Dataset),
+    ('algo', 'key', models.Algo),
+    ('aggregate_algo', 'key', models.AggregateAlgo),
+    ('composite_algo', 'key', models.CompositeAlgo),
+    ('testtuple', 'key', models.Testtuple),
+    ('traintuple', 'key', models.Traintuple),
+    ('aggregatetuple', 'key', models.Aggregatetuple),
+    ('composite_traintuple', 'key', models.CompositeTraintuple),
+    ('compute_plan', 'compute_plan_id', models.ComputePlan),
 ])
-def test_command_get(asset_name, key_field, workdir, mocker):
-    item = getattr(datastore, asset_name.upper())
+def test_command_get(asset_name, key_field, model, workdir, mocker):
+    item = model(**getattr(datastore, asset_name.upper()))
     method_name = f'get_{asset_name}'
     m = mock_client_call(mocker, method_name, item)
     output = client_execute(workdir, ['get', asset_name, 'fakekey'])
     m.assert_called()
-    assert item[key_field] in output
+    assert getattr(item, key_field) in output
 
 
 def test_command_describe(workdir, mocker):
@@ -343,7 +344,11 @@ def test_command_download(workdir, mocker):
 
 
 def test_command_cancel_compute_plan(workdir, mocker):
-    m = mock_client_call(mocker, 'cancel_compute_plan', datastore.COMPUTE_PLAN)
+    m = mock_client_call(
+        mocker,
+        'cancel_compute_plan',
+        models.ComputePlan(**datastore.COMPUTE_PLAN)
+    )
     client_execute(workdir, ['cancel', 'compute_plan', 'fakekey'])
     m.assert_called()
 
