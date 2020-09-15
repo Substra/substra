@@ -193,11 +193,6 @@ class Client():
             **request_kwargs,
         )
 
-        # the server always responds with a list of lists (linked to the debug option "is_complex")
-        # which must then be flatten
-        if isinstance(items, list) and all([isinstance(i, list) for i in items]):
-            items = utils.flatten(items)
-
         return items
 
     def _add(self, name, exist_ok=False, **request_kwargs):
