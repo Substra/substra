@@ -2,7 +2,6 @@ import argparse
 import inspect
 from pathlib import Path
 import sys
-import yaml
 
 from substra.sdk import schemas
 
@@ -55,9 +54,8 @@ def generate_help(fh):
         fh.write(f"{inspect.getdoc(schema)}\n")
         # List the fields and their types
         description = _get_field_description(schema.__fields__)
-        desc_text = yaml.dump(description).replace('\'', ''),
         fh.write("```python\n")
-        fh.writelines(desc_text)
+        fh.write("- " + "\n- ".join(description))
         fh.write("\n```")
         fh.write("\n\n")
 
