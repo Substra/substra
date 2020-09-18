@@ -9,7 +9,7 @@ doc-cli:
 	python bin/generate_cli_documentation.py
 
 doc-sdk:
-	pydocmd simple substra.sdk+ substra.sdk.Client+ > references/sdk.md
+	pydocmd simple substra.sdk+ substra.sdk.Client+ substra.sdk.retry_on_exception+ > references/sdk.md
 
 doc-schemas:
 	python bin/generate_sdk_schemas_documentation.py
