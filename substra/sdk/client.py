@@ -554,47 +554,47 @@ class Client(object):
         return self._backend.get(schemas.Type.Algo, key)
 
     @logit
-    def get_compute_plan(self, key: str) -> models.Algo:
+    def get_compute_plan(self, key: str) -> models.ComputePlan:
         """Get compute plan by key."""
         return self._backend.get(schemas.Type.ComputePlan, key)
 
     @logit
-    def get_aggregate_algo(self, key: str) -> models.Algo:
+    def get_aggregate_algo(self, key: str) -> models.AggregateAlgo:
         """Get aggregate algo by key."""
         return self._backend.get(schemas.Type.AggregateAlgo, key)
 
     @logit
-    def get_composite_algo(self, key: str) -> models.Algo:
+    def get_composite_algo(self, key: str) -> models.CompositeAlgo:
         """Get composite algo by key."""
         return self._backend.get(schemas.Type.CompositeAlgo, key)
 
     @logit
-    def get_dataset(self, key: str) -> models.Algo:
+    def get_dataset(self, key: str) -> models.Dataset:
         """Get dataset by key."""
         return self._backend.get(schemas.Type.Dataset, key)
 
     @logit
-    def get_objective(self, key: str) -> models.Algo:
+    def get_objective(self, key: str) -> models.Objective:
         """Get objective by key."""
         return self._backend.get(schemas.Type.Objective, key)
 
     @logit
-    def get_testtuple(self, key: str) -> models.Algo:
+    def get_testtuple(self, key: str) -> models.Testtuple:
         """Get testtuple by key."""
         return self._backend.get(schemas.Type.Testtuple, key)
 
     @logit
-    def get_traintuple(self, key: str) -> models.Algo:
+    def get_traintuple(self, key: str) -> models.Traintuple:
         """Get traintuple by key."""
         return self._backend.get(schemas.Type.Traintuple, key)
 
     @logit
-    def get_aggregatetuple(self, key: str) -> models.Algo:
+    def get_aggregatetuple(self, key: str) -> models.Aggregatetuple:
         """Get aggregatetuple by key."""
         return self._backend.get(schemas.Type.Aggregatetuple, key)
 
     @logit
-    def get_composite_traintuple(self, key: str) -> models.Algo:
+    def get_composite_traintuple(self, key: str) -> models.CompositeTraintuple:
         """Get composite traintuple by key."""
         return self._backend.get(schemas.Type.CompositeTraintuple, key)
 
@@ -604,57 +604,57 @@ class Client(object):
         return self._backend.list(schemas.Type.Algo, filters)
 
     @logit
-    def list_compute_plan(self, filters=None) -> List[models.Algo]:
+    def list_compute_plan(self, filters=None) -> List[models.ComputePlan]:
         """List compute plans."""
         return self._backend.list(schemas.Type.ComputePlan, filters)
 
     @logit
-    def list_aggregate_algo(self, filters=None) -> List[models.Algo]:
+    def list_aggregate_algo(self, filters=None) -> List[models.AggregateAlgo]:
         """List aggregate algos."""
         return self._backend.list(schemas.Type.AggregateAlgo, filters)
 
     @logit
-    def list_composite_algo(self, filters=None) -> List[models.Algo]:
+    def list_composite_algo(self, filters=None) -> List[models.CompositeAlgo]:
         """List composite algos."""
         return self._backend.list(schemas.Type.CompositeAlgo, filters)
 
     @logit
-    def list_data_sample(self, filters=None) -> List[models.Algo]:
+    def list_data_sample(self, filters=None) -> List[models.DataSample]:
         """List data samples."""
         return self._backend.list(schemas.Type.DataSample, filters)
 
     @logit
-    def list_dataset(self, filters=None) -> List[models.Algo]:
+    def list_dataset(self, filters=None) -> List[models.Dataset]:
         """List datasets."""
         return self._backend.list(schemas.Type.Dataset, filters)
 
     @logit
-    def list_objective(self, filters=None) -> List[models.Algo]:
+    def list_objective(self, filters=None) -> List[models.Objective]:
         """List objectives."""
         return self._backend.list(schemas.Type.Objective, filters)
 
     @logit
-    def list_testtuple(self, filters=None) -> List[models.Algo]:
+    def list_testtuple(self, filters=None) -> List[models.Testtuple]:
         """List testtuples."""
         return self._backend.list(schemas.Type.Testtuple, filters)
 
     @logit
-    def list_traintuple(self, filters=None) -> List[models.Algo]:
+    def list_traintuple(self, filters=None) -> List[models.Traintuple]:
         """List traintuples."""
         return self._backend.list(schemas.Type.Traintuple, filters)
 
     @logit
-    def list_aggregatetuple(self, filters=None) -> List[models.Algo]:
+    def list_aggregatetuple(self, filters=None) -> List[models.Aggregatetuple]:
         """List aggregatetuples."""
         return self._backend.list(schemas.Type.Aggregatetuple, filters)
 
     @logit
-    def list_composite_traintuple(self, filters=None) -> List[models.Algo]:
+    def list_composite_traintuple(self, filters=None) -> List[models.CompositeTraintuple]:
         """List composite traintuples."""
         return self._backend.list(schemas.Type.CompositeTraintuple, filters)
 
     @logit
-    def list_node(self, *args, **kwargs) -> List[models.Algo]:
+    def list_node(self, *args, **kwargs) -> List[models.Node]:
         """List nodes."""
         return self._backend.list(schemas.Type.Node)
 

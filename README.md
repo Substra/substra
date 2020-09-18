@@ -129,19 +129,14 @@ python setup.py test
 
 ### Documentation
 
-To generate the command line interface documentation, run the following command:
+To generate the command line interface documentation, sdk and schemas documentation, the `python` version
+must be 3.7. Run the following command:
 
 ```sh
-python bin/generate_cli_documentation.py
+make doc
 ```
 
-Use the following command to generate the python sdk documentation (with Python 3.7):
-
-```sh
-pydocmd simple substra.sdk+ substra.sdk.Client+ > references/sdk.md
-```
-
-Documentation will be available in *docs/* directory.
+Documentation will be available in the *references/* directory.
 
 ### Deploy
 

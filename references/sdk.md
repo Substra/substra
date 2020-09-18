@@ -354,47 +354,47 @@ Client.get_algo(self, key: str) -> substra.sdk.models.Algo
 Get algo by key.
 ## get_compute_plan
 ```python
-Client.get_compute_plan(self, key: str) -> substra.sdk.models.Algo
+Client.get_compute_plan(self, key: str) -> substra.sdk.models.ComputePlan
 ```
 Get compute plan by key.
 ## get_aggregate_algo
 ```python
-Client.get_aggregate_algo(self, key: str) -> substra.sdk.models.Algo
+Client.get_aggregate_algo(self, key: str) -> substra.sdk.models.AggregateAlgo
 ```
 Get aggregate algo by key.
 ## get_composite_algo
 ```python
-Client.get_composite_algo(self, key: str) -> substra.sdk.models.Algo
+Client.get_composite_algo(self, key: str) -> substra.sdk.models.CompositeAlgo
 ```
 Get composite algo by key.
 ## get_dataset
 ```python
-Client.get_dataset(self, key: str) -> substra.sdk.models.Algo
+Client.get_dataset(self, key: str) -> substra.sdk.models.Dataset
 ```
 Get dataset by key.
 ## get_objective
 ```python
-Client.get_objective(self, key: str) -> substra.sdk.models.Algo
+Client.get_objective(self, key: str) -> substra.sdk.models.Objective
 ```
 Get objective by key.
 ## get_testtuple
 ```python
-Client.get_testtuple(self, key: str) -> substra.sdk.models.Algo
+Client.get_testtuple(self, key: str) -> substra.sdk.models.Testtuple
 ```
 Get testtuple by key.
 ## get_traintuple
 ```python
-Client.get_traintuple(self, key: str) -> substra.sdk.models.Algo
+Client.get_traintuple(self, key: str) -> substra.sdk.models.Traintuple
 ```
 Get traintuple by key.
 ## get_aggregatetuple
 ```python
-Client.get_aggregatetuple(self, key: str) -> substra.sdk.models.Algo
+Client.get_aggregatetuple(self, key: str) -> substra.sdk.models.Aggregatetuple
 ```
 Get aggregatetuple by key.
 ## get_composite_traintuple
 ```python
-Client.get_composite_traintuple(self, key: str) -> substra.sdk.models.Algo
+Client.get_composite_traintuple(self, key: str) -> substra.sdk.models.CompositeTraintuple
 ```
 Get composite traintuple by key.
 ## list_algo
@@ -404,57 +404,57 @@ Client.list_algo(self, filters=None) -> List[substra.sdk.models.Algo]
 List algos.
 ## list_compute_plan
 ```python
-Client.list_compute_plan(self, filters=None) -> List[substra.sdk.models.Algo]
+Client.list_compute_plan(self, filters=None) -> List[substra.sdk.models.ComputePlan]
 ```
 List compute plans.
 ## list_aggregate_algo
 ```python
-Client.list_aggregate_algo(self, filters=None) -> List[substra.sdk.models.Algo]
+Client.list_aggregate_algo(self, filters=None) -> List[substra.sdk.models.AggregateAlgo]
 ```
 List aggregate algos.
 ## list_composite_algo
 ```python
-Client.list_composite_algo(self, filters=None) -> List[substra.sdk.models.Algo]
+Client.list_composite_algo(self, filters=None) -> List[substra.sdk.models.CompositeAlgo]
 ```
 List composite algos.
 ## list_data_sample
 ```python
-Client.list_data_sample(self, filters=None) -> List[substra.sdk.models.Algo]
+Client.list_data_sample(self, filters=None) -> List[substra.sdk.models.DataSample]
 ```
 List data samples.
 ## list_dataset
 ```python
-Client.list_dataset(self, filters=None) -> List[substra.sdk.models.Algo]
+Client.list_dataset(self, filters=None) -> List[substra.sdk.models.Dataset]
 ```
 List datasets.
 ## list_objective
 ```python
-Client.list_objective(self, filters=None) -> List[substra.sdk.models.Algo]
+Client.list_objective(self, filters=None) -> List[substra.sdk.models.Objective]
 ```
 List objectives.
 ## list_testtuple
 ```python
-Client.list_testtuple(self, filters=None) -> List[substra.sdk.models.Algo]
+Client.list_testtuple(self, filters=None) -> List[substra.sdk.models.Testtuple]
 ```
 List testtuples.
 ## list_traintuple
 ```python
-Client.list_traintuple(self, filters=None) -> List[substra.sdk.models.Algo]
+Client.list_traintuple(self, filters=None) -> List[substra.sdk.models.Traintuple]
 ```
 List traintuples.
 ## list_aggregatetuple
 ```python
-Client.list_aggregatetuple(self, filters=None) -> List[substra.sdk.models.Algo]
+Client.list_aggregatetuple(self, filters=None) -> List[substra.sdk.models.Aggregatetuple]
 ```
 List aggregatetuples.
 ## list_composite_traintuple
 ```python
-Client.list_composite_traintuple(self, filters=None) -> List[substra.sdk.models.Algo]
+Client.list_composite_traintuple(self, filters=None) -> List[substra.sdk.models.CompositeTraintuple]
 ```
 List composite traintuples.
 ## list_node
 ```python
-Client.list_node(self, *args, **kwargs) -> List[substra.sdk.models.Algo]
+Client.list_node(self, *args, **kwargs) -> List[substra.sdk.models.Node]
 ```
 List nodes.
 ## update_compute_plan
@@ -568,28 +568,3 @@ Get objective leaderboard
 Client.cancel_compute_plan(self, compute_plan_id: str) -> substra.sdk.models.ComputePlan
 ```
 Cancel execution of compute plan.
-# retry_on_exception
-```python
-retry_on_exception(exceptions, timeout=300)
-```
-Retry function in case of exception(s).
-
-Arguments:
-    exceptions: list of exception types that trigger a retry
-    timeout (int): timeout in seconds
-
-Example:
-
-```python
-from substra.sdk import exceptions, retry_on_exception
-
-def my_function(arg1, arg2):
-    pass
-
-retry = retry_on_exception(
-            exceptions=(exceptions.RequestTimeout),
-            timeout=300,
-        )
-retry(my_function)(arg1, arg2)
-```
-

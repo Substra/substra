@@ -11,7 +11,10 @@ doc-cli:
 doc-sdk:
 	pydocmd simple substra.sdk+ substra.sdk.Client+ > references/sdk.md
 
-doc: doc-cli doc-sdk
+doc-schemas:
+	python bin/generate_sdk_schemas_documentation.py
+
+doc: doc-cli doc-sdk doc-schemas
 
 test: pyclean
 	python setup.py test
