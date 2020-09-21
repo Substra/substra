@@ -196,7 +196,7 @@ class Traintuple(_Model):
     tag: str
     compute_plan_id: str
     rank: int
-    status: Status
+    status: str
     log: str
     in_models: Optional[List[InModel]]
     out_model: Optional[OutModel]
@@ -215,7 +215,7 @@ class Aggregatetuple(_Model):
     tag: str
     compute_plan_id: str
     rank: Optional[int]
-    status: Status
+    status: str
     log: str
     in_models: List[InModel]
     out_model: Optional[OutModel]
@@ -262,7 +262,7 @@ class CompositeTraintuple(_Model):
     tag: str
     compute_plan_id: str
     rank: Optional[int]
-    status: Status
+    status: str
     log: str
     in_head_model: Optional[InHeadModel]
     in_trunk_model: Optional[InModel]
@@ -306,7 +306,7 @@ class Testtuple(_Model):
     dataset: _TesttupleDataset
     tag: Optional[str]
     log: str
-    status: Status
+    status: str
     compute_plan_id: str
     rank: int
     traintuple_type: schemas.Type
@@ -321,7 +321,7 @@ class Testtuple(_Model):
 
 class ComputePlan(_Model):
     compute_plan_id: str
-    status: Status
+    status: str
     traintuple_keys: Optional[List[str]]
     composite_traintuple_keys: Optional[List[str]]
     aggregatetuple_keys: Optional[List[str]]
