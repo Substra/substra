@@ -27,7 +27,7 @@
 - [_TesttupleObjective](#_TesttupleObjective)
 
 
-# Schemas
+# Models
 
 ## DataSample
 Data sample
@@ -57,7 +57,7 @@ Dataset asset
 ```
 
 ## Objective
-Asset creation specification base class.
+Objective
 ```python
 - key: str
 - name: str
@@ -70,7 +70,7 @@ Asset creation specification base class.
 ```
 
 ## Testtuple
-Asset creation specification base class.
+Testtuple
 ```python
 - key: str
 - creator: str
@@ -89,7 +89,7 @@ Asset creation specification base class.
 ```
 
 ## Traintuple
-Asset creation specification base class.
+Traintuple
 ```python
 - key: str
 - creator: str
@@ -107,7 +107,7 @@ Asset creation specification base class.
 ```
 
 ## Aggregatetuple
-Asset creation specification base class.
+Aggregatetuple
 ```python
 - key: str
 - creator: str
@@ -125,7 +125,7 @@ Asset creation specification base class.
 ```
 
 ## CompositeTraintuple
-Asset creation specification base class.
+CompositeTraintuple
 ```python
 - key: str
 - creator: str
@@ -144,7 +144,7 @@ Asset creation specification base class.
 ```
 
 ## CompositeAlgo
-Asset creation specification base class.
+CompositeAlgo
 ```python
 - key: str
 - name: str
@@ -156,7 +156,7 @@ Asset creation specification base class.
 ```
 
 ## AggregateAlgo
-Asset creation specification base class.
+AggregateAlgo
 ```python
 - key: str
 - name: str
@@ -168,7 +168,7 @@ Asset creation specification base class.
 ```
 
 ## ComputePlan
-Asset creation specification base class.
+ComputePlan
 ```python
 - compute_plan_id: str
 - status: str
@@ -185,7 +185,7 @@ Asset creation specification base class.
 ```
 
 ## Node
-Shared configuration for all schemas here
+Node
 ```python
 - id: str
 - is_current: bool

@@ -65,8 +65,10 @@ def generate_help(fh, models: bool):
 
     if models:
         asset_list = models_list
+        title = "Models"
     else:
         asset_list = schemas_list
+        title = "Schemas"
 
     fh.write("# Summary\n\n")
 
@@ -78,7 +80,7 @@ def generate_help(fh, models: bool):
         fh.write(f"- [{asset.__name__}]({anchor})\n")
 
     fh.write("\n\n")
-    fh.write("# Schemas\n\n")
+    fh.write(f"# {title}\n\n")
 
     for asset in asset_list:
         anchor = _create_anchor(asset)

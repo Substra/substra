@@ -118,6 +118,7 @@ class _Metric(schemas._PydanticConfig):
 
 
 class Objective(_Model):
+    """Objective"""
     key: str
     name: str
     owner: str
@@ -143,14 +144,17 @@ class _Algo(_Model):
 
 
 class Algo(_Algo):
+    """Algo"""
     type_: ClassVar[str] = schemas.Type.Algo
 
 
 class AggregateAlgo(_Algo):
+    """AggregateAlgo"""
     type_: ClassVar[str] = schemas.Type.AggregateAlgo
 
 
 class CompositeAlgo(_Algo):
+    """CompositeAlgo"""
     type_: ClassVar[str] = schemas.Type.CompositeAlgo
 
 
@@ -201,6 +205,7 @@ class _TraintupleAlgo(schemas._PydanticConfig):
 
 
 class Traintuple(_Model):
+    """Traintuple"""
     key: str
     creator: str
     algo: _TraintupleAlgo
@@ -220,6 +225,7 @@ class Traintuple(_Model):
 
 
 class Aggregatetuple(_Model):
+    """Aggregatetuple"""
     key: str
     creator: str
     worker: str
@@ -272,6 +278,7 @@ class OutCompositeTrunkModel(schemas._PydanticConfig):
 
 
 class CompositeTraintuple(_Model):
+    """CompositeTraintuple"""
     key: str
     creator: str
     algo: _TraintupleAlgo
@@ -316,6 +323,7 @@ class _TesttupleObjective(schemas._PydanticConfig):
 
 
 class Testtuple(_Model):
+    """Testtuple"""
     key: str
     creator: str
     algo: _TraintupleAlgo
@@ -339,6 +347,7 @@ class Testtuple(_Model):
 
 
 class ComputePlan(_Model):
+    """ComputePlan"""
     compute_plan_id: str
     status: str
     traintuple_keys: Optional[List[str]]
@@ -359,6 +368,7 @@ class ComputePlan(_Model):
 
 
 class Node(schemas._PydanticConfig):
+    """Node"""
     id: str
     is_current: bool
 
