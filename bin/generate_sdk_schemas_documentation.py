@@ -3,7 +3,7 @@ import inspect
 from pathlib import Path
 import sys
 
-from substra.sdk import schemas
+from substra.sdk import schemas, models
 
 local_dir = Path(__file__).parent
 
@@ -27,42 +27,76 @@ schemas_list = [
     schemas.PrivatePermissions,
 ]
 
+models_list = [
+    models.DataSample,
+    models.Dataset,
+    models.Objective,
+    models.Testtuple,
+    models.Traintuple,
+    models.Aggregatetuple,
+    models.CompositeTraintuple,
+    models.CompositeAlgo,
+    models.AggregateAlgo,
+    models.ComputePlan,
+    models.Node,
+    models.Permissions,
+    models.InModel,
+    models.InHeadModel,
+    models.OutModel,
+    models.OutHeadModel,
+    models.OutCompositeTrunkModel,
+    models.OutCompositeHeadModel,
+    models._File,
+    models._ObjectiveDataset,
+    models._Metric,
+    models._TraintupleAlgo,
+    models._TraintupleDataset,
+    models._TesttupleDataset,
+    models._TesttupleObjective,
+]
+
 
 def _get_field_description(fields):
     desc = [f"{field.name}: {field._type_display()}" for _, field in fields.items()]
     return desc
 
 
-def generate_help(fh):
+def generate_help(fh, models: bool):
+
+    if models:
+        asset_list = models_list
+    else:
+        asset_list = schemas_list
+
     fh.write("# Summary\n\n")
 
     def _create_anchor(schema):
         return "#{}".format(schema.__name__)
 
-    for schema in schemas_list:
-        anchor = _create_anchor(schema)
-        fh.write(f"- [{schema.__name__}]({anchor})\n")
+    for asset in asset_list:
+        anchor = _create_anchor(asset)
+        fh.write(f"- [{asset.__name__}]({anchor})\n")
 
     fh.write("\n\n")
     fh.write("# Schemas\n\n")
 
-    for schema in schemas_list:
-        anchor = _create_anchor(schema)
+    for asset in asset_list:
+        anchor = _create_anchor(asset)
 
-        fh.write(f"## {schema.__name__}\n")
+        fh.write(f"## {asset.__name__}\n")
         # Write the docstring
-        fh.write(f"{inspect.getdoc(schema)}\n")
+        fh.write(f"{inspect.getdoc(asset)}\n")
         # List the fields and their types
-        description = _get_field_description(schema.__fields__)
+        description = _get_field_description(asset.__fields__)
         fh.write("```python\n")
         fh.write("- " + "\n- ".join(description))
         fh.write("\n```")
         fh.write("\n\n")
 
 
-def write_help(path):
+def write_help(path, models: bool):
     with path.open('w') as fh:
-        generate_help(fh)
+        generate_help(fh, models)
 
 
 if __name__ == '__main__':
@@ -71,6 +105,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--output-path', type=str, default=str(default_path.resolve()), required=False)
+    parser.add_argument('--models', action='store_true', help='Generate the doc for the models. Default: generate for the schemas')
 
     args = parser.parse_args(sys.argv[1:])
-    write_help(Path(args.output_path))
+    write_help(Path(args.output_path), models=args.models)

@@ -351,112 +351,134 @@ Returns:
 ```python
 Client.get_algo(self, key: str) -> substra.sdk.models.Algo
 ```
-Get algo by key.
+Get algo by key, the returned object is described
+in the [models.Algo](sdk_models.md#Algo) model
 ## get_compute_plan
 ```python
 Client.get_compute_plan(self, key: str) -> substra.sdk.models.ComputePlan
 ```
-Get compute plan by key.
+Get compute plan by key, the returned object is described
+in the [models.ComputePlan](sdk_models.md#ComputePlan) model
 ## get_aggregate_algo
 ```python
 Client.get_aggregate_algo(self, key: str) -> substra.sdk.models.AggregateAlgo
 ```
-Get aggregate algo by key.
+Get aggregate algo by key, the returned object is described
+in the [models.AggregateAlgo](sdk_models.md#AggregateAlgo) model
 ## get_composite_algo
 ```python
 Client.get_composite_algo(self, key: str) -> substra.sdk.models.CompositeAlgo
 ```
-Get composite algo by key.
+Get composite algo by key, the returned object is described
+in the [models.CompositeAlgo](sdk_models.md#CompositeAlgo) model
 ## get_dataset
 ```python
 Client.get_dataset(self, key: str) -> substra.sdk.models.Dataset
 ```
-Get dataset by key.
+Get dataset by key, the returned object is described
+in the [models.Dataset](sdk_models.md#Dataset) model
 ## get_objective
 ```python
 Client.get_objective(self, key: str) -> substra.sdk.models.Objective
 ```
-Get objective by key.
+Get objective by key, the returned object is described
+in the [models.Objective](sdk_models.md#Objective) model
 ## get_testtuple
 ```python
 Client.get_testtuple(self, key: str) -> substra.sdk.models.Testtuple
 ```
-Get testtuple by key.
+Get testtuple by key, the returned object is described
+in the [models.Testtuple](sdk_models.md#Testtuple) model
 ## get_traintuple
 ```python
 Client.get_traintuple(self, key: str) -> substra.sdk.models.Traintuple
 ```
-Get traintuple by key.
+Get traintuple by key, the returned object is described
+in the [models.Traintuple](sdk_models.md#Traintuple) model
 ## get_aggregatetuple
 ```python
 Client.get_aggregatetuple(self, key: str) -> substra.sdk.models.Aggregatetuple
 ```
-Get aggregatetuple by key.
+Get aggregatetuple by key, the returned object is described
+in the [models.Aggregatetuple](sdk_models.md#Aggregatetuple) model
 ## get_composite_traintuple
 ```python
 Client.get_composite_traintuple(self, key: str) -> substra.sdk.models.CompositeTraintuple
 ```
-Get composite traintuple by key.
+Get composite traintuple by key, the returned object is described
+in the [models.CompositeTraintuple](sdk_models.md#CompositeTraintuple) model
 ## list_algo
 ```python
 Client.list_algo(self, filters=None) -> List[substra.sdk.models.Algo]
 ```
-List algos.
+List algos, the returned object is described
+in the [models.Algo](sdk_models.md#Algo) model
 ## list_compute_plan
 ```python
 Client.list_compute_plan(self, filters=None) -> List[substra.sdk.models.ComputePlan]
 ```
-List compute plans.
+List compute plans, the returned object is described
+in the [models.ComputePlan](sdk_models.md#ComputePlan) model
 ## list_aggregate_algo
 ```python
 Client.list_aggregate_algo(self, filters=None) -> List[substra.sdk.models.AggregateAlgo]
 ```
-List aggregate algos.
+List aggregate algos, the returned object is described
+in the [models.AggregateAlgo](sdk_models.md#AggregateAlgo) model
 ## list_composite_algo
 ```python
 Client.list_composite_algo(self, filters=None) -> List[substra.sdk.models.CompositeAlgo]
 ```
-List composite algos.
+List composite algos, the returned object is described
+in the [models.CompositeAlgo](sdk_models.md#CompositeAlgo) model
 ## list_data_sample
 ```python
 Client.list_data_sample(self, filters=None) -> List[substra.sdk.models.DataSample]
 ```
-List data samples.
+List data samples, the returned object is described
+in the [models.DataSample](sdk_models.md#DataSample) model
 ## list_dataset
 ```python
 Client.list_dataset(self, filters=None) -> List[substra.sdk.models.Dataset]
 ```
-List datasets.
+List datasets, the returned object is described
+in the [models.Dataset](sdk_models.md#Dataset) model
 ## list_objective
 ```python
 Client.list_objective(self, filters=None) -> List[substra.sdk.models.Objective]
 ```
-List objectives.
+List objectives, the returned object is described
+in the [models.Objective](sdk_models.md#Objective) model
 ## list_testtuple
 ```python
 Client.list_testtuple(self, filters=None) -> List[substra.sdk.models.Testtuple]
 ```
-List testtuples.
+List testtuples, the returned object is described
+in the [models.Testtuple](sdk_models.md#Testtuple) model
 ## list_traintuple
 ```python
 Client.list_traintuple(self, filters=None) -> List[substra.sdk.models.Traintuple]
 ```
-List traintuples.
+List traintuples, the returned object is described
+in the [models.Traintuple](sdk_models.md#Traintuple) model
 ## list_aggregatetuple
 ```python
 Client.list_aggregatetuple(self, filters=None) -> List[substra.sdk.models.Aggregatetuple]
 ```
-List aggregatetuples.
+List aggregatetuples, the returned object is described
+in the [models.Aggregatetuple](sdk_models.md#Aggregatetuple) model
 ## list_composite_traintuple
 ```python
 Client.list_composite_traintuple(self, filters=None) -> List[substra.sdk.models.CompositeTraintuple]
 ```
-List composite traintuples.
+List composite traintuples, the returned object is described
+in the [models.CompositeTraintuple](sdk_models.md#CompositeTraintuple) model
 ## list_node
 ```python
 Client.list_node(self, *args, **kwargs) -> List[substra.sdk.models.Node]
 ```
-List nodes.
+List nodes, the returned object is described
+in the [models.Node](sdk_models.md#Node) model
 ## update_compute_plan
 ```python
 Client.update_compute_plan(self, compute_plan_id: str, data: Union[dict, substra.sdk.schemas.UpdateComputePlanSpec], auto_batching: bool = True, batch_size: int = 20) -> substra.sdk.models.ComputePlan
@@ -481,7 +503,8 @@ Args:
         to define the number of tuples uploaded in each batch (default 20).
 
 Returns:
-    models.ComputePlan: updated compute plan
+    models.ComputePlan: updated compute plan, as described in the
+    [models.ComputePlan](sdk_models.md#ComputePlan) model
 
 ## link_dataset_with_objective
 ```python
@@ -567,7 +590,8 @@ Get objective leaderboard
 ```python
 Client.cancel_compute_plan(self, compute_plan_id: str) -> substra.sdk.models.ComputePlan
 ```
-Cancel execution of compute plan.
+Cancel execution of compute plan, the returned object is described
+in the [models.ComputePlan](sdk_models.md#ComputePlan) model
 # retry_on_exception
 ```python
 retry_on_exception(exceptions, timeout=300)

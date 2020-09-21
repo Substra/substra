@@ -25,3 +25,5 @@ script:
   - cmp --silent references/sdk.md references/sdk.md.tmp
   - python bin/generate_sdk_schemas_documentation.py --output-path references/sdk_schemas.md.tmp
   - cmp --silent references/sdk_schemas.md references/sdk_schemas.md.tmp
+  - python bin/generate_sdk_schemas_documentation.py --models --output-path='references/sdk_models.md.tmp'
+  - cmp --silent references/sdk_models.md references/sdk_models.md.tmp

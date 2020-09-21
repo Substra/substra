@@ -550,112 +550,134 @@ class Client(object):
 
     @logit
     def get_algo(self, key: str) -> models.Algo:
-        """Get algo by key."""
+        """Get algo by key, the returned object is described
+        in the [models.Algo](sdk_models.md#Algo) model"""
         return self._backend.get(schemas.Type.Algo, key)
 
     @logit
     def get_compute_plan(self, key: str) -> models.ComputePlan:
-        """Get compute plan by key."""
+        """Get compute plan by key, the returned object is described
+        in the [models.ComputePlan](sdk_models.md#ComputePlan) model"""
         return self._backend.get(schemas.Type.ComputePlan, key)
 
     @logit
     def get_aggregate_algo(self, key: str) -> models.AggregateAlgo:
-        """Get aggregate algo by key."""
+        """Get aggregate algo by key, the returned object is described
+        in the [models.AggregateAlgo](sdk_models.md#AggregateAlgo) model"""
         return self._backend.get(schemas.Type.AggregateAlgo, key)
 
     @logit
     def get_composite_algo(self, key: str) -> models.CompositeAlgo:
-        """Get composite algo by key."""
+        """Get composite algo by key, the returned object is described
+        in the [models.CompositeAlgo](sdk_models.md#CompositeAlgo) model"""
         return self._backend.get(schemas.Type.CompositeAlgo, key)
 
     @logit
     def get_dataset(self, key: str) -> models.Dataset:
-        """Get dataset by key."""
+        """Get dataset by key, the returned object is described
+        in the [models.Dataset](sdk_models.md#Dataset) model"""
         return self._backend.get(schemas.Type.Dataset, key)
 
     @logit
     def get_objective(self, key: str) -> models.Objective:
-        """Get objective by key."""
+        """Get objective by key, the returned object is described
+        in the [models.Objective](sdk_models.md#Objective) model"""
         return self._backend.get(schemas.Type.Objective, key)
 
     @logit
     def get_testtuple(self, key: str) -> models.Testtuple:
-        """Get testtuple by key."""
+        """Get testtuple by key, the returned object is described
+        in the [models.Testtuple](sdk_models.md#Testtuple) model"""
         return self._backend.get(schemas.Type.Testtuple, key)
 
     @logit
     def get_traintuple(self, key: str) -> models.Traintuple:
-        """Get traintuple by key."""
+        """Get traintuple by key, the returned object is described
+        in the [models.Traintuple](sdk_models.md#Traintuple) model"""
         return self._backend.get(schemas.Type.Traintuple, key)
 
     @logit
     def get_aggregatetuple(self, key: str) -> models.Aggregatetuple:
-        """Get aggregatetuple by key."""
+        """Get aggregatetuple by key, the returned object is described
+        in the [models.Aggregatetuple](sdk_models.md#Aggregatetuple) model"""
         return self._backend.get(schemas.Type.Aggregatetuple, key)
 
     @logit
     def get_composite_traintuple(self, key: str) -> models.CompositeTraintuple:
-        """Get composite traintuple by key."""
+        """Get composite traintuple by key, the returned object is described
+        in the [models.CompositeTraintuple](sdk_models.md#CompositeTraintuple) model"""
         return self._backend.get(schemas.Type.CompositeTraintuple, key)
 
     @logit
     def list_algo(self, filters=None) -> List[models.Algo]:
-        """List algos."""
+        """List algos, the returned object is described
+        in the [models.Algo](sdk_models.md#Algo) model"""
         return self._backend.list(schemas.Type.Algo, filters)
 
     @logit
     def list_compute_plan(self, filters=None) -> List[models.ComputePlan]:
-        """List compute plans."""
+        """List compute plans, the returned object is described
+        in the [models.ComputePlan](sdk_models.md#ComputePlan) model"""
         return self._backend.list(schemas.Type.ComputePlan, filters)
 
     @logit
     def list_aggregate_algo(self, filters=None) -> List[models.AggregateAlgo]:
-        """List aggregate algos."""
+        """List aggregate algos, the returned object is described
+        in the [models.AggregateAlgo](sdk_models.md#AggregateAlgo) model"""
         return self._backend.list(schemas.Type.AggregateAlgo, filters)
 
     @logit
     def list_composite_algo(self, filters=None) -> List[models.CompositeAlgo]:
-        """List composite algos."""
+        """List composite algos, the returned object is described
+        in the [models.CompositeAlgo](sdk_models.md#CompositeAlgo) model"""
         return self._backend.list(schemas.Type.CompositeAlgo, filters)
 
     @logit
     def list_data_sample(self, filters=None) -> List[models.DataSample]:
-        """List data samples."""
+        """List data samples, the returned object is described
+        in the [models.DataSample](sdk_models.md#DataSample) model"""
         return self._backend.list(schemas.Type.DataSample, filters)
 
     @logit
     def list_dataset(self, filters=None) -> List[models.Dataset]:
-        """List datasets."""
+        """List datasets, the returned object is described
+        in the [models.Dataset](sdk_models.md#Dataset) model"""
         return self._backend.list(schemas.Type.Dataset, filters)
 
     @logit
     def list_objective(self, filters=None) -> List[models.Objective]:
-        """List objectives."""
+        """List objectives, the returned object is described
+        in the [models.Objective](sdk_models.md#Objective) model"""
         return self._backend.list(schemas.Type.Objective, filters)
 
     @logit
     def list_testtuple(self, filters=None) -> List[models.Testtuple]:
-        """List testtuples."""
+        """List testtuples, the returned object is described
+        in the [models.Testtuple](sdk_models.md#Testtuple) model"""
         return self._backend.list(schemas.Type.Testtuple, filters)
 
     @logit
     def list_traintuple(self, filters=None) -> List[models.Traintuple]:
-        """List traintuples."""
+        """List traintuples, the returned object is described
+        in the [models.Traintuple](sdk_models.md#Traintuple) model"""
         return self._backend.list(schemas.Type.Traintuple, filters)
 
     @logit
     def list_aggregatetuple(self, filters=None) -> List[models.Aggregatetuple]:
-        """List aggregatetuples."""
+        """List aggregatetuples, the returned object is described
+        in the [models.Aggregatetuple](sdk_models.md#Aggregatetuple) model"""
         return self._backend.list(schemas.Type.Aggregatetuple, filters)
 
     @logit
     def list_composite_traintuple(self, filters=None) -> List[models.CompositeTraintuple]:
-        """List composite traintuples."""
+        """List composite traintuples, the returned object is described
+        in the [models.CompositeTraintuple](sdk_models.md#CompositeTraintuple) model"""
         return self._backend.list(schemas.Type.CompositeTraintuple, filters)
 
     @logit
     def list_node(self, *args, **kwargs) -> List[models.Node]:
-        """List nodes."""
+        """List nodes, the returned object is described
+        in the [models.Node](sdk_models.md#Node) model"""
         return self._backend.list(schemas.Type.Node)
 
     @logit
@@ -686,7 +708,8 @@ class Client(object):
                 to define the number of tuples uploaded in each batch (default 20).
 
         Returns:
-            models.ComputePlan: updated compute plan
+            models.ComputePlan: updated compute plan, as described in the
+            [models.ComputePlan](sdk_models.md#ComputePlan) model
         """
         spec = schemas.UpdateComputePlanSpec(**data)
         spec_options = {
@@ -811,5 +834,6 @@ class Client(object):
 
     @logit
     def cancel_compute_plan(self, compute_plan_id: str) -> models.ComputePlan:
-        """Cancel execution of compute plan."""
+        """Cancel execution of compute plan, the returned object is described
+        in the [models.ComputePlan](sdk_models.md#ComputePlan) model"""
         return self._backend.cancel_compute_plan(compute_plan_id)

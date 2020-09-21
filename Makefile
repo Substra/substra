@@ -13,6 +13,7 @@ doc-sdk:
 
 doc-schemas:
 	python bin/generate_sdk_schemas_documentation.py
+	python bin/generate_sdk_schemas_documentation.py --models --output-path='references/sdk_models.md'
 
 doc: doc-cli doc-sdk doc-schemas
 

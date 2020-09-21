@@ -35,6 +35,7 @@ def _to_snake_case(camel_str):
 
 
 class Status(str, enum.Enum):
+    """Status of the task"""
     doing = "doing"
     done = "done"
     failed = "failed"
@@ -44,6 +45,7 @@ class Status(str, enum.Enum):
 
 
 class Permission(schemas._PydanticConfig):
+    """Permissions of a task"""
     public: bool
     authorized_ids: List[str]
 
@@ -61,6 +63,7 @@ class _Model(schemas._PydanticConfig, abc.ABC):
 
 
 class DataSample(_Model):
+    """Data sample"""
     key: str
     owner: str
     data_manager_keys: Optional[List[str]]
@@ -73,11 +76,13 @@ class DataSample(_Model):
 
 
 class _File(schemas._PydanticConfig):
+    """File as stored in the models"""
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: UriPath
 
 
 class Dataset(_Model):
+    """Dataset asset"""
     key: str
     name: str
     owner: str
@@ -94,6 +99,7 @@ class Dataset(_Model):
 
 
 class _ObjectiveDataset(schemas._PydanticConfig):
+    """Dataset as stored in the Objective asset"""
     data_manager_key: str
     data_sample_keys: List[str]
     metadata: Dict[str, str]
@@ -101,6 +107,7 @@ class _ObjectiveDataset(schemas._PydanticConfig):
 
 
 class _Metric(schemas._PydanticConfig):
+    """Metric associated to a testtuple or objective"""
     name: Optional[str]
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: UriPath
@@ -148,6 +155,7 @@ class CompositeAlgo(_Algo):
 
 
 class _TraintupleDataset(schemas._PydanticConfig):
+    """Dataset as stored in a traintuple or composite traintuple"""
     opener_hash: str
     keys: List[str]
     worker: str
@@ -159,6 +167,8 @@ class _TraintupleDataset(schemas._PydanticConfig):
 
 
 class InModel(schemas._PydanticConfig):
+    """In model of a traintuple, aggregate tuple or in trunk
+    model of a composite traintuple"""
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: UriPath
     traintuple_key: Optional[str]
@@ -169,6 +179,8 @@ class InModel(schemas._PydanticConfig):
 
 
 class OutModel(schemas._PydanticConfig):
+    """Out model of a traintuple, aggregate tuple or out trunk
+    model of a composite traintuple"""
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: UriPath
 
@@ -178,6 +190,7 @@ class OutModel(schemas._PydanticConfig):
 
 
 class _TraintupleAlgo(schemas._PydanticConfig):
+    """Algo associated to a traintuple"""
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: UriPath
     name: str
@@ -226,6 +239,7 @@ class Aggregatetuple(_Model):
 
 
 class InHeadModel(schemas._PydanticConfig):
+    """In head model of a composite traintuple"""
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: Optional[UriPath]  # Defined for local assets but not remote ones
     traintuple_key: Optional[str]
@@ -236,6 +250,7 @@ class InHeadModel(schemas._PydanticConfig):
 
 
 class OutHeadModel(schemas._PydanticConfig):
+    """Out head model of a composite traintuple"""
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: Optional[FilePath]  # Defined for local assets but not remote ones
 
@@ -245,11 +260,13 @@ class OutHeadModel(schemas._PydanticConfig):
 
 
 class OutCompositeHeadModel(schemas._PydanticConfig):
+    """Out head model of a composite traintuple with permissions"""
     permissions: Permissions
     out_model: Optional[OutHeadModel]
 
 
 class OutCompositeTrunkModel(schemas._PydanticConfig):
+    """Out trunk model of a composite traintuple with permissions"""
     permissions: Permissions
     out_model: Optional[OutModel]
 
@@ -277,6 +294,7 @@ class CompositeTraintuple(_Model):
 
 
 class _TesttupleDataset(schemas._PydanticConfig):
+    """Dataset of a testtuple"""
     opener_hash: str
     perf: float
     keys: List[str]
@@ -288,6 +306,7 @@ class _TesttupleDataset(schemas._PydanticConfig):
 
 
 class _TesttupleObjective(schemas._PydanticConfig):
+    """Objective of a testtuple"""
     hash_: str = pydantic.Field(..., alias="hash")
     metrics: _Metric
 
