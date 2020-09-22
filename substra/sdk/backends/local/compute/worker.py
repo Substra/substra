@@ -17,10 +17,9 @@ import os
 import pathlib
 import shutil
 
-from substra.sdk import schemas, fs
+from substra.sdk import schemas, fs, models
 from substra.runner import METRICS_FAKE_Y, METRICS_NO_FAKE_Y, DOCKER_METRICS_TAG
 from substra.sdk.backends.local import dal
-from substra.sdk.backends.local import models
 from substra.sdk.backends.local.compute import spawner
 
 _CONTAINER_MODEL_PATH = "/sandbox/model"

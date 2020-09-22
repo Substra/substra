@@ -23,3 +23,7 @@ script:
   - cmp --silent references/cli.md references/cli.md.tmp
   - pydocmd simple substra.sdk+ substra.sdk.Client+ substra.sdk.retry_on_exception+ > references/sdk.md.tmp
   - cmp --silent references/sdk.md references/sdk.md.tmp
+  - python bin/generate_sdk_schemas_documentation.py --output-path references/sdk_schemas.md.tmp
+  - cmp --silent references/sdk_schemas.md references/sdk_schemas.md.tmp
+  - python bin/generate_sdk_schemas_documentation.py --models --output-path='references/sdk_models.md.tmp'
+  - cmp --silent references/sdk_models.md references/sdk_models.md.tmp

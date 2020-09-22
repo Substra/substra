@@ -16,7 +16,7 @@ from copy import deepcopy
 import logging
 import json
 
-from substra.sdk import exceptions, schemas, compute_plan
+from substra.sdk import exceptions, schemas, compute_plan, models
 from substra.sdk.backends import base
 from substra.sdk.backends.remote import rest_client
 
@@ -30,7 +30,7 @@ BATCH_SIZE = 'batch_size'
 def _find_asset_field(data, field):
     """Find data value where location is defined as `field.subfield...`."""
     for f in field.split('.'):
-        data = data[f]
+        data = getattr(data, f)
     return data
 
 
@@ -45,11 +45,13 @@ class Remote(base.BaseBackend):
 
     def get(self, asset_type, key):
         """Get an asset by key."""
-        return self._client.get(asset_type.to_server(), key)
+        asset = self._client.get(asset_type.to_server(), key)
+        return models.SCHEMA_TO_MODEL[asset_type](**asset)
 
     def list(self, asset_type, filters=None):
         """List assets per asset type."""
-        return self._client.list(asset_type.to_server(), filters)
+        assets = self._client.list(asset_type.to_server(), filters)
+        return [models.SCHEMA_TO_MODEL[asset_type](**asset) for asset in assets]
 
     def _add(self, asset, data, files=None, exist_ok=False):
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
@@ -127,7 +129,7 @@ class Remote(base.BaseBackend):
         # The backend returns only the key, except for the compute plan: it returns the
         # whole object (otherwise we lose the id_to_key field)
         if asset_type == schemas.Type.ComputePlan:
-            return response
+            return models.ComputePlan(**response)
 
         return response['key']
 
@@ -160,8 +162,8 @@ class Remote(base.BaseBackend):
             first_spec = next(batches, None)
             tmp_spec = first_spec or spec  # Special case: no tuples
             asset = self.add(spec=tmp_spec, exist_ok=exist_ok, spec_options=deepcopy(spec_options))
-            compute_plan_id = asset['compute_plan_id']
-            id_to_keys = asset['id_to_key']
+            compute_plan_id = asset.compute_plan_id
+            id_to_keys = asset.id_to_key
 
         # Update the compute plan
         for tmp_spec in batches:
@@ -170,7 +172,7 @@ class Remote(base.BaseBackend):
                 spec=tmp_spec,
                 spec_options=deepcopy(spec_options)
             )
-            id_to_keys.update(asset['id_to_key'])
+            id_to_keys.update(asset.id_to_key)
 
         # Special case: no tuples
         if asset is None:
@@ -179,7 +181,7 @@ class Remote(base.BaseBackend):
                 key=compute_plan_id,
             )
 
-        asset['id_to_key'] = id_to_keys
+        asset.id_to_key = id_to_keys
         return asset
 
     def update_compute_plan(self, compute_plan_id, spec, spec_options=None):
@@ -194,32 +196,37 @@ class Remote(base.BaseBackend):
             )
         else:
             # Disable auto batching
-            return self._client.request(
+            asset = self._client.request(
                 'post',
                 schemas.Type.ComputePlan.to_server(),
                 path=f"{compute_plan_id}/update_ledger/",
                 json=spec.dict(exclude_none=True),
             )
+            return models.ComputePlan(**asset)
 
     def link_dataset_with_objective(self, dataset_key, objective_key):
-        return self._client.request(
+        """Returns the key of the dataset"""
+        asset = self._client.request(
             'post',
             schemas.Type.Dataset.to_server(),
             path=f"{dataset_key}/update_ledger/",
             data={'objective_key': objective_key, },
         )
+        return asset["key"]
 
     def link_dataset_with_data_samples(self, dataset_key, data_sample_keys):
+        """Returns the list of the data sample keys"""
         data = {
             'data_manager_keys': [dataset_key],
             'data_sample_keys': data_sample_keys,
         }
-        return self._client.request(
+        asset = self._client.request(
             'post',
             schemas.Type.DataSample.to_server(),
             path="bulk_update/",
             data=data,
         )
+        return json.loads(asset['key'])['keys']
 
     def download(self, asset_type, url_field_path, key, destination):
         data = self.get(asset_type, key)
@@ -234,7 +241,7 @@ class Remote(base.BaseBackend):
 
     def describe(self, asset_type, key):
         data = self.get(asset_type, key)
-        url = data['description']['storage_address']
+        url = data.description.storage_address
         r = self._client.get_data(url)
         return r.text
 
@@ -247,8 +254,9 @@ class Remote(base.BaseBackend):
         )
 
     def cancel_compute_plan(self, compute_plan_id):
-        return self._client.request(
+        asset = self._client.request(
             'post',
             schemas.Type.ComputePlan.to_server(),
             path=f"{compute_plan_id}/cancel",
         )
+        return models.ComputePlan(**asset)

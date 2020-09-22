@@ -14,6 +14,7 @@
 
 import json
 import math
+import pydantic
 
 import yaml
 
@@ -178,6 +179,8 @@ class BasePrinter:
         return length
 
     def print_details(self, item, fields, expand):
+        if isinstance(item, pydantic.BaseModel):
+            item = item.dict(exclude_none=False, by_alias=True)
         field_length = self._get_field_name_length(fields)
         for field in fields:
             field.print_details(item, field_length, expand)
@@ -223,6 +226,8 @@ class AssetPrinter(BasePrinter):
         self.print_description_message(item, profile)
 
     def print(self, data, profile=None, expand=False, is_list=False):
+        if isinstance(data, pydantic.BaseModel):
+            data = data.dict(exclude_none=False, by_alias=True)
         if is_list:
             self.print_table(data, self._get_list_fields())
         else:

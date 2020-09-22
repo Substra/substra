@@ -12,20 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from substra.sdk import models
+
 from .. import datastore
 from .utils import mock_requests
 
 
 def test_update_dataset(client, mocker):
-    item = datastore.DATASET
-    m = mock_requests(mocker, "post", response=item)
+    m = mock_requests(mocker, "post", response={"key": "dataset_key"})
 
     response = client.link_dataset_with_objective(
         'a key',
         'an another key',
     )
 
-    assert response == item
+    assert response == "dataset_key"
     m.assert_called()
 
 
@@ -36,6 +37,6 @@ def test_update_compute_plan(client, mocker):
 
     response = client.update_compute_plan('foo', {})
 
-    assert response == item
+    assert response == models.ComputePlan(**item)
     m.assert_called
     m_get.assert_called

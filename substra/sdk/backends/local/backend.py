@@ -16,9 +16,8 @@ import typing
 import warnings
 
 import substra
-from substra.sdk import schemas, exceptions, fs, graph, compute_plan as compute_plan_module
+from substra.sdk import schemas, models, exceptions, fs, graph, compute_plan as compute_plan_module
 from substra.sdk.backends import base
-from substra.sdk.backends.local import models
 from substra.sdk.backends.local import dal
 from substra.sdk.backends.local import compute
 
@@ -37,7 +36,7 @@ class Local(base.BaseBackend):
         self._db.login(username, password)
 
     def get(self, asset_type, key):
-        return self._db.get(asset_type, key).to_response()
+        return self._db.get(asset_type, key)
 
     def list(self, asset_type, filters=None):
         """List the assets
@@ -67,11 +66,10 @@ class Local(base.BaseBackend):
                 parsed_filters[field_name] = field_value
         # Filter the list of assets
         result = list()
-        for a in db_assets:
+        for asset in db_assets:
             # the filters use the 'response' (ie camel case) format
-            a_response = a.to_response()
-            if all([a_response.get(key, None) == value for key, value in parsed_filters.items()]):
-                result.append(a_response)
+            if all([getattr(asset, key) == value for key, value in parsed_filters.items()]):
+                result.append(asset)
         return result
 
     @staticmethod
@@ -563,6 +561,7 @@ class Local(base.BaseBackend):
                 "opener_hash": spec.data_manager_key,
                 "keys": spec.train_data_sample_keys,
                 "worker": _BACKEND_ID,
+                "metadata": {}
             },
             permissions={
                 "process": {"public": public, "authorized_ids": authorized_ids},
@@ -576,6 +575,7 @@ class Local(base.BaseBackend):
                 {
                     "hash": in_traintuple.out_model.hash_,
                     "storage_address": in_traintuple.out_model.storage_address,
+                    "traintuple_key": in_traintuple.key,
                 }
                 for in_traintuple in in_traintuples
             ],
@@ -798,11 +798,19 @@ class Local(base.BaseBackend):
         for model_key in spec.in_models_keys:
             try:
                 in_tuple = self._db.get(schemas.Type.Traintuple, key=model_key)
-                in_models.append(in_tuple.out_model.dict(by_alias=True))
+                in_models.append({
+                    "hash": in_tuple.out_model.hash_,
+                    "storage_address": in_tuple.out_model.storage_address,
+                    "traintuple_key": in_tuple.key,
+                })
                 in_permissions.append(in_tuple.permissions.process)
             except exceptions.NotFound:
                 in_tuple = self._db.get(schemas.Type.CompositeTraintuple, key=model_key)
-                in_models.append(in_tuple.out_head_model.out_model.dict(by_alias=True))
+                in_models.append({
+                    "hash": in_tuple.out_head_model.out_model.hash_,
+                    "storage_address": in_tuple.out_head_model.out_model.storage_address,
+                    "traintuple_key": in_tuple.key,
+                })
                 in_permissions.append(in_tuple.out_head_model.permissions.process)
             in_tuples.append(in_tuple)
 
@@ -855,8 +863,8 @@ class Local(base.BaseBackend):
         add_asset = getattr(self, method_name)
         if spec.is_many():
             # 'exist_ok' is not supported
-            asset = add_asset(spec, spec_options)
-            return [a.to_response()['key'] for a in asset]
+            assets = add_asset(spec, spec_options)
+            return [asset.key for asset in assets]
         else:
             # Check if the asset exists, return it if 'exist_ok' is True
             key = self._db.get_local_key(spec.compute_key())
@@ -870,7 +878,7 @@ class Local(base.BaseBackend):
                 raise exceptions.AlreadyExists(key, 409)
             asset = add_asset(key, spec, spec_options)
             if spec.__class__.type_ == schemas.Type.ComputePlan:
-                return asset.to_response()
+                return asset
             else:
                 return key
 
@@ -884,7 +892,7 @@ class Local(base.BaseBackend):
             )
 
         dataset.objective_key = objective_key
-        return {"key": dataset.key}
+        return dataset.key
 
     def link_dataset_with_data_samples(self, dataset_key, data_sample_keys):
         dataset = self._db.get(schemas.Type.Dataset, dataset_key)
@@ -900,6 +908,7 @@ class Local(base.BaseBackend):
             else:
                 print(f"Data sample already in dataset: {key}")
             data_samples.append(data_sample)
+        return data_sample_keys
 
     def download(self, asset_type, url_field_path, key, destination):
         if self._db.is_local(key):
@@ -933,7 +942,7 @@ class Local(base.BaseBackend):
         ]
         certified_testtuples.sort(key=lambda x: x['perf'], reverse=(sort == 'desc'))
         board = {
-            'objective': objective.to_response(),
+            'objective': objective.dict(exclude_none=False, by_alias=True),
             'testtuples': certified_testtuples
         }
         return board
@@ -1001,4 +1010,4 @@ class Local(base.BaseBackend):
             compositetuples,
             spec_options=dict()
         )
-        return compute_plan.to_response()
+        return compute_plan

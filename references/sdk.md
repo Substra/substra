@@ -46,11 +46,11 @@ Args:
     profile_name (str, optional): Name of the profile to load.
         Defaults to 'default'.
 
-    config_path (typing.Union[str, pathlib.Path], optional): Path to the
+    config_path (Union[str, pathlib.Path], optional): Path to the
         configuration file.
         Defaults to '~/.substra'.
 
-    tokens_path (typing.Union[str, pathlib.Path], optional): Path to the tokens file.
+    tokens_path (Union[str, pathlib.Path], optional): Path to the tokens file.
         Defaults to '~/.substra-tokens'.
 
     token (str, optional): Token to use for authentication (will be used
@@ -69,59 +69,41 @@ Returns:
 
 ## add_data_sample
 ```python
-Client.add_data_sample(self, data, local=True, exist_ok=False)
+Client.add_data_sample(self, data: Union[dict, substra.sdk.schemas.DataSampleSpec], local: bool = True, exist_ok: bool = False) -> str
 ```
-Create new data sample asset.
-
-`data` is a dict object with the following schema:
-
-```
-{
-    "path": str,
-    "data_manager_keys": list[str],
-    "test_only": bool,
-}
-```
-The `path` in the data dictionary must point to a directory representing the
-data sample content. Note that the directory can contain multiple files, all the
-directory content will be added to the platform.
-
-If `local` is true, `path` must refer to a directory located on the local
-filesystem. The file content will be transferred to the server through an
-HTTP query, so this mode should be used for relatively small files (<10mo).
-
-If `local` is false, `path` must refer to a directory located on the server
-filesystem. This directory must be accessible (readable) by the server.  This
-mode is well suited for all kind of file sizes.
+Create a new data sample asset and return its key.
 
 If a data sample with the same content already exists, an `AlreadyExists` exception will be
 raised.
 
-If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset key will be returned.
+Args:
+
+    data (Union[dict, schemas.DataSampleSpec]): data sample to add. If it is a dict,
+    it must follow the [DataSampleSpec schema](sdk_schemas.md#DataSampleSpec).
+
+    local (bool, optional):
+        If `local` is true, `path` must refer to a directory located on the local
+        filesystem. The file content will be transferred to the server through an
+        HTTP query, so this mode should be used for relatively small files (<10mo).
+
+        If `local` is false, `path` must refer to a directory located on the server
+        filesystem. This directory must be accessible (readable) by the server.  This
+        mode is well suited for all kind of file sizes. Defaults to True.
+
+    exist_ok (bool, optional):
+        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
+        existing asset key will be returned. Defaults to False.
+
+Returns:
+    str: key of the data sample
 
 ## add_data_samples
 ```python
-Client.add_data_samples(self, data, local=True)
+Client.add_data_samples(self, data: Union[dict, substra.sdk.schemas.DataSampleSpec], local: bool = True) -> List[str]
 ```
-Create many data sample assets.
+Create many data sample assets and return  a list of keys.
 
-`data` is a dict object with the following schema:
-
-```
-{
-    "paths": list[str],
-    "data_manager_keys": list[str],
-    "test_only": bool,
-}
-```
 Create multiple data samples through a single HTTP request.
-
-The `paths` in the data dictionary must be a list of paths where each path
-points to a directory representing one data sample.
-
-For the `local` argument, please refer to the method `Client.add_data_sample`.
-
 This method is well suited for adding multiple small files only. For adding a
 large amount of data it is recommended to add them one by one. It allows a
 better control in case of failures.
@@ -129,228 +111,176 @@ better control in case of failures.
 If data samples with the same content as any of the paths already exists, an `AlreadyExists`
 exception will be raised.
 
+Args:
+
+    data (Union[dict, schemas.DataSampleSpec]): data samples to add. If it is a dict,
+        it must follow the [DataSampleSpec schema](sdk_schemas.md#DataSampleSpec).
+
+        The `paths` in the data dictionary must be a list of paths where each path
+        points to a directory representing one data sample.
+
+    local (bool, optional):  Please refer to the method `Client.add_data_sample`.
+        Defaults to True.
+
+Returns:
+    List[str]: List of the data sample keys
+
 ## add_dataset
 ```python
-Client.add_dataset(self, data, exist_ok=False)
+Client.add_dataset(self, data: Union[dict, substra.sdk.schemas.DatasetSpec], exist_ok: bool = False)
 ```
-Create new dataset asset.
-
-`data` is a dict object with the following schema:
-
-```
-{
-    "name": str,
-    "description": str,
-    "type": str,
-    "data_opener": str,
-    "objective_key": str,
-    "permissions": {
-        "public": bool,
-        "authorized_ids": list[str],
-    },
-    "metadata": dict
-}
-```
+Create new dataset asset and return its key.
 
 If a dataset with the same opener already exists, an `AlreadyExists` exception will be
 raised.
 
-If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset key will be returned.
+Args:
 
-This returns the key of the created asset.
+    data (Union[dict, schemas.DatasetSpec]): If it is a dict, it must have the same
+        keys as specified in [schemas.DatasetSpec](sdk_schemas.md#DatasetSpec).
+
+    exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists` exceptions
+        will be ignored and the existing asset key will be returned.
+        Defaults to False.
+
+Returns:
+    str: Key of the dataset
 
 ## add_objective
 ```python
-Client.add_objective(self, data, exist_ok=False)
+Client.add_objective(self, data: Union[dict, substra.sdk.schemas.ObjectiveSpec], exist_ok: bool = False) -> str
 ```
 Create new objective asset.
-
-`data` is a dict object with the following schema:
-
-```
-{
-    "name": str,
-    "description": str,
-    "metrics_name": str,
-    "metrics": str,
-    "test_data_manager_key": str,
-    "test_data_sample_keys": list[str],
-    "permissions": {
-        "public": bool,
-        "authorized_ids": list[str],
-    },
-    "metadata": dict
-}
-```
 
 If an objective with the same description already exists, an `AlreadyExists` exception will
 be raised.
 
-If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset key will be returned.
+Args:
 
-This returns the key of the created asset.
+    data (Union[dict, schemas.ObjectiveSpec]): If it is a dict, it must have the same keys
+        as specified in [schemas.ObjectiveSpec](sdk_schemas.md#ObjectiveSpec).
+
+    exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists` exceptions
+        will be ignored and the existing asset key will be returned. Defaults to False.
+
+Returns:
+    str: Key of the objective
 
 ## add_algo
 ```python
-Client.add_algo(self, data, exist_ok=False)
+Client.add_algo(self, data: Union[dict, substra.sdk.schemas.AlgoSpec], exist_ok: bool = False) -> str
 ```
 Create new algo asset.
-
-`data` is a dict object with the following schema:
-
-```
-{
-    "name": str,
-    "description": str,
-    "file": str,
-    "permissions": {
-        "public": bool,
-        "authorized_ids": list[str],
-    },
-    "metadata": dict
-}
-```
 
 If an algo with the same archive file already exists, an `AlreadyExists` exception will be
 raised.
 
-If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset key will be returned.
+Args:
 
-This returns the key of the created asset.
+    data (Union[dict, schemas.AlgoSpec]): If it is a dict, it must have the same keys
+        as specified in [schemas.AlgoSpec](sdk_schemas.md#AlgoSpec).
+
+    exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists` exceptions will be
+        ignored and the existing asset key will be returned. Defaults to False.
+
+Returns:
+    str: Key of the algo
 
 ## add_aggregate_algo
 ```python
-Client.add_aggregate_algo(self, data, exist_ok=False)
+Client.add_aggregate_algo(self, data: Union[dict, substra.sdk.schemas.AggregateAlgoSpec], exist_ok: bool = False) -> str
 ```
 Create new aggregate algo asset.
-`data` is a dict object with the following schema:
-```
-{
-    "name": str,
-    "description": str,
-    "file": str,
-    "permissions": {
-        "public": bool,
-        "authorized_ids": list[str],
-    },
-    "metadata": dict
-}
-```
+
 If an aggregate algo with the same archive file already exists, an `AlreadyExists`
 exception will be raised.
 
-If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset key will be returned.
+Args:
 
-This returns the key of the created asset.
+    data (Union[dict, schemas.AggregateAlgoSpec]): If it is a dict,
+        it must have the same keys as specified in
+        [schemas.AggregateAlgoSpec](sdk_schemas.md#AggregateAlgoSpec).
+
+    exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists`
+        exceptions will be ignored and the existing asset key will be returned.
+        Defaults to False.
+
+ Returns:
+    str: Key of the asset
 
 ## add_composite_algo
 ```python
-Client.add_composite_algo(self, data, exist_ok=False)
+Client.add_composite_algo(self, data: Union[dict, substra.sdk.schemas.CompositeAlgoSpec], exist_ok: bool = False) -> str
 ```
 Create new composite algo asset.
-`data` is a dict object with the following schema:
-```
-{
-    "name": str,
-    "description": str,
-    "file": str,
-    "permissions": {
-        "public": bool,
-        "authorized_ids": list[str],
-    },
-    "metadata": dict
-}
-```
-If a composite algo with the same archive file already exists, an `AlreadyExists` exception
-will be raised.
 
-If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset key will be returned.
+If a composite algo with the same archive file already exists, an `AlreadyExists`
+exception will be raised.
 
-This returns the key of the created asset.
+Args:
+
+    data (Union[dict, schemas.CompositeAlgoSpec]): If it is a dict, it must have the same
+        keys as specified in [schemas.CompositeAlgoSpec](sdk_schemas.md#CompositeAlgoSpec).
+
+    exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists`
+        exceptions will be ignored and the existing asset key will be returned.
+        Defaults to False.
+
+ Returns:
+    str: Key of the asset
 
 ## add_traintuple
 ```python
-Client.add_traintuple(self, data, exist_ok=False)
+Client.add_traintuple(self, data: Union[dict, substra.sdk.schemas.TraintupleSpec], exist_ok: bool = False) -> str
 ```
 Create new traintuple asset.
 
-`data` is a dict object with the following schema:
-
-```
-{
-    "algo_key": str,
-    "data_manager_key": str,
-    "train_data_sample_keys": list[str],
-    "in_models_keys": list[str],
-    "tag": str,
-    "metadata": dict,
-    "rank": int,
-    "compute_plan_id": str,
-}
-```
 An `AlreadyExists` exception will be raised if a traintuple already exists that:
 * has the same `algo_key`, `data_manager_key`, `train_data_sample_keys` and `in_models_keys`
 * and was created through the same node you are using
 
-If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset key will be returned.
+Args:
 
-This returns the key of the created asset.
+    data (Union[dict, schemas.TraintupleSpec]): If it is a dict, it must have the same
+        keys as specified in [schemas.TraintupleSpec](sdk_schemas.md#TraintupleSpec).
+
+    exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists`
+        exceptions will be ignored and the existing asset key will be returned.
+        Defaults to False.
+
+ Returns:
+    str: Key of the asset
 
 ## add_aggregatetuple
 ```python
-Client.add_aggregatetuple(self, data, exist_ok=False)
+Client.add_aggregatetuple(self, data: Union[dict, substra.sdk.schemas.AggregatetupleSpec], exist_ok: bool = False) -> str
 ```
-Create new aggregatetuple asset.
-`data` is a dict object with the following schema:
-```
-{
-    "algo_key": str,
-    "in_models_keys": list[str],
-    "tag": str,
-    "metadata": dict,
-    "compute_plan_id": str,
-    "rank": int,
-    "worker": str,
-}
-```
+Create a new aggregate tuple asset.
+
 An `AlreadyExists` exception will be raised if an aggregatetuple already exists that:
 * has the same `algo_key` and `in_models_keys`
 * and was created through the same node you are using
 
-If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset key will be returned.
+Args:
 
-This returns the key of the created asset.
+    data (Union[dict, schemas.AggregatetupleSpec]): If it is a dict, it must have the same
+        keys as specified in
+        [schemas.AggregatetupleSpec](sdk_schemas.md#AggregatetupleSpec).
+
+    exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists`
+        exceptions will be ignored and the existing asset key will be returned.
+        Defaults to False.
+
+ Returns:
+    str: Key of the asset
 
 ## add_composite_traintuple
 ```python
-Client.add_composite_traintuple(self, data, exist_ok=False)
+Client.add_composite_traintuple(self, data: Union[dict, substra.sdk.schemas.CompositeTraintupleSpec], exist_ok: bool = False) -> str
 ```
 Create new composite traintuple asset.
-`data` is a dict object with the following schema:
-```
-{
-    "algo_key": str,
-    "data_manager_key": str,
-    "in_head_model_key": str,
-    "in_trunk_model_key": str,
-    "out_trunk_model_permissions": {
-        "authorized_ids": list[str],
-    },
-    "tag": str,
-    "metadata": dict,
-    "rank": int,
-    "compute_plan_id": str,
-}
-```
 
-As specified in the data dict structure, output trunk models cannot be made
+As specified in the data structure, output trunk models cannot be made
 public.
 
 An `AlreadyExists` exception will be raised if a traintuple already exists that:
@@ -358,280 +288,237 @@ An `AlreadyExists` exception will be raised if a traintuple already exists that:
   `in_head_models_key` and `in_trunk_model_key`
 * and was created through the same node you are using
 
-If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset key will be returned.
+Args:
 
-This returns the key of the created asset.
+    data (Union[dict, schemas.CompositeTraintupleSpec]): If it is a dict, it must have the
+        same keys as specified in
+        [schemas.CompositeTraintupleSpec](sdk_schemas.md#CompositeTraintupleSpec).
+
+    exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists`
+        exceptions will be ignored and the existing asset key will be returned.
+        Defaults to False.
+
+ Returns:
+    str: Key of the asset
 
 ## add_testtuple
 ```python
-Client.add_testtuple(self, data, exist_ok=False)
+Client.add_testtuple(self, data: Union[dict, substra.sdk.schemas.TesttupleSpec], exist_ok: bool = False) -> str
 ```
 Create new testtuple asset.
-
-`data` is a dict object with the following schema:
-
-```
-{
-    "objective_key": str,
-    "data_manager_key": str,
-    "traintuple_key": str,
-    "test_data_sample_keys": list[str],
-    "tag": str,
-    "metadata": dict
-}
-```
 
 An `AlreadyExists` exception will be raised if a testtuple already exists that:
 * has the same `traintuple_key`, `objective_key`, `data_manager_key` and
   `test_data_sample_keys`
 * and was created through the same node you are using
 
-If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-existing asset key will be returned.
+Args:
 
-This returns the key of the created asset.
+    data (Union[dict, schemas.TesttupleSpec]): If it is a dict, it must have the same
+        keys as specified in [schemas.TesttupleSpec](sdk_schemas.md#TesttupleSpec).
+
+    exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists`
+        exceptions will be ignored and the existing asset key will be returned.
+        Defaults to False.
+
+ Returns:
+    str: Key of the asset
 
 ## add_compute_plan
 ```python
-Client.add_compute_plan(self, data, auto_batching: bool = True, batch_size: int = 20)
+Client.add_compute_plan(self, data: Union[dict, substra.sdk.schemas.ComputePlanSpec], auto_batching: bool = True, batch_size: int = 20) -> substra.sdk.models.ComputePlan
 ```
-Create compute plan.
-
-Data is a dict object with the following schema:
-```
-{
-    "traintuples": list[{
-        "traintuple_id": str,
-        "algo_key": str,
-        "data_manager_key": str,
-        "train_data_sample_keys": list[str],
-        "in_models_ids": list[str],
-        "tag": str,
-        "metadata": dict,
-    }],
-    "composite_traintuples": list[{
-        "composite_traintuple_id": str,
-        "algo_key": str,
-        "data_manager_key": str,
-        "train_data_sample_keys": list[str],
-        "in_head_model_id": str,
-        "in_trunk_model_id": str,
-        "out_trunk_model_permissions": {
-            "authorized_ids": list[str],
-        },
-        "tag": str,
-        "metadata": dict,
-    }]
-    "aggregatetuples": list[{
-        "aggregatetuple_id": str,
-        "algo_key": str,
-        "worker": str,
-        "in_models_ids": list[str],
-        "tag": str,
-        "metadata": dict,
-    }],
-    "testtuples": list[{
-        "objective_key": str,
-        "data_manager_key": str,
-        "test_data_sample_keys": list[str],
-        "traintuple_id": str,
-        "tag": str,
-        "metadata": dict,
-    }],
-    "clean_models": bool,
-    "tag": str,
-    "metadata": dict
-}
-```
+Create new compute plan asset.
 
 As specified in the data dict structure, output trunk models of composite
 traintuples cannot be made public.
-Set 'auto_batching' to False to upload all the tuples of the
-compute plan at once.
-If 'auto_batching' is True, change `batch_size` to define the number of
-tuples uploaded in each batch (default 20).
+
+Args:
+
+    data (Union[dict, schemas.ComputePlanSpec]): If it is a dict, it must have the same
+        keys as specified in [schemas.ComputePlanSpec](sdk_schemas.md#ComputePlanSpec).
+
+    auto_batching (bool, optional): Set 'auto_batching' to False to upload all the tuples of
+        the compute plan at once. Defaults to True.
+
+    batch_size (int, optional): If 'auto_batching' is True, change `batch_size` to define
+        the number oftuples uploaded in each batch (default 20).
+
+Returns:
+    models.ComputePlan: Created compute plan
 
 ## get_algo
 ```python
-Client.get_algo(self, key)
+Client.get_algo(self, key: str) -> substra.sdk.models.Algo
 ```
-Get algo by key.
+Get algo by key, the returned object is described
+in the [models.Algo](sdk_models.md#Algo) model
 ## get_compute_plan
 ```python
-Client.get_compute_plan(self, key)
+Client.get_compute_plan(self, key: str) -> substra.sdk.models.ComputePlan
 ```
-Get compute plan by key.
+Get compute plan by key, the returned object is described
+in the [models.ComputePlan](sdk_models.md#ComputePlan) model
 ## get_aggregate_algo
 ```python
-Client.get_aggregate_algo(self, key)
+Client.get_aggregate_algo(self, key: str) -> substra.sdk.models.AggregateAlgo
 ```
-Get aggregate algo by key.
+Get aggregate algo by key, the returned object is described
+in the [models.AggregateAlgo](sdk_models.md#AggregateAlgo) model
 ## get_composite_algo
 ```python
-Client.get_composite_algo(self, key)
+Client.get_composite_algo(self, key: str) -> substra.sdk.models.CompositeAlgo
 ```
-Get composite algo by key.
+Get composite algo by key, the returned object is described
+in the [models.CompositeAlgo](sdk_models.md#CompositeAlgo) model
 ## get_dataset
 ```python
-Client.get_dataset(self, key)
+Client.get_dataset(self, key: str) -> substra.sdk.models.Dataset
 ```
-Get dataset by key.
+Get dataset by key, the returned object is described
+in the [models.Dataset](sdk_models.md#Dataset) model
 ## get_objective
 ```python
-Client.get_objective(self, key)
+Client.get_objective(self, key: str) -> substra.sdk.models.Objective
 ```
-Get objective by key.
+Get objective by key, the returned object is described
+in the [models.Objective](sdk_models.md#Objective) model
 ## get_testtuple
 ```python
-Client.get_testtuple(self, key)
+Client.get_testtuple(self, key: str) -> substra.sdk.models.Testtuple
 ```
-Get testtuple by key.
+Get testtuple by key, the returned object is described
+in the [models.Testtuple](sdk_models.md#Testtuple) model
 ## get_traintuple
 ```python
-Client.get_traintuple(self, key)
+Client.get_traintuple(self, key: str) -> substra.sdk.models.Traintuple
 ```
-Get traintuple by key.
+Get traintuple by key, the returned object is described
+in the [models.Traintuple](sdk_models.md#Traintuple) model
 ## get_aggregatetuple
 ```python
-Client.get_aggregatetuple(self, key)
+Client.get_aggregatetuple(self, key: str) -> substra.sdk.models.Aggregatetuple
 ```
-Get aggregatetuple by key.
+Get aggregatetuple by key, the returned object is described
+in the [models.Aggregatetuple](sdk_models.md#Aggregatetuple) model
 ## get_composite_traintuple
 ```python
-Client.get_composite_traintuple(self, key)
+Client.get_composite_traintuple(self, key: str) -> substra.sdk.models.CompositeTraintuple
 ```
-Get composite traintuple by key.
+Get composite traintuple by key, the returned object is described
+in the [models.CompositeTraintuple](sdk_models.md#CompositeTraintuple) model
 ## list_algo
 ```python
-Client.list_algo(self, filters=None)
+Client.list_algo(self, filters=None) -> List[substra.sdk.models.Algo]
 ```
-List algos.
+List algos, the returned object is described
+in the [models.Algo](sdk_models.md#Algo) model
 ## list_compute_plan
 ```python
-Client.list_compute_plan(self, filters=None)
+Client.list_compute_plan(self, filters=None) -> List[substra.sdk.models.ComputePlan]
 ```
-List compute plans.
+List compute plans, the returned object is described
+in the [models.ComputePlan](sdk_models.md#ComputePlan) model
 ## list_aggregate_algo
 ```python
-Client.list_aggregate_algo(self, filters=None)
+Client.list_aggregate_algo(self, filters=None) -> List[substra.sdk.models.AggregateAlgo]
 ```
-List aggregate algos.
+List aggregate algos, the returned object is described
+in the [models.AggregateAlgo](sdk_models.md#AggregateAlgo) model
 ## list_composite_algo
 ```python
-Client.list_composite_algo(self, filters=None)
+Client.list_composite_algo(self, filters=None) -> List[substra.sdk.models.CompositeAlgo]
 ```
-List composite algos.
+List composite algos, the returned object is described
+in the [models.CompositeAlgo](sdk_models.md#CompositeAlgo) model
 ## list_data_sample
 ```python
-Client.list_data_sample(self, filters=None)
+Client.list_data_sample(self, filters=None) -> List[substra.sdk.models.DataSample]
 ```
-List data samples.
+List data samples, the returned object is described
+in the [models.DataSample](sdk_models.md#DataSample) model
 ## list_dataset
 ```python
-Client.list_dataset(self, filters=None)
+Client.list_dataset(self, filters=None) -> List[substra.sdk.models.Dataset]
 ```
-List datasets.
+List datasets, the returned object is described
+in the [models.Dataset](sdk_models.md#Dataset) model
 ## list_objective
 ```python
-Client.list_objective(self, filters=None)
+Client.list_objective(self, filters=None) -> List[substra.sdk.models.Objective]
 ```
-List objectives.
+List objectives, the returned object is described
+in the [models.Objective](sdk_models.md#Objective) model
 ## list_testtuple
 ```python
-Client.list_testtuple(self, filters=None)
+Client.list_testtuple(self, filters=None) -> List[substra.sdk.models.Testtuple]
 ```
-List testtuples.
+List testtuples, the returned object is described
+in the [models.Testtuple](sdk_models.md#Testtuple) model
 ## list_traintuple
 ```python
-Client.list_traintuple(self, filters=None)
+Client.list_traintuple(self, filters=None) -> List[substra.sdk.models.Traintuple]
 ```
-List traintuples.
+List traintuples, the returned object is described
+in the [models.Traintuple](sdk_models.md#Traintuple) model
 ## list_aggregatetuple
 ```python
-Client.list_aggregatetuple(self, filters=None)
+Client.list_aggregatetuple(self, filters=None) -> List[substra.sdk.models.Aggregatetuple]
 ```
-List aggregatetuples.
+List aggregatetuples, the returned object is described
+in the [models.Aggregatetuple](sdk_models.md#Aggregatetuple) model
 ## list_composite_traintuple
 ```python
-Client.list_composite_traintuple(self, filters=None)
+Client.list_composite_traintuple(self, filters=None) -> List[substra.sdk.models.CompositeTraintuple]
 ```
-List composite traintuples.
+List composite traintuples, the returned object is described
+in the [models.CompositeTraintuple](sdk_models.md#CompositeTraintuple) model
 ## list_node
 ```python
-Client.list_node(self, *args, **kwargs)
+Client.list_node(self, *args, **kwargs) -> List[substra.sdk.models.Node]
 ```
-List nodes.
+List nodes, the returned object is described
+in the [models.Node](sdk_models.md#Node) model
 ## update_compute_plan
 ```python
-Client.update_compute_plan(self, compute_plan_id, data, auto_batching: bool = True, batch_size: int = 20)
+Client.update_compute_plan(self, compute_plan_id: str, data: Union[dict, substra.sdk.schemas.UpdateComputePlanSpec], auto_batching: bool = True, batch_size: int = 20) -> substra.sdk.models.ComputePlan
 ```
 Update compute plan.
 
-Data is a dict object with the following schema:
-```
-{
-    "traintuples": list[{
-        "traintuple_id": str,
-        "algo_key": str,
-        "data_manager_key": str,
-        "train_data_sample_keys": list[str],
-        "in_models_ids": list[str],
-        "tag": str,
-        "metadata": dict,
-    }],
-    "composite_traintuples": list[{
-        "composite_traintuple_id": str,
-        "algo_key": str,
-        "data_manager_key": str,
-        "train_data_sample_keys": list[str],
-        "in_head_model_id": str,
-        "in_trunk_model_id": str,
-        "out_trunk_model_permissions": {
-            "authorized_ids": list[str],
-        },
-        "tag": str,
-        "metadata": dict,
-    }]
-    "aggregatetuples": list[{
-        "aggregatetuple_id": str,
-        "algo_key": str,
-        "worker": str,
-        "in_models_ids": list[str],
-        "tag": str,
-        "metadata": dict,
-    }],
-    "testtuples": list[{
-        "objective_key": str,
-        "data_manager_key": str,
-        "test_data_sample_keys": list[str],
-        "traintuple_id": str,
-        "tag": str,
-        "metadata": dict,
-    }]
-}
-```
-
 As specified in the data dict structure, output trunk models of composite
 traintuples cannot be made public.
-Set 'auto_batching' to False to upload all the tuples of the
-compute plan at once.
-If 'auto_batching' is True, change `batch_size` to define the number of
-tuples uploaded in each batch (default 20).
+
+Args:
+
+    compute_plan_id (str): Id of the compute plan
+
+    data (Union[dict, schemas.UpdateComputePlanSpec]): If it is a dict,
+        it must have the same keys as specified in
+        [schemas.UpdateComputePlanSpec](sdk_schemas.md#UpdateComputePlanSpec).
+
+    auto_batching (bool, optional): Set 'auto_batching' to False to upload all
+        the tuples of the compute plan at once. Defaults to True.
+
+    batch_size (int, optional): If 'auto_batching' is True, change `batch_size`
+        to define the number of tuples uploaded in each batch (default 20).
+
+Returns:
+    models.ComputePlan: updated compute plan, as described in the
+    [models.ComputePlan](sdk_models.md#ComputePlan) model
 
 ## link_dataset_with_objective
 ```python
-Client.link_dataset_with_objective(self, dataset_key, objective_key)
+Client.link_dataset_with_objective(self, dataset_key: str, objective_key: str) -> str
 ```
 Link dataset with objective.
 ## link_dataset_with_data_samples
 ```python
-Client.link_dataset_with_data_samples(self, dataset_key, data_sample_keys)
+Client.link_dataset_with_data_samples(self, dataset_key: str, data_sample_keys: str) -> List[str]
 ```
 Link dataset with data samples.
 ## download_dataset
 ```python
-Client.download_dataset(self, key, destination_folder)
+Client.download_dataset(self, key: str, destination_folder: str) -> None
 ```
 Download data manager resource.
 
@@ -639,7 +526,7 @@ Download opener script in destination folder.
 
 ## download_algo
 ```python
-Client.download_algo(self, key, destination_folder)
+Client.download_algo(self, key: str, destination_folder: str) -> None
 ```
 Download algo resource.
 
@@ -647,7 +534,7 @@ Download algo package in destination folder.
 
 ## download_aggregate_algo
 ```python
-Client.download_aggregate_algo(self, key, destination_folder)
+Client.download_aggregate_algo(self, key: str, destination_folder: str) -> None
 ```
 Download aggregate algo resource.
 
@@ -655,7 +542,7 @@ Download aggregate algo package in destination folder.
 
 ## download_composite_algo
 ```python
-Client.download_composite_algo(self, key, destination_folder)
+Client.download_composite_algo(self, key: str, destination_folder: str) -> None
 ```
 Download composite algo resource.
 
@@ -663,7 +550,7 @@ Download composite algo package in destination folder.
 
 ## download_objective
 ```python
-Client.download_objective(self, key, destination_folder)
+Client.download_objective(self, key: str, destination_folder: str) -> None
 ```
 Download objective resource.
 
@@ -671,39 +558,40 @@ Download metrics script in destination folder.
 
 ## describe_algo
 ```python
-Client.describe_algo(self, key)
+Client.describe_algo(self, key: str) -> str
 ```
 Get algo description.
 ## describe_aggregate_algo
 ```python
-Client.describe_aggregate_algo(self, key)
+Client.describe_aggregate_algo(self, key: str) -> str
 ```
 Get aggregate algo description.
 ## describe_composite_algo
 ```python
-Client.describe_composite_algo(self, key)
+Client.describe_composite_algo(self, key: str) -> str
 ```
 Get composite algo description.
 ## describe_dataset
 ```python
-Client.describe_dataset(self, key)
+Client.describe_dataset(self, key: str) -> str
 ```
 Get dataset description.
 ## describe_objective
 ```python
-Client.describe_objective(self, key)
+Client.describe_objective(self, key: str) -> str
 ```
 Get objective description.
 ## leaderboard
 ```python
-Client.leaderboard(self, objective_key, sort='desc')
+Client.leaderboard(self, objective_key: str, sort: str = 'desc') -> str
 ```
 Get objective leaderboard
 ## cancel_compute_plan
 ```python
-Client.cancel_compute_plan(self, compute_plan_id)
+Client.cancel_compute_plan(self, compute_plan_id: str) -> substra.sdk.models.ComputePlan
 ```
-Cancel execution of compute plan.
+Cancel execution of compute plan, the returned object is described
+in the [models.ComputePlan](sdk_models.md#ComputePlan) model
 # retry_on_exception
 ```python
 retry_on_exception(exceptions, timeout=300)
@@ -715,16 +603,17 @@ Arguments:
     timeout (int): timeout in seconds
 
 Example:
-    ```python
-    from substra.sdk import exceptions, retry_on_exception
 
-    def my_function(arg1, arg2):
-        pass
+```python
+from substra.sdk import exceptions, retry_on_exception
 
-    retry = retry_on_exception(
-                exceptions=(exceptions.RequestTimeout),
-                timeout=300,
-            )
-    retry(my_function)(arg1, arg2)
-    ```
+def my_function(arg1, arg2):
+    pass
+
+retry = retry_on_exception(
+            exceptions=(exceptions.RequestTimeout),
+            timeout=300,
+        )
+retry(my_function)(arg1, arg2)
+```
 

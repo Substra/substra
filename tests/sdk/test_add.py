@@ -13,6 +13,7 @@
 # limitations under the License.
 import pytest
 import substra
+from substra.sdk import models
 
 import pydantic
 
@@ -26,7 +27,7 @@ def test_add_dataset(client, dataset_query, mocker):
     key = client.add_dataset(dataset_query)
     response = client.get_dataset(key)
 
-    assert response == datastore.DATASET
+    assert response == models.Dataset(**datastore.DATASET)
     m_post.assert_called()
     m_get.assert_called()
 
@@ -61,7 +62,7 @@ def test_add_objective(client, objective_query, mocker):
     key = client.add_objective(objective_query)
     response = client.get_objective(key)
 
-    assert response == datastore.OBJECTIVE
+    assert response == models.Objective(**datastore.OBJECTIVE)
     m_post.assert_called()
     m_get.assert_called()
 
@@ -72,7 +73,7 @@ def test_add_algo(client, algo_query, mocker):
     key = client.add_algo(algo_query)
     response = client.get_algo(key)
 
-    assert response == datastore.ALGO
+    assert response == models.Algo(**datastore.ALGO)
     m_post.assert_called()
     m_get.assert_called()
 
@@ -83,7 +84,7 @@ def test_add_aggregate_algo(client, algo_query, mocker):
     key = client.add_aggregate_algo(algo_query)
     response = client.get_aggregate_algo(key)
 
-    assert response == datastore.AGGREGATE_ALGO
+    assert response == models.AggregateAlgo(**datastore.AGGREGATE_ALGO)
     m_post.assert_called()
     m_get.assert_called()
 
@@ -94,7 +95,7 @@ def test_add_composite_algo(client, algo_query, mocker):
     key = client.add_composite_algo(algo_query)
     response = client.get_composite_algo(key)
 
-    assert response == datastore.COMPOSITE_ALGO
+    assert response == models.CompositeAlgo(**datastore.COMPOSITE_ALGO)
     m_post.assert_called()
     m_get.assert_called()
 

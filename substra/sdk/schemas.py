@@ -60,14 +60,18 @@ class Type(enum.Enum):
         return self.name
 
 
-class _Spec(pydantic.BaseModel, abc.ABC):
+class _PydanticConfig(pydantic.BaseModel):
+    """Shared configuration for all schemas here"""
+    class Config:
+        # Raise an error for extra parameters at init
+        extra = 'forbid'
+
+
+class _Spec(_PydanticConfig, abc.ABC):
     """Asset creation specification base class."""
 
     class Meta:
         file_attributes = None
-
-    class Config:
-        extra = 'forbid'
 
     def is_many(self):
         return False
@@ -87,25 +91,29 @@ class _Spec(pydantic.BaseModel, abc.ABC):
         raise NotImplementedError
 
 
-class Permissions(pydantic.BaseModel):
+class Permissions(_PydanticConfig):
+    """Specification for permissions. If public is False,
+    give the list of authorized ids.
+    """
     public: bool
-    authorized_ids: typing.List[str]
-
-    class Config:
-        extra = 'forbid'
+    authorized_ids: typing.List[str]  # List of authorized node ids if private
 
 
-class PrivatePermissions(pydantic.BaseModel):
-    authorized_ids: typing.List[str]
-
-    class Config:
-        extra = 'forbid'
+class PrivatePermissions(_PydanticConfig):
+    """Specification for private permissions. Only the nodes whose
+    ids are in authorized_ids can access the asset.
+    """
+    authorized_ids: typing.List[str]  # List of authorized node ids
 
 
 class DataSampleSpec(_Spec):
-    path: Optional[pathlib.Path]
-    paths: Optional[List[pathlib.Path]]
-    test_only: bool
+    """Specification to create one or many data samples
+    To create one data sample, use the 'path' field, otherwise use
+    the 'paths' field.
+    """
+    path: Optional[pathlib.Path]  # Path to the data sample if only one
+    paths: Optional[List[pathlib.Path]]  # Path to the data samples if several
+    test_only: bool  # If the data sample is for train or test
     data_manager_keys: typing.List[str]
 
     type_: typing.ClassVar[Type] = Type.DataSample
@@ -138,6 +146,8 @@ class DataSampleSpec(_Spec):
 
 
 class ComputePlanTraintupleSpec(_Spec):
+    """Specification of a traintuple inside a compute
+    plan specification"""
     algo_key: str
     data_manager_key: str
     train_data_sample_keys: List[str]
@@ -148,6 +158,8 @@ class ComputePlanTraintupleSpec(_Spec):
 
 
 class ComputePlanAggregatetupleSpec(_Spec):
+    """Specification of an aggregate tuple inside a compute
+    plan specification"""
     aggregatetuple_id: str
     algo_key: str
     worker: str
@@ -157,6 +169,8 @@ class ComputePlanAggregatetupleSpec(_Spec):
 
 
 class ComputePlanCompositeTraintupleSpec(_Spec):
+    """Specification of a composite traintuple inside a compute
+    plan specification"""
     composite_traintuple_id: str
     algo_key: str
     data_manager_key: str
@@ -169,6 +183,8 @@ class ComputePlanCompositeTraintupleSpec(_Spec):
 
 
 class ComputePlanTesttupleSpec(_Spec):
+    """Specification of a testtuple inside a compute
+    plan specification"""
     objective_key: str
     traintuple_id: str
     tag: Optional[str]
@@ -185,6 +201,7 @@ class _BaseComputePlanSpec(_Spec, abc.ABC):
 
 
 class ComputePlanSpec(_BaseComputePlanSpec):
+    """Specification for creating a compute plan"""
     tag: Optional[str]
     clean_models: Optional[bool]
     metadata: Optional[Dict[str, str]]
@@ -197,14 +214,16 @@ class ComputePlanSpec(_BaseComputePlanSpec):
 
 
 class UpdateComputePlanSpec(_BaseComputePlanSpec):
+    """Specification for updating a compute plan"""
     pass
 
 
 class DatasetSpec(_Spec):
+    """Specification for creating a dataset"""
     name: str
-    data_opener: pathlib.Path
+    data_opener: pathlib.Path  # Path to the data opener
     type: str
-    description: pathlib.Path
+    description: pathlib.Path  # Path to the description file
     permissions: Permissions
     objective_key: Optional[str]
     metadata: Optional[Dict[str, str]]
@@ -219,10 +238,11 @@ class DatasetSpec(_Spec):
 
 
 class ObjectiveSpec(_Spec):
+    """Specification for creating an objective"""
     name: str
-    description: pathlib.Path
+    description: pathlib.Path  # Path to the description file
     metrics_name: str
-    metrics: pathlib.Path
+    metrics: pathlib.Path  # Path to the metrics file
     test_data_sample_keys: Optional[List[str]]
     test_data_manager_key: Optional[str]
     permissions: Permissions
@@ -252,25 +272,29 @@ class _AlgoSpec(_Spec):
 
 
 class AlgoSpec(_AlgoSpec):
+    """Specification for creating an algo"""
     type_: typing.ClassVar[Type] = Type.Algo
 
 
 class AggregateAlgoSpec(_AlgoSpec):
+    """Specification for creating an aggregate algo"""
     type_: typing.ClassVar[Type] = Type.AggregateAlgo
 
 
 class CompositeAlgoSpec(_AlgoSpec):
+    """Specification for creating a composite algo"""
     type_: typing.ClassVar[Type] = Type.CompositeAlgo
 
 
 class TraintupleSpec(_Spec):
+    """Specification for creating a traintuple"""
     algo_key: str
     data_manager_key: str
     train_data_sample_keys: List[str]
     in_models_keys: Optional[List[str]]
     tag: Optional[str]
     compute_plan_id: Optional[str]
-    rank: Optional[int]
+    rank: Optional[int]  # Rank of the traintuple in the compute plan
     metadata: Optional[Dict[str, str]]
 
     compute_plan_attr_name: typing.ClassVar[str] = "traintuple_keys"
@@ -308,6 +332,7 @@ class TraintupleSpec(_Spec):
 
 
 class AggregatetupleSpec(_Spec):
+    """Specification for creating an aggregate tuple"""
     algo_key: str
     worker: str
     in_models_keys: List[str]
@@ -347,6 +372,7 @@ class AggregatetupleSpec(_Spec):
 
 
 class CompositeTraintupleSpec(_Spec):
+    """Specification for creating a composite traintuple"""
     algo_key: str
     data_manager_key: str
     train_data_sample_keys: List[str]
@@ -396,6 +422,7 @@ class CompositeTraintupleSpec(_Spec):
 
 
 class TesttupleSpec(_Spec):
+    """Specification for creating a testtuple"""
     objective_key: str
     traintuple_key: str
     tag: Optional[str]

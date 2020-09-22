@@ -156,18 +156,19 @@ def retry_on_exception(exceptions, timeout=300):
         timeout (int): timeout in seconds
 
     Example:
-        ```python
-        from substra.sdk import exceptions, retry_on_exception
 
-        def my_function(arg1, arg2):
-            pass
+    ```python
+    from substra.sdk import exceptions, retry_on_exception
 
-        retry = retry_on_exception(
-                    exceptions=(exceptions.RequestTimeout),
-                    timeout=300,
-                )
-        retry(my_function)(arg1, arg2)
-        ```
+    def my_function(arg1, arg2):
+        pass
+
+    retry = retry_on_exception(
+                exceptions=(exceptions.RequestTimeout),
+                timeout=300,
+            )
+    retry(my_function)(arg1, arg2)
+    ```
     """
     def _retry(f):
         @functools.wraps(f)
