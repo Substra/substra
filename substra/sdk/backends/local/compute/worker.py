@@ -321,7 +321,7 @@ class Worker:
                 command = f"--fake-data-mode {METRICS_NO_FAKE_Y}"
             else:
                 command = f"--fake-data-mode {METRICS_FAKE_Y}"
-                command += f" --n-fake-samples {len(objective.test_dataset.data_sample_keys)}"
+                command += f" --n-fake-samples {len(tuple_.dataset.keys)}"
 
             container_name = DOCKER_METRICS_TAG
             logs_predict = self._spawner.spawn(
