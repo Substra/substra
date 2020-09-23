@@ -9,13 +9,11 @@ doc-cli:
 	python bin/generate_cli_documentation.py
 
 doc-sdk:
-	pydocmd simple substra.sdk+ substra.sdk.Client+ substra.sdk.retry_on_exception+ > references/sdk.md
-
-doc-schemas:
+	python bin/generate_sdk_documentation.py
 	python bin/generate_sdk_schemas_documentation.py
 	python bin/generate_sdk_schemas_documentation.py --models --output-path='references/sdk_models.md'
 
-doc: doc-cli doc-sdk doc-schemas
+doc: doc-cli doc-sdk
 
 test: pyclean
 	python setup.py test
