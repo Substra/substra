@@ -274,7 +274,7 @@ class Worker:
 
             if not self._db.is_local(dataset.key):
                 command += " --fake-data"
-                command += f" --n-fake-samples {len(objective.test_dataset.data_sample_keys)}"
+                command += f" --n-fake-samples {len(tuple_.dataset.keys)}"
 
             if tuple_.traintuple_type == schemas.Type.Traintuple \
                     or tuple_.traintuple_type == schemas.Type.Aggregatetuple:
