@@ -38,7 +38,7 @@ def generate_function_help(fh, asset):
         fh.write(f"{docstring.long_description}\n")
     # Write the arguments as a list
     if len(docstring.params) > 0:
-        fh.write("\nArguments:\n")
+        fh.write("\n**Arguments:**\n")
     for param in docstring.params:
         type_and_optional = ""
         if param.type_name or param.is_optional is not None:
@@ -46,10 +46,10 @@ def generate_function_help(fh, asset):
             if param.is_optional:
                 text_optional = 'optional'
             type_and_optional = f"({param.type_name}, {text_optional})"
-        fh.write(f" - {param.arg_name}{type_and_optional}: {param.description}\n")
+        fh.write(f" - `{param.arg_name} {type_and_optional}`: {param.description}\n")
     # Write everything else as is
     for param in [meta_param for meta_param in docstring.meta if not isinstance(meta_param, docstring_parser.DocstringParam)]:
-        fh.write(f"\n{param.args[0].title()}:\n")
+        fh.write(f"\n**{param.args[0].title()}:**\n")
         if len(param.args) > 1:
             for extra_param in param.args[1:]:
                 fh.write(f"\n - {extra_param}: ")

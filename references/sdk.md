@@ -7,21 +7,21 @@ Client(url: Union[str, NoneType] = None, token: Union[str, NoneType] = None, ret
 
 Create a client
 
-Arguments:
- - url(str, optional): URL of the Substra platform. Mandatory
+**Arguments:**
+ - `url` `(str, optional)`: URL of the Substra platform. Mandatory
 to connect to a Substra platform. If no URL is given debug must be True and all
 assets must be created locally.
 Defaults to None.
- - token(str, optional): Token to authenticate to the Substra platform.
+ - `token` `(str, optional)`: Token to authenticate to the Substra platform.
 If no token is given, use the 'login' function to authenticate.
 Defaults to None.
- - retry_timeout(int, optional): Number of seconds before attempting a retry call in case
+ - `retry_timeout` `(int, optional)`: Number of seconds before attempting a retry call in case
 of timeout.
 Defaults to 5 minutes.
- - insecure(bool, optional): If True, the client can call a not-certifed backend. This is
+ - `insecure` `(bool, optional)`: If True, the client can call a not-certifed backend. This is
 for development purposes.
 Defaults to False.
- - debug(bool, optional): Whether to use the default or debug mode.
+ - `debug` `(bool, optional)`: Whether to use the default or debug mode.
 In debug mode, new assets are created locally but can access assets from
 the deployed Substra platform. The platform is in read-only mode.
 Defaults to False.
@@ -39,15 +39,15 @@ Create new aggregate algo asset.
 If an aggregate algo with the same archive file already exists, an `AlreadyExists`
 exception will be raised.
 
-Arguments:
- - data(Union[dict, schemas.AggregateAlgoSpec], required): If it is a dict,
+**Arguments:**
+ - `data` `(Union[dict, schemas.AggregateAlgoSpec], required)`: If it is a dict,
 it must have the same keys as specified in
 [schemas.AggregateAlgoSpec](sdk_schemas.md#AggregateAlgoSpec).
- - exist_ok(bool, optional): If `exist_ok` is true, `AlreadyExists`
+ - `exist_ok` `(bool, optional)`: If `exist_ok` is true, `AlreadyExists`
 exceptions will be ignored and the existing asset key will be returned.
 Defaults to False.
 
-Returns:
+**Returns**:
 
  - str: Key of the asset
 ## add_aggregatetuple
@@ -60,15 +60,15 @@ An `AlreadyExists` exception will be raised if an aggregatetuple already exists 
 * has the same `algo_key` and `in_models_keys`
 * and was created through the same node you are using
 
-Arguments:
- - data(Union[dict, schemas.AggregatetupleSpec], required): If it is a dict, it must have the same
+**Arguments:**
+ - `data` `(Union[dict, schemas.AggregatetupleSpec], required)`: If it is a dict, it must have the same
 keys as specified in
 [schemas.AggregatetupleSpec](sdk_schemas.md#AggregatetupleSpec).
- - exist_ok(bool, optional): If `exist_ok` is true, `AlreadyExists`
+ - `exist_ok` `(bool, optional)`: If `exist_ok` is true, `AlreadyExists`
 exceptions will be ignored and the existing asset key will be returned.
 Defaults to False.
 
-Returns:
+**Returns**:
 
  - str: Key of the asset
 ## add_algo
@@ -80,13 +80,13 @@ Create new algo asset.
 If an algo with the same archive file already exists, an `AlreadyExists` exception will be
 raised.
 
-Arguments:
- - data(Union[dict, schemas.AlgoSpec], required): If it is a dict, it must have the same keys
+**Arguments:**
+ - `data` `(Union[dict, schemas.AlgoSpec], required)`: If it is a dict, it must have the same keys
 as specified in [schemas.AlgoSpec](sdk_schemas.md#AlgoSpec).
- - exist_ok(bool, optional): If `exist_ok` is true, `AlreadyExists` exceptions will be
+ - `exist_ok` `(bool, optional)`: If `exist_ok` is true, `AlreadyExists` exceptions will be
 ignored and the existing asset key will be returned. Defaults to False.
 
-Returns:
+**Returns**:
 
  - str: Key of the algo
 ## add_composite_algo
@@ -98,14 +98,14 @@ Create new composite algo asset.
 If a composite algo with the same archive file already exists, an `AlreadyExists`
 exception will be raised.
 
-Arguments:
- - data(Union[dict, schemas.CompositeAlgoSpec], required): If it is a dict, it must have the same
+**Arguments:**
+ - `data` `(Union[dict, schemas.CompositeAlgoSpec], required)`: If it is a dict, it must have the same
 keys as specified in [schemas.CompositeAlgoSpec](sdk_schemas.md#CompositeAlgoSpec).
- - exist_ok(bool, optional): If `exist_ok` is true, `AlreadyExists`
+ - `exist_ok` `(bool, optional)`: If `exist_ok` is true, `AlreadyExists`
 exceptions will be ignored and the existing asset key will be returned.
 Defaults to False.
 
-Returns:
+**Returns**:
 
  - str: Key of the asset
 ## add_composite_traintuple
@@ -122,15 +122,15 @@ An `AlreadyExists` exception will be raised if a traintuple already exists that:
   `in_head_models_key` and `in_trunk_model_key`
 * and was created through the same node you are using
 
-Arguments:
- - data(Union[dict, schemas.CompositeTraintupleSpec], required): If it is a dict, it must have the
+**Arguments:**
+ - `data` `(Union[dict, schemas.CompositeTraintupleSpec], required)`: If it is a dict, it must have the
 same keys as specified in
 [schemas.CompositeTraintupleSpec](sdk_schemas.md#CompositeTraintupleSpec).
- - exist_ok(bool, optional): If `exist_ok` is true, `AlreadyExists`
+ - `exist_ok` `(bool, optional)`: If `exist_ok` is true, `AlreadyExists`
 exceptions will be ignored and the existing asset key will be returned.
 Defaults to False.
 
-Returns:
+**Returns**:
 
  - str: Key of the asset
 ## add_compute_plan
@@ -142,15 +142,15 @@ Create new compute plan asset.
 As specified in the data dict structure, output trunk models of composite
 traintuples cannot be made public.
 
-Arguments:
- - data(Union[dict, schemas.ComputePlanSpec], required): If it is a dict, it must have the same
+**Arguments:**
+ - `data` `(Union[dict, schemas.ComputePlanSpec], required)`: If it is a dict, it must have the same
 keys as specified in [schemas.ComputePlanSpec](sdk_schemas.md#ComputePlanSpec).
- - auto_batching(bool, optional): Set 'auto_batching' to False to upload all the tuples of
+ - `auto_batching` `(bool, optional)`: Set 'auto_batching' to False to upload all the tuples of
 the compute plan at once. Defaults to True.
- - batch_size(int, optional): If 'auto_batching' is True, change `batch_size` to define
+ - `batch_size` `(int, optional)`: If 'auto_batching' is True, change `batch_size` to define
 the number oftuples uploaded in each batch (default 20).
 
-Returns:
+**Returns**:
 
  - models.ComputePlan: Created compute plan
 ## add_data_sample
@@ -162,10 +162,10 @@ Create a new data sample asset and return its key.
 If a data sample with the same content already exists, an `AlreadyExists` exception will be
 raised.
 
-Arguments:
- - data(Union[dict, schemas.DataSampleSpec], required): data sample to add. If it is a dict,
+**Arguments:**
+ - `data` `(Union[dict, schemas.DataSampleSpec], required)`: data sample to add. If it is a dict,
 it must follow the [DataSampleSpec schema](sdk_schemas.md#DataSampleSpec).
- - local(bool, optional): If `local` is true, `path` must refer to a directory located
+ - `local` `(bool, optional)`: If `local` is true, `path` must refer to a directory located
 on the local filesystem. The file content will be transferred to the server
 through an HTTP query, so this mode should be used for relatively small files
 (<10mo).
@@ -173,10 +173,10 @@ through an HTTP query, so this mode should be used for relatively small files
 If `local` is false, `path` must refer to a directory located on the server
 filesystem. This directory must be accessible (readable) by the server.  This
 mode is well suited for all kind of file sizes. Defaults to True.
- - exist_ok(bool, optional): If `exist_ok` is true, `AlreadyExists` exceptions will
+ - `exist_ok` `(bool, optional)`: If `exist_ok` is true, `AlreadyExists` exceptions will
 be ignored and the existing asset key will be returned. Defaults to False.
 
-Returns:
+**Returns**:
 
  - str: key of the data sample
 ## add_data_samples
@@ -193,15 +193,15 @@ better control in case of failures.
 If data samples with the same content as any of the paths already exists, an `AlreadyExists`
 exception will be raised.
 
-Arguments:
- - data(Union[dict, schemas.DataSampleSpec], required): data samples to add. If it is a dict,
+**Arguments:**
+ - `data` `(Union[dict, schemas.DataSampleSpec], required)`: data samples to add. If it is a dict,
 it must follow the [DataSampleSpec schema](sdk_schemas.md#DataSampleSpec).
 The `paths` in the data dictionary must be a list of paths where each path
 points to a directory representing one data sample.
- - local(bool, optional):  Please refer to the method `Client.add_data_sample`.
+ - `local` `(bool, optional)`:  Please refer to the method `Client.add_data_sample`.
 Defaults to True.
 
-Returns:
+**Returns**:
 
  - List[str]: List of the data sample keys
 ## add_dataset
@@ -213,14 +213,14 @@ Create new dataset asset and return its key.
 If a dataset with the same opener already exists, an `AlreadyExists` exception will be
 raised.
 
-Arguments:
- - data(Union[dict, schemas.DatasetSpec], required): If it is a dict, it must have the same
+**Arguments:**
+ - `data` `(Union[dict, schemas.DatasetSpec], required)`: If it is a dict, it must have the same
 keys as specified in [schemas.DatasetSpec](sdk_schemas.md#DatasetSpec).
- - exist_ok(bool, optional): If `exist_ok` is true, `AlreadyExists` exceptions
+ - `exist_ok` `(bool, optional)`: If `exist_ok` is true, `AlreadyExists` exceptions
 will be ignored and the existing asset key will be returned.
 Defaults to False.
 
-Returns:
+**Returns**:
 
  - str: Key of the dataset
 ## add_objective
@@ -232,13 +232,13 @@ Create new objective asset.
 If an objective with the same description already exists, an `AlreadyExists` exception will
 be raised.
 
-Arguments:
- - data(Union[dict, schemas.ObjectiveSpec], required): If it is a dict, it must have the same keys
+**Arguments:**
+ - `data` `(Union[dict, schemas.ObjectiveSpec], required)`: If it is a dict, it must have the same keys
 as specified in [schemas.ObjectiveSpec](sdk_schemas.md#ObjectiveSpec).
- - exist_ok(bool, optional): If `exist_ok` is true, `AlreadyExists` exceptions
+ - `exist_ok` `(bool, optional)`: If `exist_ok` is true, `AlreadyExists` exceptions
 will be ignored and the existing asset key will be returned. Defaults to False.
 
-Returns:
+**Returns**:
 
  - str: Key of the objective
 ## add_testtuple
@@ -252,14 +252,14 @@ An `AlreadyExists` exception will be raised if a testtuple already exists that:
   `test_data_sample_keys`
 * and was created through the same node you are using
 
-Arguments:
- - data(Union[dict, schemas.TesttupleSpec], required): If it is a dict, it must have the same
+**Arguments:**
+ - `data` `(Union[dict, schemas.TesttupleSpec], required)`: If it is a dict, it must have the same
 keys as specified in [schemas.TesttupleSpec](sdk_schemas.md#TesttupleSpec).
- - exist_ok(bool, optional): If `exist_ok` is true, `AlreadyExists`
+ - `exist_ok` `(bool, optional)`: If `exist_ok` is true, `AlreadyExists`
 exceptions will be ignored and the existing asset key will be returned.
 Defaults to False.
 
-Returns:
+**Returns**:
 
  - str: Key of the asset
 ## add_traintuple
@@ -272,14 +272,14 @@ An `AlreadyExists` exception will be raised if a traintuple already exists that:
 * has the same `algo_key`, `data_manager_key`, `train_data_sample_keys` and `in_models_keys`
 * and was created through the same node you are using
 
-Arguments:
- - data(Union[dict, schemas.TraintupleSpec], required): If it is a dict, it must have the same
+**Arguments:**
+ - `data` `(Union[dict, schemas.TraintupleSpec], required)`: If it is a dict, it must have the same
 keys as specified in [schemas.TraintupleSpec](sdk_schemas.md#TraintupleSpec).
- - exist_ok(bool, optional): If `exist_ok` is true, `AlreadyExists`
+ - `exist_ok` `(bool, optional)`: If `exist_ok` is true, `AlreadyExists`
 exceptions will be ignored and the existing asset key will be returned.
 Defaults to False.
 
-Returns:
+**Returns**:
 
  - str: Key of the asset
 ## cancel_compute_plan
@@ -361,24 +361,24 @@ from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.
 
 Returns a new Client configured with profile data from configuration files.
 
-Arguments:
- - profile_name(str, optional): Name of the profile to load.
+**Arguments:**
+ - `profile_name` `(str, optional)`: Name of the profile to load.
 Defaults to 'default'.
- - config_path(Union[str, pathlib.Path], optional): Path to the
+ - `config_path` `(Union[str, pathlib.Path], optional)`: Path to the
 configuration file.
 Defaults to '~/.substra'.
- - tokens_path(Union[str, pathlib.Path], optional): Path to the tokens file.
+ - `tokens_path` `(Union[str, pathlib.Path], optional)`: Path to the tokens file.
 Defaults to '~/.substra-tokens'.
- - token(str, optional): Token to use for authentication (will be used
+ - `token` `(str, optional)`: Token to use for authentication (will be used
 instead of any token found at tokens_path). Defaults to None.
- - retry_timeout(int, optional): Number of seconds before attempting a retry call in case
+ - `retry_timeout` `(int, optional)`: Number of seconds before attempting a retry call in case
 of timeout. Defaults to 5 minutes.
- - debug(bool, required): Whether to use the default or debug mode. In debug mode, new assets are
+ - `debug` `(bool, required)`: Whether to use the default or debug mode. In debug mode, new assets are
 created locally but can get remote assets. The deployed platform is in
 read-only mode.
 Defaults to False.
 
-Returns:
+**Returns**:
 
  - Client: The new client.
 ## get_aggregate_algo
@@ -568,17 +568,17 @@ Update compute plan.
 As specified in the data dict structure, output trunk models of composite
 traintuples cannot be made public.
 
-Arguments:
- - compute_plan_id(str, required): Id of the compute plan
- - data(Union[dict, schemas.UpdateComputePlanSpec], required): If it is a dict,
+**Arguments:**
+ - `compute_plan_id` `(str, required)`: Id of the compute plan
+ - `data` `(Union[dict, schemas.UpdateComputePlanSpec], required)`: If it is a dict,
 it must have the same keys as specified in
 [schemas.UpdateComputePlanSpec](sdk_schemas.md#UpdateComputePlanSpec).
- - auto_batching(bool, optional): Set 'auto_batching' to False to upload all
+ - `auto_batching` `(bool, optional)`: Set 'auto_batching' to False to upload all
 the tuples of the compute plan at once. Defaults to True.
- - batch_size(int, optional): If 'auto_batching' is True, change `batch_size`
+ - `batch_size` `(int, optional)`: If 'auto_batching' is True, change `batch_size`
 to define the number of tuples uploaded in each batch (default 20).
 
-Returns:
+**Returns**:
 
  - models.ComputePlan: updated compute plan, as described in the
 [models.ComputePlan](sdk_models.md#ComputePlan) model
@@ -589,11 +589,11 @@ retry_on_exception(exceptions, timeout=300)
 
 Retry function in case of exception(s).
 
-Arguments:
- - exceptions(list, required): list of exception types that trigger a retry
- - timeout(int, optional): timeout in seconds
+**Arguments:**
+ - `exceptions` `(list, required)`: list of exception types that trigger a retry
+ - `timeout` `(int, optional)`: timeout in seconds
 
-Examples:
+**Examples**:
 ```python
 from substra.sdk import exceptions, retry_on_exception
 
