@@ -56,24 +56,19 @@ class Client(object):
     """Create a client
 
     Args:
-
         url (str, optional): URL of the Substra platform. Mandatory
             to connect to a Substra platform. If no URL is given debug must be True and all
             assets must be created locally.
             Defaults to None.
-
         token (str, optional): Token to authenticate to the Substra platform.
             If no token is given, use the 'login' function to authenticate.
             Defaults to None.
-
         retry_timeout (int, optional): Number of seconds before attempting a retry call in case
             of timeout.
             Defaults to 5 minutes.
-
         insecure (bool, optional): If True, the client can call a not-certifed backend. This is
             for development purposes.
             Defaults to False.
-
         debug (bool, optional): Whether to use the default or debug mode.
             In debug mode, new assets are created locally but can access assets from
             the deployed Substra platform. The platform is in read-only mode.
@@ -155,23 +150,17 @@ class Client(object):
         """Returns a new Client configured with profile data from configuration files.
 
         Args:
-
             profile_name (str, optional): Name of the profile to load.
                 Defaults to 'default'.
-
             config_path (Union[str, pathlib.Path], optional): Path to the
                 configuration file.
                 Defaults to '~/.substra'.
-
             tokens_path (Union[str, pathlib.Path], optional): Path to the tokens file.
                 Defaults to '~/.substra-tokens'.
-
             token (str, optional): Token to use for authentication (will be used
                 instead of any token found at tokens_path). Defaults to None.
-
             retry_timeout (int, optional): Number of seconds before attempting a retry call in case
                 of timeout. Defaults to 5 minutes.
-
             debug (bool): Whether to use the default or debug mode. In debug mode, new assets are
                 created locally but can get remote assets. The deployed platform is in
                 read-only mode.
@@ -180,6 +169,7 @@ class Client(object):
         Returns:
             Client: The new client.
         """
+
         config_path = os.path.expanduser(config_path)
         profile = cfg.ConfigManager(config_path).get_profile(profile_name)
         if not token:
@@ -209,22 +199,18 @@ class Client(object):
         raised.
 
         Args:
-
             data (Union[dict, schemas.DataSampleSpec]): data sample to add. If it is a dict,
-            it must follow the [DataSampleSpec schema](sdk_schemas.md#DataSampleSpec).
-
-            local (bool, optional):
-                If `local` is true, `path` must refer to a directory located on the local
-                filesystem. The file content will be transferred to the server through an
-                HTTP query, so this mode should be used for relatively small files (<10mo).
+                it must follow the [DataSampleSpec schema](sdk_schemas.md#DataSampleSpec).
+            local (bool, optional): If `local` is true, `path` must refer to a directory located
+                on the local filesystem. The file content will be transferred to the server
+                through an HTTP query, so this mode should be used for relatively small files
+                (<10mo).
 
                 If `local` is false, `path` must refer to a directory located on the server
                 filesystem. This directory must be accessible (readable) by the server.  This
                 mode is well suited for all kind of file sizes. Defaults to True.
-
-            exist_ok (bool, optional):
-                If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-                existing asset key will be returned. Defaults to False.
+            exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists` exceptions will
+                be ignored and the existing asset key will be returned. Defaults to False.
 
         Returns:
             str: key of the data sample
@@ -260,13 +246,10 @@ class Client(object):
         exception will be raised.
 
         Args:
-
             data (Union[dict, schemas.DataSampleSpec]): data samples to add. If it is a dict,
                 it must follow the [DataSampleSpec schema](sdk_schemas.md#DataSampleSpec).
-
                 The `paths` in the data dictionary must be a list of paths where each path
                 points to a directory representing one data sample.
-
             local (bool, optional):  Please refer to the method `Client.add_data_sample`.
                 Defaults to True.
 
@@ -295,10 +278,8 @@ class Client(object):
         raised.
 
         Args:
-
             data (Union[dict, schemas.DatasetSpec]): If it is a dict, it must have the same
                 keys as specified in [schemas.DatasetSpec](sdk_schemas.md#DatasetSpec).
-
             exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists` exceptions
                 will be ignored and the existing asset key will be returned.
                 Defaults to False.
@@ -321,10 +302,8 @@ class Client(object):
         be raised.
 
         Args:
-
             data (Union[dict, schemas.ObjectiveSpec]): If it is a dict, it must have the same keys
                 as specified in [schemas.ObjectiveSpec](sdk_schemas.md#ObjectiveSpec).
-
             exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists` exceptions
                 will be ignored and the existing asset key will be returned. Defaults to False.
 
@@ -342,10 +321,8 @@ class Client(object):
         raised.
 
         Args:
-
             data (Union[dict, schemas.AlgoSpec]): If it is a dict, it must have the same keys
                 as specified in [schemas.AlgoSpec](sdk_schemas.md#AlgoSpec).
-
             exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists` exceptions will be
                 ignored and the existing asset key will be returned. Defaults to False.
 
@@ -367,16 +344,14 @@ class Client(object):
         exception will be raised.
 
         Args:
-
             data (Union[dict, schemas.AggregateAlgoSpec]): If it is a dict,
                 it must have the same keys as specified in
                 [schemas.AggregateAlgoSpec](sdk_schemas.md#AggregateAlgoSpec).
-
             exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists`
                 exceptions will be ignored and the existing asset key will be returned.
                 Defaults to False.
 
-         Returns:
+        Returns:
             str: Key of the asset
         """
         spec = self._get_spec(schemas.AggregateAlgoSpec, data)
@@ -394,15 +369,13 @@ class Client(object):
         exception will be raised.
 
         Args:
-
             data (Union[dict, schemas.CompositeAlgoSpec]): If it is a dict, it must have the same
                 keys as specified in [schemas.CompositeAlgoSpec](sdk_schemas.md#CompositeAlgoSpec).
-
             exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists`
                 exceptions will be ignored and the existing asset key will be returned.
                 Defaults to False.
 
-         Returns:
+        Returns:
             str: Key of the asset
         """
         spec = self._get_spec(schemas.CompositeAlgoSpec, data)
@@ -421,15 +394,13 @@ class Client(object):
         * and was created through the same node you are using
 
         Args:
-
             data (Union[dict, schemas.TraintupleSpec]): If it is a dict, it must have the same
                 keys as specified in [schemas.TraintupleSpec](sdk_schemas.md#TraintupleSpec).
-
             exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists`
                 exceptions will be ignored and the existing asset key will be returned.
                 Defaults to False.
 
-         Returns:
+        Returns:
             str: Key of the asset
         """
         spec = self._get_spec(schemas.TraintupleSpec, data)
@@ -448,16 +419,14 @@ class Client(object):
         * and was created through the same node you are using
 
         Args:
-
             data (Union[dict, schemas.AggregatetupleSpec]): If it is a dict, it must have the same
                 keys as specified in
                 [schemas.AggregatetupleSpec](sdk_schemas.md#AggregatetupleSpec).
-
             exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists`
                 exceptions will be ignored and the existing asset key will be returned.
                 Defaults to False.
 
-         Returns:
+        Returns:
             str: Key of the asset
         """
         spec = self._get_spec(schemas.AggregatetupleSpec, data)
@@ -480,16 +449,14 @@ class Client(object):
         * and was created through the same node you are using
 
         Args:
-
             data (Union[dict, schemas.CompositeTraintupleSpec]): If it is a dict, it must have the
                 same keys as specified in
                 [schemas.CompositeTraintupleSpec](sdk_schemas.md#CompositeTraintupleSpec).
-
             exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists`
                 exceptions will be ignored and the existing asset key will be returned.
                 Defaults to False.
 
-         Returns:
+        Returns:
             str: Key of the asset
         """
         spec = self._get_spec(schemas.CompositeTraintupleSpec, data)
@@ -509,15 +476,13 @@ class Client(object):
         * and was created through the same node you are using
 
         Args:
-
             data (Union[dict, schemas.TesttupleSpec]): If it is a dict, it must have the same
                 keys as specified in [schemas.TesttupleSpec](sdk_schemas.md#TesttupleSpec).
-
             exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists`
                 exceptions will be ignored and the existing asset key will be returned.
                 Defaults to False.
 
-         Returns:
+        Returns:
             str: Key of the asset
         """
         spec = self._get_spec(schemas.TesttupleSpec, data)
@@ -536,13 +501,10 @@ class Client(object):
         traintuples cannot be made public.
 
         Args:
-
             data (Union[dict, schemas.ComputePlanSpec]): If it is a dict, it must have the same
                 keys as specified in [schemas.ComputePlanSpec](sdk_schemas.md#ComputePlanSpec).
-
             auto_batching (bool, optional): Set 'auto_batching' to False to upload all the tuples of
                 the compute plan at once. Defaults to True.
-
             batch_size (int, optional): If 'auto_batching' is True, change `batch_size` to define
                 the number oftuples uploaded in each batch (default 20).
 
@@ -702,16 +664,12 @@ class Client(object):
         traintuples cannot be made public.
 
         Args:
-
             compute_plan_id (str): Id of the compute plan
-
             data (Union[dict, schemas.UpdateComputePlanSpec]): If it is a dict,
                 it must have the same keys as specified in
                 [schemas.UpdateComputePlanSpec](sdk_schemas.md#UpdateComputePlanSpec).
-
             auto_batching (bool, optional): Set 'auto_batching' to False to upload all
                 the tuples of the compute plan at once. Defaults to True.
-
             batch_size (int, optional): If 'auto_batching' is True, change `batch_size`
                 to define the number of tuples uploaded in each batch (default 20).
 
