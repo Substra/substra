@@ -52,7 +52,7 @@ def generate_function_help(fh, asset):
         fh.write(f"\n**{param.args[0].title()}:**\n")
         if len(param.args) > 1:
             for extra_param in param.args[1:]:
-                fh.write(f"\n - {extra_param}: ")
+                fh.write(f"\n - `{extra_param}`: ")
         fh.write(f"{param.description}\n")
 
 
