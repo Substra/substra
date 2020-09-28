@@ -30,6 +30,10 @@ Args:
         the deployed Substra platform. The platform is in read-only mode.
         Defaults to False.
 
+## temp_directory
+Temporary directory for storing assets in debug mode.
+Deleted when the client is deleted.
+
 ## login
 ```python
 Client.login(self, username, password)

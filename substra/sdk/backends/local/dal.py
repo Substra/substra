@@ -34,11 +34,11 @@ class DataAccess:
     def __init__(self, remote_backend: typing.Optional[backend.Remote]):
         self._db = db.get()
         self._remote = remote_backend
-        self.__tmp_dir = tempfile.TemporaryDirectory(prefix="/tmp/")
+        self._tmp_dir = tempfile.TemporaryDirectory(prefix="/tmp/")
 
     @property
-    def _tmp_dir(self):
-        return pathlib.Path(self.__tmp_dir.name)
+    def tmp_dir(self):
+        return pathlib.Path(self._tmp_dir.name)
 
     @staticmethod
     def is_local(key: str):
@@ -97,7 +97,7 @@ class DataAccess:
         else:
             asset_name, field_name = self._get_asset_content_filename(type_)
             asset = self._remote.get(type_, key)
-            tmp_directory = self._tmp_dir / key
+            tmp_directory = self.tmp_dir / key
             asset_path = tmp_directory / asset_name
 
             if not tmp_directory.exists():
@@ -137,7 +137,7 @@ class DataAccess:
         """Copy file or directory into the local temp dir to mimick
         the remote backend that saves the files given by the user.
         """
-        tmp_directory = self._tmp_dir / key
+        tmp_directory = self.tmp_dir / key
         tmp_file = tmp_directory / pathlib.Path(file_path).name
 
         if not tmp_directory.exists():

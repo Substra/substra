@@ -32,6 +32,12 @@ class Local(base.BaseBackend):
         self._db = dal.DataAccess(backend)
         self._worker = compute.Worker(self._db)
 
+    @property
+    def temp_directory(self):
+        """Get the temporary directory where the assets are saved.
+        The directory is deleted at the end of the execution."""
+        return self._db.tmp_dir
+
     def login(self, username, password):
         self._db.login(username, password)
 

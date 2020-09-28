@@ -120,6 +120,14 @@ class Client(object):
             )
         return backend
 
+    @property
+    def temp_directory(self):
+        """Temporary directory for storing assets in debug mode.
+        Deleted when the client is deleted.
+        """
+        if isinstance(self._backend, backends.Local):
+            return self._backend.temp_directory
+
     @logit
     def login(self, username, password):
         """Login to a remote server. """
