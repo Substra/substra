@@ -123,12 +123,18 @@ class DataAccess:
             # TODO: better error that says do not have a remote ?
             raise exceptions.NotFound(f"Wrong pk {key}", 404)
 
-    def list(self, type_):
+    def list(self, type_, filters):
         """"List assets."""
         local_assets = self._db.list(type_)
         remote_assets = list()
         if self._remote:
-            remote_assets = self._remote.list(type_)
+            try:
+                remote_assets = self._remote.list(type_, filters)
+            except Exception as e:
+                logger.info(
+                    f"Could not list assets from the remote platform:\n{e}. \
+                    \nIf you are not logged to a remote platform, ignore this message."
+                )
         return local_assets + remote_assets
 
     def save_file(self,

@@ -61,7 +61,7 @@ class Local(base.BaseBackend):
         Returns:
             typing.List[models._BaseModel]: List of results
         """
-        db_assets = self._db.list(asset_type)
+        db_assets = self._db.list(asset_type, filters=filters)
         # Parse the filters
         parsed_filters = dict()
         if filters is not None:
