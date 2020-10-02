@@ -84,3 +84,7 @@ class DockerSpawner:
 
         container.remove()
         return execution_logs
+
+
+def get():
+    return DockerSpawner()
