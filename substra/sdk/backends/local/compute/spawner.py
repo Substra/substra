@@ -20,9 +20,6 @@ import docker
 
 from substra.sdk import exceptions
 
-_DOCKER = docker.from_env()
-_USER = os.getuid()
-
 
 def _untar(archive, to_):
     with tarfile.open(archive) as tf:
@@ -51,19 +48,23 @@ class ExecutionError(Exception):
 class DockerSpawner:
     """Wrapper around docker daemon to execute a command in a container."""
 
+    def __init__(self):
+        self._docker = docker.from_env()
+        self._user = os.getuid()
+
     def spawn(self, name, archive_path, command, volumes=None, envs=None):
         """Spawn a docker container (blocking)."""
         with tempfile.TemporaryDirectory() as tmpdir:
             _uncompress(archive_path, tmpdir)
-            _DOCKER.images.build(path=tmpdir, tag=name, rm=True)
+            self._docker.images.build(path=tmpdir, tag=name, rm=True)
 
-        container = _DOCKER.containers.run(
+        container = self._docker.containers.run(
             name,
             command=command,
             volumes=volumes or {},
             environment=envs,
             remove=False,
-            user=_USER,
+            user=self._user,
             userns_mode="host",
             detach=True,
             tty=True,
