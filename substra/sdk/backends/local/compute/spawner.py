@@ -69,6 +69,8 @@ class DockerSpawner:
             detach=True,
             tty=True,
             stdin_open=True,
+            ipc_mode="host",
+            shm_size='8G',
         )
 
         execution_logs = []
