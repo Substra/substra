@@ -149,6 +149,7 @@ TRAINTUPLE = {
     },
     "creator": "e75db4df2532dc1313ebb5c2462e1eb813b94c3e67de29f6e4b2272ae60385f5",
     "dataset": {
+        "key": "8dd01465-003a-9b1e-01c9-9c904d86aa51",
         "worker": "e75db4df2532dc1313ebb5c2462e1eb813b94c3e67de29f6e4b2272ae60385f5",
         "keys": [
             "31510dc1d8be788f7c5d28d05714f7efb9edb667762966b9adc02eadeaacebe9",
@@ -217,6 +218,7 @@ COMPOSITE_TRAINTUPLE = {
     },
     "creator": "e75db4df2532dc1313ebb5c2462e1eb813b94c3e67de29f6e4b2272ae60385f5",
     "dataset": {
+        "key": "8dd01465-003a-9b1e-01c9-9c904d86aa51",
         "worker": "e75db4df2532dc1313ebb5c2462e1eb813b94c3e67de29f6e4b2272ae60385f5",
         "keys": [
             "31510dc1d8be788f7c5d28d05714f7efb9edb667762966b9adc02eadeaacebe9",
@@ -271,6 +273,7 @@ TESTTUPLE = {
     "certified": True,
     "creator": "e75db4df2532dc1313ebb5c2462e1eb813b94c3e67de29f6e4b2272ae60385f5",
     "dataset": {
+        "key": "ce9f292c-72e9-b826-9744-5117f9c2d1d1",
         "worker": "ab75010bacbd1a4b826dc2e9ead6f1e4e1c4feade2d62a8b708fdde48fb0edea",
         "keys": [
             "17d58b67ae2028018108c9bf555fa58b2ddcfe560e0117294196e79d26140b2a",

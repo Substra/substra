@@ -160,14 +160,11 @@ class CompositeAlgo(_Algo):
 
 class _TraintupleDataset(schemas._PydanticConfig):
     """Dataset as stored in a traintuple or composite traintuple"""
+    key: str
     opener_hash: str
     keys: List[str]
     worker: str
     metadata: Optional[Dict[str, str]]
-
-    @property
-    def key(self):
-        return self.opener_hash
 
 
 class InModel(schemas._PydanticConfig):
@@ -302,14 +299,11 @@ class CompositeTraintuple(_Model):
 
 class _TesttupleDataset(schemas._PydanticConfig):
     """Dataset of a testtuple"""
+    key: str
     opener_hash: str
     perf: float
     keys: List[str]
     worker: str
-
-    @property
-    def key(self):
-        return self.opener_hash
 
 
 class _TesttupleObjective(schemas._PydanticConfig):

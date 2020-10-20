@@ -564,7 +564,8 @@ class Local(base.BaseBackend):
                 "storage_address": algo.content.storage_address
             },
             dataset={
-                "opener_hash": spec.data_manager_key,
+                "key": spec.data_manager_key,
+                "opener_hash": spec.data_manager_key,  # TODO: pass actual opener hash
                 "keys": spec.train_data_sample_keys,
                 "worker": _BACKEND_ID,
                 "metadata": {}
@@ -631,7 +632,7 @@ class Local(base.BaseBackend):
                 spec.test_data_sample_keys is not None
                 and len(spec.test_data_sample_keys) > 0
             )
-            dataset_opener = spec.data_manager_key
+            dataset_key = spec.data_manager_key
             test_data_sample_keys = spec.test_data_sample_keys
             certified = (
                 objective.test_dataset is not None
@@ -643,7 +644,7 @@ class Local(base.BaseBackend):
             assert (
                 objective.test_dataset
             ), "can not create a certified testtuple, no data associated with objective"
-            dataset_opener = objective.test_dataset.data_manager_key
+            dataset_key = objective.test_dataset.data_manager_key
             test_data_sample_keys = objective.test_dataset.data_sample_keys
             certified = True
 
@@ -671,7 +672,8 @@ class Local(base.BaseBackend):
             algo=traintuple.algo,
             certified=certified,
             dataset={
-                "opener_hash": dataset_opener,
+                "key": dataset_key,
+                "opener_hash": dataset_key,  # TODO: pass actual opener hash
                 "perf": -1,
                 "keys": test_data_sample_keys,
                 "worker": _BACKEND_ID,
@@ -762,7 +764,8 @@ class Local(base.BaseBackend):
                 "storage_address": algo.content.storage_address
             },
             dataset={
-                "opener_hash": spec.data_manager_key,
+                "key": spec.data_manager_key,
+                "opener_hash": spec.data_manager_key,  # TODO: pass actual opener hash
                 "keys": spec.train_data_sample_keys,
                 "worker": _BACKEND_ID,
             },
