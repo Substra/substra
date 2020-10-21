@@ -192,13 +192,10 @@ class OutModel(schemas._PydanticConfig):
 
 class _TraintupleAlgo(schemas._PydanticConfig):
     """Algo associated to a traintuple"""
+    key: str
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: UriPath
     name: str
-
-    @property
-    def key(self):
-        return self.hash_
 
 
 class Traintuple(_Model):
