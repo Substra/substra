@@ -26,13 +26,13 @@ In debug mode, new assets are created locally but can access assets from
 the deployed Substra platform. The platform is in read-only mode.
 Defaults to False.
 ## temp_directory
-_This is a property._  
+_This is a property._
 Temporary directory for storing assets in debug mode.
         Deleted when the client is deleted.
-        
+
 ## add_aggregate_algo
 ```python
-add_aggregate_algo(self, data: Union[dict, substra.sdk.schemas.AggregateAlgoSpec], exist_ok: bool = False) -> str
+add_aggregate_algo(self, data: Union[dict, substra.sdk.schemas.AggregateAlgoSpec]) -> str
 ```
 
 Create new aggregate algo asset.
@@ -52,7 +52,7 @@ Defaults to False.
  - `str`: Key of the asset
 ## add_aggregatetuple
 ```python
-add_aggregatetuple(self, data: Union[dict, substra.sdk.schemas.AggregatetupleSpec], exist_ok: bool = False) -> str
+add_aggregatetuple(self, data: Union[dict, substra.sdk.schemas.AggregatetupleSpec]) -> str
 ```
 
 Create a new aggregate tuple asset.
@@ -73,7 +73,7 @@ Defaults to False.
  - `str`: Key of the asset
 ## add_algo
 ```python
-add_algo(self, data: Union[dict, substra.sdk.schemas.AlgoSpec], exist_ok: bool = False) -> str
+add_algo(self, data: Union[dict, substra.sdk.schemas.AlgoSpec]) -> str
 ```
 
 Create new algo asset.
@@ -91,7 +91,7 @@ ignored and the existing asset key will be returned. Defaults to False.
  - `str`: Key of the algo
 ## add_composite_algo
 ```python
-add_composite_algo(self, data: Union[dict, substra.sdk.schemas.CompositeAlgoSpec], exist_ok: bool = False) -> str
+add_composite_algo(self, data: Union[dict, substra.sdk.schemas.CompositeAlgoSpec]) -> str
 ```
 
 Create new composite algo asset.
@@ -110,7 +110,7 @@ Defaults to False.
  - `str`: Key of the asset
 ## add_composite_traintuple
 ```python
-add_composite_traintuple(self, data: Union[dict, substra.sdk.schemas.CompositeTraintupleSpec], exist_ok: bool = False) -> str
+add_composite_traintuple(self, data: Union[dict, substra.sdk.schemas.CompositeTraintupleSpec]) -> str
 ```
 
 Create new composite traintuple asset.
@@ -155,7 +155,7 @@ the number oftuples uploaded in each batch (default 20).
  - `models.ComputePlan`: Created compute plan
 ## add_data_sample
 ```python
-add_data_sample(self, data: Union[dict, substra.sdk.schemas.DataSampleSpec], local: bool = True, exist_ok: bool = False) -> str
+add_data_sample(self, data: Union[dict, substra.sdk.schemas.DataSampleSpec], local: bool = True) -> str
 ```
 
 Create a new data sample asset and return its key.
@@ -206,7 +206,7 @@ Defaults to True.
  - `List[str]`: List of the data sample keys
 ## add_dataset
 ```python
-add_dataset(self, data: Union[dict, substra.sdk.schemas.DatasetSpec], exist_ok: bool = False)
+add_dataset(self, data: Union[dict, substra.sdk.schemas.DatasetSpec])
 ```
 
 Create new dataset asset and return its key.
@@ -225,7 +225,7 @@ Defaults to False.
  - `str`: Key of the dataset
 ## add_objective
 ```python
-add_objective(self, data: Union[dict, substra.sdk.schemas.ObjectiveSpec], exist_ok: bool = False) -> str
+add_objective(self, data: Union[dict, substra.sdk.schemas.ObjectiveSpec]) -> str
 ```
 
 Create new objective asset.
@@ -243,7 +243,7 @@ will be ignored and the existing asset key will be returned. Defaults to False.
  - `str`: Key of the objective
 ## add_testtuple
 ```python
-add_testtuple(self, data: Union[dict, substra.sdk.schemas.TesttupleSpec], exist_ok: bool = False) -> str
+add_testtuple(self, data: Union[dict, substra.sdk.schemas.TesttupleSpec]) -> str
 ```
 
 Create new testtuple asset.
@@ -264,7 +264,7 @@ Defaults to False.
  - `str`: Key of the asset
 ## add_traintuple
 ```python
-add_traintuple(self, data: Union[dict, substra.sdk.schemas.TraintupleSpec], exist_ok: bool = False) -> str
+add_traintuple(self, data: Union[dict, substra.sdk.schemas.TraintupleSpec]) -> str
 ```
 
 Create new traintuple asset.
@@ -558,7 +558,7 @@ in the [models.Traintuple](sdk_models.md#Traintuple) model
 login(self, username, password)
 ```
 
-Login to a remote server. 
+Login to a remote server.
 ## update_compute_plan
 ```python
 update_compute_plan(self, compute_plan_id: str, data: Union[dict, substra.sdk.schemas.UpdateComputePlanSpec], auto_batching: bool = True, batch_size: int = 20) -> substra.sdk.models.ComputePlan

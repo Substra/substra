@@ -200,7 +200,6 @@ class Local(base.BaseBackend):
                 spec_options
             ):
         # The tasks in the compute plan cannot already exist
-        exist_ok = False
         for id_, rank in sorted(visited.items(), key=lambda item: item[1]):
             if id_ in traintuples:
                 traintuple = traintuples[id_]
@@ -210,7 +209,7 @@ class Local(base.BaseBackend):
                     rank=rank,
                     spec=traintuple
                 )
-                traintuple_key = self.add(traintuple_spec, exist_ok, spec_options)
+                traintuple_key = self.add(traintuple_spec, spec_options)
                 compute_plan.id_to_key[id_] = traintuple_key
 
             elif id_ in aggregatetuples:
@@ -223,7 +222,6 @@ class Local(base.BaseBackend):
                 )
                 aggregatetuple_key = self.add(
                     aggregatetuple_spec,
-                    exist_ok,
                     spec_options,
                 )
                 compute_plan.id_to_key[id_] = aggregatetuple_key
@@ -238,7 +236,6 @@ class Local(base.BaseBackend):
                 )
                 compositetuple_key = self.add(
                     compositetuple_spec,
-                    exist_ok,
                     spec_options,
                 )
                 compute_plan.id_to_key[id_] = compositetuple_key
@@ -249,7 +246,7 @@ class Local(base.BaseBackend):
                     id_to_key=compute_plan.id_to_key,
                     spec=testtuple
                 )
-                self.add(testtuple_spec, exist_ok, spec_options)
+                self.add(testtuple_spec, spec_options)
 
         return compute_plan
 
@@ -864,28 +861,17 @@ class Local(base.BaseBackend):
             self._worker.schedule_traintuple(aggregatetuple)
         return aggregatetuple
 
-    def add(self, spec, exist_ok=False, spec_options=None):
+    def add(self, spec, spec_options=None):
         # find dynamically the method to call to create the asset
         method_name = f"_add_{spec.__class__.type_.value}"
         if spec.is_many():
             method_name += "s"
         add_asset = getattr(self, method_name)
         if spec.is_many():
-            # 'exist_ok' is not supported
             assets = add_asset(spec, spec_options)
             return [asset.key for asset in assets]
         else:
-            # Check if the asset exists, return it if 'exist_ok' is True
-            # TODO: fix
-            key = self._db.get_local_key(spec.compute_key())
-            try:
-                asset = self._db.get(type_=spec.__class__.type_, key=key, log=False)
-            except exceptions.NotFound:
-                pass
-            else:
-                if exist_ok:
-                    return key
-                raise exceptions.AlreadyExists(key, 409)
+            key = spec.compute_key()
             asset = add_asset(key, spec, spec_options)
             if spec.__class__.type_ == schemas.Type.ComputePlan:
                 return asset

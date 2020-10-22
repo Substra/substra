@@ -47,7 +47,7 @@ for i, fold in enumerate(folds_keys['folds']):
         'data_manager_key': dataset_key,
         'train_data_sample_keys': fold['train_data_sample_keys'],
         'tag': tag,
-    }, exist_ok=True)
+    })
     fold['traintuple_key'] = traintuple_key
 
     # testtuple
@@ -57,7 +57,7 @@ for i, fold in enumerate(folds_keys['folds']):
         'data_manager_key': dataset_key,
         'test_data_sample_keys': fold['test_data_sample_keys'],
         'tag': tag,
-    }, exist_ok=True)
+    })
     fold['testtuple_key'] = testtuple_key
 
 with open(folds_keys_path, 'w') as f:

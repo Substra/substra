@@ -61,6 +61,6 @@ for conf in train_test_configs:
 for conf in train_test_configs:
     for i, data_sample in enumerate(conf['data_samples_content']):
         filename = os.path.join(conf['data_samples_root'], f'data_sample_{i}/data_sample_{i}.csv')
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        os.makedirs(os.path.dirname(filename))
         with open(filename, 'w') as f:
             data_sample.to_csv(f)

@@ -53,7 +53,7 @@ class Remote(base.BaseBackend):
         assets = self._client.list(asset_type.to_server(), filters)
         return [models.SCHEMA_TO_MODEL[asset_type](**asset) for asset in assets]
 
-    def _add(self, asset, data, files=None, exist_ok=False):
+    def _add(self, asset, data, files=None):
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
         if files:
             kwargs = {
@@ -71,11 +71,10 @@ class Remote(base.BaseBackend):
         return self._client.add(
             asset.to_server(),
             retry_timeout=self._retry_timeout,
-            exist_ok=exist_ok,
             **kwargs,
         )
 
-    def _add_data_samples(self, spec, exist_ok, spec_options):
+    def _add_data_samples(self, spec, spec_options):
         """Add data sample(s)."""
         # data sample(s) creation must be handled separately as the get request is not
         # available on this ressource. On top of that the exist ok option is working
@@ -83,9 +82,9 @@ class Remote(base.BaseBackend):
         try:
             with spec.build_request_kwargs(**spec_options) as (data, files):
                 data_samples = self._add(
-                    schemas.Type.DataSample, data, files, exist_ok=exist_ok)
+                    schemas.Type.DataSample, data, files)
         except exceptions.AlreadyExists as e:
-            if not exist_ok or spec.is_many():
+            if spec.is_many():
                 raise
 
             key = e.key[0]
@@ -98,7 +97,7 @@ class Remote(base.BaseBackend):
             data_sample['key'] for data_sample in data_samples
         ] if spec.is_many() else data_samples[0]['key']
 
-    def add(self, spec, exist_ok=False, spec_options=None):
+    def add(self, spec, spec_options=None):
         """Add an asset."""
         spec_options = spec_options or {}
         asset_type = spec.__class__.type_
@@ -109,7 +108,6 @@ class Remote(base.BaseBackend):
             # data sample corner case
             return self._add_data_samples(
                 spec,
-                exist_ok=exist_ok,
                 spec_options=spec_options,
             )
         elif asset_type == schemas.Type.ComputePlan and spec_options.pop(AUTO_BATCHING, False):
@@ -119,13 +117,12 @@ class Remote(base.BaseBackend):
             # Compute plan auto batching feature
             return self._auto_batching_compute_plan(
                 spec=spec,
-                exist_ok=exist_ok,
                 batch_size=batch_size,
                 spec_options=spec_options,
             )
 
         with spec.build_request_kwargs(**spec_options) as (data, files):
-            response = self._add(asset_type, data, files=files, exist_ok=exist_ok)
+            response = self._add(asset_type, data, files=files)
         # The backend returns only the key, except for the compute plan: it returns the
         # whole object (otherwise we lose the id_to_key field)
         if asset_type == schemas.Type.ComputePlan:
@@ -137,7 +134,6 @@ class Remote(base.BaseBackend):
                                     spec,
                                     batch_size,
                                     compute_plan_id=None,
-                                    exist_ok=None,
                                     spec_options=None):
         """Auto batching of the compute plan tuples
 
@@ -161,7 +157,7 @@ class Remote(base.BaseBackend):
         if not compute_plan_id:
             first_spec = next(batches, None)
             tmp_spec = first_spec or spec  # Special case: no tuples
-            asset = self.add(spec=tmp_spec, exist_ok=exist_ok, spec_options=deepcopy(spec_options))
+            asset = self.add(spec=tmp_spec, spec_options=deepcopy(spec_options))
             compute_plan_id = asset.compute_plan_id
             id_to_keys = asset.id_to_key
 

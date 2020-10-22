@@ -111,7 +111,7 @@ def test_add_data_sample(client, data_sample_query, mocker):
 
 def test_add_data_sample_already_exists(client, data_sample_query, mocker):
     m = mock_requests(mocker, "post", response=[{"key": "42"}], status=409)
-    response = client.add_data_sample(data_sample_query, exist_ok=True)
+    response = client.add_data_sample(data_sample_query)
 
     assert response == "42"
     m.assert_called()

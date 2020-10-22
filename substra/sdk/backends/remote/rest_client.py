@@ -195,7 +195,7 @@ class Client():
 
         return items
 
-    def _add(self, name, exist_ok=False, **request_kwargs):
+    def _add(self, name, **request_kwargs):
         """ Add asset wrapper.
 
         Handles conflict error when created asset already exists.
@@ -204,9 +204,6 @@ class Client():
             return self.request('post', name, **request_kwargs)
 
         except exceptions.AlreadyExists as e:
-            if not exist_ok:
-                raise
-
             key = e.key
             is_many = isinstance(key, list)
             if is_many:
@@ -216,16 +213,13 @@ class Client():
             logger.warning(f"{name} already exists: key='{key}'")
             return self.get(name, key)
 
-    def add(self, name, retry_timeout=False, exist_ok=False, **request_kwargs):
+    def add(self, name, retry_timeout=False, **request_kwargs):
         """Add asset.
 
         In case of timeout, block till resource is created.
-
-        If `exist_ok` is true, `AlreadyExists` exceptions will be ignored and the
-        existing asset will be returned.
         """
         try:
-            return self._add(name, exist_ok=exist_ok, **request_kwargs)
+            return self._add(name, **request_kwargs)
 
         except exceptions.RequestTimeout as e:
             key = e.key
@@ -242,7 +236,7 @@ class Client():
             # XXX as there is no guarantee that the request has been sent to the ledger
             #     (and will be processed), retry on on the add request and ignore
             #     potential conflicts
-            return retry(self._add)(name, exist_ok=True, **request_kwargs)
+            return retry(self._add)(name, **request_kwargs)
 
     def get_data(self, address, **request_kwargs):
         """Get asset data."""

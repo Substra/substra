@@ -1,6 +1,6 @@
 # Debugging
 
-This example shows how to run the [Titanic example](../titanic/README.md) locally to debug your code.  
+This example shows how to run the [Titanic example](../titanic/README.md) locally to debug your code.
 For more information on the debug mode, see the [documentation](https://doc.substra.ai/debugging.html).
 
 
@@ -17,7 +17,7 @@ For more information on the debug mode, see the [documentation](https://doc.subs
 ## Debug using only local assets
 
 In this example, everything is run locally without a connection to a deployed Substra platform. This requires the user
-to create all of his assets locally.  
+to create all of his assets locally.
 We use the same objective, data manager and algorithms as the Titanic example (see the `assets` folder in the Titanic
 example).
 
@@ -34,7 +34,7 @@ All commands in this example are run from the `substra/examples/debugging/` fold
 
 ### Data and script preparation
 
-Follow the [data preparation phase](../titanic/README.md#data-preparation) instructions from the Titanic example to generate the 
+Follow the [data preparation phase](../titanic/README.md#data-preparation) instructions from the Titanic example to generate the
 data samples on disk.
 
 ### Run and debug our pipeline
@@ -81,7 +81,6 @@ traintuple_key = client.add_traintuple(
         ...
         "train_data_sample_keys": assets_keys["train_data_sample_keys"],
     },
-    exist_ok=True,
 )
 ```
 

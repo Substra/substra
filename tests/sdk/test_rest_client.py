@@ -101,7 +101,7 @@ def test_add_exist_ok(mocker):
     asset_name = "traintuple"
     m_post = mock_requests(mocker, "post", response={"key": "a-key"}, status=409)
     m_get = mock_requests(mocker, "get", response={"key": "a-key"})
-    asset = _client_from_config(CONFIG).add(asset_name, exist_ok=True)
+    asset = _client_from_config(CONFIG).add(asset_name)
     assert len(m_post.call_args_list) == 1
     assert len(m_get.call_args_list) == 1
     assert asset == {"key": "a-key"}

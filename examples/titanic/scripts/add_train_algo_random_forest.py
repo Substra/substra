@@ -66,7 +66,7 @@ algo_key = client.add_algo({
     'file': ALGO['file'],
     'description': ALGO['description'],
     'permissions': ALGO['permissions'],
-}, exist_ok=True)
+})
 
 ########################################################
 #         Add traintuple
@@ -77,7 +77,7 @@ traintuple_key = client.add_traintuple({
     'algo_key': algo_key,
     'data_manager_key': assets_keys['dataset_key'],
     'train_data_sample_keys': assets_keys['train_data_sample_keys']
-}, exist_ok=True)
+})
 assert traintuple_key, 'Missing traintuple key'
 
 ########################################################
@@ -87,7 +87,7 @@ print('Registering testtuple...')
 testtuple_key = client.add_testtuple({
     'objective_key': assets_keys['objective_key'],
     'traintuple_key': traintuple_key
-}, exist_ok=True)
+})
 assert testtuple_key, 'Missing testtuple key'
 
 ########################################################
