@@ -150,9 +150,8 @@ class DataAccess:
             pathlib.Path.mkdir(tmp_directory)
 
         if tmp_file.exists():
-            raise exceptions.AlreadyExists(
+            raise exceptions.Exception(
                 f"File {tmp_file.name} already exists for asset {key}",
-                409
             )
         elif pathlib.Path(file_path).is_file():
             shutil.copyfile(
