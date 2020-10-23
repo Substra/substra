@@ -348,7 +348,7 @@ class Local(base.BaseBackend):
             test_data_sample_keys=list(),
             opener={
                 "hash": fs.hash_file(dataset_file_path),
-                "storage_address": dataset_file_path
+                 "storage_address": dataset_file_path
             },
             description={
                 "hash": fs.hash_file(dataset_description_path),
