@@ -386,7 +386,7 @@ class TraintuplePrinter(AssetPrinter):
         Field('Compute Plan Id', 'compute_plan_id'),
     )
     single_fields = (
-        Field('Model key', 'out_model.hash'),
+        Field('Model key', 'out_model.key'),
         Field('Algo key', 'algo.key'),
         Field('Algo name', 'algo.name'),
         Field('Status', 'status'),
@@ -423,7 +423,7 @@ class AggregateTuplePrinter(AssetPrinter):
         Field('Compute Plan Id', 'compute_plan_id'),
     )
     single_fields = (
-        Field('Model key', 'out_model.hash'),
+        Field('Model key', 'out_model.key'),
         Field('Algo key', 'algo.key'),
         Field('Algo name', 'algo.name'),
         Field('Status', 'status'),
@@ -460,9 +460,9 @@ class CompositeTraintuplePrinter(AssetPrinter):
     )
 
     single_fields = (
-        Field('Out head model key', 'out_head_model.out_model.hash'),
+        Field('Out head model key', 'out_head_model.out_model.key'),
         PermissionField('Out head model permissions', 'out_head_model.permissions'),
-        Field('Out trunk model key', 'out_trunk_model.out_model.hash'),
+        Field('Out trunk model key', 'out_trunk_model.out_model.key'),
         PermissionField('Out trunk model permissions', 'out_trunk_model.permissions'),
         Field('Composite algo key', 'algo.key'),
         Field('Composite algo name', 'algo.name'),

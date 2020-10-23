@@ -213,9 +213,11 @@ COMPOSITE_TRAINTUPLE = {
         "storage_address": ""
     },
     "in_head_model": {
+        "key": "0acc5180-e09b-6a6a-c250-f4e3d972e289",
         "hash": "0acc5180e09b6a6ac250f4e3d972e2893f617aa1c22ef1f379019d20fe44142e",
     },
     "in_trunk_model": {
+        "key": "0acc5180-e09b-6a6a-c250-f4e3d972e289",
         "hash": "0acc5180e09b6a6ac250f4e3d972e2893f617aa1c22ef1f379019d20fe44142f",
         "storage_address": ""
     },
@@ -239,6 +241,7 @@ COMPOSITE_TRAINTUPLE = {
             }
         },
         "out_model": {
+            "key": "8a90514f-88c7-0002-608a-9868681dd158",
             "hash": "8a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
         }
     },
@@ -250,6 +253,7 @@ COMPOSITE_TRAINTUPLE = {
             }
         },
         "out_model": {
+            "key": "9a90514f-88c7-0002-608a-9868681dd158",
             "hash": "9a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
             "storage_address": ""
         }

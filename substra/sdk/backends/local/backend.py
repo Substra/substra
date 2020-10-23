@@ -199,7 +199,6 @@ class Local(base.BaseBackend):
                 compositetuples,
                 spec_options
             ):
-        # The tasks in the compute plan cannot already exist
         for id_, rank in sorted(visited.items(), key=lambda item: item[1]):
             if id_ in traintuples:
                 traintuple = traintuples[id_]
@@ -577,6 +576,7 @@ class Local(base.BaseBackend):
             status=models.Status.waiting,
             in_models=[
                 {
+                    "key": in_traintuple.out_model.key,
                     "hash": in_traintuple.out_model.hash_,
                     "storage_address": in_traintuple.out_model.storage_address,
                     "traintuple_key": in_traintuple.key,
@@ -707,6 +707,7 @@ class Local(base.BaseBackend):
             in_head_tuple = self._db.get(schemas.Type.CompositeTraintuple, spec.in_head_model_key)
             assert in_head_tuple.out_head_model
             in_head_model = models.InHeadModel(
+                key=in_head_tuple.out_head_model.out_model.key,
                 hash=in_head_tuple.out_head_model.out_model.hash_,
                 storage_address=in_head_tuple.out_head_model.out_model.storage_address
             )
@@ -727,6 +728,7 @@ class Local(base.BaseBackend):
                 in_model = in_trunk_tuple.out_model
 
             in_trunk_model = models.InModel(
+                key=in_model.key,
                 hash=in_model.hash_,
                 storage_address=in_model.storage_address
             )
@@ -805,6 +807,7 @@ class Local(base.BaseBackend):
             try:
                 in_tuple = self._db.get(schemas.Type.Traintuple, key=model_key)
                 in_models.append({
+                    "key": in_tuple.out_model.key,
                     "hash": in_tuple.out_model.hash_,
                     "storage_address": in_tuple.out_model.storage_address,
                     "traintuple_key": in_tuple.key,
@@ -813,6 +816,7 @@ class Local(base.BaseBackend):
             except exceptions.NotFound:
                 in_tuple = self._db.get(schemas.Type.CompositeTraintuple, key=model_key)
                 in_models.append({
+                    "key": in_tuple.out_head_model.out_model.key,
                     "hash": in_tuple.out_head_model.out_model.hash_,
                     "storage_address": in_tuple.out_head_model.out_model.storage_address,
                     "traintuple_key": in_tuple.key,

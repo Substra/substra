@@ -16,6 +16,7 @@ import json
 import os
 import pathlib
 import shutil
+import uuid
 
 from substra.sdk import schemas, fs, models
 from substra.runner import METRICS_FAKE_Y, METRICS_NO_FAKE_Y, DOCKER_METRICS_TAG
@@ -73,15 +74,15 @@ class Worker:
         model_dir = _mkdir(os.path.join(self._wdir, "models", tuple_.key))
         model_path = os.path.join(model_dir, model_name)
         shutil.copy(tmp_path, model_path)
-        return models.OutModel(hash=fs.hash_file(model_path), storage_address=model_path)
+        return models.OutModel(key=str(uuid.uuid4()), hash=fs.hash_file(model_path), storage_address=model_path)
 
     def _get_command_models_composite(self, is_train, tuple_, models_volume, container_volume):
         command = ""
         model_head_key = None
         model_trunk_key = None
         if not is_train:
-            model_head_key = tuple_.out_head_model.out_model.hash_
-            model_trunk_key = tuple_.out_trunk_model.out_model.hash_
+            model_head_key = tuple_.out_head_model.out_model.key
+            model_trunk_key = tuple_.out_trunk_model.out_model.key
         else:
             if tuple_.in_head_model:
                 model_head_key = "input_head_model"
@@ -292,11 +293,11 @@ class Worker:
             elif tuple_.traintuple_type == schemas.Type.CompositeTraintuple:
                 os.link(
                     traintuple.out_head_model.out_model.storage_address,
-                    os.path.join(models_volume, traintuple.out_head_model.out_model.hash_)
+                    os.path.join(models_volume, traintuple.out_head_model.out_model.key)
                 )
                 os.link(
                     traintuple.out_trunk_model.out_model.storage_address,
-                    os.path.join(models_volume, traintuple.out_trunk_model.out_model.hash_)
+                    os.path.join(models_volume, traintuple.out_trunk_model.out_model.key)
                 )
                 command += self._get_command_models_composite(
                     is_train=False,

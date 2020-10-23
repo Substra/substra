@@ -23,7 +23,7 @@ import uuid
 
 import pydantic
 
-from substra.sdk import utils, fs, hasher
+from substra.sdk import utils, fs
 
 # TODO create a sub-package schemas:
 # types
@@ -142,7 +142,7 @@ class DataSampleSpec(_Spec):
             yield data, None
 
     def compute_key(self) -> str:
-        return fs.hash_directory(self.path)
+        return str(uuid.uuid4())
 
 
 class ComputePlanTraintupleSpec(_Spec):
@@ -210,7 +210,7 @@ class ComputePlanSpec(_BaseComputePlanSpec):
 
     @staticmethod
     def compute_key() -> str:
-        return uuid.uuid4().hex
+        return str(uuid.uuid4())
 
 
 class UpdateComputePlanSpec(_BaseComputePlanSpec):
@@ -234,7 +234,7 @@ class DatasetSpec(_Spec):
         file_attributes = ('data_opener', 'description', )
 
     def compute_key(self) -> str:
-        return fs.hash_file(self.data_opener)
+        return str(uuid.uuid4())
 
 
 class ObjectiveSpec(_Spec):
@@ -254,7 +254,7 @@ class ObjectiveSpec(_Spec):
         file_attributes = ('metrics', 'description', )
 
     def compute_key(self) -> str:
-        return fs.hash_file(self.metrics)
+        return str(uuid.uuid4())
 
 
 class _AlgoSpec(_Spec):
@@ -268,7 +268,7 @@ class _AlgoSpec(_Spec):
         file_attributes = ('file', 'description', )
 
     def compute_key(self) -> str:
-        return fs.hash_file(self.file)
+        return str(uuid.uuid4())
 
 
 class AlgoSpec(_AlgoSpec):
@@ -323,12 +323,7 @@ class TraintupleSpec(_Spec):
         )
 
     def compute_key(self) -> str:
-        key_components = (
-            [self.algo_key, self.data_manager_key]
-            + self.train_data_sample_keys
-            + (self.in_models_keys or list())
-        )
-        return hasher.Hasher(values=key_components).compute()
+        return str(uuid.uuid4())
 
 
 class AggregatetupleSpec(_Spec):
@@ -367,8 +362,7 @@ class AggregatetupleSpec(_Spec):
         )
 
     def compute_key(self) -> str:
-        key_components = self.in_models_keys + [self.algo_key]
-        return hasher.Hasher(values=key_components).compute()
+        return str(uuid.uuid4())
 
 
 class CompositeTraintupleSpec(_Spec):
@@ -413,12 +407,7 @@ class CompositeTraintupleSpec(_Spec):
         )
 
     def compute_key(self) -> str:
-        key_components = [self.algo_key, self.data_manager_key] + self.train_data_sample_keys
-        if self.in_head_model_key:
-            key_components.append(self.in_head_model_key)
-        if self.in_trunk_model_key:
-            key_components.append(self.in_trunk_model_key)
-        return hasher.Hasher(values=key_components).compute()
+        return str(uuid.uuid4())
 
 
 class TesttupleSpec(_Spec):
@@ -448,7 +437,4 @@ class TesttupleSpec(_Spec):
         )
 
     def compute_key(self) -> str:
-        key_components = [self.objective_key, self.traintuple_key]
-        key_components += self.test_data_sample_keys or list()
-        key_components += self.data_manager_key or list()
-        return hasher.Hasher(values=key_components).compute()
+        return str(uuid.uuid4())

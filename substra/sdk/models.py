@@ -170,24 +170,18 @@ class _TraintupleDataset(schemas._PydanticConfig):
 class InModel(schemas._PydanticConfig):
     """In model of a traintuple, aggregate tuple or in trunk
     model of a composite traintuple"""
+    key: str
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: UriPath
     traintuple_key: Optional[str]
-
-    @property
-    def key(self):
-        return self.hash_
 
 
 class OutModel(schemas._PydanticConfig):
     """Out model of a traintuple, aggregate tuple or out trunk
     model of a composite traintuple"""
+    key: str
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: UriPath
-
-    @property
-    def key(self):
-        return self.hash_
 
 
 class _TraintupleAlgo(schemas._PydanticConfig):
@@ -240,23 +234,17 @@ class Aggregatetuple(_Model):
 
 class InHeadModel(schemas._PydanticConfig):
     """In head model of a composite traintuple"""
+    key: str
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: Optional[UriPath]  # Defined for local assets but not remote ones
     traintuple_key: Optional[str]
 
-    @property
-    def key(self):
-        return self.hash_
-
 
 class OutHeadModel(schemas._PydanticConfig):
     """Out head model of a composite traintuple"""
+    key: str
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: Optional[FilePath]  # Defined for local assets but not remote ones
-
-    @property
-    def key(self):
-        return self.hash_
 
 
 class OutCompositeHeadModel(schemas._PydanticConfig):
