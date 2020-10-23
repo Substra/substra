@@ -292,7 +292,7 @@ TESTTUPLE = {
     },
     "log": "Test - CPU:90.07 % - Mem:0.13 GB - GPU:0.00 % - GPU Mem:0.00 GB;",
     "objective": {
-        "hash": "3d70ab46d710dacb0f48cb42db4874fac14e048a0d415e266aad38c09591ee71",
+        "key": "3d70ab46-d710-dacb-0f48-cb42db4874fa",
         "metrics": {
             "hash": "c42dca31fbc2ebb5705643e3bb6ee666bbfd956de13dd03727f825ad8445b4d7",
             "storage_address": "",

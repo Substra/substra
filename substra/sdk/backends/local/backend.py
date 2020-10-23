@@ -298,11 +298,11 @@ class Local(base.BaseBackend):
                 },
             },
             content={
-                "hash": key,
+                "hash": fs.hash_file(algo_file_path),
                 "storage_address": algo_file_path
             },
             description={
-                "hash": self._db.get_local_key(fs.hash_file(algo_description_path)),
+                "hash": fs.hash_file(algo_description_path),
                 "storage_address": algo_description_path
             },
             metadata=spec.metadata if spec.metadata else dict(),
@@ -347,11 +347,11 @@ class Local(base.BaseBackend):
             train_data_sample_keys=list(),
             test_data_sample_keys=list(),
             opener={
-                "hash": key,
+                "hash": fs.hash_file(dataset_file_path),
                 "storage_address": dataset_file_path
             },
             description={
-                "hash": self._db.get_local_key(fs.hash_file(dataset_description_path)),
+                "hash": fs.hash_file(dataset_description_path),
                 "storage_address": dataset_description_path
             },
             metadata=spec.metadata if spec.metadata else dict(),
@@ -450,12 +450,12 @@ class Local(base.BaseBackend):
                 },
             },
             description={
-                "hash": self._db.get_local_key(fs.hash_file(objective_description_path)),
+                "hash": fs.hash_file(objective_description_path),
                 "storage_address": objective_description_path
             },
             metrics={
                 "name": spec.metrics_name,
-                "hash": self._db.get_local_key(fs.hash_file(objective_file_path)),
+                "hash": fs.hash_file(objective_file_path),
                 "storage_address": objective_file_path
             },
             metadata=spec.metadata if spec.metadata else dict(),
@@ -555,7 +555,8 @@ class Local(base.BaseBackend):
             key=key,
             creator=_BACKEND_ID,
             algo={
-                "hash": spec.algo_key,
+                "key": spec.algo_key,
+                "hash": algo.content.hash_,
                 "name": algo.name,
                 "storage_address": algo.content.storage_address
             },
@@ -661,7 +662,7 @@ class Local(base.BaseBackend):
             key=key,
             creator=_BACKEND_ID,
             objective={
-                "hash": spec.objective_key,
+                "key": spec.objective_key,
                 "metrics": objective.metrics
             },
             traintuple_key=spec.traintuple_key,
@@ -758,7 +759,8 @@ class Local(base.BaseBackend):
             key=key,
             creator=_BACKEND_ID,
             algo={
-                "hash": spec.algo_key,
+                "key": spec.algo_key,
+                "hash": algo.content.hash_,
                 "name": algo.name,
                 "storage_address": algo.content.storage_address
             },
@@ -841,7 +843,8 @@ class Local(base.BaseBackend):
             creator=_BACKEND_ID,
             worker=spec.worker,
             algo={
-                "hash": spec.algo_key,
+                "key": spec.algo_key,
+                "hash": algo.content.hash_,
                 "name": algo.name,
                 "storage_address": algo.content.storage_address
             },
@@ -875,7 +878,7 @@ class Local(base.BaseBackend):
             assets = add_asset(spec, spec_options)
             return [asset.key for asset in assets]
         else:
-            key = spec.compute_key()
+            key = self._db.get_local_key(spec.compute_key())
             asset = add_asset(key, spec, spec_options)
             if spec.__class__.type_ == schemas.Type.ComputePlan:
                 return asset

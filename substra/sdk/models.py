@@ -293,12 +293,8 @@ class _TesttupleDataset(schemas._PydanticConfig):
 
 class _TesttupleObjective(schemas._PydanticConfig):
     """Objective of a testtuple"""
-    hash_: str = pydantic.Field(..., alias="hash")
+    key: str
     metrics: _Metric
-
-    @property
-    def key(self):
-        return self.hash_
 
 
 class Testtuple(_Model):
