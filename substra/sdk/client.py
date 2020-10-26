@@ -194,9 +194,6 @@ class Client(object):
     ) -> str:
         """Create a new data sample asset and return its key.
 
-        If a data sample with the same content already exists, an `AlreadyExists` exception will be
-        raised.
-
         Args:
             data (Union[dict, schemas.DataSampleSpec]): data sample to add. If it is a dict,
                 it must follow the [DataSampleSpec schema](sdk_schemas.md#DataSampleSpec).
@@ -238,9 +235,6 @@ class Client(object):
         large amount of data it is recommended to add them one by one. It allows a
         better control in case of failures.
 
-        If data samples with the same content as any of the paths already exists, an `AlreadyExists`
-        exception will be raised.
-
         Args:
             data (Union[dict, schemas.DataSampleSpec]): data samples to add. If it is a dict,
                 it must follow the [DataSampleSpec schema](sdk_schemas.md#DataSampleSpec).
@@ -269,9 +263,6 @@ class Client(object):
     def add_dataset(self, data: Union[dict, schemas.DatasetSpec]):
         """Create new dataset asset and return its key.
 
-        If a dataset with the same opener already exists, an `AlreadyExists` exception will be
-        raised.
-
         Args:
             data (Union[dict, schemas.DatasetSpec]): If it is a dict, it must have the same
                 keys as specified in [schemas.DatasetSpec](sdk_schemas.md#DatasetSpec).
@@ -289,9 +280,6 @@ class Client(object):
     ) -> str:
         """Create new objective asset.
 
-        If an objective with the same description already exists, an `AlreadyExists` exception will
-        be raised.
-
         Args:
             data (Union[dict, schemas.ObjectiveSpec]): If it is a dict, it must have the same keys
                 as specified in [schemas.ObjectiveSpec](sdk_schemas.md#ObjectiveSpec).
@@ -305,9 +293,6 @@ class Client(object):
     @logit
     def add_algo(self, data: Union[dict, schemas.AlgoSpec]) -> str:
         """Create new algo asset.
-
-        If an algo with the same archive file already exists, an `AlreadyExists` exception will be
-        raised.
 
         Args:
             data (Union[dict, schemas.AlgoSpec]): If it is a dict, it must have the same keys
@@ -325,9 +310,6 @@ class Client(object):
         data: Union[dict, schemas.AggregateAlgoSpec],
     ) -> str:
         """Create new aggregate algo asset.
-
-        If an aggregate algo with the same archive file already exists, an `AlreadyExists`
-        exception will be raised.
 
         Args:
             data (Union[dict, schemas.AggregateAlgoSpec]): If it is a dict,
@@ -347,9 +329,6 @@ class Client(object):
     ) -> str:
         """Create new composite algo asset.
 
-        If a composite algo with the same archive file already exists, an `AlreadyExists`
-        exception will be raised.
-
         Args:
             data (Union[dict, schemas.CompositeAlgoSpec]): If it is a dict, it must have the same
                 keys as specified in [schemas.CompositeAlgoSpec](sdk_schemas.md#CompositeAlgoSpec).
@@ -367,10 +346,6 @@ class Client(object):
     ) -> str:
         """Create new traintuple asset.
 
-        An `AlreadyExists` exception will be raised if a traintuple already exists that:
-        * has the same `algo_key`, `data_manager_key`, `train_data_sample_keys` and `in_models_keys`
-        * and was created through the same node you are using
-
         Args:
             data (Union[dict, schemas.TraintupleSpec]): If it is a dict, it must have the same
                 keys as specified in [schemas.TraintupleSpec](sdk_schemas.md#TraintupleSpec).
@@ -387,10 +362,6 @@ class Client(object):
         data: Union[dict, schemas.AggregatetupleSpec]
     ) -> str:
         """Create a new aggregate tuple asset.
-
-        An `AlreadyExists` exception will be raised if an aggregatetuple already exists that:
-        * has the same `algo_key` and `in_models_keys`
-        * and was created through the same node you are using
 
         Args:
             data (Union[dict, schemas.AggregatetupleSpec]): If it is a dict, it must have the same
@@ -413,11 +384,6 @@ class Client(object):
         As specified in the data structure, output trunk models cannot be made
         public.
 
-        An `AlreadyExists` exception will be raised if a traintuple already exists that:
-        * has the same `algo_key`, `data_manager_key`, `train_data_sample_keys`,
-          `in_head_models_key` and `in_trunk_model_key`
-        * and was created through the same node you are using
-
         Args:
             data (Union[dict, schemas.CompositeTraintupleSpec]): If it is a dict, it must have the
                 same keys as specified in
@@ -435,11 +401,6 @@ class Client(object):
         data: Union[dict, schemas.TesttupleSpec]
     ) -> str:
         """Create new testtuple asset.
-
-        An `AlreadyExists` exception will be raised if a testtuple already exists that:
-        * has the same `traintuple_key`, `objective_key`, `data_manager_key` and
-          `test_data_sample_keys`
-        * and was created through the same node you are using
 
         Args:
             data (Union[dict, schemas.TesttupleSpec]): If it is a dict, it must have the same

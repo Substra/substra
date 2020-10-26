@@ -66,9 +66,6 @@ def test_post_success(mocker, config):
     (408, {"key": "a-key"}, exceptions.RequestTimeout),
     (408, {}, exceptions.RequestTimeout),
 
-    (409, {"key": "a-key"}, exceptions.AlreadyExists),
-    (409, {"key": ["a-key", "other-key"]}, exceptions.AlreadyExists),
-
     (500, "CRASH", exceptions.InternalServerError),
 ])
 def test_request_http_errors(mocker, status_code, http_response, sdk_exception):
@@ -97,7 +94,7 @@ def test_add_timeout_with_retry(mocker):
     assert asset == {"key": "a-key"}
 
 
-def test_add_exist_ok(mocker):
+def test_add_already_exist(mocker):
     asset_name = "traintuple"
     m_post = mock_requests(mocker, "post", response={"key": "a-key"}, status=409)
     m_get = mock_requests(mocker, "get", response={"key": "a-key"})

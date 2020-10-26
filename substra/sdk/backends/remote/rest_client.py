@@ -207,7 +207,8 @@ class Client():
             key = e.key
             is_many = isinstance(key, list)
             if is_many:
-                logger.warning("Many assets not compatible with 'exist_ok' option")
+                logger.warning("AlreadyExists exception was received for a list of keys. "\
+                               "Unable to determine which key(s) already exist.")
                 raise
 
             logger.warning(f"{name} already exists: key='{key}'")

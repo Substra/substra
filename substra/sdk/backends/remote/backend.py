@@ -77,14 +77,14 @@ class Remote(base.BaseBackend):
     def _add_data_samples(self, spec, spec_options):
         """Add data sample(s)."""
         # data sample(s) creation must be handled separately as the get request is not
-        # available on this ressource. On top of that the exist ok option is working
-        # only when adding a single data sample (and not for bulk upload)
+        # available on this ressource.
         try:
             with spec.build_request_kwargs(**spec_options) as (data, files):
                 data_samples = self._add(
                     schemas.Type.DataSample, data, files)
         except exceptions.AlreadyExists as e:
             if spec.is_many():
+                # We don't know which of the keys already exists
                 raise
 
             key = e.key[0]
