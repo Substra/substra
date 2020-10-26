@@ -36,8 +36,11 @@ class InMemoryDb:
         else:
             key = asset.key
 
-        self._data[type_][key] = asset
-        logger.info(f"{type_} with key '{key}' has been created.")
+        if key in self._data[type_]:
+            raise exceptions.AlreadyExists(key, 409)
+        else:
+            self._data[type_][key] = asset
+            logger.info(f"{type_} with key '{key}' has been created.")
 
         return asset
 

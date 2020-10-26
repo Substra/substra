@@ -276,6 +276,38 @@ def test_command_add_data_sample(workdir, mocker):
     assert re.search(r"Directory '.*' does not exist\.", res)
 
 
+@pytest.mark.parametrize('asset_name, params', [
+    ('dataset', []),
+    ('algo', []),
+    ('traintuple', ['--algo-key', 'foo', '--dataset-key', 'foo',
+                    '--data-samples-path']),
+    ('testtuple', ['--objective-key', 'foo', '--traintuple-key', 'foo', '--data-samples-path']),
+    ('compute_plan', []),
+    ('objective', []),
+])
+def test_command_add_already_exists(workdir, mocker, asset_name, params):
+    m = mock_client_call(mocker, f'add_{asset_name}',
+                         side_effect=substra.exceptions.AlreadyExists('foo', 409))
+    json_file = workdir / "valid_json_file.json"
+    json_file.write_text(json.dumps({}))
+    output = client_execute(workdir, ['add', asset_name] + params + [str(json_file)],
+                            exit_code=1)
+
+    assert 'already exists' in output
+    m.assert_called()
+
+
+def test_command_add_data_sample_already_exists(workdir, mocker):
+    m = mock_client_call(mocker, 'add_data_samples',
+                         side_effect=substra.exceptions.AlreadyExists('foo', 409))
+    temp_dir = workdir / "test"
+    temp_dir.mkdir()
+    output = client_execute(workdir, ['add', 'data_sample', str(temp_dir), '--dataset-key', 'foo'],
+                            exit_code=1)
+    assert 'already exists' in output
+    m.assert_called()
+
+
 @pytest.mark.parametrize('asset_name,key_field,model', [
     ('objective', 'key', models.Objective),
     ('dataset', 'key', models.Dataset),

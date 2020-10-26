@@ -121,6 +121,9 @@ class Client():
             if e.response.status_code == 408:
                 raise exceptions.RequestTimeout.from_request_exception(e)
 
+            if e.response.status_code == 409:
+                raise exceptions.AlreadyExists.from_request_exception(e)
+
             if e.response.status_code == 500:
                 raise exceptions.InternalServerError.from_request_exception(e)
 
@@ -193,8 +196,22 @@ class Client():
         return items
 
     def _add(self, name, **request_kwargs):
-        """ Add asset wrapper."""
-        return self.request('post', name, **request_kwargs)
+        """ Add asset wrapper.
+
+        Handles conflict error when created asset already exists.
+        """
+        try:
+            return self.request('post', name, **request_kwargs)
+
+        except exceptions.AlreadyExists as e:
+            key = e.key
+            is_many = isinstance(key, list)
+            if is_many:
+                logger.warning("Many assets not compatible with 'exist_ok' option")
+                raise
+
+            logger.warning(f"{name} already exists: key='{key}'")
+            return self.get(name, key)
 
     def add(self, name, retry_timeout=False, **request_kwargs):
         """Add asset.
