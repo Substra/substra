@@ -1,5 +1,5 @@
 # this base image works in both CPU and GPU enabled environments
-FROM substrafoundation/substra-tools:0.6.1
+FROM substrafoundation/substra-tools:0.7.0
 
 # install dependencies
 RUN pip3 install pandas numpy sklearn pillow scipy keras
