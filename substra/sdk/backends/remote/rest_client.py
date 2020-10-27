@@ -207,7 +207,7 @@ class Client():
             key = e.key
             is_many = isinstance(key, list)
             if is_many:
-                logger.warning("AlreadyExists exception was received for a list of keys. "\
+                logger.warning("AlreadyExists exception was received for a list of keys. "
                                "Unable to determine which key(s) already exist.")
                 raise
 

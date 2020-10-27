@@ -26,26 +26,21 @@ In debug mode, new assets are created locally but can access assets from
 the deployed Substra platform. The platform is in read-only mode.
 Defaults to False.
 ## temp_directory
-_This is a property._
+_This is a property._  
 Temporary directory for storing assets in debug mode.
         Deleted when the client is deleted.
-
+        
 ## add_aggregate_algo
 ```python
 add_aggregate_algo(self, data: Union[dict, substra.sdk.schemas.AggregateAlgoSpec]) -> str
 ```
 
 Create new aggregate algo asset.
-If an aggregate algo with the same archive file already exists, an `AlreadyExists`
-exception will be raised.
 
 **Arguments:**
  - `data (Union[dict, schemas.AggregateAlgoSpec], required)`: If it is a dict,
 it must have the same keys as specified in
 [schemas.AggregateAlgoSpec](sdk_schemas.md#AggregateAlgoSpec).
- - `exist_ok (bool, optional)`: If `exist_ok` is true, `AlreadyExists`
-exceptions will be ignored and the existing asset key will be returned.
-Defaults to False.
 
 **Returns:**
 
@@ -56,17 +51,11 @@ add_aggregatetuple(self, data: Union[dict, substra.sdk.schemas.AggregatetupleSpe
 ```
 
 Create a new aggregate tuple asset.
-An `AlreadyExists` exception will be raised if an aggregatetuple already exists that:
-* has the same `algo_key` and `in_models_keys`
-* and was created through the same node you are using
 
 **Arguments:**
  - `data (Union[dict, schemas.AggregatetupleSpec], required)`: If it is a dict, it must have the same
 keys as specified in
 [schemas.AggregatetupleSpec](sdk_schemas.md#AggregatetupleSpec).
- - `exist_ok (bool, optional)`: If `exist_ok` is true, `AlreadyExists`
-exceptions will be ignored and the existing asset key will be returned.
-Defaults to False.
 
 **Returns:**
 
@@ -77,14 +66,10 @@ add_algo(self, data: Union[dict, substra.sdk.schemas.AlgoSpec]) -> str
 ```
 
 Create new algo asset.
-If an algo with the same archive file already exists, an `AlreadyExists` exception will be
-raised.
 
 **Arguments:**
  - `data (Union[dict, schemas.AlgoSpec], required)`: If it is a dict, it must have the same keys
 as specified in [schemas.AlgoSpec](sdk_schemas.md#AlgoSpec).
- - `exist_ok (bool, optional)`: If `exist_ok` is true, `AlreadyExists` exceptions will be
-ignored and the existing asset key will be returned. Defaults to False.
 
 **Returns:**
 
@@ -95,15 +80,10 @@ add_composite_algo(self, data: Union[dict, substra.sdk.schemas.CompositeAlgoSpec
 ```
 
 Create new composite algo asset.
-If a composite algo with the same archive file already exists, an `AlreadyExists`
-exception will be raised.
 
 **Arguments:**
  - `data (Union[dict, schemas.CompositeAlgoSpec], required)`: If it is a dict, it must have the same
 keys as specified in [schemas.CompositeAlgoSpec](sdk_schemas.md#CompositeAlgoSpec).
- - `exist_ok (bool, optional)`: If `exist_ok` is true, `AlreadyExists`
-exceptions will be ignored and the existing asset key will be returned.
-Defaults to False.
 
 **Returns:**
 
@@ -117,18 +97,10 @@ Create new composite traintuple asset.
 As specified in the data structure, output trunk models cannot be made
 public.
 
-An `AlreadyExists` exception will be raised if a traintuple already exists that:
-* has the same `algo_key`, `data_manager_key`, `train_data_sample_keys`,
-  `in_head_models_key` and `in_trunk_model_key`
-* and was created through the same node you are using
-
 **Arguments:**
  - `data (Union[dict, schemas.CompositeTraintupleSpec], required)`: If it is a dict, it must have the
 same keys as specified in
 [schemas.CompositeTraintupleSpec](sdk_schemas.md#CompositeTraintupleSpec).
- - `exist_ok (bool, optional)`: If `exist_ok` is true, `AlreadyExists`
-exceptions will be ignored and the existing asset key will be returned.
-Defaults to False.
 
 **Returns:**
 
@@ -159,8 +131,6 @@ add_data_sample(self, data: Union[dict, substra.sdk.schemas.DataSampleSpec], loc
 ```
 
 Create a new data sample asset and return its key.
-If a data sample with the same content already exists, an `AlreadyExists` exception will be
-raised.
 
 **Arguments:**
  - `data (Union[dict, schemas.DataSampleSpec], required)`: data sample to add. If it is a dict,
@@ -173,8 +143,6 @@ through an HTTP query, so this mode should be used for relatively small files
 If `local` is false, `path` must refer to a directory located on the server
 filesystem. This directory must be accessible (readable) by the server.  This
 mode is well suited for all kind of file sizes. Defaults to True.
- - `exist_ok (bool, optional)`: If `exist_ok` is true, `AlreadyExists` exceptions will
-be ignored and the existing asset key will be returned. Defaults to False.
 
 **Returns:**
 
@@ -189,9 +157,6 @@ Create multiple data samples through a single HTTP request.
 This method is well suited for adding multiple small files only. For adding a
 large amount of data it is recommended to add them one by one. It allows a
 better control in case of failures.
-
-If data samples with the same content as any of the paths already exists, an `AlreadyExists`
-exception will be raised.
 
 **Arguments:**
  - `data (Union[dict, schemas.DataSampleSpec], required)`: data samples to add. If it is a dict,
@@ -210,15 +175,10 @@ add_dataset(self, data: Union[dict, substra.sdk.schemas.DatasetSpec])
 ```
 
 Create new dataset asset and return its key.
-If a dataset with the same opener already exists, an `AlreadyExists` exception will be
-raised.
 
 **Arguments:**
  - `data (Union[dict, schemas.DatasetSpec], required)`: If it is a dict, it must have the same
 keys as specified in [schemas.DatasetSpec](sdk_schemas.md#DatasetSpec).
- - `exist_ok (bool, optional)`: If `exist_ok` is true, `AlreadyExists` exceptions
-will be ignored and the existing asset key will be returned.
-Defaults to False.
 
 **Returns:**
 
@@ -229,14 +189,10 @@ add_objective(self, data: Union[dict, substra.sdk.schemas.ObjectiveSpec]) -> str
 ```
 
 Create new objective asset.
-If an objective with the same description already exists, an `AlreadyExists` exception will
-be raised.
 
 **Arguments:**
  - `data (Union[dict, schemas.ObjectiveSpec], required)`: If it is a dict, it must have the same keys
 as specified in [schemas.ObjectiveSpec](sdk_schemas.md#ObjectiveSpec).
- - `exist_ok (bool, optional)`: If `exist_ok` is true, `AlreadyExists` exceptions
-will be ignored and the existing asset key will be returned. Defaults to False.
 
 **Returns:**
 
@@ -247,17 +203,10 @@ add_testtuple(self, data: Union[dict, substra.sdk.schemas.TesttupleSpec]) -> str
 ```
 
 Create new testtuple asset.
-An `AlreadyExists` exception will be raised if a testtuple already exists that:
-* has the same `traintuple_key`, `objective_key`, `data_manager_key` and
-  `test_data_sample_keys`
-* and was created through the same node you are using
 
 **Arguments:**
  - `data (Union[dict, schemas.TesttupleSpec], required)`: If it is a dict, it must have the same
 keys as specified in [schemas.TesttupleSpec](sdk_schemas.md#TesttupleSpec).
- - `exist_ok (bool, optional)`: If `exist_ok` is true, `AlreadyExists`
-exceptions will be ignored and the existing asset key will be returned.
-Defaults to False.
 
 **Returns:**
 
@@ -268,16 +217,10 @@ add_traintuple(self, data: Union[dict, substra.sdk.schemas.TraintupleSpec]) -> s
 ```
 
 Create new traintuple asset.
-An `AlreadyExists` exception will be raised if a traintuple already exists that:
-* has the same `algo_key`, `data_manager_key`, `train_data_sample_keys` and `in_models_keys`
-* and was created through the same node you are using
 
 **Arguments:**
  - `data (Union[dict, schemas.TraintupleSpec], required)`: If it is a dict, it must have the same
 keys as specified in [schemas.TraintupleSpec](sdk_schemas.md#TraintupleSpec).
- - `exist_ok (bool, optional)`: If `exist_ok` is true, `AlreadyExists`
-exceptions will be ignored and the existing asset key will be returned.
-Defaults to False.
 
 **Returns:**
 
@@ -558,7 +501,7 @@ in the [models.Traintuple](sdk_models.md#Traintuple) model
 login(self, username, password)
 ```
 
-Login to a remote server.
+Login to a remote server. 
 ## update_compute_plan
 ```python
 update_compute_plan(self, compute_plan_id: str, data: Union[dict, substra.sdk.schemas.UpdateComputePlanSpec], auto_batching: bool = True, batch_size: int = 20) -> substra.sdk.models.ComputePlan

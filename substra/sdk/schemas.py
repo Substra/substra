@@ -23,7 +23,7 @@ import uuid
 
 import pydantic
 
-from substra.sdk import utils, fs
+from substra.sdk import utils
 
 # TODO create a sub-package schemas:
 # types
