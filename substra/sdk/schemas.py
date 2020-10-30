@@ -87,8 +87,8 @@ class _Spec(_PydanticConfig, abc.ABC):
         else:
             yield data, None
 
-    def compute_key() -> str:
-        raise NotImplementedError
+    def compute_key(self) -> str:
+        return str(uuid.uuid4())
 
 
 class Permissions(_PydanticConfig):
@@ -140,9 +140,6 @@ class DataSampleSpec(_Spec):
                 yield (data, files)
         else:
             yield data, None
-
-    def compute_key(self) -> str:
-        return str(uuid.uuid4())
 
 
 class ComputePlanTraintupleSpec(_Spec):
@@ -233,9 +230,6 @@ class DatasetSpec(_Spec):
     class Meta:
         file_attributes = ('data_opener', 'description', )
 
-    def compute_key(self) -> str:
-        return str(uuid.uuid4())
-
 
 class ObjectiveSpec(_Spec):
     """Specification for creating an objective"""
@@ -253,9 +247,6 @@ class ObjectiveSpec(_Spec):
     class Meta:
         file_attributes = ('metrics', 'description', )
 
-    def compute_key(self) -> str:
-        return str(uuid.uuid4())
-
 
 class _AlgoSpec(_Spec):
     name: str
@@ -266,9 +257,6 @@ class _AlgoSpec(_Spec):
 
     class Meta:
         file_attributes = ('file', 'description', )
-
-    def compute_key(self) -> str:
-        return str(uuid.uuid4())
 
 
 class AlgoSpec(_AlgoSpec):
@@ -322,9 +310,6 @@ class TraintupleSpec(_Spec):
             metadata=spec.metadata
         )
 
-    def compute_key(self) -> str:
-        return str(uuid.uuid4())
-
 
 class AggregatetupleSpec(_Spec):
     """Specification for creating an aggregate tuple"""
@@ -360,9 +345,6 @@ class AggregatetupleSpec(_Spec):
             rank=rank,
             metadata=spec.metadata
         )
-
-    def compute_key(self) -> str:
-        return str(uuid.uuid4())
 
 
 class CompositeTraintupleSpec(_Spec):
@@ -406,9 +388,6 @@ class CompositeTraintupleSpec(_Spec):
             metadata=spec.metadata
         )
 
-    def compute_key(self) -> str:
-        return str(uuid.uuid4())
-
 
 class TesttupleSpec(_Spec):
     """Specification for creating a testtuple"""
@@ -435,6 +414,3 @@ class TesttupleSpec(_Spec):
             test_data_sample_keys=spec.test_data_sample_keys,
             metadata=spec.metadata,
         )
-
-    def compute_key(self) -> str:
-        return str(uuid.uuid4())

@@ -16,7 +16,7 @@ import time
 
 import requests
 
-from substra.sdk import exceptions, utils
+from substra.sdk import exceptions, utils, schemas
 
 logger = logging.getLogger(__name__)
 
@@ -212,7 +212,11 @@ class Client():
                 raise
 
             logger.warning(f"{name} already exists: key='{key}'")
-            return self.get(name, key)
+            if name == schemas.Type.ComputePlan:
+                # We only need to retrieve the full asset in the case of a Compute Plan.
+                return self.get(name, key)
+            else:
+                return {'key': key}
 
     def add(self, name, retry_timeout=False, **request_kwargs):
         """Add asset.
