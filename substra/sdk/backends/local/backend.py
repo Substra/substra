@@ -123,7 +123,7 @@ class Local(base.BaseBackend):
                 testtuple_keys or list(),
             ]
         ])
-        compute_plan_id = self._db.get_local_key(schemas.ComputePlanSpec.compute_key())
+        compute_plan_id = self._db.get_local_key(schemas._Spec.compute_key())
         compute_plan = models.ComputePlan(
             compute_plan_id=compute_plan_id,
             status=models.Status.waiting,
@@ -562,7 +562,7 @@ class Local(base.BaseBackend):
             },
             dataset={
                 "key": spec.data_manager_key,
-                "opener_hash": spec.data_manager_key,  # TODO: pass actual opener hash
+                "opener_hash": data_manager.opener.hash_,
                 "keys": spec.train_data_sample_keys,
                 "worker": _BACKEND_ID,
                 "metadata": {}
@@ -646,6 +646,8 @@ class Local(base.BaseBackend):
             test_data_sample_keys = objective.test_dataset.data_sample_keys
             certified = True
 
+        dataset = self._db.get(schemas.Type.Dataset, dataset_key)
+
         if traintuple.compute_plan_id:
             compute_plan = self._db.get(
                 schemas.Type.ComputePlan, traintuple.compute_plan_id
@@ -671,7 +673,7 @@ class Local(base.BaseBackend):
             certified=certified,
             dataset={
                 "key": dataset_key,
-                "opener_hash": dataset_key,  # TODO: pass actual opener hash
+                "opener_hash": dataset.opener.hash_,
                 "perf": -1,
                 "keys": test_data_sample_keys,
                 "worker": _BACKEND_ID,
@@ -697,7 +699,7 @@ class Local(base.BaseBackend):
         # validation
         self.__check_metadata(spec.metadata)
         algo = self._db.get(schemas.Type.CompositeAlgo, spec.algo_key)
-        self._db.get(schemas.Type.Dataset, spec.data_manager_key)
+        dataset = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
         self.__check_same_data_manager(spec.data_manager_key, spec.train_data_sample_keys)
 
         in_head_model = None
@@ -766,7 +768,7 @@ class Local(base.BaseBackend):
             },
             dataset={
                 "key": spec.data_manager_key,
-                "opener_hash": spec.data_manager_key,  # TODO: pass actual opener hash
+                "opener_hash": dataset.opener.hash_,
                 "keys": spec.train_data_sample_keys,
                 "worker": _BACKEND_ID,
             },

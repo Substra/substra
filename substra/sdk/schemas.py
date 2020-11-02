@@ -87,7 +87,8 @@ class _Spec(_PydanticConfig, abc.ABC):
         else:
             yield data, None
 
-    def compute_key(self) -> str:
+    @staticmethod
+    def compute_key() -> str:
         return str(uuid.uuid4())
 
 
@@ -204,10 +205,6 @@ class ComputePlanSpec(_BaseComputePlanSpec):
     metadata: Optional[Dict[str, str]]
 
     type_: typing.ClassVar[Type] = Type.ComputePlan
-
-    @staticmethod
-    def compute_key() -> str:
-        return str(uuid.uuid4())
 
 
 class UpdateComputePlanSpec(_BaseComputePlanSpec):
