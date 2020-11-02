@@ -207,7 +207,10 @@ class Worker:
 
             if not isinstance(tuple_, models.Aggregatetuple):
                 if self._db.is_local(tuple_.dataset.key):
-                    data_sample_paths = self._get_data_sample_paths_arg(_VOLUME_INPUT_DATASAMPLES['bind'], tuple_.dataset)
+                    data_sample_paths = self._get_data_sample_paths_arg(
+                        _VOLUME_INPUT_DATASAMPLES['bind'],
+                        tuple_.dataset
+                    )
                     command += f" --data-sample-paths {data_sample_paths}"
                 else:
                     command += " --fake-data"
@@ -316,7 +319,10 @@ class Worker:
                 )
 
             if self._db.is_local(dataset.key):
-                data_sample_paths = self._get_data_sample_paths_arg(_VOLUME_INPUT_DATASAMPLES['bind'], tuple_.dataset)
+                data_sample_paths = self._get_data_sample_paths_arg(
+                    _VOLUME_INPUT_DATASAMPLES['bind'],
+                    tuple_.dataset
+                )
                 command += f" --data-sample-paths {data_sample_paths}"
             else:
                 command += " --fake-data"
