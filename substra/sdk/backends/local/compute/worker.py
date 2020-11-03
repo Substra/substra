@@ -62,7 +62,7 @@ class Worker:
     def _get_data_volume(self, tuple_dir, tuple_):
         data_volume = _mkdir(os.path.join(tuple_dir, "data"))
         samples = [
-            self._db.get(schemas.Type.DataSample, key) for key in tuple_.dataset.keys
+            self._db.get(schemas.Type.DataSample, key) for key in tuple_.dataset.data_sample_keys
         ]
         for sample in samples:
             # TODO more efficient link (symlink?)
@@ -187,7 +187,7 @@ class Worker:
             if not isinstance(tuple_, models.Aggregatetuple) \
                     and not self._db.is_local(tuple_.dataset.key):
                 command += " --fake-data"
-                command += f" --n-fake-samples {len(tuple_.dataset.keys)}"
+                command += f" --n-fake-samples {len(tuple_.dataset.data_sample_keys)}"
 
             # Add the in_models to the command
             if isinstance(tuple_, models.CompositeTraintuple):
@@ -276,7 +276,7 @@ class Worker:
 
             if not self._db.is_local(dataset.key):
                 command += " --fake-data"
-                command += f" --n-fake-samples {len(tuple_.dataset.keys)}"
+                command += f" --n-fake-samples {len(tuple_.dataset.data_sample_keys)}"
 
             if tuple_.traintuple_type == schemas.Type.Traintuple \
                     or tuple_.traintuple_type == schemas.Type.Aggregatetuple:
@@ -323,7 +323,7 @@ class Worker:
                 command = f"--fake-data-mode {METRICS_NO_FAKE_Y}"
             else:
                 command = f"--fake-data-mode {METRICS_FAKE_Y}"
-                command += f" --n-fake-samples {len(tuple_.dataset.keys)}"
+                command += f" --n-fake-samples {len(tuple_.dataset.data_sample_keys)}"
 
             container_name = DOCKER_METRICS_TAG
             logs_predict = self._spawner.spawn(

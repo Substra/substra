@@ -563,7 +563,7 @@ class Local(base.BaseBackend):
             dataset={
                 "key": spec.data_manager_key,
                 "opener_checksum": data_manager.opener.checksum,
-                "keys": spec.train_data_sample_keys,
+                "data_sample_keys": spec.train_data_sample_keys,
                 "worker": _BACKEND_ID,
                 "metadata": {}
             },
@@ -675,7 +675,7 @@ class Local(base.BaseBackend):
                 "key": dataset_key,
                 "opener_checksum": dataset.opener.checksum,
                 "perf": -1,
-                "keys": test_data_sample_keys,
+                "data_sample_keys": test_data_sample_keys,
                 "worker": _BACKEND_ID,
             },
             log="",
@@ -769,7 +769,7 @@ class Local(base.BaseBackend):
             dataset={
                 "key": spec.data_manager_key,
                 "opener_checksum": dataset.opener.checksum,
-                "keys": spec.train_data_sample_keys,
+                "data_sample_keys": spec.train_data_sample_keys,
                 "worker": _BACKEND_ID,
             },
             tag=spec.tag or '',
