@@ -15,7 +15,7 @@
 import collections
 import logging
 
-from substra.sdk import exceptions, models
+from substra.sdk import exceptions
 
 logger = logging.getLogger(__name__)
 
