@@ -33,13 +33,13 @@ for train_index, test_index in splits:
 DATA_SAMPLES_ROOT = '../assets'
 
 filename = os.path.join(DATA_SAMPLES_ROOT, 'test_data_sample/test.csv')
-os.makedirs(os.path.dirname(filename), exist_ok=True)
+os.makedirs(os.path.dirname(filename))
 with open(filename, 'w') as f:
     test_data_sample.to_csv(f)
 
 for i, train_data_sample in enumerate(train_data_samples):
     filename = os.path.join(DATA_SAMPLES_ROOT, f'../assets/train_data_samples/train{i}/train{i}.csv')
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    os.makedirs(os.path.dirname(filename))
     with open(filename, 'w') as f:
         train_data_sample.to_csv(f)
 ```

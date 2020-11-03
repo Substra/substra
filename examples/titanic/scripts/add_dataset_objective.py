@@ -91,7 +91,7 @@ with zipfile.ZipFile(archive_path, 'w') as z:
 
 
 print('Adding dataset...')
-dataset_key = client.add_dataset(DATASET, exist_ok=True)
+dataset_key = client.add_dataset(DATASET)
 assert dataset_key, 'Missing data manager key'
 
 train_data_sample_keys = []
@@ -120,7 +120,7 @@ for conf in data_samples_configs:
                 'data_manager_keys': [dataset_key],
                 'test_only': conf['test_only'],
                 'path': path,
-            }, local=True, exist_ok=True)
+            }, local=True)
             conf['data_sample_keys'].append(data_sample_key)
             progress.update()
     assert len(conf['data_sample_keys']), conf['missing_message']
@@ -140,7 +140,7 @@ objective_key = client.add_objective({
     'test_data_sample_keys': test_data_sample_keys,
     'test_data_manager_key': dataset_key,
     'permissions': OBJECTIVE['permissions'],
-}, exist_ok=True)
+})
 assert objective_key, 'Missing objective key'
 
 # Save assets keys

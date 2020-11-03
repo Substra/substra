@@ -12,7 +12,7 @@ class BaseBackend(abc.ABC):
     def list(self, asset_type, filters=None):
         raise NotImplementedError
 
-    def add(self, spec, exist_ok=False, spec_options=None):
+    def add(self, spec, spec_options=None):
         raise NotImplementedError
 
     def update_compute_plan(self, compute_plan_id, spec):

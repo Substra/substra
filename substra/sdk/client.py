@@ -190,13 +190,9 @@ class Client(object):
     def add_data_sample(
         self,
         data: Union[dict, schemas.DataSampleSpec],
-        local: bool = True,
-        exist_ok: bool = False
+        local: bool = True
     ) -> str:
         """Create a new data sample asset and return its key.
-
-        If a data sample with the same content already exists, an `AlreadyExists` exception will be
-        raised.
 
         Args:
             data (Union[dict, schemas.DataSampleSpec]): data sample to add. If it is a dict,
@@ -209,8 +205,6 @@ class Client(object):
                 If `local` is false, `path` must refer to a directory located on the server
                 filesystem. This directory must be accessible (readable) by the server.  This
                 mode is well suited for all kind of file sizes. Defaults to True.
-            exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists` exceptions will
-                be ignored and the existing asset key will be returned. Defaults to False.
 
         Returns:
             str: key of the data sample
@@ -225,7 +219,6 @@ class Client(object):
         }
         return self._backend.add(
             spec,
-            exist_ok=exist_ok,
             spec_options=spec_options
         )
 
@@ -241,9 +234,6 @@ class Client(object):
         This method is well suited for adding multiple small files only. For adding a
         large amount of data it is recommended to add them one by one. It allows a
         better control in case of failures.
-
-        If data samples with the same content as any of the paths already exists, an `AlreadyExists`
-        exception will be raised.
 
         Args:
             data (Union[dict, schemas.DataSampleSpec]): data samples to add. If it is a dict,
@@ -266,227 +256,161 @@ class Client(object):
         }
         return self._backend.add(
             spec,
-            exist_ok=False,
             spec_options=spec_options,
         )
 
     @logit
-    def add_dataset(self, data: Union[dict, schemas.DatasetSpec], exist_ok: bool = False):
+    def add_dataset(self, data: Union[dict, schemas.DatasetSpec]):
         """Create new dataset asset and return its key.
-
-        If a dataset with the same opener already exists, an `AlreadyExists` exception will be
-        raised.
 
         Args:
             data (Union[dict, schemas.DatasetSpec]): If it is a dict, it must have the same
                 keys as specified in [schemas.DatasetSpec](sdk_schemas.md#DatasetSpec).
-            exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists` exceptions
-                will be ignored and the existing asset key will be returned.
-                Defaults to False.
 
         Returns:
             str: Key of the dataset
         """
         spec = self._get_spec(schemas.DatasetSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok)
+        return self._backend.add(spec)
 
     @logit
     def add_objective(
         self,
         data: Union[dict, schemas.ObjectiveSpec],
-        exist_ok: bool = False,
     ) -> str:
         """Create new objective asset.
-
-        If an objective with the same description already exists, an `AlreadyExists` exception will
-        be raised.
 
         Args:
             data (Union[dict, schemas.ObjectiveSpec]): If it is a dict, it must have the same keys
                 as specified in [schemas.ObjectiveSpec](sdk_schemas.md#ObjectiveSpec).
-            exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists` exceptions
-                will be ignored and the existing asset key will be returned. Defaults to False.
 
         Returns:
             str: Key of the objective
         """
         spec = self._get_spec(schemas.ObjectiveSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok)
+        return self._backend.add(spec)
 
     @logit
-    def add_algo(self, data: Union[dict, schemas.AlgoSpec], exist_ok: bool = False) -> str:
+    def add_algo(self, data: Union[dict, schemas.AlgoSpec]) -> str:
         """Create new algo asset.
-
-        If an algo with the same archive file already exists, an `AlreadyExists` exception will be
-        raised.
 
         Args:
             data (Union[dict, schemas.AlgoSpec]): If it is a dict, it must have the same keys
                 as specified in [schemas.AlgoSpec](sdk_schemas.md#AlgoSpec).
-            exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists` exceptions will be
-                ignored and the existing asset key will be returned. Defaults to False.
 
         Returns:
             str: Key of the algo
         """
         spec = self._get_spec(schemas.AlgoSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok)
+        return self._backend.add(spec)
 
     @logit
     def add_aggregate_algo(
         self,
         data: Union[dict, schemas.AggregateAlgoSpec],
-        exist_ok: bool = False,
     ) -> str:
         """Create new aggregate algo asset.
-
-        If an aggregate algo with the same archive file already exists, an `AlreadyExists`
-        exception will be raised.
 
         Args:
             data (Union[dict, schemas.AggregateAlgoSpec]): If it is a dict,
                 it must have the same keys as specified in
                 [schemas.AggregateAlgoSpec](sdk_schemas.md#AggregateAlgoSpec).
-            exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists`
-                exceptions will be ignored and the existing asset key will be returned.
-                Defaults to False.
 
         Returns:
             str: Key of the asset
         """
         spec = self._get_spec(schemas.AggregateAlgoSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok)
+        return self._backend.add(spec)
 
     @logit
     def add_composite_algo(
         self,
-        data: Union[dict, schemas.CompositeAlgoSpec],
-        exist_ok: bool = False
+        data: Union[dict, schemas.CompositeAlgoSpec]
     ) -> str:
         """Create new composite algo asset.
-
-        If a composite algo with the same archive file already exists, an `AlreadyExists`
-        exception will be raised.
 
         Args:
             data (Union[dict, schemas.CompositeAlgoSpec]): If it is a dict, it must have the same
                 keys as specified in [schemas.CompositeAlgoSpec](sdk_schemas.md#CompositeAlgoSpec).
-            exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists`
-                exceptions will be ignored and the existing asset key will be returned.
-                Defaults to False.
 
         Returns:
             str: Key of the asset
         """
         spec = self._get_spec(schemas.CompositeAlgoSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok)
+        return self._backend.add(spec)
 
     @logit
     def add_traintuple(
         self,
-        data: Union[dict, schemas.TraintupleSpec],
-        exist_ok: bool = False
+        data: Union[dict, schemas.TraintupleSpec]
     ) -> str:
         """Create new traintuple asset.
-
-        An `AlreadyExists` exception will be raised if a traintuple already exists that:
-        * has the same `algo_key`, `data_manager_key`, `train_data_sample_keys` and `in_models_keys`
-        * and was created through the same node you are using
 
         Args:
             data (Union[dict, schemas.TraintupleSpec]): If it is a dict, it must have the same
                 keys as specified in [schemas.TraintupleSpec](sdk_schemas.md#TraintupleSpec).
-            exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists`
-                exceptions will be ignored and the existing asset key will be returned.
-                Defaults to False.
 
         Returns:
             str: Key of the asset
         """
         spec = self._get_spec(schemas.TraintupleSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok)
+        return self._backend.add(spec)
 
     @logit
     def add_aggregatetuple(
         self,
-        data: Union[dict, schemas.AggregatetupleSpec],
-        exist_ok: bool = False
+        data: Union[dict, schemas.AggregatetupleSpec]
     ) -> str:
         """Create a new aggregate tuple asset.
-
-        An `AlreadyExists` exception will be raised if an aggregatetuple already exists that:
-        * has the same `algo_key` and `in_models_keys`
-        * and was created through the same node you are using
 
         Args:
             data (Union[dict, schemas.AggregatetupleSpec]): If it is a dict, it must have the same
                 keys as specified in
                 [schemas.AggregatetupleSpec](sdk_schemas.md#AggregatetupleSpec).
-            exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists`
-                exceptions will be ignored and the existing asset key will be returned.
-                Defaults to False.
 
         Returns:
             str: Key of the asset
         """
         spec = self._get_spec(schemas.AggregatetupleSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok)
+        return self._backend.add(spec)
 
     @logit
     def add_composite_traintuple(
         self,
-        data: Union[dict, schemas.CompositeTraintupleSpec],
-        exist_ok: bool = False
+        data: Union[dict, schemas.CompositeTraintupleSpec]
     ) -> str:
         """Create new composite traintuple asset.
 
         As specified in the data structure, output trunk models cannot be made
         public.
 
-        An `AlreadyExists` exception will be raised if a traintuple already exists that:
-        * has the same `algo_key`, `data_manager_key`, `train_data_sample_keys`,
-          `in_head_models_key` and `in_trunk_model_key`
-        * and was created through the same node you are using
-
         Args:
             data (Union[dict, schemas.CompositeTraintupleSpec]): If it is a dict, it must have the
                 same keys as specified in
                 [schemas.CompositeTraintupleSpec](sdk_schemas.md#CompositeTraintupleSpec).
-            exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists`
-                exceptions will be ignored and the existing asset key will be returned.
-                Defaults to False.
 
         Returns:
             str: Key of the asset
         """
         spec = self._get_spec(schemas.CompositeTraintupleSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok)
+        return self._backend.add(spec)
 
     @logit
     def add_testtuple(
         self,
-        data: Union[dict, schemas.TesttupleSpec],
-        exist_ok: bool = False
+        data: Union[dict, schemas.TesttupleSpec]
     ) -> str:
         """Create new testtuple asset.
-
-        An `AlreadyExists` exception will be raised if a testtuple already exists that:
-        * has the same `traintuple_key`, `objective_key`, `data_manager_key` and
-          `test_data_sample_keys`
-        * and was created through the same node you are using
 
         Args:
             data (Union[dict, schemas.TesttupleSpec]): If it is a dict, it must have the same
                 keys as specified in [schemas.TesttupleSpec](sdk_schemas.md#TesttupleSpec).
-            exist_ok (bool, optional): If `exist_ok` is true, `AlreadyExists`
-                exceptions will be ignored and the existing asset key will be returned.
-                Defaults to False.
 
         Returns:
             str: Key of the asset
         """
         spec = self._get_spec(schemas.TesttupleSpec, data)
-        return self._backend.add(spec, exist_ok=exist_ok)
+        return self._backend.add(spec)
 
     @logit
     def add_compute_plan(
@@ -516,7 +440,7 @@ class Client(object):
             "auto_batching": auto_batching,
             "batch_size": batch_size,
         }
-        return self._backend.add(spec, exist_ok=False, spec_options=spec_options)
+        return self._backend.add(spec, spec_options=spec_options)
 
     @logit
     def get_algo(self, key: str) -> models.Algo:

@@ -36,21 +36,17 @@ class InMemoryDb:
         else:
             key = asset.key
 
-        if key in self._data[type_]:
-            raise exceptions.AlreadyExists(key, 409)
-        else:
-            self._data[type_][key] = asset
-            logger.info(f"{type_} with key '{key}' has been created.")
+        self._data[type_][key] = asset
+        logger.info(f"{type_} with key '{key}' has been created.")
 
         return asset
 
-    def get(self, type_, key: str, log: bool = True):
+    def get(self, type_, key: str):
         """Return asset."""
         try:
             return self._data[type_][key]
         except KeyError:
-            if log:
-                logger.error(f"{type_} with key '{key}' not found.")
+            logger.error(f"{type_} with key '{key}' not found.")
             raise exceptions.NotFound(f"Wrong pk {key}", 404)
 
     def list(self, type_):

@@ -108,7 +108,7 @@ with zipfile.ZipFile(ALGO["file"], "w") as z:
 
 # Add the dataset to Substra
 print("Adding dataset...")
-dataset_key = client.add_dataset(DATASET, exist_ok=True)
+dataset_key = client.add_dataset(DATASET)
 assert dataset_key, "Missing data manager key"
 
 # Add the data samples to Substra
@@ -141,7 +141,6 @@ for conf in data_samples_configs:
                     "path": str(path),
                 },
                 local=True,
-                exist_ok=True,
             )
             conf["data_sample_keys"].append(data_sample_key)
             progress.update()
@@ -167,7 +166,6 @@ objective_key = client.add_objective(
         "test_data_manager_key": dataset_key,
         "permissions": OBJECTIVE["permissions"],
     },
-    exist_ok=True,
 )
 assert objective_key, "Missing objective key"
 
@@ -180,7 +178,6 @@ algo_key = client.add_algo(
         "description": str(ALGO["description"]),
         "permissions": ALGO["permissions"],
     },
-    exist_ok=True,
 )
 
 #  Add the traintuple
@@ -191,14 +188,13 @@ traintuple_key = client.add_traintuple(
         "data_manager_key": dataset_key,
         "train_data_sample_keys": train_data_sample_keys,
     },
-    exist_ok=True,
 )
 assert traintuple_key, "Missing traintuple key"
 
 #  Add the testtuple
 print("Registering testtuple...")
 testtuple_key = client.add_testtuple(
-    {"objective_key": objective_key, "traintuple_key": traintuple_key}, exist_ok=True
+    {"objective_key": objective_key, "traintuple_key": traintuple_key}
 )
 assert testtuple_key, "Missing testtuple key"
 

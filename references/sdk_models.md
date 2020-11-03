@@ -201,6 +201,7 @@ Permissions structure stored in various asset types.
 In model of a traintuple, aggregate tuple or in trunk
 model of a composite traintuple
 ```python
+- key: str
 - hash_: str
 - storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
 - traintuple_key: Optional[str]
@@ -209,6 +210,7 @@ model of a composite traintuple
 ## InHeadModel
 In head model of a composite traintuple
 ```python
+- key: str
 - hash_: str
 - storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str, NoneType]
 - traintuple_key: Optional[str]
@@ -218,6 +220,7 @@ In head model of a composite traintuple
 Out model of a traintuple, aggregate tuple or out trunk
 model of a composite traintuple
 ```python
+- key: str
 - hash_: str
 - storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
 ```
@@ -225,6 +228,7 @@ model of a composite traintuple
 ## OutHeadModel
 Out head model of a composite traintuple
 ```python
+- key: str
 - hash_: str
 - storage_address: Optional[FilePath]
 ```
@@ -270,6 +274,7 @@ Metric associated to a testtuple or objective
 ## _TraintupleAlgo
 Algo associated to a traintuple
 ```python
+- key: str
 - hash_: str
 - storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
 - name: str
@@ -278,6 +283,7 @@ Algo associated to a traintuple
 ## _TraintupleDataset
 Dataset as stored in a traintuple or composite traintuple
 ```python
+- key: str
 - opener_hash: str
 - keys: List[str]
 - worker: str
@@ -287,6 +293,7 @@ Dataset as stored in a traintuple or composite traintuple
 ## _TesttupleDataset
 Dataset of a testtuple
 ```python
+- key: str
 - opener_hash: str
 - perf: float
 - keys: List[str]
@@ -296,7 +303,7 @@ Dataset of a testtuple
 ## _TesttupleObjective
 Objective of a testtuple
 ```python
-- hash_: str
+- key: str
 - metrics: _Metric
 ```
 

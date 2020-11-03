@@ -16,7 +16,7 @@ OBJECTIVE = {
         "hash": "7a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
         "storage_address": "",
     },
-    "key": "d5002e1cd50bd5de5341df8a7b7d11b6437154b3b08f531c9b8f93889855c66f",
+    "key": "d5002e1c-d50b-d5de-5341-df8a7b7d11b6",
     "metrics": {
         "hash": "750f622262854341bd44f55c1018949e9c119606ef5068bd7d137040a482a756",
         "name": "macro-average recall",
@@ -31,9 +31,9 @@ OBJECTIVE = {
         }
     },
     "test_dataset": {
-        "data_manager_key": "ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994",
+        "data_manager_key": "ccbaa337-2bc7-4bce-39ce-3b138f558b3a",
         "data_sample_keys": [
-            "e11aeec290749e4c50c91305e10463eced8dbf3808971ec0c6ea0e36cb7ab3e1",
+            "e11aeec2-9074-9e4c-50c9-1305e10463ec",
         ],
         "metadata": {},
     },
@@ -43,12 +43,12 @@ OBJECTIVE = {
 }
 
 DATASET = {
-    "objective_key": "7a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
+    "objective_key": "7a90514f-88c7-0002-608a-9868681dd158",
     "description": {
         "hash": "7a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
         "storage_address": "",
     },
-    "key": "ccbaa3372bc74bce39ce3b138f558b3a7558958ef2f244576e18ed75b0cea994",
+    "key": "ccbaa337-2bc7-4bce-39ce-3b138f558b3a",
     "name": "ISIC 2018",
     "opener": {
         "hash": "7a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
@@ -71,7 +71,7 @@ DATASET = {
 }
 
 ALGO = {
-    "key": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
+    "key": "7c9f9799-bf64-c100-0238-1583a9ffc535",
     "name": "Logistic regression",
     "content": {
         "hash": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
@@ -88,14 +88,14 @@ ALGO = {
             "authorized_ids": []
         }
     },
-    "key": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
+    "key": "7c9f9799-bf64-c100-0238-1583a9ffc535",
     "metadata": {
         "foo": "bar"
     }
 }
 
 AGGREGATE_ALGO = {
-    "key": "7c9f9799bf64c10062381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
+    "key": "7c9f9799-bf64-c100-6238-1583a9ffc535",
     "name": "Logistic regression",
     "content": {
         "hash": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6g0c614d3f6f868f72a9d5",
@@ -118,7 +118,7 @@ AGGREGATE_ALGO = {
 }
 
 COMPOSITE_ALGO = {
-    "key": "7c9f9799bf64c1000238b583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
+    "key": "7c9f9799-bf64-c100-0238-b583a9ffc535",
     "name": "Logistic regression",
     "content": {
         "hash": "7c9f9799bf64c10002381b83a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
@@ -141,18 +141,20 @@ COMPOSITE_ALGO = {
 }
 
 TRAINTUPLE = {
-    "key": "06207faf17854fa9422099a50dcee064753d6c3425a077f097e91622f3199be5",
+    "key": "06207faf-1785-4fa9-4220-99a50dcee064",
     "algo": {
+        "key": "7c9f9799-bf64-c100-0238-1583a9ffc535",
         "name": "Neural Network",
         "hash": "0acc5180e09b6a6ac250f4e3c172e2893f617aa1c22ef1f379019d20fe44142f",
         "storage_address": ""
     },
     "creator": "e75db4df2532dc1313ebb5c2462e1eb813b94c3e67de29f6e4b2272ae60385f5",
     "dataset": {
+        "key": "8dd01465-003a-9b1e-01c9-9c904d86aa51",
         "worker": "e75db4df2532dc1313ebb5c2462e1eb813b94c3e67de29f6e4b2272ae60385f5",
         "keys": [
-            "31510dc1d8be788f7c5d28d05714f7efb9edb667762966b9adc02eadeaacebe9",
-            "03a1f878768ea8624942d46a3b438c37992e626c2cf655023bcc3bed69d485d1"
+            "31510dc1-d8be-788f-7c5d-28d05714f7ef",
+            "03a1f878-768e-a862-4942-d46a3b438c37"
         ],
         "opener_hash": "8dd01465003a9b1e01c99c904d86aa518b3a5dd9dc8d40fe7d075c726ac073ca",
     },
@@ -175,8 +177,9 @@ TRAINTUPLE = {
 }
 
 AGGREGATETUPLE = {
-    "key": "06207faf17854fa9422099a50dcfe064753d6c3425a077f097e91622f3199be5",
+    "key": "06207faf-1785-4fa9-4220-99a50dcfe064",
     "algo": {
+        "key": "7c9f9799-bf64-c100-0238-1583a9ffc535",
         "name": "Neural Network",
         "hash": "0acc5180e09b6a6ac250f4f3c172e2893f617aa1c22ef1f379019d20fe44142f",
         "storage_address": ""
@@ -202,25 +205,29 @@ AGGREGATETUPLE = {
 }
 
 COMPOSITE_TRAINTUPLE = {
-    "key": "06207faf17854fa9422099a50dcee064753d6c3425a077f097e91622f3199be5",
+    "key": "06207faf-1785-4fa9-4220-99a50dcee064",
     "algo": {
+        "key": "7c9f9799-bf64-c100-0238-1583a9ffc535",
         "name": "Neural Network",
         "hash": "0acc5180e09b6a6ac250f4e3c172e2893f617aa1c22ef1f379019d20fe44142f",
         "storage_address": ""
     },
     "in_head_model": {
+        "key": "0acc5180-e09b-6a6a-c250-f4e3d972e289",
         "hash": "0acc5180e09b6a6ac250f4e3d972e2893f617aa1c22ef1f379019d20fe44142e",
     },
     "in_trunk_model": {
+        "key": "0acc5180-e09b-6a6a-c250-f4e3d972e289",
         "hash": "0acc5180e09b6a6ac250f4e3d972e2893f617aa1c22ef1f379019d20fe44142f",
         "storage_address": ""
     },
     "creator": "e75db4df2532dc1313ebb5c2462e1eb813b94c3e67de29f6e4b2272ae60385f5",
     "dataset": {
+        "key": "8dd01465-003a-9b1e-01c9-9c904d86aa51",
         "worker": "e75db4df2532dc1313ebb5c2462e1eb813b94c3e67de29f6e4b2272ae60385f5",
         "keys": [
-            "31510dc1d8be788f7c5d28d05714f7efb9edb667762966b9adc02eadeaacebe9",
-            "03a1f878768ea8624942d46a3b438c37992e626c2cf655023bcc3bed69d485d1"
+            "31510dc1-d8be-788f-7c5d-28d05714f7ef",
+            "03a1f878-768e-a862-4942-d46a3b438c37"
         ],
         "opener_hash": "8dd01465003a9b1e01c99c904d86aa518b3a5dd9dc8d40fe7d075c726ac073ca",
     },
@@ -234,6 +241,7 @@ COMPOSITE_TRAINTUPLE = {
             }
         },
         "out_model": {
+            "key": "8a90514f-88c7-0002-608a-9868681dd158",
             "hash": "8a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
         }
     },
@@ -245,6 +253,7 @@ COMPOSITE_TRAINTUPLE = {
             }
         },
         "out_model": {
+            "key": "9a90514f-88c7-0002-608a-9868681dd158",
             "hash": "9a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
             "storage_address": ""
         }
@@ -258,12 +267,13 @@ COMPOSITE_TRAINTUPLE = {
 }
 
 TESTTUPLE = {
-    "key": "97b53511e94cab17ea8b1c31982e0b0d8b9311e10d35f82bdafab4ea429b7414",
-    "traintuple_key": "1197bbfc4a189ea037a6835895a81bb80db37f52f82cc40d74e285b7194f4c91",
+    "key": "97b53511-e94c-ab17-ea8b-1c31982e0b0d",
+    "traintuple_key": "1197bbfc-4a18-9ea0-37a6-835895a81bb8",
     "traintuple_type": "traintuple",
     "compute_plan_id": "",
     "rank": 0,
     "algo": {
+        "key": "7c9f9799-bf64-c100-0238-1583a9ffc535",
         "name": "Logistic regression",
         "hash": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
         "storage_address": "",
@@ -271,17 +281,18 @@ TESTTUPLE = {
     "certified": True,
     "creator": "e75db4df2532dc1313ebb5c2462e1eb813b94c3e67de29f6e4b2272ae60385f5",
     "dataset": {
+        "key": "ce9f292c-72e9-b826-9744-5117f9c2d1d1",
         "worker": "ab75010bacbd1a4b826dc2e9ead6f1e4e1c4feade2d62a8b708fdde48fb0edea",
         "keys": [
-            "17d58b67ae2028018108c9bf555fa58b2ddcfe560e0117294196e79d26140b2a",
-            "8bf3bf4f753a32f27d18c86405e7a406a83a55610d91abcca9acc525061b8ecf"
+            "17d58b67-ae20-2801-8108-c9bf555fa58b",
+            "8bf3bf4f-753a-32f2-7d18-c86405e7a406"
         ],
         "opener_hash": "ce9f292c72e9b82697445117f9c2d1d18ce0f8ed07ff91dadb17d668bddf8932",
         "perf": 0
     },
     "log": "Test - CPU:90.07 % - Mem:0.13 GB - GPU:0.00 % - GPU Mem:0.00 GB;",
     "objective": {
-        "hash": "3d70ab46d710dacb0f48cb42db4874fac14e048a0d415e266aad38c09591ee71",
+        "key": "3d70ab46-d710-dacb-0f48-cb42db4874fa",
         "metrics": {
             "hash": "c42dca31fbc2ebb5705643e3bb6ee666bbfd956de13dd03727f825ad8445b4d7",
             "storage_address": "",
@@ -296,7 +307,7 @@ TESTTUPLE = {
 
 LEADERBOARD = {
     "objective": {
-        "key": "c6a6139a28b5936c1086a49d7c772734f4ad65f4580ca4ab14029a925847faf3",
+        "key": "c6a6139a-28b5-936c-1086-a49d7c772734",
         "name": "data-network - Objective 1",
         "description": {
             "hash": "c6a6139a28b5936c1086a49d7c772734f4ad65f4580ca4ab14029a925847faf3",
@@ -309,9 +320,9 @@ LEADERBOARD = {
         },
         "owner": "MyOrg2MSP",
         "test_dataset": {
-            "data_manager_key": "c0230e3ab5b92e50fe3c166471e754e393d4a802a48086fc93dd6a1ea38a2441",
+            "data_manager_key": "c0230e3a-b5b9-2e50-fe3c-166471e754e3",
             "data_sample_keys": [
-                "d2e599efe1288a8646b99330eb50f38593be33d3cb144aabb4058272ec263c93"
+                "d2e599ef-e128-8a86-46b9-9330eb50f385"
             ],
             "worker": ""
         },
@@ -331,14 +342,14 @@ NODES = [
 ]
 
 COMPUTE_PLAN = {
-    "compute_plan_id": "e983a1855368bd0a0190183af9a8e560580d1fc8d86c84268fd55c1910114ca3",
+    "compute_plan_id": "e983a185-5368-bd0a-0190-183af9a8e560",
     "traintuple_keys": [
-        "1197bbfc4a189ea037a6835895a81bb80db37f52f82cc40d74e285b7194f4c91"
+        "1197bbfc-4a18-9ea0-37a6-835895a81bb8"
     ],
     "aggregatetuple_keys": None,
     "composite_traintuple_keys": None,
     "testtuple_keys": [
-        "6c94a1df7af13ebd176b05ae9686489fe563122fee7bca4d35ed9b606f96180c"
+        "6c94a1df-7af1-3ebd-176b-05ae9686489f"
     ],
     "tag": "",
     "status": "done",
@@ -346,7 +357,7 @@ COMPUTE_PLAN = {
     "done_count": 2,
     "id_to_key": {
         "62378ca1b5c84e73a3d588adab7e20b2":
-        "1197bbfc4a189ea037a6835895a81bb80db37f52f82cc40d74e285b7194f4c91",
+        "1197bbfc-4a18-9ea0-37a6-835895a81bb8",
     },
     "metadata": {
         "foo": "bar"

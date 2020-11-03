@@ -160,48 +160,36 @@ class CompositeAlgo(_Algo):
 
 class _TraintupleDataset(schemas._PydanticConfig):
     """Dataset as stored in a traintuple or composite traintuple"""
+    key: str
     opener_hash: str
     keys: List[str]
     worker: str
     metadata: Optional[Dict[str, str]]
 
-    @property
-    def key(self):
-        return self.opener_hash
-
 
 class InModel(schemas._PydanticConfig):
     """In model of a traintuple, aggregate tuple or in trunk
     model of a composite traintuple"""
+    key: str
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: UriPath
     traintuple_key: Optional[str]
-
-    @property
-    def key(self):
-        return self.hash_
 
 
 class OutModel(schemas._PydanticConfig):
     """Out model of a traintuple, aggregate tuple or out trunk
     model of a composite traintuple"""
+    key: str
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: UriPath
-
-    @property
-    def key(self):
-        return self.hash_
 
 
 class _TraintupleAlgo(schemas._PydanticConfig):
     """Algo associated to a traintuple"""
+    key: str
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: UriPath
     name: str
-
-    @property
-    def key(self):
-        return self.hash_
 
 
 class Traintuple(_Model):
@@ -246,23 +234,17 @@ class Aggregatetuple(_Model):
 
 class InHeadModel(schemas._PydanticConfig):
     """In head model of a composite traintuple"""
+    key: str
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: Optional[UriPath]  # Defined for local assets but not remote ones
     traintuple_key: Optional[str]
 
-    @property
-    def key(self):
-        return self.hash_
-
 
 class OutHeadModel(schemas._PydanticConfig):
     """Out head model of a composite traintuple"""
+    key: str
     hash_: str = pydantic.Field(..., alias="hash")
     storage_address: Optional[FilePath]  # Defined for local assets but not remote ones
-
-    @property
-    def key(self):
-        return self.hash_
 
 
 class OutCompositeHeadModel(schemas._PydanticConfig):
@@ -302,24 +284,17 @@ class CompositeTraintuple(_Model):
 
 class _TesttupleDataset(schemas._PydanticConfig):
     """Dataset of a testtuple"""
+    key: str
     opener_hash: str
     perf: float
     keys: List[str]
     worker: str
 
-    @property
-    def key(self):
-        return self.opener_hash
-
 
 class _TesttupleObjective(schemas._PydanticConfig):
     """Objective of a testtuple"""
-    hash_: str = pydantic.Field(..., alias="hash")
+    key: str
     metrics: _Metric
-
-    @property
-    def key(self):
-        return self.hash_
 
 
 class Testtuple(_Model):

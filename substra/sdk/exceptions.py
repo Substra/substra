@@ -126,8 +126,6 @@ class AlreadyExists(HTTPError):
             key = [x['key'] for x in r]
         elif isinstance(r, dict):
             key = r.get('key', None)
-            if not key:
-                key = r['pkhash']
         else:
             key = r
 

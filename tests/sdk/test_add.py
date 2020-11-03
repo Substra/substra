@@ -47,13 +47,13 @@ def test_add_dataset_response_failure_500(client, dataset_query, mocker):
         client.add_dataset(dataset_query)
 
 
-def test_add_dataset_response_failure_409(client, dataset_query, mocker):
-    mock_requests(mocker, "post", response={"key": "42"}, status=409)
+def test_add_dataset_409_success(client, dataset_query, mocker):
+    mock_requests(mocker, "post", response={"key": datastore.DATASET['key']}, status=409)
+    mock_requests(mocker, "get", response=datastore.DATASET)
 
-    with pytest.raises(substra.sdk.exceptions.AlreadyExists) as exc_info:
-        client.add_dataset(dataset_query)
+    key = client.add_dataset(dataset_query)
 
-    assert exc_info.value.key == "42"
+    assert key == datastore.DATASET['key']
 
 
 def test_add_objective(client, objective_query, mocker):
@@ -111,7 +111,7 @@ def test_add_data_sample(client, data_sample_query, mocker):
 
 def test_add_data_sample_already_exists(client, data_sample_query, mocker):
     m = mock_requests(mocker, "post", response=[{"key": "42"}], status=409)
-    response = client.add_data_sample(data_sample_query, exist_ok=True)
+    response = client.add_data_sample(data_sample_query)
 
     assert response == "42"
     m.assert_called()
