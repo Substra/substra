@@ -745,7 +745,7 @@ Options:
 ## substra cancel compute_plan
 
 ```bash
-Usage: substra cancel compute_plan [OPTIONS] COMPUTE_PLAN_KEY
+Usage: substra cancel compute_plan [OPTIONS] KEY
 
   Cancel execution of a compute plan.
 
@@ -815,7 +815,7 @@ Options:
 ## substra update compute_plan
 
 ```bash
-Usage: substra update compute_plan [OPTIONS] COMPUTE_PLAN_KEY TUPLES_PATH
+Usage: substra update compute_plan [OPTIONS] KEY TUPLES_PATH
 
   Update compute plan.
 

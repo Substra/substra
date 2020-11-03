@@ -158,7 +158,7 @@ class Remote(base.BaseBackend):
             first_spec = next(batches, None)
             tmp_spec = first_spec or spec  # Special case: no tuples
             asset = self.add(spec=tmp_spec, spec_options=deepcopy(spec_options))
-            compute_plan_key = asset.compute_plan_key
+            compute_plan_key = asset.key
             id_to_keys = asset.id_to_key
 
         # Update the compute plan

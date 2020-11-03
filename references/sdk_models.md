@@ -202,7 +202,7 @@ In model of a traintuple, aggregate tuple or in trunk
 model of a composite traintuple
 ```python
 - key: str
-- hash_: str
+- checksum: str
 - storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
 - traintuple_key: Optional[str]
 ```
@@ -211,7 +211,7 @@ model of a composite traintuple
 In head model of a composite traintuple
 ```python
 - key: str
-- hash_: str
+- checksum: str
 - storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str, NoneType]
 - traintuple_key: Optional[str]
 ```
@@ -221,7 +221,7 @@ Out model of a traintuple, aggregate tuple or out trunk
 model of a composite traintuple
 ```python
 - key: str
-- hash_: str
+- checksum: str
 - storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
 ```
 
@@ -229,7 +229,7 @@ model of a composite traintuple
 Out head model of a composite traintuple
 ```python
 - key: str
-- hash_: str
+- checksum: str
 - storage_address: Optional[FilePath]
 ```
 
@@ -250,7 +250,7 @@ Out head model of a composite traintuple with permissions
 ## _File
 File as stored in the models
 ```python
-- hash_: str
+- checksum: str
 - storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
 ```
 
@@ -267,7 +267,7 @@ Dataset as stored in the Objective asset
 Metric associated to a testtuple or objective
 ```python
 - name: Optional[str]
-- hash_: str
+- checksum: str
 - storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
 ```
 
@@ -275,7 +275,7 @@ Metric associated to a testtuple or objective
 Algo associated to a traintuple
 ```python
 - key: str
-- hash_: str
+- checksum: str
 - storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
 - name: str
 ```
@@ -285,7 +285,7 @@ Dataset as stored in a traintuple or composite traintuple
 ```python
 - key: str
 - opener_checksum: str
-- keys: List[str]
+- data_sample_keys: List[str]
 - worker: str
 - metadata: Optional[Mapping[str, str]]
 ```
@@ -296,7 +296,7 @@ Dataset of a testtuple
 - key: str
 - opener_checksum: str
 - perf: float
-- keys: List[str]
+- data_sample_keys: List[str]
 - worker: str
 ```
 
