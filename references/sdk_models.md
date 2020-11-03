@@ -82,7 +82,7 @@ Testtuple
 - tag: Optional[str]
 - log: str
 - status: str
-- compute_plan_id: str
+- compute_plan_key: str
 - rank: int
 - traintuple_type: enum
 - metadata: Mapping[str, str]
@@ -97,7 +97,7 @@ Traintuple
 - dataset: _TraintupleDataset
 - permissions: Permissions
 - tag: str
-- compute_plan_id: str
+- compute_plan_key: str
 - rank: int
 - status: str
 - log: str
@@ -115,7 +115,7 @@ Aggregatetuple
 - algo: _TraintupleAlgo
 - permissions: Permissions
 - tag: str
-- compute_plan_id: str
+- compute_plan_key: str
 - rank: Optional[int]
 - status: str
 - log: str
@@ -132,7 +132,7 @@ CompositeTraintuple
 - algo: _TraintupleAlgo
 - dataset: _TraintupleDataset
 - tag: str
-- compute_plan_id: str
+- compute_plan_key: str
 - rank: Optional[int]
 - status: str
 - log: str
@@ -170,7 +170,7 @@ AggregateAlgo
 ## ComputePlan
 ComputePlan
 ```python
-- compute_plan_id: str
+- key: str
 - status: str
 - traintuple_keys: Optional[List[str]]
 - composite_traintuple_keys: Optional[List[str]]

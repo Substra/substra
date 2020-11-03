@@ -79,9 +79,9 @@ compute_plan = client.add_compute_plan({
     'composite_traintuples': [],
     'aggregatetuples': [],
 })
-compute_plan_id = compute_plan.compute_plan_id
+key = compute_plan.key
 
 with open(compute_plan_keys_path, 'w') as f:
     json.dump(compute_plan.dict(exclude_none=False, by_alias=True), f, indent=2)
 
-print(f'Compute plan keys have been saved to {os.path.abspath(compute_plan_keys_path)}')
+print(f'Compute Plan keys have been saved to {os.path.abspath(compute_plan_keys_path)}')

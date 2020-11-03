@@ -200,7 +200,7 @@ class Traintuple(_Model):
     dataset: _TraintupleDataset
     permissions: Permissions
     tag: str
-    compute_plan_id: str
+    compute_plan_key: str
     rank: int
     status: str
     log: str
@@ -220,7 +220,7 @@ class Aggregatetuple(_Model):
     algo: _TraintupleAlgo
     permissions: Permissions
     tag: str
-    compute_plan_id: str
+    compute_plan_key: str
     rank: Optional[int]
     status: str
     log: str
@@ -266,7 +266,7 @@ class CompositeTraintuple(_Model):
     algo: _TraintupleAlgo
     dataset: _TraintupleDataset
     tag: str
-    compute_plan_id: str
+    compute_plan_key: str
     rank: Optional[int]
     status: str
     log: str
@@ -309,7 +309,7 @@ class Testtuple(_Model):
     tag: Optional[str]
     log: str
     status: str
-    compute_plan_id: str
+    compute_plan_key: str
     rank: int
     traintuple_type: schemas.Type
     metadata: Dict[str, str]
@@ -323,7 +323,7 @@ class Testtuple(_Model):
 
 class ComputePlan(_Model):
     """ComputePlan"""
-    compute_plan_id: str
+    key: str
     status: str
     traintuple_keys: Optional[List[str]]
     composite_traintuple_keys: Optional[List[str]]
@@ -339,7 +339,7 @@ class ComputePlan(_Model):
     type_: ClassVar[str] = schemas.Type.ComputePlan
 
     def __str__(self):
-        return f"{self.__class__.type_.value}(key={self.compute_plan_id})"
+        return f"{self.__class__.type_.value}(key={self.key})"
 
 
 class Node(schemas._PydanticConfig):

@@ -127,8 +127,8 @@ class Worker:
             algo = self._db.get_with_files(tuple_.algo_type, tuple_.algo.key)
 
             compute_plan = None
-            if tuple_.compute_plan_id:
-                compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_id)
+            if tuple_.compute_plan_key:
+                compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_key)
 
             volumes = dict()
             # Prepare input models
@@ -168,11 +168,11 @@ class Worker:
                     data_volume = self._get_data_volume(tuple_dir, tuple_)
                     volumes[data_volume] = _VOLUME_INPUT_DATASAMPLES
 
-            if tuple_.compute_plan_id:
+            if tuple_.compute_plan_key:
                 #  Shared compute plan volume
                 local_volume = _mkdir(
                     os.path.join(
-                        self._wdir, "compute_plans", "local", tuple_.compute_plan_id
+                        self._wdir, "compute_plans", "local", tuple_.compute_plan_key
                     )
                 )
                 volumes[local_volume] = _VOLUME_LOCAL
@@ -226,8 +226,8 @@ class Worker:
             tuple_.log = logs
             tuple_.status = models.Status.done
 
-            if tuple_.compute_plan_id:
-                compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_id)
+            if tuple_.compute_plan_key:
+                compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_key)
                 compute_plan.done_count += 1
                 if compute_plan.done_count == compute_plan.tuple_count:
                     compute_plan.status = models.Status.done
@@ -245,8 +245,8 @@ class Worker:
             dataset = self._db.get_with_files(schemas.Type.Dataset, tuple_.dataset.key)
 
             compute_plan = None
-            if tuple_.compute_plan_id:
-                compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_id)
+            if tuple_.compute_plan_key:
+                compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_key)
 
             # prepare model and datasamples
             predictions_volume = _mkdir(os.path.join(tuple_dir, "pred"))
@@ -263,10 +263,10 @@ class Worker:
                 data_volume = self._get_data_volume(tuple_dir, tuple_)
                 volumes[data_volume] = _VOLUME_INPUT_DATASAMPLES
 
-            if tuple_.compute_plan_id:
+            if tuple_.compute_plan_key:
                 local_volume = _mkdir(
                     os.path.join(
-                        self._wdir, "compute_plans", "local", tuple_.compute_plan_id
+                        self._wdir, "compute_plans", "local", tuple_.compute_plan_key
                     )
                 )
                 volumes[local_volume] = _VOLUME_LOCAL

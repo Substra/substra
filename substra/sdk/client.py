@@ -577,7 +577,7 @@ class Client(object):
     @logit
     def update_compute_plan(
         self,
-        compute_plan_id: str,
+        key: str,
         data: Union[dict, schemas.UpdateComputePlanSpec],
         auto_batching: bool = True,
         batch_size: int = DEFAULT_BATCH_SIZE
@@ -588,7 +588,7 @@ class Client(object):
         traintuples cannot be made public.
 
         Args:
-            compute_plan_id (str): Id of the compute plan
+            key (str): Id of the compute plan
             data (Union[dict, schemas.UpdateComputePlanSpec]): If it is a dict,
                 it must have the same keys as specified in
                 [schemas.UpdateComputePlanSpec](sdk_schemas.md#UpdateComputePlanSpec).
@@ -607,7 +607,7 @@ class Client(object):
             "batch_size": batch_size,
         }
         return self._backend.update_compute_plan(
-            compute_plan_id,
+            key,
             spec,
             spec_options=spec_options
         )
@@ -723,7 +723,7 @@ class Client(object):
         return self._backend.leaderboard(objective_key, sort='desc')
 
     @logit
-    def cancel_compute_plan(self, compute_plan_id: str) -> models.ComputePlan:
+    def cancel_compute_plan(self, key: str) -> models.ComputePlan:
         """Cancel execution of compute plan, the returned object is described
         in the [models.ComputePlan](sdk_models.md#ComputePlan) model"""
-        return self._backend.cancel_compute_plan(compute_plan_id)
+        return self._backend.cancel_compute_plan(key)

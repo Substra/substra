@@ -123,9 +123,9 @@ class Local(base.BaseBackend):
                 testtuple_keys or list(),
             ]
         ])
-        compute_plan_id = self._db.get_local_key(schemas._Spec.compute_key())
+        key = self._db.get_local_key(schemas._Spec.compute_key())
         compute_plan = models.ComputePlan(
-            compute_plan_id=compute_plan_id,
+            key=key,
             status=models.Status.waiting,
             traintuple_keys=traintuple_keys,
             composite_traintuple_keys=composite_traintuple_keys,
@@ -141,18 +141,18 @@ class Local(base.BaseBackend):
 
     def __create_compute_plan_from_tuple(self, spec, key, in_tuples):
         # compute plan and rank
-        if not spec.compute_plan_id and spec.rank == 0:
+        if not spec.compute_plan_key and spec.rank == 0:
             #  Create a compute plan
             compute_plan = self.__add_compute_plan(traintuple_keys=[key])
             rank = 0
-            compute_plan_id = compute_plan.compute_plan_id
-        elif not spec.compute_plan_id and spec.rank is not None:
+            compute_plan_key = compute_plan.key
+        elif not spec.compute_plan_key and spec.rank is not None:
             raise substra.sdk.exceptions.InvalidRequest(
                 "invalid inputs, a new ComputePlan should have a rank 0", 400
             )
-        elif spec.compute_plan_id:
-            compute_plan = self._db.get(schemas.Type.ComputePlan, spec.compute_plan_id)
-            compute_plan_id = compute_plan.compute_plan_id
+        elif spec.compute_plan_key:
+            compute_plan = self._db.get(schemas.Type.ComputePlan, spec.compute_plan_key)
+            compute_plan_key = compute_plan.key
             if spec.rank is not None:
                 # Use the rank given by the user
                 rank = spec.rank
@@ -164,7 +164,7 @@ class Local(base.BaseBackend):
                         [
                             in_tuple.rank
                             for in_tuple in in_tuples
-                            if in_tuple.compute_plan_id == compute_plan_id
+                            if in_tuple.compute_plan_key == compute_plan_key
                         ]
                     )
 
@@ -179,10 +179,10 @@ class Local(base.BaseBackend):
             compute_plan.status = models.Status.waiting
 
         else:
-            compute_plan_id = ""
+            compute_plan_key = ""
             rank = 0
 
-        return compute_plan_id, rank
+        return compute_plan_key, rank
 
     def __get_id_rank_in_compute_plan(self, type_, key, id_to_key):
         tuple_ = self._db.get(schemas.Type.Traintuple, key)
@@ -203,7 +203,7 @@ class Local(base.BaseBackend):
             if id_ in traintuples:
                 traintuple = traintuples[id_]
                 traintuple_spec = schemas.TraintupleSpec.from_compute_plan(
-                    compute_plan_id=compute_plan.compute_plan_id,
+                    compute_plan_key=compute_plan.key,
                     id_to_key=compute_plan.id_to_key,
                     rank=rank,
                     spec=traintuple
@@ -214,7 +214,7 @@ class Local(base.BaseBackend):
             elif id_ in aggregatetuples:
                 aggregatetuple = aggregatetuples[id_]
                 aggregatetuple_spec = schemas.AggregatetupleSpec.from_compute_plan(
-                    compute_plan_id=compute_plan.compute_plan_id,
+                    compute_plan_key=compute_plan.key,
                     id_to_key=compute_plan.id_to_key,
                     rank=rank,
                     spec=aggregatetuple
@@ -228,7 +228,7 @@ class Local(base.BaseBackend):
             elif id_ in compositetuples:
                 compositetuple = compositetuples[id_]
                 compositetuple_spec = schemas.CompositeTraintupleSpec.from_compute_plan(
-                    compute_plan_id=compute_plan.compute_plan_id,
+                    compute_plan_key=compute_plan.key,
                     id_to_key=compute_plan.id_to_key,
                     rank=rank,
                     spec=compositetuple
@@ -489,7 +489,7 @@ class Local(base.BaseBackend):
         visited = graph.compute_ranks(node_graph=tuple_graph)
 
         compute_plan = models.ComputePlan(
-            compute_plan_id=key,
+            key=key,
             tag=spec.tag or "",
             status=models.Status.waiting,
             metadata=spec.metadata or dict(),
@@ -543,7 +543,7 @@ class Local(base.BaseBackend):
             authorized_ids = list(authorized_ids)
 
         # compute plan and rank
-        compute_plan_id, rank = self.__create_compute_plan_from_tuple(
+        compute_plan_key, rank = self.__create_compute_plan_from_tuple(
             spec=spec,
             key=key,
             in_tuples=in_traintuples
@@ -571,7 +571,7 @@ class Local(base.BaseBackend):
                 "process": {"public": public, "authorized_ids": authorized_ids},
             },
             log="",
-            compute_plan_id=compute_plan_id,
+            compute_plan_key=compute_plan_key,
             rank=rank,
             tag=spec.tag or "",
             status=models.Status.waiting,
@@ -648,9 +648,9 @@ class Local(base.BaseBackend):
 
         dataset = self._db.get(schemas.Type.Dataset, dataset_key)
 
-        if traintuple.compute_plan_id:
+        if traintuple.compute_plan_key:
             compute_plan = self._db.get(
-                schemas.Type.ComputePlan, traintuple.compute_plan_id
+                schemas.Type.ComputePlan, traintuple.compute_plan_key
             )
             if compute_plan.testtuple_keys is None:
                 compute_plan.testtuple_keys = [key]
@@ -682,7 +682,7 @@ class Local(base.BaseBackend):
             tag=spec.tag or "",
             status=models.Status.waiting,
             rank=traintuple.rank,
-            compute_plan_id=traintuple.compute_plan_id,
+            compute_plan_key=traintuple.compute_plan_key,
             metadata=spec.metadata if spec.metadata else dict(),
             **options,
         )
@@ -738,7 +738,7 @@ class Local(base.BaseBackend):
             in_tuples.append(in_trunk_tuple)
 
         # Compute plan
-        compute_plan_id, rank = self.__create_compute_plan_from_tuple(spec, key, in_tuples)
+        compute_plan_key, rank = self.__create_compute_plan_from_tuple(spec, key, in_tuples)
 
         # permissions
         trunk_model_permissions = schemas.Permissions(
@@ -773,7 +773,7 @@ class Local(base.BaseBackend):
                 "worker": _BACKEND_ID,
             },
             tag=spec.tag or '',
-            compute_plan_id=compute_plan_id,
+            compute_plan_key=compute_plan_key,
             rank=rank,
             status=models.Status.waiting,
             log='',
@@ -829,7 +829,7 @@ class Local(base.BaseBackend):
             in_tuples.append(in_tuple)
 
         # Compute plan
-        compute_plan_id, rank = self.__create_compute_plan_from_tuple(spec, key, in_tuples)
+        compute_plan_key, rank = self.__create_compute_plan_from_tuple(spec, key, in_tuples)
 
         # Permissions
         public = False
@@ -857,7 +857,7 @@ class Local(base.BaseBackend):
                 }
             },
             tag=spec.tag or '',
-            compute_plan_id=compute_plan_id,
+            compute_plan_key=compute_plan_key,
             rank=rank,
             status=models.Status.waiting,
             log='',
@@ -952,16 +952,16 @@ class Local(base.BaseBackend):
         }
         return board
 
-    def cancel_compute_plan(self, compute_plan_id):
+    def cancel_compute_plan(self, key):
         # Execution is synchronous in the local backend so this
         # function does not make sense.
         raise NotImplementedError
 
     def update_compute_plan(self,
-                            compute_plan_id: str,
+                            key: str,
                             spec: schemas.UpdateComputePlanSpec,
                             spec_options: dict = None):
-        compute_plan = self._db.get(schemas.Type.ComputePlan, compute_plan_id)
+        compute_plan = self._db.get(schemas.Type.ComputePlan, key)
 
         # Get all the new tuples and their dependencies
         (

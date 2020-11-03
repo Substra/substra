@@ -99,9 +99,7 @@ class RequestTimeout(HTTPError):
         r = request_exception.response.json()
 
         try:
-            key = r.get('compute_plan_id') or (
-                r['key'] if 'key' in r else r['message'].get('key')
-            )
+            key = r['key'] if 'key' in r else r['message'].get('key')
         except (AttributeError, KeyError):
             # XXX this is the case when doing a POST query to update the
             #     data manager for instance

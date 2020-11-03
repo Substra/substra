@@ -30,11 +30,7 @@ class InMemoryDb:
     def add(self, asset):
         """Add an asset."""
         type_ = asset.__class__.type_
-
-        if type_ == models.ComputePlan.type_:
-            key = asset.compute_plan_id
-        else:
-            key = asset.key
+        key = asset.key
 
         self._data[type_][key] = asset
         logger.info(f"{type_} with key '{key}' has been created.")
@@ -55,10 +51,7 @@ class InMemoryDb:
 
     def update(self, asset):
         type_ = asset.__class__.type_
-        if type_ == models.ComputePlan.type_:
-            key = asset.compute_plan_id
-        else:
-            key = asset.key
+        key = asset.key
 
         if key not in self._data[type_]:
             raise exceptions.NotFound(f"Wrong pk {key}", 404)

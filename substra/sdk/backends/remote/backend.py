@@ -133,7 +133,7 @@ class Remote(base.BaseBackend):
     def _auto_batching_compute_plan(self,
                                     spec,
                                     batch_size,
-                                    compute_plan_id=None,
+                                    compute_plan_key=None,
                                     spec_options=None):
         """Auto batching of the compute plan tuples
 
@@ -146,7 +146,7 @@ class Remote(base.BaseBackend):
 
         batches = compute_plan.auto_batching(
             spec,
-            is_creation=compute_plan_id is None,
+            is_creation=compute_plan_key is None,
             batch_size=batch_size,
         )
 
@@ -154,17 +154,17 @@ class Remote(base.BaseBackend):
         asset = None
 
         # Create the compute plan if it does not exist
-        if not compute_plan_id:
+        if not compute_plan_key:
             first_spec = next(batches, None)
             tmp_spec = first_spec or spec  # Special case: no tuples
             asset = self.add(spec=tmp_spec, spec_options=deepcopy(spec_options))
-            compute_plan_id = asset.compute_plan_id
+            compute_plan_key = asset.compute_plan_key
             id_to_keys = asset.id_to_key
 
         # Update the compute plan
         for tmp_spec in batches:
             asset = self.update_compute_plan(
-                compute_plan_id=compute_plan_id,
+                compute_plan_key=compute_plan_key,
                 spec=tmp_spec,
                 spec_options=deepcopy(spec_options)
             )
@@ -174,19 +174,19 @@ class Remote(base.BaseBackend):
         if asset is None:
             return self.get(
                 asset_type=schemas.Type.ComputePlan,
-                key=compute_plan_id,
+                key=compute_plan_key,
             )
 
         asset.id_to_key = id_to_keys
         return asset
 
-    def update_compute_plan(self, compute_plan_id, spec, spec_options=None):
+    def update_compute_plan(self, key, spec, spec_options=None):
         spec_options = spec_options or {}
         batch_size = spec_options.pop(BATCH_SIZE)
         if spec_options.pop(AUTO_BATCHING):
             return self._auto_batching_compute_plan(
                 spec=spec,
-                compute_plan_id=compute_plan_id,
+                compute_plan_key=key,
                 batch_size=batch_size,
                 spec_options=spec_options,
             )
@@ -195,7 +195,7 @@ class Remote(base.BaseBackend):
             asset = self._client.request(
                 'post',
                 schemas.Type.ComputePlan.to_server(),
-                path=f"{compute_plan_id}/update_ledger/",
+                path=f"{key}/update_ledger/",
                 json=spec.dict(exclude_none=True),
             )
             return models.ComputePlan(**asset)
@@ -249,10 +249,10 @@ class Remote(base.BaseBackend):
             params={'sort': sort},
         )
 
-    def cancel_compute_plan(self, compute_plan_id):
+    def cancel_compute_plan(self, key):
         asset = self._client.request(
             'post',
             schemas.Type.ComputePlan.to_server(),
-            path=f"{compute_plan_id}/cancel",
+            path=f"{key}/cancel",
         )
         return models.ComputePlan(**asset)

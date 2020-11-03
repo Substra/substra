@@ -278,7 +278,7 @@ class TraintupleSpec(_Spec):
     train_data_sample_keys: List[str]
     in_models_keys: Optional[List[str]]
     tag: Optional[str]
-    compute_plan_id: Optional[str]
+    compute_plan_key: Optional[str]
     rank: Optional[int]  # Rank of the traintuple in the compute plan
     metadata: Optional[Dict[str, str]]
 
@@ -289,7 +289,7 @@ class TraintupleSpec(_Spec):
     @classmethod
     def from_compute_plan(
         cls,
-        compute_plan_id: str,
+        compute_plan_key: str,
         id_to_key: typing.Dict[str, str],
         rank: int,
         spec: ComputePlanTraintupleSpec
@@ -302,7 +302,7 @@ class TraintupleSpec(_Spec):
                 id_to_key[parent_id] for parent_id in spec.in_models_ids
             ],
             tag=spec.tag,
-            compute_plan_id=compute_plan_id,
+            compute_plan_key=compute_plan_key,
             rank=rank,
             metadata=spec.metadata
         )
@@ -314,7 +314,7 @@ class AggregatetupleSpec(_Spec):
     worker: str
     in_models_keys: List[str]
     tag: Optional[str]
-    compute_plan_id: Optional[str]
+    compute_plan_key: Optional[str]
     rank: Optional[int]
     metadata: Optional[Dict[str, str]]
 
@@ -325,7 +325,7 @@ class AggregatetupleSpec(_Spec):
     @classmethod
     def from_compute_plan(
         cls,
-        compute_plan_id: str,
+        compute_plan_key: str,
         id_to_key: typing.Dict[str, str],
         rank: int,
         spec: ComputePlanAggregatetupleSpec
@@ -338,7 +338,7 @@ class AggregatetupleSpec(_Spec):
                 for parent_id in spec.in_models_ids
             ],
             tag=spec.tag,
-            compute_plan_id=compute_plan_id,
+            compute_plan_key=compute_plan_key,
             rank=rank,
             metadata=spec.metadata
         )
@@ -352,7 +352,7 @@ class CompositeTraintupleSpec(_Spec):
     in_head_model_key: Optional[str]
     in_trunk_model_key: Optional[str]
     tag: Optional[str]
-    compute_plan_id: Optional[str]
+    compute_plan_key: Optional[str]
     out_trunk_model_permissions: PrivatePermissions
     rank: Optional[int]
     metadata: Optional[Dict[str, str]]
@@ -363,7 +363,7 @@ class CompositeTraintupleSpec(_Spec):
     @classmethod
     def from_compute_plan(
         cls,
-        compute_plan_id: str,
+        compute_plan_key: str,
         id_to_key: typing.Dict[str, str],
         rank: int,
         spec: ComputePlanCompositeTraintupleSpec
@@ -380,7 +380,7 @@ class CompositeTraintupleSpec(_Spec):
                 "authorized_ids": spec.out_trunk_model_permissions.authorized_ids
             },
             tag=spec.tag,
-            compute_plan_id=compute_plan_id,
+            compute_plan_key=compute_plan_key,
             rank=rank,
             metadata=spec.metadata
         )

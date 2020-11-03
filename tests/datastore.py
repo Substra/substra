@@ -158,7 +158,7 @@ TRAINTUPLE = {
         ],
         "opener_hash": "8dd01465003a9b1e01c99c904d86aa518b3a5dd9dc8d40fe7d075c726ac073ca",
     },
-    "compute_plan_id": "",
+    "compute_plan_key": "",
     "in_models": None,
     "log": "[00-01-0032-d415995]",
     "out_model": None,
@@ -185,7 +185,7 @@ AGGREGATETUPLE = {
         "storage_address": ""
     },
     "creator": "e75db4df2532dc1313ebb5c2462f1eb813b94c3e67de29f6e4b2272ae60385f5",
-    "compute_plan_id": "",
+    "compute_plan_key": "",
     "in_models": [],
     "log": "[00-01-0032-d415995]",
     "out_model": None,
@@ -231,7 +231,7 @@ COMPOSITE_TRAINTUPLE = {
         ],
         "opener_hash": "8dd01465003a9b1e01c99c904d86aa518b3a5dd9dc8d40fe7d075c726ac073ca",
     },
-    "compute_plan_id": "",
+    "compute_plan_key": "",
     "log": "[00-01-0032-d415995]",
     "out_head_model": {
         "permissions": {
@@ -270,7 +270,7 @@ TESTTUPLE = {
     "key": "97b53511-e94c-ab17-ea8b-1c31982e0b0d",
     "traintuple_key": "1197bbfc-4a18-9ea0-37a6-835895a81bb8",
     "traintuple_type": "traintuple",
-    "compute_plan_id": "",
+    "compute_plan_key": "",
     "rank": 0,
     "algo": {
         "key": "7c9f9799-bf64-c100-0238-1583a9ffc535",
@@ -342,7 +342,7 @@ NODES = [
 ]
 
 COMPUTE_PLAN = {
-    "compute_plan_id": "e983a185-5368-bd0a-0190-183af9a8e560",
+    "key": "e983a185-5368-bd0a-0190-183af9a8e560",
     "traintuple_keys": [
         "1197bbfc-4a18-9ea0-37a6-835895a81bb8"
     ],

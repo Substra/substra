@@ -26,10 +26,10 @@ In debug mode, new assets are created locally but can access assets from
 the deployed Substra platform. The platform is in read-only mode.
 Defaults to False.
 ## temp_directory
-_This is a property._  
+_This is a property._
 Temporary directory for storing assets in debug mode.
         Deleted when the client is deleted.
-        
+
 ## add_aggregate_algo
 ```python
 add_aggregate_algo(self, data: Union[dict, substra.sdk.schemas.AggregateAlgoSpec]) -> str
@@ -227,7 +227,7 @@ keys as specified in [schemas.TraintupleSpec](sdk_schemas.md#TraintupleSpec).
  - `str`: Key of the asset
 ## cancel_compute_plan
 ```python
-cancel_compute_plan(self, compute_plan_id: str) -> substra.sdk.models.ComputePlan
+cancel_compute_plan(self, key: str) -> substra.sdk.models.ComputePlan
 ```
 
 Cancel execution of compute plan, the returned object is described
@@ -501,10 +501,10 @@ in the [models.Traintuple](sdk_models.md#Traintuple) model
 login(self, username, password)
 ```
 
-Login to a remote server. 
+Login to a remote server.
 ## update_compute_plan
 ```python
-update_compute_plan(self, compute_plan_id: str, data: Union[dict, substra.sdk.schemas.UpdateComputePlanSpec], auto_batching: bool = True, batch_size: int = 20) -> substra.sdk.models.ComputePlan
+update_compute_plan(self, compute_plan_key: str, data: Union[dict, substra.sdk.schemas.UpdateComputePlanSpec], auto_batching: bool = True, batch_size: int = 20) -> substra.sdk.models.ComputePlan
 ```
 
 Update compute plan.
@@ -512,7 +512,7 @@ As specified in the data dict structure, output trunk models of composite
 traintuples cannot be made public.
 
 **Arguments:**
- - `compute_plan_id (str, required)`: Id of the compute plan
+ - `compute_plan_key (str, required)`: Id of the compute plan
  - `data (Union[dict, schemas.UpdateComputePlanSpec], required)`: If it is a dict,
 it must have the same keys as specified in
 [schemas.UpdateComputePlanSpec](sdk_schemas.md#UpdateComputePlanSpec).
