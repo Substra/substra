@@ -164,7 +164,7 @@ class Remote(base.BaseBackend):
         # Update the compute plan
         for tmp_spec in batches:
             asset = self.update_compute_plan(
-                compute_plan_key=compute_plan_key,
+                key=compute_plan_key,
                 spec=tmp_spec,
                 spec_options=deepcopy(spec_options)
             )
