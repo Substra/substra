@@ -254,7 +254,7 @@ class Local(base.BaseBackend):
         algo = self._db.get(traintuple.algo_type, traintuple.algo.key)
         return {
             'algo': {
-                'hash': algo.key,
+                'key': algo.key,
                 'name': algo.name,
                 'storage_address': str(algo.content.storage_address)
             },
@@ -298,11 +298,11 @@ class Local(base.BaseBackend):
                 },
             },
             content={
-                "hash": fs.hash_file(algo_file_path),
+                "checksum": fs.hash_file(algo_file_path),
                 "storage_address": algo_file_path
             },
             description={
-                "hash": fs.hash_file(algo_description_path),
+                "checksum": fs.hash_file(algo_description_path),
                 "storage_address": algo_description_path
             },
             metadata=spec.metadata if spec.metadata else dict(),
@@ -347,11 +347,11 @@ class Local(base.BaseBackend):
             train_data_sample_keys=list(),
             test_data_sample_keys=list(),
             opener={
-                "hash": fs.hash_file(dataset_file_path),
+                "checksum": fs.hash_file(dataset_file_path),
                 "storage_address": dataset_file_path
             },
             description={
-                "hash": fs.hash_file(dataset_description_path),
+                "checksum": fs.hash_file(dataset_description_path),
                 "storage_address": dataset_description_path
             },
             metadata=spec.metadata if spec.metadata else dict(),
@@ -450,12 +450,12 @@ class Local(base.BaseBackend):
                 },
             },
             description={
-                "hash": fs.hash_file(objective_description_path),
+                "checksum": fs.hash_file(objective_description_path),
                 "storage_address": objective_description_path
             },
             metrics={
                 "name": spec.metrics_name,
-                "hash": fs.hash_file(objective_file_path),
+                "checksum": fs.hash_file(objective_file_path),
                 "storage_address": objective_file_path
             },
             metadata=spec.metadata if spec.metadata else dict(),
@@ -556,13 +556,13 @@ class Local(base.BaseBackend):
             creator=_BACKEND_ID,
             algo={
                 "key": spec.algo_key,
-                "hash": algo.content.hash_,
+                "checksum": algo.content.checksum,
                 "name": algo.name,
                 "storage_address": algo.content.storage_address
             },
             dataset={
                 "key": spec.data_manager_key,
-                "opener_hash": data_manager.opener.hash_,
+                "opener_checksum": data_manager.opener.checksum,
                 "keys": spec.train_data_sample_keys,
                 "worker": _BACKEND_ID,
                 "metadata": {}
@@ -578,7 +578,7 @@ class Local(base.BaseBackend):
             in_models=[
                 {
                     "key": in_traintuple.out_model.key,
-                    "hash": in_traintuple.out_model.hash_,
+                    "checksum": in_traintuple.out_model.checksum,
                     "storage_address": in_traintuple.out_model.storage_address,
                     "traintuple_key": in_traintuple.key,
                 }
@@ -673,7 +673,7 @@ class Local(base.BaseBackend):
             certified=certified,
             dataset={
                 "key": dataset_key,
-                "opener_hash": dataset.opener.hash_,
+                "opener_checksum": dataset.opener.checksum,
                 "perf": -1,
                 "keys": test_data_sample_keys,
                 "worker": _BACKEND_ID,
@@ -711,7 +711,7 @@ class Local(base.BaseBackend):
             assert in_head_tuple.out_head_model
             in_head_model = models.InHeadModel(
                 key=in_head_tuple.out_head_model.out_model.key,
-                hash=in_head_tuple.out_head_model.out_model.hash_,
+                checksum=in_head_tuple.out_head_model.out_model.checksum,
                 storage_address=in_head_tuple.out_head_model.out_model.storage_address
             )
             in_tuples.append(in_head_tuple)
@@ -732,7 +732,7 @@ class Local(base.BaseBackend):
 
             in_trunk_model = models.InModel(
                 key=in_model.key,
-                hash=in_model.hash_,
+                checksum=in_model.checksum,
                 storage_address=in_model.storage_address
             )
             in_tuples.append(in_trunk_tuple)
@@ -762,13 +762,13 @@ class Local(base.BaseBackend):
             creator=_BACKEND_ID,
             algo={
                 "key": spec.algo_key,
-                "hash": algo.content.hash_,
+                "checksum": algo.content.checksum,
                 "name": algo.name,
                 "storage_address": algo.content.storage_address
             },
             dataset={
                 "key": spec.data_manager_key,
-                "opener_hash": dataset.opener.hash_,
+                "opener_checksum": dataset.opener.checksum,
                 "keys": spec.train_data_sample_keys,
                 "worker": _BACKEND_ID,
             },
@@ -812,7 +812,7 @@ class Local(base.BaseBackend):
                 in_tuple = self._db.get(schemas.Type.Traintuple, key=model_key)
                 in_models.append({
                     "key": in_tuple.out_model.key,
-                    "hash": in_tuple.out_model.hash_,
+                    "checksum": in_tuple.out_model.checksum,
                     "storage_address": in_tuple.out_model.storage_address,
                     "traintuple_key": in_tuple.key,
                 })
@@ -821,7 +821,7 @@ class Local(base.BaseBackend):
                 in_tuple = self._db.get(schemas.Type.CompositeTraintuple, key=model_key)
                 in_models.append({
                     "key": in_tuple.out_head_model.out_model.key,
-                    "hash": in_tuple.out_head_model.out_model.hash_,
+                    "checksum": in_tuple.out_head_model.out_model.checksum,
                     "storage_address": in_tuple.out_head_model.out_model.storage_address,
                     "traintuple_key": in_tuple.key,
                 })
@@ -846,7 +846,7 @@ class Local(base.BaseBackend):
             worker=spec.worker,
             algo={
                 "key": spec.algo_key,
-                "hash": algo.content.hash_,
+                "checksum": algo.content.checksum,
                 "name": algo.name,
                 "storage_address": algo.content.storage_address
             },

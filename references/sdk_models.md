@@ -284,7 +284,7 @@ Algo associated to a traintuple
 Dataset as stored in a traintuple or composite traintuple
 ```python
 - key: str
-- opener_hash: str
+- opener_checksum: str
 - keys: List[str]
 - worker: str
 - metadata: Optional[Mapping[str, str]]
@@ -294,7 +294,7 @@ Dataset as stored in a traintuple or composite traintuple
 Dataset of a testtuple
 ```python
 - key: str
-- opener_hash: str
+- opener_checksum: str
 - perf: float
 - keys: List[str]
 - worker: str
