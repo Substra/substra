@@ -109,14 +109,6 @@ class Local(base.BaseBackend):
             permissions.authorized_ids.append(owner)
         return permissions
 
-    @staticmethod
-    def _get_owner(spec):
-        """Compute the owner in the debug mode from the metadata.
-        """
-        if spec.metadata is not None and DEBUG_OWNER in spec.metadata:
-            return spec.metadata[DEBUG_OWNER]
-        return _BACKEND_ID
-
     def __add_compute_plan(
         self,
         traintuple_keys=None,
@@ -294,14 +286,13 @@ class Local(base.BaseBackend):
 
     def __add_algo(self, model_class, key, spec, spec_options=None):
 
-        owner = self._get_owner(spec)
-        permissions = self.__compute_permissions(spec.permissions, owner)
+        permissions = self.__compute_permissions(spec.permissions)
         algo_file_path = self._db.save_file(spec.file, key)
         algo_description_path = self._db.save_file(spec.description, key)
         algo = model_class(
             key=key,
             name=spec.name,
-            owner=owner,
+            owner=_BACKEND_ID,
             permissions={
                 "process": {
                     "public": permissions.public,
@@ -339,7 +330,13 @@ class Local(base.BaseBackend):
     def _add_dataset(self, key, spec, spec_options=None):
 
         self.__check_metadata(spec.metadata)
-        owner = self._get_owner(spec)
+
+        # In debug mode, the user can define the owner of the data
+        if spec.metadata is not None and DEBUG_OWNER in spec.metadata:
+            owner = spec.metadata[DEBUG_OWNER]
+        else:
+            owner = _BACKEND_ID
+
         permissions = self.__compute_permissions(spec.permissions, owner)
 
         dataset_file_path = self._db.save_file(spec.data_opener, key)
@@ -422,8 +419,7 @@ class Local(base.BaseBackend):
     def _add_objective(self, key, spec, spec_options):
 
         self.__check_metadata(spec.metadata)
-        owner = self._get_owner(spec)
-        permissions = self.__compute_permissions(spec.permissions, owner)
+        permissions = self.__compute_permissions(spec.permissions)
 
         # validate spec
         test_dataset = None
@@ -454,7 +450,7 @@ class Local(base.BaseBackend):
         objective = models.Objective(
             key=key,
             name=spec.name,
-            owner=owner,
+            owner=_BACKEND_ID,
             test_dataset=test_dataset,
             permissions={
                 "process": {
@@ -564,10 +560,9 @@ class Local(base.BaseBackend):
 
         # create model
         options = {}
-        owner = self._get_owner(spec)
         traintuple = models.Traintuple(
             key=key,
-            creator=owner,
+            creator=_BACKEND_ID,
             algo={
                 "key": spec.algo_key,
                 "checksum": algo.content.checksum,
@@ -578,7 +573,7 @@ class Local(base.BaseBackend):
                 "key": spec.data_manager_key,
                 "opener_checksum": data_manager.opener.checksum,
                 "data_sample_keys": spec.train_data_sample_keys,
-                "worker": owner,
+                "worker": data_manager.owner,
                 "metadata": {}
             },
             permissions={
@@ -674,10 +669,9 @@ class Local(base.BaseBackend):
             compute_plan.status = models.Status.waiting
 
         options = {}
-        owner = self._get_owner(spec)
         testtuple = models.Testtuple(
             key=key,
-            creator=owner,
+            creator=_BACKEND_ID,
             objective={
                 "key": spec.objective_key,
                 "metrics": objective.metrics
@@ -691,7 +685,7 @@ class Local(base.BaseBackend):
                 "opener_checksum": dataset.opener.checksum,
                 "perf": -1,
                 "data_sample_keys": test_data_sample_keys,
-                "worker": owner,
+                "worker": dataset.owner,
             },
             log="",
             tag=spec.tag or "",
@@ -756,12 +750,11 @@ class Local(base.BaseBackend):
         compute_plan_key, rank = self.__create_compute_plan_from_tuple(spec, key, in_tuples)
 
         # permissions
-        owner = self._get_owner(spec)
         trunk_model_permissions = schemas.Permissions(
             public=False,
             authorized_ids=spec.out_trunk_model_permissions.authorized_ids
         )
-        trunk_model_permissions = self.__compute_permissions(trunk_model_permissions, owner)
+        trunk_model_permissions = self.__compute_permissions(trunk_model_permissions)
 
         if spec.in_head_model_key:
             head_model_permissions = in_head_tuple.out_head_model.permissions
@@ -769,13 +762,13 @@ class Local(base.BaseBackend):
             head_model_permissions = {
                 "process": {
                     "public": False,
-                    "authorized_ids": [owner]
+                    "authorized_ids": [_BACKEND_ID]
                 }
             }
 
         composite_traintuple = models.CompositeTraintuple(
             key=key,
-            creator=owner,
+            creator=_BACKEND_ID,
             algo={
                 "key": spec.algo_key,
                 "checksum": algo.content.checksum,
@@ -786,7 +779,7 @@ class Local(base.BaseBackend):
                 "key": spec.data_manager_key,
                 "opener_checksum": dataset.opener.checksum,
                 "data_sample_keys": spec.train_data_sample_keys,
-                "worker": owner,
+                "worker": dataset.owner,
             },
             tag=spec.tag or '',
             compute_plan_key=compute_plan_key,
@@ -858,7 +851,7 @@ class Local(base.BaseBackend):
 
         aggregatetuple = models.Aggregatetuple(
             key=key,
-            creator=self._get_owner(spec),
+            creator=_BACKEND_ID,
             worker=spec.worker,
             algo={
                 "key": spec.algo_key,
