@@ -255,6 +255,7 @@ class Local(base.BaseBackend):
         return {
             'algo': {
                 'key': algo.key,
+                'checksum': algo.checksum,
                 'name': algo.name,
                 'storage_address': str(algo.content.storage_address)
             },

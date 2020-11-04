@@ -79,7 +79,6 @@ compute_plan = client.add_compute_plan({
     'composite_traintuples': [],
     'aggregatetuples': [],
 })
-key = compute_plan.key
 
 with open(compute_plan_keys_path, 'w') as f:
     json.dump(compute_plan.dict(exclude_none=False, by_alias=True), f, indent=2)

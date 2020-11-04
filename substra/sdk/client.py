@@ -588,7 +588,7 @@ class Client(object):
         traintuples cannot be made public.
 
         Args:
-            key (str): Id of the compute plan
+            key (str): Compute plan key
             data (Union[dict, schemas.UpdateComputePlanSpec]): If it is a dict,
                 it must have the same keys as specified in
                 [schemas.UpdateComputePlanSpec](sdk_schemas.md#UpdateComputePlanSpec).

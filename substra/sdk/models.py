@@ -112,10 +112,6 @@ class _Metric(schemas._PydanticConfig):
     checksum: str
     storage_address: UriPath
 
-    @property
-    def key(self):
-        return self.checksum
-
 
 class Objective(_Model):
     """Objective"""

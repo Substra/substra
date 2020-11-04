@@ -512,7 +512,7 @@ As specified in the data dict structure, output trunk models of composite
 traintuples cannot be made public.
 
 **Arguments:**
- - `key (str, required)`: Id of the compute plan
+ - `key (str, required)`: Compute plan key
  - `data (Union[dict, schemas.UpdateComputePlanSpec], required)`: If it is a dict,
 it must have the same keys as specified in
 [schemas.UpdateComputePlanSpec](sdk_schemas.md#UpdateComputePlanSpec).

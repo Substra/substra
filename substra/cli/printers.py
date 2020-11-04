@@ -264,8 +264,6 @@ class BaseAlgoPrinter(AssetPrinter):
 class ComputePlanPrinter(AssetPrinter):
     asset_name = 'compute_plan'
 
-    key_field = Field('Compute Plan key', 'key')
-
     list_fields = (
         CountField('Traintuples count', 'traintuple_keys'),
         CountField('Composite traintuples count', 'composite_traintuple_keys'),

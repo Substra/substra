@@ -287,25 +287,25 @@ def test_command_add_data_sample_already_exists(workdir, mocker):
     m.assert_called()
 
 
-@pytest.mark.parametrize('asset_name,key_field,model', [
-    ('objective', 'key', models.Objective),
-    ('dataset', 'key', models.Dataset),
-    ('algo', 'key', models.Algo),
-    ('aggregate_algo', 'key', models.AggregateAlgo),
-    ('composite_algo', 'key', models.CompositeAlgo),
-    ('testtuple', 'key', models.Testtuple),
-    ('traintuple', 'key', models.Traintuple),
-    ('aggregatetuple', 'key', models.Aggregatetuple),
-    ('composite_traintuple', 'key', models.CompositeTraintuple),
-    ('compute_plan', 'key', models.ComputePlan),
+@pytest.mark.parametrize('asset_name,model', [
+    ('objective', models.Objective),
+    ('dataset', models.Dataset),
+    ('algo', models.Algo),
+    ('aggregate_algo', models.AggregateAlgo),
+    ('composite_algo', models.CompositeAlgo),
+    ('testtuple', models.Testtuple),
+    ('traintuple', models.Traintuple),
+    ('aggregatetuple', models.Aggregatetuple),
+    ('composite_traintuple', models.CompositeTraintuple),
+    ('compute_plan', models.ComputePlan),
 ])
-def test_command_get(asset_name, key_field, model, workdir, mocker):
+def test_command_get(asset_name, model, workdir, mocker):
     item = model(**getattr(datastore, asset_name.upper()))
     method_name = f'get_{asset_name}'
     m = mock_client_call(mocker, method_name, item)
     output = client_execute(workdir, ['get', asset_name, 'fakekey'])
     m.assert_called()
-    assert getattr(item, key_field) in output
+    assert item.key in output
 
 
 def test_command_describe(workdir, mocker):
