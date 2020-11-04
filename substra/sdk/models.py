@@ -103,7 +103,7 @@ class _ObjectiveDataset(schemas._PydanticConfig):
     data_manager_key: str
     data_sample_keys: List[str]
     metadata: Dict[str, str]
-    worker: Optional[str]
+    worker: str
 
 
 class _Metric(schemas._PydanticConfig):

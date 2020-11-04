@@ -433,7 +433,8 @@ class Local(base.BaseBackend):
             test_dataset = {
                 "data_manager_key": spec.test_data_manager_key,
                 "data_sample_keys": spec.test_data_sample_keys,
-                "metadata": dataset.metadata
+                "metadata": dataset.metadata,
+                "worker": dataset.owner,
             }
             if not dataset.objective_key:
                 dataset.objective_key = key
