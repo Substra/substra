@@ -255,7 +255,7 @@ class Local(base.BaseBackend):
         return {
             'algo': {
                 'key': algo.key,
-                'checksum': algo.checksum,
+                'checksum': algo.content.checksum,
                 'name': algo.name,
                 'storage_address': str(algo.content.storage_address)
             },
@@ -940,7 +940,7 @@ class Local(base.BaseBackend):
 
     def leaderboard(self, objective_key, sort='desc'):
         objective = self._db.get(schemas.Type.Objective, objective_key)
-        testtuples = self._db.list(schemas.Type.Testtuple)
+        testtuples = self._db.list(schemas.Type.Testtuple, filters=None)
         certified_testtuples = [
             self.__format_for_leaderboard(t)
             for t in testtuples

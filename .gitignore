@@ -18,3 +18,5 @@ sdist/
 .vscode
 .env
 .venv
+
+local-worker/
