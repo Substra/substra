@@ -263,6 +263,10 @@ class Client(object):
     def add_dataset(self, data: Union[dict, schemas.DatasetSpec]):
         """Create new dataset asset and return its key.
 
+        In debug mode, add the following key:`substra.sdk.DEBUG_OWNER` to the metadata,
+        the value becomes the node owner of the data, and all tuples using this data
+        have their worker set to this node.
+
         Args:
             data (Union[dict, schemas.DatasetSpec]): If it is a dict, it must have the same
                 keys as specified in [schemas.DatasetSpec](sdk_schemas.md#DatasetSpec).
