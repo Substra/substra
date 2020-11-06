@@ -1167,14 +1167,14 @@ def cancel(ctx):
 
 
 @cancel.command('compute_plan')
-@click.argument('compute_plan_id', type=click.STRING)
+@click.argument('compute_plan_key', type=click.STRING)
 @click_global_conf_with_output_format
 @click.pass_context
-def cancel_compute_plan(ctx, compute_plan_id):
+def cancel_compute_plan(ctx, compute_plan_key):
     """Cancel execution of a compute plan."""
     client = get_client(ctx.obj)
     # method must exist in sdk
-    res = client.cancel_compute_plan(compute_plan_id)
+    res = client.cancel_compute_plan(compute_plan_key)
     printer = printers.get_asset_printer(assets.COMPUTE_PLAN, ctx.obj.output_format)
     printer.print(res, profile=ctx.obj.profile)
 
@@ -1228,7 +1228,7 @@ def update_dataset(ctx, dataset_key, objective_key):
 
 
 @update.command('compute_plan')
-@click.argument('compute_plan_id', type=click.STRING)
+@click.argument('compute_plan_key', type=click.STRING)
 @click.argument('tuples', type=click.Path(exists=True, dir_okay=False),
                 callback=load_json_from_path, metavar="TUPLES_PATH")
 @click.option('--no-auto-batching', '-n', is_flag=True,
@@ -1239,7 +1239,7 @@ def update_dataset(ctx, dataset_key, objective_key):
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
-def update_compute_plan(ctx, compute_plan_id, tuples, no_auto_batching, batch_size):
+def update_compute_plan(ctx, compute_plan_key, tuples, no_auto_batching, batch_size):
     """Update compute plan.
 
     The tuples path must point to a valid JSON file with the following schema:
@@ -1296,7 +1296,7 @@ def update_compute_plan(ctx, compute_plan_id, tuples, no_auto_batching, batch_si
                                    "The --batch_size option cannot be used when using "
                                    "--no_auto_batching.")
     client = get_client(ctx.obj)
-    res = client.update_compute_plan(compute_plan_id, tuples, not no_auto_batching, batch_size)
+    res = client.update_compute_plan(compute_plan_key, tuples, not no_auto_batching, batch_size)
     printer = printers.get_asset_printer(assets.COMPUTE_PLAN, ctx.obj.output_format)
     printer.print(res, is_list=False)
 

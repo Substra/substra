@@ -77,7 +77,7 @@ class DataSample(_Model):
 
 class _File(schemas._PydanticConfig):
     """File as stored in the models"""
-    hash_: str = pydantic.Field(..., alias="hash")
+    checksum: str
     storage_address: UriPath
 
 
@@ -109,12 +109,8 @@ class _ObjectiveDataset(schemas._PydanticConfig):
 class _Metric(schemas._PydanticConfig):
     """Metric associated to a testtuple or objective"""
     name: Optional[str]
-    hash_: str = pydantic.Field(..., alias="hash")
+    checksum: str
     storage_address: UriPath
-
-    @property
-    def key(self):
-        return self.hash_
 
 
 class Objective(_Model):
@@ -161,8 +157,8 @@ class CompositeAlgo(_Algo):
 class _TraintupleDataset(schemas._PydanticConfig):
     """Dataset as stored in a traintuple or composite traintuple"""
     key: str
-    opener_hash: str
-    keys: List[str]
+    opener_checksum: str
+    data_sample_keys: List[str]
     worker: str
     metadata: Optional[Dict[str, str]]
 
@@ -171,7 +167,7 @@ class InModel(schemas._PydanticConfig):
     """In model of a traintuple, aggregate tuple or in trunk
     model of a composite traintuple"""
     key: str
-    hash_: str = pydantic.Field(..., alias="hash")
+    checksum: str
     storage_address: UriPath
     traintuple_key: Optional[str]
 
@@ -180,14 +176,14 @@ class OutModel(schemas._PydanticConfig):
     """Out model of a traintuple, aggregate tuple or out trunk
     model of a composite traintuple"""
     key: str
-    hash_: str = pydantic.Field(..., alias="hash")
+    checksum: str
     storage_address: UriPath
 
 
 class _TraintupleAlgo(schemas._PydanticConfig):
     """Algo associated to a traintuple"""
     key: str
-    hash_: str = pydantic.Field(..., alias="hash")
+    checksum: str
     storage_address: UriPath
     name: str
 
@@ -200,7 +196,7 @@ class Traintuple(_Model):
     dataset: _TraintupleDataset
     permissions: Permissions
     tag: str
-    compute_plan_id: str
+    compute_plan_key: str
     rank: int
     status: str
     log: str
@@ -220,7 +216,7 @@ class Aggregatetuple(_Model):
     algo: _TraintupleAlgo
     permissions: Permissions
     tag: str
-    compute_plan_id: str
+    compute_plan_key: str
     rank: Optional[int]
     status: str
     log: str
@@ -235,7 +231,7 @@ class Aggregatetuple(_Model):
 class InHeadModel(schemas._PydanticConfig):
     """In head model of a composite traintuple"""
     key: str
-    hash_: str = pydantic.Field(..., alias="hash")
+    checksum: str
     storage_address: Optional[UriPath]  # Defined for local assets but not remote ones
     traintuple_key: Optional[str]
 
@@ -243,7 +239,7 @@ class InHeadModel(schemas._PydanticConfig):
 class OutHeadModel(schemas._PydanticConfig):
     """Out head model of a composite traintuple"""
     key: str
-    hash_: str = pydantic.Field(..., alias="hash")
+    checksum: str
     storage_address: Optional[FilePath]  # Defined for local assets but not remote ones
 
 
@@ -266,7 +262,7 @@ class CompositeTraintuple(_Model):
     algo: _TraintupleAlgo
     dataset: _TraintupleDataset
     tag: str
-    compute_plan_id: str
+    compute_plan_key: str
     rank: Optional[int]
     status: str
     log: str
@@ -285,9 +281,9 @@ class CompositeTraintuple(_Model):
 class _TesttupleDataset(schemas._PydanticConfig):
     """Dataset of a testtuple"""
     key: str
-    opener_hash: str
+    opener_checksum: str
     perf: float
-    keys: List[str]
+    data_sample_keys: List[str]
     worker: str
 
 
@@ -309,7 +305,7 @@ class Testtuple(_Model):
     tag: Optional[str]
     log: str
     status: str
-    compute_plan_id: str
+    compute_plan_key: str
     rank: int
     traintuple_type: schemas.Type
     metadata: Dict[str, str]
@@ -323,7 +319,7 @@ class Testtuple(_Model):
 
 class ComputePlan(_Model):
     """ComputePlan"""
-    compute_plan_id: str
+    key: str
     status: str
     traintuple_keys: Optional[List[str]]
     composite_traintuple_keys: Optional[List[str]]
@@ -339,7 +335,7 @@ class ComputePlan(_Model):
     type_: ClassVar[str] = schemas.Type.ComputePlan
 
     def __str__(self):
-        return f"{self.__class__.type_.value}(key={self.compute_plan_id})"
+        return f"{self.__class__.type_.value}(key={self.key})"
 
 
 class Node(schemas._PydanticConfig):

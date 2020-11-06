@@ -154,11 +154,11 @@ def compute_train(
 
         for inmodel in inmodels:
             src = os.path.abspath(inmodel)
-            model_hash = hashlib.sha256(src.encode()).hexdigest()
-            dst = os.path.join(outmodel_path, model_hash)
+            model_checksum = hashlib.sha256(src.encode()).hexdigest()
+            dst = os.path.join(outmodel_path, model_checksum)
             os.link(src, dst)
             print(f"Creating model symlink from {src} to {dst}")
-            model_keys.append(model_hash)
+            model_keys.append(model_checksum)
 
         if model_keys:
             models_command = ' '.join(model_keys)

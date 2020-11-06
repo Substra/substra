@@ -62,7 +62,7 @@ class Worker:
     def _get_data_volume(self, tuple_dir, tuple_):
         data_volume = _mkdir(os.path.join(tuple_dir, "data"))
         samples = [
-            self._db.get(schemas.Type.DataSample, key) for key in tuple_.dataset.keys
+            self._db.get(schemas.Type.DataSample, key) for key in tuple_.dataset.data_sample_keys
         ]
         for sample in samples:
             # TODO more efficient link (symlink?)
@@ -74,7 +74,7 @@ class Worker:
         model_dir = _mkdir(os.path.join(self._wdir, "models", tuple_.key))
         model_path = os.path.join(model_dir, model_name)
         shutil.copy(tmp_path, model_path)
-        return models.OutModel(key=str(uuid.uuid4()), hash=fs.hash_file(model_path),
+        return models.OutModel(key=str(uuid.uuid4()), checksum=fs.hash_file(model_path),
                                storage_address=model_path)
 
     def _get_command_models_composite(self, is_train, tuple_, models_volume, container_volume):
@@ -127,8 +127,8 @@ class Worker:
             algo = self._db.get_with_files(tuple_.algo_type, tuple_.algo.key)
 
             compute_plan = None
-            if tuple_.compute_plan_id:
-                compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_id)
+            if tuple_.compute_plan_key:
+                compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_key)
 
             volumes = dict()
             # Prepare input models
@@ -168,11 +168,11 @@ class Worker:
                     data_volume = self._get_data_volume(tuple_dir, tuple_)
                     volumes[data_volume] = _VOLUME_INPUT_DATASAMPLES
 
-            if tuple_.compute_plan_id:
+            if tuple_.compute_plan_key:
                 #  Shared compute plan volume
                 local_volume = _mkdir(
                     os.path.join(
-                        self._wdir, "compute_plans", "local", tuple_.compute_plan_id
+                        self._wdir, "compute_plans", "local", tuple_.compute_plan_key
                     )
                 )
                 volumes[local_volume] = _VOLUME_LOCAL
@@ -187,7 +187,7 @@ class Worker:
             if not isinstance(tuple_, models.Aggregatetuple) \
                     and not self._db.is_local(tuple_.dataset.key):
                 command += " --fake-data"
-                command += f" --n-fake-samples {len(tuple_.dataset.keys)}"
+                command += f" --n-fake-samples {len(tuple_.dataset.data_sample_keys)}"
 
             # Add the in_models to the command
             if isinstance(tuple_, models.CompositeTraintuple):
@@ -226,8 +226,8 @@ class Worker:
             tuple_.log = logs
             tuple_.status = models.Status.done
 
-            if tuple_.compute_plan_id:
-                compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_id)
+            if tuple_.compute_plan_key:
+                compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_key)
                 compute_plan.done_count += 1
                 if compute_plan.done_count == compute_plan.tuple_count:
                     compute_plan.status = models.Status.done
@@ -245,8 +245,8 @@ class Worker:
             dataset = self._db.get_with_files(schemas.Type.Dataset, tuple_.dataset.key)
 
             compute_plan = None
-            if tuple_.compute_plan_id:
-                compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_id)
+            if tuple_.compute_plan_key:
+                compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_key)
 
             # prepare model and datasamples
             predictions_volume = _mkdir(os.path.join(tuple_dir, "pred"))
@@ -263,10 +263,10 @@ class Worker:
                 data_volume = self._get_data_volume(tuple_dir, tuple_)
                 volumes[data_volume] = _VOLUME_INPUT_DATASAMPLES
 
-            if tuple_.compute_plan_id:
+            if tuple_.compute_plan_key:
                 local_volume = _mkdir(
                     os.path.join(
-                        self._wdir, "compute_plans", "local", tuple_.compute_plan_id
+                        self._wdir, "compute_plans", "local", tuple_.compute_plan_key
                     )
                 )
                 volumes[local_volume] = _VOLUME_LOCAL
@@ -276,7 +276,7 @@ class Worker:
 
             if not self._db.is_local(dataset.key):
                 command += " --fake-data"
-                command += f" --n-fake-samples {len(tuple_.dataset.keys)}"
+                command += f" --n-fake-samples {len(tuple_.dataset.data_sample_keys)}"
 
             if tuple_.traintuple_type == schemas.Type.Traintuple \
                     or tuple_.traintuple_type == schemas.Type.Aggregatetuple:
@@ -323,7 +323,7 @@ class Worker:
                 command = f"--fake-data-mode {METRICS_NO_FAKE_Y}"
             else:
                 command = f"--fake-data-mode {METRICS_FAKE_Y}"
-                command += f" --n-fake-samples {len(tuple_.dataset.keys)}"
+                command += f" --n-fake-samples {len(tuple_.dataset.data_sample_keys)}"
 
             container_name = DOCKER_METRICS_TAG
             logs_predict = self._spawner.spawn(

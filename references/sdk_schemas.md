@@ -76,7 +76,7 @@ Specification for creating a traintuple
 - train_data_sample_keys: List[str]
 - in_models_keys: Optional[List[str]]
 - tag: Optional[str]
-- compute_plan_id: Optional[str]
+- compute_plan_key: Optional[str]
 - rank: Optional[int]
 - metadata: Optional[Mapping[str, str]]
 ```
@@ -88,7 +88,7 @@ Specification for creating an aggregate tuple
 - worker: str
 - in_models_keys: List[str]
 - tag: Optional[str]
-- compute_plan_id: Optional[str]
+- compute_plan_key: Optional[str]
 - rank: Optional[int]
 - metadata: Optional[Mapping[str, str]]
 ```
@@ -102,7 +102,7 @@ Specification for creating a composite traintuple
 - in_head_model_key: Optional[str]
 - in_trunk_model_key: Optional[str]
 - tag: Optional[str]
-- compute_plan_id: Optional[str]
+- compute_plan_key: Optional[str]
 - out_trunk_model_permissions: PrivatePermissions
 - rank: Optional[int]
 - metadata: Optional[Mapping[str, str]]

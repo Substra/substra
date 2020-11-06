@@ -82,7 +82,7 @@ Testtuple
 - tag: Optional[str]
 - log: str
 - status: str
-- compute_plan_id: str
+- compute_plan_key: str
 - rank: int
 - traintuple_type: enum
 - metadata: Mapping[str, str]
@@ -97,7 +97,7 @@ Traintuple
 - dataset: _TraintupleDataset
 - permissions: Permissions
 - tag: str
-- compute_plan_id: str
+- compute_plan_key: str
 - rank: int
 - status: str
 - log: str
@@ -115,7 +115,7 @@ Aggregatetuple
 - algo: _TraintupleAlgo
 - permissions: Permissions
 - tag: str
-- compute_plan_id: str
+- compute_plan_key: str
 - rank: Optional[int]
 - status: str
 - log: str
@@ -132,7 +132,7 @@ CompositeTraintuple
 - algo: _TraintupleAlgo
 - dataset: _TraintupleDataset
 - tag: str
-- compute_plan_id: str
+- compute_plan_key: str
 - rank: Optional[int]
 - status: str
 - log: str
@@ -170,7 +170,7 @@ AggregateAlgo
 ## ComputePlan
 ComputePlan
 ```python
-- compute_plan_id: str
+- key: str
 - status: str
 - traintuple_keys: Optional[List[str]]
 - composite_traintuple_keys: Optional[List[str]]
@@ -202,7 +202,7 @@ In model of a traintuple, aggregate tuple or in trunk
 model of a composite traintuple
 ```python
 - key: str
-- hash_: str
+- checksum: str
 - storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
 - traintuple_key: Optional[str]
 ```
@@ -211,7 +211,7 @@ model of a composite traintuple
 In head model of a composite traintuple
 ```python
 - key: str
-- hash_: str
+- checksum: str
 - storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str, NoneType]
 - traintuple_key: Optional[str]
 ```
@@ -221,7 +221,7 @@ Out model of a traintuple, aggregate tuple or out trunk
 model of a composite traintuple
 ```python
 - key: str
-- hash_: str
+- checksum: str
 - storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
 ```
 
@@ -229,7 +229,7 @@ model of a composite traintuple
 Out head model of a composite traintuple
 ```python
 - key: str
-- hash_: str
+- checksum: str
 - storage_address: Optional[FilePath]
 ```
 
@@ -250,7 +250,7 @@ Out head model of a composite traintuple with permissions
 ## _File
 File as stored in the models
 ```python
-- hash_: str
+- checksum: str
 - storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
 ```
 
@@ -267,7 +267,7 @@ Dataset as stored in the Objective asset
 Metric associated to a testtuple or objective
 ```python
 - name: Optional[str]
-- hash_: str
+- checksum: str
 - storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
 ```
 
@@ -275,7 +275,7 @@ Metric associated to a testtuple or objective
 Algo associated to a traintuple
 ```python
 - key: str
-- hash_: str
+- checksum: str
 - storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
 - name: str
 ```
@@ -284,8 +284,8 @@ Algo associated to a traintuple
 Dataset as stored in a traintuple or composite traintuple
 ```python
 - key: str
-- opener_hash: str
-- keys: List[str]
+- opener_checksum: str
+- data_sample_keys: List[str]
 - worker: str
 - metadata: Optional[Mapping[str, str]]
 ```
@@ -294,9 +294,9 @@ Dataset as stored in a traintuple or composite traintuple
 Dataset of a testtuple
 ```python
 - key: str
-- opener_hash: str
+- opener_checksum: str
 - perf: float
-- keys: List[str]
+- data_sample_keys: List[str]
 - worker: str
 ```
 

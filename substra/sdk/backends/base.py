@@ -15,7 +15,7 @@ class BaseBackend(abc.ABC):
     def add(self, spec, spec_options=None):
         raise NotImplementedError
 
-    def update_compute_plan(self, compute_plan_id, spec):
+    def update_compute_plan(self, key, spec):
         raise NotImplementedError
 
     def link_dataset_with_objective(self, dataset_key, objective_key):
@@ -33,5 +33,5 @@ class BaseBackend(abc.ABC):
     def leaderboard(self, objective_key, sort='desc'):
         raise NotImplementedError
 
-    def cancel_compute_plan(self, compute_plan_id):
+    def cancel_compute_plan(self, key):
         raise NotImplementedError

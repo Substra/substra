@@ -264,8 +264,6 @@ class BaseAlgoPrinter(AssetPrinter):
 class ComputePlanPrinter(AssetPrinter):
     asset_name = 'compute_plan'
 
-    key_field = Field('Compute plan ID', 'compute_plan_id')
-
     list_fields = (
         CountField('Traintuples count', 'traintuple_keys'),
         CountField('Composite traintuples count', 'composite_traintuple_keys'),
@@ -295,19 +293,19 @@ class ComputePlanPrinter(AssetPrinter):
 
         print('\nDisplay this compute_plan\'s traintuples:')
         print(f'\tsubstra list traintuple -f '
-              f'"traintuple:compute_plan_id:{key_value}" {profile_arg}')
+              f'"traintuple:compute_plan_key:{key_value}" {profile_arg}')
 
         print('\nDisplay this compute_plan\'s composite_traintuples:')
         print(f'\tsubstra list composite_traintuple'
-              f' -f "composite_traintuple:compute_plan_id:{key_value}" {profile_arg}')
+              f' -f "composite_traintuple:compute_plan_key:{key_value}" {profile_arg}')
 
         print('\nDisplay this compute_plan\'s aggregatetuples:')
         print(f'\tsubstra list aggregatetuple'
-              f' -f "aggregatetuple:compute_plan_id:{key_value}" {profile_arg}')
+              f' -f "aggregatetuple:compute_plan_key:{key_value}" {profile_arg}')
 
         print('\nDisplay this compute_plan\'s testtuples:')
         print(f'\tsubstra list testtuple'
-              f' -f "testtuple:compute_plan_id:{key_value}" {profile_arg}')
+              f' -f "testtuple:compute_plan_key:{key_value}" {profile_arg}')
 
 
 class AlgoPrinter(BaseAlgoPrinter):
@@ -383,7 +381,7 @@ class TraintuplePrinter(AssetPrinter):
         Field('Status', 'status'),
         Field('Rank', 'rank'),
         Field('Tag', 'tag'),
-        Field('Compute Plan Id', 'compute_plan_id'),
+        Field('Compute Plan key', 'compute_plan_key'),
     )
     single_fields = (
         Field('Model key', 'out_model.key'),
@@ -394,7 +392,7 @@ class TraintuplePrinter(AssetPrinter):
         KeysField('Train data sample keys', 'dataset.keys'),
         InModelTraintupleKeysField('In model traintuple keys', 'in_models'),
         Field('Rank', 'rank'),
-        Field('Compute Plan Id', 'compute_plan_id'),
+        Field('Compute Plan key', 'compute_plan_key'),
         Field('Tag', 'tag'),
         Field('Log', 'log'),
         Field('Creator', 'creator'),
@@ -420,7 +418,7 @@ class AggregateTuplePrinter(AssetPrinter):
         Field('Status', 'status'),
         Field('Rank', 'rank'),
         Field('Tag', 'tag'),
-        Field('Compute Plan Id', 'compute_plan_id'),
+        Field('Compute Plan key', 'compute_plan_key'),
     )
     single_fields = (
         Field('Model key', 'out_model.key'),
@@ -430,7 +428,7 @@ class AggregateTuplePrinter(AssetPrinter):
         Field('Dataset key', 'dataset.key'),
         InModelTraintupleKeysField('In model keys', 'in_models'),
         Field('Rank', 'rank'),
-        Field('Compute Plan Id', 'compute_plan_id'),
+        Field('Compute Plan key', 'compute_plan_key'),
         Field('Tag', 'tag'),
         Field('Log', 'log'),
         Field('Creator', 'creator'),
@@ -456,7 +454,7 @@ class CompositeTraintuplePrinter(AssetPrinter):
         Field('Status', 'status'),
         Field('Rank', 'rank'),
         Field('Tag', 'tag'),
-        Field('Compute Plan Id', 'compute_plan_id'),
+        Field('Compute Plan key', 'compute_plan_key'),
     )
 
     single_fields = (
@@ -472,7 +470,7 @@ class CompositeTraintuplePrinter(AssetPrinter):
         Field('In head model key', 'in_head_model.traintuple_key'),
         Field('In trunk model key', 'in_trunk_model.traintuple_key'),
         Field('Rank', 'rank'),
-        Field('Compute Plan Id', 'compute_plan_id'),
+        Field('Compute Plan key', 'compute_plan_key'),
         Field('Tag', 'tag'),
         Field('Log', 'log'),
         Field('Creator', 'creator'),
@@ -499,7 +497,7 @@ class TesttuplePrinter(AssetPrinter):
         Field('Perf', 'dataset.perf'),
         Field('Rank', 'rank'),
         Field('Tag', 'tag'),
-        Field('Compute Plan Id', 'compute_plan_id'),
+        Field('Compute Plan key', 'compute_plan_key'),
     )
     single_fields = (
         Field('Traintuple key', 'traintuple_key'),
@@ -515,7 +513,7 @@ class TesttuplePrinter(AssetPrinter):
         Field('Rank', 'rank'),
         Field('Tag', 'tag'),
         Field('Metadata', 'metadata'),
-        Field('Compute Plan Id', 'compute_plan_id'),
+        Field('Compute Plan key', 'compute_plan_key'),
         Field('Log', 'log'),
         Field('Creator', 'creator'),
         Field('Worker', 'dataset.worker'),
