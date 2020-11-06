@@ -19,7 +19,6 @@ import shutil
 import uuid
 
 from substra.sdk import schemas, fs, models
-from substra.runner import METRICS_FAKE_Y, METRICS_NO_FAKE_Y, DOCKER_METRICS_TAG
 from substra.sdk.backends.local import dal
 from substra.sdk.backends.local.compute import spawner
 
@@ -341,12 +340,12 @@ class Worker:
 
             if self._db.is_local(dataset.key):
                 volumes[data_volume] = _VOLUME_INPUT_DATASAMPLES
-                command = f"--fake-data-mode {METRICS_NO_FAKE_Y}"
+                command = "--fake-data-mode DISABLED"
             else:
-                command = f"--fake-data-mode {METRICS_FAKE_Y}"
+                command = "--fake-data-mode FAKE_Y"
                 command += f" --n-fake-samples {len(tuple_.dataset.data_sample_keys)}"
 
-            container_name = DOCKER_METRICS_TAG
+            container_name = 'metrics_run_local'
             logs_predict = self._spawner.spawn(
                 container_name,
                 str(objective.metrics.storage_address),
