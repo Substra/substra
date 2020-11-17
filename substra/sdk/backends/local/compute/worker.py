@@ -59,6 +59,14 @@ class Worker:
         self._db = db
         self._spawner = spawner.get()
 
+    def _get_data_sample_paths_arg(self, data_volume, dataset):
+        data_sample_paths = [
+            os.path.join(data_volume, key)
+            for key in dataset.data_sample_keys
+        ]
+        data_sample_paths = ' '.join(data_sample_paths)
+        return data_sample_paths
+
     def _get_data_volume(self, tuple_dir, tuple_):
         data_volume = _mkdir(os.path.join(tuple_dir, "data"))
         samples = [
@@ -184,10 +192,6 @@ class Worker:
 
             # compute command
             command += f" --rank {tuple_.rank}"
-            if not isinstance(tuple_, models.Aggregatetuple) \
-                    and not self._db.is_local(tuple_.dataset.key):
-                command += " --fake-data"
-                command += f" --n-fake-samples {len(tuple_.dataset.data_sample_keys)}"
 
             # Add the in_models to the command
             if isinstance(tuple_, models.CompositeTraintuple):
@@ -200,6 +204,17 @@ class Worker:
             elif tuple_.in_models is not None:
                 for idx, model in enumerate(tuple_.in_models):
                     command += f" {idx}_{model.key}"
+
+            if not isinstance(tuple_, models.Aggregatetuple):
+                if self._db.is_local(tuple_.dataset.key):
+                    data_sample_paths = self._get_data_sample_paths_arg(
+                        _VOLUME_INPUT_DATASAMPLES['bind'],
+                        tuple_.dataset
+                    )
+                    command += f" --data-sample-paths {data_sample_paths}"
+                else:
+                    command += " --fake-data"
+                    command += f" --n-fake-samples {len(tuple_.dataset.data_sample_keys)}"
 
             # Execute the tuple
             container_name = f"algo-{algo.key}"
@@ -274,10 +289,6 @@ class Worker:
             # compute testtuple command
             command = "predict"
 
-            if not self._db.is_local(dataset.key):
-                command += " --fake-data"
-                command += f" --n-fake-samples {len(tuple_.dataset.data_sample_keys)}"
-
             if tuple_.traintuple_type == schemas.Type.Traintuple \
                     or tuple_.traintuple_type == schemas.Type.Aggregatetuple:
                 os.link(
@@ -306,6 +317,16 @@ class Worker:
                     models_volume=models_volume,
                     container_volume=_VOLUME_MODELS_RO,
                 )
+
+            if self._db.is_local(dataset.key):
+                data_sample_paths = self._get_data_sample_paths_arg(
+                    _VOLUME_INPUT_DATASAMPLES['bind'],
+                    tuple_.dataset
+                )
+                command += f" --data-sample-paths {data_sample_paths}"
+            else:
+                command += " --fake-data"
+                command += f" --n-fake-samples {len(tuple_.dataset.data_sample_keys)}"
 
             container_name = f"algo-{traintuple.algo.key}"
             logs = self._spawner.spawn(
