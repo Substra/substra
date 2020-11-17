@@ -69,7 +69,7 @@ class Worker:
 
     def _get_chainkey_volume(self, tuple_):
         owner = self._get_owner(tuple_)
-        compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_id)
+        compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_key)
         tuple_chainkey_volume = self._chainkey_dir / owner / \
             "computeplan" / compute_plan.tag / "chainkeys"
         if not tuple_chainkey_volume.is_dir():
@@ -246,7 +246,7 @@ class Worker:
 
             # Get the environment variables
             envs = dict()
-            if tuple_.compute_plan_id:
+            if tuple_.compute_plan_key:
                 if self._support_chainkeys:
                     envs.update(self._get_chainkey_env(tuple_))
 
