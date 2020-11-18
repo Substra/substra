@@ -18,7 +18,7 @@ Defaults to None.
  - `retry_timeout (int, optional)`: Number of seconds before attempting a retry call in case
 of timeout.
 Defaults to 5 minutes.
- - `insecure (bool, optional)`: If True, the client can call a not-certifed backend. This is
+ - `insecure (bool, optional)`: If True, the client can call a not-certified backend. This is
 for development purposes.
 Defaults to False.
  - `debug (bool, optional)`: Whether to use the default or debug mode.
@@ -120,7 +120,7 @@ keys as specified in [schemas.ComputePlanSpec](sdk_schemas.md#ComputePlanSpec).
  - `auto_batching (bool, optional)`: Set 'auto_batching' to False to upload all the tuples of
 the compute plan at once. Defaults to True.
  - `batch_size (int, optional)`: If 'auto_batching' is True, change `batch_size` to define
-the number oftuples uploaded in each batch (default 20).
+the number of tuples uploaded in each batch (default 20).
 
 **Returns:**
 

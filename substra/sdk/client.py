@@ -46,8 +46,8 @@ def logit(f):
         finally:
             # add a log even if the function raises an exception
             te = time.time()
-            elaps = (te - ts) * 1000
-            logger.info(f'{f.__name__}: done in {elaps:.2f}ms; error={error}')
+            elapsed = (te - ts) * 1000
+            logger.info(f'{f.__name__}: done in {elapsed:.2f}ms; error={error}')
 
     return wrapper
 
@@ -66,7 +66,7 @@ class Client(object):
         retry_timeout (int, optional): Number of seconds before attempting a retry call in case
             of timeout.
             Defaults to 5 minutes.
-        insecure (bool, optional): If True, the client can call a not-certifed backend. This is
+        insecure (bool, optional): If True, the client can call a not-certified backend. This is
             for development purposes.
             Defaults to False.
         debug (bool, optional): Whether to use the default or debug mode.
@@ -92,7 +92,7 @@ class Client(object):
         self._backend = self._get_backend(debug)
 
     def _get_backend(self, debug: bool):
-        # Three possibilites:
+        # Three possibilities:
         # - debug is False: get a remote backend
         # - debug is True and no url is defined: fully local backend
         # - debug is True and url is defined: local backend that connects to
@@ -430,7 +430,7 @@ class Client(object):
             auto_batching (bool, optional): Set 'auto_batching' to False to upload all the tuples of
                 the compute plan at once. Defaults to True.
             batch_size (int, optional): If 'auto_batching' is True, change `batch_size` to define
-                the number oftuples uploaded in each batch (default 20).
+                the number of tuples uploaded in each batch (default 20).
 
         Returns:
             models.ComputePlan: Created compute plan
