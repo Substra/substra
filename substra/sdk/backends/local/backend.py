@@ -841,9 +841,9 @@ class Local(base.BaseBackend):
             except exceptions.NotFound:
                 in_tuple = self._db.get(schemas.Type.CompositeTraintuple, key=model_key)
                 in_models.append({
-                    "key": in_tuple.out_head_model.out_model.key,
-                    "checksum": in_tuple.out_head_model.out_model.checksum,
-                    "storage_address": in_tuple.out_head_model.out_model.storage_address,
+                    "key": in_tuple.out_trunk_model.out_model.key,
+                    "checksum": in_tuple.out_trunk_model.out_model.checksum,
+                    "storage_address": in_tuple.out_trunk_model.out_model.storage_address,
                     "traintuple_key": in_tuple.key,
                 })
                 in_permissions.append(in_tuple.out_trunk_model.permissions.process)
