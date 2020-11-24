@@ -16,6 +16,7 @@ from pathlib import Path
 import shutil
 import typing
 import warnings
+from distutils import util
 
 import substra
 from substra.sdk import schemas, models, exceptions, fs, graph, compute_plan as compute_plan_module
@@ -31,7 +32,7 @@ DEBUG_OWNER = "debug_owner"
 
 class Local(base.BaseBackend):
     def __init__(self, backend, *args, **kwargs):
-        self._support_chainkeys = os.getenv("CHAINKEYS_ENABLED", False)
+        self._support_chainkeys = bool(util.strtobool(os.getenv("CHAINKEYS_ENABLED", 'False')))
         self._chainkey_dir = Path(os.getenv("CHAINKEYS_DIR", Path.home() / ".substra_chainkeys"))
         if self._support_chainkeys:
             print(f"Chainkeys support is on, the directory is {self._chainkey_dir}")
