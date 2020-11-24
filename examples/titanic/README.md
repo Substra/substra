@@ -62,9 +62,45 @@ You'll find under `assets/algo_random_forest` a simple algorithm. Like the metri
 class imported from `substratools` that greatly simplifies the writing process. You'll notice that it handles not only
 the train and predict tasks but also a lot of data preprocessing.
 
+## Adding the assets to substra
+
+### Adding the objective, dataset and data samples to substra
+
+A script has been written that adds objective, data manager and data samples to substra. It uses the `substra` python
+sdk to perform actions. It's main goal is to create assets, get their keys and use these keys in the creation of other
+assets.
+
+To run it:
+
+```sh
+pip install -r scripts/requirements.txt
+python scripts/add_dataset_objective.py
+```
+
+This script just generated an `assets_keys.json` file in the `titanic` folder. This file contains the keys of all assets
+we've just created and organizes the keys of the train data samples in folds. This file will be used as input when
+adding an algorithm so that we can automatically launch all training and testing tasks.
+
+
+### Adding the algorithm and training it
+
+The script `add_train_algo_random_forest.py` pushes our simple algo to substra and then uses the `assets_keys.json` file
+we just generated to train it against the dataset and objective we previously set up. It will then update the
+`assets_keys.json` file with the newly created assets keys (algo, traintuple and testtuple)
+
+To run it:
+
+```sh
+python scripts/add_train_algo_random_forest.py
+```
+
+It will end by providing a couple of commands you can use to track the progress of the train and test tuples as well
+as the associated scores. Alternatively, you can browse the frontend to look up progress and scores.
+
+
 ## Testing our assets
 
-### Using asset command line interfaces
+### Manually
 
 #### Training task
 
@@ -115,102 +151,8 @@ python assets/objective/metrics.py \
   --log-path assets/logs/test_metrics.log
 ```
 
-### Using substra cli
+### Using the debug mode
 
-Before pushing our assets to the platform, we need to make sure they work well. To do so, we can run them locally. This
-way, if the training fails, we can access the logs and debug our code.
+Substra provides a very handy debug mode that will simulate the workings of a node right on your machine.
 
-To test the assets, we'll use `substra run-local`, passing it paths to our algorithm of course, but also the opener,
-the metrics and to the data samples we want to use.
-
-```sh
-substra run-local assets/algo_random_forest \
-  --train-opener=assets/dataset/opener.py \
-  --test-opener=assets/dataset/opener.py \
-  --metrics=assets/objective/ \
-  --train-data-samples=assets/train_data_samples \
-  --test-data-samples=assets/test_data_samples
-```
-
-At the end of this step, you'll find in the newly created `sandbox/model` folder a `model` file that contains your
-trained model. There is also a `sandbox/pred_train` folder that contains both the predictions made by the model on
-train data and the associated performance.
-
-#### Debugging
-
-It's more than probable that your code won't run perfectly the first time. Since runs happen in dockers, you can't
-debug using prints. Instead, you should use the `logging` module from python. All logs can then be consulted at the end
-of the run in  `sandbox/model/log_model.log`.
-
-## Adding the assets to substra
-
-### Adding the objective, dataset and data samples to substra
-
-A script has been written that adds objective, data manager and data samples to substra. It uses the `substra` python
-sdk to perform actions. It's main goal is to create assets, get their keys and use these keys in the creation of other
-assets.
-
-To run it:
-
-```sh
-pip install -r scripts/requirements.txt
-python scripts/add_dataset_objective.py
-```
-
-This script just generated an `assets_keys.json` file in the `titanic` folder. This file contains the keys of all assets
-we've just created and organizes the keys of the train data samples in folds. This file will be used as input when
-adding an algorithm so that we can automatically launch all training and testing tasks.
-
-
-### Adding the algorithm and training it
-
-The script `add_train_algo_random_forest.py` pushes our simple algo to substra and then uses the `assets_keys.json` file
-we just generated to train it against the dataset and objective we previously set up. It will then update the
-`assets_keys.json` file with the newly created assets keys (algo, traintuple and testtuple)
-
-To run it:
-
-```sh
-python scripts/add_train_algo_random_forest.py
-```
-
-It will end by providing a couple of commands you can use to track the progress of the train and test tuples as well
-as the associated scores. Alternatively, you can browse the frontend to look up progress and scores.
-
-## Writing an algorithm when you don't have access to the data samples
-
-Now that we have a full example setup, let's imagine that we are someone else, someone whithout access to the data
-samples who want to develop an algorithm for this objective (see `assets/algo_constant` for such an algorithm).
-
-Before pushing this new algorithm to the platform, we need to make sure it works. However we cannot use `run-local` the
-way we did before since we don't have access to the data samples. We'll therefore have to rely of fake data generated
-by the opener. **It's the responsibility of the person who wrote the data manager to provide generators of fake data
-who match perfectly the type of data the methods `get_X` and `get_y` would normally return.**
-
-The first step is to download the `opener.py` and `metrics.zip` from the frontend. Save the `opener.py` script in the
-`dataset` folder and unzip the `metrics.zip` archive in the `objective` folder (these folders are not strictly necessary
-but they help identify the related assets).
-
-Now we can launch the `run-local` using fake data:
-
-```sh
-substra run-local assets/algo_constant \
-  --train-opener=assets/dataset/opener.py \
-  --test-opener=assets/dataset/opener.py \
-  --metrics=assets/objective/ \
-  --fake-data-samples
-```
-
-Once again, we can use the `logging` module to debug.
-
-Once it works as expected, we can push it to the platform by using the `add_train_algo_constant.py` script. It relies
-on the `assets_keys.json` file that was previously generated and updates it the keys of the new algo, traintuple and
-testtuple.
-
-To run `add_train_algo_constant.py`:
-
-```sh
-python scripts/add_train_algo_constant.py
-```
-
-At the end of the training and testing, we can use the frontend to compare the performance of our algorithms.
+For more information, have a look at the [debugging example](../debugging/READMEmd).

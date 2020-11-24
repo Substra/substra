@@ -20,7 +20,7 @@ import logging
 import click
 import consolemd
 
-from substra import __version__, runner
+from substra import __version__
 from substra.cli import printers
 from substra.sdk import assets, exceptions, utils
 from substra.sdk import config as configuration
@@ -1062,101 +1062,6 @@ def leaderboard(ctx, expand, objective_key, sort):
     board = client.leaderboard(objective_key, sort=sort)
     printer = printers.get_leaderboard_printer(ctx.obj.output_format)
     printer.print(board, expand=expand)
-
-
-@cli.command()
-@click.argument('algo',
-                type=click.Path(exists=True))
-@click.option('--train-opener',
-              type=click.Path(exists=True, dir_okay=False),
-              required=True,
-              help='opener.py file to use during training.')
-@click.option('--test-opener',
-              type=click.Path(exists=True, dir_okay=False),
-              required=True,
-              help='opener.py file to use during testing.')
-@click.option('--metrics',
-              type=click.Path(exists=True),
-              required=True,
-              help='metrics directory or archive to use during both training and testing.')
-@click.option('--rank',
-              type=click.INT,
-              default=0,
-              help='will be passed to the algo during training.')
-@click.option('--train-data-samples',
-              type=click.Path(exists=True, file_okay=False),
-              help='directory of data samples directories to use during training.')
-@click.option('--test-data-samples',
-              type=click.Path(exists=True, file_okay=False),
-              help='directory of data samples directories to use during testing.')
-@click.option('--inmodel', 'inmodels',
-              type=click.Path(exists=True, dir_okay=False),
-              multiple=True,
-              help='model to use as input during training.')
-@click.option('--fake-data-samples',
-              is_flag=True,
-              help='use fake data samples during both training and testing.')
-@click.option('--n-fake-samples',
-              type=click.INT,
-              help='Number of fake data samples requested')
-def run_local(algo, train_opener, test_opener, metrics, rank,
-              train_data_samples, test_data_samples, inmodels,
-              fake_data_samples, n_fake_samples):
-    """Run local.
-
-    Train and test the algo located in ALGO (directory or archive) locally.
-
-    This command can be used to check that objective, dataset and algo assets
-    implementations are compatible.
-
-    It will execute sequentially 3 tasks in docker:
-
-    \b
-    - train algo using train data samples
-    - test model using test data samples
-    - get model perf
-
-    \b
-    It will create several output files:
-    - sandbox/model/model
-    - sandbox/pred_test/perf.json
-    - sandbox/pred_test/pred
-    """
-    if fake_data_samples and (train_data_samples or test_data_samples):
-        raise click.BadOptionUsage('--fake-data-samples',
-                                   'Options --train-data-samples and --test-data-samples cannot '
-                                   'be used if --fake-data-samples is activated')
-    if not fake_data_samples and not train_data_samples and not test_data_samples:
-        raise click.BadOptionUsage('--fake-data-samples',
-                                   'Missing option --fake-data-samples or --test-data-samples '
-                                   'and --train-data-samples')
-    if not fake_data_samples and train_data_samples and not test_data_samples:
-        raise click.BadOptionUsage('--test-data-samples',
-                                   'Missing option --test-data-samples')
-    if not fake_data_samples and not train_data_samples and test_data_samples:
-        raise click.BadOptionUsage('--train-data-samples',
-                                   'Missing option --train-data-samples')
-    if not fake_data_samples and n_fake_samples:
-        raise click.BadOptionUsage('--n-fake-samples',
-                                   'Option --n-fake-samples cannot be used if'
-                                   '--fake-data-samples is not activated')
-
-    try:
-        runner.compute(algo_path=algo,
-                       train_opener_file=train_opener,
-                       test_opener_file=test_opener,
-                       metrics_path=metrics,
-                       train_data_path=train_data_samples,
-                       test_data_path=test_data_samples,
-                       fake_data_samples=fake_data_samples,
-                       rank=rank,
-                       inmodels=inmodels,
-                       n_fake_samples=n_fake_samples)
-    except runner.PathTraversalException as e:
-        raise click.ClickException(
-            f'Archive "{e.archive_path}" includes at least 1 file or folder '
-            f'located outside the archive root folder: "{e.issue_path}"'
-        )
 
 
 @cli.group()
