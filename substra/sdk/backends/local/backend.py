@@ -80,7 +80,7 @@ class Local(base.BaseBackend):
         return result
 
     @staticmethod
-    def __check_metadata(metadata: typing.Optional[typing.Dict[str, str]]):
+    def _check_metadata(metadata: typing.Optional[typing.Dict[str, str]]):
         if metadata is not None:
             if any([len(key) > _MAX_LEN_KEY_METADATA for key in metadata]):
                 raise exceptions.InvalidRequest(
@@ -95,6 +95,13 @@ class Local(base.BaseBackend):
                     "Values in metadata cannot be empty or more than 100 characters",
                     400
                 )
+
+        # In debug mode, the user can define the owner of the data
+        if metadata is not None and DEBUG_OWNER in metadata:
+            owner = metadata[DEBUG_OWNER]
+        else:
+            owner = _BACKEND_ID
+        return owner
 
     @staticmethod
     def __compute_permissions(permissions, owner=_BACKEND_ID):
@@ -284,15 +291,15 @@ class Local(base.BaseBackend):
                     "dataSample do not belong to the same dataManager", 400
                 )
 
-    def __add_algo(self, model_class, key, spec, spec_options=None):
+    def __add_algo(self, model_class, key, spec, owner, spec_options=None):
 
-        permissions = self.__compute_permissions(spec.permissions)
+        permissions = self.__compute_permissions(spec.permissions, owner)
         algo_file_path = self._db.save_file(spec.file, key)
         algo_description_path = self._db.save_file(spec.description, key)
         algo = model_class(
             key=key,
             name=spec.name,
-            owner=_BACKEND_ID,
+            owner=owner,
             permissions={
                 "process": {
                     "public": permissions.public,
@@ -312,30 +319,24 @@ class Local(base.BaseBackend):
         return self._db.add(algo)
 
     def _add_algo(self, key, spec, spec_options=None):
-        self.__check_metadata(spec.metadata)
-        return self.__add_algo(models.Algo, key, spec, spec_options=spec_options)
+        owner = self._check_metadata(spec.metadata)
+        return self.__add_algo(models.Algo, key, spec, owner, spec_options=spec_options)
 
     def _add_aggregate_algo(self, key, spec, spec_options=None):
-        self.__check_metadata(spec.metadata)
+        owner = self._check_metadata(spec.metadata)
         return self.__add_algo(
-            models.AggregateAlgo, key, spec, spec_options=spec_options
+            models.AggregateAlgo, key, spec, owner, spec_options=spec_options
         )
 
     def _add_composite_algo(self, key, spec, spec_options=None):
-        self.__check_metadata(spec.metadata)
+        owner = self._check_metadata(spec.metadata)
         return self.__add_algo(
-            models.CompositeAlgo, key, spec, spec_options=spec_options
+            models.CompositeAlgo, key, spec, owner, spec_options=spec_options
         )
 
     def _add_dataset(self, key, spec, spec_options=None):
 
-        self.__check_metadata(spec.metadata)
-
-        # In debug mode, the user can define the owner of the data
-        if spec.metadata is not None and DEBUG_OWNER in spec.metadata:
-            owner = spec.metadata[DEBUG_OWNER]
-        else:
-            owner = _BACKEND_ID
+        owner = self._check_metadata(spec.metadata)
 
         permissions = self.__compute_permissions(spec.permissions, owner)
 
@@ -418,8 +419,8 @@ class Local(base.BaseBackend):
 
     def _add_objective(self, key, spec, spec_options):
 
-        self.__check_metadata(spec.metadata)
-        permissions = self.__compute_permissions(spec.permissions)
+        owner = self._check_metadata(spec.metadata)
+        permissions = self.__compute_permissions(spec.permissions, owner)
 
         # validate spec
         test_dataset = None
@@ -451,7 +452,7 @@ class Local(base.BaseBackend):
         objective = models.Objective(
             key=key,
             name=spec.name,
-            owner=_BACKEND_ID,
+            owner=owner,
             test_dataset=test_dataset,
             permissions={
                 "process": {
@@ -486,7 +487,7 @@ class Local(base.BaseBackend):
             warnings.warn(
                 "'clean_models=True' is not supported on the local backend."
             )
-        self.__check_metadata(spec.metadata)
+        self._check_metadata(spec.metadata)
         # Get all the tuples and their dependencies
         (
             tuple_graph,
@@ -523,7 +524,7 @@ class Local(base.BaseBackend):
 
     def _add_traintuple(self, key, spec, spec_options=None):
         # validation
-        self.__check_metadata(spec.metadata)
+        owner = self._check_metadata(spec.metadata)
         algo = self._db.get(schemas.Type.Algo, spec.algo_key)
         data_manager = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
         in_traintuples = (
@@ -563,7 +564,7 @@ class Local(base.BaseBackend):
         options = {}
         traintuple = models.Traintuple(
             key=key,
-            creator=_BACKEND_ID,
+            creator=owner,
             algo={
                 "key": spec.algo_key,
                 "checksum": algo.content.checksum,
@@ -605,7 +606,7 @@ class Local(base.BaseBackend):
     def _add_testtuple(self, key, spec, spec_options=None):
 
         # validation
-        self.__check_metadata(spec.metadata)
+        owner = self._check_metadata(spec.metadata)
         objective = self._db.get(schemas.Type.Objective, spec.objective_key)
 
         traintuple = None
@@ -672,7 +673,7 @@ class Local(base.BaseBackend):
         options = {}
         testtuple = models.Testtuple(
             key=key,
-            creator=_BACKEND_ID,
+            creator=owner,
             objective={
                 "key": spec.objective_key,
                 "metrics": objective.metrics
@@ -707,7 +708,7 @@ class Local(base.BaseBackend):
         spec_options=None
     ):
         # validation
-        self.__check_metadata(spec.metadata)
+        owner = self._check_metadata(spec.metadata)
         algo = self._db.get(schemas.Type.CompositeAlgo, spec.algo_key)
         dataset = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
         self.__check_same_data_manager(spec.data_manager_key, spec.train_data_sample_keys)
@@ -763,13 +764,13 @@ class Local(base.BaseBackend):
             head_model_permissions = {
                 "process": {
                     "public": False,
-                    "authorized_ids": [_BACKEND_ID]
+                    "authorized_ids": [owner]
                 }
             }
 
         composite_traintuple = models.CompositeTraintuple(
             key=key,
-            creator=_BACKEND_ID,
+            creator=owner,
             algo={
                 "key": spec.algo_key,
                 "checksum": algo.content.checksum,
@@ -812,7 +813,7 @@ class Local(base.BaseBackend):
                             spec_options: dict = None,
                             ):
         # validation
-        self.__check_metadata(spec.metadata)
+        owner = self._check_metadata(spec.metadata)
         algo = self._db.get(schemas.Type.AggregateAlgo, spec.algo_key)
         in_tuples = list()
         in_models = list()
@@ -852,7 +853,7 @@ class Local(base.BaseBackend):
 
         aggregatetuple = models.Aggregatetuple(
             key=key,
-            creator=_BACKEND_ID,
+            creator=owner,
             worker=spec.worker,
             algo={
                 "key": spec.algo_key,
