@@ -32,7 +32,7 @@ class DataAccess:
     """
 
     def __init__(self, remote_backend: typing.Optional[backend.Remote]):
-        self._db = db.get()
+        self._db = db.InMemoryDb()
         self._remote = remote_backend
         self._tmp_dir = tempfile.TemporaryDirectory(prefix="/tmp/")
 

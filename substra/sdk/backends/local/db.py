@@ -59,19 +59,3 @@ class InMemoryDb:
 
         self._data[type_][key] = asset
         return asset
-
-
-_SHARED_DB = None
-
-
-def reset():
-    global _SHARED_DB
-    _SHARED_DB = InMemoryDb()
-    return _SHARED_DB
-
-
-def get():
-    global _SHARED_DB
-    if not _SHARED_DB:
-        reset()
-    return _SHARED_DB
