@@ -263,6 +263,11 @@ class Client(object):
     def add_dataset(self, data: Union[dict, schemas.DatasetSpec]):
         """Create new dataset asset and return its key.
 
+        In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
+        the value becomes the node owner of the data, and all tuples using this data
+        have their worker set to this node. This has no impact on how the tuples are
+        executed except if chainkey support is enabled.
+
         Args:
             data (Union[dict, schemas.DatasetSpec]): If it is a dict, it must have the same
                 keys as specified in [schemas.DatasetSpec](sdk_schemas.md#DatasetSpec).
@@ -280,6 +285,9 @@ class Client(object):
     ) -> str:
         """Create new objective asset.
 
+        In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
+        the value becomes the 'creator' of the objective.
+
         Args:
             data (Union[dict, schemas.ObjectiveSpec]): If it is a dict, it must have the same keys
                 as specified in [schemas.ObjectiveSpec](sdk_schemas.md#ObjectiveSpec).
@@ -293,6 +301,9 @@ class Client(object):
     @logit
     def add_algo(self, data: Union[dict, schemas.AlgoSpec]) -> str:
         """Create new algo asset.
+
+        In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
+        the value becomes the 'creator' of the algo.
 
         Args:
             data (Union[dict, schemas.AlgoSpec]): If it is a dict, it must have the same keys
@@ -310,6 +321,9 @@ class Client(object):
         data: Union[dict, schemas.AggregateAlgoSpec],
     ) -> str:
         """Create new aggregate algo asset.
+
+        In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
+        the value becomes the 'creator' of the aggregate algo.
 
         Args:
             data (Union[dict, schemas.AggregateAlgoSpec]): If it is a dict,
@@ -329,6 +343,9 @@ class Client(object):
     ) -> str:
         """Create new composite algo asset.
 
+        In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
+        the value becomes the 'creator' of the composite algo.
+
         Args:
             data (Union[dict, schemas.CompositeAlgoSpec]): If it is a dict, it must have the same
                 keys as specified in [schemas.CompositeAlgoSpec](sdk_schemas.md#CompositeAlgoSpec).
@@ -346,6 +363,9 @@ class Client(object):
     ) -> str:
         """Create new traintuple asset.
 
+        In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
+        the value becomes the 'creator' of the traintuple.
+
         Args:
             data (Union[dict, schemas.TraintupleSpec]): If it is a dict, it must have the same
                 keys as specified in [schemas.TraintupleSpec](sdk_schemas.md#TraintupleSpec).
@@ -362,6 +382,9 @@ class Client(object):
         data: Union[dict, schemas.AggregatetupleSpec]
     ) -> str:
         """Create a new aggregate tuple asset.
+
+        In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
+        the value becomes the 'creator' of the aggregate tuple.
 
         Args:
             data (Union[dict, schemas.AggregatetupleSpec]): If it is a dict, it must have the same
@@ -384,6 +407,9 @@ class Client(object):
         As specified in the data structure, output trunk models cannot be made
         public.
 
+        In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
+        the value becomes the 'creator' of the composite traintuple.
+
         Args:
             data (Union[dict, schemas.CompositeTraintupleSpec]): If it is a dict, it must have the
                 same keys as specified in
@@ -401,6 +427,9 @@ class Client(object):
         data: Union[dict, schemas.TesttupleSpec]
     ) -> str:
         """Create new testtuple asset.
+
+        In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
+        the value becomes the 'creator' of the testtuple.
 
         Args:
             data (Union[dict, schemas.TesttupleSpec]): If it is a dict, it must have the same

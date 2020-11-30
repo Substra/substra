@@ -36,6 +36,7 @@ OBJECTIVE = {
             "e11aeec2-9074-9e4c-50c9-1305e10463ec",
         ],
         "metadata": {},
+        "worker": "TEST_WORKER",
     },
     "metadata": {
         "foo": "bar"

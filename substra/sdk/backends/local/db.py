@@ -37,12 +37,13 @@ class InMemoryDb:
 
         return asset
 
-    def get(self, type_, key: str):
+    def get(self, type_, key: str, log: bool = True):
         """Return asset."""
         try:
             return self._data[type_][key]
         except KeyError:
-            logger.error(f"{type_} with key '{key}' not found.")
+            if log:
+                logger.error(f"{type_} with key '{key}' not found.")
             raise exceptions.NotFound(f"Wrong pk {key}", 404)
 
     def list(self, type_):
@@ -58,19 +59,3 @@ class InMemoryDb:
 
         self._data[type_][key] = asset
         return asset
-
-
-_SHARED_DB = None
-
-
-def reset():
-    global _SHARED_DB
-    _SHARED_DB = InMemoryDb()
-    return _SHARED_DB
-
-
-def get():
-    global _SHARED_DB
-    if not _SHARED_DB:
-        reset()
-    return _SHARED_DB

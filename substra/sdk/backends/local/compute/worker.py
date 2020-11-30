@@ -31,6 +31,7 @@ _VOLUME_OPENER = {"bind": "/sandbox/opener/__init__.py", "mode": "ro"}
 _VOLUME_OUTPUT_PRED = {"bind": "/sandbox/pred", "mode": "rw"}
 _VOLUME_LOCAL = {"bind": "/sandbox/local", "mode": "rw"}
 _VOLUME_LOCAL_READ_ONLY = {"bind": "/sandbox/local", "mode": "ro"}
+_VOLUME_CHAINKEYS = {"bind": "/sandbox/chainkeys", "mode": "rw"}
 
 _VOLUME_INPUT_MODELS_RO = {"bind": "/sandbox/input_models", "mode": "ro"}
 _VOLUME_OUTPUT_MODELS_RW = {"bind": "/sandbox/output_models", "mode": "rw"}
@@ -53,10 +54,33 @@ def _get_address_in_container(model_key, volume, container_volume):
 class Worker:
     """ML Worker."""
 
-    def __init__(self, db: dal.DataAccess):
+    def __init__(self, db: dal.DataAccess, support_chainkeys: bool, chainkey_dir=None):
         self._wdir = os.path.join(os.getcwd(), "local-worker")
         self._db = db
         self._spawner = spawner.get()
+        self._support_chainkeys = support_chainkeys
+        self._chainkey_dir = chainkey_dir
+
+    def _get_owner(self, tuple_):
+        if isinstance(tuple_, models.Aggregatetuple):
+            return tuple_.worker
+        return tuple_.dataset.worker
+
+    def _get_chainkey_volume(self, tuple_):
+        owner = self._get_owner(tuple_)
+        compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_key)
+        tuple_chainkey_volume = self._chainkey_dir / owner / \
+            "computeplan" / compute_plan.tag / "chainkeys"
+        if not tuple_chainkey_volume.is_dir():
+            return None
+        return tuple_chainkey_volume
+
+    def _get_chainkey_env(self, tuple_):
+        owner = self._get_owner(tuple_)
+        node_name_id = json.loads((self._chainkey_dir / "node_name_id.json").read_text())
+        return {
+            'NODE_INDEX': node_name_id.get(owner, None),
+        }
 
     def _get_data_sample_paths_arg(self, data_volume, dataset):
         data_sample_paths = [
@@ -183,6 +207,10 @@ class Worker:
                     )
                 )
                 volumes[local_volume] = _VOLUME_LOCAL
+                if self._support_chainkeys:
+                    chainkey_volume = self._get_chainkey_volume(tuple_)
+                    if chainkey_volume is not None:
+                        volumes[chainkey_volume] = _VOLUME_CHAINKEYS
 
             if isinstance(tuple_, models.Aggregatetuple):
                 command = "aggregate"
@@ -215,10 +243,20 @@ class Worker:
                     command += " --fake-data"
                     command += f" --n-fake-samples {len(tuple_.dataset.data_sample_keys)}"
 
+            # Get the environment variables
+            envs = dict()
+            if tuple_.compute_plan_key:
+                if self._support_chainkeys:
+                    envs.update(self._get_chainkey_env(tuple_))
+
             # Execute the tuple
             container_name = f"algo-{algo.key}"
             logs = self._spawner.spawn(
-                container_name, str(algo.content.storage_address), command, volumes=volumes
+                container_name,
+                str(algo.content.storage_address),
+                command,
+                volumes=volumes,
+                envs=envs,
             )
 
             # save move output models
@@ -284,6 +322,9 @@ class Worker:
                     )
                 )
                 volumes[local_volume] = _VOLUME_LOCAL
+                if self._support_chainkeys:
+                    chainkey_volume = self._get_chainkey_volume(tuple_)
+                    volumes[chainkey_volume] = _VOLUME_CHAINKEYS
 
             # compute testtuple command
             command = "predict"

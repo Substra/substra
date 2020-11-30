@@ -260,7 +260,7 @@ Dataset as stored in the Objective asset
 - data_manager_key: str
 - data_sample_keys: List[str]
 - metadata: Mapping[str, str]
-- worker: Optional[str]
+- worker: str
 ```
 
 ## _Metric
