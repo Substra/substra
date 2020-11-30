@@ -32,7 +32,7 @@ class DataAccess:
     """
 
     def __init__(self, remote_backend: typing.Optional[backend.Remote]):
-        self._db = db.get()
+        self._db = db.InMemoryDb()
         self._remote = remote_backend
         self._tmp_dir = tempfile.TemporaryDirectory(prefix="/tmp/")
 
@@ -114,9 +114,9 @@ class DataAccess:
             attr.storage_address = asset_path
             return asset
 
-    def get(self, type_, key: str):
+    def get(self, type_, key: str, log: bool = True):
         if self.is_local(key):
-            return self._db.get(type_, key)
+            return self._db.get(type_, key, log)
         elif self._remote:
             return self._remote.get(type_, key)
         else:

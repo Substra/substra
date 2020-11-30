@@ -37,7 +37,7 @@ add_aggregate_algo(self, data: Union[dict, substra.sdk.schemas.AggregateAlgoSpec
 
 Create new aggregate algo asset.
 In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-the value becomes the 'creator' of the objective.
+the value becomes the 'creator' of the aggregate algo.
 
 **Arguments:**
  - `data (Union[dict, schemas.AggregateAlgoSpec], required)`: If it is a dict,
@@ -54,7 +54,7 @@ add_aggregatetuple(self, data: Union[dict, substra.sdk.schemas.AggregatetupleSpe
 
 Create a new aggregate tuple asset.
 In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-the value becomes the 'creator' of the objective.
+the value becomes the 'creator' of the aggregate tuple.
 
 **Arguments:**
  - `data (Union[dict, schemas.AggregatetupleSpec], required)`: If it is a dict, it must have the same
@@ -71,7 +71,7 @@ add_algo(self, data: Union[dict, substra.sdk.schemas.AlgoSpec]) -> str
 
 Create new algo asset.
 In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-the value becomes the 'creator' of the objective.
+the value becomes the 'creator' of the algo.
 
 **Arguments:**
  - `data (Union[dict, schemas.AlgoSpec], required)`: If it is a dict, it must have the same keys
@@ -87,7 +87,7 @@ add_composite_algo(self, data: Union[dict, substra.sdk.schemas.CompositeAlgoSpec
 
 Create new composite algo asset.
 In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-the value becomes the 'creator' of the objective.
+the value becomes the 'creator' of the composite algo.
 
 **Arguments:**
  - `data (Union[dict, schemas.CompositeAlgoSpec], required)`: If it is a dict, it must have the same
@@ -106,7 +106,7 @@ As specified in the data structure, output trunk models cannot be made
 public.
 
 In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-the value becomes the 'creator' of the objective.
+the value becomes the 'creator' of the composite traintuple.
 
 **Arguments:**
  - `data (Union[dict, schemas.CompositeTraintupleSpec], required)`: If it is a dict, it must have the
@@ -221,7 +221,7 @@ add_testtuple(self, data: Union[dict, substra.sdk.schemas.TesttupleSpec]) -> str
 
 Create new testtuple asset.
 In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-the value becomes the 'creator' of the objective.
+the value becomes the 'creator' of the testtuple.
 
 **Arguments:**
  - `data (Union[dict, schemas.TesttupleSpec], required)`: If it is a dict, it must have the same
@@ -237,7 +237,7 @@ add_traintuple(self, data: Union[dict, substra.sdk.schemas.TraintupleSpec]) -> s
 
 Create new traintuple asset.
 In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-the value becomes the 'creator' of the objective.
+the value becomes the 'creator' of the traintuple.
 
 **Arguments:**
  - `data (Union[dict, schemas.TraintupleSpec], required)`: If it is a dict, it must have the same

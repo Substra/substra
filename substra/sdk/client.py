@@ -303,7 +303,7 @@ class Client(object):
         """Create new algo asset.
 
         In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-        the value becomes the 'creator' of the objective.
+        the value becomes the 'creator' of the algo.
 
         Args:
             data (Union[dict, schemas.AlgoSpec]): If it is a dict, it must have the same keys
@@ -323,7 +323,7 @@ class Client(object):
         """Create new aggregate algo asset.
 
         In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-        the value becomes the 'creator' of the objective.
+        the value becomes the 'creator' of the aggregate algo.
 
         Args:
             data (Union[dict, schemas.AggregateAlgoSpec]): If it is a dict,
@@ -344,7 +344,7 @@ class Client(object):
         """Create new composite algo asset.
 
         In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-        the value becomes the 'creator' of the objective.
+        the value becomes the 'creator' of the composite algo.
 
         Args:
             data (Union[dict, schemas.CompositeAlgoSpec]): If it is a dict, it must have the same
@@ -364,7 +364,7 @@ class Client(object):
         """Create new traintuple asset.
 
         In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-        the value becomes the 'creator' of the objective.
+        the value becomes the 'creator' of the traintuple.
 
         Args:
             data (Union[dict, schemas.TraintupleSpec]): If it is a dict, it must have the same
@@ -384,7 +384,7 @@ class Client(object):
         """Create a new aggregate tuple asset.
 
         In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-        the value becomes the 'creator' of the objective.
+        the value becomes the 'creator' of the aggregate tuple.
 
         Args:
             data (Union[dict, schemas.AggregatetupleSpec]): If it is a dict, it must have the same
@@ -408,7 +408,7 @@ class Client(object):
         public.
 
         In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-        the value becomes the 'creator' of the objective.
+        the value becomes the 'creator' of the composite traintuple.
 
         Args:
             data (Union[dict, schemas.CompositeTraintupleSpec]): If it is a dict, it must have the
@@ -429,7 +429,7 @@ class Client(object):
         """Create new testtuple asset.
 
         In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-        the value becomes the 'creator' of the objective.
+        the value becomes the 'creator' of the testtuple.
 
         Args:
             data (Union[dict, schemas.TesttupleSpec]): If it is a dict, it must have the same
