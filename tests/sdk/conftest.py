@@ -15,6 +15,7 @@
 import pytest
 
 import substra
+from . import data_factory
 
 
 def pytest_configure(config):
@@ -113,3 +114,13 @@ def data_samples_query(tmpdir):
         "data_manager_keys": ["42"],
         "test_only": False,
     }
+
+
+@pytest.fixture(scope="session")
+def asset_factory():
+    return data_factory.AssetsFactory("test_debug")
+
+
+@pytest.fixture()
+def data_sample(asset_factory):
+    return asset_factory.create_data_sample()

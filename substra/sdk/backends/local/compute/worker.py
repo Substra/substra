@@ -203,7 +203,7 @@ class Worker:
                 owner = self._get_owner(tuple_)
                 local_volume = _mkdir(
                     os.path.join(
-                        self._wdir, "compute_plans", "local", owner, tuple_.compute_plan_key
+                        self._wdir, "compute_plans", owner, tuple_.compute_plan_key
                     )
                 )
                 volumes[local_volume] = _VOLUME_LOCAL
@@ -319,7 +319,7 @@ class Worker:
                 owner = self._get_owner(tuple_)
                 local_volume = _mkdir(
                     os.path.join(
-                        self._wdir, "compute_plans", "local", owner, tuple_.compute_plan_key
+                        self._wdir, "compute_plans", owner, tuple_.compute_plan_key
                     )
                 )
                 volumes[local_volume] = _VOLUME_LOCAL
