@@ -56,7 +56,13 @@ class DockerSpawner:
         """Spawn a docker container (blocking)."""
         with tempfile.TemporaryDirectory() as tmpdir:
             _uncompress(archive_path, tmpdir)
-            self._docker.images.build(path=tmpdir, tag=name, rm=True)
+            try:
+                self._docker.images.build(path=tmpdir, tag=name, rm=True)
+            except docker.errors.BuildError as exc:
+                for line in exc.build_log:
+                    if 'stream' in line:
+                        print(line['stream'].strip())
+                raise
 
         container = self._docker.containers.run(
             name,

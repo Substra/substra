@@ -30,7 +30,6 @@ _VOLUME_MODELS_RW = {"bind": _CONTAINER_MODEL_PATH, "mode": "rw"}
 _VOLUME_OPENER = {"bind": "/sandbox/opener/__init__.py", "mode": "ro"}
 _VOLUME_OUTPUT_PRED = {"bind": "/sandbox/pred", "mode": "rw"}
 _VOLUME_LOCAL = {"bind": "/sandbox/local", "mode": "rw"}
-_VOLUME_LOCAL_READ_ONLY = {"bind": "/sandbox/local", "mode": "ro"}
 _VOLUME_CHAINKEYS = {"bind": "/sandbox/chainkeys", "mode": "rw"}
 
 _VOLUME_INPUT_MODELS_RO = {"bind": "/sandbox/input_models", "mode": "ro"}
@@ -201,9 +200,10 @@ class Worker:
 
             if tuple_.compute_plan_key:
                 #  Shared compute plan volume
+                owner = self._get_owner(tuple_)
                 local_volume = _mkdir(
                     os.path.join(
-                        self._wdir, "compute_plans", "local", tuple_.compute_plan_key
+                        self._wdir, "compute_plans", owner, tuple_.compute_plan_key
                     )
                 )
                 volumes[local_volume] = _VOLUME_LOCAL
@@ -316,9 +316,10 @@ class Worker:
                 volumes[data_volume] = _VOLUME_INPUT_DATASAMPLES
 
             if tuple_.compute_plan_key:
+                owner = self._get_owner(tuple_)
                 local_volume = _mkdir(
                     os.path.join(
-                        self._wdir, "compute_plans", "local", tuple_.compute_plan_key
+                        self._wdir, "compute_plans", owner, tuple_.compute_plan_key
                     )
                 )
                 volumes[local_volume] = _VOLUME_LOCAL

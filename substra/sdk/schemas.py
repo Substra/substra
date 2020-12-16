@@ -300,7 +300,7 @@ class TraintupleSpec(_Spec):
             train_data_sample_keys=spec.train_data_sample_keys,
             in_models_keys=[
                 id_to_key[parent_id] for parent_id in spec.in_models_ids
-            ],
+            ] if spec.in_models_ids is not None else list(),
             tag=spec.tag,
             compute_plan_key=compute_plan_key,
             rank=rank,
