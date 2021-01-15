@@ -630,7 +630,7 @@ class Client(object):
             models.ComputePlan: updated compute plan, as described in the
             [models.ComputePlan](sdk_models.md#ComputePlan) model
         """
-        spec = schemas.UpdateComputePlanSpec(**data)
+        spec = self._get_spec(schemas.UpdateComputePlanSpec, data)
         spec_options = {
             "auto_batching": auto_batching,
             "batch_size": batch_size,

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from substra.sdk import models
+from substra.sdk import models, schemas
 
 from .. import datastore
 from .utils import mock_requests
@@ -36,6 +36,18 @@ def test_update_compute_plan(client, mocker):
     m_get = mock_requests(mocker, "get", response=datastore.COMPUTE_PLAN)
 
     response = client.update_compute_plan('foo', {})
+
+    assert response == models.ComputePlan(**item)
+    m.assert_called
+    m_get.assert_called
+
+
+def test_update_compute_plan_with_schema(client, mocker):
+    item = datastore.COMPUTE_PLAN
+    m = mock_requests(mocker, "post", response=item)
+    m_get = mock_requests(mocker, "get", response=datastore.COMPUTE_PLAN)
+
+    response = client.update_compute_plan('foo', schemas.UpdateComputePlanSpec())
 
     assert response == models.ComputePlan(**item)
     m.assert_called
