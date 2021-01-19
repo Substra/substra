@@ -61,3 +61,49 @@ def test_client_multi_nodes_cp(asset_factory):
 
     assert path_cp_1.is_dir()
     assert path_cp_2.is_dir()
+
+
+def test_compute_plan_add_update(asset_factory):
+    client = substra.Client(debug=True)
+    compute_plan = client.add_compute_plan(
+        substra.sdk.schemas.ComputePlanSpec(
+            tag=None,
+            clean_models=False,
+            metadata=dict(),
+        ))
+
+    dataset_query = asset_factory.create_dataset()
+    dataset_key = client.add_dataset(dataset_query)
+
+    data_sample = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
+    data_sample_key = client.add_data_sample(data_sample)
+
+    algo_query = asset_factory.create_algo()
+    algo_key = client.add_algo(algo_query)
+
+    traintuple_key = client.add_traintuple(
+        substra.sdk.schemas.TraintupleSpec(
+            algo_key=algo_key,
+            data_manager_key=dataset_key,
+            train_data_sample_keys=[data_sample_key],
+            in_models_keys=None,
+            compute_plan_key=compute_plan.key,
+            rank=None,
+            metadata=None,
+        )
+    )
+
+    traintuple = substra.sdk.schemas.ComputePlanTraintupleSpec(
+        algo_key=algo_key,
+        data_manager_key=dataset_key,
+        train_data_sample_keys=[data_sample_key],
+        in_models_ids=[traintuple_key],
+        traintuple_id=0,
+    )
+
+    compute_plan = client.update_compute_plan(
+        key=compute_plan.key,
+        data={
+            "traintuples": [traintuple],
+        }
+    )

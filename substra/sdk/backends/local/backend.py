@@ -984,7 +984,6 @@ class Local(base.BaseBackend):
                             spec: schemas.UpdateComputePlanSpec,
                             spec_options: dict = None):
         compute_plan = self._db.get(schemas.Type.ComputePlan, key)
-
         # Get all the new tuples and their dependencies
         (
             tuple_graph,
@@ -993,39 +992,45 @@ class Local(base.BaseBackend):
             compositetuples
         ) = compute_plan_module.get_dependency_graph(spec)
 
-        # Define the rank of each traintuple, aggregate tuple and composite tuple
-        old_tuples = {id_: list() for id_ in compute_plan.id_to_key}
-        tuple_graph.update(old_tuples)
-
         # Get the rank of all the tuples already in the compute plan
+        # Tuples already in the CP are identified by both their key and
+        # their id_ in the CP if there is one
         visited = dict()
         if compute_plan.traintuple_keys:
             for key in compute_plan.traintuple_keys:
                 id_, rank = self.__get_id_rank_in_compute_plan(
                     schemas.Type.Traintuple,
                     key,
-                    compute_plan.id_to_key
+                    compute_plan.id_to_key,
                 )
-                visited[id_] = rank
+                visited[key] = rank
+                if id_ is not None:
+                    visited[id_] = rank
 
         if compute_plan.aggregatetuple_keys:
             for key in compute_plan.aggregatetuple_keys:
                 id_, rank = self.__get_id_rank_in_compute_plan(
                     schemas.Type.Aggregatetuple,
                     key,
-                    compute_plan.id_to_key
+                    compute_plan.id_to_key,
                 )
-                visited[id_] = rank
+                visited[key] = rank
+                if id_ is not None:
+                    visited[id_] = rank
 
         if compute_plan.composite_traintuple_keys:
             for key in compute_plan.composite_traintuple_keys:
                 id_, rank = self.__get_id_rank_in_compute_plan(
                     schemas.Type.CompositeTraintuple,
                     key,
-                    compute_plan.id_to_key
+                    compute_plan.id_to_key,
                 )
-                visited[id_] = rank
+                visited[key] = rank
+                if id_ is not None:
+                    visited[id_] = rank
 
+        # Update the tuple graph with the tuples already in the CP
+        tuple_graph.update({k: list() for k in visited})
         visited = graph.compute_ranks(node_graph=tuple_graph, ranks=visited)
 
         compute_plan = self.__execute_compute_plan(
