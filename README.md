@@ -1,4 +1,4 @@
-# ![Substra](./substra-logo.svg)
+<img src="substra-logo.svg" alt="drawing" width="200"/>
 
 CLI and SDK for interacting with Substra platform.
 
