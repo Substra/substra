@@ -1,4 +1,4 @@
-<img src="substra-logo.svg" alt="drawing" width="200"/>
+<h1><img src="substra-logo.svg" alt="substra" width="200"/></h1>
 
 CLI and SDK for interacting with Substra platform.
 
