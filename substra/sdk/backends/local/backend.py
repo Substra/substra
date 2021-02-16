@@ -28,12 +28,13 @@ _BACKEND_ID = "local-backend"
 _MAX_LEN_KEY_METADATA = 50
 _MAX_LEN_VALUE_METADATA = 100
 DEBUG_OWNER = "debug_owner"
+LOCAL_DIR = Path.cwd() / "local-worker"
 
 
 class Local(base.BaseBackend):
     def __init__(self, backend, *args, **kwargs):
         self._support_chainkeys = bool(util.strtobool(os.getenv("CHAINKEYS_ENABLED", 'False')))
-        self._chainkey_dir = Path(os.getenv("CHAINKEYS_DIR", Path.home() / ".substra_chainkeys"))
+        self._chainkey_dir = LOCAL_DIR / "chainkeys"
         if self._support_chainkeys:
             print(f"Chainkeys support is on, the directory is {self._chainkey_dir}")
         # create a store to abstract the db

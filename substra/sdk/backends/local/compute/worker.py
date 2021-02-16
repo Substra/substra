@@ -20,6 +20,7 @@ import uuid
 
 from substra.sdk import schemas, fs, models
 from substra.sdk.backends.local import dal
+from substra.sdk.backends.local.backend import LOCAL_DIR
 from substra.sdk.backends.local.compute import spawner
 
 _CONTAINER_MODEL_PATH = "/sandbox/model"
@@ -54,7 +55,7 @@ class Worker:
     """ML Worker."""
 
     def __init__(self, db: dal.DataAccess, support_chainkeys: bool, chainkey_dir=None):
-        self._wdir = os.path.join(os.getcwd(), "local-worker")
+        self._wdir = LOCAL_DIR
         self._db = db
         self._spawner = spawner.get()
         self._support_chainkeys = support_chainkeys
