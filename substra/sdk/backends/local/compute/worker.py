@@ -20,8 +20,9 @@ import uuid
 
 from substra.sdk import schemas, fs, models
 from substra.sdk.backends.local import dal
-from substra.sdk.backends.local.backend import LOCAL_DIR
 from substra.sdk.backends.local.compute import spawner
+
+LOCAL_DIR = pathlib.Path.cwd() / "local-worker"
 
 _CONTAINER_MODEL_PATH = "/sandbox/model"
 
