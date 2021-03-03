@@ -107,7 +107,7 @@ class DataAccess:
             if not tmp_directory.exists():
                 pathlib.Path.mkdir(tmp_directory)
             try:
-                os.chmod(asset_path, 0o777)
+                os.chmod(tmp_directory, 0o777)
             except Exception:
                 print(f"Could not change the rights on the temp dir {tmp_directory}")
                 raise
