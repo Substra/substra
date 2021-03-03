@@ -106,11 +106,12 @@ class DataAccess:
 
             if not tmp_directory.exists():
                 pathlib.Path.mkdir(tmp_directory)
-            try:
-                os.chmod(tmp_directory, 0o777)
-            except Exception:
-                print(f"Could not change the rights on the temp dir {tmp_directory}")
-                raise
+
+                try:
+                    os.chmod(tmp_directory, 0o777)
+                except Exception:
+                    print(f"Could not change the rights on the temp dir {tmp_directory}")
+                    raise
 
                 self._remote.download(
                     type_,
