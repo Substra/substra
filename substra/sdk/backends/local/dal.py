@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import logging
+import os
 import pathlib
 import shutil
 import tempfile
@@ -115,6 +116,10 @@ class DataAccess:
 
             attr = getattr(asset, field_name)
             attr.storage_address = asset_path
+            try:
+                os.chmod(asset_path, 0o777)
+            except Exception:
+                print(f"Could not change the rights on the file {type_} {key} - {asset_path}")
             return asset
 
     def get(self, type_, key: str, log: bool = True):
