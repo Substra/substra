@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import logging
-import os
 import pathlib
 import shutil
 import tempfile
@@ -35,7 +34,7 @@ class DataAccess:
     def __init__(self, remote_backend: typing.Optional[backend.Remote]):
         self._db = db.InMemoryDb()
         self._remote = remote_backend
-        self._tmp_dir = tempfile.TemporaryDirectory(prefix="/tmp/")
+        self._tmp_dir = tempfile.TemporaryDirectory(prefix=pathlib.Path.cwd() / "local-worker")
 
     @property
     def tmp_dir(self):
@@ -107,12 +106,6 @@ class DataAccess:
             if not tmp_directory.exists():
                 pathlib.Path.mkdir(tmp_directory)
 
-                try:
-                    os.chmod(tmp_directory, 0o777)
-                except Exception:
-                    print(f"Could not change the rights on the temp dir {tmp_directory}")
-                    raise
-
                 self._remote.download(
                     type_,
                     field_name + ".storage_address",
@@ -122,11 +115,6 @@ class DataAccess:
 
             attr = getattr(asset, field_name)
             attr.storage_address = asset_path
-            try:
-                os.chmod(asset_path, 0o777)
-            except Exception:
-                print(f"Could not change the rights on the file {type_} {key} - {asset_path}")
-                raise
             return asset
 
     def get(self, type_, key: str, log: bool = True):
