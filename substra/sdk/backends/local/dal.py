@@ -120,6 +120,7 @@ class DataAccess:
                 os.chmod(asset_path, 0o777)
             except Exception:
                 print(f"Could not change the rights on the file {type_} {key} - {asset_path}")
+                raise
             return asset
 
     def get(self, type_, key: str, log: bool = True):
