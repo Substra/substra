@@ -34,7 +34,10 @@ class DataAccess:
     def __init__(self, remote_backend: typing.Optional[backend.Remote]):
         self._db = db.InMemoryDb()
         self._remote = remote_backend
-        self._tmp_dir = tempfile.TemporaryDirectory(prefix=str(pathlib.Path.cwd() / "local-worker"))
+
+        local_worker_path = pathlib.Path.cwd() / "local-worker"
+        local_worker_path.mkdir(exist_ok=True)
+        self._tmp_dir = tempfile.TemporaryDirectory(prefix=str(local_worker_path) + "/")
 
     @property
     def tmp_dir(self):
