@@ -31,13 +31,10 @@ class DataAccess:
     This is an intermediate layer between the backend and the local/remote data access.
     """
 
-    def __init__(self, remote_backend: typing.Optional[backend.Remote]):
+    def __init__(self, remote_backend: typing.Optional[backend.Remote], local_worker_dir: pathlib.Path):
         self._db = db.InMemoryDb()
         self._remote = remote_backend
-
-        local_worker_path = pathlib.Path.cwd() / "local-worker"
-        local_worker_path.mkdir(exist_ok=True)
-        self._tmp_dir = tempfile.TemporaryDirectory(prefix=str(local_worker_path) + "/")
+        self._tmp_dir = tempfile.TemporaryDirectory(prefix=str(local_worker_dir) + "/")
 
     @property
     def tmp_dir(self):

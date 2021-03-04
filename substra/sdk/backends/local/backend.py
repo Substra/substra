@@ -35,12 +35,16 @@ class Local(base.BaseBackend):
         self._chainkey_dir = compute.LOCAL_DIR / "chainkeys"
         if self._support_chainkeys:
             print(f"Chainkeys support is on, the directory is {self._chainkey_dir}")
+        self._local_worker_dir = Path.cwd() / "local-worker"
+        self._local_worker_dir.mkdir(exist_ok=True)
+
         # create a store to abstract the db
-        self._db = dal.DataAccess(backend)
+        self._db = dal.DataAccess(backend, local_worker_dir=self._local_worker_dir)
         self._worker = compute.Worker(
             self._db,
+            local_worker_dir=self._local_worker_dir,
             support_chainkeys=self._support_chainkeys,
-            chainkey_dir=self._chainkey_dir
+            chainkey_dir=self._chainkey_dir,
         )
 
     @property

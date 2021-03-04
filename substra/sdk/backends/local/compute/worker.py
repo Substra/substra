@@ -55,8 +55,14 @@ def _get_address_in_container(model_key, volume, container_volume):
 class Worker:
     """ML Worker."""
 
-    def __init__(self, db: dal.DataAccess, support_chainkeys: bool, chainkey_dir=None):
-        self._wdir = LOCAL_DIR
+    def __init__(
+        self,
+        db: dal.DataAccess,
+        local_worker_dir: pathlib.Path,
+        support_chainkeys: bool,
+        chainkey_dir=None,
+    ):
+        self._wdir = local_worker_dir
         self._db = db
         self._spawner = spawner.get()
         self._support_chainkeys = support_chainkeys
