@@ -20,7 +20,7 @@ import uuid
 
 from substra.sdk import schemas, fs, models
 from substra.sdk.backends.local import dal
-from substra.sdk.backends.local.compute import spawner
+from substra.sdk.backends.local.compute.spawner import DockerSpawner
 
 LOCAL_DIR = pathlib.Path.cwd() / "local-worker"
 
@@ -64,7 +64,7 @@ class Worker:
     ):
         self._wdir = local_worker_dir
         self._db = db
-        self._spawner = spawner.get()
+        self._spawner = DockerSpawner(local_worker_dir=self._wdir)
         self._support_chainkeys = support_chainkeys
         self._chainkey_dir = chainkey_dir
 
