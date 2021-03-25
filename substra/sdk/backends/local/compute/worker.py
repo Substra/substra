@@ -381,8 +381,13 @@ class Worker:
             }
 
             if self._db.is_local(dataset.key):
+                data_sample_paths = self._get_data_sample_paths_arg(
+                    _VOLUME_INPUT_DATASAMPLES['bind'],
+                    tuple_.dataset
+                )
                 volumes[data_volume] = _VOLUME_INPUT_DATASAMPLES
                 command = "--fake-data-mode DISABLED"
+                command += f" --data-sample-paths {data_sample_paths}"
             else:
                 command = "--fake-data-mode FAKE_Y"
                 command += f" --n-fake-samples {len(tuple_.dataset.data_sample_keys)}"
