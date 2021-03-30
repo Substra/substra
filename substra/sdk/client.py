@@ -722,6 +722,54 @@ class Client(object):
         )
 
     @logit
+    def download_model(self, key: str, folder) -> None:
+        """Download model to destination file."""
+        self._backend.download_model(key, os.path.join(folder, f'model_{key}'))
+
+    @logit
+    def download_traintuple_model(self, tuple_key: str, folder) -> None:
+        """Download traintuple model to destination file."""
+        self._download_tuple_model(schemas.Type.Traintuple, tuple_key, folder)
+
+    @logit
+    def download_aggregatetuple_model(self, tuple_key: str, folder) -> None:
+        """Download aggregatetuple model to destination file."""
+        self._download_tuple_model(schemas.Type.Aggregatetuple, tuple_key, folder)
+
+    @logit
+    def download_composite_traintuple_head_model(self, tuple_key: str, folder) -> None:
+        """Download composite traintuple head model to destination file."""
+        self._download_tuple_model(schemas.Type.CompositeTraintuple, tuple_key, folder, "head")
+
+    @logit
+    def download_composite_traintuple_trunk_model(self, tuple_key: str, folder) -> None:
+        """Download composite traintuple trunk model to destination file."""
+        self._download_tuple_model(schemas.Type.CompositeTraintuple, tuple_key, folder, "trunk")
+
+    def _download_tuple_model(self, tuple_type, tuple_key, folder, head_trunk=None) -> None:
+        """Download model to a destination file."""
+        tuple = self._backend.get(tuple_type, tuple_key)
+
+        if tuple_type == schemas.Type.CompositeTraintuple:
+            if head_trunk == "head":
+                model = tuple.out_head_model.out_model
+            elif head_trunk == "trunk":
+                model = tuple.out_trunk_model.out_model
+            else:
+                raise exceptions.InvalidRequest(
+                    'head_trunk parameter must have value "head" or "trunk"'
+                )
+        else:
+            model = tuple.out_model
+
+        if not model:
+            desc = f'{head_trunk} ' if head_trunk else ""
+            msg = f'{tuple_type} {tuple_key} has no {desc}out-model'
+            raise exceptions.NotFound(msg, 404)
+
+        self.download_model(model.key, folder)
+
+    @logit
     def describe_algo(self, key: str) -> str:
         """Get algo description."""
         return self._backend.describe(schemas.Type.Algo, key)
@@ -745,6 +793,11 @@ class Client(object):
     def describe_objective(self, key: str) -> str:
         """Get objective description."""
         return self._backend.describe(schemas.Type.Objective, key)
+
+    @logit
+    def node_info(self) -> str:
+        """Get node information."""
+        return self._backend.node_info()
 
     @logit
     def leaderboard(self, objective_key: str, sort: str = 'desc') -> str:

@@ -162,7 +162,11 @@ TRAINTUPLE = {
     "compute_plan_key": "",
     "in_models": None,
     "log": "[00-01-0032-d415995]",
-    "out_model": None,
+    "out_model": {
+        "key": "11a1f878-768e-a862-4942-d46a3b438c37",
+        "checksum": "8dd01465003a9b1e01c99c904d86aa518b3a5dd9dc8d40fe7d075c726ac073ca",
+        "storage_address": ""
+    },
     "permissions": {
         "process": {
             "public": False,
@@ -189,7 +193,11 @@ AGGREGATETUPLE = {
     "compute_plan_key": "",
     "in_models": [],
     "log": "[00-01-0032-d415995]",
-    "out_model": None,
+    "out_model": {
+        "key": "11a1f878-768e-a862-4942-d46a3b438c37",
+        "checksum": "8dd01465003a9b1e01c99c904d86aa518b3a5dd9dc8d40fe7d075c726ac073ca",
+        "storage_address": ""
+    },
     "permissions": {
         "process": {
             "public": False,
@@ -363,4 +371,10 @@ COMPUTE_PLAN = {
     "metadata": {
         "foo": "bar"
     }
+}
+
+MODEL = {
+    "key": "8a90514f-88c7-0002-608a-9868681dd158",
+    "checksum": "8a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
+    "storage_address": "/some/path/model",
 }

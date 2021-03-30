@@ -24,6 +24,10 @@ logger = logging.getLogger(__name__)
 class Client():
     """REST Client to communicate with Substra server."""
 
+    @property
+    def base_url(self) -> str:
+        return self._base_url
+
     def __init__(self, url, insecure, token):
         self._default_kwargs = {
             'verify': not insecure,

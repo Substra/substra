@@ -290,6 +290,12 @@ download_aggregate_algo(self, key: str, destination_folder: str) -> None
 
 Download aggregate algo resource.
 Download aggregate algo package in destination folder.
+## download_aggregatetuple_model
+```python
+download_aggregatetuple_model(self, tuple_key: str, folder) -> None
+```
+
+Download aggregatetuple model to destination file.
 ## download_algo
 ```python
 download_algo(self, key: str, destination_folder: str) -> None
@@ -304,6 +310,18 @@ download_composite_algo(self, key: str, destination_folder: str) -> None
 
 Download composite algo resource.
 Download composite algo package in destination folder.
+## download_composite_traintuple_head_model
+```python
+download_composite_traintuple_head_model(self, tuple_key: str, folder) -> None
+```
+
+Download composite traintuple head model to destination file.
+## download_composite_traintuple_trunk_model
+```python
+download_composite_traintuple_trunk_model(self, tuple_key: str, folder) -> None
+```
+
+Download composite traintuple trunk model to destination file.
 ## download_dataset
 ```python
 download_dataset(self, key: str, destination_folder: str) -> None
@@ -311,6 +329,12 @@ download_dataset(self, key: str, destination_folder: str) -> None
 
 Download data manager resource.
 Download opener script in destination folder.
+## download_model
+```python
+download_model(self, key: str, folder) -> None
+```
+
+Download model to destination file.
 ## download_objective
 ```python
 download_objective(self, key: str, destination_folder: str) -> None
@@ -318,6 +342,12 @@ download_objective(self, key: str, destination_folder: str) -> None
 
 Download objective resource.
 Download metrics script in destination folder.
+## download_traintuple_model
+```python
+download_traintuple_model(self, tuple_key: str, folder) -> None
+```
+
+Download traintuple model to destination file.
 ## from_config_file
 ```python
 from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Union[str, NoneType] = None, retry_timeout: int = 300, debug: bool = False)
@@ -523,6 +553,12 @@ login(self, username, password)
 ```
 
 Login to a remote server. 
+## node_info
+```python
+node_info(self) -> str
+```
+
+Get node information.
 ## update_compute_plan
 ```python
 update_compute_plan(self, key: str, data: Union[dict, substra.sdk.schemas.UpdateComputePlanSpec], auto_batching: bool = True, batch_size: int = 20) -> substra.sdk.models.ComputePlan

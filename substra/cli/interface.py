@@ -1016,6 +1016,24 @@ def describe(ctx, asset_name, asset_key):
     renderer.render(description)
 
 
+@cli.group()
+@click.pass_context
+def node(ctx):
+    """Display node description."""
+
+
+@node.command('info')
+@click_global_conf_with_output_format
+@click.pass_context
+@error_printer
+def node_info(ctx):
+    """Display node info."""
+    client = get_client(ctx.obj)
+    res = client.node_info()
+    printer = printers.NodeInfoPrinter()
+    printer.print(res)
+
+
 @cli.command()
 @click.argument('asset-name', type=click.Choice([
     assets.ALGO,
@@ -1023,24 +1041,54 @@ def describe(ctx, asset_name, asset_key):
     assets.AGGREGATE_ALGO,
     assets.DATASET,
     assets.OBJECTIVE,
+    assets.MODEL
 ]))
 @click.argument('key')
 @click.option('--folder', type=click.Path(), help='destination folder',
               default='.')
+@click.option('--from-traintuple', 'model_src',
+              help=(
+                  '(model download only) if this option is set, '
+                  'the KEY argument refers to a traintuple key'
+              ),
+              flag_value='traintuple')
+@click.option('--from-aggregatetuple', 'model_src',
+              help=(
+                  '(model download only) if this option is set, '
+                  'the KEY argument refers to an aggregatetuple key'
+              ),
+              flag_value='aggregatetuple')
+@click.option('--from-composite-head', 'model_src',
+              help=(
+                  '(model download only) if this option is set, '
+                  'the KEY argument refers to a composite traintuple key'
+              ),
+              flag_value='composite_traintuple_head')
+@click.option('--from-composite-trunk', 'model_src',
+              help=(
+                  '(model download only) if this option is set, '
+                  'the KEY argument refers to a composite traintuple key'
+              ),
+              flag_value='composite_traintuple_trunk')
 @click_global_conf
 @click.pass_context
 @error_printer
-def download(ctx, asset_name, key, folder):
+def download(ctx, asset_name, key, folder, model_src):
     """Download asset implementation.
 
     \b
     - algo: the algo and its dependencies
     - dataset: the opener script
     - objective: the metrics and its dependencies
+    - model: the output model
     """
     client = get_client(ctx.obj)
-    # method must exist in sdk
-    method = getattr(client, f'download_{asset_name.lower()}')
+
+    if asset_name == assets.MODEL:
+        method = getattr(client, f'download_{model_src}_model' if model_src else 'download_model')
+    else:
+        method = getattr(client, f'download_{asset_name.lower()}')
+
     res = method(key, folder)
     display(res)
 

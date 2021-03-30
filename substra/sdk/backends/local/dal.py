@@ -85,6 +85,9 @@ class DataAccess:
     def remote_download(self, asset_type, url_field_path, key, destination):
         self._remote.download(asset_type, url_field_path, key, destination)
 
+    def remote_download_model(self, key, destination_file):
+        self._remote.download_model(key, destination_file)
+
     def get_remote_description(self, asset_type, key):
         return self._remote.describe(asset_type, key)
 

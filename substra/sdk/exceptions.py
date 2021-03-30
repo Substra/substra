@@ -73,7 +73,12 @@ class InvalidRequest(HTTPError):
             error = request_exception.response.json()
         except ValueError:
             error = request_exception.response
-        msg = error.get("message", str(error))
+
+        get_method = getattr(error, "get", None)
+        if callable(get_method):
+            msg = get_method("message", str(error))
+        else:
+            msg = str(error)
 
         try:
             status_code = request_exception.response.status_code
