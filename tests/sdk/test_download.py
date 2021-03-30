@@ -30,7 +30,7 @@ from unittest.mock import patch
         ('aggregate_algo', 'aggregate_algo.tar.gz'),
         ('composite_algo', 'composite_algo.tar.gz'),
         ('objective', 'metrics.py'),
-        ('model', 'model.txt'),
+        ('model', 'model_foo'),
     ]
 )
 def test_download_asset(asset_name, filename, tmp_path, client, mocker):
@@ -42,11 +42,7 @@ def test_download_asset(asset_name, filename, tmp_path, client, mocker):
     m = mock_requests_responses(mocker, 'get', responses)
 
     method = getattr(client, f'download_{asset_name}')
-
-    if asset_name == 'model':
-        method("foo", str(tmp_path) + '/' + filename)
-    else:
-        method("foo", tmp_path)
+    method("foo", tmp_path)
 
     temp_file = str(tmp_path) + '/' + filename
     assert os.path.exists(temp_file)
@@ -79,8 +75,7 @@ def test_download_content_not_found(asset_name, tmp_path, client, mocker):
     ]
 
     if asset_name == 'model':
-        tmp_path = str(tmp_path) + '/' + 'model.txt'
-        responses = [responses[1]]  # No metadata step for model download
+        responses = [responses[1]]  # No metadata for model download
         expected_call_count = 1
 
     m = mock_requests_responses(mocker, 'get', responses)
