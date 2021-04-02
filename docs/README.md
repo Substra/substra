@@ -7,7 +7,7 @@
 
 ## Implementing your assets in python
 
-To help you implement your assets in Python, please have a look to the [Substra Tools](https://github.com/SubstraFoundation/substra-tools).
+To help you implement your assets in Python, please take a look at the [Substra Tools](https://github.com/SubstraFoundation/substra-tools).
 
 ## Learning about the Substra platform
 
