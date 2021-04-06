@@ -296,6 +296,9 @@ download_aggregatetuple_model(self, tuple_key: str, folder) -> None
 ```
 
 Download aggregatetuple model to destination file.
+This model was saved using the 'save_model' function of the algorithm.
+To load and use the model, please refer to the 'load_model' and 'predict' functions of the
+algorithm.
 ## download_algo
 ```python
 download_algo(self, key: str, destination_folder: str) -> None
@@ -316,12 +319,18 @@ download_composite_traintuple_head_model(self, tuple_key: str, folder) -> None
 ```
 
 Download composite traintuple head model to destination file.
+This model was saved using the 'save_model' function of the algorithm.
+To load and use the model, please refer to the 'load_model' and 'predict' functions of the
+algorithm.
 ## download_composite_traintuple_trunk_model
 ```python
 download_composite_traintuple_trunk_model(self, tuple_key: str, folder) -> None
 ```
 
 Download composite traintuple trunk model to destination file.
+This model was saved using the 'save_model' function of the algorithm.
+To load and use the model, please refer to the 'load_model' and 'predict' functions of the
+algorithm.
 ## download_dataset
 ```python
 download_dataset(self, key: str, destination_folder: str) -> None
@@ -335,6 +344,9 @@ download_model(self, key: str, folder) -> None
 ```
 
 Download model to destination file.
+This model was saved using the 'save_model' function of the algorithm.
+To load and use the model, please refer to the 'load_model' and 'predict' functions of the
+algorithm.
 ## download_objective
 ```python
 download_objective(self, key: str, destination_folder: str) -> None
@@ -348,6 +360,9 @@ download_traintuple_model(self, tuple_key: str, folder) -> None
 ```
 
 Download traintuple model to destination file.
+This model was saved using the 'save_model' function of the algorithm.
+To load and use the model, please refer to the 'load_model' and 'predict' functions of the
+algorithm.
 ## from_config_file
 ```python
 from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Union[str, NoneType] = None, retry_timeout: int = 300, debug: bool = False)
