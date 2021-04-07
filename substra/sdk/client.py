@@ -789,7 +789,7 @@ class Client(object):
 
         if not model:
             desc = f'{head_trunk} ' if head_trunk else ""
-            msg = f'{tuple_type} {tuple_key} has no {desc}out-model'
+            msg = f'{tuple_type} {tuple_key}, status "{tuple.status}" has no {desc}out-model'
             raise exceptions.NotFound(msg, 404)
 
         self.download_model(model.key, folder)
