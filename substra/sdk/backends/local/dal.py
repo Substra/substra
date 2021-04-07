@@ -119,7 +119,10 @@ class DataAccess:
 
     def get(self, type_, key: str, log: bool = True):
         if self.is_local(key):
-            return self._db.get(type_, key, log)
+            if type_ == schemas.Type.Model:
+                return self._get_local_model(key)
+            else:
+                return self._db.get(type_, key, log)
         elif self._remote:
             return self._remote.get(type_, key)
         else:
@@ -176,3 +179,21 @@ class DataAccess:
 
     def update(self, asset):
         return self._db.update(asset)
+
+    def _get_local_model(self, key):
+
+        for t in self.list(schemas.Type.Traintuple, filters=None):
+            if t.out_model and t.out_model.key == key:
+                return t.out_model
+
+        for t in self.list(schemas.Type.CompositeTraintuple, filters=None):
+            if t.out_head_model.out_model and t.out_head_model.out_model.key == key:
+                return t.out_head_model.out_model
+            if t.out_trunk_model.out_model and t.out_trunk_model.out_model.key == key:
+                return t.out_trunk_model.out_model
+
+        for t in self.list(schemas.Type.Aggregatetuple, filters=None):
+            if t.out_model and t.out_model.key == key:
+                return t.out_model
+
+        raise exceptions.NotFound(f"Wrong pk {key}", 404)
