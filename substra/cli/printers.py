@@ -263,7 +263,7 @@ class BaseAlgoPrinter(AssetPrinter):
 
 class NodeInfoPrinter(BasePrinter):
     single_fields = (
-        Field('MSP_ID', 'msp_id'),
+        Field('HOST', 'host'),
         Field('CHANNEL', 'channel'),
         MappingField('CONFIG', 'config'),
     )
