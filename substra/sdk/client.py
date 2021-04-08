@@ -769,7 +769,8 @@ class Client(object):
         To load and use the model, please refer to the 'load_model' and 'predict' functions of the
         algorithm.
         """
-        self._download_model_from_tuple(schemas.Type.CompositeTraintuple, tuple_key, folder, "trunk")
+        self._download_model_from_tuple(schemas.Type.CompositeTraintuple, tuple_key, folder,
+                                        "trunk")
 
     def _download_model_from_tuple(self, tuple_type, tuple_key, folder, head_trunk=None) -> None:
         """Download model to a destination file."""
