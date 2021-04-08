@@ -290,15 +290,6 @@ download_aggregate_algo(self, key: str, destination_folder: str) -> None
 
 Download aggregate algo resource.
 Download aggregate algo package in destination folder.
-## download_aggregatetuple_model
-```python
-download_aggregatetuple_model(self, tuple_key: str, folder) -> None
-```
-
-Download aggregatetuple model to destination file.
-This model was saved using the 'save_model' function of the algorithm.
-To load and use the model, please refer to the 'load_model' and 'predict' functions of the
-algorithm.
 ## download_algo
 ```python
 download_algo(self, key: str, destination_folder: str) -> None
@@ -313,24 +304,6 @@ download_composite_algo(self, key: str, destination_folder: str) -> None
 
 Download composite algo resource.
 Download composite algo package in destination folder.
-## download_composite_traintuple_head_model
-```python
-download_composite_traintuple_head_model(self, tuple_key: str, folder) -> None
-```
-
-Download composite traintuple head model to destination file.
-This model was saved using the 'save_model' function of the algorithm.
-To load and use the model, please refer to the 'load_model' and 'predict' functions of the
-algorithm.
-## download_composite_traintuple_trunk_model
-```python
-download_composite_traintuple_trunk_model(self, tuple_key: str, folder) -> None
-```
-
-Download composite traintuple trunk model to destination file.
-This model was saved using the 'save_model' function of the algorithm.
-To load and use the model, please refer to the 'load_model' and 'predict' functions of the
-algorithm.
 ## download_dataset
 ```python
 download_dataset(self, key: str, destination_folder: str) -> None
@@ -338,12 +311,39 @@ download_dataset(self, key: str, destination_folder: str) -> None
 
 Download data manager resource.
 Download opener script in destination folder.
+## download_head_model_from_composite_traintuple
+```python
+download_head_model_from_composite_traintuple(self, tuple_key: str, folder) -> None
+```
+
+Download composite traintuple head model to destination file.
+This model was saved using the 'save_model' function of the algorithm.
+To load and use the model, please refer to the 'load_model' and 'predict' functions of the
+algorithm.
 ## download_model
 ```python
 download_model(self, key: str, folder) -> None
 ```
 
 Download model to destination file.
+This model was saved using the 'save_model' function of the algorithm.
+To load and use the model, please refer to the 'load_model' and 'predict' functions of the
+algorithm.
+## download_model_from_aggregatetuple
+```python
+download_model_from_aggregatetuple(self, tuple_key: str, folder) -> None
+```
+
+Download aggregatetuple model to destination file.
+This model was saved using the 'save_model' function of the algorithm.
+To load and use the model, please refer to the 'load_model' and 'predict' functions of the
+algorithm.
+## download_model_from_traintuple
+```python
+download_model_from_traintuple(self, tuple_key: str, folder) -> None
+```
+
+Download traintuple model to destination file.
 This model was saved using the 'save_model' function of the algorithm.
 To load and use the model, please refer to the 'load_model' and 'predict' functions of the
 algorithm.
@@ -354,12 +354,12 @@ download_objective(self, key: str, destination_folder: str) -> None
 
 Download objective resource.
 Download metrics script in destination folder.
-## download_traintuple_model
+## download_trunk_model_from_composite_traintuple
 ```python
-download_traintuple_model(self, tuple_key: str, folder) -> None
+download_trunk_model_from_composite_traintuple(self, tuple_key: str, folder) -> None
 ```
 
-Download traintuple model to destination file.
+Download composite traintuple trunk model to destination file.
 This model was saved using the 'save_model' function of the algorithm.
 To load and use the model, please refer to the 'load_model' and 'predict' functions of the
 algorithm.

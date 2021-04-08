@@ -1051,25 +1051,25 @@ def node_info(ctx):
                   '(model download only) if this option is set, '
                   'the KEY argument refers to a traintuple key'
               ),
-              flag_value='traintuple')
+              flag_value='model_from_traintuple')
 @click.option('--from-aggregatetuple', 'model_src',
               help=(
                   '(model download only) if this option is set, '
                   'the KEY argument refers to an aggregatetuple key'
               ),
-              flag_value='aggregatetuple')
+              flag_value='model_from_aggregatetuple')
 @click.option('--from-composite-head', 'model_src',
               help=(
                   '(model download only) if this option is set, '
                   'the KEY argument refers to a composite traintuple key'
               ),
-              flag_value='composite_traintuple_head')
+              flag_value='head_model_from_composite_traintuple')
 @click.option('--from-composite-trunk', 'model_src',
               help=(
                   '(model download only) if this option is set, '
                   'the KEY argument refers to a composite traintuple key'
               ),
-              flag_value='composite_traintuple_trunk')
+              flag_value='trunk_model_from_composite_traintuple')
 @click_global_conf
 @click.pass_context
 @error_printer
@@ -1085,7 +1085,7 @@ def download(ctx, asset_name, key, folder, model_src):
     client = get_client(ctx.obj)
 
     if asset_name == assets.MODEL:
-        method = getattr(client, f'download_{model_src}_model' if model_src else 'download_model')
+        method = getattr(client, f'download_{model_src}' if model_src else 'download_model')
     else:
         method = getattr(client, f'download_{asset_name.lower()}')
 

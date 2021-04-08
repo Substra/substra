@@ -90,10 +90,10 @@ def test_download_content_not_found(asset_name, tmp_path, client, mocker):
 
 @pytest.mark.parametrize(
     'method_name, expected_type', [
-        ('download_traintuple_model', schemas.Type.Traintuple),
-        ('download_aggregatetuple_model', schemas.Type.Aggregatetuple),
-        ('download_composite_traintuple_head_model', schemas.Type.CompositeTraintuple),
-        ('download_composite_traintuple_trunk_model', schemas.Type.CompositeTraintuple),
+        ('download_model_from_traintuple', schemas.Type.Traintuple),
+        ('download_model_from_aggregatetuple', schemas.Type.Aggregatetuple),
+        ('download_head_model_from_composite_traintuple', schemas.Type.CompositeTraintuple),
+        ('download_trunk_model_from_composite_traintuple', schemas.Type.CompositeTraintuple),
     ]
 )
 @patch.object(backends.Remote, 'get')

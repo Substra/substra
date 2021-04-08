@@ -732,46 +732,46 @@ class Client(object):
         self._backend.download_model(key, os.path.join(folder, f'model_{key}'))
 
     @logit
-    def download_traintuple_model(self, tuple_key: str, folder) -> None:
+    def download_model_from_traintuple(self, tuple_key: str, folder) -> None:
         """Download traintuple model to destination file.
 
         This model was saved using the 'save_model' function of the algorithm.
         To load and use the model, please refer to the 'load_model' and 'predict' functions of the
         algorithm.
         """
-        self._download_tuple_model(schemas.Type.Traintuple, tuple_key, folder)
+        self._download_model_from_tuple(schemas.Type.Traintuple, tuple_key, folder)
 
     @logit
-    def download_aggregatetuple_model(self, tuple_key: str, folder) -> None:
+    def download_model_from_aggregatetuple(self, tuple_key: str, folder) -> None:
         """Download aggregatetuple model to destination file.
 
         This model was saved using the 'save_model' function of the algorithm.
         To load and use the model, please refer to the 'load_model' and 'predict' functions of the
         algorithm.
         """
-        self._download_tuple_model(schemas.Type.Aggregatetuple, tuple_key, folder)
+        self._download_model_from_tuple(schemas.Type.Aggregatetuple, tuple_key, folder)
 
     @logit
-    def download_composite_traintuple_head_model(self, tuple_key: str, folder) -> None:
+    def download_head_model_from_composite_traintuple(self, tuple_key: str, folder) -> None:
         """Download composite traintuple head model to destination file.
 
         This model was saved using the 'save_model' function of the algorithm.
         To load and use the model, please refer to the 'load_model' and 'predict' functions of the
         algorithm.
         """
-        self._download_tuple_model(schemas.Type.CompositeTraintuple, tuple_key, folder, "head")
+        self._download_model_from_tuple(schemas.Type.CompositeTraintuple, tuple_key, folder, "head")
 
     @logit
-    def download_composite_traintuple_trunk_model(self, tuple_key: str, folder) -> None:
+    def download_trunk_model_from_composite_traintuple(self, tuple_key: str, folder) -> None:
         """Download composite traintuple trunk model to destination file.
 
         This model was saved using the 'save_model' function of the algorithm.
         To load and use the model, please refer to the 'load_model' and 'predict' functions of the
         algorithm.
         """
-        self._download_tuple_model(schemas.Type.CompositeTraintuple, tuple_key, folder, "trunk")
+        self._download_model_from_tuple(schemas.Type.CompositeTraintuple, tuple_key, folder, "trunk")
 
-    def _download_tuple_model(self, tuple_type, tuple_key, folder, head_trunk=None) -> None:
+    def _download_model_from_tuple(self, tuple_type, tuple_key, folder, head_trunk=None) -> None:
         """Download model to a destination file."""
         tuple = self._backend.get(tuple_type, tuple_key)
 
