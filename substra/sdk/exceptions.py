@@ -28,11 +28,13 @@ class RequestException(SDKException):
         super().__init__(msg)
 
     @classmethod
-    def from_request_exception(cls, request_exception, msg=None):
-        if msg is None:
-            msg = str(request_exception)
-        else:
+    def from_request_exception(cls, request_exception):
+        msg = None
+        try:
+            msg = request_exception.response.json()['message']
             msg = f"{request_exception}: {msg}"
+        except Exception:
+            msg = str(request_exception)
 
         try:
             status_code = request_exception.response.status_code
