@@ -19,6 +19,8 @@ import substra
 
 from .. import datastore
 from .utils import mock_requests_responses, mock_requests, mock_response
+from substra.sdk import Client, backends, schemas
+from unittest.mock import patch
 
 
 @pytest.mark.parametrize(
@@ -27,7 +29,8 @@ from .utils import mock_requests_responses, mock_requests, mock_response
         ('algo', 'algo.tar.gz'),
         ('aggregate_algo', 'aggregate_algo.tar.gz'),
         ('composite_algo', 'composite_algo.tar.gz'),
-        ('objective', 'metrics.py')
+        ('objective', 'metrics.py'),
+        ('model', 'model_foo'),
     ]
 )
 def test_download_asset(asset_name, filename, tmp_path, client, mocker):
@@ -47,7 +50,7 @@ def test_download_asset(asset_name, filename, tmp_path, client, mocker):
 
 
 @pytest.mark.parametrize(
-    'asset_name', ['dataset', 'algo', 'aggregate_algo', 'composite_algo', 'objective']
+    'asset_name', ['dataset', 'algo', 'aggregate_algo', 'composite_algo', 'objective', 'model']
 )
 def test_download_asset_not_found(asset_name, tmp_path, client, mocker):
     m = mock_requests(mocker, "get", status=404)
@@ -60,14 +63,21 @@ def test_download_asset_not_found(asset_name, tmp_path, client, mocker):
 
 
 @pytest.mark.parametrize(
-    'asset_name', ['dataset', 'algo', 'aggregate_algo', 'composite_algo', 'objective']
+    'asset_name', ['dataset', 'algo', 'aggregate_algo', 'composite_algo', 'objective', 'model']
 )
 def test_download_content_not_found(asset_name, tmp_path, client, mocker):
     item = getattr(datastore, asset_name.upper())
+
+    expected_call_count = 2
     responses = [
         mock_response(item),  # metadata
         mock_response('foo', status=404),  # description
     ]
+
+    if asset_name == 'model':
+        responses = [responses[1]]  # No metadata for model download
+        expected_call_count = 1
+
     m = mock_requests_responses(mocker, 'get', responses)
 
     method = getattr(client, f'download_{asset_name}')
@@ -75,4 +85,30 @@ def test_download_content_not_found(asset_name, tmp_path, client, mocker):
     with pytest.raises(substra.sdk.exceptions.NotFound):
         method("key", tmp_path)
 
-    assert m.call_count == 2
+    assert m.call_count == expected_call_count
+
+
+@pytest.mark.parametrize(
+    'method_name, expected_type', [
+        ('download_model_from_traintuple', schemas.Type.Traintuple),
+        ('download_model_from_aggregatetuple', schemas.Type.Aggregatetuple),
+        ('download_head_model_from_composite_traintuple', schemas.Type.CompositeTraintuple),
+        ('download_trunk_model_from_composite_traintuple', schemas.Type.CompositeTraintuple),
+    ]
+)
+@patch.object(backends.Remote, 'get')
+@patch.object(Client, 'download_model')
+def test_download_model_from_tuple(
+    fake_download_model,
+    fake_get,
+    tmp_path,
+    client,
+    method_name,
+    expected_type
+):
+    method = getattr(client, method_name)
+    method("key", tmp_path)
+
+    assert fake_get.call_count == 1
+    assert fake_get.call_args[0][0] is expected_type
+    assert fake_download_model.call_count == 1

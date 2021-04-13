@@ -16,6 +16,7 @@
 - [substra get](#substra-get)
 - [substra list](#substra-list)
 - [substra describe](#substra-describe)
+- [substra node info](#substra-node-info)
 - [substra download](#substra-download)
 - [substra leaderboard](#substra-leaderboard)
 - [substra cancel compute_plan](#substra-cancel-compute_plan)
@@ -642,21 +643,57 @@ Options:
   --help                          Show this message and exit.
 ```
 
+## substra node info
+
+```bash
+Usage: substra node info [OPTIONS]
+
+  Display node info.
+
+Options:
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
+
+  --verbose                       Enable verbose mode.
+  -o, --output [pretty|yaml|json]
+                                  Set output format  [default: pretty]
+  --help                          Show this message and exit.
+```
+
 ## substra download
 
 ```bash
-Usage: substra download [OPTIONS]
-                        [algo|composite_algo|aggregate_algo|dataset|objective]
-                        KEY
+Usage: substra download [OPTIONS] [algo|composite_algo|aggregate_algo|dataset|
+                        objective|model] KEY
 
   Download asset implementation.
 
   - algo: the algo and its dependencies
   - dataset: the opener script
   - objective: the metrics and its dependencies
+  - model: the output model
 
 Options:
   --folder PATH                   destination folder
+  --from-traintuple               (model download only) if this option is set,
+                                  the KEY argument refers to a traintuple key
+
+  --from-aggregatetuple           (model download only) if this option is set,
+                                  the KEY argument refers to an aggregatetuple
+                                  key
+
+  --from-composite-head           (model download only) if this option is set,
+                                  the KEY argument refers to a composite
+                                  traintuple key
+
+  --from-composite-trunk          (model download only) if this option is set,
+                                  the KEY argument refers to a composite
+                                  traintuple key
+
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).

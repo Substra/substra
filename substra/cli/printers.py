@@ -261,6 +261,17 @@ class BaseAlgoPrinter(AssetPrinter):
     download_message = 'Download this algorithm\'s code:'
 
 
+class NodeInfoPrinter(BasePrinter):
+    single_fields = (
+        Field('HOST', 'host'),
+        Field('CHANNEL', 'channel'),
+        MappingField('CONFIG', 'config'),
+    )
+
+    def print(self, data):
+        self.print_details(data, self.single_fields, expand=True)
+
+
 class ComputePlanPrinter(AssetPrinter):
     asset_name = 'compute_plan'
 

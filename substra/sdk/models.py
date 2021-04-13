@@ -179,6 +179,8 @@ class OutModel(schemas._PydanticConfig):
     checksum: str
     storage_address: UriPath
 
+    type_: ClassVar[str] = schemas.Type.Model
+
 
 class _TraintupleAlgo(schemas._PydanticConfig):
     """Algo associated to a traintuple"""

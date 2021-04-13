@@ -235,11 +235,23 @@ class Remote(base.BaseBackend):
 
         return destination
 
+    def download_model(self, key, destination_file):
+        response = self._client.get_data(f'{self._client.base_url}/model/{key}/file/', stream=True)
+        chunk_size = 1024
+        with open(destination_file, 'wb') as f:
+            for chunk in response.iter_content(chunk_size):
+                f.write(chunk)
+        return destination_file
+
     def describe(self, asset_type, key):
         data = self.get(asset_type, key)
         url = data.description.storage_address
         r = self._client.get_data(url)
         return r.text
+
+    def node_info(self):
+        response = self._client.get_data(f'{self._client.base_url}/info/')
+        return response.json()
 
     def leaderboard(self, objective_key, sort='desc'):
         return self._client.request(

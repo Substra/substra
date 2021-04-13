@@ -24,6 +24,10 @@ logger = logging.getLogger(__name__)
 class Client():
     """REST Client to communicate with Substra server."""
 
+    @property
+    def base_url(self) -> str:
+        return self._base_url
+
     def __init__(self, url, insecure, token):
         self._default_kwargs = {
             'verify': not insecure,
@@ -134,6 +138,7 @@ class Client():
 
         return r
 
+    @utils.retry_on_exception(exceptions=(exceptions.GatewayUnavailable))
     def _request(self, request_name, url, **request_kwargs):
         """Wrapper to __request to emit a log for each HTTP request."""
         ts = time.time()
@@ -148,7 +153,6 @@ class Client():
             elaps = (te - ts) * 1000
             logger.debug(f'{request_name} {url}: done in {elaps:.2f}ms error={error}')
 
-    @utils.retry_on_exception(exceptions=(exceptions.GatewayUnavailable))
     def request(self, request_name, asset_name, path=None, json_response=True,
                 **request_kwargs):
         """Base request."""

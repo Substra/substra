@@ -104,7 +104,8 @@ class Worker:
         model_dir = _mkdir(os.path.join(self._wdir, "models", tuple_.key))
         model_path = os.path.join(model_dir, model_name)
         shutil.copy(tmp_path, model_path)
-        return models.OutModel(key=str(uuid.uuid4()), checksum=fs.hash_file(model_path),
+        return models.OutModel(key=self._db.get_local_key(str(uuid.uuid4())),
+                               checksum=fs.hash_file(model_path),
                                storage_address=model_path)
 
     def _get_command_models_composite(self, is_train, tuple_, models_volume, container_volume):

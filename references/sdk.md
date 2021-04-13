@@ -311,6 +311,42 @@ download_dataset(self, key: str, destination_folder: str) -> None
 
 Download data manager resource.
 Download opener script in destination folder.
+## download_head_model_from_composite_traintuple
+```python
+download_head_model_from_composite_traintuple(self, tuple_key: str, folder) -> None
+```
+
+Download composite traintuple head model to destination file.
+This model was saved using the 'save_model' function of the algorithm.
+To load and use the model, please refer to the 'load_model' and 'predict' functions of the
+algorithm.
+## download_model
+```python
+download_model(self, key: str, folder) -> None
+```
+
+Download model to destination file.
+This model was saved using the 'save_model' function of the algorithm.
+To load and use the model, please refer to the 'load_model' and 'predict' functions of the
+algorithm.
+## download_model_from_aggregatetuple
+```python
+download_model_from_aggregatetuple(self, tuple_key: str, folder) -> None
+```
+
+Download aggregatetuple model to destination file.
+This model was saved using the 'save_model' function of the algorithm.
+To load and use the model, please refer to the 'load_model' and 'predict' functions of the
+algorithm.
+## download_model_from_traintuple
+```python
+download_model_from_traintuple(self, tuple_key: str, folder) -> None
+```
+
+Download traintuple model to destination file.
+This model was saved using the 'save_model' function of the algorithm.
+To load and use the model, please refer to the 'load_model' and 'predict' functions of the
+algorithm.
 ## download_objective
 ```python
 download_objective(self, key: str, destination_folder: str) -> None
@@ -318,6 +354,15 @@ download_objective(self, key: str, destination_folder: str) -> None
 
 Download objective resource.
 Download metrics script in destination folder.
+## download_trunk_model_from_composite_traintuple
+```python
+download_trunk_model_from_composite_traintuple(self, tuple_key: str, folder) -> None
+```
+
+Download composite traintuple trunk model to destination file.
+This model was saved using the 'save_model' function of the algorithm.
+To load and use the model, please refer to the 'load_model' and 'predict' functions of the
+algorithm.
 ## from_config_file
 ```python
 from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Union[str, NoneType] = None, retry_timeout: int = 300, debug: bool = False)
@@ -523,6 +568,12 @@ login(self, username, password)
 ```
 
 Login to a remote server. 
+## node_info
+```python
+node_info(self) -> str
+```
+
+Get node information.
 ## update_compute_plan
 ```python
 update_compute_plan(self, key: str, data: Union[dict, substra.sdk.schemas.UpdateComputePlanSpec], auto_batching: bool = True, batch_size: int = 20) -> substra.sdk.models.ComputePlan

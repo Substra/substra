@@ -322,6 +322,40 @@ def test_command_download(workdir, mocker):
     m.assert_called()
 
 
+def test_command_download_model(workdir, mocker):
+    m = mock_client_call(mocker, 'download_model')
+    client_execute(workdir, ['download', 'model', 'fakekey'])
+    m.assert_called()
+
+    m = mock_client_call(mocker, 'download_model_from_traintuple')
+    client_execute(
+        workdir,
+        ['download', 'model', '--from-traintuple', 'fakekey']
+    )
+    m.assert_called()
+
+    m = mock_client_call(mocker, 'download_model_from_aggregatetuple')
+    client_execute(
+        workdir,
+        ['download', 'model', '--from-aggregatetuple', 'fakekey']
+    )
+    m.assert_called()
+
+    m = mock_client_call(mocker, 'download_head_model_from_composite_traintuple')
+    client_execute(
+        workdir,
+        ['download', 'model', '--from-composite-head', 'fakekey']
+    )
+    m.assert_called()
+
+    m = mock_client_call(mocker, 'download_trunk_model_from_composite_traintuple')
+    client_execute(
+        workdir,
+        ['download', 'model', '--from-composite-trunk', 'fakekey']
+    )
+    m.assert_called()
+
+
 def test_command_cancel_compute_plan(workdir, mocker):
     m = mock_client_call(
         mocker,

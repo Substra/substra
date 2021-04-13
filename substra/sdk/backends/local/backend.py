@@ -949,6 +949,13 @@ class Local(base.BaseBackend):
         else:
             self._db.remote_download(asset_type, url_field_path, key, destination)
 
+    def download_model(self, key, destination_file):
+        if self._db.is_local(key):
+            asset = self._db.get(type_=schemas.Type.Model, key=key)
+            shutil.copyfile(asset.storage_address, destination_file)
+        else:
+            self._db.remote_download_model(key, destination_file)
+
     def describe(self, asset_type, key):
         if self._db.is_local(key):
             asset = self._db.get(type_=asset_type, key=key)
@@ -958,6 +965,9 @@ class Local(base.BaseBackend):
                 return f.read()
         else:
             return self._db.get_remote_description(asset_type, key)
+
+    def node_info(self):
+        return {"type": "local backend"}
 
     def leaderboard(self, objective_key, sort='desc'):
         objective = self._db.get(schemas.Type.Objective, objective_key)
