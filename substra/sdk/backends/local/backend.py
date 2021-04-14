@@ -16,6 +16,7 @@ import shutil
 import typing
 import warnings
 from distutils import util
+from pathlib import Path
 
 import substra
 from substra.sdk import schemas, models, exceptions, fs, graph, compute_plan as compute_plan_module
