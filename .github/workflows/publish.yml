@@ -11,7 +11,7 @@ on:
 
 jobs:
   build_and_publish:
-    needs: lint_and_tests
+    # needs: lint_and_tests
     runs-on: ubuntu-latest
     name: Build and publish
     steps:
