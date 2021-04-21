@@ -1,16 +1,13 @@
 name: Python
 
 on:
-  push:
-    # Sequence of patterns matched against refs/tags
-    tags:
-      - '*'
-# on:
-#   release:
-#     types: [published]
+  release:
+    types: [published]
 
 jobs:
   build_and_publish:
+    # See https://github.community/t/how-do-i-specify-job-dependency-running-in-another-workflow/16482
+    # for making this job depend on the CI success
     # needs: lint_and_tests
     runs-on: ubuntu-latest
     name: Build and publish
