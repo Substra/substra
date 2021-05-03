@@ -12,12 +12,20 @@ jobs:
   lint_and_tests:
     name: Lint and tests
     runs-on: ubuntu-latest
+    env:
+      XDG_RUNTIME_DIR: /home/runner/.docker/run
+      DOCKER_HOST: unix:///home/runner/.docker/run/docker.sock
     steps:
       - uses: actions/checkout@v2
       - name: Set up python
         uses: actions/setup-python@v2
         with:
           python-version: 3.7
+      - name: Install Docker rootless
+        run: |
+          sudo systemctl disable --now docker.service
+          export FORCE_ROOTLESS_INSTALL=1
+          curl -fsSL https://get.docker.com/rootless | sh
       - name: Install tools
         run: pip install flake8 wheel docstring-parser
       - name: Lint
@@ -25,7 +33,10 @@ jobs:
       - name: Install substra
         run: pip install -e .[test]
       - name: Test
-        run: python setup.py test
+        run: |
+          export PATH=/home/runner/bin:$PATH
+          /home/runner/bin/dockerd-rootless.sh &  # Start Docker rootless in the background
+          python setup.py test
       - name: Generate and validate CLI documentation
         run: |
           python bin/generate_cli_documentation.py --output-path references/cli.md.tmp
