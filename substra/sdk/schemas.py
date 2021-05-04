@@ -355,7 +355,7 @@ class CompositeTraintupleSpec(_Spec):
     in_trunk_model_key: Optional[str]
     tag: Optional[str]
     compute_plan_key: Optional[str]
-    out_trunk_model_permissions: PrivatePermissions
+    out_trunk_model_permissions: Permissions
     rank: Optional[int]
     metadata: Optional[Dict[str, str]]
 
@@ -379,6 +379,7 @@ class CompositeTraintupleSpec(_Spec):
             in_trunk_model_key=(id_to_key[spec.in_trunk_model_id]
                                 if spec.in_trunk_model_id else None),
             out_trunk_model_permissions={
+                "public": spec.out_trunk_model_permissions.public,
                 "authorized_ids": spec.out_trunk_model_permissions.authorized_ids
             },
             tag=spec.tag,

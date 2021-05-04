@@ -202,13 +202,13 @@ class Remote(base.BaseBackend):
 
     def link_dataset_with_objective(self, dataset_key, objective_key):
         """Returns the key of the dataset"""
-        asset = self._client.request(
+        self._client.request(
             'post',
             schemas.Type.Dataset.to_server(),
             path=f"{dataset_key}/update_ledger/",
             data={'objective_key': objective_key, },
         )
-        return asset["key"]
+        return
 
     def link_dataset_with_data_samples(self, dataset_key, data_sample_keys):
         """Returns the list of the data sample keys"""
@@ -216,13 +216,12 @@ class Remote(base.BaseBackend):
             'data_manager_keys': [dataset_key],
             'data_sample_keys': data_sample_keys,
         }
-        asset = self._client.request(
+        self._client.request(
             'post',
             schemas.Type.DataSample.to_server(),
             path="bulk_update/",
             data=data,
         )
-        return json.loads(asset['key'])['keys']
 
     def download(self, asset_type, url_field_path, key, destination):
         data = self.get(asset_type, key)
