@@ -22,8 +22,6 @@ from substra.sdk import schemas, fs, models
 from substra.sdk.backends.local import dal
 from substra.sdk.backends.local.compute import spawner
 
-LOCAL_DIR = pathlib.Path.cwd() / "local-worker"
-
 _CONTAINER_MODEL_PATH = "/sandbox/model"
 
 _VOLUME_INPUT_DATASAMPLES = {"bind": "/sandbox/data", "mode": "ro"}
@@ -55,10 +53,16 @@ def _get_address_in_container(model_key, volume, container_volume):
 class Worker:
     """ML Worker."""
 
-    def __init__(self, db: dal.DataAccess, support_chainkeys: bool, chainkey_dir=None):
-        self._wdir = LOCAL_DIR
+    def __init__(
+        self,
+        db: dal.DataAccess,
+        local_worker_dir: pathlib.Path,
+        support_chainkeys: bool,
+        chainkey_dir=None,
+    ):
+        self._local_worker_dir = local_worker_dir
         self._db = db
-        self._spawner = spawner.get()
+        self._spawner = spawner.get(local_worker_dir=self._local_worker_dir)
         self._support_chainkeys = support_chainkeys
         self._chainkey_dir = chainkey_dir
 
@@ -103,7 +107,7 @@ class Worker:
 
     def _save_output_model(self, tuple_, model_name, models_volume) -> models.OutModel:
         tmp_path = os.path.join(models_volume, model_name)
-        model_dir = _mkdir(os.path.join(self._wdir, "models", tuple_.key))
+        model_dir = _mkdir(os.path.join(self._local_worker_dir, "models", tuple_.key))
         model_path = os.path.join(model_dir, model_name)
         shutil.copy(tmp_path, model_path)
         return models.OutModel(key=self._db.get_local_key(str(uuid.uuid4())),
@@ -145,7 +149,7 @@ class Worker:
     @contextlib.contextmanager
     def _context(self, key):
         try:
-            tmp_dir = _mkdir(os.path.join(self._wdir, key))
+            tmp_dir = _mkdir(os.path.join(self._local_worker_dir, key))
             yield tmp_dir
         finally:
             # delete tuple working directory
@@ -206,7 +210,7 @@ class Worker:
                 owner = self._get_owner(tuple_)
                 local_volume = _mkdir(
                     os.path.join(
-                        self._wdir, "compute_plans", owner, tuple_.compute_plan_key
+                        self._local_worker_dir, "compute_plans", owner, tuple_.compute_plan_key
                     )
                 )
                 volumes[local_volume] = _VOLUME_LOCAL
@@ -322,7 +326,7 @@ class Worker:
                 owner = self._get_owner(tuple_)
                 local_volume = _mkdir(
                     os.path.join(
-                        self._wdir, "compute_plans", owner, tuple_.compute_plan_key
+                        self._local_worker_dir, "compute_plans", owner, tuple_.compute_plan_key
                     )
                 )
                 volumes[local_volume] = _VOLUME_LOCAL
@@ -405,7 +409,7 @@ class Worker:
 
             # save move performances
             tmp_path = os.path.join(predictions_volume, "perf.json")
-            pred_dir = _mkdir(os.path.join(self._wdir, "performances", tuple_.key))
+            pred_dir = _mkdir(os.path.join(self._local_worker_dir, "performances", tuple_.key))
             pred_path = os.path.join(pred_dir, "performance.json")
             shutil.copy(tmp_path, pred_path)
 

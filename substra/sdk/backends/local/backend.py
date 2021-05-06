@@ -16,6 +16,7 @@ import shutil
 import typing
 import warnings
 from distutils import util
+from pathlib import Path
 
 import substra
 from substra.sdk import schemas, models, exceptions, fs, graph, compute_plan as compute_plan_module
@@ -31,16 +32,21 @@ DEBUG_OWNER = "debug_owner"
 
 class Local(base.BaseBackend):
     def __init__(self, backend, *args, **kwargs):
+        self._local_worker_dir = Path.cwd() / "local-worker"
+        self._local_worker_dir.mkdir(exist_ok=True)
+
         self._support_chainkeys = bool(util.strtobool(os.getenv("CHAINKEYS_ENABLED", 'False')))
-        self._chainkey_dir = compute.LOCAL_DIR / "chainkeys"
+        self._chainkey_dir = self._local_worker_dir / "chainkeys"
         if self._support_chainkeys:
             print(f"Chainkeys support is on, the directory is {self._chainkey_dir}")
+
         # create a store to abstract the db
-        self._db = dal.DataAccess(backend)
+        self._db = dal.DataAccess(backend, local_worker_dir=self._local_worker_dir)
         self._worker = compute.Worker(
             self._db,
+            local_worker_dir=self._local_worker_dir,
             support_chainkeys=self._support_chainkeys,
-            chainkey_dir=self._chainkey_dir
+            chainkey_dir=self._chainkey_dir,
         )
 
     @property

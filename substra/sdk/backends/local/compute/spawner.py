@@ -14,6 +14,7 @@
 import tarfile
 import tempfile
 import zipfile
+import pathlib
 
 import docker
 
@@ -47,12 +48,13 @@ class ExecutionError(Exception):
 class DockerSpawner:
     """Wrapper around docker daemon to execute a command in a container."""
 
-    def __init__(self):
+    def __init__(self, local_worker_dir: pathlib.Path):
         self._docker = docker.from_env()
+        self._local_worker_dir = local_worker_dir
 
     def spawn(self, name, archive_path, command, volumes=None, envs=None):
         """Spawn a docker container (blocking)."""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory(dir=self._local_worker_dir) as tmpdir:
             _uncompress(archive_path, tmpdir)
             try:
                 self._docker.images.build(path=tmpdir, tag=name, rm=True)
@@ -89,5 +91,5 @@ class DockerSpawner:
         return execution_logs
 
 
-def get():
-    return DockerSpawner()
+def get(local_worker_dir: pathlib.Path):
+    return DockerSpawner(local_worker_dir=local_worker_dir)
