@@ -50,11 +50,11 @@ class DockerSpawner:
 
     def __init__(self, local_worker_dir: pathlib.Path):
         self._docker = docker.from_env()
-        self._wdir = local_worker_dir
+        self._local_worker_dir = local_worker_dir
 
     def spawn(self, name, archive_path, command, volumes=None, envs=None):
         """Spawn a docker container (blocking)."""
-        with tempfile.TemporaryDirectory(prefix=str(self._wdir) + "/") as tmpdir:
+        with tempfile.TemporaryDirectory(dir=self._local_worker_dir) as tmpdir:
             _uncompress(archive_path, tmpdir)
             try:
                 self._docker.images.build(path=tmpdir, tag=name, rm=True)
@@ -89,3 +89,7 @@ class DockerSpawner:
 
         container.remove()
         return execution_logs
+
+
+def get(local_worker_dir: pathlib.Path):
+    return DockerSpawner(local_worker_dir=local_worker_dir)

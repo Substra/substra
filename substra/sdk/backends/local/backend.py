@@ -32,12 +32,13 @@ DEBUG_OWNER = "debug_owner"
 
 class Local(base.BaseBackend):
     def __init__(self, backend, *args, **kwargs):
-        self._support_chainkeys = bool(util.strtobool(os.getenv("CHAINKEYS_ENABLED", 'False')))
-        self._chainkey_dir = compute.LOCAL_DIR / "chainkeys"
-        if self._support_chainkeys:
-            print(f"Chainkeys support is on, the directory is {self._chainkey_dir}")
         self._local_worker_dir = Path.cwd() / "local-worker"
         self._local_worker_dir.mkdir(exist_ok=True)
+
+        self._support_chainkeys = bool(util.strtobool(os.getenv("CHAINKEYS_ENABLED", 'False')))
+        self._chainkey_dir = self._local_worker_dir / "chainkeys"
+        if self._support_chainkeys:
+            print(f"Chainkeys support is on, the directory is {self._chainkey_dir}")
 
         # create a store to abstract the db
         self._db = dal.DataAccess(backend, local_worker_dir=self._local_worker_dir)
