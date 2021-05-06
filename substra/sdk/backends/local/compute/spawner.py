@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import os
 import tarfile
 import tempfile
 import zipfile
@@ -50,7 +49,6 @@ class DockerSpawner:
 
     def __init__(self):
         self._docker = docker.from_env()
-        self._user = os.getuid()
 
     def spawn(self, name, archive_path, command, volumes=None, envs=None):
         """Spawn a docker container (blocking)."""
@@ -70,12 +68,9 @@ class DockerSpawner:
             volumes=volumes or {},
             environment=envs,
             remove=False,
-            user=self._user,
-            userns_mode="host",
             detach=True,
             tty=True,
             stdin_open=True,
-            ipc_mode="host",
             shm_size='8G',
         )
 
