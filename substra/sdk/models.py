@@ -35,12 +35,12 @@ def _to_snake_case(camel_str):
 
 class Status(str, enum.Enum):
     """Status of the task"""
-    doing = "doing"
-    done = "done"
-    failed = "failed"
-    todo = "todo"
-    waiting = "waiting"
-    canceled = "canceled"
+    doing = "STATUS_DOING"
+    done = "STATUS_DONE"
+    failed = "STATUS_FAILED"
+    todo = "STATUS_TODO"
+    waiting = "STATUS_WAITING"
+    canceled = "STATUS_CANCELED"
 
 
 class Permission(schemas._PydanticConfig):
@@ -196,6 +196,7 @@ class _GenericTraintuple(_Model):
     worker: str
     rank: Optional[int]
     parent_task_keys: List[str]
+    tag: str
 
 
 class _Composite(schemas._PydanticConfig):
@@ -225,21 +226,25 @@ class _Test(schemas._PydanticConfig):
 class Traintuple(_GenericTraintuple):
     """Traintuple"""
     train: _Train
+    type_: ClassVar[str] = schemas.Type.Traintuple
 
 
 class Aggregatetuple(_GenericTraintuple):
     """Aggregatetuple"""
     aggregate: _Aggregate
+    type_: ClassVar[str] = schemas.Type.Aggregatetuple
 
 
 class CompositeTraintuple(_GenericTraintuple):
     """CompositeTraintuple"""
     composite: _Composite
+    type_: ClassVar[str] = schemas.Type.CompositeTraintuple
 
 
 class Testtuple(_GenericTraintuple):
     """Testtuple"""
     test: _Test
+    type_: ClassVar[str] = schemas.Type.Testtuple
 
     # @pydantic.validator('traintuple_type', pre=True)
     # def traintuple_type_snake_case(cls, v):
@@ -261,6 +266,7 @@ class ComputePlan(_Model):
     done_count: int
     task_count: int
     delete_intermediary_models: bool = False
+    type_: ClassVar[str] = schemas.Type.ComputePlan
 
     # status: str
     # failed_tuple: FailedTuple
