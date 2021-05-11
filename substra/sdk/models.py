@@ -169,18 +169,18 @@ class CompositeAlgo(_Algo):
 class InModel(schemas._PydanticConfig):
     """In model of a traintuple, aggregate tuple or in trunk
     model of a composite traintuple"""
-    key: str
     checksum: str
     storage_address: UriPath
-    traintuple_key: Optional[str]
 
 
 class OutModel(schemas._PydanticConfig):
     """Out model of a traintuple, aggregate tuple or out trunk
     model of a composite traintuple"""
     key: str
-    checksum: str
-    storage_address: UriPath
+    category: str
+    compute_task_key: str
+    address: InModel
+    permissions: Permissions
 
     type_: ClassVar[str] = schemas.Type.Model
 
@@ -204,16 +204,19 @@ class _Composite(schemas._PydanticConfig):
     data_sample_keys: List[str]
     head_permissions: Permissions
     trunk_permissions: Permissions
+    models: Optional[List[OutModel]]
 
 
 class _Train(schemas._PydanticConfig):
     data_manager_key: str
     data_sample_keys: List[str]
     model_permissions: Permissions
+    models: Optional[List[OutModel]]
 
 
 class _Aggregate(schemas._PydanticConfig):
     model_permissions: Permissions
+    models: Optional[List[OutModel]]
 
 
 class _Test(schemas._PydanticConfig):
