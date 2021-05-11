@@ -99,6 +99,7 @@ as the associated scores. Alternatively, you can browse the frontend to look up 
 
 
 ## Testing our assets
+Note that this way of testing the code is being deprecated. Consider [using the debug mode](#Using the debug mode) instead
 
 ### Manually
 
@@ -108,14 +109,14 @@ as the associated scores. Alternatively, you can browse the frontend to look up 
 python assets/algo_random_forest/algo.py train \
   --debug \
   --opener-path assets/dataset/opener.py \
-  --data-samples-path assets/train_data_samples \
+  --data-sample-paths assets/train_data_samples/* \
   --output-model-path assets/model/model \
   --log-path assets/logs/train.log
 
 python assets/algo_random_forest/algo.py predict \
   --debug \
   --opener-path assets/dataset/opener.py \
-  --data-samples-path assets/train_data_samples \
+  --data-sample-paths assets/train_data_samples/* \
   --output-predictions-path assets/pred-train.csv \
   --models-path assets/model/ \
   --log-path assets/logs/train_predict.log \
@@ -124,7 +125,7 @@ python assets/algo_random_forest/algo.py predict \
 python assets/objective/metrics.py \
   --debug \
   --opener-path assets/dataset/opener.py \
-  --data-samples-path assets/train_data_samples \
+  --data-sample-paths assets/train_data_samples/* \
   --input-predictions-path assets/pred-train.csv \
   --output-perf-path assets/perf-train.json \
   --log-path assets/logs/train_metrics.log
@@ -136,7 +137,7 @@ python assets/objective/metrics.py \
 python assets/algo_random_forest/algo.py predict \
   --debug \
   --opener-path assets/dataset/opener.py \
-  --data-samples-path assets/test_data_samples \
+  --data-sample-paths assets/test_data_samples/* \
   --output-predictions-path assets/pred-test.csv \
   --models-path assets/model/ \
   --log-path assets/logs/test_predict.log \
@@ -145,7 +146,7 @@ python assets/algo_random_forest/algo.py predict \
 python assets/objective/metrics.py \
   --debug \
   --opener-path assets/dataset/opener.py \
-  --data-samples-path assets/test_data_samples \
+  --data-sample-paths assets/test_data_samples/* \
   --input-predictions-path assets/pred-test.csv \
   --output-perf-path assets/perf-test.json \
   --log-path assets/logs/test_metrics.log
@@ -155,4 +156,4 @@ python assets/objective/metrics.py \
 
 Substra provides a very handy debug mode that will simulate the workings of a node right on your machine.
 
-For more information, have a look at the [debugging example](../debugging/READMEmd).
+For more information, have a look at the [debugging example](../debugging/README.md).
