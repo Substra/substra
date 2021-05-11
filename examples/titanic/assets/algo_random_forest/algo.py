@@ -130,7 +130,7 @@ class Algo(tools.algo.Algo):
                                                oob_score=True,
                                                random_state=1,
                                                n_jobs=-1)
-        random_forest.fit(X, y)
+        random_forest.fit(X, y.values.ravel())
 
         return random_forest
 
