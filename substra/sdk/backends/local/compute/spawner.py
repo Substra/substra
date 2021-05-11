@@ -51,6 +51,7 @@ class DockerSpawner:
     def __init__(self, local_worker_dir: pathlib.Path):
         self._docker = docker.from_env()
         self._local_worker_dir = local_worker_dir
+        self._user = os.getuid()
 
     def spawn(self, name, archive_path, command, volumes=None, envs=None):
         """Spawn a docker container (blocking)."""
@@ -70,6 +71,7 @@ class DockerSpawner:
             volumes=volumes or {},
             environment=envs,
             remove=False,
+            user=self._user,
             detach=True,
             tty=True,
             stdin_open=True,
