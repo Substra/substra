@@ -270,6 +270,7 @@ class ComputePlan(_Model):
     task_count: int
     delete_intermediary_models: bool = False
     type_: ClassVar[str] = schemas.Type.ComputePlan
+    status: str
 
     # status: str
     # failed_tuple: FailedTuple
