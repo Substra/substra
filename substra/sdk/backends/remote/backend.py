@@ -150,7 +150,6 @@ class Remote(base.BaseBackend):
             batch_size=batch_size,
         )
 
-        id_to_keys = dict()
         asset = None
 
         # Create the compute plan if it does not exist
@@ -159,7 +158,6 @@ class Remote(base.BaseBackend):
             tmp_spec = first_spec or spec  # Special case: no tuples
             asset = self.add(spec=tmp_spec, spec_options=deepcopy(spec_options))
             compute_plan_key = asset.key
-            id_to_keys = asset.id_to_key
 
         # Update the compute plan
         for tmp_spec in batches:
@@ -168,7 +166,6 @@ class Remote(base.BaseBackend):
                 spec=tmp_spec,
                 spec_options=deepcopy(spec_options)
             )
-            id_to_keys.update(asset.id_to_key)
 
         # Special case: no tuples
         if asset is None:
@@ -177,7 +174,6 @@ class Remote(base.BaseBackend):
                 key=compute_plan_key,
             )
 
-        asset.id_to_key = id_to_keys
         return asset
 
     def update_compute_plan(self, key, spec, spec_options=None):

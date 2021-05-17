@@ -43,6 +43,16 @@ class Status(str, enum.Enum):
     canceled = "STATUS_CANCELED"
 
 
+class ComputePlanStatus(str, enum.Enum):
+    """Status of the compute plan"""
+    doing = "PLAN_STATUS_DOING"
+    done = "PLAN_STATUS_DONE"
+    failed = "PLAN_STATUS_FAILED"
+    todo = "PLAN_STATUS_TODO"
+    waiting = "PLAN_STATUS_WAITING"
+    canceled = "PLAN_STATUS_CANCELED"
+
+
 class Permission(schemas._PydanticConfig):
     """Permissions of a task"""
     public: bool
