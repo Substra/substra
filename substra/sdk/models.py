@@ -53,6 +53,13 @@ class ComputePlanStatus(str, enum.Enum):
     canceled = "PLAN_STATUS_CANCELED"
 
 
+class ModelType(str, enum.Enum):
+    """Model type"""
+    head = "MODEL_HEAD"
+    trunk = "MODEL_TRUNK"
+    simple = "MODEL_SIMPLE"
+
+
 class Permission(schemas._PydanticConfig):
     """Permissions of a task"""
     public: bool
