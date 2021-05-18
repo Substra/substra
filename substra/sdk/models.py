@@ -234,6 +234,7 @@ class _Test(schemas._PydanticConfig):
     data_sample_keys: List[str]
     objective_key: str
     certified: bool
+    perf: Optional[float]
 
 
 class Traintuple(_GenericTraintuple):
