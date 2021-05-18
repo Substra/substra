@@ -188,13 +188,17 @@ class Remote(base.BaseBackend):
             )
         else:
             # Disable auto batching
-            asset = self._client.request(
+            self._client.request(
                 'post',
                 schemas.Type.ComputePlan.to_server(),
                 path=f"{key}/update_ledger/",
                 json=spec.dict(exclude_none=True),
             )
-            return models.ComputePlan(**asset)
+
+            return self.get(
+                asset_type=schemas.Type.ComputePlan,
+                key=key,
+            )
 
     def link_dataset_with_objective(self, dataset_key, objective_key):
         """Returns the key of the dataset"""
