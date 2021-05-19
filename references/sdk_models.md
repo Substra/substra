@@ -84,7 +84,7 @@ Testtuple
 - status: str
 - compute_plan_key: str
 - rank: int
-- traintuple_type: enum
+- traintuple_type: Type
 - metadata: Mapping[str, str]
 ```
 

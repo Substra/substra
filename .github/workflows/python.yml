@@ -39,6 +39,7 @@ jobs:
           python setup.py test
       - name: Generate and validate CLI documentation
         run: |
+          pip install pydantic==1.8.2
           python bin/generate_cli_documentation.py --output-path references/cli.md.tmp
           cmp --silent references/cli.md references/cli.md.tmp
       - name: Generate and validate SDK documentation
@@ -49,3 +50,10 @@ jobs:
           cmp --silent references/sdk_schemas.md references/sdk_schemas.md.tmp
           python bin/generate_sdk_schemas_documentation.py --models --output-path='references/sdk_models.md.tmp'
           cmp --silent references/sdk_models.md references/sdk_models.md.tmp
+      - name: Documentation artifacts
+        uses: actions/upload-artifact@v2
+        if: always()
+        retention-days: 1
+        with:
+          name: references
+          path: references/*.tmp

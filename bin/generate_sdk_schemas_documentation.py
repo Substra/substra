@@ -2,6 +2,8 @@ import argparse
 import inspect
 from pathlib import Path
 import sys
+import pydantic
+import warnings
 
 from substra.sdk import schemas, models
 
@@ -102,6 +104,10 @@ def write_help(path, models: bool):
 
 
 if __name__ == '__main__':
+
+    if pydantic.VERSION != '1.8.2':
+        warnings.warn("The documentation should be generated with this exact version of pydantic or there might be mismatches with the CI.")
+
     doc_dir = local_dir.parent / "references"
     default_path = doc_dir / "sdk_schemas.md"
 
