@@ -777,16 +777,16 @@ class Client(object):
         tuple = self._backend.get(tuple_type, tuple_key)
 
         if tuple_type == schemas.Type.CompositeTraintuple:
-            if head_trunk == "head":
-                model = tuple.out_head_model.out_model
-            elif head_trunk == "trunk":
-                model = tuple.out_trunk_model.out_model
-            else:
-                raise exceptions.InvalidRequest(
-                    'head_trunk parameter must have value "head" or "trunk"'
-                )
+            for model in tuple.models:
+                if head_trunk == "head" and model.category == 'MODEL_HEAD':
+                    return model
+                elif head_trunk == "trunk" and model.category == 'MODEL_TRUNK':
+                    return model
+            raise exceptions.InvalidRequest(
+                'head_trunk parameter must have value "head" or "trunk"'
+            )
         else:
-            model = tuple.out_model
+            model = tuple.models[0]
 
         if not model:
             desc = f'{head_trunk} ' if head_trunk else ""
