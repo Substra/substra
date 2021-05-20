@@ -778,9 +778,9 @@ class Client(object):
 
         if tuple_type == schemas.Type.CompositeTraintuple:
             for model in tuple.models:
-                if head_trunk == "head" and model.category == 'MODEL_HEAD':
+                if head_trunk == "head" and model.category == models.ModelType.head:
                     return model
-                elif head_trunk == "trunk" and model.category == 'MODEL_TRUNK':
+                elif head_trunk == "trunk" and model.category == models.ModelType.trunk:
                     return model
             raise exceptions.InvalidRequest(
                 'head_trunk parameter must have value "head" or "trunk"'
