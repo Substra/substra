@@ -777,7 +777,7 @@ class Client(object):
         tuple = self._backend.get(tuple_type, tuple_key)
 
         if tuple_type == schemas.Type.CompositeTraintuple:
-            for model in tuple.models:
+            for model in tuple.composite.models:
                 if head_trunk == "head" and model.category == models.ModelType.head:
                     return model
                 elif head_trunk == "trunk" and model.category == models.ModelType.trunk:
@@ -785,8 +785,12 @@ class Client(object):
             raise exceptions.InvalidRequest(
                 'head_trunk parameter must have value "head" or "trunk"'
             )
+        elif tuple_type == schemas.Type.Aggregatetuple:
+            model = tuple.aggregate.models[0]
+        elif tuple_type == schemas.Type.Traintuple:
+            model = tuple.train.models[0]
         else:
-            model = tuple.models[0]
+            raise exception.InvalidRequest(f'unhandled tuple type: {tuple_type}')
 
         if not model:
             desc = f'{head_trunk} ' if head_trunk else ""
