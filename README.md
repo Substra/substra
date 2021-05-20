@@ -124,7 +124,7 @@ $ make test
 To setup the project in development mode, run:
 
 ```sh
-pip install -e .[test]
+pip install -e ".[test]"
 ```
 
 To run all tests, use the following command:

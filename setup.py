@@ -53,7 +53,9 @@ setup(
     install_requires=['click>=7.1.1,<8.0.0', 'requests', 'docker', 'consolemd', 'pyyaml', 'pydantic>=1.5.1'],
     python_requires='>=3.6',
     setup_requires=['pytest-runner'],
-    tests_require=['pytest', 'pytest-cov', 'pytest-mock'],
+    extras_require={
+        'test': ['pytest', 'pytest-cov', 'pytest-mock'],
+    },
     entry_points={
         'console_scripts': [
             'substra=substra.cli.interface:cli',

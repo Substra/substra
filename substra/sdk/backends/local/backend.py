@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import logging
 import os
 import shutil
 import typing
@@ -23,6 +24,8 @@ from substra.sdk import schemas, models, exceptions, fs, graph, compute_plan as 
 from substra.sdk.backends import base
 from substra.sdk.backends.local import dal
 from substra.sdk.backends.local import compute
+from substra.sdk.backends.local.compute.spawner import DEBUG_SPAWNER_CHOICES
+logger = logging.getLogger(__name__)
 
 _BACKEND_ID = "local-backend"
 _MAX_LEN_KEY_METADATA = 50
@@ -38,7 +41,16 @@ class Local(base.BaseBackend):
         self._support_chainkeys = bool(util.strtobool(os.getenv("CHAINKEYS_ENABLED", 'False')))
         self._chainkey_dir = self._local_worker_dir / "chainkeys"
         if self._support_chainkeys:
-            print(f"Chainkeys support is on, the directory is {self._chainkey_dir}")
+            logger.info(f"Chainkeys support is on, the directory is {self._chainkey_dir}")
+
+        self._debug_spawner = str(os.getenv("DEBUG_SPAWNER", 'docker'))
+        if self._debug_spawner not in DEBUG_SPAWNER_CHOICES:
+            raise ValueError(f"{self._debug_spawner} is not a valid value for environment variable DEBUG_SPAWNER. "
+                             f"Accepted values: {[spawner[0] for spawner in DEBUG_SPAWNER_CHOICES]}")
+
+        if self._debug_spawner == 'subprocess':
+            logger.info("Environment variable DEBUG_SPAWNER is set to subprocess: "
+                        "running Substra tasks with Python subprocess")
 
         # create a store to abstract the db
         self._db = dal.DataAccess(backend, local_worker_dir=self._local_worker_dir)
@@ -46,6 +58,7 @@ class Local(base.BaseBackend):
             self._db,
             local_worker_dir=self._local_worker_dir,
             support_chainkeys=self._support_chainkeys,
+            debug_spawner=self._debug_spawner,
             chainkey_dir=self._chainkey_dir,
         )
 
@@ -938,7 +951,7 @@ class Local(base.BaseBackend):
                 else:
                     dataset.train_data_sample_keys.append(key)
             else:
-                print(f"Data sample already in dataset: {key}")
+                logger.warning(f"Data sample already in dataset: {key}")
             data_samples.append(data_sample)
         return data_sample_keys
 

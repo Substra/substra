@@ -190,15 +190,26 @@ INVALID_COMPOSITE_ALGO_SCRIPT = DEFAULT_COMPOSITE_ALGO_SCRIPT.replace('train', '
 INVALID_AGGREGATE_ALGO_SCRIPT = DEFAULT_AGGREGATE_ALGO_SCRIPT.replace('aggregate', 'etagergga')
 
 DEFAULT_METRICS_DOCKERFILE = f"""
-FROM substrafoundation/substra-tools:{DEFAULT_SUBSTRATOOLS_VERSION}
+FROM owkin/connect-tools:{DEFAULT_SUBSTRATOOLS_VERSION}
 COPY metrics.py .
 ENTRYPOINT ["python3", "metrics.py"]
 """
 
 DEFAULT_ALGO_DOCKERFILE = f"""
-FROM substrafoundation/substra-tools:{DEFAULT_SUBSTRATOOLS_VERSION}
+FROM owkin/connect-tools:{DEFAULT_SUBSTRATOOLS_VERSION}
 COPY algo.py .
 ENTRYPOINT ["python3", "algo.py"]
+"""
+
+BAD_ENTRYPOINT_DOCKERFILE = f"""
+FROM owkin/connect-tools:{DEFAULT_SUBSTRATOOLS_VERSION}
+COPY algo.py .
+ENTRYPOINT ["python3", "algo.txt"]
+"""
+
+NO_ENTRYPOINT_DOCKERFILE = f"""
+FROM owkin/connect-tools:{DEFAULT_SUBSTRATOOLS_VERSION}
+COPY algo.py .
 """
 
 DEFAULT_PERMISSIONS = substra.sdk.schemas.Permissions(public=True, authorized_ids=[])
@@ -355,7 +366,8 @@ class AssetsFactory:
             test_data_manager_key=dataset.key if dataset else None,
         )
 
-    def _create_algo(self, py_script, permissions=None, metadata=None):
+    def _create_algo(self, py_script, permissions=None, metadata=None, algo_spec=substra.sdk.schemas.AlgoSpec,
+                     dockerfile_type=None):
         idx = self._algo_counter.inc()
         tmpdir = self._workdir / f'algo-{idx}'
         tmpdir.mkdir()
@@ -371,10 +383,13 @@ class AssetsFactory:
         algo_zip = create_archive(
             tmpdir / 'algo',
             ('algo.py', algo_content),
-            ('Dockerfile', DEFAULT_ALGO_DOCKERFILE),
+            ('Dockerfile', (BAD_ENTRYPOINT_DOCKERFILE if dockerfile_type == "BAD_ENTRYPOINT"
+                            else NO_ENTRYPOINT_DOCKERFILE if dockerfile_type == "NO_ENTRYPOINT"
+                            else DEFAULT_ALGO_DOCKERFILE)
+             ),
         )
 
-        return substra.sdk.schemas.AlgoSpec(
+        return algo_spec(
             name=name,
             description=str(description_path),
             file=str(algo_zip),
@@ -382,11 +397,12 @@ class AssetsFactory:
             metadata=metadata,
         )
 
-    def create_algo(self, py_script=None, permissions=None, metadata=None):
+    def create_algo(self, py_script=None, permissions=None, metadata=None, dockerfile_type=None):
         return self._create_algo(
             py_script or DEFAULT_ALGO_SCRIPT,
             permissions=permissions,
             metadata=metadata,
+            dockerfile_type=dockerfile_type,
         )
 
     def create_aggregate_algo(self, py_script=None, permissions=None, metadata=None):
@@ -394,6 +410,7 @@ class AssetsFactory:
             py_script or DEFAULT_AGGREGATE_ALGO_SCRIPT,
             permissions=permissions,
             metadata=metadata,
+            algo_spec=substra.sdk.schemas.AggregateAlgoSpec,
         )
 
     def create_composite_algo(self, py_script=None, permissions=None, metadata=None):
@@ -401,6 +418,7 @@ class AssetsFactory:
             py_script or DEFAULT_COMPOSITE_ALGO_SCRIPT,
             permissions=permissions,
             metadata=metadata,
+            algo_spec=substra.sdk.schemas.CompositeAlgoSpec,
         )
 
     def create_traintuple(self, algo_key=None, data_manager_key=None,
