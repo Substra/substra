@@ -321,5 +321,6 @@ SCHEMA_TO_MODEL = {
     schemas.Type.Objective: Objective,
     schemas.Type.Testtuple: Testtuple,
     schemas.Type.Traintuple: Traintuple,
-    schemas.Type.Node: Node
+    schemas.Type.Node: Node,
+    schemas.Type.Model: OutModel
 }
