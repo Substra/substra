@@ -27,7 +27,7 @@ jobs:
           export FORCE_ROOTLESS_INSTALL=1
           curl -fsSL https://get.docker.com/rootless | sh
       - name: Install tools
-        run: pip install flake8 wheel docstring-parser
+        run: pip install flake8 wheel docstring-parser==0.7.3
       - name: Lint
         run: flake8 substra
       - name: Install substra
