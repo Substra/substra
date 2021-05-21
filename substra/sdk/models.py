@@ -196,8 +196,9 @@ class OutModel(schemas._PydanticConfig):
     key: str
     category: str
     compute_task_key: str
-    address: InModel
+    address: Optional[InModel]
     permissions: Permissions
+    owner: str
 
     type_: ClassVar[str] = schemas.Type.Model
 
