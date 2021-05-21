@@ -40,6 +40,7 @@ jobs:
       - name: Generate and validate CLI documentation
         run: |
           python bin/generate_cli_documentation.py --output-path references/cli.md.tmp
+          diff references/cli.md references/cli.md.tmp
           cmp --silent references/cli.md references/cli.md.tmp
       - name: Generate and validate SDK documentation
         run: |
