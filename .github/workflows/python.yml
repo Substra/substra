@@ -9,34 +9,21 @@ on:
       - "master"
 
 jobs:
-  lint_and_tests:
-    name: Lint and tests
+  lint:
+    name: Lint and documentation
     runs-on: ubuntu-latest
-    env:
-      XDG_RUNTIME_DIR: /home/runner/.docker/run
-      DOCKER_HOST: unix:///home/runner/.docker/run/docker.sock
     steps:
       - uses: actions/checkout@v2
       - name: Set up python
         uses: actions/setup-python@v2
         with:
           python-version: 3.7
-      - name: Install Docker rootless
-        run: |
-          sudo systemctl disable --now docker.service
-          export FORCE_ROOTLESS_INSTALL=1
-          curl -fsSL https://get.docker.com/rootless | sh
       - name: Install tools
         run: pip install flake8 wheel docstring-parser
       - name: Lint
         run: flake8 substra
       - name: Install substra
         run: pip install -e .[test]
-      - name: Test
-        run: |
-          export PATH=/home/runner/bin:$PATH
-          /home/runner/bin/dockerd-rootless.sh &  # Start Docker rootless in the background
-          python setup.py test
       - name: Generate and validate CLI documentation
         run: |
           pip install pydantic==1.8.2
@@ -53,7 +40,41 @@ jobs:
       - name: Documentation artifacts
         uses: actions/upload-artifact@v2
         if: always()
-        retention-days: 1
         with:
           name: references
           path: references/*.tmp
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    env:
+      XDG_RUNTIME_DIR: /home/runner/.docker/run
+      DOCKER_HOST: unix:///home/runner/.docker/run/docker.sock
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: Install Docker rootless
+        run: |
+          sudo systemctl disable --now docker.service
+          export FORCE_ROOTLESS_INSTALL=1
+          curl -fsSL https://get.docker.com/rootless | sh
+      - name: Set up gcloud Cloud SDK environment to pull the Docker images
+        uses: google-github-actions/setup-gcloud@v0.2.0
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+      - name: gcloud configure docker
+        run: |
+          gcloud auth configure-docker
+          export PATH=/home/runner/bin:$PATH
+          /home/runner/bin/dockerd-rootless.sh &  # Start Docker rootless in the background
+      - name: Install substra tools
+        run: pip install -i https://${{ secrets.TWINE_USERNAME }}:${{ secrets.TWINE_PASSWORD }}@pypi.owkin.com/simple/ 'substratools>=0.8.0'
+      - name: Install substra
+        run: pip install -e .[test]
+      - name: Test
+        run: |
+          export PATH=/home/runner/bin:$PATH
+          python setup.py test

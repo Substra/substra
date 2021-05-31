@@ -31,7 +31,8 @@ PYTHON_SCRIPT_NAME = r'(?<=\")([^\"]*\.py)(?=\")'
 def _get_script_name_from_dockerfile(tmpdir):
     """
     Extracts the .py script in an ENTRYPOINT line of a Dockerfile, located in tmpdir.
-    For instance if the line `ENTRYPOINT ["python3", "algo.py"]` is in the Dockerfile, `algo.py` is extracted.
+    For instance if the line `ENTRYPOINT ["python3", "algo.py"]` is in the Dockerfile,
+     `algo.py` is extracted.
     """
     with open(tmpdir / "Dockerfile") as f:
         for line in f:
@@ -40,7 +41,9 @@ def _get_script_name_from_dockerfile(tmpdir):
 
             script_name = re.findall(PYTHON_SCRIPT_NAME, line)
             if not script_name:
-                raise ExecutionError(f"Couldn't get Python script in Dockerfile's entrypoint : {line}")
+                raise ExecutionError(
+                    f"Couldn't get Python script in Dockerfile's entrypoint : {line}"
+                )
 
             return script_name[0]
 
@@ -53,7 +56,14 @@ class Subprocess(BaseSpawner):
     def __init__(self, local_worker_dir: pathlib.Path):
         super().__init__(local_worker_dir=local_worker_dir)
 
-    def spawn(self, name, archive_path, command_template: string.Template, local_volumes=None, envs=None):
+    def spawn(
+        self,
+        name,
+        archive_path,
+        command_template: string.Template,
+        local_volumes=None,
+        envs=None,
+    ):
         """Spawn a python process (blocking)."""
         with tempfile.TemporaryDirectory(dir=self._local_worker_dir) as tmpdir:
             tmpdir = pathlib.Path(tmpdir)

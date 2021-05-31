@@ -45,8 +45,10 @@ class Local(base.BaseBackend):
 
         self._debug_spawner = str(os.getenv("DEBUG_SPAWNER", 'docker'))
         if self._debug_spawner not in DEBUG_SPAWNER_CHOICES:
-            raise ValueError(f"{self._debug_spawner} is not a valid value for environment variable DEBUG_SPAWNER. "
-                             f"Accepted values: {[spawner[0] for spawner in DEBUG_SPAWNER_CHOICES]}")
+            raise ValueError(
+                f"{self._debug_spawner} is not a valid value for environment variable "
+                f"DEBUG_SPAWNER. "
+                f"Accepted values: {[spawner[0] for spawner in DEBUG_SPAWNER_CHOICES]}")
 
         if self._debug_spawner == 'subprocess':
             logger.info("Environment variable DEBUG_SPAWNER is set to subprocess: "

@@ -197,7 +197,8 @@ class Worker:
                 command_template += " --models-path ${_VOLUME_MODELS_RW}"
                 command_template += " --output-model-path ${_VOLUME_MODELS_RW}/model"
             else:
-                command_template += f" --output-model-path {os.path.join(tuple_dir, 'model', 'model')}"
+                command_template += " --output-model-path "
+                f"{os.path.join(tuple_dir, 'model', 'model')}"
 
             if not isinstance(tuple_, models.Aggregatetuple):
                 # if this is a traintuple or composite traintuple, prepare the data

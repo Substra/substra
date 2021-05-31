@@ -43,7 +43,14 @@ class Docker(BaseSpawner):
         self._docker = docker.from_env()
         super().__init__(local_worker_dir=local_worker_dir)
 
-    def spawn(self, name, archive_path, command_template: string.Template, local_volumes=None, envs=None):
+    def spawn(
+        self,
+        name,
+        archive_path,
+        command_template: string.Template,
+        local_volumes=None,
+        envs=None,
+    ):
         """Spawn a docker container (blocking)."""
         with tempfile.TemporaryDirectory(dir=self._local_worker_dir) as tmpdir:
             uncompress(archive_path, tmpdir)

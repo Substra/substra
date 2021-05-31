@@ -27,6 +27,13 @@ class BaseSpawner(abc.ABC):
         self._local_worker_dir = local_worker_dir
 
     @abc.abstractmethod
-    def spawn(self, name, archive_path, command_template: string.Template, local_volumes=None, envs=None):
+    def spawn(
+        self,
+        name,
+        archive_path,
+        command_template: string.Template,
+        local_volumes=None,
+        envs=None,
+    ):
         """Execute archive in a contained environment."""
         raise NotImplementedError
