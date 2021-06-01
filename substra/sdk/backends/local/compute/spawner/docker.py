@@ -40,7 +40,14 @@ class Docker(BaseSpawner):
     """Wrapper around docker daemon to execute a command in a container."""
 
     def __init__(self, local_worker_dir: pathlib.Path):
-        self._docker = docker.from_env()
+        try:
+            self._docker = docker.from_env()
+        except docker.errors.DockerException as e:
+            raise ConnectionError(
+                "Couldn't get the Docker client from environment variables. "
+                "Is your Docker server running ?\n"
+                "Docker error : {0}".format(e)
+            )
         super().__init__(local_worker_dir=local_worker_dir)
 
     def spawn(
