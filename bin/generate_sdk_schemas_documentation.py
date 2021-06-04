@@ -37,6 +37,7 @@ models_list = [
     models.Traintuple,
     models.Aggregatetuple,
     models.CompositeTraintuple,
+    models.Algo,
     models.CompositeAlgo,
     models.AggregateAlgo,
     models.ComputePlan,

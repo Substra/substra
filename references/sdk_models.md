@@ -7,6 +7,7 @@
 - [Traintuple](#Traintuple)
 - [Aggregatetuple](#Aggregatetuple)
 - [CompositeTraintuple](#CompositeTraintuple)
+- [Algo](#Algo)
 - [CompositeAlgo](#CompositeAlgo)
 - [AggregateAlgo](#AggregateAlgo)
 - [ComputePlan](#ComputePlan)
@@ -141,6 +142,18 @@ CompositeTraintuple
 - out_head_model: OutCompositeHeadModel
 - out_trunk_model: OutCompositeTrunkModel
 - metadata: Mapping[str, str]
+```
+
+## Algo
+Algo
+```python
+- key: str
+- name: str
+- owner: str
+- permissions: Permissions
+- metadata: Mapping[str, str]
+- description: _File
+- content: _File
 ```
 
 ## CompositeAlgo
