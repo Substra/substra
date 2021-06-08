@@ -56,6 +56,10 @@ class Worker:
         self._support_chainkeys = support_chainkeys
         self._chainkey_dir = chainkey_dir
 
+    def _has_chainkey(self):
+        # checks if chainkey exists in the chainkey_dir
+        return os.path.exists(self._chainkey_dir / "node_name_id.json")
+
     def _get_owner(self, tuple_):
         if isinstance(tuple_, models.Aggregatetuple):
             return tuple_.worker
@@ -218,7 +222,7 @@ class Worker:
                 )
                 volumes['_VOLUME_LOCAL'] = local_volume
                 command_template += " --compute-plan-path ${_VOLUME_LOCAL}"
-                if self._support_chainkeys:
+                if self._support_chainkeys and self._has_chainkey():
                     chainkey_volume = self._get_chainkey_volume(tuple_)
                     if chainkey_volume is not None:
                         volumes['_VOLUME_CHAINKEYS'] = chainkey_volume
@@ -253,7 +257,7 @@ class Worker:
             # Get the environment variables
             envs = dict()
             if tuple_.compute_plan_key:
-                if self._support_chainkeys:
+                if self._support_chainkeys and self._has_chainkey():
                     envs.update(self._get_chainkey_env(tuple_))
 
             # Execute the tuple
@@ -334,7 +338,7 @@ class Worker:
                 )
                 volumes['_VOLUME_LOCAL'] = local_volume
                 command_template += " --compute-plan-path ${_VOLUME_LOCAL}"
-                if self._support_chainkeys:
+                if self._support_chainkeys and self._has_chainkey():
                     chainkey_volume = self._get_chainkey_volume(tuple_)
                     volumes['_VOLUME_CHAINKEYS'] = chainkey_volume
                     command_template += " --chainkeys-path ${_VOLUME_CHAINKEYS}"

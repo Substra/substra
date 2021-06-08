@@ -527,6 +527,10 @@ class Local(base.BaseBackend):
             compositetuples
         ) = compute_plan_module.get_dependency_graph(spec)
 
+        # If chainkey is supported make sure it exists, else set support to False
+        if not (self._chainkey_dir / "node_name_id.json").is_file():
+            logger.warning(f"No chainkeys found in {self._chainkey_dir}.")
+
         # Define the rank of each traintuple, aggregate tuple and composite tuple
         visited = graph.compute_ranks(node_graph=tuple_graph)
 
