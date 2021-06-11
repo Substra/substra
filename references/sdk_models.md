@@ -185,6 +185,7 @@ ComputePlan
 ```python
 - key: str
 - status: str
+- failed_tuple: FailedTuple
 - traintuple_keys: Optional[List[str]]
 - composite_traintuple_keys: Optional[List[str]]
 - aggregatetuple_keys: Optional[List[str]]

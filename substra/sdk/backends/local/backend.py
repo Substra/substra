@@ -166,6 +166,7 @@ class Local(base.BaseBackend):
         compute_plan = models.ComputePlan(
             key=key,
             status=models.Status.waiting,
+            failed_tuple={"key": "", "type": ""},
             traintuple_keys=traintuple_keys,
             composite_traintuple_keys=composite_traintuple_keys,
             aggregatetuple_keys=aggregatetuple_keys,
@@ -538,6 +539,7 @@ class Local(base.BaseBackend):
             key=key,
             tag=spec.tag or "",
             status=models.Status.waiting,
+            failed_tuple={"key": "", "type": ""},
             metadata=spec.metadata or dict(),
             id_to_key=dict(),
             tuple_count=0,

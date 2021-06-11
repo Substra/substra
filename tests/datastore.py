@@ -362,6 +362,10 @@ COMPUTE_PLAN = {
     ],
     "tag": "",
     "status": "done",
+    "failed_tuple": {
+        "key": "",
+        "type": "",
+    },
     "tuple_count": 2,
     "done_count": 2,
     "id_to_key": {

@@ -319,10 +319,17 @@ class Testtuple(_Model):
         return _to_snake_case(v)
 
 
+class FailedTuple(_Model):
+    """Info on failed tuple."""
+    key: str
+    type: str
+
+
 class ComputePlan(_Model):
     """ComputePlan"""
     key: str
     status: str
+    failed_tuple: FailedTuple
     traintuple_keys: Optional[List[str]]
     composite_traintuple_keys: Optional[List[str]]
     aggregatetuple_keys: Optional[List[str]]
