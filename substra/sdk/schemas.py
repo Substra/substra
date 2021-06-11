@@ -396,6 +396,7 @@ class TesttupleSpec(_Spec):
     tag: Optional[str]
     data_manager_key: Optional[str]
     test_data_sample_keys: Optional[List[str]]
+    compute_plan_key: Optional[str]
     metadata: Optional[Dict[str, str]]
 
     type_: typing.ClassVar[Type] = Type.Testtuple
