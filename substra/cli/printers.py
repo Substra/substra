@@ -543,21 +543,21 @@ class NodePrinter(AssetPrinter):
 
 class LeaderBoardPrinter(BasePrinter):
     objective_fields = (Field('Key', 'key'), ) + ObjectivePrinter.single_fields
-    testtuple_fields = (
+    board_item_fields = (
         Field('Perf', 'perf'),
         Field('Algo name', 'algo.name'),
-        Field('Traintuple key', 'traintuple_key'),
+        Field('Traintuple key', 'compute_task_key'),
     )
 
     def print(self, leaderboard, expand):
         objective = leaderboard['objective']
-        testtuples = leaderboard['testtuples']
+        board_items = leaderboard['board_items']
 
         print('========== OBJECTIVE ==========')
         self.print_details(objective, self.objective_fields, expand)
         print()
         print('========= LEADERBOARD =========')
-        self.print_table(testtuples, self.testtuple_fields)
+        self.print_table(board_items, self.board_item_fields)
 
 
 PRINTERS = {
