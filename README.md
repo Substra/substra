@@ -1,4 +1,4 @@
-<h1><img src="substra-logo.svg" alt="substra" width="200"/></h1>
+<h1><img src="https://github.com/Substra/artwork/blob/main/horizontal/color/substra_horizontal-color.png" alt="substra logo"/></h1>
 
 CLI and SDK for interacting with Substra platform.
 
