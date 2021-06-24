@@ -787,7 +787,7 @@ class Client(object):
         elif tuple_type == schemas.Type.Traintuple:
             model = tuple.train.models[0]
         else:
-            raise exception.InvalidRequest(f'unhandled tuple type: {tuple_type}')
+            raise exceptions.InvalidRequest(f'unhandled tuple type: {tuple_type}')
 
         if not model:
             desc = f'{head_trunk} ' if head_trunk else ""
