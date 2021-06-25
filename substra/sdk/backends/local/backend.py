@@ -16,6 +16,7 @@ import os
 import shutil
 import typing
 import warnings
+from datetime import datetime
 from distutils import util
 from pathlib import Path
 
@@ -63,6 +64,10 @@ class Local(base.BaseBackend):
             debug_spawner=self._debug_spawner,
             chainkey_dir=self._chainkey_dir,
         )
+
+    def __now(self):
+        """Return the current date in the iso format"""
+        return datetime.now()
 
     @property
     def temp_directory(self):
@@ -165,6 +170,7 @@ class Local(base.BaseBackend):
         key = self._db.get_local_key(schemas._Spec.compute_key())
         compute_plan = models.ComputePlan(
             key=key,
+            creation_date=self.__now(),
             status=models.Status.waiting,
             failed_tuple={"key": "", "type": ""},
             traintuple_keys=traintuple_keys,
@@ -230,15 +236,15 @@ class Local(base.BaseBackend):
         return id_, tuple_.rank
 
     def __execute_compute_plan(
-                self,
-                spec,
-                compute_plan,
-                visited,
-                traintuples,
-                aggregatetuples,
-                compositetuples,
-                spec_options
-            ):
+        self,
+        spec,
+        compute_plan,
+        visited,
+        traintuples,
+        aggregatetuples,
+        compositetuples,
+        spec_options
+    ):
         for id_, rank in sorted(visited.items(), key=lambda item: item[1]):
             if id_ in traintuples:
                 traintuple = traintuples[id_]
@@ -332,6 +338,7 @@ class Local(base.BaseBackend):
             key=key,
             name=spec.name,
             owner=owner,
+            creation_date=self.__now(),
             permissions={
                 "process": {
                     "public": permissions.public,
@@ -377,6 +384,7 @@ class Local(base.BaseBackend):
         asset = models.Dataset(
             key=key,
             owner=owner,
+            creation_date=self.__now(),
             name=spec.name,
             objective_key=spec.objective_key if spec.objective_key else "",
             permissions={
@@ -415,6 +423,7 @@ class Local(base.BaseBackend):
         data_sample = models.DataSample(
             key=key,
             owner=_BACKEND_ID,
+            creation_date=self.__now(),
             path=data_sample_file_path,
             data_manager_keys=spec.data_manager_keys,
             test_only=spec.test_only,
@@ -485,6 +494,7 @@ class Local(base.BaseBackend):
             key=key,
             name=spec.name,
             owner=owner,
+            creation_date=self.__now(),
             test_dataset=test_dataset,
             permissions={
                 "process": {
@@ -537,6 +547,7 @@ class Local(base.BaseBackend):
 
         compute_plan = models.ComputePlan(
             key=key,
+            creation_date=self.__now(),
             tag=spec.tag or "",
             status=models.Status.waiting,
             failed_tuple={"key": "", "type": ""},
@@ -602,6 +613,7 @@ class Local(base.BaseBackend):
         traintuple = models.Traintuple(
             key=key,
             creator=owner,
+            creation_date=self.__now(),
             algo={
                 "key": spec.algo_key,
                 "checksum": algo.content.checksum,
@@ -711,6 +723,7 @@ class Local(base.BaseBackend):
         testtuple = models.Testtuple(
             key=key,
             creator=owner,
+            creation_date=self.__now(),
             objective={
                 "key": spec.objective_key,
                 "metrics": objective.metrics
@@ -808,6 +821,7 @@ class Local(base.BaseBackend):
         composite_traintuple = models.CompositeTraintuple(
             key=key,
             creator=owner,
+            creation_date=self.__now(),
             algo={
                 "key": spec.algo_key,
                 "checksum": algo.content.checksum,
@@ -891,6 +905,7 @@ class Local(base.BaseBackend):
         aggregatetuple = models.Aggregatetuple(
             key=key,
             creator=owner,
+            creation_date=self.__now(),
             worker=spec.worker,
             algo={
                 "key": spec.algo_key,

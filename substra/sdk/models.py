@@ -19,6 +19,7 @@ from typing import ClassVar, Dict, List, Optional, Union
 
 import pydantic
 from pydantic import DirectoryPath, FilePath, AnyUrl
+from datetime import datetime
 
 from substra.sdk import schemas
 
@@ -66,6 +67,7 @@ class DataSample(_Model):
     """Data sample"""
     key: str
     owner: str
+    creation_date: datetime
     data_manager_keys: Optional[List[str]]
     path: Optional[DirectoryPath]
     validated: bool = True
@@ -86,6 +88,7 @@ class Dataset(_Model):
     key: str
     name: str
     owner: str
+    creation_date: datetime
     objective_key: Optional[str]
     permissions: Permissions
     type: str
@@ -118,6 +121,7 @@ class Objective(_Model):
     key: str
     name: str
     owner: str
+    creation_date: datetime
     test_dataset: Optional[_ObjectiveDataset]
     metadata: Dict[str, str]
     permissions: Permissions
@@ -132,6 +136,7 @@ class _Algo(_Model):
     key: str
     name: str
     owner: str
+    creation_date: datetime
     permissions: Permissions
     metadata: Dict[str, str]
 
@@ -194,6 +199,7 @@ class Traintuple(_Model):
     """Traintuple"""
     key: str
     creator: str
+    creation_date: datetime
     algo: _TraintupleAlgo
     dataset: _TraintupleDataset
     permissions: Permissions
@@ -214,6 +220,7 @@ class Aggregatetuple(_Model):
     """Aggregatetuple"""
     key: str
     creator: str
+    creation_date: datetime
     worker: str
     algo: _TraintupleAlgo
     permissions: Permissions
@@ -260,6 +267,7 @@ class OutCompositeTrunkModel(schemas._PydanticConfig):
 class CompositeTraintuple(_Model):
     """CompositeTraintuple"""
     key: str
+    creation_date: datetime
     creator: str
     algo: _TraintupleAlgo
     dataset: _TraintupleDataset
@@ -298,6 +306,7 @@ class _TesttupleObjective(schemas._PydanticConfig):
 class Testtuple(_Model):
     """Testtuple"""
     key: str
+    creation_date: datetime
     creator: str
     algo: _TraintupleAlgo
     objective: _TesttupleObjective
@@ -328,6 +337,7 @@ class FailedTuple(_Model):
 class ComputePlan(_Model):
     """ComputePlan"""
     key: str
+    creation_date: datetime
     status: str
     failed_tuple: FailedTuple
     traintuple_keys: Optional[List[str]]

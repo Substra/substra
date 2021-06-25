@@ -35,6 +35,7 @@ Data sample
 ```python
 - key: str
 - owner: str
+- creation_date: datetime
 - data_manager_keys: Optional[List[str]]
 - path: Optional[DirectoryPath]
 - validated: bool
@@ -47,6 +48,7 @@ Dataset asset
 - key: str
 - name: str
 - owner: str
+- creation_date: datetime
 - objective_key: Optional[str]
 - permissions: Permissions
 - type: str
@@ -63,6 +65,7 @@ Objective
 - key: str
 - name: str
 - owner: str
+- creation_date: datetime
 - test_dataset: Optional[_ObjectiveDataset]
 - metadata: Mapping[str, str]
 - permissions: Permissions
@@ -74,6 +77,7 @@ Objective
 Testtuple
 ```python
 - key: str
+- creation_date: datetime
 - creator: str
 - algo: _TraintupleAlgo
 - objective: _TesttupleObjective
@@ -94,6 +98,7 @@ Traintuple
 ```python
 - key: str
 - creator: str
+- creation_date: datetime
 - algo: _TraintupleAlgo
 - dataset: _TraintupleDataset
 - permissions: Permissions
@@ -112,6 +117,7 @@ Aggregatetuple
 ```python
 - key: str
 - creator: str
+- creation_date: datetime
 - worker: str
 - algo: _TraintupleAlgo
 - permissions: Permissions
@@ -129,6 +135,7 @@ Aggregatetuple
 CompositeTraintuple
 ```python
 - key: str
+- creation_date: datetime
 - creator: str
 - algo: _TraintupleAlgo
 - dataset: _TraintupleDataset
@@ -150,6 +157,7 @@ Algo
 - key: str
 - name: str
 - owner: str
+- creation_date: datetime
 - permissions: Permissions
 - metadata: Mapping[str, str]
 - description: _File
@@ -162,6 +170,7 @@ CompositeAlgo
 - key: str
 - name: str
 - owner: str
+- creation_date: datetime
 - permissions: Permissions
 - metadata: Mapping[str, str]
 - description: _File
@@ -174,6 +183,7 @@ AggregateAlgo
 - key: str
 - name: str
 - owner: str
+- creation_date: datetime
 - permissions: Permissions
 - metadata: Mapping[str, str]
 - description: _File
@@ -184,6 +194,7 @@ AggregateAlgo
 ComputePlan
 ```python
 - key: str
+- creation_date: datetime
 - status: str
 - failed_tuple: FailedTuple
 - traintuple_keys: Optional[List[str]]

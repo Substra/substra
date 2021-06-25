@@ -17,6 +17,7 @@ OBJECTIVE = {
         "storage_address": "",
     },
     "key": "d5002e1c-d50b-d5de-5341-df8a7b7d11b6",
+    "creation_date": "2018-05-11T01:00:11Z",
     "metrics": {
         "checksum": "750f622262854341bd44f55c1018949e9c119606ef5068bd7d137040a482a756",
         "name": "macro-average recall",
@@ -45,6 +46,7 @@ OBJECTIVE = {
 
 DATASET = {
     "objective_key": "7a90514f-88c7-0002-608a-9868681dd158",
+    "creation_date": "2018-05-11T01:00:11Z",
     "description": {
         "checksum": "7a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
         "storage_address": "",
@@ -73,6 +75,7 @@ DATASET = {
 
 ALGO = {
     "key": "7c9f9799-bf64-c100-0238-1583a9ffc535",
+    "creation_date": "2018-05-11T01:00:11Z",
     "name": "Logistic regression",
     "content": {
         "checksum": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
@@ -97,6 +100,7 @@ ALGO = {
 
 AGGREGATE_ALGO = {
     "key": "7c9f9799-bf64-c100-6238-1583a9ffc535",
+    "creation_date": "2018-05-11T01:00:11Z",
     "name": "Logistic regression",
     "content": {
         "checksum": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6g0c614d3f6f868f72a9d5",
@@ -120,6 +124,7 @@ AGGREGATE_ALGO = {
 
 COMPOSITE_ALGO = {
     "key": "7c9f9799-bf64-c100-0238-b583a9ffc535",
+    "creation_date": "2018-05-11T01:00:11Z",
     "name": "Logistic regression",
     "content": {
         "checksum": "7c9f9799bf64c10002381b83a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
@@ -143,6 +148,7 @@ COMPOSITE_ALGO = {
 
 TRAINTUPLE = {
     "key": "06207faf-1785-4fa9-4220-99a50dcee064",
+    "creation_date": "2018-05-11T01:00:11Z",
     "algo": {
         "key": "7c9f9799-bf64-c100-0238-1583a9ffc535",
         "name": "Neural Network",
@@ -183,6 +189,7 @@ TRAINTUPLE = {
 
 AGGREGATETUPLE = {
     "key": "06207faf-1785-4fa9-4220-99a50dcfe064",
+    "creation_date": "2018-05-11T01:00:11Z",
     "algo": {
         "key": "7c9f9799-bf64-c100-0238-1583a9ffc535",
         "name": "Neural Network",
@@ -215,6 +222,7 @@ AGGREGATETUPLE = {
 
 COMPOSITE_TRAINTUPLE = {
     "key": "06207faf-1785-4fa9-4220-99a50dcee064",
+    "creation_date": "2018-05-11T01:00:11Z",
     "algo": {
         "key": "7c9f9799-bf64-c100-0238-1583a9ffc535",
         "name": "Neural Network",
@@ -277,6 +285,7 @@ COMPOSITE_TRAINTUPLE = {
 
 TESTTUPLE = {
     "key": "97b53511-e94c-ab17-ea8b-1c31982e0b0d",
+    "creation_date": "2018-05-11T01:00:11Z",
     "traintuple_key": "1197bbfc-4a18-9ea0-37a6-835895a81bb8",
     "traintuple_type": "traintuple",
     "compute_plan_key": "",
@@ -352,6 +361,7 @@ NODES = [
 
 COMPUTE_PLAN = {
     "key": "e983a185-5368-bd0a-0190-183af9a8e560",
+    "creation_date": "2018-05-11T01:00:11Z",
     "traintuple_keys": [
         "1197bbfc-4a18-9ea0-37a6-835895a81bb8"
     ],
