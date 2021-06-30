@@ -318,7 +318,7 @@ class Client(object):
     @logit
     def add_aggregate_algo(
         self,
-        data: Union[dict, schemas.AggregateAlgoSpec],
+        data: Union[dict, schemas.AlgoSpec],
     ) -> str:
         """Create new aggregate algo asset.
 
@@ -326,20 +326,20 @@ class Client(object):
         the value becomes the 'creator' of the aggregate algo.
 
         Args:
-            data (Union[dict, schemas.AggregateAlgoSpec]): If it is a dict,
+            data (Union[dict, schemas.AlgoSpec]): If it is a dict,
                 it must have the same keys as specified in
-                [schemas.AggregateAlgoSpec](sdk_schemas.md#AggregateAlgoSpec).
+                [schemas.AlgoSpec](sdk_schemas.md#AlgoSpec).
 
         Returns:
             str: Key of the asset
         """
-        spec = self._get_spec(schemas.AggregateAlgoSpec, data)
+        spec = self._get_spec(schemas.AlgoSpec, data)
         return self._backend.add(spec)
 
     @logit
     def add_composite_algo(
         self,
-        data: Union[dict, schemas.CompositeAlgoSpec]
+        data: Union[dict, schemas.AlgoSpec]
     ) -> str:
         """Create new composite algo asset.
 
@@ -347,13 +347,13 @@ class Client(object):
         the value becomes the 'creator' of the composite algo.
 
         Args:
-            data (Union[dict, schemas.CompositeAlgoSpec]): If it is a dict, it must have the same
-                keys as specified in [schemas.CompositeAlgoSpec](sdk_schemas.md#CompositeAlgoSpec).
+            data (Union[dict, schemas.AlgoSpec]): If it is a dict, it must have the same
+                keys as specified in [schemas.AlgoSpec](sdk_schemas.md#AlgoSpec).
 
         Returns:
             str: Key of the asset
         """
-        spec = self._get_spec(schemas.CompositeAlgoSpec, data)
+        spec = self._get_spec(schemas.AlgoSpec, data)
         return self._backend.add(spec)
 
     @logit
@@ -484,15 +484,15 @@ class Client(object):
         return self._backend.get(schemas.Type.ComputePlan, key)
 
     @logit
-    def get_aggregate_algo(self, key: str) -> models.AggregateAlgo:
+    def get_aggregate_algo(self, key: str) -> models.Algo:
         """Get aggregate algo by key, the returned object is described
-        in the [models.AggregateAlgo](sdk_models.md#AggregateAlgo) model"""
+        in the [models.Algo](sdk_models.md#Algo) model"""
         return self._backend.get(schemas.Type.AggregateAlgo, key)
 
     @logit
-    def get_composite_algo(self, key: str) -> models.CompositeAlgo:
+    def get_composite_algo(self, key: str) -> models.Algo:
         """Get composite algo by key, the returned object is described
-        in the [models.CompositeAlgo](sdk_models.md#CompositeAlgo) model"""
+        in the [models.Algo](sdk_models.md#Algo) model"""
         return self._backend.get(schemas.Type.CompositeAlgo, key)
 
     @logit
@@ -544,15 +544,15 @@ class Client(object):
         return self._backend.list(schemas.Type.ComputePlan, filters)
 
     @logit
-    def list_aggregate_algo(self, filters=None) -> List[models.AggregateAlgo]:
+    def list_aggregate_algo(self, filters=None) -> List[models.Algo]:
         """List aggregate algos, the returned object is described
-        in the [models.AggregateAlgo](sdk_models.md#AggregateAlgo) model"""
+        in the [models.Algo](sdk_models.md#Algo) model"""
         return self._backend.list(schemas.Type.AggregateAlgo, filters)
 
     @logit
-    def list_composite_algo(self, filters=None) -> List[models.CompositeAlgo]:
+    def list_composite_algo(self, filters=None) -> List[models.Algo]:
         """List composite algos, the returned object is described
-        in the [models.CompositeAlgo](sdk_models.md#CompositeAlgo) model"""
+        in the [models.Algo](sdk_models.md#CompositeAlgo) model"""
         return self._backend.list(schemas.Type.CompositeAlgo, filters)
 
     @logit

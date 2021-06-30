@@ -17,7 +17,7 @@ import re
 
 from typing import ClassVar, Dict, List, Optional, Union
 
-from pydantic import DirectoryPath, FilePath, AnyUrl
+from pydantic import DirectoryPath, FilePath, AnyUrl, root_validator
 
 from substra.sdk import schemas
 
@@ -60,6 +60,21 @@ class ModelType(str, enum.Enum):
     simple = "MODEL_SIMPLE"
 
 
+class AlgoCategory(str, enum.Enum):
+    """Algo category"""
+    unknown="ALGO_UNKNOWN"
+    algo="ALGO_SIMPLE"
+    composite_algo="ALGO_COMPOSITE"
+    aggregate_algo="ALGO_AGGREGATE"
+
+class TaskCategory(str, enum.Enum):
+    """Task category"""  
+    unknown="TASK_UNKNOWN"
+    train="TASK_TRAIN"
+    aggregate="TASK_AGGREGATE"
+    composite="TASK_COMPOSITE"
+    test="TASK_TEST"
+
 class Permission(schemas._PydanticConfig):
     """Permissions of a task"""
     public: bool
@@ -70,6 +85,11 @@ class Permissions(schemas._PydanticConfig):
     """Permissions structure stored in various asset types."""
     process: Permission
     download: Permission
+
+    @root_validator(pre=True)
+    def set_process(cls, values):
+        values['download'] = values['process']
+        return values
 
 
 class _Model(schemas._PydanticConfig, abc.ABC):
@@ -147,31 +167,18 @@ class Objective(_Model):
     type_: ClassVar[str] = schemas.Type.Objective
 
 
-class _Algo(_Model):
+class Algo(_Model):
     key: str
     name: str
     owner: str
     permissions: Permissions
     metadata: Dict[str, str]
-    category: str
+    category: AlgoCategory
 
     description: _File
     algorithm: _File
 
-
-class Algo(_Algo):
-    """Algo"""
     type_: ClassVar[str] = schemas.Type.Algo
-
-
-class AggregateAlgo(_Algo):
-    """AggregateAlgo"""
-    type_: ClassVar[str] = schemas.Type.AggregateAlgo
-
-
-class CompositeAlgo(_Algo):
-    """CompositeAlgo"""
-    type_: ClassVar[str] = schemas.Type.CompositeAlgo
 
 
 # class _TraintupleDataset(schemas._PydanticConfig):
@@ -205,7 +212,7 @@ class OutModel(schemas._PydanticConfig):
 
 class _GenericTraintuple(_Model):
     key: str
-    category: str
+    category: TaskCategory
     algo: Algo
     owner: str
     compute_plan_key: str
@@ -288,8 +295,9 @@ class ComputePlan(_Model):
     done_count: int
     task_count: int
     delete_intermediary_models: bool = False
-    type_: ClassVar[str] = schemas.Type.ComputePlan
     status: str
+
+    type_: ClassVar[str] = schemas.Type.ComputePlan
 
     # status: str
     # failed_tuple: FailedTuple
@@ -310,10 +318,8 @@ class Node(schemas._PydanticConfig):
 
 
 SCHEMA_TO_MODEL = {
-    schemas.Type.AggregateAlgo: AggregateAlgo,
     schemas.Type.Aggregatetuple: Aggregatetuple,
     schemas.Type.Algo: Algo,
-    schemas.Type.CompositeAlgo: CompositeAlgo,
     schemas.Type.CompositeTraintuple: CompositeTraintuple,
     schemas.Type.ComputePlan: ComputePlan,
     schemas.Type.DataSample: DataSample,
@@ -324,3 +330,4 @@ SCHEMA_TO_MODEL = {
     schemas.Type.Node: Node,
     schemas.Type.Model: OutModel
 }
+        

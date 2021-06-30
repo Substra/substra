@@ -392,11 +392,11 @@ Defaults to False.
  - `Client`: The new client.
 ## get_aggregate_algo
 ```python
-get_aggregate_algo(self, key: str) -> substra.sdk.models.AggregateAlgo
+get_aggregate_algo(self, key: str) -> substra.sdk.models.Algo
 ```
 
 Get aggregate algo by key, the returned object is described
-in the [models.AggregateAlgo](sdk_models.md#AggregateAlgo) model
+in the [models.Algo](sdk_models.md#AggregateAlgo) model
 ## get_aggregatetuple
 ```python
 get_aggregatetuple(self, key: str) -> substra.sdk.models.Aggregatetuple
@@ -413,11 +413,11 @@ Get algo by key, the returned object is described
 in the [models.Algo](sdk_models.md#Algo) model
 ## get_composite_algo
 ```python
-get_composite_algo(self, key: str) -> substra.sdk.models.CompositeAlgo
+get_composite_algo(self, key: str) -> substra.sdk.models.Algo
 ```
 
 Get composite algo by key, the returned object is described
-in the [models.CompositeAlgo](sdk_models.md#CompositeAlgo) model
+in the [models.Algo](sdk_models.md#CompositeAlgo) model
 ## get_composite_traintuple
 ```python
 get_composite_traintuple(self, key: str) -> substra.sdk.models.CompositeTraintuple
@@ -480,11 +480,11 @@ link_dataset_with_objective(self, dataset_key: str, objective_key: str) -> str
 Link dataset with objective.
 ## list_aggregate_algo
 ```python
-list_aggregate_algo(self, filters=None) -> List[substra.sdk.models.AggregateAlgo]
+list_aggregate_algo(self, filters=None) -> List[substra.sdk.models.Algo]
 ```
 
 List aggregate algos, the returned object is described
-in the [models.AggregateAlgo](sdk_models.md#AggregateAlgo) model
+in the [models.Algo](sdk_models.md#AggregateAlgo) model
 ## list_aggregatetuple
 ```python
 list_aggregatetuple(self, filters=None) -> List[substra.sdk.models.Aggregatetuple]
@@ -501,11 +501,11 @@ List algos, the returned object is described
 in the [models.Algo](sdk_models.md#Algo) model
 ## list_composite_algo
 ```python
-list_composite_algo(self, filters=None) -> List[substra.sdk.models.CompositeAlgo]
+list_composite_algo(self, filters=None) -> List[substra.sdk.models.Algo]
 ```
 
 List composite algos, the returned object is described
-in the [models.CompositeAlgo](sdk_models.md#CompositeAlgo) model
+in the [models.Algo](sdk_models.md#CompositeAlgo) model
 ## list_composite_traintuple
 ```python
 list_composite_traintuple(self, filters=None) -> List[substra.sdk.models.CompositeTraintuple]

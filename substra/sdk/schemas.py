@@ -245,7 +245,7 @@ class ObjectiveSpec(_Spec):
         file_attributes = ('metrics', 'description', )
 
 
-class _AlgoSpec(_Spec):
+class AlgoSpec(_Spec):
     name: str
     description: pathlib.Path
     file: pathlib.Path
@@ -255,20 +255,7 @@ class _AlgoSpec(_Spec):
     class Meta:
         file_attributes = ('file', 'description', )
 
-
-class AlgoSpec(_AlgoSpec):
-    """Specification for creating an algo"""
     type_: typing.ClassVar[Type] = Type.Algo
-
-
-class AggregateAlgoSpec(_AlgoSpec):
-    """Specification for creating an aggregate algo"""
-    type_: typing.ClassVar[Type] = Type.AggregateAlgo
-
-
-class CompositeAlgoSpec(_AlgoSpec):
-    """Specification for creating a composite algo"""
-    type_: typing.ClassVar[Type] = Type.CompositeAlgo
 
 
 class TraintupleSpec(_Spec):
@@ -290,7 +277,6 @@ class TraintupleSpec(_Spec):
     def from_compute_plan(
         cls,
         compute_plan_key: str,
-        id_to_key: typing.Dict[str, str],
         rank: int,
         spec: ComputePlanTraintupleSpec
     ) -> "TraintupleSpec":
@@ -298,11 +284,7 @@ class TraintupleSpec(_Spec):
             algo_key=spec.algo_key,
             data_manager_key=spec.data_manager_key,
             train_data_sample_keys=spec.train_data_sample_keys,
-            in_models_keys=[
-                # in model ids can either be ids or keys to other assets
-                id_to_key[parent_id] if parent_id in id_to_key else parent_id
-                for parent_id in spec.in_models_ids
-            ] if spec.in_models_ids is not None else list(),
+            in_models_keys=spec.in_models_ids or list(),
             tag=spec.tag,
             compute_plan_key=compute_plan_key,
             rank=rank,
@@ -328,17 +310,13 @@ class AggregatetupleSpec(_Spec):
     def from_compute_plan(
         cls,
         compute_plan_key: str,
-        id_to_key: typing.Dict[str, str],
         rank: int,
         spec: ComputePlanAggregatetupleSpec
     ) -> "AggregatetupleSpec":
         return AggregatetupleSpec(
             algo_key=spec.algo_key,
             worker=spec.worker,
-            in_models_keys=[
-                id_to_key[parent_id]
-                for parent_id in spec.in_models_ids
-            ],
+            in_models_keys=spec.in_models_ids or list(),
             tag=spec.tag,
             compute_plan_key=compute_plan_key,
             rank=rank,
@@ -366,7 +344,6 @@ class CompositeTraintupleSpec(_Spec):
     def from_compute_plan(
         cls,
         compute_plan_key: str,
-        id_to_key: typing.Dict[str, str],
         rank: int,
         spec: ComputePlanCompositeTraintupleSpec
     ) -> "CompositeTraintupleSpec":
@@ -374,10 +351,8 @@ class CompositeTraintupleSpec(_Spec):
             algo_key=spec.algo_key,
             data_manager_key=spec.data_manager_key,
             train_data_sample_keys=spec.train_data_sample_keys,
-            in_head_model_key=(id_to_key[spec.in_head_model_id]
-                               if spec.in_head_model_id else None),
-            in_trunk_model_key=(id_to_key[spec.in_trunk_model_id]
-                                if spec.in_trunk_model_id else None),
+            in_head_model_key=spec.in_head_model_id,
+            in_trunk_model_key=spec.in_trunk_model_id,
             out_trunk_model_permissions={
                 "public": spec.out_trunk_model_permissions.public,
                 "authorized_ids": spec.out_trunk_model_permissions.authorized_ids
@@ -404,12 +379,11 @@ class TesttupleSpec(_Spec):
     @classmethod
     def from_compute_plan(
         cls,
-        id_to_key: typing.Dict[str, str],
         spec: ComputePlanTesttupleSpec
     ) -> "TesttupleSpec":
         return TesttupleSpec(
             objective_key=spec.objective_key,
-            traintuple_key=id_to_key[spec.traintuple_id],
+            traintuple_key=spec.traintuple_id,
             tag=spec.tag,
             data_manager_key=spec.data_manager_key,
             test_data_sample_keys=spec.test_data_sample_keys,

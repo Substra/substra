@@ -149,41 +149,34 @@ class Local(base.BaseBackend):
 
     def __add_compute_plan(
         self,
-        traintuple_keys=None,
-        composite_traintuple_keys=None,
-        aggregatetuple_keys=None,
-        testtuple_keys=None,
+        tuple_count,
     ):
-        tuple_count = sum([
-            len(x) for x in [
-                traintuple_keys or list(),
-                composite_traintuple_keys or list(),
-                aggregatetuple_keys or list(),
-                testtuple_keys or list(),
-            ]
-        ])
         key = self._db.get_local_key(schemas._Spec.compute_key())
         compute_plan = models.ComputePlan(
             key=key,
             status=models.Status.waiting,
-            failed_tuple={"key": "", "type": ""},
-            traintuple_keys=traintuple_keys,
-            composite_traintuple_keys=composite_traintuple_keys,
-            aggregatetuple_keys=aggregatetuple_keys,
-            testtuple_keys=testtuple_keys,
-            id_to_key=dict(),
             tag="",
             tuple_count=tuple_count,
             done_count=0,
             metadata=dict(),
+            owner='local',
+            delete_intermediary_models=False,
         )
+        """
+        failed_tuple={"key": "", "type": ""},
+        traintuple_keys=traintuple_keys,
+        composite_traintuple_keys=composite_traintuple_keys,
+        aggregatetuple_keys=aggregatetuple_keys,
+        testtuple_keys=testtuple_keys,
+        id_to_key=dict(),
+        """
         return self._db.add(compute_plan)
 
     def __create_compute_plan_from_tuple(self, spec, key, in_tuples):
         # compute plan and rank
         if not spec.compute_plan_key and spec.rank == 0:
             #  Create a compute plan
-            compute_plan = self.__add_compute_plan(traintuple_keys=[key])
+            compute_plan = self.__add_compute_plan(tuple_count=1)
             rank = 0
             compute_plan_key = compute_plan.key
         elif not spec.compute_plan_key and spec.rank is not None:
@@ -224,38 +217,34 @@ class Local(base.BaseBackend):
 
         return compute_plan_key, rank
 
-    def __get_id_rank_in_compute_plan(self, type_, key, id_to_key):
+    def __get_rank_in_compute_plan(self, type_, key):
         tuple_ = self._db.get(type_, key)
-        id_ = next((k for k in id_to_key if id_to_key[k] == key), None)
-        return id_, tuple_.rank
+        return tuple_.rank
 
     def __execute_compute_plan(
-                self,
-                spec,
-                compute_plan,
-                visited,
-                traintuples,
-                aggregatetuples,
-                compositetuples,
-                spec_options
-            ):
+        self,
+        spec,
+        compute_plan,
+        visited,
+        traintuples,
+        aggregatetuples,
+        compositetuples,
+        spec_options
+    ):
         for id_, rank in sorted(visited.items(), key=lambda item: item[1]):
             if id_ in traintuples:
                 traintuple = traintuples[id_]
                 traintuple_spec = schemas.TraintupleSpec.from_compute_plan(
                     compute_plan_key=compute_plan.key,
-                    id_to_key=compute_plan.id_to_key,
                     rank=rank,
                     spec=traintuple
                 )
                 traintuple_key = self.add(traintuple_spec, spec_options)
-                compute_plan.id_to_key[id_] = traintuple_key
 
             elif id_ in aggregatetuples:
                 aggregatetuple = aggregatetuples[id_]
                 aggregatetuple_spec = schemas.AggregatetupleSpec.from_compute_plan(
                     compute_plan_key=compute_plan.key,
-                    id_to_key=compute_plan.id_to_key,
                     rank=rank,
                     spec=aggregatetuple
                 )
@@ -263,13 +252,11 @@ class Local(base.BaseBackend):
                     aggregatetuple_spec,
                     spec_options,
                 )
-                compute_plan.id_to_key[id_] = aggregatetuple_key
 
             elif id_ in compositetuples:
                 compositetuple = compositetuples[id_]
                 compositetuple_spec = schemas.CompositeTraintupleSpec.from_compute_plan(
                     compute_plan_key=compute_plan.key,
-                    id_to_key=compute_plan.id_to_key,
                     rank=rank,
                     spec=compositetuple
                 )
@@ -277,12 +264,10 @@ class Local(base.BaseBackend):
                     compositetuple_spec,
                     spec_options,
                 )
-                compute_plan.id_to_key[id_] = compositetuple_key
 
         if spec.testtuples:
             for testtuple in spec.testtuples:
                 testtuple_spec = schemas.TesttupleSpec.from_compute_plan(
-                    id_to_key=compute_plan.id_to_key,
                     spec=testtuple
                 )
                 self.add(testtuple_spec, spec_options)
@@ -323,22 +308,23 @@ class Local(base.BaseBackend):
                     "dataSample do not belong to the same dataManager", 400
                 )
 
-    def __add_algo(self, model_class, key, spec, owner, spec_options=None):
+    def __add_algo(self, algo_category: models.AlgoCategory, key, spec, owner, spec_options=None):
 
         permissions = self.__compute_permissions(spec.permissions, owner)
         algo_file_path = self._db.save_file(spec.file, key)
         algo_description_path = self._db.save_file(spec.description, key)
-        algo = model_class(
+        algo = models.Algo(
             key=key,
             name=spec.name,
             owner=owner,
+            category=algo_category,
             permissions={
                 "process": {
                     "public": permissions.public,
                     "authorized_ids": permissions.authorized_ids,
                 },
             },
-            content={
+            algorithm={
                 "checksum": fs.hash_file(algo_file_path),
                 "storage_address": algo_file_path
             },
@@ -352,18 +338,18 @@ class Local(base.BaseBackend):
 
     def _add_algo(self, key, spec, spec_options=None):
         owner = self._check_metadata(spec.metadata)
-        return self.__add_algo(models.Algo, key, spec, owner, spec_options=spec_options)
+        return self.__add_algo(models.AlgoCategory.algo, key, spec, owner, spec_options=spec_options)
 
     def _add_aggregate_algo(self, key, spec, spec_options=None):
         owner = self._check_metadata(spec.metadata)
         return self.__add_algo(
-            models.AggregateAlgo, key, spec, owner, spec_options=spec_options
+            models.AlgoCategory.aggregate_algo, key, spec, owner, spec_options=spec_options
         )
 
     def _add_composite_algo(self, key, spec, spec_options=None):
         owner = self._check_metadata(spec.metadata)
         return self.__add_algo(
-            models.CompositeAlgo, key, spec, owner, spec_options=spec_options
+            models.AlgoCategory.composite_algo, key, spec, owner, spec_options=spec_options
         )
 
     def _add_dataset(self, key, spec, spec_options=None):
@@ -485,7 +471,8 @@ class Local(base.BaseBackend):
             key=key,
             name=spec.name,
             owner=owner,
-            test_dataset=test_dataset,
+            data_manager_key=spec.test_data_manager_key,
+            data_sample_keys=spec.test_data_sample_keys,
             permissions={
                 "process": {
                     "public": permissions.public,
@@ -496,8 +483,8 @@ class Local(base.BaseBackend):
                 "checksum": fs.hash_file(objective_description_path),
                 "storage_address": objective_description_path
             },
+            metrics_name=spec.metrics_name,
             metrics={
-                "name": spec.metrics_name,
                 "checksum": fs.hash_file(objective_file_path),
                 "storage_address": objective_file_path
             },
@@ -535,15 +522,18 @@ class Local(base.BaseBackend):
         # Define the rank of each traintuple, aggregate tuple and composite tuple
         visited = graph.compute_ranks(node_graph=tuple_graph)
 
+        # TODO
         compute_plan = models.ComputePlan(
             key=key,
             tag=spec.tag or "",
             status=models.Status.waiting,
-            failed_tuple={"key": "", "type": ""},
+            # failed_tuple={"key": "", "type": ""},
             metadata=spec.metadata or dict(),
-            id_to_key=dict(),
+            # id_to_key=dict(),
             tuple_count=0,
-            done_count=0
+            done_count=0,
+            owner='local',
+            delete_intermediary_models=spec.clean_models,
         )
         compute_plan = self._db.add(compute_plan)
 
@@ -591,6 +581,7 @@ class Local(base.BaseBackend):
             authorized_ids = list(authorized_ids)
 
         # compute plan and rank
+        # TODO
         compute_plan_key, rank = self.__create_compute_plan_from_tuple(
             spec=spec,
             key=key,
@@ -598,42 +589,26 @@ class Local(base.BaseBackend):
         )
 
         # create model
-        options = {}
         traintuple = models.Traintuple(
+            train={
+                'data_manager_key': spec.data_manager_key,
+                'data_sample_keys': spec.train_data_sample_keys,
+                'model_permissions': {
+                    "process": {"public": public, "authorized_ids": authorized_ids},
+                },
+                'models': None,
+            },
             key=key,
-            creator=owner,
-            algo={
-                "key": spec.algo_key,
-                "checksum": algo.content.checksum,
-                "name": algo.name,
-                "storage_address": algo.content.storage_address
-            },
-            dataset={
-                "key": spec.data_manager_key,
-                "opener_checksum": data_manager.opener.checksum,
-                "data_sample_keys": spec.train_data_sample_keys,
-                "worker": data_manager.owner,
-                "metadata": {}
-            },
-            permissions={
-                "process": {"public": public, "authorized_ids": authorized_ids},
-            },
-            log="",
+            category=models.TaskCategory.train,
+            algo=algo,
+            owner=owner,
+            worker=owner,
             compute_plan_key=compute_plan_key,
             rank=rank,
             tag=spec.tag or "",
             status=models.Status.waiting,
-            in_models=[
-                {
-                    "key": in_traintuple.out_model.key,
-                    "checksum": in_traintuple.out_model.checksum,
-                    "storage_address": in_traintuple.out_model.storage_address,
-                    "traintuple_key": in_traintuple.key,
-                }
-                for in_traintuple in in_traintuples
-            ],
             metadata=spec.metadata if spec.metadata else dict(),
-            **options,
+            parent_task_keys=spec.in_models_keys,
         )
 
         traintuple = self._db.add(traintuple)
@@ -646,7 +621,6 @@ class Local(base.BaseBackend):
         owner = self._check_metadata(spec.metadata)
         objective = self._db.get(schemas.Type.Objective, spec.objective_key)
 
-        traintuple = None
         for tuple_type in [
                 schemas.Type.Traintuple,
                 schemas.Type.CompositeTraintuple,
@@ -707,32 +681,25 @@ class Local(base.BaseBackend):
             compute_plan.tuple_count += 1
             compute_plan.status = models.Status.waiting
 
-        options = {}
         testtuple = models.Testtuple(
+            test=models._Test(
+                data_manager_key=spec.data_manager_key,
+                data_sample_keys=spec.test_data_sample_keys,
+                objective_key=spec.objective_key,
+                certified=certified,
+                perf=-1,
+            ),
             key=key,
-            creator=owner,
-            objective={
-                "key": spec.objective_key,
-                "metrics": objective.metrics
-            },
-            traintuple_key=spec.traintuple_key,
-            traintuple_type=traintuple.type_.value,
+            category=models.TaskCategory.test,
             algo=traintuple.algo,
-            certified=certified,
-            dataset={
-                "key": dataset_key,
-                "opener_checksum": dataset.opener.checksum,
-                "perf": -1,
-                "data_sample_keys": test_data_sample_keys,
-                "worker": dataset.owner,
-            },
-            log="",
+            owner=owner,
+            worker=owner,
+            compute_plan_key=traintuple.compute_plan_key,
+            rank=traintuple.rank,
             tag=spec.tag or "",
             status=models.Status.waiting,
-            rank=traintuple.rank,
-            compute_plan_key=traintuple.compute_plan_key,
             metadata=spec.metadata if spec.metadata else dict(),
-            **options,
+            parent_task_keys=spec.in_models_keys,
         )
         testtuple = self._db.add(testtuple)
         self._worker.schedule_testtuple(testtuple)
@@ -806,38 +773,24 @@ class Local(base.BaseBackend):
             }
 
         composite_traintuple = models.CompositeTraintuple(
+            composite=models._Composite(
+                data_manager_key=spec.data_manager_key,
+                data_sample_keys=spec.train_data_sample_keys,
+                head_permissions=head_model_permissions,
+                trunk_permissions=trunk_model_permissions,
+                models=list(),
+            ),
             key=key,
-            creator=owner,
-            algo={
-                "key": spec.algo_key,
-                "checksum": algo.content.checksum,
-                "name": algo.name,
-                "storage_address": algo.content.storage_address
-            },
-            dataset={
-                "key": spec.data_manager_key,
-                "opener_checksum": dataset.opener.checksum,
-                "data_sample_keys": spec.train_data_sample_keys,
-                "worker": dataset.owner,
-            },
-            tag=spec.tag or '',
+            category=models.TaskCategory.composite_traintuple,
+            algo=algo,
+            owner=owner,
+            worker=owner,
             compute_plan_key=compute_plan_key,
             rank=rank,
+            tag=spec.tag or "",
             status=models.Status.waiting,
-            log='',
-            in_head_model=in_head_model,
-            in_trunk_model=in_trunk_model,
-            out_head_model={
-                "permissions": head_model_permissions,
-                "out_model": None
-            },
-            out_trunk_model={
-                "permissions": {
-                    "process": trunk_model_permissions.dict()
-                },
-                "out_model": None
-            },
-            metadata=spec.metadata or dict()
+            metadata=spec.metadata if spec.metadata else dict(),
+            parent_task_keys=spec.in_models_keys,
         )
         composite_traintuple = self._db.add(composite_traintuple)
         if composite_traintuple.status == models.Status.waiting:
@@ -889,29 +842,26 @@ class Local(base.BaseBackend):
         authorized_ids = list(authorized_ids)
 
         aggregatetuple = models.Aggregatetuple(
+            aggregate=models._Aggregate(
+                model_permissions={
+                    "process": {
+                        "authorized_ids": authorized_ids,
+                        "public": public
+                    }
+                },
+                models=None,
+            ),
             key=key,
-            creator=owner,
-            worker=spec.worker,
-            algo={
-                "key": spec.algo_key,
-                "checksum": algo.content.checksum,
-                "name": algo.name,
-                "storage_address": algo.content.storage_address
-            },
-            permissions={
-                "process": {
-                    "authorized_ids": authorized_ids,
-                    "public": public
-                }
-            },
-            tag=spec.tag or '',
+            category=models.TaskCategory.aggregate,
+            algo=algo,
+            owner=owner,
+            worker=owner,
             compute_plan_key=compute_plan_key,
             rank=rank,
+            tag=spec.tag or "",
             status=models.Status.waiting,
-            log='',
-            in_models=in_models,
-            out_model=None,
-            metadata=spec.metadata or dict()
+            metadata=spec.metadata if spec.metadata else dict(),
+            parent_task_keys=spec.in_models_keys,
         )
         aggregatetuple = self._db.add(aggregatetuple)
         if aggregatetuple.status == models.Status.waiting:
@@ -1029,41 +979,30 @@ class Local(base.BaseBackend):
         ) = compute_plan_module.get_dependency_graph(spec)
 
         # Get the rank of all the tuples already in the compute plan
-        # Tuples already in the CP are identified by both their key and
-        # their id_ in the CP if there is one
         visited = dict()
         if compute_plan.traintuple_keys:
             for key in compute_plan.traintuple_keys:
-                id_, rank = self.__get_id_rank_in_compute_plan(
+                rank = self.__get_rank_in_compute_plan(
                     schemas.Type.Traintuple,
                     key,
-                    compute_plan.id_to_key,
                 )
                 visited[key] = rank
-                if id_ is not None:
-                    visited[id_] = rank
 
         if compute_plan.aggregatetuple_keys:
             for key in compute_plan.aggregatetuple_keys:
-                id_, rank = self.__get_id_rank_in_compute_plan(
+                rank = self.__get_rank_in_compute_plan(
                     schemas.Type.Aggregatetuple,
                     key,
-                    compute_plan.id_to_key,
                 )
                 visited[key] = rank
-                if id_ is not None:
-                    visited[id_] = rank
 
         if compute_plan.composite_traintuple_keys:
             for key in compute_plan.composite_traintuple_keys:
-                id_, rank = self.__get_id_rank_in_compute_plan(
+                rank = self.__get_rank_in_compute_plan(
                     schemas.Type.CompositeTraintuple,
                     key,
-                    compute_plan.id_to_key,
                 )
                 visited[key] = rank
-                if id_ is not None:
-                    visited[id_] = rank
 
         # Update the tuple graph with the tuples already in the CP
         tuple_graph.update({k: list() for k in visited})

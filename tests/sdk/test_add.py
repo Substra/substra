@@ -84,7 +84,7 @@ def test_add_aggregate_algo(client, algo_query, mocker):
     key = client.add_aggregate_algo(algo_query)
     response = client.get_aggregate_algo(key)
 
-    assert response == models.AggregateAlgo(**datastore.AGGREGATE_ALGO)
+    assert response == models.Algo(**datastore.AGGREGATE_ALGO)
     m_post.assert_called()
     m_get.assert_called()
 
@@ -95,7 +95,7 @@ def test_add_composite_algo(client, algo_query, mocker):
     key = client.add_composite_algo(algo_query)
     response = client.get_composite_algo(key)
 
-    assert response == models.CompositeAlgo(**datastore.COMPOSITE_ALGO)
+    assert response == models.Algo(**datastore.COMPOSITE_ALGO)
     m_post.assert_called()
     m_get.assert_called()
 
