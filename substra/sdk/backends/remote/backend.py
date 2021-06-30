@@ -55,6 +55,8 @@ class Remote(base.BaseBackend):
 
     def _add(self, asset, data, files=None):
         data = deepcopy(data)  # make a deep copy for avoiding modification by reference
+        if 'algo' in data:  # option for the debug mode
+            data.pop('algo')
         if files:
             kwargs = {
                 'data': {

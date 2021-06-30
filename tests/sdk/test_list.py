@@ -40,7 +40,11 @@ def test_list_asset(asset_name, client, mocker):
 
     response = method()
 
-    assert response == [models.SCHEMA_TO_MODEL[schemas.Type(asset_name)](**item)]
+    schema_type = asset_name
+    if asset_name in ['aggregate_algo', 'composite_algo',]:
+        schema_type = 'algo'
+
+    assert response == [models.SCHEMA_TO_MODEL[schemas.Type(schema_type)](**item)]
     m.assert_called()
 
 

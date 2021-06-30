@@ -155,7 +155,7 @@ class Worker:
             tuple_.status = models.Status.doing
 
             # fetch dependencies
-            algo = self._db.get_with_files(tuple_.algo_type, tuple_.algo.key)
+            algo = self._db.get_with_files(schemas.Type.Algo, tuple_.algo.key)
 
             compute_plan = None
             if tuple_.compute_plan_key:
@@ -170,6 +170,11 @@ class Worker:
                 command_template += " --opener-path ${_VOLUME_OPENER}"
 
             # Prepare input models
+            if tuple_.parent_task_keys is not None and len(tuple_.parent_task_keys) > 0:
+                # TODO TODO TODO
+                pass
+
+            ####
             if isinstance(tuple_, models.CompositeTraintuple):
                 input_models_volume = _mkdir(os.path.join(tuple_dir, "input_models"))
                 output_models_volume = _mkdir(os.path.join(tuple_dir, "output_models"))
@@ -303,7 +308,7 @@ class Worker:
             # fetch dependencies
             traintuple = self._db.get(tuple_.traintuple_type, tuple_.traintuple_key)
 
-            algo = self._db.get_with_files(traintuple.algo_type, traintuple.algo.key)
+            algo = self._db.get_with_files(schemas.Type.Algo, traintuple.algo.key)
             objective = self._db.get_with_files(schemas.Type.Objective, tuple_.objective.key)
             dataset = self._db.get_with_files(schemas.Type.Dataset, tuple_.dataset.key)
 

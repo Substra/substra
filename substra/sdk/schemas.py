@@ -270,7 +270,6 @@ class TraintupleSpec(_Spec):
     metadata: Optional[Dict[str, str]]
 
     compute_plan_attr_name: typing.ClassVar[str] = "traintuple_keys"
-    algo_type: typing.ClassVar[Type] = Type.Algo
     type_: typing.ClassVar[Type] = Type.Traintuple
 
     @classmethod
@@ -303,7 +302,6 @@ class AggregatetupleSpec(_Spec):
     metadata: Optional[Dict[str, str]]
 
     compute_plan_attr_name: typing.ClassVar[str] = "aggregatetuple_keys"
-    algo_type: typing.ClassVar[Type] = Type.AggregateAlgo
     type_: typing.ClassVar[Type] = Type.Aggregatetuple
 
     @classmethod

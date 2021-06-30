@@ -149,34 +149,26 @@ class Local(base.BaseBackend):
 
     def __add_compute_plan(
         self,
-        tuple_count,
+        task_count,
     ):
         key = self._db.get_local_key(schemas._Spec.compute_key())
         compute_plan = models.ComputePlan(
             key=key,
-            status=models.Status.waiting,
+            status=models.ComputePlanStatus.waiting,
             tag="",
-            tuple_count=tuple_count,
+            task_count=task_count,
             done_count=0,
             metadata=dict(),
             owner='local',
             delete_intermediary_models=False,
         )
-        """
-        failed_tuple={"key": "", "type": ""},
-        traintuple_keys=traintuple_keys,
-        composite_traintuple_keys=composite_traintuple_keys,
-        aggregatetuple_keys=aggregatetuple_keys,
-        testtuple_keys=testtuple_keys,
-        id_to_key=dict(),
-        """
         return self._db.add(compute_plan)
 
     def __create_compute_plan_from_tuple(self, spec, key, in_tuples):
         # compute plan and rank
         if not spec.compute_plan_key and spec.rank == 0:
             #  Create a compute plan
-            compute_plan = self.__add_compute_plan(tuple_count=1)
+            compute_plan = self.__add_compute_plan(task_count=1)
             rank = 0
             compute_plan_key = compute_plan.key
         elif not spec.compute_plan_key and spec.rank is not None:
@@ -239,7 +231,7 @@ class Local(base.BaseBackend):
                     rank=rank,
                     spec=traintuple
                 )
-                traintuple_key = self.add(traintuple_spec, spec_options)
+                self.add(traintuple_spec, spec_options)
 
             elif id_ in aggregatetuples:
                 aggregatetuple = aggregatetuples[id_]
@@ -248,7 +240,7 @@ class Local(base.BaseBackend):
                     rank=rank,
                     spec=aggregatetuple
                 )
-                aggregatetuple_key = self.add(
+                self.add(
                     aggregatetuple_spec,
                     spec_options,
                 )
@@ -260,7 +252,7 @@ class Local(base.BaseBackend):
                     rank=rank,
                     spec=compositetuple
                 )
-                compositetuple_key = self.add(
+                self.add(
                     compositetuple_spec,
                     spec_options,
                 )
@@ -276,13 +268,13 @@ class Local(base.BaseBackend):
 
     def __format_for_leaderboard(self, testtuple):
         traintuple = self._db.get(testtuple.traintuple_type, testtuple.traintuple_key)
-        algo = self._db.get(traintuple.algo_type, traintuple.algo.key)
+        algo = self._db.get(schemas.Type.Algo, traintuple.algo.key)
         return {
             'algo': {
                 'key': algo.key,
-                'checksum': algo.content.checksum,
+                'checksum': algo.algorithm.checksum,
                 'name': algo.name,
-                'storage_address': str(algo.content.storage_address)
+                'storage_address': str(algo.algorithm.storage_address)
             },
             'creator': testtuple.creator,
             'key': testtuple.key,
@@ -804,7 +796,7 @@ class Local(base.BaseBackend):
                             ):
         # validation
         owner = self._check_metadata(spec.metadata)
-        algo = self._db.get(schemas.Type.AggregateAlgo, spec.algo_key)
+        algo = self._db.get(schemas.Type.Algo, spec.algo_key)
         in_tuples = list()
         in_models = list()
         in_permissions = list()
@@ -869,8 +861,16 @@ class Local(base.BaseBackend):
         return aggregatetuple
 
     def add(self, spec, spec_options=None):
-        # find dynamically the method to call to create the asset
-        method_name = f"_add_{spec.__class__.type_.value}"
+        if isinstance(spec, schemas.AlgoSpec):
+            if spec_options["algo"] == models.AlgoCategory.algo:
+                method_name = 'add_algo'
+            elif spec_options["algo"] == models.AlgoCategory.aggregate_algo:
+                method_name = 'add_aggregate_algo'
+            elif spec_options["algo"] == models.AlgoCategory.composite_algo:
+                method_name = 'add_composite_algo'
+        else:
+            # find dynamically the method to call to create the asset
+            method_name = f"_add_{spec.__class__.type_.value}"
         if spec.is_many():
             method_name += "s"
         add_asset = getattr(self, method_name)

@@ -313,7 +313,7 @@ class Client(object):
             str: Key of the algo
         """
         spec = self._get_spec(schemas.AlgoSpec, data)
-        return self._backend.add(spec)
+        return self._backend.add(spec, {'algo': models.AlgoCategory.algo})
 
     @logit
     def add_aggregate_algo(
@@ -334,7 +334,7 @@ class Client(object):
             str: Key of the asset
         """
         spec = self._get_spec(schemas.AlgoSpec, data)
-        return self._backend.add(spec)
+        return self._backend.add(spec, {'algo': models.AlgoCategory.aggregate_algo})
 
     @logit
     def add_composite_algo(
@@ -354,7 +354,7 @@ class Client(object):
             str: Key of the asset
         """
         spec = self._get_spec(schemas.AlgoSpec, data)
-        return self._backend.add(spec)
+        return self._backend.add(spec, {'algo': models.AlgoCategory.composite_algo})
 
     @logit
     def add_traintuple(
@@ -775,7 +775,7 @@ class Client(object):
     def _download_model_from_tuple(self, tuple_type, tuple_key, folder, head_trunk=None) -> None:
         """Download model to a destination file."""
         tuple = self._backend.get(tuple_type, tuple_key)
-
+        model = None
         if tuple_type == schemas.Type.CompositeTraintuple:
             for m in tuple.composite.models:
                 if head_trunk == "head" and m.category == models.ModelType.head:

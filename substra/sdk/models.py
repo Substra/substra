@@ -17,7 +17,7 @@ import re
 
 from typing import ClassVar, Dict, List, Optional, Union
 
-from pydantic import DirectoryPath, FilePath, AnyUrl, root_validator
+from pydantic import DirectoryPath, FilePath, AnyUrl, root_validator, validator
 
 from substra.sdk import schemas
 
@@ -68,7 +68,7 @@ class AlgoCategory(str, enum.Enum):
     aggregate_algo="ALGO_AGGREGATE"
 
 class TaskCategory(str, enum.Enum):
-    """Task category"""  
+    """Task category"""
     unknown="TASK_UNKNOWN"
     train="TASK_TRAIN"
     aggregate="TASK_AGGREGATE"
@@ -88,7 +88,8 @@ class Permissions(schemas._PydanticConfig):
 
     @root_validator(pre=True)
     def set_process(cls, values):
-        values['download'] = values['process']
+        if 'download' not in values:
+            values['download'] = values['process']
         return values
 
 
@@ -135,14 +136,6 @@ class Dataset(_Model):
     type_: ClassVar[str] = schemas.Type.Dataset
 
 
-# class _ObjectiveDataset(schemas._PydanticConfig):
-#     """Dataset as stored in the Objective asset"""
-#     data_manager_key: str
-#     data_sample_keys: List[str]
-#     metadata: Dict[str, str]
-#     worker: str
-
-
 class _Metric(schemas._PydanticConfig):
     """Metric associated to a testtuple or objective"""
     checksum: str
@@ -179,15 +172,6 @@ class Algo(_Model):
     algorithm: _File
 
     type_: ClassVar[str] = schemas.Type.Algo
-
-
-# class _TraintupleDataset(schemas._PydanticConfig):
-#     """Dataset as stored in a traintuple or composite traintuple"""
-#     key: str
-#     opener_checksum: str
-#     data_sample_keys: List[str]
-#     worker: str
-#     metadata: Optional[Dict[str, str]]
 
 
 class InModel(schemas._PydanticConfig):
@@ -275,11 +259,6 @@ class Testtuple(_GenericTraintuple):
     test: _Test
     type_: ClassVar[str] = schemas.Type.Testtuple
 
-    # @pydantic.validator('traintuple_type', pre=True)
-    # def traintuple_type_snake_case(cls, v):
-    #     return _to_snake_case(v)
-
-
 class FailedTuple(_Model):
     """Info on failed tuple."""
     key: str
@@ -295,17 +274,9 @@ class ComputePlan(_Model):
     done_count: int
     task_count: int
     delete_intermediary_models: bool = False
-    status: str
+    status: ComputePlanStatus
 
     type_: ClassVar[str] = schemas.Type.ComputePlan
-
-    # status: str
-    # failed_tuple: FailedTuple
-    # traintuple_keys: Optional[List[str]]
-    # composite_traintuple_keys: Optional[List[str]]
-    # aggregatetuple_keys: Optional[List[str]]
-    # testtuple_keys: Optional[List[str]]
-    # id_to_key: Dict[str, str]
 
     def __str__(self):
         return f"{self.__class__.type_.value}(key={self.key})"
@@ -320,6 +291,8 @@ class Node(schemas._PydanticConfig):
 SCHEMA_TO_MODEL = {
     schemas.Type.Aggregatetuple: Aggregatetuple,
     schemas.Type.Algo: Algo,
+    schemas.Type.AggregateAlgo: Algo,
+    schemas.Type.CompositeAlgo: Algo,
     schemas.Type.CompositeTraintuple: CompositeTraintuple,
     schemas.Type.ComputePlan: ComputePlan,
     schemas.Type.DataSample: DataSample,
@@ -330,4 +303,9 @@ SCHEMA_TO_MODEL = {
     schemas.Type.Node: Node,
     schemas.Type.Model: OutModel
 }
-        
+
+ALGO_TYPE_TO_CATEGORY = {
+    schemas.Type.Algo: AlgoCategory.algo,
+    schemas.Type.AggregateAlgo: AlgoCategory.aggregate_algo,
+    schemas.Type.CompositeAlgo: AlgoCategory.composite_algo,
+}

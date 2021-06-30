@@ -111,7 +111,8 @@ ALGO = {
 AGGREGATE_ALGO = {
     "key": "7c9f9799-bf64-c100-6238-1583a9ffc535",
     "name": "Logistic regression",
-    "content": {
+    "category": "ALGO_AGGREGATE",
+    "algorithm": {
         "checksum": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6g0c614d3f6f868f72a9d5",
         "storage_address": ""
     },
@@ -122,8 +123,16 @@ AGGREGATE_ALGO = {
     "owner": "ab75010bacbd1a4b826dc2e9ead6f1e4e1c4feade2d62a8b708fdde48fb0edeb",
     "permissions": {
         "process": {
-            "public": False,
-            "authorized_ids": []
+            "public": True,
+            "authorized_ids": [
+                "MyOrg1MSP"
+            ]
+        },
+        "download": {
+            "public": True,
+            "authorized_ids": [
+                "MyOrg1MSP"
+            ]
         }
     },
     "metadata": {
@@ -134,7 +143,8 @@ AGGREGATE_ALGO = {
 COMPOSITE_ALGO = {
     "key": "7c9f9799-bf64-c100-0238-b583a9ffc535",
     "name": "Logistic regression",
-    "content": {
+    "category": "ALGO_SIMPLE",
+    "algorithm": {
         "checksum": "7c9f9799bf64c10002381b83a9ffc535bc3f4bf14d6f0c614d3f6f868f72a9d5",
         "storage_address": ""
     },
@@ -145,9 +155,17 @@ COMPOSITE_ALGO = {
     "owner": "ab75010bacbd1a4b826dc2e9ead6f1e4e1c4beade2d62a8b708fdde48fb0edea",
     "permissions": {
         "process": {
-            "public": False,
-            "authorized_ids": [],
+            "public": True,
+            "authorized_ids": [
+                "MyOrg1MSP"
+            ]
         },
+        "download": {
+            "public": True,
+            "authorized_ids": [
+                "MyOrg1MSP"
+            ]
+        }
     },
     "metadata": {
         "foo": "bar"
@@ -222,34 +240,65 @@ TRAINTUPLE = {
 
 AGGREGATETUPLE = {
     "key": "06207faf-1785-4fa9-4220-99a50dcfe064",
+    "category": "TASK_AGGREGATE",
     "algo": {
-        "key": "7c9f9799-bf64-c100-0238-1583a9ffc535",
-        "name": "Neural Network",
-        "checksum": "0acc5180e09b6a6ac250f4f3c172e2893f617aa1c22ef1f379019d20fe44142f",
-        "storage_address": ""
-    },
-    "creator": "e75db4df2532dc1313ebb5c2462f1eb813b94c3e67de29f6e4b2272ae60385f5",
-    "compute_plan_key": "",
-    "in_models": [],
-    "log": "[00-01-0032-d415995]",
-    "out_model": {
-        "key": "11a1f878-768e-a862-4942-d46a3b438c37",
-        "checksum": "8dd01465003a9b1e01c99c904d86aa518b3a5dd9dc8d40fe7d075c726ac073ca",
-        "storage_address": ""
-    },
-    "permissions": {
-        "process": {
-            "public": False,
-            "authorized_ids": []
+        "key": "7c9f9799-bf64-c100-6238-1583a9ffc535",
+        "name": "Logistic regression",
+        "category": "ALGO_AGGREGATE",
+        "algorithm": {
+            "checksum": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6g0c614d3f6f868f72a9d5",
+            "storage_address": ""
+        },
+        "description": {
+            "checksum": "124a0725b746d7072282d167b53cb6aab3a31bf1946dae89135c15b0126ebec3",
+            "storage_address": ""
+        },
+        "owner": "ab75010bacbd1a4b826dc2e9ead6f1e4e1c4feade2d62a8b708fdde48fb0edeb",
+        "permissions": {
+            "process": {
+                "public": True,
+                "authorized_ids": [
+                    "MyOrg1MSP"
+                ]
+            },
+            "download": {
+                "public": True,
+                "authorized_ids": [
+                    "MyOrg1MSP"
+                ]
+            }
+        },
+        "metadata": {
+            "foo": "bar"
         }
     },
-    "rank": 0,
-    "status": "failed",
-    "tag": "My super tag",
+    "owner": "MyOrg1MSP",
+    "compute_plan_key": "",
     "metadata": {
         "foo": "bar"
     },
-    "worker": ""
+    "status": "STATUS_DONE",
+    "worker": "MyOrg1MSP",
+    "rank": None,
+    "parent_task_keys": [],
+    "tag": "My super tag",
+    "aggregate": {
+        "model_permissions": {
+            "process": {
+                "public": True,
+                "authorized_ids": [
+                    "MyOrg1MSP"
+                ]
+            },
+            "download": {
+                "public": True,
+                "authorized_ids": [
+                    "MyOrg1MSP"
+                ]
+            }
+        },
+        "models": None
+    }
 }
 
 COMPOSITE_TRAINTUPLE = {
@@ -423,26 +472,11 @@ NODES = [
 
 COMPUTE_PLAN = {
     "key": "e983a185-5368-bd0a-0190-183af9a8e560",
-    "traintuple_keys": [
-        "1197bbfc-4a18-9ea0-37a6-835895a81bb8"
-    ],
-    "aggregatetuple_keys": None,
-    "composite_traintuple_keys": None,
-    "testtuple_keys": [
-        "6c94a1df-7af1-3ebd-176b-05ae9686489f"
-    ],
     "tag": "",
-    "status": "done",
-    "failed_tuple": {
-        "key": "",
-        "type": "",
-    },
-    "tuple_count": 2,
+    "owner": "MyOrg1MSP",
+    "status": "PLAN_STATUS_DONE",
+    "task_count": 2,
     "done_count": 2,
-    "id_to_key": {
-        "62378ca1b5c84e73a3d588adab7e20b2":
-        "1197bbfc-4a18-9ea0-37a6-835895a81bb8",
-    },
     "metadata": {
         "foo": "bar"
     }

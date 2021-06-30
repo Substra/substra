@@ -17,7 +17,7 @@ import shutil
 import tempfile
 import typing
 
-from substra.sdk import exceptions, schemas
+from substra.sdk import exceptions, schemas, models
 from substra.sdk.backends.remote import backend
 from substra.sdk.backends.local import db
 
@@ -58,11 +58,7 @@ class DataAccess:
         return _LOCAL_KEY + key
 
     def _get_asset_content_filename(self, type_):
-        if type_ in [
-            schemas.Type.Algo,
-            schemas.Type.AggregateAlgo,
-            schemas.Type.CompositeAlgo
-        ]:
+        if type_ == schemas.Type.Algo:
             asset_name = "algo.tar.gz"
             field_name = "content"
 
@@ -135,7 +131,15 @@ class DataAccess:
 
     def list(self, type_, filters):
         """"List assets."""
-        local_assets = self._db.list(type_)
+        if type_ in models.ALGO_TYPE_TO_CATEGORY:
+            local_assets = self._db.list(schemas.Type.Algo)
+            local_assets = [
+                asset for asset in local_assets
+                if asset.category == models.ALGO_TYPE_TO_CATEGORY[local_assets]
+            ]
+        else:
+            local_assets = self._db.list(type_)
+
         remote_assets = list()
         if self._remote:
             try:
