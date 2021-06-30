@@ -19,7 +19,7 @@ import shutil
 import string
 import uuid
 
-from substra.sdk import schemas, fs, models
+from substra.sdk import schemas, fs, models, exceptions
 from substra.sdk.backends.local import dal
 from substra.sdk.backends.local.compute import spawner
 from substra.sdk.backends.local.compute.spawner import DEBUG_SPAWNER_CHOICES
@@ -171,8 +171,22 @@ class Worker:
 
             # Prepare input models
             if tuple_.parent_task_keys is not None and len(tuple_.parent_task_keys) > 0:
-                # TODO TODO TODO
-                pass
+                in_tuples = list()
+                for in_tuple_key in tuple_.parent_task_keys:
+                    in_tuple = None
+                    for tuple_type in [
+                        schemas.Type.Traintuple,
+                        schemas.Type.CompositeTraintuple,
+                        schemas.Type.Aggregatetuple
+                    ]:
+                        try:
+                            in_tuple = self._db.get(tuple_type, in_tuple_key, log=False)
+                            break
+                        except exceptions.NotFound:
+                            pass
+                    if in_tuple is None:
+                        raise exceptions.NotFound(f"Wrong pk {in_tuple_key}", 404)
+                    in_tuples.append(in_tuple)
 
             ####
             if isinstance(tuple_, models.CompositeTraintuple):
