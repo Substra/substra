@@ -34,6 +34,7 @@ def _to_snake_case(camel_str):
 
 class Status(str, enum.Enum):
     """Status of the task"""
+    unknown = "STATUS_UNKNOWN"
     doing = "STATUS_DOING"
     done = "STATUS_DONE"
     failed = "STATUS_FAILED"
@@ -44,6 +45,7 @@ class Status(str, enum.Enum):
 
 class ComputePlanStatus(str, enum.Enum):
     """Status of the compute plan"""
+    unknown = "PLAN_STATUS_UNKNOWN"
     doing = "PLAN_STATUS_DOING"
     done = "PLAN_STATUS_DONE"
     failed = "PLAN_STATUS_FAILED"
@@ -54,6 +56,7 @@ class ComputePlanStatus(str, enum.Enum):
 
 class ModelType(str, enum.Enum):
     """Model type"""
+    unknown = "MODEL_UNKNOWN"
     head = "MODEL_HEAD"
     trunk = "MODEL_TRUNK"
     simple = "MODEL_SIMPLE"
