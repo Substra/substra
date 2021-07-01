@@ -209,7 +209,7 @@ class Worker:
                         schemas.Type.Aggregatetuple
                     ]:
                         try:
-                            in_tuple = self._db.get(tuple_type, in_tuple_key, log=False)
+                            in_tuple = self._db.get(tuple_type, in_tuple_key)
                             break
                         except exceptions.NotFound:
                             pass
@@ -281,7 +281,7 @@ class Worker:
 
                     model_filename = f"{idx}_{input_model.key}"
                     os.link(
-                        input_model.storage_address,
+                        input_model.address.storage_address,
                         os.path.join(models_volume, model_filename)
                     )
                     in_models_command_template += f" {model_filename}"

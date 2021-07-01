@@ -445,7 +445,7 @@ class Local(base.BaseBackend):
         objective = models.Objective(
             key=key,
             name=spec.name,
-            owner=dataset.owner,
+            owner=owner,
             data_manager_key=spec.test_data_manager_key,
             data_sample_keys=spec.test_data_sample_keys,
             permissions={
@@ -683,7 +683,6 @@ class Local(base.BaseBackend):
         in_tuples = list()
         if spec.in_head_model_key:
             in_head_tuple = self._db.get(schemas.Type.CompositeTraintuple, spec.in_head_model_key)
-            assert in_head_tuple.out_head_model
             in_tuples.append(in_head_tuple)
 
         if spec.in_trunk_model_key:
@@ -692,11 +691,9 @@ class Local(base.BaseBackend):
                 in_trunk_tuple = self._db.get(
                     schemas.Type.CompositeTraintuple, spec.in_trunk_model_key
                 )
-                assert in_trunk_tuple.out_trunk_model
             except exceptions.NotFound:
                 # in trunk model is an aggregate tuple out model
                 in_trunk_tuple = self._db.get(schemas.Type.Aggregatetuple, spec.in_trunk_model_key)
-                assert in_trunk_tuple.out_model
             in_tuples.append(in_trunk_tuple)
 
         # Compute plan
@@ -795,7 +792,7 @@ class Local(base.BaseBackend):
         for in_permission in in_permissions:
             if in_permission.process.public:
                 public = True
-            authorized_ids.update(in_permission.authorized_ids)
+            authorized_ids.update(in_permission.process.authorized_ids)
 
         aggregatetuple = models.Aggregatetuple(
             aggregate=models._Aggregate(

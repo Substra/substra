@@ -7,7 +7,7 @@ import re
 import uuid
 
 from substra.sdk.backends.local.compute.spawner.subprocess import PYTHON_SCRIPT_NAME
-
+from substra.sdk import models
 
 def test_wrong_debug_spawner(monkeypatch):
     monkeypatch.setenv('DEBUG_SPAWNER', "test")
@@ -344,4 +344,4 @@ class TestsDebug:
         assert path_cp_1.is_dir()
         assert path_cp_2.is_dir()
 
-        assert compute_plan.status == "done"
+        assert compute_plan.status == models.ComputePlanStatus.done
