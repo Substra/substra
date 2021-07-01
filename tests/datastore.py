@@ -297,7 +297,34 @@ AGGREGATETUPLE = {
                 ]
             }
         },
-        "models": None
+        "models": [
+            {
+                "key": "5f0ee20a328044fb89e70ee5d219fa0b",
+                "category": "MODEL_SIMPLE",
+                "compute_task_key": "06207faf-1785-4fa9-4220-99a50dcfe064",
+                "address": {
+                    "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
+                    "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/model/5f0ee20a328044fb89e70ee5d219fa0b/address/",
+                },
+                "permissions": {
+                    "process": {
+                        "public": False,
+                        "authorized_ids": [
+                            "MyOrg1MSP",
+                            "MyOrg2MSP"
+                        ]
+                    },
+                    "download": {
+                        "public": False,
+                        "authorized_ids": [
+                            "MyOrg1MSP",
+                            "MyOrg2MSP"
+                        ]
+                    }
+                },
+                "owner": "MyOrg1MSP",
+            }
+        ]
     }
 }
 
@@ -376,7 +403,60 @@ COMPOSITE_TRAINTUPLE = {
                 ]
             }
         },
-        "models": None
+        "models": [
+            {
+                "key": "ac4a1a82ced4419b83f4bba78c024b94",
+                "category": "MODEL_HEAD",
+                "compute_task_key": "aa09180a-fec6-46a5-a1a7-58c971b39217",
+                "address": {
+                    "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
+                    "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/model/ac4a1a82ced4419b83f4bba78c024b94/address/",
+                },
+                "permissions": {
+                    "process": {
+                        "public": False,
+                        "authorized_ids": [
+                            "MyOrg1MSP",
+                            "MyOrg2MSP"
+                        ]
+                    },
+                    "download": {
+                        "public": False,
+                        "authorized_ids": [
+                            "MyOrg1MSP",
+                            "MyOrg2MSP"
+                        ]
+                    }
+                },
+                "owner": "MyOrg1MSP",
+            },
+            {
+                "key": "dc9d114d1ed54936b57dd7fef1c0cbf4",
+                "category": "MODEL_TRUNK",
+                "compute_task_key": "aa09180a-fec6-46a5-a1a7-58c971b39217",
+                "address": {
+                    "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
+                    "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/model/ac4a1a82ced4419b83f4bba78c024b94/address/",
+                },
+                "permissions": {
+                    "process": {
+                        "public": False,
+                        "authorized_ids": [
+                            "MyOrg1MSP",
+                            "MyOrg2MSP"
+                        ]
+                    },
+                    "download": {
+                        "public": False,
+                        "authorized_ids": [
+                            "MyOrg1MSP",
+                            "MyOrg2MSP"
+                        ]
+                    }
+                },
+                "owner": "MyOrg1MSP",
+            }
+        ]
     }
 }
 

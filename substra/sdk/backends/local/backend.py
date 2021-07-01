@@ -14,6 +14,7 @@
 import logging
 import os
 import shutil
+from time import process_time
 import typing
 import warnings
 from distutils import util
@@ -194,13 +195,7 @@ class Local(base.BaseBackend):
                     )
 
             # Add to the compute plan
-            list_keys = getattr(compute_plan, spec.compute_plan_attr_name)
-            if list_keys is None:
-                list_keys = list()
-            list_keys.append(key)
-            setattr(compute_plan, spec.compute_plan_attr_name, list_keys)
-
-            compute_plan.tuple_count += 1
+            compute_plan.task_count += 1
             compute_plan.status = models.Status.waiting
 
         else:
@@ -326,7 +321,6 @@ class Local(base.BaseBackend):
             },
             metadata=spec.metadata if spec.metadata else dict(),
         )
-        algo.type_ = type(spec)
         return self._db.add(algo)
 
     def _add_algo(self, key, spec, spec_options=None):
@@ -515,11 +509,9 @@ class Local(base.BaseBackend):
         compute_plan = models.ComputePlan(
             key=key,
             tag=spec.tag or "",
-            status=models.Status.waiting,
-            # failed_tuple={"key": "", "type": ""},
+            status=models.ComputePlanStatus.waiting,
             metadata=spec.metadata or dict(),
-            # id_to_key=dict(),
-            tuple_count=0,
+            task_count=0,
             done_count=0,
             owner='local',
             delete_intermediary_models=spec.clean_models,
@@ -657,8 +649,6 @@ class Local(base.BaseBackend):
             test_data_sample_keys = objective.test_dataset.data_sample_keys
             certified = True
 
-        dataset = self._db.get(schemas.Type.Dataset, dataset_key)
-
         if traintuple.compute_plan_key:
             compute_plan = self._db.get(
                 schemas.Type.ComputePlan, traintuple.compute_plan_key
@@ -667,13 +657,13 @@ class Local(base.BaseBackend):
                 compute_plan.testtuple_keys = [key]
             else:
                 compute_plan.testtuple_keys.append(key)
-            compute_plan.tuple_count += 1
+            compute_plan.task_count += 1
             compute_plan.status = models.Status.waiting
 
         testtuple = models.Testtuple(
             test=models._Test(
-                data_manager_key=spec.data_manager_key,
-                data_sample_keys=spec.test_data_sample_keys,
+                data_manager_key=dataset_key,
+                data_sample_keys=test_data_sample_keys,
                 objective_key=spec.objective_key,
                 certified=certified,
                 perf=-1,
