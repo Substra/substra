@@ -313,12 +313,12 @@ class Client(object):
             str: Key of the algo
         """
         spec = self._get_spec(schemas.AlgoSpec, data)
-        return self._backend.add(spec, {'algo': models.AlgoCategory.algo})
+        return self._backend.add(spec)
 
     @logit
     def add_aggregate_algo(
         self,
-        data: Union[dict, schemas.AlgoSpec],
+        data: Union[dict, schemas.AggregateAlgoSpec],
     ) -> str:
         """Create new aggregate algo asset.
 
@@ -326,20 +326,20 @@ class Client(object):
         the value becomes the 'creator' of the aggregate algo.
 
         Args:
-            data (Union[dict, schemas.AlgoSpec]): If it is a dict,
+            data (Union[dict, schemas.AggregateAlgoSpec]): If it is a dict,
                 it must have the same keys as specified in
-                [schemas.AlgoSpec](sdk_schemas.md#AlgoSpec).
+                [schemas.AggregateAlgoSpec](sdk_schemas.md#AggregateAlgoSpec).
 
         Returns:
             str: Key of the asset
         """
-        spec = self._get_spec(schemas.AlgoSpec, data)
-        return self._backend.add(spec, {'algo': models.AlgoCategory.aggregate_algo})
+        spec = self._get_spec(schemas.AggregateAlgoSpec, data)
+        return self._backend.add(spec)
 
     @logit
     def add_composite_algo(
         self,
-        data: Union[dict, schemas.AlgoSpec]
+        data: Union[dict, schemas.CompositeAlgoSpec]
     ) -> str:
         """Create new composite algo asset.
 
@@ -347,14 +347,14 @@ class Client(object):
         the value becomes the 'creator' of the composite algo.
 
         Args:
-            data (Union[dict, schemas.AlgoSpec]): If it is a dict, it must have the same
-                keys as specified in [schemas.AlgoSpec](sdk_schemas.md#AlgoSpec).
+            data (Union[dict, schemas.CompositeAlgoSpec]): If it is a dict, it must have the same
+                keys as specified in [schemas.CompositeAlgoSpec](sdk_schemas.md#CompositeAlgoSpec).
 
         Returns:
             str: Key of the asset
         """
-        spec = self._get_spec(schemas.AlgoSpec, data)
-        return self._backend.add(spec, {'algo': models.AlgoCategory.composite_algo})
+        spec = self._get_spec(schemas.CompositeAlgoSpec, data)
+        return self._backend.add(spec)
 
     @logit
     def add_traintuple(

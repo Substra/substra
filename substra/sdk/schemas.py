@@ -24,6 +24,7 @@ import uuid
 import pydantic
 
 from substra.sdk import utils
+from substra.sdk.models import AlgoCategory
 
 # TODO create a sub-package schemas:
 # types
@@ -246,6 +247,7 @@ class ObjectiveSpec(_Spec):
 
 
 class AlgoSpec(_Spec):
+    """Specification for creating an algo"""
     name: str
     description: pathlib.Path
     file: pathlib.Path
@@ -256,6 +258,19 @@ class AlgoSpec(_Spec):
         file_attributes = ('file', 'description', )
 
     type_: typing.ClassVar[Type] = Type.Algo
+    category_: typing.ClassVar[Type] = AlgoCategory.algo
+
+
+class CompositeAlgoSpec(AlgoSpec):
+    """Specification for creating a composite algo"""
+    type_: typing.ClassVar[Type] = Type.CompositeAlgo
+    category_: typing.ClassVar[Type] = AlgoCategory.composite_algo
+
+
+class AggregateAlgoSpec(AlgoSpec):
+    """Specification for creating an aggregate algo"""
+    type_: typing.ClassVar[Type] = Type.AggregateAlgo
+    category_: typing.ClassVar[Type] = AlgoCategory.aggregate_algo
 
 
 class TraintupleSpec(_Spec):

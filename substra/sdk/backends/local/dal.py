@@ -131,14 +131,7 @@ class DataAccess:
 
     def list(self, type_, filters):
         """"List assets."""
-        if type_ in models.ALGO_TYPE_TO_CATEGORY:
-            local_assets = self._db.list(schemas.Type.Algo)
-            local_assets = [
-                asset for asset in local_assets
-                if asset.category == models.ALGO_TYPE_TO_CATEGORY[local_assets]
-            ]
-        else:
-            local_assets = self._db.list(type_)
+        local_assets = self._db.list(type_)
 
         remote_assets = list()
         if self._remote:

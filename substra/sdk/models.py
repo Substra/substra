@@ -16,8 +16,7 @@ import enum
 import re
 
 from typing import ClassVar, Dict, List, Optional, Union
-
-from pydantic import DirectoryPath, FilePath, AnyUrl, root_validator, validator
+from pydantic import DirectoryPath, FilePath, AnyUrl, root_validator
 
 from substra.sdk import schemas
 
@@ -62,18 +61,20 @@ class ModelType(str, enum.Enum):
 
 class AlgoCategory(str, enum.Enum):
     """Algo category"""
-    unknown="ALGO_UNKNOWN"
-    algo="ALGO_SIMPLE"
-    composite_algo="ALGO_COMPOSITE"
-    aggregate_algo="ALGO_AGGREGATE"
+    unknown = "ALGO_UNKNOWN"
+    algo = "ALGO_SIMPLE"
+    composite_algo = "ALGO_COMPOSITE"
+    aggregate_algo = "ALGO_AGGREGATE"
+
 
 class TaskCategory(str, enum.Enum):
     """Task category"""
-    unknown="TASK_UNKNOWN"
-    train="TASK_TRAIN"
-    aggregate="TASK_AGGREGATE"
-    composite="TASK_COMPOSITE"
-    test="TASK_TEST"
+    unknown = "TASK_UNKNOWN"
+    train = "TASK_TRAIN"
+    aggregate = "TASK_AGGREGATE"
+    composite = "TASK_COMPOSITE"
+    test = "TASK_TEST"
+
 
 class Permission(schemas._PydanticConfig):
     """Permissions of a task"""
@@ -258,6 +259,7 @@ class Testtuple(_GenericTraintuple):
     """Testtuple"""
     test: _Test
     type_: ClassVar[str] = schemas.Type.Testtuple
+
 
 class FailedTuple(_Model):
     """Info on failed tuple."""

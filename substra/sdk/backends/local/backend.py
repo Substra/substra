@@ -300,7 +300,7 @@ class Local(base.BaseBackend):
                     "dataSample do not belong to the same dataManager", 400
                 )
 
-    def __add_algo(self, algo_category: models.AlgoCategory, key, spec, owner, spec_options=None):
+    def __add_algo(self, key, spec, owner, spec_options=None):
 
         permissions = self.__compute_permissions(spec.permissions, owner)
         algo_file_path = self._db.save_file(spec.file, key)
@@ -309,7 +309,7 @@ class Local(base.BaseBackend):
             key=key,
             name=spec.name,
             owner=owner,
-            category=algo_category,
+            category=spec.category_,
             permissions={
                 "process": {
                     "public": permissions.public,
@@ -326,23 +326,20 @@ class Local(base.BaseBackend):
             },
             metadata=spec.metadata if spec.metadata else dict(),
         )
+        algo.type_ = type(spec)
         return self._db.add(algo)
 
     def _add_algo(self, key, spec, spec_options=None):
         owner = self._check_metadata(spec.metadata)
-        return self.__add_algo(models.AlgoCategory.algo, key, spec, owner, spec_options=spec_options)
+        return self.__add_algo(key, spec, owner, spec_options=spec_options)
 
     def _add_aggregate_algo(self, key, spec, spec_options=None):
         owner = self._check_metadata(spec.metadata)
-        return self.__add_algo(
-            models.AlgoCategory.aggregate_algo, key, spec, owner, spec_options=spec_options
-        )
+        return self.__add_algo(key, spec, owner, spec_options=spec_options)
 
     def _add_composite_algo(self, key, spec, spec_options=None):
         owner = self._check_metadata(spec.metadata)
-        return self.__add_algo(
-            models.AlgoCategory.composite_algo, key, spec, owner, spec_options=spec_options
-        )
+        return self.__add_algo(key, spec, owner, spec_options=spec_options)
 
     def _add_dataset(self, key, spec, spec_options=None):
 
