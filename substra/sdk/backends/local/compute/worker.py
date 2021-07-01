@@ -96,7 +96,7 @@ class Worker:
             shutil.copytree(sample.path, os.path.join(data_volume, sample.key))
         return data_volume
 
-    def _save_output_model(self, tuple_, model_name, models_volume) -> models.OutModel:
+    def _save_output_model(self, tuple_, model_name, models_volume, permissions) -> models.OutModel:
         if model_name == 'output_head_model':
             category = models.ModelType.head
         elif model_name == 'output_trunk_model':
@@ -105,10 +105,12 @@ class Worker:
             category = models.ModelType.simple
         else:
             raise Exception(f"TODO write - Unknown model name {model_name}")
+
         tmp_path = os.path.join(models_volume, model_name)
         model_dir = _mkdir(os.path.join(self._local_worker_dir, "models", tuple_.key))
         model_path = os.path.join(model_dir, model_name)
         shutil.copy(tmp_path, model_path)
+
         return models.OutModel(
             key=self._db.get_local_key(str(uuid.uuid4())),
             category=category,
@@ -118,7 +120,7 @@ class Worker:
                 storage_address=model_path,
             ),
             owner=tuple_.worker,    # TODO: check this
-            permissions=tuple_.permissions,    # TODO: check this
+            permissions=permissions,    # TODO: check this
         )
 
     def _get_command_models_composite(self, is_train, tuple_, models_volume, container_volume):
@@ -333,19 +335,25 @@ class Worker:
 
             # save move output models
             if isinstance(tuple_, models.CompositeTraintuple):
-                tuple_.composite.models = [
-                    self._save_output_model(
-                        tuple_,
-                        model_name,
-                        output_models_volume
-                    ) for model_name in ['output_head_model', 'output_trunk_model']
-                ]
-            else:
-                out_model = self._save_output_model(tuple_, 'model', models_volume)
-                if isinstance(tuple_, models.Traintuple):
-                    tuple_.train.models = [out_model]
-                elif isinstance(tuple_, models.Aggregatetuple):
-                    tuple_.aggregate.models = [out_model]
+                head_model = self._save_output_model(
+                    tuple_,
+                    'output_head_model',
+                    output_models_volume,
+                    permissions=tuple_.composite.head_permissions
+                )
+                trunk_model = self._save_output_model(
+                    tuple_,
+                    'output_trunk_model',
+                    output_models_volume,
+                    permissions=tuple_.composite.trunk_permissions
+                )
+                tuple_.composite.models = [head_model, trunk_model]
+            elif isinstance(tuple_, models.Traintuple):
+                out_model = self._save_output_model(tuple_, 'model', models_volume, tuple_.train.model_permissions)
+                tuple_.train.models = [out_model]
+            elif isinstance(tuple_, models.Aggregatetuple):
+                out_model = self._save_output_model(tuple_, 'model', models_volume, tuple_.aggregate.model_permissions)
+                tuple_.aggregate.models = [out_model]
 
             # set status
             tuple_.status = models.Status.done
@@ -440,36 +448,6 @@ class Worker:
                     elif in_testtuple_model.category == models.ModelType.trunk:
                         command_name = '--input-trunk-model-filename '
                     command_template += f" {command_name} {address_in_container}"
-            """
-            if traintuple_type == schemas.Type.Traintuple \
-                    or traintuple_type == schemas.Type.Aggregatetuple:
-                os.link(
-                    traintuple.out_model.storage_address,
-                    os.path.join(models_volume, traintuple.out_model.key),
-                )
-
-                model_container_address = _get_address_in_container(
-                    traintuple.out_model.key,
-                    models_volume,
-                    "${_VOLUME_MODELS_RO}"
-                )
-                command_template += f" {model_container_address}"
-            elif tuple_.traintuple_type == schemas.Type.CompositeTraintuple:
-                os.link(
-                    traintuple.out_head_model.out_model.storage_address,
-                    os.path.join(models_volume, traintuple.out_head_model.out_model.key)
-                )
-                os.link(
-                    traintuple.out_trunk_model.out_model.storage_address,
-                    os.path.join(models_volume, traintuple.out_trunk_model.out_model.key)
-                )
-                command_template += self._get_command_models_composite(
-                    is_train=False,
-                    tuple_=traintuple,
-                    models_volume=models_volume,
-                    container_volume="${_VOLUME_MODELS_RO}",
-                )
-            """
 
             if self._db.is_local(dataset.key):
                 data_sample_paths = self._get_data_sample_paths_arg(
