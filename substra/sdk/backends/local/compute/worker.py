@@ -118,6 +118,7 @@ class Worker:
                 storage_address=model_path,
             ),
             owner=tuple_.worker,    # TODO: check this
+            permissions=tuple_.permissions,    # TODO: check this
         )
 
     def _get_command_models_composite(self, is_train, tuple_, models_volume, container_volume):
