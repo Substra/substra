@@ -421,10 +421,8 @@ class Local(base.BaseBackend):
     def _add_objective(self, key, spec, spec_options):
 
         owner = self._check_metadata(spec.metadata)
-        permissions = self.__compute_permissions(spec.permissions, owner)
 
         # validate spec
-        test_dataset = None
         if spec.test_data_manager_key:
             dataset = self._db.get(schemas.Type.Dataset, spec.test_data_manager_key)
             # validate test data samples
@@ -432,18 +430,15 @@ class Local(base.BaseBackend):
                 spec.test_data_sample_keys = list()
             self.__check_same_data_manager(spec.test_data_manager_key, spec.test_data_sample_keys)
 
-            test_dataset = {
-                "data_manager_key": spec.test_data_manager_key,
-                "data_sample_keys": spec.test_data_sample_keys,
-                "metadata": dataset.metadata,
-                "worker": dataset.owner,
-            }
             if not dataset.objective_key:
                 dataset.objective_key = key
             else:
                 raise substra.exceptions.InvalidRequest(
                     "dataManager is already associated with a objective", 400
                 )
+            owner = dataset.owner
+
+        permissions = self.__compute_permissions(spec.permissions, owner)
 
         # Copy files to the local dir
         objective_file_path = self._db.save_file(spec.metrics, key)
@@ -453,7 +448,7 @@ class Local(base.BaseBackend):
         objective = models.Objective(
             key=key,
             name=spec.name,
-            owner=owner,
+            owner=dataset.owner,
             data_manager_key=spec.test_data_manager_key,
             data_sample_keys=spec.test_data_sample_keys,
             permissions={
@@ -534,7 +529,7 @@ class Local(base.BaseBackend):
         # validation
         owner = self._check_metadata(spec.metadata)
         algo = self._db.get(schemas.Type.Algo, spec.algo_key)
-        data_manager = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
+        dataset = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
         in_traintuples = (
             [self._db.get(schemas.Type.Traintuple, key) for key in spec.in_models_keys]
             if spec.in_models_keys is not None
@@ -543,7 +538,7 @@ class Local(base.BaseBackend):
         self.__check_same_data_manager(spec.data_manager_key, spec.train_data_sample_keys)
 
         # permissions
-        with_permissions = [algo, data_manager] + in_traintuples
+        with_permissions = [algo, dataset] + in_traintuples
 
         public = True
         authorized_ids = None
@@ -583,7 +578,7 @@ class Local(base.BaseBackend):
             category=models.TaskCategory.train,
             algo=algo,
             owner=owner,
-            worker=owner,
+            worker=dataset.owner,
             compute_plan_key=compute_plan_key,
             rank=rank,
             tag=spec.tag or "",
@@ -622,13 +617,12 @@ class Local(base.BaseBackend):
                 400,
             )
         if spec.data_manager_key is not None:
-            self._db.get(schemas.Type.Dataset, spec.data_manager_key)
+            dataset = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
             if spec.test_data_sample_keys is not None:
                 self.__check_same_data_manager(spec.data_manager_key, spec.test_data_sample_keys)
 
         # create model
         # if dataset is not defined, take it from objective
-        if spec.data_manager_key:
             assert (
                 spec.test_data_sample_keys is not None
                 and len(spec.test_data_sample_keys) > 0
@@ -641,6 +635,7 @@ class Local(base.BaseBackend):
                 and set(objective.test_dataset.data_sample_keys)
                 == set(spec.test_data_sample_keys)
             )
+            worker = dataset.owner
         else:
             assert (
                 objective.test_dataset
@@ -648,6 +643,7 @@ class Local(base.BaseBackend):
             dataset_key = objective.test_dataset.data_manager_key
             test_data_sample_keys = objective.test_dataset.data_sample_keys
             certified = True
+            worker = objective.owner
 
         if traintuple.compute_plan_key:
             compute_plan = self._db.get(
@@ -672,7 +668,7 @@ class Local(base.BaseBackend):
             category=models.TaskCategory.test,
             algo=traintuple.algo,
             owner=owner,
-            worker=owner,
+            worker=worker,
             compute_plan_key=traintuple.compute_plan_key,
             rank=traintuple.rank,
             tag=spec.tag or "",
@@ -696,39 +692,25 @@ class Local(base.BaseBackend):
         dataset = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
         self.__check_same_data_manager(spec.data_manager_key, spec.train_data_sample_keys)
 
-        in_head_model = None
-        in_trunk_model = None
         in_tuples = list()
-
+        # TODO - this should not work
         if spec.in_head_model_key:
             in_head_tuple = self._db.get(schemas.Type.CompositeTraintuple, spec.in_head_model_key)
             assert in_head_tuple.out_head_model
-            in_head_model = models.InHeadModel(
-                key=in_head_tuple.out_head_model.out_model.key,
-                checksum=in_head_tuple.out_head_model.out_model.checksum,
-                storage_address=in_head_tuple.out_head_model.out_model.storage_address
-            )
             in_tuples.append(in_head_tuple)
 
         if spec.in_trunk_model_key:
+            # TODO - this should not work
             try:
                 # in trunk model is a composite traintuple out trunk model
                 in_trunk_tuple = self._db.get(
                     schemas.Type.CompositeTraintuple, spec.in_trunk_model_key, log=False
                 )
                 assert in_trunk_tuple.out_trunk_model
-                in_model = in_trunk_tuple.out_trunk_model.out_model
             except exceptions.NotFound:
                 # in trunk model is an aggregate tuple out model
                 in_trunk_tuple = self._db.get(schemas.Type.Aggregatetuple, spec.in_trunk_model_key)
                 assert in_trunk_tuple.out_model
-                in_model = in_trunk_tuple.out_model
-
-            in_trunk_model = models.InModel(
-                key=in_model.key,
-                checksum=in_model.checksum,
-                storage_address=in_model.storage_address
-            )
             in_tuples.append(in_trunk_tuple)
 
         # Compute plan
@@ -763,7 +745,7 @@ class Local(base.BaseBackend):
             category=models.TaskCategory.composite_traintuple,
             algo=algo,
             owner=owner,
-            worker=owner,
+            worker=dataset.owner,
             compute_plan_key=compute_plan_key,
             rank=rank,
             tag=spec.tag or "",
