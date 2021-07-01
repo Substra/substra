@@ -170,8 +170,8 @@ class Worker:
                 command_template += " --opener-path ${_VOLUME_OPENER}"
 
             # Prepare input models
+            in_tuples = list()
             if tuple_.parent_task_keys is not None and len(tuple_.parent_task_keys) > 0:
-                in_tuples = list()
                 for in_tuple_key in tuple_.parent_task_keys:
                     in_tuple = None
                     for tuple_type in [
@@ -186,27 +186,43 @@ class Worker:
                             pass
                     if in_tuple is None:
                         raise exceptions.NotFound(f"Wrong pk {in_tuple_key}", 404)
+
                     in_tuples.append(in_tuple)
 
             ####
             if isinstance(tuple_, models.CompositeTraintuple):
                 input_models_volume = _mkdir(os.path.join(tuple_dir, "input_models"))
                 output_models_volume = _mkdir(os.path.join(tuple_dir, "output_models"))
-                if tuple_.in_head_model:
-                    os.link(
-                        tuple_.in_head_model.storage_address,
-                        os.path.join(input_models_volume, "input_head_model")
-                    )
-                if tuple_.in_trunk_model:
-                    os.link(
-                        tuple_.in_trunk_model.storage_address,
-                        os.path.join(input_models_volume, "input_trunk_model")
-                    )
+                assert len(in_tuples) <= 2
+                for in_tuple in in_tuples:
+                    if isinstance(in_tuple, models.CompositeTraintuple):
+                        input_models = [m for m in in_tuple.composite.models if m.category == models.ModelType.head]
+                        assert len(input_models) == 1, f'Unavailable input model {input_models}'
+                        input_model = input_models[0]
+
+                        os.link(
+                            input_model.storage_address,
+                            os.path.join(input_models_volume, "input_head_model")
+                        )
+                    elif isinstance(in_tuple, models.Aggregatetuple):
+                        assert in_tuple.aggregate.models is not None and len(in_tuple.aggregate.models) == 1
+                        input_model = in_tuple.aggregate.models[0]
+
+                        os.link(
+                            input_model.storage_address,
+                            os.path.join(input_models_volume, "input_trunk_model")
+                        )
+                    else:
+                        raise Exception('TODO write this - cannot link traintuple to composite')
 
                 volumes['_VOLUME_INPUT_MODELS_RO'] = input_models_volume
                 volumes['_VOLUME_OUTPUT_MODELS_RW'] = output_models_volume
                 command_template += " --output-models-path ${_VOLUME_OUTPUT_MODELS_RW}"
 
+            elif isinstance(tuple_, models.Aggregatetuple):
+                # TODO
+                pass
+            """"
             elif tuple_.in_models is not None:
                 # in models for traintuple and aggregatetuple
                 models_volume = _mkdir(os.path.join(tuple_dir, "models"))
@@ -222,6 +238,7 @@ class Worker:
             else:
                 command_template += " --output-model-path "
                 f"{os.path.join(tuple_dir, 'model', 'model')}"
+            """
 
             if not isinstance(tuple_, models.Aggregatetuple):
                 # if this is a traintuple or composite traintuple, prepare the data

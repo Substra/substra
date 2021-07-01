@@ -178,7 +178,7 @@ class OutModel(schemas._PydanticConfig):
     """Out model of a traintuple, aggregate tuple or out trunk
     model of a composite traintuple"""
     key: str
-    category: str
+    category: ModelType
     compute_task_key: str
     address: Optional[InModel]
     permissions: Permissions
