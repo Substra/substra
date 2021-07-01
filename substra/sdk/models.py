@@ -273,6 +273,7 @@ class ComputePlan(_Model):
     metadata: Dict[str, str]
     done_count: int
     task_count: int
+    failed_task: Optional[FailedTuple]
     delete_intermediary_models: bool = False
     status: ComputePlanStatus
 
