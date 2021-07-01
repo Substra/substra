@@ -24,7 +24,6 @@ import uuid
 import pydantic
 
 from substra.sdk import utils
-from substra.sdk.models import AlgoCategory
 
 # TODO create a sub-package schemas:
 # types
@@ -59,6 +58,14 @@ class Type(enum.Enum):
 
     def __str__(self):
         return self.name
+
+
+class AlgoCategory(str, enum.Enum):
+    """Algo category"""
+    unknown = "ALGO_UNKNOWN"
+    algo = "ALGO_SIMPLE"
+    composite_algo = "ALGO_COMPOSITE"
+    aggregate_algo = "ALGO_AGGREGATE"
 
 
 class _PydanticConfig(pydantic.BaseModel):

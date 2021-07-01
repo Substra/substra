@@ -59,14 +59,6 @@ class ModelType(str, enum.Enum):
     simple = "MODEL_SIMPLE"
 
 
-class AlgoCategory(str, enum.Enum):
-    """Algo category"""
-    unknown = "ALGO_UNKNOWN"
-    algo = "ALGO_SIMPLE"
-    composite_algo = "ALGO_COMPOSITE"
-    aggregate_algo = "ALGO_AGGREGATE"
-
-
 class TaskCategory(str, enum.Enum):
     """Task category"""
     unknown = "TASK_UNKNOWN"
@@ -167,7 +159,7 @@ class Algo(_Model):
     owner: str
     permissions: Permissions
     metadata: Dict[str, str]
-    category: AlgoCategory
+    category: schemas.AlgoCategory
 
     description: _File
     algorithm: _File
@@ -305,10 +297,4 @@ SCHEMA_TO_MODEL = {
     schemas.Type.Traintuple: Traintuple,
     schemas.Type.Node: Node,
     schemas.Type.Model: OutModel
-}
-
-ALGO_TYPE_TO_CATEGORY = {
-    schemas.Type.Algo: AlgoCategory.algo,
-    schemas.Type.AggregateAlgo: AlgoCategory.aggregate_algo,
-    schemas.Type.CompositeAlgo: AlgoCategory.composite_algo,
 }
