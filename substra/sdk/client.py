@@ -677,7 +677,7 @@ class Client(object):
         """
         self._backend.download(
             schemas.Type.Algo,
-            'content.storage_address',
+            'algorithm.storage_address',
             key,
             os.path.join(destination_folder, 'algo.tar.gz'),
         )
@@ -690,7 +690,7 @@ class Client(object):
         """
         self._backend.download(
             schemas.Type.AggregateAlgo,
-            'content.storage_address',
+            'algorithm.storage_address',
             key,
             os.path.join(destination_folder, 'aggregate_algo.tar.gz'),
         )
@@ -703,7 +703,7 @@ class Client(object):
         """
         self._backend.download(
             schemas.Type.CompositeAlgo,
-            'content.storage_address',
+            'algorithm.storage_address',
             key,
             os.path.join(destination_folder, 'composite_algo.tar.gz'),
         )

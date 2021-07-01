@@ -858,16 +858,8 @@ class Local(base.BaseBackend):
         return aggregatetuple
 
     def add(self, spec, spec_options=None):
-        if isinstance(spec, schemas.AlgoSpec):
-            if spec_options["algo"] == models.AlgoCategory.algo:
-                method_name = 'add_algo'
-            elif spec_options["algo"] == models.AlgoCategory.aggregate_algo:
-                method_name = 'add_aggregate_algo'
-            elif spec_options["algo"] == models.AlgoCategory.composite_algo:
-                method_name = 'add_composite_algo'
-        else:
-            # find dynamically the method to call to create the asset
-            method_name = f"_add_{spec.__class__.type_.value}"
+        # find dynamically the method to call to create the asset
+        method_name = f"_add_{spec.__class__.type_.value}"
         if spec.is_many():
             method_name += "s"
         add_asset = getattr(self, method_name)

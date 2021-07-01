@@ -309,7 +309,7 @@ class Worker:
             container_name = f"algo-{algo.key}"
             logs = self._spawner.spawn(
                 container_name,
-                str(algo.content.storage_address),
+                str(algo.algorithm.storage_address),
                 command_template=string.Template(command_template),
                 local_volumes=volumes,
                 envs=envs,
@@ -432,7 +432,7 @@ class Worker:
             container_name = f"algo-{traintuple.algo.key}"
             logs = self._spawner.spawn(
                 name=container_name,
-                archive_path=str(algo.content.storage_address),
+                archive_path=str(algo.algorithm.storage_address),
                 command_template=string.Template(command_template),
                 local_volumes=volumes,
             )

@@ -60,7 +60,7 @@ class DataAccess:
     def _get_asset_content_filename(self, type_):
         if type_ == schemas.Type.Algo:
             asset_name = "algo.tar.gz"
-            field_name = "content"
+            field_name = "algorithm"
 
         elif type_ == schemas.Type.Dataset:
             asset_name = "opener.py"
