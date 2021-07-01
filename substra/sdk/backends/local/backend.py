@@ -793,7 +793,7 @@ class Local(base.BaseBackend):
         public = False
         authorized_ids = set()
         for in_permission in in_permissions:
-            if in_permission.public:
+            if in_permission.process.public:
                 public = True
             authorized_ids.update(in_permission.authorized_ids)
 
