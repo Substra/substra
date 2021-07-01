@@ -518,12 +518,26 @@ LEADERBOARD = {
     "objective": {
         "key": "c6a6139a-28b5-936c-1086-a49d7c772734",
         "name": "data-network - Objective 1",
+        "data_manager_key": "c0230e3a-b5b9-2e50-fe3c-166471e754e3",
+        "data_sample_keys": [
+            "d2e599ef-e128-8a86-46b9-9330eb50f385"
+        ],
+        "permissions": {
+            "process": {
+                "public": True,
+                "authorized_ids": []
+            },
+            "download": {
+                "public": True,
+                "authorized_ids": []
+            },
+        },
         "description": {
             "checksum": "c6a6139a28b5936c1086a49d7c772734f4ad65f4580ca4ab14029a925847faf3",
             "storage_address": ""
         },
+        "metrics_name": "test metrics",
         "metrics": {
-            "name": "test metrics",
             "checksum": "48e748a15552ea2a8a258f6e8e75b1d67da5d6ca7471f80f9b69dae3cb950335",
             "storage_address": ""
         },
@@ -534,12 +548,6 @@ LEADERBOARD = {
                 "d2e599ef-e128-8a86-46b9-9330eb50f385"
             ],
             "worker": ""
-        },
-        "permissions": {
-            "process": {
-                "public": True,
-                "authorized_ids": []
-            }
         }
     },
     "testtuples": []

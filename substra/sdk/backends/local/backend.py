@@ -226,7 +226,7 @@ class Local(base.BaseBackend):
                     rank=rank,
                     spec=traintuple
                 )
-                self.add(traintuple_spec, spec_options)
+                self._add_traintuple(key=id_, spec=traintuple_spec, spec_options=spec_options)
 
             elif id_ in aggregatetuples:
                 aggregatetuple = aggregatetuples[id_]
@@ -235,9 +235,10 @@ class Local(base.BaseBackend):
                     rank=rank,
                     spec=aggregatetuple
                 )
-                self.add(
-                    aggregatetuple_spec,
-                    spec_options,
+                self._add_aggregatetuple(
+                    key=id_,
+                    spec=aggregatetuple_spec,
+                    spec_options=spec_options,
                 )
 
             elif id_ in compositetuples:
@@ -247,9 +248,10 @@ class Local(base.BaseBackend):
                     rank=rank,
                     spec=compositetuple
                 )
-                self.add(
-                    compositetuple_spec,
-                    spec_options,
+                self._add_composite_traintuple(
+                    key=id_,
+                    spec=compositetuple_spec,
+                    spec_options=spec_options,
                 )
 
         if spec.testtuples:
@@ -584,7 +586,7 @@ class Local(base.BaseBackend):
             tag=spec.tag or "",
             status=models.Status.waiting,
             metadata=spec.metadata if spec.metadata else dict(),
-            parent_task_keys=spec.in_models_keys,
+            parent_task_keys=spec.in_models_keys or list(),
         )
 
         traintuple = self._db.add(traintuple)
@@ -597,6 +599,7 @@ class Local(base.BaseBackend):
         owner = self._check_metadata(spec.metadata)
         objective = self._db.get(schemas.Type.Objective, spec.objective_key)
 
+        traintuple = None
         for tuple_type in [
                 schemas.Type.Traintuple,
                 schemas.Type.CompositeTraintuple,
@@ -607,7 +610,8 @@ class Local(base.BaseBackend):
                 break
             except exceptions.NotFound:
                 pass
-        if not traintuple:
+
+        if traintuple is None:
             raise exceptions.NotFound(f"Wrong pk {spec.traintuple_key}", 404)
 
         if traintuple.status in [models.Status.failed, models.Status.canceled]:
@@ -674,7 +678,7 @@ class Local(base.BaseBackend):
             tag=spec.tag or "",
             status=models.Status.waiting,
             metadata=spec.metadata if spec.metadata else dict(),
-            parent_task_keys=spec.in_models_keys,
+            parent_task_keys=spec.in_models_keys or list(),
         )
         testtuple = self._db.add(testtuple)
         self._worker.schedule_testtuple(testtuple)
@@ -721,8 +725,9 @@ class Local(base.BaseBackend):
             public=False,
             authorized_ids=spec.out_trunk_model_permissions.authorized_ids
         )
-        trunk_model_permissions = self.__compute_permissions(trunk_model_permissions)
-
+        trunk_model_permissions = {
+            "process": self.__compute_permissions(trunk_model_permissions)
+        }
         if spec.in_head_model_key:
             head_model_permissions = in_head_tuple.out_head_model.permissions
         else:
@@ -751,7 +756,7 @@ class Local(base.BaseBackend):
             tag=spec.tag or "",
             status=models.Status.waiting,
             metadata=spec.metadata if spec.metadata else dict(),
-            parent_task_keys=spec.in_models_keys,
+            parent_task_keys=spec.in_models_keys or list(),
         )
         composite_traintuple = self._db.add(composite_traintuple)
         if composite_traintuple.status == models.Status.waiting:
@@ -822,7 +827,7 @@ class Local(base.BaseBackend):
             tag=spec.tag or "",
             status=models.Status.waiting,
             metadata=spec.metadata if spec.metadata else dict(),
-            parent_task_keys=spec.in_models_keys,
+            parent_task_keys=spec.in_models_keys or list(),
         )
         aggregatetuple = self._db.add(aggregatetuple)
         if aggregatetuple.status == models.Status.waiting:

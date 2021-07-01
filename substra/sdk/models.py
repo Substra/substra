@@ -145,7 +145,6 @@ class Objective(_Model):
     owner: str
     data_manager_key: str
     data_sample_keys: List[str]
-    # test_dataset: Optional[_ObjectiveDataset]
     metadata: Dict[str, str]
     permissions: Permissions
 
