@@ -4,6 +4,7 @@ import os
 import pytest
 import substra
 import re
+import uuid
 
 from substra.sdk.backends.local.compute.spawner.subprocess import PYTHON_SCRIPT_NAME
 
@@ -71,7 +72,7 @@ class TestsDebug:
             substra.sdk.schemas.ComputePlanTraintupleSpec(
                 algo_key=algo_key,
                 data_manager_key=dataset_1_key,
-                traintuple_id=1,
+                traintuple_id=uuid.uuid4().hex,
                 train_data_sample_keys=[sample_1_key],
             ),
         ]
@@ -103,7 +104,7 @@ class TestsDebug:
             substra.sdk.schemas.ComputePlanTraintupleSpec(
                 algo_key=algo_key,
                 data_manager_key=dataset_1_key,
-                traintuple_id=1,
+                traintuple_id=uuid.uuid4().hex,
                 train_data_sample_keys=[sample_1_key],
             )
         ]
@@ -135,13 +136,13 @@ class TestsDebug:
             substra.sdk.schemas.ComputePlanTraintupleSpec(
                 algo_key=algo_key,
                 data_manager_key=dataset_1_key,
-                traintuple_id=1,
+                traintuple_id=uuid.uuid4().hex,
                 train_data_sample_keys=[sample_1_key],
             ),
             substra.sdk.schemas.ComputePlanTraintupleSpec(
                 algo_key=algo_key,
                 data_manager_key=dataset_2_key,
-                traintuple_id=2,
+                traintuple_id=uuid.uuid4().hex,
                 train_data_sample_keys=[sample_2_key],
             )
         ]
@@ -189,7 +190,7 @@ class TestsDebug:
             data_manager_key=dataset_key,
             train_data_sample_keys=[data_sample_key],
             in_models_ids=[traintuple_key],
-            traintuple_id=0,
+            traintuple_id=uuid.uuid4().hex,
         )
 
         compute_plan = client.update_compute_plan(
@@ -233,18 +234,20 @@ class TestsDebug:
         algo_query = asset_factory.create_algo()
         algo_key = client.add_algo(algo_query)
 
+        traintuple_id_1 = uuid.uuid4().hex
+        traintuple_id_2 = uuid.uuid4().hex
         cp = asset_factory.create_compute_plan()
         cp.traintuples = [
             substra.sdk.schemas.ComputePlanTraintupleSpec(
                 algo_key=algo_key,
                 data_manager_key=dataset_1_key,
-                traintuple_id=1,
+                traintuple_id=traintuple_id_1,
                 train_data_sample_keys=[sample_1_key],
             ),
             substra.sdk.schemas.ComputePlanTraintupleSpec(
                 algo_key=algo_key,
                 data_manager_key=dataset_2_key,
-                traintuple_id=2,
+                traintuple_id=traintuple_id_2,
                 train_data_sample_keys=[sample_2_key],
             )
         ]
@@ -252,13 +255,13 @@ class TestsDebug:
         cp.testtuples = [
             substra.sdk.schemas.ComputePlanTesttupleSpec(
                 objective_key=objective_1_key,
-                traintuple_id=1,
+                traintuple_id=traintuple_id_1,
                 data_manager_key=dataset_1_key,
                 test_data_sample_keys=[sample_1_test_key]
             ),
             substra.sdk.schemas.ComputePlanTesttupleSpec(
                 objective_key=objective_2_key,
-                traintuple_id=2,
+                traintuple_id=traintuple_id_2,
                 data_manager_key=dataset_2_key,
                 test_data_sample_keys=[sample_2_test_key]
             ),
@@ -272,7 +275,8 @@ class TestsDebug:
         assert path_cp_1.is_dir()
         assert path_cp_2.is_dir()
 
-        aucs = [client.get_testtuple(key).dataset.perf for key in compute_plan.testtuple_keys]
+        testtuples = client.list_testtuple()
+        aucs = [testtuple.test.perf for testtuple in testtuples if testtuple.compute_plan_key == compute_plan.key]
         assert all(auc == 2 for auc in aucs)
 
     def test_client_multi_nodes_cp_composite_aggregate(self, asset_factory, spawner):
@@ -291,12 +295,6 @@ class TestsDebug:
         data_sample = asset_factory.create_data_sample(datasets=[dataset_2_key], test_only=False)
         sample_2_key = client.add_data_sample(data_sample)
 
-        data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=True)
-        sample_1_test_key = client.add_data_sample(data_sample)
-
-        data_sample = asset_factory.create_data_sample(datasets=[dataset_2_key], test_only=True)
-        sample_2_test_key = client.add_data_sample(data_sample)
-
         algo_query = asset_factory.create_composite_algo()
         algo_key = client.add_composite_algo(algo_query)
 
@@ -304,11 +302,13 @@ class TestsDebug:
         aggregate_algo_key = client.add_aggregate_algo(algo_query)
 
         cp = asset_factory.create_compute_plan()
+        composite_1_key = uuid.uuid4().hex
+        composite_2_key = uuid.uuid4().hex
         cp.composite_traintuples = [
             substra.sdk.schemas.ComputePlanCompositeTraintupleSpec(
                 algo_key=algo_key,
                 data_manager_key=dataset_1_key,
-                composite_traintuple_id=1,
+                composite_traintuple_id=composite_1_key,
                 train_data_sample_keys=[sample_1_key],
                 out_trunk_model_permissions={
                     "public": False,
@@ -318,7 +318,7 @@ class TestsDebug:
             substra.sdk.schemas.ComputePlanCompositeTraintupleSpec(
                 algo_key=algo_key,
                 data_manager_key=dataset_2_key,
-                composite_traintuple_id=2,
+                composite_traintuple_id=composite_2_key,
                 train_data_sample_keys=[sample_2_key],
                 out_trunk_model_permissions={
                     "public": False,
@@ -329,10 +329,10 @@ class TestsDebug:
 
         cp.aggregatetuples = [
             substra.sdk.schemas.ComputePlanAggregatetupleSpec(
-                aggregatetuple_id=3,
+                aggregatetuple_id=uuid.uuid4().hex,
                 worker=dataset_1_key,
                 algo_key=aggregate_algo_key,
-                in_models_ids=[1, 2]
+                in_models_ids=[composite_1_key, composite_2_key]
             )
         ]
 

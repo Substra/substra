@@ -42,13 +42,11 @@ class InMemoryDb:
 
         return asset
 
-    def get(self, type_, key: str, log: bool = True):
+    def get(self, type_, key: str):
         """Return asset."""
         try:
             return self._data[type_][key]
         except KeyError:
-            if log:
-                logger.error(f"{type_} with key '{key}' not found.")
             raise exceptions.NotFound(f"Wrong pk {key}", 404)
 
     def list(self, type_):

@@ -97,7 +97,7 @@ class _Spec(_PydanticConfig, abc.ABC):
 
     @staticmethod
     def compute_key() -> str:
-        return str(uuid.uuid4())
+        return uuid.uuid4().hex
 
 
 class Permissions(_PydanticConfig):

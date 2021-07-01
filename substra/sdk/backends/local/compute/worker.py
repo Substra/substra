@@ -112,7 +112,7 @@ class Worker:
         shutil.copy(tmp_path, model_path)
 
         return models.OutModel(
-            key=self._db.get_local_key(str(uuid.uuid4())),
+            key=uuid.uuid4().hex,
             category=category,
             compute_task_key=tuple_.key,
             address=models.InModel(
@@ -170,7 +170,18 @@ class Worker:
             tuple_.status = models.Status.doing
 
             # fetch dependencies
-            algo = self._db.get_with_files(schemas.Type.Algo, tuple_.algo.key)
+            algo = None
+            for algo_type in [
+                schemas.Type.Algo,
+                schemas.Type.AggregateAlgo,
+                schemas.Type.CompositeAlgo,
+            ]:
+                try:
+                    algo = self._db.get_with_files(algo_type, tuple_.algo.key)
+                except exceptions.NotFound:
+                    pass
+            if algo is None:
+                raise exceptions.NotFound(f"Wrong pk {tuple_.algo.key}", 404)
 
             compute_plan = None
             if tuple_.compute_plan_key:
@@ -285,7 +296,7 @@ class Worker:
 
                 dataset = self._db.get_with_files(schemas.Type.Dataset, dataset_key)
                 volumes['_VOLUME_OPENER'] = dataset.opener.storage_address
-                if self._db.is_local(dataset_key):
+                if self._db.is_local(dataset_key, schemas.Type.Dataset):
                     data_volume = self._get_data_volume(tuple_dir, tuple_)
                     volumes['_VOLUME_INPUT_DATASAMPLES'] = data_volume
                     data_sample_paths = self._get_data_sample_paths_arg(
@@ -371,13 +382,15 @@ class Worker:
 
             # fetch dependencies
             assert len(tuple_.parent_task_keys) == 1
+            traintuple = None
             for traintuple_type in [
                 schemas.Type.Traintuple,
-                schemas.Type.AggregateAlgo,
-                schemas.Type.CompositeAlgo,
+                schemas.Type.AggregateTuple,
+                schemas.Type.CompositeTraintuple,
             ]:
                 traintuple = self._db.get(traintuple_type, tuple_.parent_task_keys[0])
-
+            if traintuple is None:
+                raise exceptions.NotFound(f"Wrong pk {tuple_.parent_task_keys[0]}", 404)
             algo = self._db.get_with_files(schemas.Type.Algo, tuple_.algo.key)
             objective = self._db.get_with_files(schemas.Type.Objective, tuple_.test.objective.key)
             dataset = self._db.get_with_files(schemas.Type.Dataset, tuple_.test.data_manager_key)
@@ -397,7 +410,7 @@ class Worker:
             }
 
             # If use fake data, no data volume
-            if self._db.is_local(dataset.key):
+            if self._db.is_local(dataset.key, schemas.Type.Dataset):
                 data_volume = self._get_data_volume(tuple_dir, tuple_)
                 volumes['_VOLUME_INPUT_DATASAMPLES'] = data_volume
 
@@ -449,7 +462,7 @@ class Worker:
                         command_name = '--input-trunk-model-filename '
                     command_template += f" {command_name} {address_in_container}"
 
-            if self._db.is_local(dataset.key):
+            if self._db.is_local(dataset.key, schemas.Type.Dataset):
                 data_sample_paths = self._get_data_sample_paths_arg(
                     "${_VOLUME_INPUT_DATASAMPLES}",
                     dataset.test_data_sample_keys,
@@ -476,7 +489,7 @@ class Worker:
                 "_VOLUME_OPENER": dataset.opener.storage_address,
             }
 
-            if self._db.is_local(dataset.key):
+            if self._db.is_local(dataset.key, schemas.Type.Dataset):
                 data_sample_paths = self._get_data_sample_paths_arg(
                     "${_VOLUME_INPUT_DATASAMPLES}",
                     dataset.test_data_sample_keys,

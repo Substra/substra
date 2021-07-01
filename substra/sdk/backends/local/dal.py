@@ -17,7 +17,7 @@ import shutil
 import tempfile
 import typing
 
-from substra.sdk import exceptions, schemas, models
+from substra.sdk import exceptions, schemas
 from substra.sdk.backends.remote import backend
 from substra.sdk.backends.local import db
 
@@ -44,18 +44,15 @@ class DataAccess:
     def tmp_dir(self):
         return pathlib.Path(self._tmp_dir.name)
 
-    @staticmethod
-    def is_local(key: str):
-        """Check if the key corresponds to a local
-        or remote asset.
-        """
-        return key.startswith(_LOCAL_KEY)
-
-    @staticmethod
-    def get_local_key(key: str):
-        """Transform a key into a 'local' key.
-        """
-        return _LOCAL_KEY + key
+    def is_local(self, key: str, type_: schemas.Type):
+        try:
+            if type_ == schemas.Type.Model:
+                self._get_local_model(key)
+            else:
+                self._db.get(type_, key)
+            return True
+        except exceptions.NotFound:
+            return False
 
     def _get_asset_content_filename(self, type_):
         if type_ == schemas.Type.Algo:
@@ -95,39 +92,43 @@ class DataAccess:
         """Get the asset with files on the local disk for execution.
         This does not load the description as it is not required for execution.
         """
-        if self.is_local(key):
+        try:
+            # Try to find the asset locally
             return self._db.get(type_, key)
-        else:
-            asset_name, field_name = self._get_asset_content_filename(type_)
-            asset = self._remote.get(type_, key)
-            tmp_directory = self.tmp_dir / key
-            asset_path = tmp_directory / asset_name
+        except exceptions.NotFound:
+            if self._remote is not None:
+                # if not found, try remotely
+                asset_name, field_name = self._get_asset_content_filename(type_)
+                asset = self._remote.get(type_, key)
+                tmp_directory = self.tmp_dir / key
+                asset_path = tmp_directory / asset_name
 
-            if not tmp_directory.exists():
-                pathlib.Path.mkdir(tmp_directory)
+                if not tmp_directory.exists():
+                    pathlib.Path.mkdir(tmp_directory)
 
-                self._remote.download(
-                    type_,
-                    field_name + ".storage_address",
-                    key,
-                    asset_path,
-                )
+                    self._remote.download(
+                        type_,
+                        field_name + ".storage_address",
+                        key,
+                        asset_path,
+                    )
 
-            attr = getattr(asset, field_name)
-            attr.storage_address = asset_path
-            return asset
+                attr = getattr(asset, field_name)
+                attr.storage_address = asset_path
+                return asset
+            raise
 
     def get(self, type_, key: str, log: bool = True):
-        if self.is_local(key):
+        try:
+            # Try to find the asset locally
             if type_ == schemas.Type.Model:
                 return self._get_local_model(key)
             else:
-                return self._db.get(type_, key, log)
-        elif self._remote:
-            return self._remote.get(type_, key)
-        else:
-            # TODO: better error that says do not have a remote ?
-            raise exceptions.NotFound(f"Wrong pk {key}", 404)
+                return self._db.get(type_, key)
+        except exceptions.NotFound:
+            if self._remote is not None:
+                return self._remote.get(type_, key)
+            raise
 
     def list(self, type_, filters):
         """"List assets."""
