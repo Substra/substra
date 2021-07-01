@@ -594,12 +594,11 @@ class Local(base.BaseBackend):
 
         traintuple = None
         for tuple_type in [
-                schemas.Type.Traintuple,
-                schemas.Type.CompositeTraintuple,
-                schemas.Type.Aggregatetuple
+            schemas.Type.Traintuple,
+            schemas.Type.CompositeTraintuple,
         ]:
             try:
-                traintuple = self._db.get(tuple_type, spec.traintuple_key, log=False)
+                traintuple = self._db.get(tuple_type, spec.traintuple_key)
                 break
             except exceptions.NotFound:
                 pass
@@ -618,8 +617,8 @@ class Local(base.BaseBackend):
             if spec.test_data_sample_keys is not None:
                 self.__check_same_data_manager(spec.data_manager_key, spec.test_data_sample_keys)
 
-        # create model
-        # if dataset is not defined, take it from objective
+            # create model
+            # if dataset is not defined, take it from objective
             assert (
                 spec.test_data_sample_keys is not None and len(spec.test_data_sample_keys) > 0
             )
@@ -682,18 +681,16 @@ class Local(base.BaseBackend):
         self.__check_same_data_manager(spec.data_manager_key, spec.train_data_sample_keys)
 
         in_tuples = list()
-        # TODO - this should not work
         if spec.in_head_model_key:
             in_head_tuple = self._db.get(schemas.Type.CompositeTraintuple, spec.in_head_model_key)
             assert in_head_tuple.out_head_model
             in_tuples.append(in_head_tuple)
 
         if spec.in_trunk_model_key:
-            # TODO - this should not work
             try:
                 # in trunk model is a composite traintuple out trunk model
                 in_trunk_tuple = self._db.get(
-                    schemas.Type.CompositeTraintuple, spec.in_trunk_model_key, log=False
+                    schemas.Type.CompositeTraintuple, spec.in_trunk_model_key
                 )
                 assert in_trunk_tuple.out_trunk_model
             except exceptions.NotFound:
@@ -764,18 +761,20 @@ class Local(base.BaseBackend):
         in_tuples = list()
         in_permissions = list()
         for in_tuple_key in spec.in_models_keys:
+            in_tuple = None
             for in_tuple_type in [
                 schemas.Type.Traintuple,
                 schemas.Type.Aggregatetuple,
                 schemas.Type.CompositeTraintuple,
             ]:
-                in_tuple = None
                 try:
                     in_tuple = self._db.get(in_tuple_type, key=in_tuple_key)
+                    break
                 except exceptions.NotFound:
                     pass
-                if in_tuple is None:
-                    raise exceptions.NotFound(f"Wrong pk {in_tuple_key}", 404)
+
+            if in_tuple is None:
+                raise exceptions.NotFound(f"Wrong pk {in_tuple_key}", 404)
 
             if in_tuple_type == schemas.Type.Traintuple:
                 permissions = in_tuple.train.model_permissions

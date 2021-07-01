@@ -88,6 +88,8 @@ class Worker:
             data_sample_keys = tuple_.train.data_sample_keys
         elif isinstance(tuple_, models.CompositeTraintuple):
             data_sample_keys = tuple_.composite.data_sample_keys
+        elif isinstance(tuple_, models.Testtuple):
+            data_sample_keys = tuple_.test.data_sample_keys
         samples = [
             self._db.get(schemas.Type.DataSample, key) for key in data_sample_keys
         ]
@@ -178,6 +180,7 @@ class Worker:
             ]:
                 try:
                     algo = self._db.get_with_files(algo_type, tuple_.algo.key)
+                    break
                 except exceptions.NotFound:
                     pass
             if algo is None:
@@ -385,14 +388,18 @@ class Worker:
             traintuple = None
             for traintuple_type in [
                 schemas.Type.Traintuple,
-                schemas.Type.AggregateTuple,
                 schemas.Type.CompositeTraintuple,
             ]:
-                traintuple = self._db.get(traintuple_type, tuple_.parent_task_keys[0])
+                try:
+                    traintuple = self._db.get(traintuple_type, tuple_.parent_task_keys[0])
+                    break
+                except exceptions.NotFound:
+                    pass
             if traintuple is None:
                 raise exceptions.NotFound(f"Wrong pk {tuple_.parent_task_keys[0]}", 404)
+
             algo = self._db.get_with_files(schemas.Type.Algo, tuple_.algo.key)
-            objective = self._db.get_with_files(schemas.Type.Objective, tuple_.test.objective.key)
+            objective = self._db.get_with_files(schemas.Type.Objective, tuple_.test.objective_key)
             dataset = self._db.get_with_files(schemas.Type.Dataset, tuple_.test.data_manager_key)
 
             compute_plan = None
@@ -520,7 +527,7 @@ class Worker:
             shutil.copy(tmp_path, pred_path)
 
             with open(pred_path, 'r') as f:
-                tuple_.dataset.perf = json.load(f).get('all')
+                tuple_.test.perf = json.load(f).get('all')
 
             # set status
             tuple_.status = models.Status.done

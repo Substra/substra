@@ -118,7 +118,7 @@ class DataAccess:
                 return asset
             raise
 
-    def get(self, type_, key: str, log: bool = True):
+    def get(self, type_, key: str):
         try:
             # Try to find the asset locally
             if type_ == schemas.Type.Model:
