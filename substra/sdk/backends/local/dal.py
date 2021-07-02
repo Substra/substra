@@ -55,7 +55,7 @@ class DataAccess:
             return False
 
     def _get_asset_content_filename(self, type_):
-        if type_ == schemas.Type.Algo:
+        if type_ in [schemas.Type.Algo, schemas.Type.CompositeAlgo, schemas.Type.AggregateAlgo]:
             asset_name = "algo.tar.gz"
             field_name = "algorithm"
 
