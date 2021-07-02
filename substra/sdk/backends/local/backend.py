@@ -709,7 +709,7 @@ class Local(base.BaseBackend):
             "process": self.__compute_permissions(process_trunk_model_permissions)
         }
         if spec.in_head_model_key:
-            head_model_permissions = in_head_tuple.out_head_model.permissions
+            head_model_permissions = in_head_tuple.composite.head_permissions
         else:
             head_model_permissions = {
                 "process": {
@@ -717,11 +717,13 @@ class Local(base.BaseBackend):
                     "authorized_ids": [owner]
                 }
             }
+
         parent_task_keys: typing.List[str] = list()
         if spec.in_head_model_key is not None:
-            parent_task_keys += spec.in_head_model_key
+            parent_task_keys.append(spec.in_head_model_key)
         if spec.in_trunk_model_key is not None:
-            parent_task_keys += spec.in_trunk_model_key
+            parent_task_keys.append(spec.in_trunk_model_key)
+
         composite_traintuple = models.CompositeTraintuple(
             composite=models._Composite(
                 data_manager_key=spec.data_manager_key,

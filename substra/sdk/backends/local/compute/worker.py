@@ -232,7 +232,7 @@ class Worker:
                         input_model = input_models[0]
 
                         os.link(
-                            input_model.storage_address,
+                            input_model.address.storage_address,
                             os.path.join(input_models_volume, "input_head_model")
                         )
                         head_model_container_address = _get_address_in_container(
@@ -246,7 +246,7 @@ class Worker:
                         input_model = in_tuple.aggregate.models[0]
 
                         os.link(
-                            input_model.storage_address,
+                            input_model.address.storage_address,
                             os.path.join(input_models_volume, "input_trunk_model")
                         )
                         trunk_model_container_address = _get_address_in_container(
@@ -460,8 +460,8 @@ class Worker:
                     )
                     address_in_container = _get_address_in_container(
                         in_testtuple_model.key,
-                        models_volume=models_volume,
-                        container_volume="${_VOLUME_MODELS_RO}",
+                        models_volume,
+                        "${_VOLUME_MODELS_RO}",
                     )
                     if in_testtuple_model.category == models.ModelType.head:
                         command_name = '--input-head-model-filename'
