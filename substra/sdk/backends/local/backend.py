@@ -625,12 +625,13 @@ class Local(base.BaseBackend):
             dataset_key = spec.data_manager_key
             test_data_sample_keys = spec.test_data_sample_keys
             certified = (
-                objective.data_manager_key == spec.data_manager_key and set(objective.data_sample_keys) == set(spec.test_data_sample_keys)
+                objective.data_manager_key == spec.data_manager_key and
+                set(objective.data_sample_keys) == set(spec.test_data_sample_keys)
             )
             worker = dataset.owner
         else:
             assert (
-                objective.test_dataset
+                objective.data_manager_key
             ), "can not create a certified testtuple, no data associated with objective"
             dataset_key = objective.data_manager_key
             test_data_sample_keys = objective.data_sample_keys

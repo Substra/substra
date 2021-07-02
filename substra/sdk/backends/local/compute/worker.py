@@ -309,7 +309,7 @@ class Worker:
                     command_template += f" --data-sample-paths {data_sample_paths}"
                 else:
                     command_template += " --fake-data"
-                    command_template += f" --n-fake-samples {len(dataset.data_sample_keys)}"
+                    command_template += f" --n-fake-samples {len(dataset.train_data_sample_keys)}"
 
             if tuple_.compute_plan_key:
                 #  Shared compute plan volume
@@ -477,7 +477,7 @@ class Worker:
                 command_template += f" --data-sample-paths {data_sample_paths}"
             else:
                 command_template += " --fake-data"
-                command_template += f" --n-fake-samples {len(tuple_.dataset.data_sample_keys)}"
+                command_template += f" --n-fake-samples {len(tuple_.test.data_sample_keys)}"
 
             command_template += " --opener-path ${_VOLUME_OPENER}"
             command_template += " --output-predictions-path ${_VOLUME_OUTPUT_PRED}/pred"
@@ -506,7 +506,7 @@ class Worker:
                 command_template += f" --data-sample-paths {data_sample_paths}"
             else:
                 command_template = "--fake-data-mode FAKE_Y"
-                command_template += f" --n-fake-samples {len(tuple_.dataset.data_sample_keys)}"
+                command_template += f" --n-fake-samples {len(tuple_.test.data_sample_keys)}"
 
             command_template += " --opener-path ${_VOLUME_OPENER}"
             command_template += " --input-predictions-path ${_VOLUME_OUTPUT_PRED}/pred"
