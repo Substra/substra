@@ -936,20 +936,20 @@ class Local(base.BaseBackend):
         ) = compute_plan_module.get_dependency_graph(spec)
 
         # Get the rank of all the tuples already in the compute plan
-        traintuples = self.list(
+        cp_traintuples = self.list(
             asset_type=schemas.Type.Traintuple,
             filters=[f'traintuple:compute_plan_key:{key}'],
         )
-        aggregatetuples = self.list(
+        cp_aggregatetuples = self.list(
             asset_type=schemas.Type.Aggregatetuple,
             filters=[f'aggregatetuple:compute_plan_key:{key}'],
         )
-        composite_traintuples = self.list(
+        cp_composite_traintuples = self.list(
             asset_type=schemas.Type.CompositeTraintuple,
             filters=[f'composite_traintuple:compute_plan_key:{key}'],
         )
         visited = dict()
-        for tuple_ in traintuples + aggregatetuples + composite_traintuples:
+        for tuple_ in cp_traintuples + cp_aggregatetuples + cp_composite_traintuples:
             visited[tuple_.key] = tuple_.rank
 
         # Update the tuple graph with the tuples already in the CP
