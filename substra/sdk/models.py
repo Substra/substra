@@ -143,7 +143,7 @@ class Objective(_Model):
     key: str
     name: str
     owner: str
-    data_manager_key: str
+    data_manager_key: str = None
     data_sample_keys: List[str]
     metadata: Dict[str, str]
     permissions: Permissions

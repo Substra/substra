@@ -227,8 +227,6 @@ class Worker:
                 output_models_volume = _mkdir(os.path.join(tuple_dir, "output_models"))
                 assert len(in_tuples) <= 2
 
-                print(len(in_tuples))
-
                 for in_tuple in in_tuples:
                     if isinstance(in_tuple, models.CompositeTraintuple):
                         input_models = [m for m in in_tuple.composite.models if m.category == models.ModelType.head]
