@@ -216,7 +216,8 @@ class Worker:
                     if in_tuple is None:
                         raise exceptions.NotFound(f"Wrong pk {in_tuple_key}", 404)
 
-                    in_tuples.append(in_tuple)
+                    if in_tuple not in in_tuples:
+                        in_tuples.append(in_tuple)
 
             # The in models command is a nargs+, so we have to append it to the
             # command template later
@@ -225,6 +226,9 @@ class Worker:
                 input_models_volume = _mkdir(os.path.join(tuple_dir, "input_models"))
                 output_models_volume = _mkdir(os.path.join(tuple_dir, "output_models"))
                 assert len(in_tuples) <= 2
+
+                print(len(in_tuples))
+
                 for in_tuple in in_tuples:
                     if isinstance(in_tuple, models.CompositeTraintuple):
                         input_models = [m for m in in_tuple.composite.models if m.category == models.ModelType.head]
@@ -241,6 +245,21 @@ class Worker:
                             "${_VOLUME_INPUT_MODELS_RO}",
                         )
                         in_models_command_template += f' --input-head-model-filename {head_model_container_address}'
+
+                        if len(in_tuples) == 1:  # No other trunk
+                            input_models = [m for m in in_tuple.composite.models if m.category == models.ModelType.trunk]
+                            assert len(input_models) == 1, f'Unavailable input model {input_models}'
+                            input_model = input_models[0]
+                            os.link(
+                                input_model.address.storage_address,
+                                os.path.join(input_models_volume, "input_trunk_model")
+                            )
+                            trunk_model_container_address = _get_address_in_container(
+                                "input_trunk_model",
+                                input_models_volume,
+                                "${_VOLUME_INPUT_MODELS_RO}",
+                            )
+                            in_models_command_template += f' --input-trunk-model-filename {trunk_model_container_address}'
                     elif isinstance(in_tuple, models.Aggregatetuple):
                         assert in_tuple.aggregate.models is not None and len(in_tuple.aggregate.models) == 1
                         input_model = in_tuple.aggregate.models[0]
@@ -294,8 +313,10 @@ class Worker:
                 # if this is a traintuple or composite traintuple, prepare the data
                 if isinstance(tuple_, models.Traintuple):
                     dataset_key = tuple_.train.data_manager_key
+                    train_data_sample_keys = tuple_.train.data_sample_keys
                 if isinstance(tuple_, models.CompositeTraintuple):
                     dataset_key = tuple_.composite.data_manager_key
+                    train_data_sample_keys = tuple_.composite.data_sample_keys
 
                 dataset = self._db.get_with_files(schemas.Type.Dataset, dataset_key)
                 volumes['_VOLUME_OPENER'] = dataset.opener.storage_address
@@ -304,7 +325,7 @@ class Worker:
                     volumes['_VOLUME_INPUT_DATASAMPLES'] = data_volume
                     data_sample_paths = self._get_data_sample_paths_arg(
                         "${_VOLUME_INPUT_DATASAMPLES}",
-                        dataset.train_data_sample_keys,
+                        train_data_sample_keys,
                     )
                     command_template += f" --data-sample-paths {data_sample_paths}"
                 else:
@@ -376,7 +397,7 @@ class Worker:
                 compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_key)
                 compute_plan.done_count += 1
                 if compute_plan.done_count == compute_plan.task_count:
-                    compute_plan.status = models.Status.done
+                    compute_plan.status = models.ComputePlanStatus.done
 
     def schedule_testtuple(self, tuple_):
         """Schedules a ML task (blocking)."""
@@ -398,7 +419,13 @@ class Worker:
             if traintuple is None:
                 raise exceptions.NotFound(f"Wrong pk {tuple_.parent_task_keys[0]}", 404)
 
-            algo = self._db.get_with_files(schemas.Type.Algo, tuple_.algo.key)
+            algo_type = schemas.Type.Algo
+            if tuple_.algo.category == schemas.AlgoCategory.aggregate_algo:
+                algo_type = schemas.Type.AggregateAlgo
+            elif tuple_.algo.category == schemas.AlgoCategory.composite_algo:
+                algo_type = schemas.Type.CompositeAlgo
+
+            algo = self._db.get_with_files(algo_type, tuple_.algo.key)
             objective = self._db.get_with_files(schemas.Type.Objective, tuple_.test.objective_key)
             dataset = self._db.get_with_files(schemas.Type.Dataset, tuple_.test.data_manager_key)
 
@@ -472,7 +499,7 @@ class Worker:
             if self._db.is_local(dataset.key, schemas.Type.Dataset):
                 data_sample_paths = self._get_data_sample_paths_arg(
                     "${_VOLUME_INPUT_DATASAMPLES}",
-                    dataset.test_data_sample_keys,
+                    tuple_.test.data_sample_keys,
                 )
                 command_template += f" --data-sample-paths {data_sample_paths}"
             else:
@@ -499,7 +526,7 @@ class Worker:
             if self._db.is_local(dataset.key, schemas.Type.Dataset):
                 data_sample_paths = self._get_data_sample_paths_arg(
                     "${_VOLUME_INPUT_DATASAMPLES}",
-                    dataset.test_data_sample_keys,
+                    tuple_.test.data_sample_keys,
                 )
                 volumes["_VOLUME_INPUT_DATASAMPLES"] = data_volume
                 command_template = "--fake-data-mode DISABLED"

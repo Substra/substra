@@ -540,13 +540,14 @@ class Local(base.BaseBackend):
         public = True
         authorized_ids = None
         for element in with_permissions:
-            public = public and element.permissions.process.public
-            if not element.permissions.process.public:
+            permissions = element.permissions if hasattr(element, "permissions") else element.train.model_permissions
+            public = public and permissions.process.public
+            if not permissions.process.public:
                 if authorized_ids is None:
-                    authorized_ids = set(element.permissions.process.authorized_ids)
+                    authorized_ids = set(permissions.process.authorized_ids)
                 else:
                     authorized_ids = set.intersection(
-                        authorized_ids, set(element.permissions.process.authorized_ids)
+                        authorized_ids, set(permissions.process.authorized_ids)
                     )
         if public or authorized_ids is None:
             authorized_ids = list()
@@ -882,9 +883,9 @@ class Local(base.BaseBackend):
             self._db.remote_download(asset_type, url_field_path, key, destination)
 
     def download_model(self, key, destination_file):
-        if self._db.is_local(key, schemas.Type.Dataset):
+        if self._db.is_local(key, schemas.Type.Model):
             asset = self._db.get(type_=schemas.Type.Model, key=key)
-            shutil.copyfile(asset.storage_address, destination_file)
+            shutil.copyfile(asset.address.storage_address, destination_file)
         else:
             self._db.remote_download_model(key, destination_file)
 

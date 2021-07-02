@@ -185,17 +185,21 @@ class DataAccess:
     def _get_local_model(self, key):
 
         for t in self.list(schemas.Type.Traintuple, filters=None):
-            if t.out_model and t.out_model.key == key:
-                return t.out_model
+            if t.train.models:
+                for model in t.train.models:
+                    if model.key == key:
+                        return model
 
         for t in self.list(schemas.Type.CompositeTraintuple, filters=None):
-            if t.out_head_model.out_model and t.out_head_model.out_model.key == key:
-                return t.out_head_model.out_model
-            if t.out_trunk_model.out_model and t.out_trunk_model.out_model.key == key:
-                return t.out_trunk_model.out_model
+            if t.composite.models:
+                for model in t.composite.models:
+                    if model.key == key:
+                        return model
 
         for t in self.list(schemas.Type.Aggregatetuple, filters=None):
-            if t.out_model and t.out_model.key == key:
-                return t.out_model
+            if t.aggregate.models:
+                for model in t.aggregate.models:
+                    if model.key == key:
+                        return model
 
         raise exceptions.NotFound(f"Wrong pk {key}", 404)
