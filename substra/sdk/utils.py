@@ -89,7 +89,7 @@ def extract_data_sample_files(data):
     if data.get('paths'):  # field is set and is not None/empty
         for p in data['paths']:
             folders[path_leaf(p)] = p
-            data['paths'].remove(p)
+        del data['paths']
 
     files = {}
     for k, f in folders.items():
