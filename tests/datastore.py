@@ -432,7 +432,7 @@ COMPOSITE_TRAINTUPLE = {
             },
             {
                 "key": "dc9d114d1ed54936b57dd7fef1c0cbf4",
-                "category": "MODEL_TRUNK",
+                "category": "MODEL_SIMPLE",
                 "compute_task_key": "aa09180a-fec6-46a5-a1a7-58c971b39217",
                 "address": {
                     "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",

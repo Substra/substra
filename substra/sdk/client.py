@@ -780,7 +780,7 @@ class Client(object):
             for m in tuple.composite.models:
                 if head_trunk == "head" and m.category == models.ModelType.head:
                     model = m
-                elif head_trunk == "trunk" and m.category == models.ModelType.trunk:
+                elif head_trunk == "trunk" and m.category == models.ModelType.simple:
                     model = m
         elif tuple_type == schemas.Type.Aggregatetuple:
             model = tuple.aggregate.models[0]

@@ -102,7 +102,7 @@ class Worker:
         if model_name == 'output_head_model':
             category = models.ModelType.head
         elif model_name == 'output_trunk_model':
-            category = models.ModelType.trunk
+            category = models.ModelType.simple
         elif model_name == 'model':
             category = models.ModelType.simple
         else:
@@ -245,7 +245,7 @@ class Worker:
                         in_models_command_template += f' --input-head-model-filename {head_model_container_address}'
 
                         if len(in_tuples) == 1:  # No other trunk
-                            input_models = [m for m in in_tuple.composite.models if m.category == models.ModelType.trunk]
+                            input_models = [m for m in in_tuple.composite.models if m.category == models.ModelType.simple]
                             assert len(input_models) == 1, f'Unavailable input model {input_models}'
                             input_model = input_models[0]
                             os.link(
@@ -284,7 +284,7 @@ class Worker:
                 models_volume = _mkdir(os.path.join(tuple_dir, "models"))
                 for idx, in_tuple in enumerate(in_tuples):
                     if isinstance(in_tuple, models.CompositeTraintuple):
-                        input_models = [m for m in in_tuple.composite.models if m.category == models.ModelType.trunk]
+                        input_models = [m for m in in_tuple.composite.models if m.category == models.ModelType.simple]
                         assert len(input_models) == 1, f'Unavailable input model {input_models}'
                         input_model = input_models[0]
                     elif isinstance(in_tuple, models.Traintuple):
@@ -490,7 +490,7 @@ class Worker:
                     )
                     if in_testtuple_model.category == models.ModelType.head:
                         command_name = '--input-head-model-filename'
-                    elif in_testtuple_model.category == models.ModelType.trunk:
+                    elif in_testtuple_model.category == models.ModelType.simple:
                         command_name = '--input-trunk-model-filename '
                     command_template += f" {command_name} {address_in_container}"
 

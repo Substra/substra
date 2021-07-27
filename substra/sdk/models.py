@@ -58,7 +58,6 @@ class ModelType(str, enum.Enum):
     """Model type"""
     unknown = "MODEL_UNKNOWN"
     head = "MODEL_HEAD"
-    trunk = "MODEL_TRUNK"
     simple = "MODEL_SIMPLE"
 
 
