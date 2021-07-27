@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import json
 import logging
 import time
 
@@ -53,7 +54,6 @@ class Client():
             'username': username,
             'password': password,
         }
-
         try:
             r = requests.post(f'{self._base_url}/api-token-auth/',
                               data=data,
@@ -71,7 +71,14 @@ class Client():
 
             raise exceptions.HTTPError.from_request_exception(e)
 
-        token = r.json()['token']
+        try:
+            token = r.json()['token']
+        except json.decoder.JSONDecodeError:
+            # sometimes requests seem to be fine, but the json is not being found
+            # this might be if the url seems to be correct (in the syntax)
+            # but it's not the right one
+            raise ConnectionError('Unable to get token from json response. '
+                                  'Make sure that given url: {self._base_url} is correct')
 
         self._headers['Authorization'] = f"Token {token}"
 

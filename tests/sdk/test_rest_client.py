@@ -17,6 +17,7 @@ import requests
 
 from substra.sdk import exceptions
 from substra.sdk.backends.remote import rest_client
+from substra.sdk.client import Client
 
 from .utils import mock_response, mock_requests, mock_requests_responses
 
@@ -100,3 +101,13 @@ def test_add_already_exist(mocker):
     asset = _client_from_config(CONFIG).add(asset_name)
     assert len(m_post.call_args_list) == 1
     assert asset == {"key": "a-key"}
+
+
+def test_add_wrong_url():
+    # check if correct error is raised
+    # when wrong url with correct syntax is set
+    test_client = Client(url='http://www.dummy.com')
+
+    with pytest.raises(ConnectionError) as e:
+        test_client.login('test_client', 'hehe')
+    assert 'Make sure that given url' in e.value.args[0]
