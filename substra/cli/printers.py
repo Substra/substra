@@ -14,6 +14,7 @@
 
 import json
 import math
+import enum
 import pydantic
 
 import yaml
@@ -37,14 +38,16 @@ class Field:
         self.ref = ref
 
     def get_value(self, item, expand=False):
-        return find_dict_composite_key_value(item, self.ref)
+        value = find_dict_composite_key_value(item, self.ref)
+        if isinstance(value, enum.Enum):
+            value = value.name
+        return value
 
     def print_details(self, item, field_length, expand):
         name = self.name.upper().ljust(field_length)
         value = self.get_value(item, expand)
         if isinstance(value, dict):
             value = [f'{k}: {v}' for k, v in value.items()]
-
         if isinstance(value, list):
             if value:
                 print(name, end='')
@@ -280,21 +283,21 @@ class ComputePlanPrinter(AssetPrinter):
         CountField('Composite traintuples count', 'composite_traintuple_keys'),
         CountField('Aggregatetuples count', 'aggregatetuple_keys'),
         CountField('Testtuples count', 'testtuple_keys'),
-        ProgressField('Progress', 'done_count', 'tuple_count'),
+        ProgressField('Progress', 'done_count', 'task_count'),
         Field('Status', 'status'),
         Field('Tag', 'tag'),
-        Field('Clean model', 'clean_model'),
+        Field('Clean model', 'delete_intermediary_models'),
     )
     single_fields = (
         KeysField('Traintuple keys', 'traintuple_keys'),
         KeysField('Composite traintuple keys', 'composite_traintuple_keys'),
         KeysField('Aggregatetuple keys', 'aggregatetuple_keys'),
         KeysField('Testtuple keys', 'testtuple_keys'),
-        ProgressField('Progress', 'done_count', 'tuple_count'),
+        ProgressField('Progress', 'done_count', 'task_count'),
         Field('Status', 'status'),
         Field('Tag', 'tag'),
         Field('Metadata', 'metadata'),
-        Field('Clean model', 'clean_model'),
+        Field('Clean model', 'delete_intermediary_models'),
         MappingField('ID to key mapping', 'id_to_key'),
     )
 
