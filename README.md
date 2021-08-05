@@ -13,7 +13,8 @@ CLI and SDK for interacting with Substra platform.
   - [SDK](#sdk)
 - [Documentation](#documentation)
 - [Examples](#examples)
-- [Compatibility table](#compatibility-table)
+- [Compatibility table (close source)](#compatibility-table-close-source)
+- [Compatibility table (open source)](#compatibility-table-open-source)
 - [Contributing](#contributing)
   - [Setup](#setup)
   - [Documentation](#documentation-1)
@@ -90,7 +91,20 @@ Implementing your assets in python (thanks to [the substratools library](https:/
 - [Compute plan](./examples/compute_plan/README.md)
 - [Debugging](./examples/debugging/README.md)
 
-## Compatibility table
+## Compatibility table (close source)
+
+These sets of versions have been tested for compatilibility:
+
+| substra  | connect-chaincode  | connect-backend  | connect-tests  | connect-hlf-k8s  | connect-frontend  | connect-tools |
+|---|---|---|---|---|---| --- |
+ [`0.10.0`](https://github.com/owkin/substra/releases/tag/0.10.0) | [`0.5.0`](https://github.com/owkin/connect-chaincode/releases/tag/0.5.0) | [`0.2.0`](https://github.com/owkin/connect-backend/releases/tag/0.2.0) <br>[`helm chart 3.1.0`](https://core.harbor.tooling.owkin.com/harbor/projects/3/helm-charts/substra-backend/versions/3.1.0) | [`0.7.0`](https://github.com/owkin/connect-tests/releases/tag/0.7.0) | [`0.1.0`](https://github.com/owkin/connect-hlf-k8s/releases/tag/0.1.0) <br>[`helm chart 8.0.0`](https://core.harbor.tooling.owkin.com/harbor/projects/4/helm-charts/hlf-k8s/versions/8.0.0) | [`0.1.0`](https://github.com/owkin/connect-frontend/releases/tag/0.1.0) <br>[`helm chart 0.1.0+bad8dcc`](https://core.harbor.tooling.owkin.com/harbor/projects/5/helm-charts/connect-frontend/versions/0.1.0%2Bbad8dcc) | [`0.7.0`](https://github.com/owkin/connect-tools/releases/tag/0.7.0) |
+
+
+**Adding entries to the compatibility table**
+
+- Please ensure that the command `make test` from [`connect-tests`](https://github.com/owkin/connect-tests/) passes.
+
+## Compatibility table (open source)
 
 These sets of versions have been tested for compatilibility:
 
@@ -106,6 +120,7 @@ These sets of versions have been tested for compatilibility:
 | [`0.8.0`](https://github.com/SubstraFoundation/substra/releases/tag/0.8.0) | [`0.2.0`](https://github.com/SubstraFoundation/substra-chaincode/releases/tag/0.2.0) | [`0.1.6`](https://github.com/SubstraFoundation/substra-backend/releases/tag/0.1.6) <br>[`helm chart 1.6.0`](https://artifacthub.io/packages/helm/substra/substra-backend/1.6.0) | [`0.6.0`](https://github.com/SubstraFoundation/substra-tests/releases/tag/0.6.0) | [`0.0.16`](https://github.com/SubstraFoundation/hlf-k8s/releases/tag/0.0.16) <br>[`helm chart 5.1.0`](https://artifacthub.io/packages/helm/substra/hlf-k8s/5.1.0) | [`0.0.20`](https://github.com/SubstraFoundation/substra-frontend/releases/tag/0.0.20) <br>[`helm chart 1.0.0-alpha.2`](https://artifacthub.io/packages/helm/substra/substra-frontend/1.0.0-alpha.2) | [`0.7.0`](https://github.com/SubstraFoundation/substra-tools/releases/tag/0.7.0) |
 | [`0.8.0`](https://github.com/SubstraFoundation/substra/releases/tag/0.8.0) | [`0.2.2`](https://github.com/SubstraFoundation/substra-chaincode/releases/tag/0.2.2) | [`0.1.9`](https://github.com/SubstraFoundation/substra-backend/releases/tag/0.1.9) <br>[`helm chart 1.9.0`](https://artifacthub.io/packages/helm/substra/substra-backend/1.9.0) | [`0.6.0`](https://github.com/SubstraFoundation/substra-tests/releases/tag/0.6.0) | [`0.0.16`](https://github.com/SubstraFoundation/hlf-k8s/releases/tag/0.0.16) <br>[`helm chart 6.2.2`](https://artifacthub.io/packages/helm/substra/hlf-k8s/6.2.2) | [`0.0.20`](https://github.com/SubstraFoundation/substra-frontend/releases/tag/0.0.20) <br>[`helm chart 1.0.0-alpha.2`](https://artifacthub.io/packages/helm/substra/substra-frontend/1.0.0-alpha.2) | [`0.7.0`](https://github.com/SubstraFoundation/substra-tools/releases/tag/0.7.0) |
  [`0.9.0`](https://github.com/SubstraFoundation/substra/releases/tag/0.9.0) | [`0.3.0`](https://github.com/SubstraFoundation/substra-chaincode/releases/tag/0.3.0) | [`0.1.12`](https://github.com/SubstraFoundation/substra-backend/releases/tag/0.1.12) <br>[`helm chart 2.0.3`](https://artifacthub.io/packages/helm/substra/substra-backend/2.0.3) | [`0.6.1`](https://github.com/SubstraFoundation/substra-tests/releases/tag/0.6.1) | [`0.0.16`](https://github.com/SubstraFoundation/hlf-k8s/releases/tag/0.0.16) <br>[`helm chart 7.0.0`](https://artifacthub.io/packages/helm/substra/hlf-k8s/7.0.0) | [`0.0.20`](https://github.com/SubstraFoundation/substra-frontend/releases/tag/0.0.20) <br>[`helm chart 1.0.0-alpha.2`](https://artifacthub.io/packages/helm/substra/substra-frontend/1.0.0-alpha.2) | [`0.7.0`](https://github.com/SubstraFoundation/substra-tools/releases/tag/0.7.0) |
+ [`0.10.0`](https://github.com/owkin/substra/releases/tag/0.10.0) | [`0.5.0`](https://github.com/owkin/connect-chaincode/releases/tag/0.5.0) | [`0.2.0`](https://github.com/owkin/connect-backend/releases/tag/0.2.0) <br>[`helm chart 3.1.0`](TODO) | [`0.7.0`](https://github.com/owkin/connect-tests/releases/tag/0.7.0) | [`0.1.0`](https://github.com/connect/connect-hlf-k8s/releases/tag/0.1.0) <br>[`helm chart 7.0.0`](TODO) | [`0.0.0`](https://github.com/owkin/connect-frontend/releases/tag/0.0.0) <br>[`helm chart 0.0.0`](TODO) | [`0.7.0`](https://github.com/owkin/connect-tools/releases/tag/0.7.0) |
 
 
 **Adding entries to the compatibility table**
