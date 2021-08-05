@@ -505,7 +505,7 @@ class TesttuplePrinter(AssetPrinter):
 
     list_fields = (
         Field('Algo name', 'algo.name'),
-        Field('Certified', 'certified'),
+        Field('Certified', 'test.certified'),
         Field('Status', 'status'),
         Field('Perf', 'dataset.perf'),
         Field('Rank', 'rank'),
@@ -518,7 +518,7 @@ class TesttuplePrinter(AssetPrinter):
         Field('Algo key', 'algo.key'),
         Field('Algo name', 'algo.name'),
         Field('Objective key', 'objective.key'),
-        Field('Certified', 'certified'),
+        Field('Certified', 'test.certified'),
         Field('Status', 'status'),
         Field('Perf', 'dataset.perf'),
         Field('Dataset key', 'dataset.key'),
