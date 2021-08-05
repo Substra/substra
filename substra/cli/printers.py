@@ -298,7 +298,6 @@ class ComputePlanPrinter(AssetPrinter):
         Field('Tag', 'tag'),
         Field('Metadata', 'metadata'),
         Field('Clean model', 'delete_intermediary_models'),
-        MappingField('ID to key mapping', 'id_to_key'),
     )
 
     def print_messages(self, item, profile=None):
@@ -339,11 +338,11 @@ class ObjectivePrinter(AssetPrinter):
 
     list_fields = (
         Field('Name', 'name'),
-        Field('Metrics', 'metrics.name'),
+        Field('Metrics', 'metrics_name'),
     )
     single_fields = (
         Field('Name', 'name'),
-        Field('Metrics', 'metrics.name'),
+        Field('Metrics', 'metrics_name'),
         Field('Test dataset key', 'test_dataset.data_manager_key'),
         KeysField('Test data sample keys', 'test_dataset.data_sample_keys'),
         Field('Owner', 'owner'),
