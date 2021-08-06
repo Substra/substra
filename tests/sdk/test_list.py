@@ -17,7 +17,7 @@ import pytest
 from substra.sdk import models, schemas
 
 from .. import datastore
-from .utils import mock_requests
+from .utils import mock_requests, make_paginated_response
 
 
 @pytest.mark.parametrize('asset_name', [
@@ -36,7 +36,8 @@ def test_list_asset(asset_name, client, mocker):
     item = getattr(datastore, asset_name.upper())
     method = getattr(client, f'list_{asset_name}')
 
-    m = mock_requests(mocker, "get", response=[item])
+    mocked_response = make_paginated_response([item])
+    m = mock_requests(mocker, "get", response=mocked_response)
 
     response = method()
 
@@ -46,7 +47,8 @@ def test_list_asset(asset_name, client, mocker):
 
 def test_list_asset_with_filters(client, mocker):
     items = [datastore.ALGO]
-    m = mock_requests(mocker, "get", response=items)
+    mocked_response = make_paginated_response(items)
+    m = mock_requests(mocker, "get", response=mocked_response)
 
     filters = ["algo:name:ABC", "OR", "data_manager:name:EFG"]
     response = client.list_algo(filters)

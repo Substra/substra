@@ -9,7 +9,7 @@ class BaseBackend(abc.ABC):
     def get(self, asset_type, key):
         raise NotImplementedError
 
-    def list(self, asset_type, filters=None):
+    def list(self, asset_type, filters=None, paginated=False):
         raise NotImplementedError
 
     def add(self, spec, spec_options=None):

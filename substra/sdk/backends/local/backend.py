@@ -81,7 +81,7 @@ class Local(base.BaseBackend):
     def get(self, asset_type, key):
         return self._db.get(asset_type, key)
 
-    def list(self, asset_type, filters=None):
+    def list(self, asset_type, filters=None, paginated=True):
         """List the assets
 
         This is a simplified version of the backend 'list' function,
@@ -94,6 +94,8 @@ class Local(base.BaseBackend):
         Args:
             asset_type (schemas.Type): Type of asset to return
             filters (str, optional): Filter the list of results. Defaults to None.
+            paginated (bool): True if server response is expected to be paginated.
+                Ignored for local backend (responses are never paginated)
 
         Returns:
             typing.List[models._BaseModel]: List of results

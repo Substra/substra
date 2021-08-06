@@ -601,7 +601,8 @@ class Client(object):
     def list_node(self, *args, **kwargs) -> List[models.Node]:
         """List nodes, the returned object is described
         in the [models.Node](sdk_models.md#Node) model"""
-        return self._backend.list(schemas.Type.Node)
+        # results are not paginated for nodes
+        return self._backend.list(schemas.Type.Node, paginated=False)
 
     @logit
     def update_compute_plan(

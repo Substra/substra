@@ -42,3 +42,12 @@ def mock_requests_responses(mocker, method, responses):
 def mock_requests(mocker, method, response=None, status=200, headers=None):
     r = mock_response(response, status, headers)
     return mock_requests_responses(mocker, method, (r, ))
+
+
+def make_paginated_response(items):
+    return {
+        'count': len(items),
+        'next': None,
+        'previous': None,
+        'results': items
+    }
