@@ -77,7 +77,7 @@ jobs:
           export PATH=/home/runner/bin:$PATH
           /home/runner/bin/dockerd-rootless.sh &  # Start Docker rootless in the background
       - name: Install substra tools
-        run: pip install -i https://${{ secrets.TWINE_USERNAME }}:${{ secrets.TWINE_PASSWORD }}@pypi.owkin.com/simple/ 'substratools>=0.8.0'
+        run: pip install -i https://${{ secrets.OWKIN_PYPI_USER }}:${{ secrets.OWKIN_PYPI_PASSWORD }}@pypi.owkin.com/simple/ 'substratools>=0.8.0'
       - name: Install substra
         run: pip install -e .[test]
       - name: Test

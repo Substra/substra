@@ -1,29 +1,23 @@
-name: Python
+name: Publish
 
 on:
   release:
     types: [published]
 
 jobs:
-  build_and_publish:
-    # See https://github.community/t/how-do-i-specify-job-dependency-running-in-another-workflow/16482
-    # for making this job depend on the CI success
-    # needs: lint_and_tests
-    runs-on: ubuntu-latest
-    name: Build and publish
+  publish:
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-      - name: Set up python
-        uses: actions/setup-python@v2
+      - uses: actions/setup-python@v2
         with:
           python-version: 3.7
-      - name: Install pypa/build
-        run: python -m pip install build --user
-      - name: Build a binary wheel and a source tarball
-        run: python -m build --sdist --wheel --outdir dist/ .
-      - name: Publish distribution to PyPI
-        if: startsWith(github.ref, 'refs/tags')
-        uses: pypa/gh-action-pypi-publish@v1.4.1
+      - name: Build
+        run:
+          python setup.py sdist bdist_wheel
+      - name: Publish
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
-            user: __token__
-            password: ${{ secrets.PYPI_API_TOKEN }}
+          user: ${{ secrets.OWKIN_PYPI_USER }}
+          password: ${{ secrets.OWKIN_PYPI_PASSWORD }}
+          repository_url: https://pypi.owkin.com/
