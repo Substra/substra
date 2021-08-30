@@ -15,11 +15,18 @@ import sys
 import sphinx_rtd_theme
 
 
+def _get_version():
+    version_ = {}
+    with open("../../substra/__version__.py") as fp:
+        exec(fp.read(), version_)  # pylint: disable=exec-used
+    return version_["__version__"]
 # -- Project information -----------------------------------------------------
 
-project = 'Substra'
-copyright = '2021, Owkin'
-author = 'Owkin'
+project = u"Substra"
+copyright = u"2020, OWKIN"
+author = u"Owkin"
+version = _get_version()
+release = version
 
 # The full version, including alpha/beta/rc tags
 release = '1.0'
@@ -46,6 +53,12 @@ intersphinx_mapping = {
     "pandas": ("https://pandas.pydata.org/docs/", None),
     "torch": ("https://pytorch.org/docs/stable/", None),
 }
+
+# This must be the name of an image file (path relative to the configuration
+# directory) that is the favicon of the docs. Modern browsers use this as
+# the icon for tabs, windows and bookmarks. It should be a Windows-style
+# icon file (.ico).
+html_favicon = "favicon.ico"
 
 # this is needed for some reason...
 # see https://github.com/numpy/numpydoc/issues/69

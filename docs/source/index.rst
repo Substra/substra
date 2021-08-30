@@ -18,7 +18,7 @@ Welcome to Substra's documentation!
 .. toctree::
    :glob:
    :maxdepth: 2
-   :caption: Concepts
+   :caption: Platform architecture
 
    concepts/*
 
@@ -63,15 +63,6 @@ Welcome to Substra's documentation!
 .. toctree::
    :glob:
    :maxdepth: 2
-   :caption: Release notes
-
-   release/*
-
----------------------
-
-.. toctree::
-   :glob:
-   :maxdepth: 2
    :caption: API reference
 
    api_reference/*
@@ -89,10 +80,10 @@ Welcome to Substra's documentation!
 
 .. toctree::
    :glob:
-   :maxdepth: 2
-   :caption: Contact
+   :maxdepth: 1
+   :caption: Additional information
 
-   contact/*
+   additional/*
 
 Indices and tables
 ==================
