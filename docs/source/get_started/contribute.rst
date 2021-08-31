@@ -1,6 +1,6 @@
 Contribute
 ----------
 
-.. hint::
+.. todo::
 
-    TODO: add the contribute section
+    fill this section
