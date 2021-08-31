@@ -9,9 +9,11 @@ Welcome to Substra's documentation!
 .. toctree::
    :glob:
    :maxdepth: 2
-   :caption: Getting started
+   :caption: How to get started
 
-   get_started/*
+   get_started/overview.rst
+   get_started/installation.rst
+   get_started/contribute.rst
 
 ---------------------
 

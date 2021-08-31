@@ -81,6 +81,7 @@ extensions = [
     "sphinx.ext.ifconfig",
     "sphinx_click",
     "recommonmark",
+    "sphinx.ext.autosectionlabel"
 ]
 
 intersphinx_mapping = {
