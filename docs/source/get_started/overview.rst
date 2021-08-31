@@ -71,10 +71,13 @@ Software engineer
 
 If you are interested in understanding how Substra works maybe how to contribute, please have a look over here:
 
-- Platform description:
-  - :ref:`Concepts`
-  - :ref:`Architecture`
-- :ref:`Contribute`
+* Platform description:
+
+  * :ref:`User Guide`
+
+  * :ref:`Architecture`
+
+* :ref:`Contribute`
 
 Interested by Substra
 ^^^^^^^^^^^^^^^^^^^^^

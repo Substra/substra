@@ -8,7 +8,7 @@ Welcome to Substra's documentation!
 
 .. toctree::
    :glob:
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: How to get started
 
    get_started/overview.rst
@@ -20,72 +20,32 @@ Welcome to Substra's documentation!
 .. toctree::
    :glob:
    :maxdepth: 2
-   :caption: Platform architecture
+   :caption: Documentation
 
-   concepts/*
-
----------------------
-
-.. toctree::
-   :glob:
-   :maxdepth: 2
-   :caption: How to debug?
-
-   debug/*
-
----------------------
-
-.. toctree::
-   :glob:
-   :maxdepth: 2
-   :caption: Substra inner workings
-
-   inner_workings/*
-
----------------------
-
-.. toctree::
-   :glob:
-   :maxdepth: 2
-   :caption: Substra inner workings
-
-   glossary/*
-
----------------------
-
-.. toctree::
-   :glob:
-   :maxdepth: 2
-   :caption: FAQ
-
-   faq/*
-
----------------------
-
-.. toctree::
-   :glob:
-   :maxdepth: 2
-   :caption: API reference
-
-   api_reference/*
-
----------------------
-
-.. toctree::
-   :glob:
-   :maxdepth: 2
-   :caption: How to contribute
-
-   contribute/*
+   documentation/user_guide.rst
+   documentation/debug.rst
+   documentation/api_reference.rst
+   documentation/glossary.rst
+   documentation/faq.rst
 
 ---------------------
 
 .. toctree::
    :glob:
    :maxdepth: 1
-   :caption: Additional information
+   :caption: Architecture
 
-   additional/*
+   architecture.rst
+
+---------------------
+
+.. toctree::
+   :glob:
+   :maxdepth: 2
+   :caption: Additional Information
+
+   additional/release.rst
+   additional/contact.rst
 
 Indices and tables
 ==================
