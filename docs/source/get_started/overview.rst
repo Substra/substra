@@ -8,13 +8,10 @@ Overview
 .. contents::
     :depth: 2
 
-___
-
-General presentation of *what is the Substra framework*.
-
-Substra is a framework offering distributed orchestration of machine learning tasks among partners while guaranteeing secure and trustless traceability of all operations.
-
 .. glossary::
+
+    General presentation of *what is the Substra framework*.
+        Substra is a framework offering distributed orchestration of machine learning tasks among partners while guaranteeing secure and trustless traceability of all operations.
 
     Data scientist
         - Use your own ML algorithm with any Python ML framework
