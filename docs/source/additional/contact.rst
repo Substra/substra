@@ -1,2 +1,2 @@
-Contact us
-==========
+Contact
+=======

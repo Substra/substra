@@ -81,8 +81,10 @@ extensions = [
     "sphinx.ext.ifconfig",
     "sphinx_click",
     "recommonmark",
-    "sphinx.ext.autosectionlabel"
+    "sphinx.ext.autosectionlabel",
+    "sphinx.ext.todo"
 ]
+todo_include_todos=True
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),

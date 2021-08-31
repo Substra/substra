@@ -1,8 +1,12 @@
 Overview
 ========
 
+.. todo::
+    - update all the links from SubstraFoundation to the correct ones
+    - ensure all the links work
+
 .. contents::
-    :depth: 3
+    :depth: 2
 
 ___
 
@@ -84,21 +88,26 @@ Interested by Substra
 
 If you are interested in Substra and would like to understand how it could be interesting for *your* project, you really should check the following sections:
 
-- Platform description:
-  - [Concepts](concepts.md)
-  - [Architecture](architecture.md)
-- You can reach us [here](https://doc.substra.ai/setup/further_resources.html#get-in-touch)
+* Platform description:
+
+  * :ref:`User Guide`
+
+  * :ref:`Architecture`
+
+* You can reach us here: :ref:`Contact`
 
 Use cases
 ---------
 
-> One framework, a lot of possibilities
+**One framework, a lot of possibilities**
 
 Substra is efficient on a range of issues like:
 
-- [Consortium between competitors](https://www.substra.ai/en/consortiums)
-- [Collaborations between data providers and scientists](https://www.substra.ai/en/collaborations-donnees-ds)
-- [Machine Learning on sensitive data](https://www.substra.ai/en/challenges)
+* `Consortium between competitors <https://www.substra.ai/en/consortiums>`_
+
+* `Collaborations between data providers and scientists <https://www.substra.ai/en/collaborations-donnees-ds>`_
+
+* `Machine Learning on sensitive data <https://www.substra.ai/en/challenges>`_
 
 About this *collaborative* documentation
 ----------------------------------------
@@ -107,4 +116,4 @@ First of all, thank you for coming here! We hope you have found what you were lo
 
 This set of documentation is still in early stage and therefore open for contributions, we are really eager to receive user perspectives!
 
-The documentation lives here: [Substra Documentation](https://github.com/SubstraFoundation/substra-documentation/).
+The documentation lives here: `Substra Documentation <https://github.com/SubstraFoundation/substra-documentation/>`_.
