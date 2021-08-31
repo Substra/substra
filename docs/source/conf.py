@@ -20,6 +20,42 @@ def _get_version():
     with open("../../substra/__version__.py") as fp:
         exec(fp.read(), version_)  # pylint: disable=exec-used
     return version_["__version__"]
+
+class SubSectionTitleOrder:
+    """Sort example gallery by title of subsection.
+    Assumes README.txt exists for all subsections and uses the subsection with
+    dashes, '---', as the adornment.
+
+    This class is adapted from sklearn
+    """
+
+    def __init__(self, src_dir):
+        self.src_dir = src_dir
+        self.regex = re.compile(r"^([\w ]+)\n-", re.MULTILINE)
+
+    def __repr__(self):
+        return "<%s>" % (self.__class__.__name__,)
+
+    def __call__(self, directory):
+        src_path = os.path.normpath(os.path.join(self.src_dir, directory))
+
+        # Forces Release Highlights to the top
+        if os.path.basename(src_path) == "release_highlights":
+            return "0"
+
+        readme = os.path.join(src_path, "README.txt")
+
+        try:
+            with open(readme, "r") as f:
+                content = f.read()
+        except FileNotFoundError:
+            return directory
+
+        title_match = self.regex.search(content)
+        if title_match is not None:
+            return title_match.group(1)
+        return directory
+
 # -- Project information -----------------------------------------------------
 
 project = u"Substra"
@@ -97,3 +133,11 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+sphinx_gallery_conf = {
+    "doc_module": "connectlib",
+    "reference_url": {"connectlib": None},
+    "examples_dirs": ["../examples"],
+    "gallery_dirs": ["auto_examples"],
+    "subsection_order": SubSectionTitleOrder("../examples"),
+}
