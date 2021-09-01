@@ -83,7 +83,8 @@ extensions = [
     "recommonmark",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.todo",
-    'sphinx_gallery.gen_gallery'
+    "sphinx_gallery.gen_gallery",
+    "sphinx_fontawesome"
 ]
 todo_include_todos=True
 

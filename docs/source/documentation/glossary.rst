@@ -11,6 +11,9 @@ Glossary
 
     .. glossary::
 
+        node
+            .. todo:: explain what is node here (term used in the examples)
+
         Owkin
             world-renown company providing federated learning solutions for healthcare
 

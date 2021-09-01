@@ -1,94 +1,221 @@
 """
 ========
-Template
+Titanic
 ========
 
-This is a template of how to make a new examples for Connectlib
+This example is based on `the similarly named Kaggle challenge <https://www.kaggle.com/c/titanic/overview>`_
+
+We will be training and testing with only one :term:`node`.
+
+Authors:
+  |    Romain Goussault :fa:`github` `RomainGoussault <https://github.com/RomainGoussault>`_
+  |    Maria Telenczuk, :fa:`github` `maikia <https://github.com/maikia>`_
 
 """
 
-# Author: Maria Telenczuk <https://github.com/maikia>
-#
-# License: TODO: what license are we using?
+# %%
+# Import all the dependencies
+# ---------------------------
+
+from pathlib import Path
+import os
+import zipfile
 
 # %%
-# If you wish to make a new explanatory note in your document use '%%' in the first line of you comment.
-# If you only use `#` the comment will be considered as a Python comment.
-# On how to structure your Python scripts for Sphinx-Gallery: https://sphinx-gallery.github.io/stable/syntax.html
+# You should have already Substra installed, if not follow the instructions here: :ref:`Installation`
 #
-# In between you can use normal Python code to be run in your example:
 
-
-import matplotlib.pyplot as plt
-import numpy as np
+import substra
 
 # %%
-# Syntax
-# ------
+# Next, we need to link to the already defined assets. You can download them from here:
 #
-# Follow rules for reStructured text, eg you can find some explanations
-#  `here <https://www.writethedocs.org/guide/writing/reStructuredText/>`_.
+# TODO: add a link and the instructions on how to get the assets folder and update the path if necessary
 #
-# Let's now generate some imaginery data. Let's say we have 5 partners and we tested 4 models
-# only that, for exemplary purposes, we will only randomly generate the final results
-# obtained by each model at each site.
+# TODO: in the assets directory you can find XXX files including datafiles which we will use next
+# TODO: a link to some example on how to prepare your own assets + each file explained??
 #
 
-partners = ["Hospital 1", "Hospital 2", "Pharma 1", "Pharma 2", "Pharma 3"]
-models = ["Model A", "Model B", "Model C", "Model D"]
-np.random.seed(42)
-results = np.random.random([len(partners), len(models)])
-
+assets_directory = Path("../code_examples") / "titanic" / "assets"
 
 # %%
-# What next?
-# ----------
+# Registering data samples and dataset
+# ------------------------------------
 #
-# We can now keep explaining what we are doing in the example.
-# Here let's just make some pretty matplotlib figure.
+# Now we need to register the data samples on the client (also called :term:`node`). This is usually done by a data
+# scientists working on a given node. Here we set debug to True... TODO: explain
 #
-# Do not forget to use a reasonable colormaps for your figures and consider color-blind people when choosing your
-# colors (eg in `matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_).
+# To do that we also need to set the permissions.
+# TODO: explain what are the pemissions/ possible permissions/ and/or link to more
+#
 
-fig, ax = plt.subplots()
-im = ax.imshow(results, cmap="viridis")
+client = substra.Client(debug=True)
 
-# We want to show all ticks...
-ax.set_xticks(np.arange(len(partners)))
-ax.set_yticks(np.arange(len(models)))
-# ... and label them with the respective list entries
-ax.set_xticklabels(partners)
-ax.set_yticklabels(models)
+permissions = {
+            'public': False,
+            'authorized_ids': []
+}
 
-# Rotate the tick labels and set their alignment.
-plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+DATASET = {
+    'name': 'Titanic dataset - Node 1',
+    'type': 'csv',
+    'data_opener': assets_directory / 'dataset' / 'opener.py',
+    'description': assets_directory / 'dataset' / 'description.md',
+    'permissions': permissions
+}
 
-# Loop over data dimensions and create text annotations.
-for i in range(len(partners)):
-    for j in range(len(models)):
-        text = ax.text(j, i, round(results[i, j], 2), ha="center", va="center", color="w")
-
-ax.set_title("Results from Federated Learning in different partners")
-fig.tight_layout()
-plt.show()
+dataset_key_1 = client.add_dataset(DATASET)
+print(f'Dataset key {dataset_key_1}')
 
 # %%
-# Wrapping up
-# -----------
+# Adding train data samples
+# ^^^^^^^^^^^^^^^^^^^^^^^^
 #
-# Once you have your in-depth, simple and beautiful example ready you need to embed it in the
-# structure of the Connectlib docs:
 # TODO: explain
 #
-# And you can test it:
-# TODO: explain
+
+train_data_sample_folder = assets_directory / 'train_data_samples'
+train_data_sample_paths = list(train_data_sample_folder.glob('*'))
+train_data_sample_keys = list()
+
+for path in train_data_sample_paths:
+    data_sample_key = client.add_data_sample({
+        'data_manager_keys': [dataset_key_1],
+        'test_only': False,
+        'path': path,
+    }, local=True)
+    train_data_sample_keys.append(data_sample_key)
+
+print(f"{len(train_data_sample_keys)} data samples were registered")
 
 # %%
-# References
+# Adding test data samples
+# ^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# TODO: explain
+#
+
+test_data_sample_folder = assets_directory / 'test_data_samples'
+test_data_sample_paths = list(test_data_sample_folder.glob('*'))
+test_data_sample_keys = list()
+
+for path in test_data_sample_paths:
+    data_sample_key = client.add_data_sample({
+        'data_manager_keys': [dataset_key_1],
+        'test_only': True,
+        'path': path,
+    }, local=True)
+    test_data_sample_keys.append(data_sample_key)
+
+print(f"{len(test_data_sample_keys)} data samples were registered")
+
+# %%
+# Adding objective
+# ----------------
+#
+# TODO: explain
+#
+
+OBJECTIVE = {
+    'name': 'Titanic: Machine Learning From Disaster',
+    'description': assets_directory / 'objective' / 'description.md',
+    'metrics_name': 'accuracy',
+    'metrics': assets_directory / 'objective' / 'metrics.zip',
+    'permissions': {
+        'public': False,
+        'authorized_ids': []
+    },
+}
+
+METRICS_DOCKERFILE_FILES = [
+    assets_directory / 'objective' / 'metrics.py',
+    assets_directory / 'objective' / 'Dockerfile'
+]
+
+archive_path = OBJECTIVE['metrics']
+with zipfile.ZipFile(archive_path, 'w') as z:
+    for filepath in METRICS_DOCKERFILE_FILES:
+        z.write(filepath, arcname=os.path.basename(filepath))
+
+objective_key = client.add_objective({
+    'name': OBJECTIVE['name'],
+    'description': OBJECTIVE['description'],
+    'metrics_name': OBJECTIVE['metrics_name'],
+    'metrics': OBJECTIVE['metrics'],
+    'test_data_sample_keys': test_data_sample_keys,
+    'test_data_manager_key': dataset_key_1,
+    'permissions': OBJECTIVE['permissions'],
+})
+assert objective_key, 'Missing objective key'
+
+# %%
+# Adding algo
 # -----------
 #
-# And of course, never forget to cite all the materials you might have used in your tutorial.
+# TODO: explain
 #
-# Here, I adapted
-# `matplotlib example <https://matplotlib.org/stable/gallery/images_contours_and_fields/image_annotated_heatmap.html#sphx-glr-gallery-images-contours-and-fields-image-annotated-heatmap-py>`_
-# to Connectlib reality.
+
+ALGO_KEYS_JSON_FILENAME = 'algo_random_forest_keys.json'
+
+ALGO = {
+    'name': 'Titanic: Random Forest',
+    'description': assets_directory / 'algo_random_forest' / 'description.md',
+    'permissions': {
+        'public': False,
+        'authorized_ids': []
+    },
+}
+
+ALGO_DOCKERFILE_FILES = [
+        assets_directory / 'algo_random_forest/algo.py',
+        assets_directory / 'algo_random_forest/Dockerfile',
+]
+
+archive_path = assets_directory / 'algo_random_forest' / 'algo_random_forest.zip'
+with zipfile.ZipFile(archive_path, 'w') as z:
+    for filepath in ALGO_DOCKERFILE_FILES:
+        z.write(filepath, arcname=os.path.basename(filepath))
+ALGO['file'] = archive_path
+
+
+algo_key = client.add_algo({
+    'name': ALGO['name'],
+    'file': ALGO['file'],
+    'description': ALGO['description'],
+    'permissions': ALGO['permissions'],
+})
+
+# %%
+# Registering tasks
+# -----------------
+#
+# TODO: explain
+#
+
+traintuple_key = client.add_traintuple({
+    'algo_key': algo_key,
+    'data_manager_key': dataset_key_1,
+    'rank': 0,    
+    'train_data_sample_keys': train_data_sample_keys
+})
+assert traintuple_key, 'Missing traintuple key'
+
+testtuple_key = client.add_testtuple({
+    'objective_key': objective_key,
+    'traintuple_key': traintuple_key
+})
+assert testtuple_key, 'Missing testtuple key'
+
+# %%
+# Results
+# -------
+#
+# TODO: explain
+#
+
+testtuple = client.get_testtuple(testtuple_key)
+testtuple.status
+testtuple.dataset.perf
+
+# %%
+# TODO: in the examples gallery it is always nice if there is some kind of summary figure, not necessary, just nice :-)
