@@ -32,6 +32,15 @@ Welcome to Substra's documentation!
 
 .. toctree::
    :glob:
+   :maxdepth: 2
+   :caption: Examples
+
+   auto_examples/index
+
+---------------------
+
+.. toctree::
+   :glob:
    :maxdepth: 1
    :caption: Architecture
 

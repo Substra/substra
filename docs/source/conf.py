@@ -82,7 +82,8 @@ extensions = [
     "sphinx_click",
     "recommonmark",
     "sphinx.ext.autosectionlabel",
-    "sphinx.ext.todo"
+    "sphinx.ext.todo",
+    'sphinx_gallery.gen_gallery'
 ]
 todo_include_todos=True
 
@@ -118,7 +119,7 @@ autosummary_generate = True
 source_suffix = '.rst'
 
 # Generate the plot for the gallery
-plot_gallery = True
+# plot_gallery = True
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -138,9 +139,9 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 html_static_path = ['_static']
 
 sphinx_gallery_conf = {
-    "doc_module": "connectlib",
-    "reference_url": {"connectlib": None},
-    "examples_dirs": ["../examples"],
+    "doc_module": "substra",
+    "reference_url": {"Substra": None},
+    "examples_dirs": ["../../examples"],
     "gallery_dirs": ["auto_examples"],
-    "subsection_order": SubSectionTitleOrder("../examples"),
+    "subsection_order": SubSectionTitleOrder("../../examples"),
 }
