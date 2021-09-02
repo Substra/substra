@@ -17,6 +17,8 @@ Contribute
 
             $ make clean html
 
+    You can then find all the html files in the `docs/build directory`.
+
     You can find all the .rst documentation files in `docs/source/`
 
     .. hint:: give the guidelines on how the Substra documentation should look like
