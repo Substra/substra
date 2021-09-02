@@ -1,7 +1,7 @@
 """
-========
+=======
 Titanic
-========
+=======
 
 This example is based on `the similarly named Kaggle challenge <https://www.kaggle.com/c/titanic/overview>`_
 
