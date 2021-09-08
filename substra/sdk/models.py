@@ -17,8 +17,7 @@ import re
 
 from typing import ClassVar, Dict, List, Optional, Union
 
-import pydantic
-from pydantic import DirectoryPath, FilePath, AnyUrl
+from pydantic import DirectoryPath, FilePath, AnyUrl, root_validator
 from datetime import datetime
 
 from substra.sdk import schemas
@@ -37,12 +36,40 @@ def _to_snake_case(camel_str):
 
 class Status(str, enum.Enum):
     """Status of the task"""
-    doing = "doing"
-    done = "done"
-    failed = "failed"
-    todo = "todo"
-    waiting = "waiting"
-    canceled = "canceled"
+    unknown = "STATUS_UNKNOWN"
+    doing = "STATUS_DOING"
+    done = "STATUS_DONE"
+    failed = "STATUS_FAILED"
+    todo = "STATUS_TODO"
+    waiting = "STATUS_WAITING"
+    canceled = "STATUS_CANCELED"
+
+
+class ComputePlanStatus(str, enum.Enum):
+    """Status of the compute plan"""
+    unknown = "PLAN_STATUS_UNKNOWN"
+    doing = "PLAN_STATUS_DOING"
+    done = "PLAN_STATUS_DONE"
+    failed = "PLAN_STATUS_FAILED"
+    todo = "PLAN_STATUS_TODO"
+    waiting = "PLAN_STATUS_WAITING"
+    canceled = "PLAN_STATUS_CANCELED"
+
+
+class ModelType(str, enum.Enum):
+    """Model type"""
+    unknown = "MODEL_UNKNOWN"
+    head = "MODEL_HEAD"
+    simple = "MODEL_SIMPLE"
+
+
+class TaskCategory(str, enum.Enum):
+    """Task category"""
+    unknown = "TASK_UNKNOWN"
+    train = "TASK_TRAIN"
+    aggregate = "TASK_AGGREGATE"
+    composite = "TASK_COMPOSITE"
+    test = "TASK_TEST"
 
 
 class Permission(schemas._PydanticConfig):
@@ -54,6 +81,13 @@ class Permission(schemas._PydanticConfig):
 class Permissions(schemas._PydanticConfig):
     """Permissions structure stored in various asset types."""
     process: Permission
+    download: Permission
+
+    @root_validator(pre=True)
+    def set_process(cls, values):
+        if 'download' not in values:
+            values['download'] = values['process']
+        return values
 
 
 class _Model(schemas._PydanticConfig, abc.ABC):
@@ -67,10 +101,10 @@ class DataSample(_Model):
     """Data sample"""
     key: str
     owner: str
-    creation_date: datetime
     data_manager_keys: Optional[List[str]]
     path: Optional[DirectoryPath]
     validated: bool = True
+    creation_date: datetime
     # The backend does not return this but it is needed for link_dataset_with_data_samples
     test_only: bool = False
 
@@ -88,7 +122,6 @@ class Dataset(_Model):
     key: str
     name: str
     owner: str
-    creation_date: datetime
     objective_key: Optional[str]
     permissions: Permissions
     type: str
@@ -97,21 +130,13 @@ class Dataset(_Model):
     opener: _File
     description: _File
     metadata: Dict[str, str]
+    creation_date: datetime
 
     type_: ClassVar[str] = schemas.Type.Dataset
 
 
-class _ObjectiveDataset(schemas._PydanticConfig):
-    """Dataset as stored in the Objective asset"""
-    data_manager_key: str
-    data_sample_keys: List[str]
-    metadata: Dict[str, str]
-    worker: str
-
-
 class _Metric(schemas._PydanticConfig):
     """Metric associated to a testtuple or objective"""
-    name: Optional[str]
     checksum: str
     storage_address: UriPath
 
@@ -121,235 +146,139 @@ class Objective(_Model):
     key: str
     name: str
     owner: str
-    creation_date: datetime
-    test_dataset: Optional[_ObjectiveDataset]
+    data_manager_key: str = None
+    data_sample_keys: List[str]
     metadata: Dict[str, str]
     permissions: Permissions
+    creation_date: datetime
 
     description: _File
+    metrics_name: Optional[str]
     metrics: _Metric
 
     type_: ClassVar[str] = schemas.Type.Objective
 
 
-class _Algo(_Model):
+class Algo(_Model):
     key: str
     name: str
     owner: str
-    creation_date: datetime
     permissions: Permissions
     metadata: Dict[str, str]
+    category: schemas.AlgoCategory
+    creation_date: datetime
 
     description: _File
-    content: _File
+    algorithm: _File
 
-
-class Algo(_Algo):
-    """Algo"""
     type_: ClassVar[str] = schemas.Type.Algo
 
 
-class AggregateAlgo(_Algo):
-    """AggregateAlgo"""
-    type_: ClassVar[str] = schemas.Type.AggregateAlgo
-
-
-class CompositeAlgo(_Algo):
-    """CompositeAlgo"""
-    type_: ClassVar[str] = schemas.Type.CompositeAlgo
-
-
-class _TraintupleDataset(schemas._PydanticConfig):
-    """Dataset as stored in a traintuple or composite traintuple"""
-    key: str
-    opener_checksum: str
-    data_sample_keys: List[str]
-    worker: str
-    metadata: Optional[Dict[str, str]]
-
-
 class InModel(schemas._PydanticConfig):
-    """In model of a traintuple, aggregate tuple or in trunk
-    model of a composite traintuple"""
-    key: str
+    """In model of a traintuple, aggregate or composite traintuple"""
     checksum: str
     storage_address: UriPath
-    traintuple_key: Optional[str]
 
 
 class OutModel(schemas._PydanticConfig):
     """Out model of a traintuple, aggregate tuple or out trunk
     model of a composite traintuple"""
     key: str
-    checksum: str
-    storage_address: UriPath
+    category: ModelType
+    compute_task_key: str
+    address: Optional[InModel]
+    permissions: Permissions
+    owner: str
+    creation_date: datetime
 
     type_: ClassVar[str] = schemas.Type.Model
 
 
-class _TraintupleAlgo(schemas._PydanticConfig):
-    """Algo associated to a traintuple"""
+class _GenericTraintuple(_Model):
     key: str
-    checksum: str
-    storage_address: UriPath
-    name: str
-
-
-class Traintuple(_Model):
-    """Traintuple"""
-    key: str
-    creator: str
-    creation_date: datetime
-    algo: _TraintupleAlgo
-    dataset: _TraintupleDataset
-    permissions: Permissions
-    tag: str
+    category: TaskCategory
+    algo: Algo
+    owner: str
     compute_plan_key: str
-    rank: int
-    status: str
-    log: str
-    in_models: Optional[List[InModel]]
-    out_model: Optional[OutModel]
     metadata: Dict[str, str]
-
-    type_: ClassVar[str] = schemas.Type.Traintuple
-    algo_type: ClassVar[schemas.Type] = schemas.Type.Algo
-
-
-class Aggregatetuple(_Model):
-    """Aggregatetuple"""
-    key: str
-    creator: str
-    creation_date: datetime
+    status: str
     worker: str
-    algo: _TraintupleAlgo
-    permissions: Permissions
-    tag: str
-    compute_plan_key: str
     rank: Optional[int]
-    status: str
-    log: str
-    in_models: List[InModel]
-    out_model: Optional[OutModel]
-    metadata: Dict[str, str]
-
-    type_: ClassVar[str] = schemas.Type.Aggregatetuple
-    algo_type: ClassVar[schemas.Type] = schemas.Type.AggregateAlgo
-
-
-class InHeadModel(schemas._PydanticConfig):
-    """In head model of a composite traintuple"""
-    key: str
-    checksum: str
-    storage_address: Optional[UriPath]  # Defined for local assets but not remote ones
-    traintuple_key: Optional[str]
-
-
-class OutHeadModel(schemas._PydanticConfig):
-    """Out head model of a composite traintuple"""
-    key: str
-    checksum: str
-    storage_address: Optional[FilePath]  # Defined for local assets but not remote ones
-
-
-class OutCompositeHeadModel(schemas._PydanticConfig):
-    """Out head model of a composite traintuple with permissions"""
-    permissions: Permissions
-    out_model: Optional[OutHeadModel]
-
-
-class OutCompositeTrunkModel(schemas._PydanticConfig):
-    """Out trunk model of a composite traintuple with permissions"""
-    permissions: Permissions
-    out_model: Optional[OutModel]
-
-
-class CompositeTraintuple(_Model):
-    """CompositeTraintuple"""
-    key: str
+    parent_task_keys: List[str]
+    tag: str
     creation_date: datetime
-    creator: str
-    algo: _TraintupleAlgo
-    dataset: _TraintupleDataset
-    tag: str
-    compute_plan_key: str
-    rank: Optional[int]
-    status: str
-    log: str
-    in_head_model: Optional[InHeadModel]
-    in_trunk_model: Optional[InModel]
-    # This is different from the remote backend
-    # We store the out head model storage address directly in the object
-    out_head_model: OutCompositeHeadModel
-    out_trunk_model: OutCompositeTrunkModel
-    metadata: Dict[str, str]
-
-    type_: ClassVar[str] = schemas.Type.CompositeTraintuple
-    algo_type: ClassVar[schemas.Type] = schemas.Type.CompositeAlgo
 
 
-class _TesttupleDataset(schemas._PydanticConfig):
-    """Dataset of a testtuple"""
-    key: str
-    opener_checksum: str
-    perf: float
+class _Composite(schemas._PydanticConfig):
+    data_manager_key: str
     data_sample_keys: List[str]
-    worker: str
+    head_permissions: Permissions
+    trunk_permissions: Permissions
+    models: Optional[List[OutModel]]
 
 
-class _TesttupleObjective(schemas._PydanticConfig):
-    """Objective of a testtuple"""
-    key: str
-    metrics: _Metric
+class _Train(schemas._PydanticConfig):
+    data_manager_key: str
+    data_sample_keys: List[str]
+    model_permissions: Permissions
+    models: Optional[List[OutModel]]
 
 
-class Testtuple(_Model):
-    """Testtuple"""
-    key: str
-    creation_date: datetime
-    creator: str
-    algo: _TraintupleAlgo
-    objective: _TesttupleObjective
-    traintuple_key: str
+class _Aggregate(schemas._PydanticConfig):
+    model_permissions: Permissions
+    models: Optional[List[OutModel]]
+
+
+class _Test(schemas._PydanticConfig):
+    data_manager_key: str
+    data_sample_keys: List[str]
+    objective_key: str
     certified: bool
-    dataset: _TesttupleDataset
-    tag: Optional[str]
-    log: str
-    status: str
-    compute_plan_key: str
-    rank: int
-    traintuple_type: schemas.Type
-    metadata: Dict[str, str]
+    perf: Optional[float]
 
+
+class Traintuple(_GenericTraintuple):
+    """Traintuple"""
+    train: _Train
+    type_: ClassVar[str] = schemas.Type.Traintuple
+
+
+class Aggregatetuple(_GenericTraintuple):
+    """Aggregatetuple"""
+    aggregate: _Aggregate
+    type_: ClassVar[str] = schemas.Type.Aggregatetuple
+
+
+class CompositeTraintuple(_GenericTraintuple):
+    """CompositeTraintuple"""
+    composite: _Composite
+    type_: ClassVar[str] = schemas.Type.CompositeTraintuple
+
+
+class Testtuple(_GenericTraintuple):
+    """Testtuple"""
+    test: _Test
     type_: ClassVar[str] = schemas.Type.Testtuple
-
-    @pydantic.validator('traintuple_type', pre=True)
-    def traintuple_type_snake_case(cls, v):
-        return _to_snake_case(v)
 
 
 class FailedTuple(_Model):
     """Info on failed tuple."""
     key: str
-    type: str
+    category: str
 
 
 class ComputePlan(_Model):
     """ComputePlan"""
     key: str
-    creation_date: datetime
-    status: str
-    failed_tuple: FailedTuple
-    traintuple_keys: Optional[List[str]]
-    composite_traintuple_keys: Optional[List[str]]
-    aggregatetuple_keys: Optional[List[str]]
-    testtuple_keys: Optional[List[str]]
-    id_to_key: Dict[str, str]
     tag: str
-    tuple_count: int
-    done_count: int
+    owner: str
     metadata: Dict[str, str]
-    clean_models: bool = False
+    done_count: int
+    task_count: int
+    failed_task: Optional[FailedTuple]
+    delete_intermediary_models: bool = False
+    status: ComputePlanStatus
+    creation_date: datetime
 
     type_: ClassVar[str] = schemas.Type.ComputePlan
 
@@ -361,13 +290,14 @@ class Node(schemas._PydanticConfig):
     """Node"""
     id: str
     is_current: bool
+    creation_date: datetime
 
 
 SCHEMA_TO_MODEL = {
-    schemas.Type.AggregateAlgo: AggregateAlgo,
     schemas.Type.Aggregatetuple: Aggregatetuple,
     schemas.Type.Algo: Algo,
-    schemas.Type.CompositeAlgo: CompositeAlgo,
+    schemas.Type.AggregateAlgo: Algo,
+    schemas.Type.CompositeAlgo: Algo,
     schemas.Type.CompositeTraintuple: CompositeTraintuple,
     schemas.Type.ComputePlan: ComputePlan,
     schemas.Type.DataSample: DataSample,
@@ -375,5 +305,6 @@ SCHEMA_TO_MODEL = {
     schemas.Type.Objective: Objective,
     schemas.Type.Testtuple: Testtuple,
     schemas.Type.Traintuple: Traintuple,
-    schemas.Type.Node: Node
+    schemas.Type.Node: Node,
+    schemas.Type.Model: OutModel
 }

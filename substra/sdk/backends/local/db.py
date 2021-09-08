@@ -15,7 +15,7 @@
 import collections
 import logging
 
-from substra.sdk import exceptions
+from substra.sdk import exceptions, schemas
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +30,11 @@ class InMemoryDb:
     def add(self, asset):
         """Add an asset."""
         type_ = asset.__class__.type_
+        if type_ == schemas.Type.Algo:
+            if asset.category == schemas.AlgoCategory.aggregate_algo:
+                type_ = schemas.Type.AggregateAlgo
+            elif asset.category == schemas.AlgoCategory.composite_algo:
+                type_ = schemas.Type.CompositeAlgo
         key = asset.key
 
         self._data[type_][key] = asset
@@ -37,13 +42,11 @@ class InMemoryDb:
 
         return asset
 
-    def get(self, type_, key: str, log: bool = True):
+    def get(self, type_, key: str):
         """Return asset."""
         try:
             return self._data[type_][key]
         except KeyError:
-            if log:
-                logger.error(f"{type_} with key '{key}' not found.")
             raise exceptions.NotFound(f"Wrong pk {key}", 404)
 
     def list(self, type_):

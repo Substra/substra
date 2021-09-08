@@ -18,8 +18,9 @@ import pathlib
 import shutil
 import string
 import uuid
+import datetime
 
-from substra.sdk import schemas, fs, models
+from substra.sdk import schemas, fs, models, exceptions
 from substra.sdk.backends.local import dal
 from substra.sdk.backends.local.compute import spawner
 from substra.sdk.backends.local.compute.spawner import DEBUG_SPAWNER_CHOICES
@@ -60,53 +61,71 @@ class Worker:
         # checks if chainkey exists in the chainkey_dir
         return os.path.exists(self._chainkey_dir / "node_name_id.json")
 
-    def _get_owner(self, tuple_):
-        if isinstance(tuple_, models.Aggregatetuple):
-            return tuple_.worker
-        return tuple_.dataset.worker
-
     def _get_chainkey_volume(self, tuple_):
-        owner = self._get_owner(tuple_)
         compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_key)
-        tuple_chainkey_volume = self._chainkey_dir / owner / \
+        tuple_chainkey_volume = self._chainkey_dir / tuple_.worker / \
             "computeplan" / compute_plan.tag / "chainkeys"
         if not tuple_chainkey_volume.is_dir():
             return None
         return tuple_chainkey_volume
 
     def _get_chainkey_env(self, tuple_):
-        owner = self._get_owner(tuple_)
         node_name_id = json.loads((self._chainkey_dir / "node_name_id.json").read_text())
         return {
-            'NODE_INDEX': str(node_name_id.get(owner, None)),
+            'NODE_INDEX': str(node_name_id.get(tuple_.worker, None)),
         }
 
-    def _get_data_sample_paths_arg(self, data_volume, dataset):
+    def _get_data_sample_paths_arg(self, data_volume, data_sample_keys):
         data_sample_paths = [
             os.path.join(data_volume, key)
-            for key in dataset.data_sample_keys
+            for key in data_sample_keys
         ]
         data_sample_paths = ' '.join(data_sample_paths)
         return data_sample_paths
 
     def _get_data_volume(self, tuple_dir, tuple_):
         data_volume = _mkdir(os.path.join(tuple_dir, "data"))
+        if isinstance(tuple_, models.Traintuple):
+            data_sample_keys = tuple_.train.data_sample_keys
+        elif isinstance(tuple_, models.CompositeTraintuple):
+            data_sample_keys = tuple_.composite.data_sample_keys
+        elif isinstance(tuple_, models.Testtuple):
+            data_sample_keys = tuple_.test.data_sample_keys
         samples = [
-            self._db.get(schemas.Type.DataSample, key) for key in tuple_.dataset.data_sample_keys
+            self._db.get(schemas.Type.DataSample, key) for key in data_sample_keys
         ]
         for sample in samples:
             # TODO more efficient link (symlink?)
             shutil.copytree(sample.path, os.path.join(data_volume, sample.key))
         return data_volume
 
-    def _save_output_model(self, tuple_, model_name, models_volume) -> models.OutModel:
+    def _save_output_model(self, tuple_, model_name, models_volume, permissions) -> models.OutModel:
+        if model_name == 'output_head_model':
+            category = models.ModelType.head
+        elif model_name == 'output_trunk_model':
+            category = models.ModelType.simple
+        elif model_name == 'model':
+            category = models.ModelType.simple
+        else:
+            raise Exception(f"TODO write - Unknown model name {model_name}")
+
         tmp_path = os.path.join(models_volume, model_name)
         model_dir = _mkdir(os.path.join(self._local_worker_dir, "models", tuple_.key))
         model_path = os.path.join(model_dir, model_name)
         shutil.copy(tmp_path, model_path)
-        return models.OutModel(key=self._db.get_local_key(str(uuid.uuid4())),
-                               checksum=fs.hash_file(model_path),
-                               storage_address=model_path)
+
+        return models.OutModel(
+            key=uuid.uuid4().hex,
+            category=category,
+            compute_task_key=tuple_.key,
+            address=models.InModel(
+                checksum=fs.hash_file(model_path),
+                storage_address=model_path,
+            ),
+            creation_date=datetime.datetime.now(),
+            owner=tuple_.worker,    # TODO: check this
+            permissions=permissions,    # TODO: check this
+        )
 
     def _get_command_models_composite(self, is_train, tuple_, models_volume, container_volume):
         command_template = ""
@@ -155,7 +174,19 @@ class Worker:
             tuple_.status = models.Status.doing
 
             # fetch dependencies
-            algo = self._db.get_with_files(tuple_.algo_type, tuple_.algo.key)
+            algo = None
+            for algo_type in [
+                schemas.Type.Algo,
+                schemas.Type.AggregateAlgo,
+                schemas.Type.CompositeAlgo,
+            ]:
+                try:
+                    algo = self._db.get_with_files(algo_type, tuple_.algo.key)
+                    break
+                except exceptions.NotFound:
+                    pass
+            if algo is None:
+                raise exceptions.NotFound(f"Wrong pk {tuple_.algo.key}", 404)
 
             compute_plan = None
             if tuple_.compute_plan_key:
@@ -170,54 +201,152 @@ class Worker:
                 command_template += " --opener-path ${_VOLUME_OPENER}"
 
             # Prepare input models
+            in_tuples = list()
+            if tuple_.parent_task_keys is not None and len(tuple_.parent_task_keys) > 0:
+                for in_tuple_key in tuple_.parent_task_keys:
+                    in_tuple = None
+                    for tuple_type in [
+                        schemas.Type.Traintuple,
+                        schemas.Type.CompositeTraintuple,
+                        schemas.Type.Aggregatetuple
+                    ]:
+                        try:
+                            in_tuple = self._db.get(tuple_type, in_tuple_key)
+                            break
+                        except exceptions.NotFound:
+                            pass
+                    if in_tuple is None:
+                        raise exceptions.NotFound(f"Wrong pk {in_tuple_key}", 404)
+
+                    if in_tuple not in in_tuples:
+                        in_tuples.append(in_tuple)
+
+            # The in models command is a nargs+, so we have to append it to the
+            # command template later
+            in_models_command_template = ''
             if isinstance(tuple_, models.CompositeTraintuple):
                 input_models_volume = _mkdir(os.path.join(tuple_dir, "input_models"))
                 output_models_volume = _mkdir(os.path.join(tuple_dir, "output_models"))
-                if tuple_.in_head_model:
-                    os.link(
-                        tuple_.in_head_model.storage_address,
-                        os.path.join(input_models_volume, "input_head_model")
-                    )
-                if tuple_.in_trunk_model:
-                    os.link(
-                        tuple_.in_trunk_model.storage_address,
-                        os.path.join(input_models_volume, "input_trunk_model")
-                    )
+                assert len(in_tuples) <= 2
+
+                for in_tuple in in_tuples:
+                    if isinstance(in_tuple, models.CompositeTraintuple):
+                        input_models = [m for m in in_tuple.composite.models
+                                        if m.category == models.ModelType.head]
+                        assert len(input_models) == 1, f'Unavailable input model {input_models}'
+                        input_model = input_models[0]
+
+                        os.link(
+                            input_model.address.storage_address,
+                            os.path.join(input_models_volume, "input_head_model")
+                        )
+                        head_model_container_address = _get_address_in_container(
+                            "input_head_model",
+                            input_models_volume,
+                            "${_VOLUME_INPUT_MODELS_RO}",
+                        )
+                        in_models_command_template += f' --input-head-model-filename \
+                            {head_model_container_address}'
+
+                        if len(in_tuples) == 1:  # No other trunk
+                            input_models = [m for m in in_tuple.composite.models
+                                            if m.category == models.ModelType.simple]
+                            assert len(input_models) == 1, f'Unavailable input model {input_models}'
+                            input_model = input_models[0]
+                            os.link(
+                                input_model.address.storage_address,
+                                os.path.join(input_models_volume, "input_trunk_model")
+                            )
+                            trunk_model_container_address = _get_address_in_container(
+                                "input_trunk_model",
+                                input_models_volume,
+                                "${_VOLUME_INPUT_MODELS_RO}",
+                            )
+                            in_models_command_template += f' --input-trunk-model-filename \
+                                {trunk_model_container_address}'
+                    elif isinstance(in_tuple, models.Aggregatetuple):
+                        assert in_tuple.aggregate.models is not None \
+                            and len(in_tuple.aggregate.models) == 1
+                        input_model = in_tuple.aggregate.models[0]
+
+                        os.link(
+                            input_model.address.storage_address,
+                            os.path.join(input_models_volume, "input_trunk_model")
+                        )
+                        trunk_model_container_address = _get_address_in_container(
+                            "input_trunk_model",
+                            input_models_volume,
+                            "${_VOLUME_INPUT_MODELS_RO}",
+                        )
+                        in_models_command_template += f' --input-trunk-model-filename \
+                            {trunk_model_container_address}'
+                    else:
+                        raise Exception('TODO write this - cannot link traintuple to composite')
 
                 volumes['_VOLUME_INPUT_MODELS_RO'] = input_models_volume
                 volumes['_VOLUME_OUTPUT_MODELS_RW'] = output_models_volume
                 command_template += " --output-models-path ${_VOLUME_OUTPUT_MODELS_RW}"
 
-            elif tuple_.in_models is not None:
-                # in models for traintuple and aggregatetuple
+            else:
+                # The tuple is a traintuple or an aggregate traintuple
                 models_volume = _mkdir(os.path.join(tuple_dir, "models"))
-                for idx, model in enumerate(tuple_.in_models):
+                for idx, in_tuple in enumerate(in_tuples):
+                    if isinstance(in_tuple, models.CompositeTraintuple):
+                        input_models = [m for m in in_tuple.composite.models
+                                        if m.category == models.ModelType.simple]
+                        assert len(input_models) == 1, f'Unavailable input model {input_models}'
+                        input_model = input_models[0]
+                    elif isinstance(in_tuple, models.Traintuple):
+                        assert in_tuple.train.models is not None \
+                            and len(in_tuple.train.models) == 1
+                        input_model = in_tuple.train.models[0]
+                    elif isinstance(in_tuple, models.Aggregatetuple):
+                        assert in_tuple.aggregate.models is not None \
+                            and len(in_tuple.aggregate.models) == 1
+                        input_model = in_tuple.aggregate.models[0]
+                    else:
+                        raise Exception(f'TODO write this - unknown input model type {in_tuple}')
+
+                    model_filename = f"{idx}_{input_model.key}"
                     os.link(
-                        model.storage_address,
-                        os.path.join(models_volume, f"{idx}_{model.key}")
+                        input_model.address.storage_address,
+                        os.path.join(models_volume, model_filename)
                     )
+                    in_models_command_template += f" {model_filename}"
 
                 volumes['_VOLUME_MODELS_RW'] = models_volume
                 command_template += " --models-path ${_VOLUME_MODELS_RW}"
                 command_template += " --output-model-path ${_VOLUME_MODELS_RW}/model"
-            else:
-                command_template += " --output-model-path "
-                f"{os.path.join(tuple_dir, 'model', 'model')}"
 
             if not isinstance(tuple_, models.Aggregatetuple):
                 # if this is a traintuple or composite traintuple, prepare the data
-                dataset = self._db.get_with_files(schemas.Type.Dataset, tuple_.dataset.key)
+                if isinstance(tuple_, models.Traintuple):
+                    dataset_key = tuple_.train.data_manager_key
+                    train_data_sample_keys = tuple_.train.data_sample_keys
+                if isinstance(tuple_, models.CompositeTraintuple):
+                    dataset_key = tuple_.composite.data_manager_key
+                    train_data_sample_keys = tuple_.composite.data_sample_keys
+
+                dataset = self._db.get_with_files(schemas.Type.Dataset, dataset_key)
                 volumes['_VOLUME_OPENER'] = dataset.opener.storage_address
-                if self._db.is_local(tuple_.dataset.key):
+                if self._db.is_local(dataset_key, schemas.Type.Dataset):
                     data_volume = self._get_data_volume(tuple_dir, tuple_)
                     volumes['_VOLUME_INPUT_DATASAMPLES'] = data_volume
+                    data_sample_paths = self._get_data_sample_paths_arg(
+                        "${_VOLUME_INPUT_DATASAMPLES}",
+                        train_data_sample_keys,
+                    )
+                    command_template += f" --data-sample-paths {data_sample_paths}"
+                else:
+                    command_template += " --fake-data"
+                    command_template += f" --n-fake-samples {len(dataset.train_data_sample_keys)}"
 
             if tuple_.compute_plan_key:
                 #  Shared compute plan volume
-                owner = self._get_owner(tuple_)
                 local_volume = _mkdir(
                     os.path.join(
-                        self._local_worker_dir, "compute_plans", owner, tuple_.compute_plan_key
+                        self._local_worker_dir, "compute_plans", tuple_.worker,
+                        tuple_.compute_plan_key
                     )
                 )
                 volumes['_VOLUME_LOCAL'] = local_volume
@@ -228,31 +357,10 @@ class Worker:
                         volumes['_VOLUME_CHAINKEYS'] = chainkey_volume
                         command_template += " --chainkeys-path ${_VOLUME_CHAINKEYS}"
 
-            # compute command_template
             command_template += f" --rank {tuple_.rank}"
 
             # Add the in_models to the command_template
-            if isinstance(tuple_, models.CompositeTraintuple):
-                command_template += self._get_command_models_composite(
-                    is_train=True,
-                    tuple_=tuple_,
-                    models_volume=input_models_volume,
-                    container_volume="${_VOLUME_INPUT_MODELS_RO}",
-                )
-            elif tuple_.in_models is not None:
-                for idx, model in enumerate(tuple_.in_models):
-                    command_template += f" {idx}_{model.key}"
-
-            if not isinstance(tuple_, models.Aggregatetuple):
-                if self._db.is_local(tuple_.dataset.key):
-                    data_sample_paths = self._get_data_sample_paths_arg(
-                        "${_VOLUME_INPUT_DATASAMPLES}",
-                        tuple_.dataset
-                    )
-                    command_template += f" --data-sample-paths {data_sample_paths}"
-                else:
-                    command_template += " --fake-data"
-                    command_template += f" --n-fake-samples {len(tuple_.dataset.data_sample_keys)}"
+            command_template += in_models_command_template
 
             # Get the environment variables
             envs = dict()
@@ -262,9 +370,9 @@ class Worker:
 
             # Execute the tuple
             container_name = f"algo-{algo.key}"
-            logs = self._spawner.spawn(
+            self._spawner.spawn(
                 container_name,
-                str(algo.content.storage_address),
+                str(algo.algorithm.storage_address),
                 command_template=string.Template(command_template),
                 local_volumes=volumes,
                 envs=envs,
@@ -272,28 +380,36 @@ class Worker:
 
             # save move output models
             if isinstance(tuple_, models.CompositeTraintuple):
-                tuple_.out_head_model.out_model = self._save_output_model(
+                head_model = self._save_output_model(
                     tuple_,
                     'output_head_model',
-                    output_models_volume
+                    output_models_volume,
+                    permissions=tuple_.composite.head_permissions
                 )
-                tuple_.out_trunk_model.out_model = self._save_output_model(
+                trunk_model = self._save_output_model(
                     tuple_,
                     'output_trunk_model',
-                    output_models_volume
+                    output_models_volume,
+                    permissions=tuple_.composite.trunk_permissions
                 )
-            else:
-                tuple_.out_model = self._save_output_model(tuple_, 'model', models_volume)
+                tuple_.composite.models = [head_model, trunk_model]
+            elif isinstance(tuple_, models.Traintuple):
+                out_model = self._save_output_model(tuple_, 'model', models_volume,
+                                                    tuple_.train.model_permissions)
+                tuple_.train.models = [out_model]
+            elif isinstance(tuple_, models.Aggregatetuple):
+                out_model = self._save_output_model(tuple_, 'model', models_volume,
+                                                    tuple_.aggregate.model_permissions)
+                tuple_.aggregate.models = [out_model]
 
-            # set logs and status
-            tuple_.log = logs
+            # set status
             tuple_.status = models.Status.done
 
             if tuple_.compute_plan_key:
                 compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_key)
                 compute_plan.done_count += 1
-                if compute_plan.done_count == compute_plan.tuple_count:
-                    compute_plan.status = models.Status.done
+                if compute_plan.done_count == compute_plan.task_count:
+                    compute_plan.status = models.ComputePlanStatus.done
 
     def schedule_testtuple(self, tuple_):
         """Schedules a ML task (blocking)."""
@@ -301,11 +417,30 @@ class Worker:
             tuple_.status = models.Status.doing
 
             # fetch dependencies
-            traintuple = self._db.get(tuple_.traintuple_type, tuple_.traintuple_key)
+            assert len(tuple_.parent_task_keys) == 1
+            traintuple = None
+            for traintuple_type in [
+                schemas.Type.Traintuple,
+                schemas.Type.CompositeTraintuple,
+                schemas.Type.Aggregatetuple,
+            ]:
+                try:
+                    traintuple = self._db.get(traintuple_type, tuple_.parent_task_keys[0])
+                    break
+                except exceptions.NotFound:
+                    pass
+            if traintuple is None:
+                raise exceptions.NotFound(f"Wrong pk {tuple_.parent_task_keys[0]}", 404)
 
-            algo = self._db.get_with_files(traintuple.algo_type, traintuple.algo.key)
-            objective = self._db.get_with_files(schemas.Type.Objective, tuple_.objective.key)
-            dataset = self._db.get_with_files(schemas.Type.Dataset, tuple_.dataset.key)
+            algo_type = schemas.Type.Algo
+            if tuple_.algo.category == schemas.AlgoCategory.aggregate_algo:
+                algo_type = schemas.Type.AggregateAlgo
+            elif tuple_.algo.category == schemas.AlgoCategory.composite_algo:
+                algo_type = schemas.Type.CompositeAlgo
+
+            algo = self._db.get_with_files(algo_type, tuple_.algo.key)
+            objective = self._db.get_with_files(schemas.Type.Objective, tuple_.test.objective_key)
+            dataset = self._db.get_with_files(schemas.Type.Dataset, tuple_.test.data_manager_key)
 
             compute_plan = None
             if tuple_.compute_plan_key:
@@ -322,7 +457,7 @@ class Worker:
             }
 
             # If use fake data, no data volume
-            if self._db.is_local(dataset.key):
+            if self._db.is_local(dataset.key, schemas.Type.Dataset):
                 data_volume = self._get_data_volume(tuple_dir, tuple_)
                 volumes['_VOLUME_INPUT_DATASAMPLES'] = data_volume
 
@@ -330,10 +465,10 @@ class Worker:
             command_template = "predict"
 
             if tuple_.compute_plan_key:
-                owner = self._get_owner(tuple_)
                 local_volume = _mkdir(
                     os.path.join(
-                        self._local_worker_dir, "compute_plans", owner, tuple_.compute_plan_key
+                        self._local_worker_dir, "compute_plans", tuple_.worker,
+                        tuple_.compute_plan_key
                     )
                 )
                 volumes['_VOLUME_LOCAL'] = local_volume
@@ -343,52 +478,71 @@ class Worker:
                     volumes['_VOLUME_CHAINKEYS'] = chainkey_volume
                     command_template += " --chainkeys-path ${_VOLUME_CHAINKEYS}"
 
-            if tuple_.traintuple_type == schemas.Type.Traintuple \
-                    or tuple_.traintuple_type == schemas.Type.Aggregatetuple:
+            if isinstance(traintuple, models.Traintuple):
+                assert traintuple.train.models is not None and len(traintuple.train.models) == 1
+                in_testtuple_model = traintuple.train.models[0]
                 os.link(
-                    traintuple.out_model.storage_address,
-                    os.path.join(models_volume, traintuple.out_model.key),
+                    in_testtuple_model.address.storage_address,
+                    os.path.join(models_volume, in_testtuple_model.key),
                 )
-
                 model_container_address = _get_address_in_container(
-                    traintuple.out_model.key,
+                    in_testtuple_model.key,
                     models_volume,
                     "${_VOLUME_MODELS_RO}"
                 )
                 command_template += f" {model_container_address}"
-            elif tuple_.traintuple_type == schemas.Type.CompositeTraintuple:
-                os.link(
-                    traintuple.out_head_model.out_model.storage_address,
-                    os.path.join(models_volume, traintuple.out_head_model.out_model.key)
-                )
-                os.link(
-                    traintuple.out_trunk_model.out_model.storage_address,
-                    os.path.join(models_volume, traintuple.out_trunk_model.out_model.key)
-                )
-                command_template += self._get_command_models_composite(
-                    is_train=False,
-                    tuple_=traintuple,
-                    models_volume=models_volume,
-                    container_volume="${_VOLUME_MODELS_RO}",
-                )
 
-            if self._db.is_local(dataset.key):
+            elif isinstance(traintuple, models.Aggregatetuple):
+                assert traintuple.aggregate.models is not None \
+                    and len(traintuple.aggregate.models) == 1
+                in_testtuple_model = traintuple.aggregate.models[0]
+                os.link(
+                    in_testtuple_model.address.storage_address,
+                    os.path.join(models_volume, in_testtuple_model.key),
+                )
+                model_container_address = _get_address_in_container(
+                    in_testtuple_model.key,
+                    models_volume,
+                    "${_VOLUME_MODELS_RO}"
+                )
+                command_template += f" {model_container_address}"
+
+            elif isinstance(traintuple, models.CompositeTraintuple):
+                assert traintuple.composite.models is not None \
+                    and len(traintuple.composite.models) == 2
+                for in_testtuple_model in traintuple.composite.models:
+                    os.link(
+                        in_testtuple_model.address.storage_address,
+                        os.path.join(models_volume, in_testtuple_model.key),
+                    )
+                    address_in_container = _get_address_in_container(
+                        in_testtuple_model.key,
+                        models_volume,
+                        "${_VOLUME_MODELS_RO}",
+                    )
+                    if in_testtuple_model.category == models.ModelType.head:
+                        command_name = '--input-head-model-filename'
+                    elif in_testtuple_model.category == models.ModelType.simple:
+                        command_name = '--input-trunk-model-filename '
+                    command_template += f" {command_name} {address_in_container}"
+
+            if self._db.is_local(dataset.key, schemas.Type.Dataset):
                 data_sample_paths = self._get_data_sample_paths_arg(
                     "${_VOLUME_INPUT_DATASAMPLES}",
-                    tuple_.dataset
+                    tuple_.test.data_sample_keys,
                 )
                 command_template += f" --data-sample-paths {data_sample_paths}"
             else:
                 command_template += " --fake-data"
-                command_template += f" --n-fake-samples {len(tuple_.dataset.data_sample_keys)}"
+                command_template += f" --n-fake-samples {len(tuple_.test.data_sample_keys)}"
 
             command_template += " --opener-path ${_VOLUME_OPENER}"
             command_template += " --output-predictions-path ${_VOLUME_OUTPUT_PRED}/pred"
 
             container_name = f"algo-{traintuple.algo.key}"
-            logs = self._spawner.spawn(
+            self._spawner.spawn(
                 name=container_name,
-                archive_path=str(algo.content.storage_address),
+                archive_path=str(algo.algorithm.storage_address),
                 command_template=string.Template(command_template),
                 local_volumes=volumes,
             )
@@ -399,24 +553,24 @@ class Worker:
                 "_VOLUME_OPENER": dataset.opener.storage_address,
             }
 
-            if self._db.is_local(dataset.key):
+            if self._db.is_local(dataset.key, schemas.Type.Dataset):
                 data_sample_paths = self._get_data_sample_paths_arg(
                     "${_VOLUME_INPUT_DATASAMPLES}",
-                    tuple_.dataset
+                    tuple_.test.data_sample_keys,
                 )
                 volumes["_VOLUME_INPUT_DATASAMPLES"] = data_volume
                 command_template = "--fake-data-mode DISABLED"
                 command_template += f" --data-sample-paths {data_sample_paths}"
             else:
                 command_template = "--fake-data-mode FAKE_Y"
-                command_template += f" --n-fake-samples {len(tuple_.dataset.data_sample_keys)}"
+                command_template += f" --n-fake-samples {len(tuple_.test.data_sample_keys)}"
 
             command_template += " --opener-path ${_VOLUME_OPENER}"
             command_template += " --input-predictions-path ${_VOLUME_OUTPUT_PRED}/pred"
             command_template += " --output-perf-path ${_VOLUME_OUTPUT_PRED}/perf.json"
 
             container_name = 'metrics_run_local'
-            logs_predict = self._spawner.spawn(
+            self._spawner.spawn(
                 container_name,
                 str(objective.metrics.storage_address),
                 command_template=string.Template(command_template),
@@ -430,15 +584,12 @@ class Worker:
             shutil.copy(tmp_path, pred_path)
 
             with open(pred_path, 'r') as f:
-                tuple_.dataset.perf = json.load(f).get('all')
+                tuple_.test.perf = json.load(f).get('all')
 
-            # set logs and status
-            tuple_.log = logs
-            tuple_.log += "\n\n"
-            tuple_.log += logs_predict
+            # set status
             tuple_.status = models.Status.done
 
             if compute_plan:
                 compute_plan.done_count += 1
-                if compute_plan.done_count == compute_plan.tuple_count:
-                    compute_plan.status = models.Status.done
+                if compute_plan.done_count == compute_plan.task_count:
+                    compute_plan.status = models.ComputePlanStatus.done

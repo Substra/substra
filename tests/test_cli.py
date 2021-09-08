@@ -108,8 +108,8 @@ def test_command_login(workdir, mocker):
     ('objective', models.Objective),
     ('dataset', models.Dataset),
     ('algo', models.Algo),
-    ('aggregate_algo', models.AggregateAlgo),
-    ('composite_algo', models.CompositeAlgo),
+    ('aggregate_algo', models.Algo),
+    ('composite_algo', models.Algo),
     ('testtuple', models.Testtuple),
     ('traintuple', models.Traintuple),
     ('aggregatetuple', models.Aggregatetuple),
@@ -291,8 +291,8 @@ def test_command_add_data_sample_already_exists(workdir, mocker):
     ('objective', models.Objective),
     ('dataset', models.Dataset),
     ('algo', models.Algo),
-    ('aggregate_algo', models.AggregateAlgo),
-    ('composite_algo', models.CompositeAlgo),
+    ('aggregate_algo', models.Algo),
+    ('composite_algo', models.Algo),
     ('testtuple', models.Testtuple),
     ('traintuple', models.Traintuple),
     ('aggregatetuple', models.Aggregatetuple),
@@ -366,6 +366,7 @@ def test_command_cancel_compute_plan(workdir, mocker):
     m.assert_called()
 
 
+@pytest.mark.skip(reason="leaderboard will be removed soon")
 def test_command_leaderboard(workdir, mocker):
     m = mock_client_call(mocker, 'leaderboard', datastore.LEADERBOARD)
     client_execute(workdir, ['leaderboard', 'fakekey'])

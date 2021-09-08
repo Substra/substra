@@ -152,7 +152,6 @@ class Remote(base.BaseBackend):
             batch_size=batch_size,
         )
 
-        id_to_keys = dict()
         asset = None
 
         # Create the compute plan if it does not exist
@@ -161,7 +160,6 @@ class Remote(base.BaseBackend):
             tmp_spec = first_spec or spec  # Special case: no tuples
             asset = self.add(spec=tmp_spec, spec_options=deepcopy(spec_options))
             compute_plan_key = asset.key
-            id_to_keys = asset.id_to_key
 
         # Update the compute plan
         for tmp_spec in batches:
@@ -170,7 +168,6 @@ class Remote(base.BaseBackend):
                 spec=tmp_spec,
                 spec_options=deepcopy(spec_options)
             )
-            id_to_keys.update(asset.id_to_key)
 
         # Special case: no tuples
         if asset is None:
@@ -179,7 +176,6 @@ class Remote(base.BaseBackend):
                 key=compute_plan_key,
             )
 
-        asset.id_to_key = id_to_keys
         return asset
 
     def update_compute_plan(self, key, spec, spec_options=None):
@@ -194,23 +190,27 @@ class Remote(base.BaseBackend):
             )
         else:
             # Disable auto batching
-            asset = self._client.request(
+            self._client.request(
                 'post',
                 schemas.Type.ComputePlan.to_server(),
                 path=f"{key}/update_ledger/",
                 json=spec.dict(exclude_none=True),
             )
-            return models.ComputePlan(**asset)
+
+            return self.get(
+                asset_type=schemas.Type.ComputePlan,
+                key=key,
+            )
 
     def link_dataset_with_objective(self, dataset_key, objective_key):
         """Returns the key of the dataset"""
-        asset = self._client.request(
+        self._client.request(
             'post',
             schemas.Type.Dataset.to_server(),
             path=f"{dataset_key}/update_ledger/",
             data={'objective_key': objective_key, },
         )
-        return asset["key"]
+        return dataset_key
 
     def link_dataset_with_data_samples(self, dataset_key, data_sample_keys):
         """Returns the list of the data sample keys"""
@@ -218,13 +218,12 @@ class Remote(base.BaseBackend):
             'data_manager_keys': [dataset_key],
             'data_sample_keys': data_sample_keys,
         }
-        asset = self._client.request(
+        self._client.request(
             'post',
             schemas.Type.DataSample.to_server(),
             path="bulk_update/",
             data=data,
         )
-        return json.loads(asset['key'])['keys']
 
     def download(self, asset_type, url_field_path, key, destination):
         data = self.get(asset_type, key)

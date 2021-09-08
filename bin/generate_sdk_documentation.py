@@ -48,7 +48,8 @@ def generate_function_help(fh, asset):
             type_and_optional = f"({param.type_name}, {text_optional})"
         fh.write(f" - `{param.arg_name} {type_and_optional}`: {param.description}\n")
     # Write everything else as is
-    for param in [meta_param for meta_param in docstring.meta if not isinstance(meta_param, docstring_parser.DocstringParam)]:
+    for param in [meta_param for meta_param in docstring.meta
+                  if not isinstance(meta_param, docstring_parser.DocstringParam)]:
         fh.write(f"\n**{param.args[0].title()}:**\n")
         if len(param.args) > 1:
             for extra_param in param.args[1:]:
@@ -63,7 +64,7 @@ def generate_properties_help(fh, public_methods):
     ]
     for f_name, f_method in properties:
         fh.write(f"## {f_name}\n")
-        fh.write(f"_This is a property._  \n")
+        fh.write("_This is a property._  \n")
         fh.write(f"{f_method.__doc__}\n")
 
 
@@ -98,7 +99,8 @@ if __name__ == '__main__':
     default_path = Path(__file__).resolve().parents[1] / "references" / "sdk.md"
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--output-path', type=str, default=str(default_path.resolve()), required=False)
+    parser.add_argument('--output-path', type=str, default=str(default_path.resolve()),
+                        required=False)
 
     args = parser.parse_args(sys.argv[1:])
     write_help(Path(args.output_path))

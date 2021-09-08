@@ -65,6 +65,7 @@ Specification for creating a testtuple
 - tag: Optional[str]
 - data_manager_key: Optional[str]
 - test_data_sample_keys: Optional[List[str]]
+- compute_plan_key: Optional[str]
 - metadata: Optional[Mapping[str, str]]
 ```
 
@@ -103,7 +104,7 @@ Specification for creating a composite traintuple
 - in_trunk_model_key: Optional[str]
 - tag: Optional[str]
 - compute_plan_key: Optional[str]
-- out_trunk_model_permissions: PrivatePermissions
+- out_trunk_model_permissions: Permissions
 - rank: Optional[int]
 - metadata: Optional[Mapping[str, str]]
 ```

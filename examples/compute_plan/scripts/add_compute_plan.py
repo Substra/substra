@@ -60,7 +60,7 @@ for train_data_sample_key in train_data_sample_keys:
         'algo_key': algo_key,
         'data_manager_key': dataset_key,
         'train_data_sample_keys': [train_data_sample_key],
-        'traintuple_id': uuid.uuid4().hex,
+        'traintuple_id': str(uuid.uuid4()),
         'in_models_ids': [previous_id] if previous_id else [],
     }
     testtuple = {
@@ -81,6 +81,6 @@ compute_plan = client.add_compute_plan({
 })
 
 with open(compute_plan_keys_path, 'w') as f:
-    json.dump(compute_plan.dict(exclude_none=False, by_alias=True), f, indent=2)
+    json.dump(compute_plan.dict(exclude_none=False, by_alias=True), f, indent=2, default=str)
 
 print(f'Compute Plan keys have been saved to {os.path.abspath(compute_plan_keys_path)}')

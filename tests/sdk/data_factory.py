@@ -116,6 +116,9 @@ class TestAggregateAlgo(tools.AggregateAlgo):
         res = {{'value': avg}}
         print(f'Aggregate result: {{res}}')
         return res
+    def predict(self, X, model):
+        predictions = 0
+        return predictions
     def load_model(self, path):
         with open(path) as f:
             return json.load(f)
@@ -213,7 +216,6 @@ COPY algo.py .
 """
 
 DEFAULT_PERMISSIONS = substra.sdk.schemas.Permissions(public=True, authorized_ids=[])
-DEFAULT_OUT_TRUNK_MODEL_PERMISSIONS = substra.sdk.schemas.PrivatePermissions(authorized_ids=[])
 
 
 def zip_folder(path, destination=None):
@@ -488,7 +490,7 @@ class AssetsFactory:
             metadata=metadata,
             compute_plan_key=compute_plan_key,
             rank=rank,
-            out_trunk_model_permissions=permissions or DEFAULT_OUT_TRUNK_MODEL_PERMISSIONS,
+            out_trunk_model_permissions=permissions or DEFAULT_PERMISSIONS,
         )
 
     def create_testtuple(self, objective=None, traintuple=None, tag=None, dataset=None, data_samples=None,

@@ -8,24 +8,15 @@
 - [Aggregatetuple](#Aggregatetuple)
 - [CompositeTraintuple](#CompositeTraintuple)
 - [Algo](#Algo)
-- [CompositeAlgo](#CompositeAlgo)
-- [AggregateAlgo](#AggregateAlgo)
+- [Algo](#Algo)
+- [Algo](#Algo)
 - [ComputePlan](#ComputePlan)
 - [Node](#Node)
 - [Permissions](#Permissions)
 - [InModel](#InModel)
-- [InHeadModel](#InHeadModel)
 - [OutModel](#OutModel)
-- [OutHeadModel](#OutHeadModel)
-- [OutCompositeTrunkModel](#OutCompositeTrunkModel)
-- [OutCompositeHeadModel](#OutCompositeHeadModel)
 - [_File](#_File)
-- [_ObjectiveDataset](#_ObjectiveDataset)
 - [_Metric](#_Metric)
-- [_TraintupleAlgo](#_TraintupleAlgo)
-- [_TraintupleDataset](#_TraintupleDataset)
-- [_TesttupleDataset](#_TesttupleDataset)
-- [_TesttupleObjective](#_TesttupleObjective)
 
 
 # Models
@@ -35,10 +26,10 @@ Data sample
 ```python
 - key: str
 - owner: str
-- creation_date: datetime
 - data_manager_keys: Optional[List[str]]
 - path: Optional[DirectoryPath]
 - validated: bool
+- creation_date: datetime
 - test_only: bool
 ```
 
@@ -48,7 +39,6 @@ Dataset asset
 - key: str
 - name: str
 - owner: str
-- creation_date: datetime
 - objective_key: Optional[str]
 - permissions: Permissions
 - type: str
@@ -57,6 +47,7 @@ Dataset asset
 - opener: _File
 - description: _File
 - metadata: Mapping[str, str]
+- creation_date: datetime
 ```
 
 ## Objective
@@ -65,11 +56,13 @@ Objective
 - key: str
 - name: str
 - owner: str
-- creation_date: datetime
-- test_dataset: Optional[_ObjectiveDataset]
+- data_manager_key: Optional[str]
+- data_sample_keys: List[str]
 - metadata: Mapping[str, str]
 - permissions: Permissions
+- creation_date: datetime
 - description: _File
+- metrics_name: Optional[str]
 - metrics: _Metric
 ```
 
@@ -77,136 +70,129 @@ Objective
 Testtuple
 ```python
 - key: str
-- creation_date: datetime
-- creator: str
-- algo: _TraintupleAlgo
-- objective: _TesttupleObjective
-- traintuple_key: str
-- certified: bool
-- dataset: _TesttupleDataset
-- tag: Optional[str]
-- log: str
-- status: str
+- category: TaskCategory
+- algo: Algo
+- owner: str
 - compute_plan_key: str
-- rank: int
-- traintuple_type: Type
 - metadata: Mapping[str, str]
+- status: str
+- worker: str
+- rank: Optional[int]
+- parent_task_keys: List[str]
+- tag: str
+- creation_date: datetime
+- test: _Test
 ```
 
 ## Traintuple
 Traintuple
 ```python
 - key: str
-- creator: str
-- creation_date: datetime
-- algo: _TraintupleAlgo
-- dataset: _TraintupleDataset
-- permissions: Permissions
-- tag: str
+- category: TaskCategory
+- algo: Algo
+- owner: str
 - compute_plan_key: str
-- rank: int
-- status: str
-- log: str
-- in_models: Optional[List[InModel]]
-- out_model: Optional[OutModel]
 - metadata: Mapping[str, str]
+- status: str
+- worker: str
+- rank: Optional[int]
+- parent_task_keys: List[str]
+- tag: str
+- creation_date: datetime
+- train: _Train
 ```
 
 ## Aggregatetuple
 Aggregatetuple
 ```python
 - key: str
-- creator: str
-- creation_date: datetime
-- worker: str
-- algo: _TraintupleAlgo
-- permissions: Permissions
-- tag: str
+- category: TaskCategory
+- algo: Algo
+- owner: str
 - compute_plan_key: str
-- rank: Optional[int]
-- status: str
-- log: str
-- in_models: List[InModel]
-- out_model: Optional[OutModel]
 - metadata: Mapping[str, str]
+- status: str
+- worker: str
+- rank: Optional[int]
+- parent_task_keys: List[str]
+- tag: str
+- creation_date: datetime
+- aggregate: _Aggregate
 ```
 
 ## CompositeTraintuple
 CompositeTraintuple
 ```python
 - key: str
-- creation_date: datetime
-- creator: str
-- algo: _TraintupleAlgo
-- dataset: _TraintupleDataset
-- tag: str
+- category: TaskCategory
+- algo: Algo
+- owner: str
 - compute_plan_key: str
-- rank: Optional[int]
-- status: str
-- log: str
-- in_head_model: Optional[InHeadModel]
-- in_trunk_model: Optional[InModel]
-- out_head_model: OutCompositeHeadModel
-- out_trunk_model: OutCompositeTrunkModel
 - metadata: Mapping[str, str]
+- status: str
+- worker: str
+- rank: Optional[int]
+- parent_task_keys: List[str]
+- tag: str
+- creation_date: datetime
+- composite: _Composite
 ```
 
 ## Algo
-Algo
+Asset creation specification base class.
 ```python
 - key: str
 - name: str
 - owner: str
-- creation_date: datetime
 - permissions: Permissions
 - metadata: Mapping[str, str]
+- category: AlgoCategory
+- creation_date: datetime
 - description: _File
-- content: _File
+- algorithm: _File
 ```
 
-## CompositeAlgo
-CompositeAlgo
+## Algo
+Asset creation specification base class.
 ```python
 - key: str
 - name: str
 - owner: str
-- creation_date: datetime
 - permissions: Permissions
 - metadata: Mapping[str, str]
+- category: AlgoCategory
+- creation_date: datetime
 - description: _File
-- content: _File
+- algorithm: _File
 ```
 
-## AggregateAlgo
-AggregateAlgo
+## Algo
+Asset creation specification base class.
 ```python
 - key: str
 - name: str
 - owner: str
-- creation_date: datetime
 - permissions: Permissions
 - metadata: Mapping[str, str]
+- category: AlgoCategory
+- creation_date: datetime
 - description: _File
-- content: _File
+- algorithm: _File
 ```
 
 ## ComputePlan
 ComputePlan
 ```python
 - key: str
-- creation_date: datetime
-- status: str
-- failed_tuple: FailedTuple
-- traintuple_keys: Optional[List[str]]
-- composite_traintuple_keys: Optional[List[str]]
-- aggregatetuple_keys: Optional[List[str]]
-- testtuple_keys: Optional[List[str]]
-- id_to_key: Mapping[str, str]
 - tag: str
-- tuple_count: int
-- done_count: int
+- owner: str
 - metadata: Mapping[str, str]
-- clean_models: bool
+- done_count: int
+- task_count: int
+- failed_task: Optional[FailedTuple]
+- delete_intermediary_models: bool
+- status: ComputePlanStatus
+- creation_date: datetime
 ```
 
 ## Node
@@ -214,31 +200,21 @@ Node
 ```python
 - id: str
 - is_current: bool
+- creation_date: datetime
 ```
 
 ## Permissions
 Permissions structure stored in various asset types.
 ```python
 - process: Permission
+- download: Permission
 ```
 
 ## InModel
-In model of a traintuple, aggregate tuple or in trunk
-model of a composite traintuple
+In model of a traintuple, aggregate or composite traintuple
 ```python
-- key: str
 - checksum: str
 - storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
-- traintuple_key: Optional[str]
-```
-
-## InHeadModel
-In head model of a composite traintuple
-```python
-- key: str
-- checksum: str
-- storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str, NoneType]
-- traintuple_key: Optional[str]
 ```
 
 ## OutModel
@@ -246,30 +222,12 @@ Out model of a traintuple, aggregate tuple or out trunk
 model of a composite traintuple
 ```python
 - key: str
-- checksum: str
-- storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
-```
-
-## OutHeadModel
-Out head model of a composite traintuple
-```python
-- key: str
-- checksum: str
-- storage_address: Optional[FilePath]
-```
-
-## OutCompositeTrunkModel
-Out trunk model of a composite traintuple with permissions
-```python
+- category: ModelType
+- compute_task_key: str
+- address: Optional[InModel]
 - permissions: Permissions
-- out_model: Optional[OutModel]
-```
-
-## OutCompositeHeadModel
-Out head model of a composite traintuple with permissions
-```python
-- permissions: Permissions
-- out_model: Optional[OutHeadModel]
+- owner: str
+- creation_date: datetime
 ```
 
 ## _File
@@ -279,56 +237,10 @@ File as stored in the models
 - storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
 ```
 
-## _ObjectiveDataset
-Dataset as stored in the Objective asset
-```python
-- data_manager_key: str
-- data_sample_keys: List[str]
-- metadata: Mapping[str, str]
-- worker: str
-```
-
 ## _Metric
 Metric associated to a testtuple or objective
 ```python
-- name: Optional[str]
 - checksum: str
 - storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
-```
-
-## _TraintupleAlgo
-Algo associated to a traintuple
-```python
-- key: str
-- checksum: str
-- storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
-- name: str
-```
-
-## _TraintupleDataset
-Dataset as stored in a traintuple or composite traintuple
-```python
-- key: str
-- opener_checksum: str
-- data_sample_keys: List[str]
-- worker: str
-- metadata: Optional[Mapping[str, str]]
-```
-
-## _TesttupleDataset
-Dataset of a testtuple
-```python
-- key: str
-- opener_checksum: str
-- perf: float
-- data_sample_keys: List[str]
-- worker: str
-```
-
-## _TesttupleObjective
-Objective of a testtuple
-```python
-- key: str
-- metrics: _Metric
 ```
 

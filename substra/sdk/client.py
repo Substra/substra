@@ -484,15 +484,15 @@ class Client(object):
         return self._backend.get(schemas.Type.ComputePlan, key)
 
     @logit
-    def get_aggregate_algo(self, key: str) -> models.AggregateAlgo:
+    def get_aggregate_algo(self, key: str) -> models.Algo:
         """Get aggregate algo by key, the returned object is described
-        in the [models.AggregateAlgo](sdk_models.md#AggregateAlgo) model"""
+        in the [models.Algo](sdk_models.md#Algo) model"""
         return self._backend.get(schemas.Type.AggregateAlgo, key)
 
     @logit
-    def get_composite_algo(self, key: str) -> models.CompositeAlgo:
+    def get_composite_algo(self, key: str) -> models.Algo:
         """Get composite algo by key, the returned object is described
-        in the [models.CompositeAlgo](sdk_models.md#CompositeAlgo) model"""
+        in the [models.Algo](sdk_models.md#Algo) model"""
         return self._backend.get(schemas.Type.CompositeAlgo, key)
 
     @logit
@@ -544,15 +544,15 @@ class Client(object):
         return self._backend.list(schemas.Type.ComputePlan, filters)
 
     @logit
-    def list_aggregate_algo(self, filters=None) -> List[models.AggregateAlgo]:
+    def list_aggregate_algo(self, filters=None) -> List[models.Algo]:
         """List aggregate algos, the returned object is described
-        in the [models.AggregateAlgo](sdk_models.md#AggregateAlgo) model"""
+        in the [models.Algo](sdk_models.md#Algo) model"""
         return self._backend.list(schemas.Type.AggregateAlgo, filters)
 
     @logit
-    def list_composite_algo(self, filters=None) -> List[models.CompositeAlgo]:
+    def list_composite_algo(self, filters=None) -> List[models.Algo]:
         """List composite algos, the returned object is described
-        in the [models.CompositeAlgo](sdk_models.md#CompositeAlgo) model"""
+        in the [models.Algo](sdk_models.md#CompositeAlgo) model"""
         return self._backend.list(schemas.Type.CompositeAlgo, filters)
 
     @logit
@@ -678,7 +678,7 @@ class Client(object):
         """
         self._backend.download(
             schemas.Type.Algo,
-            'content.storage_address',
+            'algorithm.storage_address',
             key,
             os.path.join(destination_folder, 'algo.tar.gz'),
         )
@@ -691,7 +691,7 @@ class Client(object):
         """
         self._backend.download(
             schemas.Type.AggregateAlgo,
-            'content.storage_address',
+            'algorithm.storage_address',
             key,
             os.path.join(destination_folder, 'aggregate_algo.tar.gz'),
         )
@@ -704,7 +704,7 @@ class Client(object):
         """
         self._backend.download(
             schemas.Type.CompositeAlgo,
-            'content.storage_address',
+            'algorithm.storage_address',
             key,
             os.path.join(destination_folder, 'composite_algo.tar.gz'),
         )
@@ -776,18 +776,19 @@ class Client(object):
     def _download_model_from_tuple(self, tuple_type, tuple_key, folder, head_trunk=None) -> None:
         """Download model to a destination file."""
         tuple = self._backend.get(tuple_type, tuple_key)
-
+        model = None
         if tuple_type == schemas.Type.CompositeTraintuple:
-            if head_trunk == "head":
-                model = tuple.out_head_model.out_model
-            elif head_trunk == "trunk":
-                model = tuple.out_trunk_model.out_model
-            else:
-                raise exceptions.InvalidRequest(
-                    'head_trunk parameter must have value "head" or "trunk"'
-                )
+            for m in tuple.composite.models:
+                if head_trunk == "head" and m.category == models.ModelType.head:
+                    model = m
+                elif head_trunk == "trunk" and m.category == models.ModelType.simple:
+                    model = m
+        elif tuple_type == schemas.Type.Aggregatetuple:
+            model = tuple.aggregate.models[0]
+        elif tuple_type == schemas.Type.Traintuple:
+            model = tuple.train.models[0]
         else:
-            model = tuple.out_model
+            raise exceptions.InvalidRequest(f'unhandled tuple type: {tuple_type}')
 
         if not model:
             desc = f'{head_trunk} ' if head_trunk else ""

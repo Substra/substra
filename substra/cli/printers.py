@@ -14,6 +14,7 @@
 
 import json
 import math
+import enum
 import pydantic
 
 import yaml
@@ -37,14 +38,16 @@ class Field:
         self.ref = ref
 
     def get_value(self, item, expand=False):
-        return find_dict_composite_key_value(item, self.ref)
+        value = find_dict_composite_key_value(item, self.ref)
+        if isinstance(value, enum.Enum):
+            value = value.name
+        return value
 
     def print_details(self, item, field_length, expand):
         name = self.name.upper().ljust(field_length)
         value = self.get_value(item, expand)
         if isinstance(value, dict):
             value = [f'{k}: {v}' for k, v in value.items()]
-
         if isinstance(value, list):
             if value:
                 print(name, end='')
@@ -280,22 +283,21 @@ class ComputePlanPrinter(AssetPrinter):
         CountField('Composite traintuples count', 'composite_traintuple_keys'),
         CountField('Aggregatetuples count', 'aggregatetuple_keys'),
         CountField('Testtuples count', 'testtuple_keys'),
-        ProgressField('Progress', 'done_count', 'tuple_count'),
+        ProgressField('Progress', 'done_count', 'task_count'),
         Field('Status', 'status'),
         Field('Tag', 'tag'),
-        Field('Clean model', 'clean_model'),
+        Field('Clean model', 'delete_intermediary_models'),
     )
     single_fields = (
         KeysField('Traintuple keys', 'traintuple_keys'),
         KeysField('Composite traintuple keys', 'composite_traintuple_keys'),
         KeysField('Aggregatetuple keys', 'aggregatetuple_keys'),
         KeysField('Testtuple keys', 'testtuple_keys'),
-        ProgressField('Progress', 'done_count', 'tuple_count'),
+        ProgressField('Progress', 'done_count', 'task_count'),
         Field('Status', 'status'),
         Field('Tag', 'tag'),
         Field('Metadata', 'metadata'),
-        Field('Clean model', 'clean_model'),
-        MappingField('ID to key mapping', 'id_to_key'),
+        Field('Clean model', 'delete_intermediary_models'),
     )
 
     def print_messages(self, item, profile=None):
@@ -336,11 +338,11 @@ class ObjectivePrinter(AssetPrinter):
 
     list_fields = (
         Field('Name', 'name'),
-        Field('Metrics', 'metrics.name'),
+        Field('Metrics', 'metrics_name'),
     )
     single_fields = (
         Field('Name', 'name'),
-        Field('Metrics', 'metrics.name'),
+        Field('Metrics', 'metrics_name'),
         Field('Test dataset key', 'test_dataset.data_manager_key'),
         KeysField('Test data sample keys', 'test_dataset.data_sample_keys'),
         Field('Owner', 'owner'),
@@ -503,7 +505,7 @@ class TesttuplePrinter(AssetPrinter):
 
     list_fields = (
         Field('Algo name', 'algo.name'),
-        Field('Certified', 'certified'),
+        Field('Certified', 'test.certified'),
         Field('Status', 'status'),
         Field('Perf', 'dataset.perf'),
         Field('Rank', 'rank'),
@@ -516,7 +518,7 @@ class TesttuplePrinter(AssetPrinter):
         Field('Algo key', 'algo.key'),
         Field('Algo name', 'algo.name'),
         Field('Objective key', 'objective.key'),
-        Field('Certified', 'certified'),
+        Field('Certified', 'test.certified'),
         Field('Status', 'status'),
         Field('Perf', 'dataset.perf'),
         Field('Dataset key', 'dataset.key'),
@@ -543,21 +545,21 @@ class NodePrinter(AssetPrinter):
 
 class LeaderBoardPrinter(BasePrinter):
     objective_fields = (Field('Key', 'key'), ) + ObjectivePrinter.single_fields
-    testtuple_fields = (
+    board_item_fields = (
         Field('Perf', 'perf'),
         Field('Algo name', 'algo.name'),
-        Field('Traintuple key', 'traintuple_key'),
+        Field('Traintuple key', 'compute_task_key'),
     )
 
     def print(self, leaderboard, expand):
         objective = leaderboard['objective']
-        testtuples = leaderboard['testtuples']
+        board_items = leaderboard['board_items']
 
         print('========== OBJECTIVE ==========')
         self.print_details(objective, self.objective_fields, expand)
         print()
         print('========= LEADERBOARD =========')
-        self.print_table(testtuples, self.testtuple_fields)
+        self.print_table(board_items, self.board_item_fields)
 
 
 PRINTERS = {

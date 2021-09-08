@@ -38,24 +38,15 @@ models_list = [
     models.Aggregatetuple,
     models.CompositeTraintuple,
     models.Algo,
-    models.CompositeAlgo,
-    models.AggregateAlgo,
+    models.Algo,
+    models.Algo,
     models.ComputePlan,
     models.Node,
     models.Permissions,
     models.InModel,
-    models.InHeadModel,
     models.OutModel,
-    models.OutHeadModel,
-    models.OutCompositeTrunkModel,
-    models.OutCompositeHeadModel,
     models._File,
-    models._ObjectiveDataset,
     models._Metric,
-    models._TraintupleAlgo,
-    models._TraintupleDataset,
-    models._TesttupleDataset,
-    models._TesttupleObjective,
 ]
 
 
@@ -107,14 +98,17 @@ def write_help(path, models: bool):
 if __name__ == '__main__':
 
     if pydantic.VERSION != '1.8.2':
-        warnings.warn("The documentation should be generated with this exact version of pydantic or there might be mismatches with the CI.")
+        warnings.warn("The documentation should be generated with this exact version of pydantic or \
+            there might be mismatches with the CI.")
 
     doc_dir = local_dir.parent / "references"
     default_path = doc_dir / "sdk_schemas.md"
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--output-path', type=str, default=str(default_path.resolve()), required=False)
-    parser.add_argument('--models', action='store_true', help='Generate the doc for the models. Default: generate for the schemas')
+    parser.add_argument('--output-path', type=str, default=str(default_path.resolve()),
+                        required=False)
+    parser.add_argument('--models', action='store_true', help='Generate the doc for the models.\
+        Default: generate for the schemas')
 
     args = parser.parse_args(sys.argv[1:])
     write_help(Path(args.output_path), models=args.models)

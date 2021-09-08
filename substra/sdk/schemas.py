@@ -60,6 +60,14 @@ class Type(enum.Enum):
         return self.name
 
 
+class AlgoCategory(str, enum.Enum):
+    """Algo category"""
+    unknown = "ALGO_UNKNOWN"
+    algo = "ALGO_SIMPLE"
+    composite_algo = "ALGO_COMPOSITE"
+    aggregate_algo = "ALGO_AGGREGATE"
+
+
 class _PydanticConfig(pydantic.BaseModel):
     """Shared configuration for all schemas here"""
     class Config:
@@ -89,7 +97,7 @@ class _Spec(_PydanticConfig, abc.ABC):
 
     @staticmethod
     def compute_key() -> str:
-        return str(uuid.uuid4())
+        return uuid.uuid4().hex
 
 
 class Permissions(_PydanticConfig):
@@ -245,7 +253,8 @@ class ObjectiveSpec(_Spec):
         file_attributes = ('metrics', 'description', )
 
 
-class _AlgoSpec(_Spec):
+class AlgoSpec(_Spec):
+    """Specification for creating an algo"""
     name: str
     description: pathlib.Path
     file: pathlib.Path
@@ -255,20 +264,20 @@ class _AlgoSpec(_Spec):
     class Meta:
         file_attributes = ('file', 'description', )
 
-
-class AlgoSpec(_AlgoSpec):
-    """Specification for creating an algo"""
     type_: typing.ClassVar[Type] = Type.Algo
+    category_: typing.ClassVar[Type] = AlgoCategory.algo
 
 
-class AggregateAlgoSpec(_AlgoSpec):
-    """Specification for creating an aggregate algo"""
-    type_: typing.ClassVar[Type] = Type.AggregateAlgo
-
-
-class CompositeAlgoSpec(_AlgoSpec):
+class CompositeAlgoSpec(AlgoSpec):
     """Specification for creating a composite algo"""
     type_: typing.ClassVar[Type] = Type.CompositeAlgo
+    category_: typing.ClassVar[Type] = AlgoCategory.composite_algo
+
+
+class AggregateAlgoSpec(AlgoSpec):
+    """Specification for creating an aggregate algo"""
+    type_: typing.ClassVar[Type] = Type.AggregateAlgo
+    category_: typing.ClassVar[Type] = AlgoCategory.aggregate_algo
 
 
 class TraintupleSpec(_Spec):
@@ -283,14 +292,12 @@ class TraintupleSpec(_Spec):
     metadata: Optional[Dict[str, str]]
 
     compute_plan_attr_name: typing.ClassVar[str] = "traintuple_keys"
-    algo_type: typing.ClassVar[Type] = Type.Algo
     type_: typing.ClassVar[Type] = Type.Traintuple
 
     @classmethod
     def from_compute_plan(
         cls,
         compute_plan_key: str,
-        id_to_key: typing.Dict[str, str],
         rank: int,
         spec: ComputePlanTraintupleSpec
     ) -> "TraintupleSpec":
@@ -298,11 +305,7 @@ class TraintupleSpec(_Spec):
             algo_key=spec.algo_key,
             data_manager_key=spec.data_manager_key,
             train_data_sample_keys=spec.train_data_sample_keys,
-            in_models_keys=[
-                # in model ids can either be ids or keys to other assets
-                id_to_key[parent_id] if parent_id in id_to_key else parent_id
-                for parent_id in spec.in_models_ids
-            ] if spec.in_models_ids is not None else list(),
+            in_models_keys=spec.in_models_ids or list(),
             tag=spec.tag,
             compute_plan_key=compute_plan_key,
             rank=rank,
@@ -321,24 +324,19 @@ class AggregatetupleSpec(_Spec):
     metadata: Optional[Dict[str, str]]
 
     compute_plan_attr_name: typing.ClassVar[str] = "aggregatetuple_keys"
-    algo_type: typing.ClassVar[Type] = Type.AggregateAlgo
     type_: typing.ClassVar[Type] = Type.Aggregatetuple
 
     @classmethod
     def from_compute_plan(
         cls,
         compute_plan_key: str,
-        id_to_key: typing.Dict[str, str],
         rank: int,
         spec: ComputePlanAggregatetupleSpec
     ) -> "AggregatetupleSpec":
         return AggregatetupleSpec(
             algo_key=spec.algo_key,
             worker=spec.worker,
-            in_models_keys=[
-                id_to_key[parent_id]
-                for parent_id in spec.in_models_ids
-            ],
+            in_models_keys=spec.in_models_ids or list(),
             tag=spec.tag,
             compute_plan_key=compute_plan_key,
             rank=rank,
@@ -355,7 +353,7 @@ class CompositeTraintupleSpec(_Spec):
     in_trunk_model_key: Optional[str]
     tag: Optional[str]
     compute_plan_key: Optional[str]
-    out_trunk_model_permissions: PrivatePermissions
+    out_trunk_model_permissions: Permissions
     rank: Optional[int]
     metadata: Optional[Dict[str, str]]
 
@@ -366,7 +364,6 @@ class CompositeTraintupleSpec(_Spec):
     def from_compute_plan(
         cls,
         compute_plan_key: str,
-        id_to_key: typing.Dict[str, str],
         rank: int,
         spec: ComputePlanCompositeTraintupleSpec
     ) -> "CompositeTraintupleSpec":
@@ -374,11 +371,10 @@ class CompositeTraintupleSpec(_Spec):
             algo_key=spec.algo_key,
             data_manager_key=spec.data_manager_key,
             train_data_sample_keys=spec.train_data_sample_keys,
-            in_head_model_key=(id_to_key[spec.in_head_model_id]
-                               if spec.in_head_model_id else None),
-            in_trunk_model_key=(id_to_key[spec.in_trunk_model_id]
-                                if spec.in_trunk_model_id else None),
+            in_head_model_key=spec.in_head_model_id,
+            in_trunk_model_key=spec.in_trunk_model_id,
             out_trunk_model_permissions={
+                "public": spec.out_trunk_model_permissions.public,
                 "authorized_ids": spec.out_trunk_model_permissions.authorized_ids
             },
             tag=spec.tag,
@@ -395,6 +391,7 @@ class TesttupleSpec(_Spec):
     tag: Optional[str]
     data_manager_key: Optional[str]
     test_data_sample_keys: Optional[List[str]]
+    compute_plan_key: Optional[str]
     metadata: Optional[Dict[str, str]]
 
     type_: typing.ClassVar[Type] = Type.Testtuple
@@ -402,12 +399,11 @@ class TesttupleSpec(_Spec):
     @classmethod
     def from_compute_plan(
         cls,
-        id_to_key: typing.Dict[str, str],
         spec: ComputePlanTesttupleSpec
     ) -> "TesttupleSpec":
         return TesttupleSpec(
             objective_key=spec.objective_key,
-            traintuple_key=id_to_key[spec.traintuple_id],
+            traintuple_key=spec.traintuple_id,
             tag=spec.tag,
             data_manager_key=spec.data_manager_key,
             test_data_sample_keys=spec.test_data_sample_keys,

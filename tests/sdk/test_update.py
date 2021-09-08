@@ -22,10 +22,9 @@ def test_update_dataset(client, mocker):
     m = mock_requests(mocker, "post", response={"key": "dataset_key"})
 
     response = client.link_dataset_with_objective(
-        'a key',
-        'an another key',
+        'dataset_key',
+        'objective_key',
     )
-
     assert response == "dataset_key"
     m.assert_called()
 
