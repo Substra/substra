@@ -84,7 +84,6 @@ traintuple_key = client.add_traintuple(
 assert traintuple_key, "Missing traintuple key"
 
 traintuple = client.get_traintuple(traintuple_key)
-print(f"\n--- Logs of the execution of the traintuple --- \n{traintuple.log}\n")
 
 #################
 #   Testtuple   #
@@ -101,7 +100,6 @@ testtuple_key = client.add_testtuple(
 assert testtuple_key, "Missing testtuple key"
 
 testtuple = client.get_testtuple(testtuple_key)
-print(f"\n--- Logs of the execution of the testtuple --- \n{testtuple.log}\n")
 
 ###################
 #   Performance   #
@@ -109,4 +107,4 @@ print(f"\n--- Logs of the execution of the testtuple --- \n{testtuple.log}\n")
 
 #  Get the performance
 testtuple = client.get_testtuple(key=testtuple_key)
-print(f"The performance on the fake test data is {testtuple.dataset.perf:.4f}")
+print(f"The performance on the fake test data is {testtuple.test.perf:.4f}")

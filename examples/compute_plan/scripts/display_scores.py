@@ -19,27 +19,29 @@ import os
 import substra
 
 current_directory = os.path.dirname(__file__)
-compute_plan_keys_path = os.path.join(current_directory, '../compute_plan_keys.json')
+compute_plan_info_path = os.path.join(current_directory, '../compute_plan_info.json')
 
 client = substra.Client.from_config_file(profile_name="node-1")
 
-with open(compute_plan_keys_path, 'r') as f:
-    compute_plan_keys = json.load(f)
+with open(compute_plan_info_path, 'r') as f:
+    compute_plan_info = json.load(f)
 
 # fetch all data
-testtuple_keys = compute_plan_keys['testtuple_keys']
+compute_plan_key = compute_plan_info['key']
+testtuples = client.list_testtuple(filters=[f'testtuple:compute_plan_key:{compute_plan_key}'])
 columns = [
     ['STEP'],
     ['SCORE'],
     ['TRAINTUPLE'],
     ['TESTTUPLE'],
 ]
-for i, testtuple_key in enumerate(testtuple_keys):
-    testtuple = client.get_testtuple(testtuple_key)
-    score = testtuple.dataset.perf if testtuple.status == 'done' else testtuple.status
-    columns[0].append(str(i+1))
+testtuples = sorted(testtuples, key=lambda x: x.rank)
+
+for i, testtuple in enumerate(testtuples):
+    score = testtuple.test.perf if testtuple.status == 'STATUS_DONE' else testtuple.status
+    columns[0].append(str(testtuple.rank + 1))
     columns[1].append(str(score))
-    columns[2].append(testtuple.traintuple_key)
+    columns[2].append(testtuple.parent_task_keys[0])
     columns[3].append(testtuple.key)
 
 # display data
@@ -49,7 +51,7 @@ for column in columns:
     width = (math.ceil(width / 4) + 1) * 4
     column_widths.append(width)
 
-for row_index in range(len(testtuple_keys) + 1):
+for row_index in range(len(testtuples) + 1):
     for col_index, column in enumerate(columns):
         print(column[row_index].ljust(column_widths[col_index]), end='')
     print()

@@ -278,7 +278,7 @@ class Local(base.BaseBackend):
             },
             'creator': testtuple.creator,
             'key': testtuple.key,
-            'perf': testtuple.dataset.perf,
+            'perf': testtuple.test.perf,
             'tag': testtuple.tag,
             'traintuple_key': testtuple.traintuple_key
         }

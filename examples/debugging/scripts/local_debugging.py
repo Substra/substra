@@ -200,4 +200,4 @@ assert testtuple_key, "Missing testtuple key"
 
 #  Get the performance
 testtuple = client.get_testtuple(key=testtuple_key)
-print(f"The performance on the test set is {testtuple.dataset.perf:.4f}")
+print(f"The performance on the test set is {testtuple.test.perf:.4f}")

@@ -21,7 +21,7 @@ import substra
 
 current_directory = os.path.dirname(__file__)
 assets_keys_path = os.path.join(current_directory, '../../titanic/assets_keys.json')
-compute_plan_keys_path = os.path.join(current_directory, '../compute_plan_keys.json')
+compute_plan_info_path = os.path.join(current_directory, '../compute_plan_info.json')
 
 client = substra.Client.from_config_file(profile_name="node-1")
 
@@ -80,7 +80,7 @@ compute_plan = client.add_compute_plan({
     'aggregatetuples': [],
 })
 
-with open(compute_plan_keys_path, 'w') as f:
+with open(compute_plan_info_path, 'w') as f:
     json.dump(compute_plan.dict(exclude_none=False, by_alias=True), f, indent=2, default=str)
 
-print(f'Compute Plan keys have been saved to {os.path.abspath(compute_plan_keys_path)}')
+print(f'Compute Plan keys have been saved to {os.path.abspath(compute_plan_info_path)}')
