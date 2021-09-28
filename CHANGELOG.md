@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Display backend version in node info command
+
 ### Changed
 - Internal: backend now serve paginated lists of asset. Client still returns simple lists as before.
 - [BREAKING CHANGE] All algos are now one single object with a category property.

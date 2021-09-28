@@ -269,6 +269,7 @@ class AlgoPrinter(AssetPrinter):
 class NodeInfoPrinter(BasePrinter):
     single_fields = (
         Field('HOST', 'host'),
+        Field('VERSION', 'version'),
         Field('CHANNEL', 'channel'),
         MappingField('CONFIG', 'config'),
     )

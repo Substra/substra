@@ -722,7 +722,7 @@ class Client(object):
         return self._backend.describe(schemas.Type.Objective, key)
 
     @logit
-    def node_info(self) -> str:
+    def node_info(self) -> dict:
         """Get node information."""
         return self._backend.node_info()
 
