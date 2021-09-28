@@ -38,6 +38,7 @@ with assets_keys_path.open('r') as f:
 #  Create the algorithm archive and asset
 ALGO = {
     "name": "Titanic: Random Forest",
+    "category": "ALGO_SIMPLE",
     "description": assets_directory / "algo_random_forest" / "description.md",
     "file": current_directory / "tmp" / "algo_random_forest.zip",
     "permissions": {"public": False, "authorized_ids": []},
@@ -57,6 +58,7 @@ print("Adding algo locally...")
 algo_key = client.add_algo(
     {
         "name": ALGO["name"],
+        "category": ALGO["category"],
         "file": str(ALGO["file"]),
         "description": str(ALGO["description"]),
         "permissions": ALGO["permissions"],

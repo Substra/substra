@@ -27,6 +27,7 @@ ALGO_KEYS_JSON_FILENAME = 'algo_random_forest_keys.json'
 
 ALGO = {
     'name': 'Titanic: Random Forest',
+    'category': 'ALGO_SIMPLE',
     'description': os.path.join(assets_directory, 'algo_random_forest/description.md'),
     'permissions': {
         'public': False,
@@ -63,6 +64,7 @@ with open(assets_keys_path, 'r') as f:
 print('Adding algo...')
 algo_key = client.add_algo({
     'name': ALGO['name'],
+    'category': ALGO['category'],
     'file': ALGO['file'],
     'description': ALGO['description'],
     'permissions': ALGO['permissions'],

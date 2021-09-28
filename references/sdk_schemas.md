@@ -7,8 +7,6 @@
 - [TraintupleSpec](#TraintupleSpec)
 - [AggregatetupleSpec](#AggregatetupleSpec)
 - [CompositeTraintupleSpec](#CompositeTraintupleSpec)
-- [CompositeAlgoSpec](#CompositeAlgoSpec)
-- [AggregateAlgoSpec](#AggregateAlgoSpec)
 - [ComputePlanSpec](#ComputePlanSpec)
 - [UpdateComputePlanSpec](#UpdateComputePlanSpec)
 - [ComputePlanTesttupleSpec](#ComputePlanTesttupleSpec)
@@ -106,26 +104,6 @@ Specification for creating a composite traintuple
 - compute_plan_key: Optional[str]
 - out_trunk_model_permissions: Permissions
 - rank: Optional[int]
-- metadata: Optional[Mapping[str, str]]
-```
-
-## CompositeAlgoSpec
-Specification for creating a composite algo
-```python
-- name: str
-- description: Path
-- file: Path
-- permissions: Permissions
-- metadata: Optional[Mapping[str, str]]
-```
-
-## AggregateAlgoSpec
-Specification for creating an aggregate algo
-```python
-- name: str
-- description: Path
-- file: Path
-- permissions: Permissions
 - metadata: Optional[Mapping[str, str]]
 ```
 

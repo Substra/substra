@@ -506,6 +506,7 @@ def add_algo(ctx, data):
     \b
     {
         "name": str,
+        "category": str,
         "description": path,
         "file": path,
         "permissions": {
@@ -518,6 +519,7 @@ def add_algo(ctx, data):
     \b
     Where:
     - name: name of the algorithm
+    - category: one of ALGO_SIMPLE, ALGO_COMPOSITE, ALGO_AGGREGATE
     - description: path to a markdown file describing the algo
     - file: path to tar.gz or zip archive containing the algorithm python
       script and its Dockerfile
@@ -604,86 +606,6 @@ def add_compute_plan(ctx, data, no_auto_batching, batch_size):
     client = get_client(ctx.obj)
     res = client.add_compute_plan(data, auto_batching=not no_auto_batching, batch_size=batch_size)
     printer = printers.get_asset_printer(assets.COMPUTE_PLAN, ctx.obj.output_format)
-    printer.print(res, is_list=False)
-
-
-@add.command('aggregate_algo')
-@click.argument('data', type=click.Path(exists=True, dir_okay=False), callback=load_json_from_path,
-                metavar="PATH")
-@click_global_conf_with_output_format
-@click_global_conf_retry_timeout
-@click.pass_context
-@error_printer
-def add_aggregate_algo(ctx, data):
-    """Add aggregate algo.
-
-    The path must point to a valid JSON file with the following schema:
-
-    \b
-    {
-        "name": str,
-        "description": path,
-        "file": path,
-        "permissions": {
-            "public": bool,
-            "authorized_ids": list[str],
-        },
-        "metadata": dict
-    }
-
-    \b
-    Where:
-    - name: name of the algorithm
-    - description: path to a markdown file describing the algo
-    - file: path to tar.gz or zip archive containing the algorithm python
-      script and its Dockerfile
-    - permissions: define asset access permissions
-    """
-
-    client = get_client(ctx.obj)
-    key = client.add_aggregate_algo(data)
-    res = ctx.obj.retry(client.get_aggregate_algo)(key)
-    printer = printers.get_asset_printer(assets.AGGREGATE_ALGO, ctx.obj.output_format)
-    printer.print(res, is_list=False)
-
-
-@add.command('composite_algo')
-@click.argument('data', type=click.Path(exists=True, dir_okay=False), callback=load_json_from_path,
-                metavar="PATH")
-@click_global_conf_with_output_format
-@click_global_conf_retry_timeout
-@click.pass_context
-@error_printer
-def add_composite_algo(ctx, data):
-    """Add composite algo.
-
-    The path must point to a valid JSON file with the following schema:
-
-    \b
-    {
-        "name": str,
-        "description": path,
-        "file": path,
-        "permissions": {
-            "public": bool,
-            "authorized_ids": list[str],
-        },
-        "metadata": dict
-    }
-
-    \b
-    Where:
-    - name: name of the algorithm
-    - description: path to a markdown file describing the algo
-    - file: path to tar.gz or zip archive containing the algorithm python
-      script and its Dockerfile
-    - permissions: define asset access permissions
-    """
-
-    client = get_client(ctx.obj)
-    key = client.add_composite_algo(data)
-    res = ctx.obj.retry(client.get_composite_algo)(key)
-    printer = printers.get_asset_printer(assets.COMPOSITE_ALGO, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
 
@@ -908,8 +830,6 @@ def add_testtuple(ctx, objective_key, dataset_key, traintuple_key, data_samples,
 @click.argument('asset-name', type=click.Choice([
     assets.ALGO,
     assets.COMPUTE_PLAN,
-    assets.COMPOSITE_ALGO,
-    assets.AGGREGATE_ALGO,
     assets.DATASET,
     assets.OBJECTIVE,
     assets.TESTTUPLE,
@@ -942,8 +862,6 @@ def get(ctx, expand, asset_name, asset_key):
 @click.argument('asset-name', type=click.Choice([
     assets.ALGO,
     assets.COMPUTE_PLAN,
-    assets.COMPOSITE_ALGO,
-    assets.AGGREGATE_ALGO,
     assets.DATA_SAMPLE,
     assets.DATASET,
     assets.OBJECTIVE,
@@ -997,8 +915,6 @@ def list_(ctx, asset_name, filters, filters_logical_clause, advanced_filters):
 @cli.command()
 @click.argument('asset-name', type=click.Choice([
     assets.ALGO,
-    assets.COMPOSITE_ALGO,
-    assets.AGGREGATE_ALGO,
     assets.DATASET,
     assets.OBJECTIVE,
 ]))
@@ -1037,8 +953,6 @@ def node_info(ctx):
 @cli.command()
 @click.argument('asset-name', type=click.Choice([
     assets.ALGO,
-    assets.COMPOSITE_ALGO,
-    assets.AGGREGATE_ALGO,
     assets.DATASET,
     assets.OBJECTIVE,
     assets.MODEL

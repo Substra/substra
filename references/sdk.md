@@ -2,7 +2,7 @@
 
 # Client
 ```python
-Client(url: Optional[str] = None, token: Optional[str] = None, retry_timeout: int = 300, insecure: bool = False, debug: bool = False)
+Client(url: Union[str, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300, insecure: bool = False, debug: bool = False)
 ```
 
 Create a client
@@ -30,23 +30,6 @@ _This is a property._
 Temporary directory for storing assets in debug mode.
         Deleted when the client is deleted.
         
-## add_aggregate_algo
-```python
-add_aggregate_algo(self, data: Union[dict, substra.sdk.schemas.AggregateAlgoSpec]) -> str
-```
-
-Create new aggregate algo asset.
-In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-the value becomes the 'creator' of the aggregate algo.
-
-**Arguments:**
- - `data (Union[dict, schemas.AggregateAlgoSpec], required)`: If it is a dict,
-it must have the same keys as specified in
-[schemas.AggregateAlgoSpec](sdk_schemas.md#AggregateAlgoSpec).
-
-**Returns:**
-
- - `str`: Key of the asset
 ## add_aggregatetuple
 ```python
 add_aggregatetuple(self, data: Union[dict, substra.sdk.schemas.AggregatetupleSpec]) -> str
@@ -80,22 +63,6 @@ as specified in [schemas.AlgoSpec](sdk_schemas.md#AlgoSpec).
 **Returns:**
 
  - `str`: Key of the algo
-## add_composite_algo
-```python
-add_composite_algo(self, data: Union[dict, substra.sdk.schemas.CompositeAlgoSpec]) -> str
-```
-
-Create new composite algo asset.
-In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-the value becomes the 'creator' of the composite algo.
-
-**Arguments:**
- - `data (Union[dict, schemas.CompositeAlgoSpec], required)`: If it is a dict, it must have the same
-keys as specified in [schemas.CompositeAlgoSpec](sdk_schemas.md#CompositeAlgoSpec).
-
-**Returns:**
-
- - `str`: Key of the asset
 ## add_composite_traintuple
 ```python
 add_composite_traintuple(self, data: Union[dict, substra.sdk.schemas.CompositeTraintupleSpec]) -> str
@@ -253,24 +220,12 @@ cancel_compute_plan(self, key: str) -> substra.sdk.models.ComputePlan
 
 Cancel execution of compute plan, the returned object is described
 in the [models.ComputePlan](sdk_models.md#ComputePlan) model
-## describe_aggregate_algo
-```python
-describe_aggregate_algo(self, key: str) -> str
-```
-
-Get aggregate algo description.
 ## describe_algo
 ```python
 describe_algo(self, key: str) -> str
 ```
 
 Get algo description.
-## describe_composite_algo
-```python
-describe_composite_algo(self, key: str) -> str
-```
-
-Get composite algo description.
 ## describe_dataset
 ```python
 describe_dataset(self, key: str) -> str
@@ -283,13 +238,6 @@ describe_objective(self, key: str) -> str
 ```
 
 Get objective description.
-## download_aggregate_algo
-```python
-download_aggregate_algo(self, key: str, destination_folder: str) -> None
-```
-
-Download aggregate algo resource.
-Download aggregate algo package in destination folder.
 ## download_algo
 ```python
 download_algo(self, key: str, destination_folder: str) -> None
@@ -297,13 +245,6 @@ download_algo(self, key: str, destination_folder: str) -> None
 
 Download algo resource.
 Download algo package in destination folder.
-## download_composite_algo
-```python
-download_composite_algo(self, key: str, destination_folder: str) -> None
-```
-
-Download composite algo resource.
-Download composite algo package in destination folder.
 ## download_dataset
 ```python
 download_dataset(self, key: str, destination_folder: str) -> None
@@ -365,7 +306,7 @@ To load and use the model, please refer to the 'load_model' and 'predict' functi
 algorithm.
 ## from_config_file
 ```python
-from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Optional[str] = None, retry_timeout: int = 300, debug: bool = False)
+from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Union[str, NoneType] = None, retry_timeout: int = 300, debug: bool = False)
 ```
 
 Returns a new Client configured with profile data from configuration files.
@@ -390,13 +331,6 @@ Defaults to False.
 **Returns:**
 
  - `Client`: The new client.
-## get_aggregate_algo
-```python
-get_aggregate_algo(self, key: str) -> substra.sdk.models.Algo
-```
-
-Get aggregate algo by key, the returned object is described
-in the [models.Algo](sdk_models.md#Algo) model
 ## get_aggregatetuple
 ```python
 get_aggregatetuple(self, key: str) -> substra.sdk.models.Aggregatetuple
@@ -410,13 +344,6 @@ get_algo(self, key: str) -> substra.sdk.models.Algo
 ```
 
 Get algo by key, the returned object is described
-in the [models.Algo](sdk_models.md#Algo) model
-## get_composite_algo
-```python
-get_composite_algo(self, key: str) -> substra.sdk.models.Algo
-```
-
-Get composite algo by key, the returned object is described
 in the [models.Algo](sdk_models.md#Algo) model
 ## get_composite_traintuple
 ```python
@@ -478,13 +405,6 @@ link_dataset_with_objective(self, dataset_key: str, objective_key: str) -> str
 ```
 
 Link dataset with objective.
-## list_aggregate_algo
-```python
-list_aggregate_algo(self, filters=None) -> List[substra.sdk.models.Algo]
-```
-
-List aggregate algos, the returned object is described
-in the [models.Algo](sdk_models.md#Algo) model
 ## list_aggregatetuple
 ```python
 list_aggregatetuple(self, filters=None) -> List[substra.sdk.models.Aggregatetuple]
@@ -499,13 +419,6 @@ list_algo(self, filters=None) -> List[substra.sdk.models.Algo]
 
 List algos, the returned object is described
 in the [models.Algo](sdk_models.md#Algo) model
-## list_composite_algo
-```python
-list_composite_algo(self, filters=None) -> List[substra.sdk.models.Algo]
-```
-
-List composite algos, the returned object is described
-in the [models.Algo](sdk_models.md#CompositeAlgo) model
 ## list_composite_traintuple
 ```python
 list_composite_traintuple(self, filters=None) -> List[substra.sdk.models.CompositeTraintuple]

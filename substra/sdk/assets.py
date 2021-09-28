@@ -13,8 +13,6 @@
 # limitations under the License.
 
 ALGO = 'algo'
-AGGREGATE_ALGO = 'aggregate_algo'
-COMPOSITE_ALGO = 'composite_algo'
 DATA_SAMPLE = 'data_sample'
 DATASET = 'dataset'
 MODEL = 'model'

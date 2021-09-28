@@ -1,4 +1,5 @@
 from pathlib import Path
+from substra.sdk.schemas import AlgoCategory
 import docker
 import os
 import pytest
@@ -64,7 +65,7 @@ class TestsDebug:
         data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=False)
         sample_1_key = client.add_data_sample(data_sample)
 
-        algo_query = asset_factory.create_algo(dockerfile_type=dockerfile_type)
+        algo_query = asset_factory.create_algo(AlgoCategory.simple, dockerfile_type=dockerfile_type)
         algo_key = client.add_algo(algo_query)
 
         cp = asset_factory.create_compute_plan()
@@ -96,7 +97,7 @@ class TestsDebug:
         data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=False)
         sample_1_key = client.add_data_sample(data_sample)
 
-        algo_query = asset_factory.create_algo()
+        algo_query = asset_factory.create_algo(AlgoCategory.simple)
         algo_key = client.add_algo(algo_query)
 
         cp = asset_factory.create_compute_plan()
@@ -128,7 +129,7 @@ class TestsDebug:
         data_sample = asset_factory.create_data_sample(datasets=[dataset_2_key], test_only=False)
         sample_2_key = client.add_data_sample(data_sample)
 
-        algo_query = asset_factory.create_algo()
+        algo_query = asset_factory.create_algo(AlgoCategory.simple)
         algo_key = client.add_algo(algo_query)
 
         cp = asset_factory.create_compute_plan()
@@ -170,7 +171,7 @@ class TestsDebug:
         data_sample = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
         data_sample_key = client.add_data_sample(data_sample)
 
-        algo_query = asset_factory.create_algo()
+        algo_query = asset_factory.create_algo(AlgoCategory.simple)
         algo_key = client.add_algo(algo_query)
 
         traintuple_key = client.add_traintuple(
@@ -231,7 +232,7 @@ class TestsDebug:
         objective = asset_factory.create_objective(dataset=client.get_dataset(dataset_2_key))
         objective_2_key = client.add_objective(objective)
 
-        algo_query = asset_factory.create_algo()
+        algo_query = asset_factory.create_algo(AlgoCategory.simple)
         algo_key = client.add_algo(algo_query)
 
         traintuple_id_1 = uuid.uuid4().hex
@@ -295,11 +296,11 @@ class TestsDebug:
         data_sample = asset_factory.create_data_sample(datasets=[dataset_2_key], test_only=False)
         sample_2_key = client.add_data_sample(data_sample)
 
-        algo_query = asset_factory.create_composite_algo()
-        algo_key = client.add_composite_algo(algo_query)
+        algo_query = asset_factory.create_algo(AlgoCategory.composite)
+        algo_key = client.add_algo(algo_query)
 
-        algo_query = asset_factory.create_aggregate_algo()
-        aggregate_algo_key = client.add_aggregate_algo(algo_query)
+        algo_query = asset_factory.create_algo(AlgoCategory.aggregate)
+        aggregate_algo_key = client.add_algo(algo_query)
 
         cp = asset_factory.create_compute_plan()
         composite_1_key = uuid.uuid4().hex

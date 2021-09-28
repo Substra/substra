@@ -25,6 +25,7 @@ client = substra.Client.from_config_file(profile_name="node-1")
 
 ALGO = {
     'name': 'Constant death predictor',
+    'category': 'ALGO_SIMPLE',
     'description': os.path.join(assets_directory, 'algo_constant/description.md'),
     'permissions': {
         'public': False,
@@ -61,6 +62,7 @@ with open(assets_keys_path, 'r') as f:
 print('Adding algo...')
 algo_key = client.add_algo({
     'name': ALGO['name'],
+    'category': ALGO['category'],
     'file': ALGO['file'],
     'description': ALGO['description'],
     'permissions': ALGO['permissions'],

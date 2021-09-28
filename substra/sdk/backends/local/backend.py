@@ -310,7 +310,7 @@ class Local(base.BaseBackend):
             creation_date=self.__now(),
             name=spec.name,
             owner=owner,
-            category=spec.category_,
+            category=spec.category,
             permissions={
                 "process": {
                     "public": permissions.public,
@@ -330,14 +330,6 @@ class Local(base.BaseBackend):
         return self._db.add(algo)
 
     def _add_algo(self, key, spec, spec_options=None):
-        owner = self._check_metadata(spec.metadata)
-        return self.__add_algo(key, spec, owner, spec_options=spec_options)
-
-    def _add_aggregate_algo(self, key, spec, spec_options=None):
-        owner = self._check_metadata(spec.metadata)
-        return self.__add_algo(key, spec, owner, spec_options=spec_options)
-
-    def _add_composite_algo(self, key, spec, spec_options=None):
         owner = self._check_metadata(spec.metadata)
         return self.__add_algo(key, spec, owner, spec_options=spec_options)
 
@@ -538,7 +530,10 @@ class Local(base.BaseBackend):
     def _add_traintuple(self, key, spec, spec_options=None):
         # validation
         owner = self._check_metadata(spec.metadata)
+
         algo = self._db.get(schemas.Type.Algo, spec.algo_key)
+        assert algo.category == schemas.AlgoCategory.simple
+
         dataset = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
         in_traintuples = (
             [self._db.get(schemas.Type.Traintuple, key) for key in spec.in_models_keys]
@@ -695,7 +690,8 @@ class Local(base.BaseBackend):
     ):
         # validation
         owner = self._check_metadata(spec.metadata)
-        algo = self._db.get(schemas.Type.CompositeAlgo, spec.algo_key)
+        algo = self._db.get(schemas.Type.Algo, spec.algo_key)
+        assert algo.category == schemas.AlgoCategory.composite
         dataset = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
         self.__check_same_data_manager(spec.data_manager_key, spec.train_data_sample_keys)
 
@@ -775,7 +771,8 @@ class Local(base.BaseBackend):
                             ):
         # validation
         owner = self._check_metadata(spec.metadata)
-        algo = self._db.get(schemas.Type.AggregateAlgo, spec.algo_key)
+        algo = self._db.get(schemas.Type.Algo, spec.algo_key)
+        assert algo.category == schemas.AlgoCategory.aggregate
 
         in_tuples = list()
         in_permissions = list()

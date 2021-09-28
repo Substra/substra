@@ -1,6 +1,7 @@
 import os
 import pathlib
 import shutil
+from substra.sdk.schemas import AlgoCategory
 import tempfile
 import uuid
 import zipfile
@@ -188,6 +189,13 @@ if __name__ == '__main__':
     tools.algo.execute(TestCompositeAlgo())
 """
 
+
+DEFAULT_ALGO_SCRIPTS = {
+    AlgoCategory.simple: DEFAULT_ALGO_SCRIPT,
+    AlgoCategory.composite: DEFAULT_COMPOSITE_ALGO_SCRIPT,
+    AlgoCategory.aggregate: DEFAULT_AGGREGATE_ALGO_SCRIPT,
+}
+
 INVALID_ALGO_SCRIPT = DEFAULT_ALGO_SCRIPT.replace('train', 'naitr')
 INVALID_COMPOSITE_ALGO_SCRIPT = DEFAULT_COMPOSITE_ALGO_SCRIPT.replace('train', 'naitr')
 INVALID_AGGREGATE_ALGO_SCRIPT = DEFAULT_AGGREGATE_ALGO_SCRIPT.replace('aggregate', 'etagergga')
@@ -368,7 +376,7 @@ class AssetsFactory:
             test_data_manager_key=dataset.key if dataset else None,
         )
 
-    def _create_algo(self, py_script, permissions=None, metadata=None, algo_spec=substra.sdk.schemas.AlgoSpec,
+    def create_algo(self, category, py_script=None, permissions=None, metadata=None, algo_spec=substra.sdk.schemas.AlgoSpec,
                      dockerfile_type=None):
         idx = self._algo_counter.inc()
         tmpdir = self._workdir / f'algo-{idx}'
@@ -380,7 +388,10 @@ class AssetsFactory:
         with open(description_path, 'w') as f:
             f.write(description_content)
 
-        algo_content = py_script
+        try:
+            algo_content = py_script or DEFAULT_ALGO_SCRIPTS[category]
+        except KeyError:
+            raise Exception('Invalid algo category: ', category)
 
         algo_zip = create_archive(
             tmpdir / 'algo',
@@ -393,34 +404,11 @@ class AssetsFactory:
 
         return algo_spec(
             name=name,
+            category=category,
             description=str(description_path),
             file=str(algo_zip),
             permissions=permissions or DEFAULT_PERMISSIONS,
             metadata=metadata,
-        )
-
-    def create_algo(self, py_script=None, permissions=None, metadata=None, dockerfile_type=None):
-        return self._create_algo(
-            py_script or DEFAULT_ALGO_SCRIPT,
-            permissions=permissions,
-            metadata=metadata,
-            dockerfile_type=dockerfile_type,
-        )
-
-    def create_aggregate_algo(self, py_script=None, permissions=None, metadata=None):
-        return self._create_algo(
-            py_script or DEFAULT_AGGREGATE_ALGO_SCRIPT,
-            permissions=permissions,
-            metadata=metadata,
-            algo_spec=substra.sdk.schemas.AggregateAlgoSpec,
-        )
-
-    def create_composite_algo(self, py_script=None, permissions=None, metadata=None):
-        return self._create_algo(
-            py_script or DEFAULT_COMPOSITE_ALGO_SCRIPT,
-            permissions=permissions,
-            metadata=metadata,
-            algo_spec=substra.sdk.schemas.CompositeAlgoSpec,
         )
 
     def create_traintuple(self, algo_key=None, data_manager_key=None,

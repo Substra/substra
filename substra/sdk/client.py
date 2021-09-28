@@ -316,47 +316,6 @@ class Client(object):
         return self._backend.add(spec)
 
     @logit
-    def add_aggregate_algo(
-        self,
-        data: Union[dict, schemas.AggregateAlgoSpec],
-    ) -> str:
-        """Create new aggregate algo asset.
-
-        In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-        the value becomes the 'creator' of the aggregate algo.
-
-        Args:
-            data (Union[dict, schemas.AggregateAlgoSpec]): If it is a dict,
-                it must have the same keys as specified in
-                [schemas.AggregateAlgoSpec](sdk_schemas.md#AggregateAlgoSpec).
-
-        Returns:
-            str: Key of the asset
-        """
-        spec = self._get_spec(schemas.AggregateAlgoSpec, data)
-        return self._backend.add(spec)
-
-    @logit
-    def add_composite_algo(
-        self,
-        data: Union[dict, schemas.CompositeAlgoSpec]
-    ) -> str:
-        """Create new composite algo asset.
-
-        In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-        the value becomes the 'creator' of the composite algo.
-
-        Args:
-            data (Union[dict, schemas.CompositeAlgoSpec]): If it is a dict, it must have the same
-                keys as specified in [schemas.CompositeAlgoSpec](sdk_schemas.md#CompositeAlgoSpec).
-
-        Returns:
-            str: Key of the asset
-        """
-        spec = self._get_spec(schemas.CompositeAlgoSpec, data)
-        return self._backend.add(spec)
-
-    @logit
     def add_traintuple(
         self,
         data: Union[dict, schemas.TraintupleSpec]
@@ -484,18 +443,6 @@ class Client(object):
         return self._backend.get(schemas.Type.ComputePlan, key)
 
     @logit
-    def get_aggregate_algo(self, key: str) -> models.Algo:
-        """Get aggregate algo by key, the returned object is described
-        in the [models.Algo](sdk_models.md#Algo) model"""
-        return self._backend.get(schemas.Type.AggregateAlgo, key)
-
-    @logit
-    def get_composite_algo(self, key: str) -> models.Algo:
-        """Get composite algo by key, the returned object is described
-        in the [models.Algo](sdk_models.md#Algo) model"""
-        return self._backend.get(schemas.Type.CompositeAlgo, key)
-
-    @logit
     def get_dataset(self, key: str) -> models.Dataset:
         """Get dataset by key, the returned object is described
         in the [models.Dataset](sdk_models.md#Dataset) model"""
@@ -542,18 +489,6 @@ class Client(object):
         """List compute plans, the returned object is described
         in the [models.ComputePlan](sdk_models.md#ComputePlan) model"""
         return self._backend.list(schemas.Type.ComputePlan, filters)
-
-    @logit
-    def list_aggregate_algo(self, filters=None) -> List[models.Algo]:
-        """List aggregate algos, the returned object is described
-        in the [models.Algo](sdk_models.md#Algo) model"""
-        return self._backend.list(schemas.Type.AggregateAlgo, filters)
-
-    @logit
-    def list_composite_algo(self, filters=None) -> List[models.Algo]:
-        """List composite algos, the returned object is described
-        in the [models.Algo](sdk_models.md#CompositeAlgo) model"""
-        return self._backend.list(schemas.Type.CompositeAlgo, filters)
 
     @logit
     def list_data_sample(self, filters=None) -> List[models.DataSample]:
@@ -684,32 +619,6 @@ class Client(object):
         )
 
     @logit
-    def download_aggregate_algo(self, key: str, destination_folder: str) -> None:
-        """Download aggregate algo resource.
-
-        Download aggregate algo package in destination folder.
-        """
-        self._backend.download(
-            schemas.Type.AggregateAlgo,
-            'algorithm.storage_address',
-            key,
-            os.path.join(destination_folder, 'aggregate_algo.tar.gz'),
-        )
-
-    @logit
-    def download_composite_algo(self, key: str, destination_folder: str) -> None:
-        """Download composite algo resource.
-
-        Download composite algo package in destination folder.
-        """
-        self._backend.download(
-            schemas.Type.CompositeAlgo,
-            'algorithm.storage_address',
-            key,
-            os.path.join(destination_folder, 'composite_algo.tar.gz'),
-        )
-
-    @logit
     def download_objective(self, key: str, destination_folder: str) -> None:
         """Download objective resource.
 
@@ -801,16 +710,6 @@ class Client(object):
     def describe_algo(self, key: str) -> str:
         """Get algo description."""
         return self._backend.describe(schemas.Type.Algo, key)
-
-    @logit
-    def describe_aggregate_algo(self, key: str) -> str:
-        """Get aggregate algo description."""
-        return self._backend.describe(schemas.Type.AggregateAlgo, key)
-
-    @logit
-    def describe_composite_algo(self, key: str) -> str:
-        """Get composite algo description."""
-        return self._backend.describe(schemas.Type.CompositeAlgo, key)
 
     @logit
     def describe_dataset(self, key: str) -> str:

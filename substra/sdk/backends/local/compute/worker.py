@@ -174,19 +174,7 @@ class Worker:
             tuple_.status = models.Status.doing
 
             # fetch dependencies
-            algo = None
-            for algo_type in [
-                schemas.Type.Algo,
-                schemas.Type.AggregateAlgo,
-                schemas.Type.CompositeAlgo,
-            ]:
-                try:
-                    algo = self._db.get_with_files(algo_type, tuple_.algo.key)
-                    break
-                except exceptions.NotFound:
-                    pass
-            if algo is None:
-                raise exceptions.NotFound(f"Wrong pk {tuple_.algo.key}", 404)
+            algo = self._db.get_with_files(schemas.Type.Algo, tuple_.algo.key)
 
             compute_plan = None
             if tuple_.compute_plan_key:
@@ -432,13 +420,7 @@ class Worker:
             if traintuple is None:
                 raise exceptions.NotFound(f"Wrong pk {tuple_.parent_task_keys[0]}", 404)
 
-            algo_type = schemas.Type.Algo
-            if tuple_.algo.category == schemas.AlgoCategory.aggregate_algo:
-                algo_type = schemas.Type.AggregateAlgo
-            elif tuple_.algo.category == schemas.AlgoCategory.composite_algo:
-                algo_type = schemas.Type.CompositeAlgo
-
-            algo = self._db.get_with_files(algo_type, tuple_.algo.key)
+            algo = self._db.get_with_files(schemas.Type.Algo, tuple_.algo.key)
             objective = self._db.get_with_files(schemas.Type.Objective, tuple_.test.objective_key)
             dataset = self._db.get_with_files(schemas.Type.Dataset, tuple_.test.data_manager_key)
 

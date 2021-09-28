@@ -296,8 +296,6 @@ class Node(schemas._PydanticConfig):
 SCHEMA_TO_MODEL = {
     schemas.Type.Aggregatetuple: Aggregatetuple,
     schemas.Type.Algo: Algo,
-    schemas.Type.AggregateAlgo: Algo,
-    schemas.Type.CompositeAlgo: Algo,
     schemas.Type.CompositeTraintuple: CompositeTraintuple,
     schemas.Type.ComputePlan: ComputePlan,
     schemas.Type.DataSample: DataSample,

@@ -15,7 +15,7 @@
 import collections
 import logging
 
-from substra.sdk import exceptions, schemas
+from substra.sdk import exceptions
 
 logger = logging.getLogger(__name__)
 
@@ -30,11 +30,6 @@ class InMemoryDb:
     def add(self, asset):
         """Add an asset."""
         type_ = asset.__class__.type_
-        if type_ == schemas.Type.Algo:
-            if asset.category == schemas.AlgoCategory.aggregate_algo:
-                type_ = schemas.Type.AggregateAlgo
-            elif asset.category == schemas.AlgoCategory.composite_algo:
-                type_ = schemas.Type.CompositeAlgo
         key = asset.key
 
         self._data[type_][key] = asset

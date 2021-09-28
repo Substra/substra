@@ -21,7 +21,7 @@ from .utils import mock_response, mock_requests, mock_requests_responses
 
 
 @pytest.mark.parametrize(
-    'asset_name', ['dataset', 'algo', 'aggregate_algo', 'composite_algo', 'objective']
+    'asset_name', ['dataset', 'algo', 'objective']
 )
 def test_describe_asset(asset_name, client, mocker):
     item = getattr(datastore, asset_name.upper())
@@ -39,7 +39,7 @@ def test_describe_asset(asset_name, client, mocker):
 
 
 @pytest.mark.parametrize(
-    'asset_name', ['dataset', 'algo', 'aggregate_algo', 'composite_algo', 'objective']
+    'asset_name', ['dataset', 'algo', 'objective']
 )
 def test_describe_asset_not_found(asset_name, client, mocker):
     m = mock_requests(mocker, "get", status=404)
@@ -52,7 +52,7 @@ def test_describe_asset_not_found(asset_name, client, mocker):
 
 
 @pytest.mark.parametrize(
-    'asset_name', ['dataset', 'algo', 'aggregate_algo', 'composite_algo', 'objective']
+    'asset_name', ['dataset', 'algo', 'objective']
 )
 def test_describe_description_not_found(asset_name, client, mocker):
     item = getattr(datastore, asset_name.upper())

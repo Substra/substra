@@ -250,7 +250,9 @@ class YamlPrinter:
         print(yaml.dump(data, default_flow_style=False))
 
 
-class BaseAlgoPrinter(AssetPrinter):
+class AlgoPrinter(AssetPrinter):
+    asset_name = 'algo'
+
     list_fields = (
         Field('Name', 'name'),
     )
@@ -319,18 +321,6 @@ class ComputePlanPrinter(AssetPrinter):
         print('\nDisplay this compute_plan\'s testtuples:')
         print(f'\tsubstra list testtuple'
               f' -f "testtuple:compute_plan_key:{key_value}" {profile_arg}')
-
-
-class AlgoPrinter(BaseAlgoPrinter):
-    asset_name = 'algo'
-
-
-class AggregateAlgoPrinter(BaseAlgoPrinter):
-    asset_name = 'aggregate_algo'
-
-
-class CompositeAlgoPrinter(BaseAlgoPrinter):
-    asset_name = 'composite_algo'
 
 
 class ObjectivePrinter(AssetPrinter):
@@ -565,8 +555,6 @@ class LeaderBoardPrinter(BasePrinter):
 PRINTERS = {
     assets.ALGO: AlgoPrinter,
     assets.COMPUTE_PLAN: ComputePlanPrinter,
-    assets.AGGREGATE_ALGO: AggregateAlgoPrinter,
-    assets.COMPOSITE_ALGO: CompositeAlgoPrinter,
     assets.OBJECTIVE: ObjectivePrinter,
     assets.DATASET: DatasetPrinter,
     assets.DATA_SAMPLE: DataSamplePrinter,

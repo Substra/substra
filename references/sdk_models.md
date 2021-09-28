@@ -8,8 +8,6 @@
 - [Aggregatetuple](#Aggregatetuple)
 - [CompositeTraintuple](#CompositeTraintuple)
 - [Algo](#Algo)
-- [Algo](#Algo)
-- [Algo](#Algo)
 - [ComputePlan](#ComputePlan)
 - [Node](#Node)
 - [Permissions](#Permissions)
@@ -70,7 +68,7 @@ Objective
 Testtuple
 ```python
 - key: str
-- category: TaskCategory
+- category: str
 - algo: Algo
 - owner: str
 - compute_plan_key: str
@@ -88,7 +86,7 @@ Testtuple
 Traintuple
 ```python
 - key: str
-- category: TaskCategory
+- category: str
 - algo: Algo
 - owner: str
 - compute_plan_key: str
@@ -106,7 +104,7 @@ Traintuple
 Aggregatetuple
 ```python
 - key: str
-- category: TaskCategory
+- category: str
 - algo: Algo
 - owner: str
 - compute_plan_key: str
@@ -124,7 +122,7 @@ Aggregatetuple
 CompositeTraintuple
 ```python
 - key: str
-- category: TaskCategory
+- category: str
 - algo: Algo
 - owner: str
 - compute_plan_key: str
@@ -146,35 +144,7 @@ Asset creation specification base class.
 - owner: str
 - permissions: Permissions
 - metadata: Mapping[str, str]
-- category: AlgoCategory
-- creation_date: datetime
-- description: _File
-- algorithm: _File
-```
-
-## Algo
-Asset creation specification base class.
-```python
-- key: str
-- name: str
-- owner: str
-- permissions: Permissions
-- metadata: Mapping[str, str]
-- category: AlgoCategory
-- creation_date: datetime
-- description: _File
-- algorithm: _File
-```
-
-## Algo
-Asset creation specification base class.
-```python
-- key: str
-- name: str
-- owner: str
-- permissions: Permissions
-- metadata: Mapping[str, str]
-- category: AlgoCategory
+- category: str
 - creation_date: datetime
 - description: _File
 - algorithm: _File
@@ -191,7 +161,7 @@ ComputePlan
 - task_count: int
 - failed_task: Optional[FailedTuple]
 - delete_intermediary_models: bool
-- status: ComputePlanStatus
+- status: str
 - creation_date: datetime
 ```
 
@@ -222,7 +192,7 @@ Out model of a traintuple, aggregate tuple or out trunk
 model of a composite traintuple
 ```python
 - key: str
-- category: ModelType
+- category: str
 - compute_task_key: str
 - address: Optional[InModel]
 - permissions: Permissions

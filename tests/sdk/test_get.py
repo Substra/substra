@@ -24,8 +24,6 @@ from .utils import mock_requests
     'objective',
     'dataset',
     'algo',
-    'aggregate_algo',
-    'composite_algo',
     'testtuple',
     'traintuple',
     'aggregatetuple',

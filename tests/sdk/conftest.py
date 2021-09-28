@@ -77,6 +77,7 @@ def algo_query(tmpdir):
 
     return {
         "name": "algo_name",
+        "category": substra.sdk.schemas.AlgoCategory.simple,
         "description": str(desc_path),
         "file": str(algo_file_path),
         "permissions": {"public": True, "authorized_ids": [], },

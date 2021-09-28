@@ -38,8 +38,6 @@ _SERVER_NAMES = {
 
 class Type(enum.Enum):
     Algo = 'algo'
-    AggregateAlgo = 'aggregate_algo'
-    CompositeAlgo = 'composite_algo'
     DataSample = 'data_sample'
     Dataset = 'dataset'
     Model = 'model'
@@ -63,9 +61,9 @@ class Type(enum.Enum):
 class AlgoCategory(str, enum.Enum):
     """Algo category"""
     unknown = "ALGO_UNKNOWN"
-    algo = "ALGO_SIMPLE"
-    composite_algo = "ALGO_COMPOSITE"
-    aggregate_algo = "ALGO_AGGREGATE"
+    simple = "ALGO_SIMPLE"
+    composite = "ALGO_COMPOSITE"
+    aggregate = "ALGO_AGGREGATE"
 
 
 class _PydanticConfig(pydantic.BaseModel):
@@ -260,24 +258,12 @@ class AlgoSpec(_Spec):
     file: pathlib.Path
     permissions: Permissions
     metadata: Optional[Dict[str, str]]
+    category: AlgoCategory
+
+    type_: typing.ClassVar[Type] = Type.Algo
 
     class Meta:
         file_attributes = ('file', 'description', )
-
-    type_: typing.ClassVar[Type] = Type.Algo
-    category_: typing.ClassVar[Type] = AlgoCategory.algo
-
-
-class CompositeAlgoSpec(AlgoSpec):
-    """Specification for creating a composite algo"""
-    type_: typing.ClassVar[Type] = Type.CompositeAlgo
-    category_: typing.ClassVar[Type] = AlgoCategory.composite_algo
-
-
-class AggregateAlgoSpec(AlgoSpec):
-    """Specification for creating an aggregate algo"""
-    type_: typing.ClassVar[Type] = Type.AggregateAlgo
-    category_: typing.ClassVar[Type] = AlgoCategory.aggregate_algo
 
 
 class TraintupleSpec(_Spec):

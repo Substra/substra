@@ -7,8 +7,6 @@
 - [substra add objective](#substra-add-objective)
 - [substra add algo](#substra-add-algo)
 - [substra add compute_plan](#substra-add-compute_plan)
-- [substra add aggregate_algo](#substra-add-aggregate_algo)
-- [substra add composite_algo](#substra-add-composite_algo)
 - [substra add traintuple](#substra-add-traintuple)
 - [substra add aggregatetuple](#substra-add-aggregatetuple)
 - [substra add composite_traintuple](#substra-add-composite_traintuple)
@@ -209,6 +207,7 @@ Usage: substra add algo [OPTIONS] PATH
 
   {
       "name": str,
+      "category": str,
       "description": path,
       "file": path,
       "permissions": {
@@ -220,6 +219,7 @@ Usage: substra add algo [OPTIONS] PATH
 
   Where:
   - name: name of the algorithm
+  - category: one of ALGO_SIMPLE, ALGO_COMPOSITE, ALGO_AGGREGATE
   - description: path to a markdown file describing the algo
   - file: path to tar.gz or zip archive containing the algorithm python
     script and its Dockerfile
@@ -314,94 +314,6 @@ Options:
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format  [default: pretty]
-  --help                          Show this message and exit.
-```
-
-## substra add aggregate_algo
-
-```bash
-Usage: substra add aggregate_algo [OPTIONS] PATH
-
-  Add aggregate algo.
-
-  The path must point to a valid JSON file with the following schema:
-
-  {
-      "name": str,
-      "description": path,
-      "file": path,
-      "permissions": {
-          "public": bool,
-          "authorized_ids": list[str],
-      },
-      "metadata": dict
-  }
-
-  Where:
-  - name: name of the algorithm
-  - description: path to a markdown file describing the algo
-  - file: path to tar.gz or zip archive containing the algorithm python
-    script and its Dockerfile
-  - permissions: define asset access permissions
-
-Options:
-  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
-                                  Enable logging and set log level
-  --config PATH                   Config path (default ~/.substra).
-  --profile TEXT                  Profile name to use.
-  --tokens FILE                   Tokens file path to use (default ~/.substra-
-                                  tokens).
-
-  --verbose                       Enable verbose mode.
-  -o, --output [pretty|yaml|json]
-                                  Set output format  [default: pretty]
-  --timeout INTEGER               Max number of seconds the operation will be
-                                  retried for  [default: 300]
-
-  --help                          Show this message and exit.
-```
-
-## substra add composite_algo
-
-```bash
-Usage: substra add composite_algo [OPTIONS] PATH
-
-  Add composite algo.
-
-  The path must point to a valid JSON file with the following schema:
-
-  {
-      "name": str,
-      "description": path,
-      "file": path,
-      "permissions": {
-          "public": bool,
-          "authorized_ids": list[str],
-      },
-      "metadata": dict
-  }
-
-  Where:
-  - name: name of the algorithm
-  - description: path to a markdown file describing the algo
-  - file: path to tar.gz or zip archive containing the algorithm python
-    script and its Dockerfile
-  - permissions: define asset access permissions
-
-Options:
-  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
-                                  Enable logging and set log level
-  --config PATH                   Config path (default ~/.substra).
-  --profile TEXT                  Profile name to use.
-  --tokens FILE                   Tokens file path to use (default ~/.substra-
-                                  tokens).
-
-  --verbose                       Enable verbose mode.
-  -o, --output [pretty|yaml|json]
-                                  Set output format  [default: pretty]
-  --timeout INTEGER               Max number of seconds the operation will be
-                                  retried for  [default: 300]
-
   --help                          Show this message and exit.
 ```
 
@@ -568,9 +480,8 @@ Options:
 ## substra get
 
 ```bash
-Usage: substra get [OPTIONS] [algo|compute_plan|composite_algo|aggregate_algo|
-                   dataset|objective|testtuple|traintuple|composite_traintuple
-                   |aggregatetuple] ASSET_KEY
+Usage: substra get [OPTIONS] [algo|compute_plan|dataset|objective|testtuple|tr
+                   aintuple|composite_traintuple|aggregatetuple] ASSET_KEY
 
   Get asset definition.
 
@@ -592,9 +503,9 @@ Options:
 ## substra list
 
 ```bash
-Usage: substra list [OPTIONS] [algo|compute_plan|composite_algo|aggregate_algo
-                    |data_sample|dataset|objective|testtuple|traintuple|compos
-                    ite_traintuple|aggregatetuple|node]
+Usage: substra list [OPTIONS] [algo|compute_plan|data_sample|dataset|objective
+                    |testtuple|traintuple|composite_traintuple|aggregatetuple|
+                    node]
 
   List assets.
 
@@ -625,9 +536,7 @@ Options:
 ## substra describe
 
 ```bash
-Usage: substra describe [OPTIONS]
-                        [algo|composite_algo|aggregate_algo|dataset|objective]
-                        ASSET_KEY
+Usage: substra describe [OPTIONS] [algo|dataset|objective] ASSET_KEY
 
   Display asset description.
 
@@ -667,8 +576,7 @@ Options:
 ## substra download
 
 ```bash
-Usage: substra download [OPTIONS] [algo|composite_algo|aggregate_algo|dataset|
-                        objective|model] KEY
+Usage: substra download [OPTIONS] [algo|dataset|objective|model] KEY
 
   Download asset implementation.
 

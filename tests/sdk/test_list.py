@@ -24,8 +24,6 @@ from .utils import mock_requests, make_paginated_response
     'objective',
     'dataset',
     'algo',
-    'aggregate_algo',
-    'composite_algo',
     'testtuple',
     'traintuple',
     'aggregatetuple',
@@ -42,8 +40,6 @@ def test_list_asset(asset_name, client, mocker):
     response = method()
 
     schema_type = asset_name
-    if asset_name in ['aggregate_algo', 'composite_algo',]:
-        schema_type = 'algo'
 
     assert response == [models.SCHEMA_TO_MODEL[schemas.Type(schema_type)](**item)]
     m.assert_called()
