@@ -511,7 +511,8 @@ class Local(base.BaseBackend):
             task_count=0,
             done_count=0,
             owner='local',
-            delete_intermediary_models=spec.clean_models,
+            delete_intermediary_models=spec.clean_models
+            if spec.clean_models is not None else False,
         )
         compute_plan = self._db.add(compute_plan)
 
