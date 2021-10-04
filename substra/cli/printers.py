@@ -19,7 +19,7 @@ import pydantic
 
 import yaml
 
-from substra.sdk import assets
+from substra.sdk import assets, models
 
 
 def find_dict_composite_key_value(asset_dict, composite_key):
@@ -101,17 +101,28 @@ class KeysField(Field):
         return value
 
 
+class HeadModelKeyField(Field):
+    def get_value(self, item, expand=False):
+        value = super().get_value(item, expand)
+        for v in value:
+            if v['category'] == models.ModelType.head:
+                return v['key']
+
+
+class ModelKeyField(Field):
+    def get_value(self, item, expand=False):
+        value = super().get_value(item, expand)
+        for v in value:
+            if v['category'] == models.ModelType.simple:
+                return v['key']
+
+
 class CountField(Field):
     def get_value(self, item, **kwargs):
         value = super().get_value(item)
         if value:
             return len(value)
         return 0
-
-
-class InModelTraintupleKeysField(KeysField):
-    def _get_key(self, v):
-        return v.get('traintuple_key')
 
 
 class CurrentNodeField(Field):
@@ -282,21 +293,18 @@ class ComputePlanPrinter(AssetPrinter):
     asset_name = 'compute_plan'
 
     list_fields = (
-        CountField('Traintuples count', 'traintuple_keys'),
-        CountField('Composite traintuples count', 'composite_traintuple_keys'),
-        CountField('Aggregatetuples count', 'aggregatetuple_keys'),
-        CountField('Testtuples count', 'testtuple_keys'),
         ProgressField('Progress', 'done_count', 'task_count'),
+        Field('Failed task', 'failed_task.key'),
         Field('Status', 'status'),
         Field('Tag', 'tag'),
         Field('Clean model', 'delete_intermediary_models'),
     )
     single_fields = (
-        KeysField('Traintuple keys', 'traintuple_keys'),
-        KeysField('Composite traintuple keys', 'composite_traintuple_keys'),
-        KeysField('Aggregatetuple keys', 'aggregatetuple_keys'),
-        KeysField('Testtuple keys', 'testtuple_keys'),
+        Field('Done count', 'done_count'),
+        Field('Task count', 'task_count'),
         ProgressField('Progress', 'done_count', 'task_count'),
+        Field('Failed task', 'failed_task.key'),
+        Field('Failed task category', 'failed_task.category'),
         Field('Status', 'status'),
         Field('Tag', 'tag'),
         Field('Metadata', 'metadata'),
@@ -322,6 +330,7 @@ class ComputePlanPrinter(AssetPrinter):
         print('\nDisplay this compute_plan\'s testtuples:')
         print(f'\tsubstra list testtuple'
               f' -f "testtuple:compute_plan_key:{key_value}" {profile_arg}')
+        return
 
 
 class ObjectivePrinter(AssetPrinter):
@@ -334,8 +343,8 @@ class ObjectivePrinter(AssetPrinter):
     single_fields = (
         Field('Name', 'name'),
         Field('Metrics', 'metrics_name'),
-        Field('Test dataset key', 'test_dataset.data_manager_key'),
-        KeysField('Test data sample keys', 'test_dataset.data_sample_keys'),
+        Field('Test dataset key', 'data_manager_key'),
+        KeysField('Test data sample keys', 'data_sample_keys'),
         Field('Owner', 'owner'),
         Field('Metadata', 'metadata'),
         PermissionField('Permissions', 'permissions'),
@@ -388,21 +397,20 @@ class TraintuplePrinter(AssetPrinter):
         Field('Compute Plan key', 'compute_plan_key'),
     )
     single_fields = (
-        Field('Model key', 'out_model.key'),
+        ModelKeyField('Model key', 'train.models'),
         Field('Algo key', 'algo.key'),
         Field('Algo name', 'algo.name'),
         Field('Status', 'status'),
-        Field('Dataset key', 'dataset.key'),
-        KeysField('Train data sample keys', 'dataset.keys'),
-        InModelTraintupleKeysField('In model traintuple keys', 'in_models'),
+        Field('Dataset key', 'train.data_manager_key'),
+        KeysField('Train data sample keys', 'train.data_sample_keys'),
+        Field('Parent task keys', 'parent_task_keys'),
         Field('Rank', 'rank'),
         Field('Compute Plan key', 'compute_plan_key'),
         Field('Tag', 'tag'),
-        Field('Log', 'log'),
-        Field('Creator', 'creator'),
-        Field('Worker', 'dataset.worker'),
+        Field('Owner', 'owner'),
+        Field('Worker', 'worker'),
         Field('Metadata', 'metadata'),
-        PermissionField('Permissions', 'permissions'),
+        PermissionField('Permissions', 'train.model_permissions'),
     )
     has_description = False
 
@@ -425,20 +433,18 @@ class AggregateTuplePrinter(AssetPrinter):
         Field('Compute Plan key', 'compute_plan_key'),
     )
     single_fields = (
-        Field('Model key', 'out_model.key'),
+        ModelKeyField('Model key', 'aggregate.models'),
         Field('Algo key', 'algo.key'),
         Field('Algo name', 'algo.name'),
         Field('Status', 'status'),
-        Field('Dataset key', 'dataset.key'),
-        InModelTraintupleKeysField('In model keys', 'in_models'),
+        Field('Parent task keys', 'parent_task_keys'),
         Field('Rank', 'rank'),
         Field('Compute Plan key', 'compute_plan_key'),
         Field('Tag', 'tag'),
-        Field('Log', 'log'),
-        Field('Creator', 'creator'),
-        Field('Worker', 'dataset.worker'),
+        Field('Owner', 'owner'),
+        Field('Worker', 'worker'),
         Field('Metadata', 'metadata'),
-        PermissionField('Permissions', 'permissions'),
+        PermissionField('Permissions', 'aggregate.model_permissions'),
     )
     has_description = False
 
@@ -462,23 +468,21 @@ class CompositeTraintuplePrinter(AssetPrinter):
     )
 
     single_fields = (
-        Field('Out head model key', 'out_head_model.out_model.key'),
-        PermissionField('Out head model permissions', 'out_head_model.permissions'),
-        Field('Out trunk model key', 'out_trunk_model.out_model.key'),
-        PermissionField('Out trunk model permissions', 'out_trunk_model.permissions'),
+        HeadModelKeyField('Out head model key', 'composite.models'),
+        PermissionField('Out head model permissions', 'composite.head_permissions'),
+        ModelKeyField('Out trunk model key', 'composite.models'),
+        PermissionField('Out trunk model permissions', 'composite.trunk_permissions'),
         Field('Composite algo key', 'algo.key'),
         Field('Composite algo name', 'algo.name'),
         Field('Status', 'status'),
-        Field('Dataset key', 'dataset.key'),
-        KeysField('Train data sample keys', 'dataset.keys'),
-        Field('In head model key', 'in_head_model.traintuple_key'),
-        Field('In trunk model key', 'in_trunk_model.traintuple_key'),
+        Field('Dataset key', 'composite.data_manager_key'),
+        KeysField('Train data sample keys', 'composite.data_sample_keys'),
+        Field('Parent task keys', 'parent_task_keys'),
         Field('Rank', 'rank'),
         Field('Compute Plan key', 'compute_plan_key'),
         Field('Tag', 'tag'),
-        Field('Log', 'log'),
-        Field('Creator', 'creator'),
-        Field('Worker', 'dataset.worker'),
+        Field('Owner', 'owner'),
+        Field('Worker', 'worker'),
         Field('Metadata', 'metadata'),
     )
     has_description = False
@@ -498,30 +502,27 @@ class TesttuplePrinter(AssetPrinter):
         Field('Algo name', 'algo.name'),
         Field('Certified', 'test.certified'),
         Field('Status', 'status'),
-        Field('Perf', 'dataset.perf'),
+        Field('Perf', 'test.perf'),
         Field('Rank', 'rank'),
         Field('Tag', 'tag'),
         Field('Compute Plan key', 'compute_plan_key'),
     )
     single_fields = (
-        Field('Traintuple key', 'traintuple_key'),
-        Field('Traintuple type', 'traintuple_type'),
+        Field('Parent task keys', 'parent_task_keys'),
         Field('Algo key', 'algo.key'),
         Field('Algo name', 'algo.name'),
-        Field('Objective key', 'objective.key'),
+        Field('Objective key', 'test.objective_key'),
         Field('Certified', 'test.certified'),
         Field('Status', 'status'),
-        Field('Perf', 'dataset.perf'),
-        Field('Dataset key', 'dataset.key'),
-        KeysField('Test data sample keys', 'dataset.keys'),
+        Field('Perf', 'test.perf'),
+        Field('Dataset key', 'test.data_manager_key'),
+        KeysField('Test data sample keys', 'test.data_sample_keys'),
         Field('Rank', 'rank'),
         Field('Tag', 'tag'),
         Field('Metadata', 'metadata'),
         Field('Compute Plan key', 'compute_plan_key'),
-        Field('Log', 'log'),
-        Field('Creator', 'creator'),
-        Field('Worker', 'dataset.worker'),
-        PermissionField('Permissions', 'permissions'),
+        Field('Owner', 'owner'),
+        Field('Worker', 'worker'),
     )
     has_description = False
 
