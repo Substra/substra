@@ -451,7 +451,7 @@ class Local(base.BaseBackend):
             name=spec.name,
             owner=owner,
             data_manager_key=spec.test_data_manager_key,
-            data_sample_keys=spec.test_data_sample_keys,
+            data_sample_keys=spec.test_data_sample_keys or [],
             permissions={
                 "process": {
                     "public": permissions.public,
