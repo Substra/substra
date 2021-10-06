@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import json
 import pytest
 import requests
 
@@ -103,11 +103,12 @@ def test_add_already_exist(mocker):
     assert asset == {"key": "a-key"}
 
 
-def test_add_wrong_url():
-    # check if correct error is raised
-    # when wrong url with correct syntax is set
-    test_client = Client(url='http://www.dummy.com')
+def test_add_wrong_url(mocker):
+    """Check correct error is raised when wrong url with correct syntax is set."""
+    error = json.decoder.JSONDecodeError("", "", 0)
 
-    with pytest.raises(ConnectionError) as e:
+    mock_requests(mocker, "post", status=200, json_error=error)
+    test_client = Client(url='http://www.dummy.com')
+    with pytest.raises(exceptions.BadConfiguration) as e:
         test_client.login('test_client', 'hehe')
     assert 'Make sure that given url' in e.value.args[0]

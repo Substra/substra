@@ -77,9 +77,9 @@ class Client():
             # sometimes requests seem to be fine, but the json is not being found
             # this might be if the url seems to be correct (in the syntax)
             # but it's not the right one
-            raise ConnectionError('Unable to get token from json response. '
-                                  'Make sure that given url: {self._base_url} is correct')
-
+            raise exceptions.BadConfiguration(
+                'Unable to get token from json response. '
+                f'Make sure that given url: {self._base_url} is correct')
         self._headers['Authorization'] = f"Token {token}"
 
         return token

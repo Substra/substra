@@ -11,19 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 from unittest import mock
 
 import requests
 
 
-def mock_response(response=None, status=200, headers=None):
+def mock_response(response=None, status=200, headers=None, json_error=None):
     headers = headers or {}
     m = mock.MagicMock(spec=requests.Response)
     m.status_code = status
     m.headers = headers
     m.text = str(response)
-    m.json = mock.MagicMock(return_value=response, headers=headers)
+    m.json = mock.MagicMock(return_value=response, headers=headers, side_effect=json_error)
 
     if status not in (200, 201):
         exception = requests.exceptions.HTTPError(str(status), response=m)
@@ -39,8 +38,8 @@ def mock_requests_responses(mocker, method, responses):
     )
 
 
-def mock_requests(mocker, method, response=None, status=200, headers=None):
-    r = mock_response(response, status, headers)
+def mock_requests(mocker, method, response=None, status=200, headers=None, json_error=None):
+    r = mock_response(response, status, headers, json_error)
     return mock_requests_responses(mocker, method, (r, ))
 
 
