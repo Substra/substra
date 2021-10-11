@@ -279,10 +279,12 @@ class AlgoPrinter(AssetPrinter):
 
 class NodeInfoPrinter(BasePrinter):
     single_fields = (
-        Field('HOST', 'host'),
-        Field('VERSION', 'version'),
-        Field('CHANNEL', 'channel'),
-        MappingField('CONFIG', 'config'),
+        Field('Host', 'host'),
+        Field('Channel', 'channel'),
+        Field('Backend version', 'version'),
+        Field('Orchestrator version', 'orchestrator_version'),
+        Field('Chaincode version', 'chaincode_version'),
+        MappingField('Config', 'config'),
     )
 
     def print(self, data):

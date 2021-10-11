@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Display orchestrator and chaincode versions in node info command
+
 ## [0.11.0] - 2021-10-04
 
 ### Added
