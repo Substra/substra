@@ -63,9 +63,9 @@ class DataAccess:
             asset_name = "opener.py"
             field_name = "opener"
 
-        elif type_ == schemas.Type.Objective:
+        elif type_ == schemas.Type.Metric:
             asset_name = "metrics.zip"
-            field_name = "metrics"
+            field_name = "address"
 
         else:
             raise ValueError(f"Cannot download this type of asset {type_}")

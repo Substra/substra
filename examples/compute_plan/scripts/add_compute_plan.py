@@ -30,7 +30,7 @@ with open(assets_keys_path, 'r') as f:
     assets_keys = json.load(f)
 
 train_data_sample_keys = assets_keys['train_data_sample_keys']
-objective_key = assets_keys['objective_key']
+metric_key = assets_keys['metric_key']
 dataset_key = assets_keys['dataset_key']
 
 print('Adding algo...')
@@ -65,7 +65,7 @@ for train_data_sample_key in train_data_sample_keys:
         'in_models_ids': [previous_id] if previous_id else [],
     }
     testtuple = {
-        'objective_key': objective_key,
+        'metric_key': metric_key,
         'traintuple_id': traintuple['traintuple_id']
     }
     traintuples.append(traintuple)

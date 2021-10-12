@@ -43,13 +43,3 @@ def test_find_dict_composite_key_value_fails():
 ])
 def test_get_asset_printer(asset, output_format, printer_cls):
     assert isinstance(printers.get_asset_printer(asset, output_format), printer_cls)
-
-
-@pytest.mark.parametrize('output_format,printer_cls', [
-    ('json', printers.JsonPrinter),
-    ('yaml', printers.YamlPrinter),
-    ('pretty', printers.LeaderBoardPrinter),
-    ('foo', printers.JsonPrinter),
-])
-def test_get_leaderboard_printer(output_format, printer_cls):
-    assert isinstance(printers.get_leaderboard_printer(output_format), printer_cls)

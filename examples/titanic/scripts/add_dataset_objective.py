@@ -69,22 +69,21 @@ TRAIN_DATA_SAMPLES_PATHS = [
     for path in os.listdir(os.path.join(assets_directory, 'train_data_samples'))
 ]
 
-OBJECTIVE = {
+METRIC = {
     'name': 'Titanic: Machine Learning From Disaster',
-    'description': os.path.join(assets_directory, 'objective/description.md'),
-    'metrics_name': 'accuracy',
-    'metrics': os.path.join(assets_directory, 'objective/metrics.zip'),
+    'description': os.path.join(assets_directory, 'metric/description.md'),
+    'file': os.path.join(assets_directory, 'metric/metrics.zip'),
     'permissions': {
         'public': False,
         'authorized_ids': []
     },
 }
 METRICS_DOCKERFILE_FILES = [
-    os.path.join(assets_directory, 'objective/metrics.py'),
-    os.path.join(assets_directory, 'objective/Dockerfile')
+    os.path.join(assets_directory, 'metric/metrics.py'),
+    os.path.join(assets_directory, 'metric/Dockerfile')
 ]
 
-archive_path = OBJECTIVE['metrics']
+archive_path = METRIC['file']
 with zipfile.ZipFile(archive_path, 'w') as z:
     for filepath in METRICS_DOCKERFILE_FILES:
         z.write(filepath, arcname=os.path.basename(filepath))
@@ -131,22 +130,19 @@ client.link_dataset_with_data_samples(
     train_data_sample_keys + test_data_sample_keys,
 )
 
-print('Adding objective...')
-objective_key = client.add_objective({
-    'name': OBJECTIVE['name'],
-    'description': OBJECTIVE['description'],
-    'metrics_name': OBJECTIVE['metrics_name'],
-    'metrics': OBJECTIVE['metrics'],
-    'test_data_sample_keys': test_data_sample_keys,
-    'test_data_manager_key': dataset_key,
-    'permissions': OBJECTIVE['permissions'],
+print('Adding metric...')
+metric_key = client.add_metric({
+    'name': METRIC['name'],
+    'description': METRIC['description'],
+    'file': METRIC['file'],
+    'permissions': METRIC['permissions'],
 })
-assert objective_key, 'Missing objective key'
+assert metric_key, 'Missing metric key'
 
 # Save assets keys
 assets_keys = {
     'dataset_key': dataset_key,
-    'objective_key': objective_key,
+    'metric_key': metric_key,
     'train_data_sample_keys': train_data_sample_keys,
     'test_data_sample_keys': test_data_sample_keys,
 }

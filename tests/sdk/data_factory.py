@@ -290,7 +290,7 @@ class AssetsFactory:
     def __init__(self, name):
         self._data_sample_counter = Counter()
         self._dataset_counter = Counter()
-        self._objective_counter = Counter()
+        self._metric_counter = Counter()
         self._algo_counter = Counter()
         self._workdir = pathlib.Path(tempfile.mkdtemp(prefix='/tmp/'))
         self._uuid = name
@@ -321,7 +321,7 @@ class AssetsFactory:
             data_manager_keys=datasets,
         )
 
-    def create_dataset(self, objective=None, permissions=None, metadata=None, py_script=None):
+    def create_dataset(self, permissions=None, metadata=None, py_script=None):
         idx = self._dataset_counter.inc()
         tmpdir = self._workdir / f'dataset-{idx}'
         tmpdir.mkdir()
@@ -342,15 +342,14 @@ class AssetsFactory:
             type='Test',
             metadata=metadata,
             description=str(description_path),
-            objective_key=objective.key if objective else None,
             permissions=permissions or DEFAULT_PERMISSIONS,
         )
 
-    def create_objective(self, dataset=None, data_samples=None, permissions=None, metadata=None):
-        idx = self._objective_counter.inc()
-        tmpdir = self._workdir / f'objective-{idx}'
+    def create_metric(self, permissions=None, metadata=None):
+        idx = self._metric_counter.inc()
+        tmpdir = self._workdir / f'metric-{idx}'
         tmpdir.mkdir()
-        name = _shorten_name(f'{self._uuid} - Objective {idx}')
+        name = _shorten_name(f'{self._uuid} - Metric {idx}')
 
         description_path = tmpdir / 'description.md'
         description_content = name
@@ -363,17 +362,12 @@ class AssetsFactory:
             ('Dockerfile', DEFAULT_METRICS_DOCKERFILE),
         )
 
-        data_samples = data_samples or []
-
-        return substra.sdk.schemas.ObjectiveSpec(
+        return substra.sdk.schemas.MetricSpec(
             name=name,
             description=str(description_path),
-            metrics_name='test metrics',
-            metrics=str(metrics_zip),
+            file=str(metrics_zip),
             metadata=metadata,
             permissions=permissions or DEFAULT_PERMISSIONS,
-            test_data_sample_keys=_get_keys(data_samples),
-            test_data_manager_key=dataset.key if dataset else None,
         )
 
     def create_algo(self, category, py_script=None, permissions=None, metadata=None, algo_spec=substra.sdk.schemas.AlgoSpec,
@@ -481,10 +475,10 @@ class AssetsFactory:
             out_trunk_model_permissions=permissions or DEFAULT_PERMISSIONS,
         )
 
-    def create_testtuple(self, objective=None, traintuple=None, tag=None, dataset=None, data_samples=None,
+    def create_testtuple(self, metric=None, traintuple=None, tag=None, dataset=None, data_samples=None,
                          metadata=None):
         return substra.sdk.schemas.TesttupleSpec(
-            objective_key=objective.key if objective else None,
+            metric_key=metric.key if metric else None,
             traintuple_key=traintuple.key if traintuple else None,
             data_manager_key=dataset.key if dataset else None,
             test_data_sample_keys=_get_keys(data_samples),

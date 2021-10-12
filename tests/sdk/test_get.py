@@ -21,7 +21,7 @@ from .utils import mock_requests
 
 
 @pytest.mark.parametrize('asset_name', [
-    'objective',
+    'metric',
     'dataset',
     'algo',
     'testtuple',

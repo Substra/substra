@@ -18,17 +18,6 @@ from .. import datastore
 from .utils import mock_requests
 
 
-def test_update_dataset(client, mocker):
-    m = mock_requests(mocker, "post", response={"key": "dataset_key"})
-
-    response = client.link_dataset_with_objective(
-        'dataset_key',
-        'objective_key',
-    )
-    assert response == "dataset_key"
-    m.assert_called()
-
-
 def test_update_compute_plan(client, mocker):
     item = datastore.COMPUTE_PLAN
     m = mock_requests(mocker, "post", response=item)

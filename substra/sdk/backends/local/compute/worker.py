@@ -421,7 +421,7 @@ class Worker:
                 raise exceptions.NotFound(f"Wrong pk {tuple_.parent_task_keys[0]}", 404)
 
             algo = self._db.get_with_files(schemas.Type.Algo, tuple_.algo.key)
-            objective = self._db.get_with_files(schemas.Type.Objective, tuple_.test.objective_key)
+            metric = self._db.get_with_files(schemas.Type.Metric, tuple_.test.metric_key)
             dataset = self._db.get_with_files(schemas.Type.Dataset, tuple_.test.data_manager_key)
 
             compute_plan = None
@@ -554,7 +554,7 @@ class Worker:
             container_name = 'metrics_run_local'
             self._spawner.spawn(
                 container_name,
-                str(objective.metrics.storage_address),
+                str(metric.address.storage_address),
                 command_template=string.Template(command_template),
                 local_volumes=volumes,
             )

@@ -56,13 +56,13 @@ def test_add_dataset_409_success(client, dataset_query, mocker):
     assert key == datastore.DATASET['key']
 
 
-def test_add_objective(client, objective_query, mocker):
-    m_post = mock_requests(mocker, "post", response=datastore.OBJECTIVE)
-    m_get = mock_requests(mocker, "get", response=datastore.OBJECTIVE)
-    key = client.add_objective(objective_query)
-    response = client.get_objective(key)
+def test_add_metric(client, metric_query, mocker):
+    m_post = mock_requests(mocker, "post", response=datastore.METRIC)
+    m_get = mock_requests(mocker, "get", response=datastore.METRIC)
+    key = client.add_metric(metric_query)
+    response = client.get_metric(key)
 
-    assert response == models.Objective(**datastore.OBJECTIVE)
+    assert response == models.Metric(**datastore.METRIC)
     m_post.assert_called()
     m_get.assert_called()
 

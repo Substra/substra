@@ -41,7 +41,7 @@ class Type(enum.Enum):
     DataSample = 'data_sample'
     Dataset = 'dataset'
     Model = 'model'
-    Objective = 'objective'
+    Metric = 'metric'
     Testtuple = 'testtuple'
     Traintuple = 'traintuple'
     Aggregatetuple = 'aggregatetuple'
@@ -189,11 +189,11 @@ class ComputePlanCompositeTraintupleSpec(_Spec):
 class ComputePlanTesttupleSpec(_Spec):
     """Specification of a testtuple inside a compute
     plan specification"""
-    objective_key: str
+    metric_key: str
     traintuple_id: str
     tag: Optional[str]
-    data_manager_key: Optional[str]
-    test_data_sample_keys: Optional[List[str]]
+    data_manager_key: str
+    test_data_sample_keys: List[str]
     metadata: Optional[Dict[str, str]]
 
 
@@ -225,7 +225,6 @@ class DatasetSpec(_Spec):
     type: str
     description: pathlib.Path  # Path to the description file
     permissions: Permissions
-    objective_key: Optional[str]
     metadata: Optional[Dict[str, str]]
 
     type_: typing.ClassVar[Type] = Type.Dataset
@@ -234,21 +233,18 @@ class DatasetSpec(_Spec):
         file_attributes = ('data_opener', 'description', )
 
 
-class ObjectiveSpec(_Spec):
-    """Specification for creating an objective"""
+class MetricSpec(_Spec):
+    """Specification for creating an metric"""
     name: str
     description: pathlib.Path  # Path to the description file
-    metrics_name: str
-    metrics: pathlib.Path  # Path to the metrics file
-    test_data_sample_keys: Optional[List[str]]
-    test_data_manager_key: Optional[str]
+    file: pathlib.Path  # Path to the metrics file
     permissions: Permissions
     metadata: Optional[Dict[str, str]]
 
-    type_: typing.ClassVar[Type] = Type.Objective
+    type_: typing.ClassVar[Type] = Type.Metric
 
     class Meta:
-        file_attributes = ('metrics', 'description', )
+        file_attributes = ('file', 'description', )
 
 
 class AlgoSpec(_Spec):
@@ -372,11 +368,11 @@ class CompositeTraintupleSpec(_Spec):
 
 class TesttupleSpec(_Spec):
     """Specification for creating a testtuple"""
-    objective_key: str
+    metric_key: str
     traintuple_key: str
     tag: Optional[str]
-    data_manager_key: Optional[str]
-    test_data_sample_keys: Optional[List[str]]
+    data_manager_key: str
+    test_data_sample_keys: List[str]
     compute_plan_key: Optional[str]
     metadata: Optional[Dict[str, str]]
 
@@ -388,7 +384,7 @@ class TesttupleSpec(_Spec):
         spec: ComputePlanTesttupleSpec
     ) -> "TesttupleSpec":
         return TesttupleSpec(
-            objective_key=spec.objective_key,
+            metric_key=spec.metric_key,
             traintuple_key=spec.traintuple_id,
             tag=spec.tag,
             data_manager_key=spec.data_manager_key,

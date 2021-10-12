@@ -11,15 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-OBJECTIVE = {
+METRIC = {
     "key": "d5002e1c-d50b-d5de-5341-df8a7b7d11b6",
     "name": "Skin Lesion Classification Challenge",
     "owner": "MyOrg1MSP",
     "creation_date": "2021-08-24T13:36:07.428974249Z",
-    "data_manager_key": "b41c0678-e1c0-42bc-b57f-c5def23fbdab",
-    "data_sample_keys": [
-        "3ab0067d-33c9-426b-b9c7-50190ba047c7"
-    ],
     "metadata": {},
     "permissions": {
         "process": {
@@ -37,12 +33,11 @@ OBJECTIVE = {
     },
     "description": {
         "checksum": "77c7a32520f7564b03f4abac4271307cc639cd9fb78b90435328278f3f24d796",
-        "storage_address": "http://testserver/objective/7b75b728-9b9b-45fe-a867-4bb1525b7b5d/description/"
+        "storage_address": "http://testserver/metric/7b75b728-9b9b-45fe-a867-4bb1525b7b5d/description/"
     },
-    "metrics_name": "test metrics",
-    "metrics": {
+    "address": {
         "checksum": "52eea19fccfde2b12e30f4d16fd7d48f035e03210ad5804616f71799c4bdc0de",
-        "storage_address": "http://testserver/objective/7b75b728-9b9b-45fe-a867-4bb1525b7b5d/metrics/"
+        "storage_address": "http://testserver/metric/7b75b728-9b9b-45fe-a867-4bb1525b7b5d/metrics/"
     }
 }
 
@@ -52,7 +47,6 @@ DATASET = {
     "name": "c5e21113fcc64160b4dfac17892db879_test_composite_traintuple_data_samples_relative_order - Dataset 0",
     "owner": "MyOrg1MSP",
     "creation_date": "2021-08-24T13:36:07.428974249Z",
-    "objective_key": "68cb00d8-7165-4b70-a40b-a844da02e916",
     "permissions": {
         "process": {
             "public": True,
@@ -489,16 +483,15 @@ TESTTUPLE = {
             "3180e12c-a821-434a-ad8a-a341076c7f98",
             "21bb59ca-abd4-4154-b04a-44a92556a078"
         ],
-        "objective_key": "e526243f-f51a-4737-9fea-a5d55f4205fe",
-        "certified": False,
+        "metric_key": "e526243f-f51a-4737-9fea-a5d55f4205fe",
         "perf": None
     }
 }
 
 LEADERBOARD = {
-    "objective": {
+    "metric": {
         "key": "c6a6139a-28b5-936c-1086-a49d7c772734",
-        "name": "data-network - Objective 1",
+        "name": "data-network - Metric 1",
         "data_manager_key": "c0230e3a-b5b9-2e50-fe3c-166471e754e3",
         "data_sample_keys": [
             "d2e599ef-e128-8a86-46b9-9330eb50f385"
@@ -517,8 +510,7 @@ LEADERBOARD = {
             "checksum": "c6a6139a28b5936c1086a49d7c772734f4ad65f4580ca4ab14029a925847faf3",
             "storage_address": ""
         },
-        "metrics_name": "test metrics",
-        "metrics": {
+        "address": {
             "checksum": "48e748a15552ea2a8a258f6e8e75b1d67da5d6ca7471f80f9b69dae3cb950335",
             "storage_address": ""
         },

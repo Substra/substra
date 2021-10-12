@@ -279,23 +279,23 @@ class Client(object):
         return self._backend.add(spec)
 
     @logit
-    def add_objective(
+    def add_metric(
         self,
-        data: Union[dict, schemas.ObjectiveSpec],
+        data: Union[dict, schemas.MetricSpec],
     ) -> str:
-        """Create new objective asset.
+        """Create new metric asset.
 
         In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-        the value becomes the 'creator' of the objective.
+        the value becomes the 'creator' of the metric.
 
         Args:
-            data (Union[dict, schemas.ObjectiveSpec]): If it is a dict, it must have the same keys
-                as specified in [schemas.ObjectiveSpec](sdk_schemas.md#ObjectiveSpec).
+            data (Union[dict, schemas.MetricSpec]): If it is a dict, it must have the same keys
+                as specified in [schemas.MetricSpec](sdk_schemas.md#MetricSpec).
 
         Returns:
-            str: Key of the objective
+            str: Key of the metric
         """
-        spec = self._get_spec(schemas.ObjectiveSpec, data)
+        spec = self._get_spec(schemas.MetricSpec, data)
         return self._backend.add(spec)
 
     @logit
@@ -449,10 +449,10 @@ class Client(object):
         return self._backend.get(schemas.Type.Dataset, key)
 
     @logit
-    def get_objective(self, key: str) -> models.Objective:
-        """Get objective by key, the returned object is described
-        in the [models.Objective](sdk_models.md#Objective) model"""
-        return self._backend.get(schemas.Type.Objective, key)
+    def get_metric(self, key: str) -> models.Metric:
+        """Get metric by key, the returned object is described
+        in the [models.Metric](sdk_models.md#Metric) model"""
+        return self._backend.get(schemas.Type.Metric, key)
 
     @logit
     def get_testtuple(self, key: str) -> models.Testtuple:
@@ -503,10 +503,10 @@ class Client(object):
         return self._backend.list(schemas.Type.Dataset, filters)
 
     @logit
-    def list_objective(self, filters=None) -> List[models.Objective]:
-        """List objectives, the returned object is described
-        in the [models.Objective](sdk_models.md#Objective) model"""
-        return self._backend.list(schemas.Type.Objective, filters)
+    def list_metric(self, filters=None) -> List[models.Metric]:
+        """List metrics, the returned object is described
+        in the [models.Metric](sdk_models.md#Metric) model"""
+        return self._backend.list(schemas.Type.Metric, filters)
 
     @logit
     def list_testtuple(self, filters=None) -> List[models.Testtuple]:
@@ -578,11 +578,6 @@ class Client(object):
         )
 
     @logit
-    def link_dataset_with_objective(self, dataset_key: str, objective_key: str) -> str:
-        """Link dataset with objective."""
-        return self._backend.link_dataset_with_objective(dataset_key, objective_key)
-
-    @logit
     def link_dataset_with_data_samples(
         self, dataset_key: str,
         data_sample_keys: str,
@@ -619,14 +614,14 @@ class Client(object):
         )
 
     @logit
-    def download_objective(self, key: str, destination_folder: str) -> None:
-        """Download objective resource.
+    def download_metric(self, key: str, destination_folder: str) -> None:
+        """Download metric resource.
 
         Download metrics script in destination folder.
         """
         self._backend.download(
-            schemas.Type.Objective,
-            'metrics.storage_address',
+            schemas.Type.Metric,
+            'address.storage_address',
             key,
             os.path.join(destination_folder, 'metrics.py'),
         )
@@ -717,19 +712,14 @@ class Client(object):
         return self._backend.describe(schemas.Type.Dataset, key)
 
     @logit
-    def describe_objective(self, key: str) -> str:
-        """Get objective description."""
-        return self._backend.describe(schemas.Type.Objective, key)
+    def describe_metric(self, key: str) -> str:
+        """Get metric description."""
+        return self._backend.describe(schemas.Type.Metric, key)
 
     @logit
     def node_info(self) -> dict:
         """Get node information."""
         return self._backend.node_info()
-
-    @logit
-    def leaderboard(self, objective_key: str, sort: str = 'desc') -> str:
-        """Get objective leaderboard"""
-        return self._backend.leaderboard(objective_key, sort='desc')
 
     @logit
     def cancel_compute_plan(self, key: str) -> models.ComputePlan:

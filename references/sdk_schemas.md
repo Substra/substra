@@ -2,7 +2,7 @@
 
 - [DataSampleSpec](#DataSampleSpec)
 - [DatasetSpec](#DatasetSpec)
-- [ObjectiveSpec](#ObjectiveSpec)
+- [MetricSpec](#MetricSpec)
 - [TesttupleSpec](#TesttupleSpec)
 - [TraintupleSpec](#TraintupleSpec)
 - [AggregatetupleSpec](#AggregatetupleSpec)
@@ -38,19 +38,15 @@ Specification for creating a dataset
 - type: str
 - description: Path
 - permissions: Permissions
-- objective_key: Optional[str]
 - metadata: Optional[Mapping[str, str]]
 ```
 
-## ObjectiveSpec
-Specification for creating an objective
+## MetricSpec
+Specification for creating an metric
 ```python
 - name: str
 - description: Path
-- metrics_name: str
-- metrics: Path
-- test_data_sample_keys: Optional[List[str]]
-- test_data_manager_key: Optional[str]
+- file: Path
 - permissions: Permissions
 - metadata: Optional[Mapping[str, str]]
 ```
@@ -58,11 +54,11 @@ Specification for creating an objective
 ## TesttupleSpec
 Specification for creating a testtuple
 ```python
-- objective_key: str
+- metric_key: str
 - traintuple_key: str
 - tag: Optional[str]
-- data_manager_key: Optional[str]
-- test_data_sample_keys: Optional[List[str]]
+- data_manager_key: str
+- test_data_sample_keys: List[str]
 - compute_plan_key: Optional[str]
 - metadata: Optional[Mapping[str, str]]
 ```
@@ -132,11 +128,11 @@ Specification for updating a compute plan
 Specification of a testtuple inside a compute
 plan specification
 ```python
-- objective_key: str
+- metric_key: str
 - traintuple_id: str
 - tag: Optional[str]
-- data_manager_key: Optional[str]
-- test_data_sample_keys: Optional[List[str]]
+- data_manager_key: str
+- test_data_sample_keys: List[str]
 - metadata: Optional[Mapping[str, str]]
 ```
 

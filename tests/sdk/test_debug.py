@@ -226,11 +226,11 @@ class TestsDebug:
         # client.link_dataset_with_data_samples(dataset_1_key, [sample_1_test_key])
         # client.link_dataset_with_data_samples(dataset_2_key, [sample_2_test_key])
 
-        objective = asset_factory.create_objective(dataset=client.get_dataset(dataset_1_key))
-        objective_1_key = client.add_objective(objective)
+        metric = asset_factory.create_metric()
+        metric_1_key = client.add_metric(metric)
 
-        objective = asset_factory.create_objective(dataset=client.get_dataset(dataset_2_key))
-        objective_2_key = client.add_objective(objective)
+        metric = asset_factory.create_metric()
+        metric_2_key = client.add_metric(metric)
 
         algo_query = asset_factory.create_algo(AlgoCategory.simple)
         algo_key = client.add_algo(algo_query)
@@ -255,13 +255,13 @@ class TestsDebug:
 
         cp.testtuples = [
             substra.sdk.schemas.ComputePlanTesttupleSpec(
-                objective_key=objective_1_key,
+                metric_key=metric_1_key,
                 traintuple_id=traintuple_id_1,
                 data_manager_key=dataset_1_key,
                 test_data_sample_keys=[sample_1_test_key]
             ),
             substra.sdk.schemas.ComputePlanTesttupleSpec(
-                objective_key=objective_2_key,
+                metric_key=metric_2_key,
                 traintuple_id=traintuple_id_2,
                 data_manager_key=dataset_2_key,
                 test_data_sample_keys=[sample_2_test_key]

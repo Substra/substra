@@ -384,12 +384,11 @@ def add_data_sample(ctx, path, dataset_key, local, multiple, test_only):
 @add.command('dataset')
 @click.argument('data', type=click.Path(exists=True, dir_okay=False), callback=load_json_from_path,
                 metavar="PATH")
-@click.option('--objective-key')
 @click_global_conf_with_output_format
 @click_global_conf_retry_timeout
 @click.pass_context
 @error_printer
-def add_dataset(ctx, data, objective_key):
+def add_dataset(ctx, data):
     """Add dataset.
 
     The path must point to a valid JSON file with the following schema:
@@ -418,28 +417,21 @@ def add_dataset(ctx, data, objective_key):
     - permissions: define asset access permissions
     """
     client = get_client(ctx.obj)
-    if objective_key:  # overwrite data values if set
-        data['objective_key'] = objective_key
-
     key = client.add_dataset(data)
     res = ctx.obj.retry(client.get_dataset)(key)
     printer = printers.get_asset_printer(assets.DATASET, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
 
-@add.command('objective')
+@add.command('metric')
 @click.argument('data', type=click.Path(exists=True, dir_okay=False), callback=load_json_from_path,
                 metavar="PATH")
-@click.option('--dataset-key')
-@click.option('--data-samples-path', 'data_samples',
-              type=click.Path(exists=True, resolve_path=True, dir_okay=False),
-              callback=load_json_from_path, help='Test data samples.')
 @click_global_conf_with_output_format
 @click_global_conf_retry_timeout
 @click.pass_context
 @error_printer
-def add_objective(ctx, data, dataset_key, data_samples):
-    """Add objective.
+def add_metric(ctx, data):
+    """Add metric.
 
     The path must point to a valid JSON file with the following schema:
 
@@ -447,8 +439,7 @@ def add_objective(ctx, data, dataset_key, data_samples):
     {
         "name": str,
         "description": path,
-        "metrics_name": str,
-        "metrics": path,
+        "file": path,
         "permissions": {
             "public": bool,
             "authorized_ids": list[str],
@@ -458,36 +449,16 @@ def add_objective(ctx, data, dataset_key, data_samples):
 
     \b
     Where:
-    - name: name of the objective
-    - description: path to a markdown file describing the objective
-    - metrics_name: name of the metrics
-    - metrics: path to tar.gz or zip archive containing the metrics python
+    - name: name of the metric
+    - description: path to a markdown file describing the metric
+    - file: path to tar.gz or zip archive containing the metrics python
       script and its Dockerfile
     - permissions: define asset access permissions
-
-    The option --data-samples-path must point to a valid JSON file with the
-    following schema:
-
-    \b
-    {
-        "keys": list[str],
-    }
-
-    \b
-    Where:
-    - keys: list of test only data sample keys
     """
     client = get_client(ctx.obj)
-
-    if dataset_key:
-        data['test_data_manager_key'] = dataset_key
-
-    if data_samples:
-        data['test_data_sample_keys'] = load_data_samples_keys(data_samples)
-
-    key = client.add_objective(data)
-    res = ctx.obj.retry(client.get_objective)(key)
-    printer = printers.get_asset_printer(assets.OBJECTIVE, ctx.obj.output_format)
+    key = client.add_metric(data)
+    res = ctx.obj.retry(client.get_metric)(key)
+    printer = printers.get_asset_printer(assets.METRIC, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
 
@@ -582,7 +553,7 @@ def add_compute_plan(ctx, data, no_auto_batching, batch_size):
             "metadata": dict
         }],
         "testtuples": list[{
-            "objective_key": str,
+            "metric_key": str,
             "data_manager_key": str,
             "test_data_sample_keys": list[str],
             "traintuple_id": str,
@@ -778,7 +749,7 @@ def add_composite_traintuple(ctx, algo_key, dataset_key, data_samples, head_mode
 
 
 @add.command('testtuple')
-@click.option('--objective-key', required=True)
+@click.option('--metric-key', required=True)
 @click.option('--dataset-key')
 @click.option('--traintuple-key', required=True)
 @click.option('--data-samples-path', 'data_samples',
@@ -790,7 +761,7 @@ def add_composite_traintuple(ctx, algo_key, dataset_key, data_samples, head_mode
 @click_option_metadata
 @click.pass_context
 @error_printer
-def add_testtuple(ctx, objective_key, dataset_key, traintuple_key, data_samples, tag, metadata):
+def add_testtuple(ctx, metric_key, dataset_key, traintuple_key, data_samples, tag, metadata):
     """Add testtuple.
 
     The option --data-samples-path must point to a valid JSON file with the
@@ -807,7 +778,7 @@ def add_testtuple(ctx, objective_key, dataset_key, traintuple_key, data_samples,
     """
     client = get_client(ctx.obj)
     data = {
-        'objective_key': objective_key,
+        'metric_key': metric_key,
         'data_manager_key': dataset_key,
         'traintuple_key': traintuple_key,
     }
@@ -831,7 +802,7 @@ def add_testtuple(ctx, objective_key, dataset_key, traintuple_key, data_samples,
     assets.ALGO,
     assets.COMPUTE_PLAN,
     assets.DATASET,
-    assets.OBJECTIVE,
+    assets.METRIC,
     assets.TESTTUPLE,
     assets.TRAINTUPLE,
     assets.COMPOSITE_TRAINTUPLE,
@@ -844,7 +815,7 @@ def add_testtuple(ctx, objective_key, dataset_key, traintuple_key, data_samples,
 @error_printer
 def get(ctx, expand, asset_name, asset_key):
     """Get asset definition."""
-    expand_valid_assets = (assets.DATASET, assets.TRAINTUPLE, assets.OBJECTIVE, assets.TESTTUPLE,
+    expand_valid_assets = (assets.DATASET, assets.TRAINTUPLE, assets.METRIC, assets.TESTTUPLE,
                            assets.COMPOSITE_TRAINTUPLE, assets.AGGREGATETUPLE, assets.COMPUTE_PLAN)
     if expand and asset_name not in expand_valid_assets:  # fail fast
         raise click.UsageError(
@@ -864,7 +835,7 @@ def get(ctx, expand, asset_name, asset_key):
     assets.COMPUTE_PLAN,
     assets.DATA_SAMPLE,
     assets.DATASET,
-    assets.OBJECTIVE,
+    assets.METRIC,
     assets.TESTTUPLE,
     assets.TRAINTUPLE,
     assets.COMPOSITE_TRAINTUPLE,
@@ -916,7 +887,7 @@ def list_(ctx, asset_name, filters, filters_logical_clause, advanced_filters):
 @click.argument('asset-name', type=click.Choice([
     assets.ALGO,
     assets.DATASET,
-    assets.OBJECTIVE,
+    assets.METRIC,
 ]))
 @click.argument('asset-key')
 @click_global_conf
@@ -954,7 +925,7 @@ def node_info(ctx):
 @click.argument('asset-name', type=click.Choice([
     assets.ALGO,
     assets.DATASET,
-    assets.OBJECTIVE,
+    assets.METRIC,
     assets.MODEL
 ]))
 @click.argument('key')
@@ -993,7 +964,7 @@ def download(ctx, asset_name, key, folder, model_src):
     \b
     - algo: the algo and its dependencies
     - dataset: the opener script
-    - objective: the metrics and its dependencies
+    - metric: the metrics and its dependencies
     - model: the output model
     """
     client = get_client(ctx.obj)
@@ -1005,25 +976,6 @@ def download(ctx, asset_name, key, folder, model_src):
 
     res = method(key, folder)
     display(res)
-
-
-@cli.command()
-@click.argument('objective_key')
-@click_option_expand
-@click.option('--sort',
-              type=click.Choice(['asc', 'desc']),
-              default='desc',
-              show_default=True,
-              help='Sort models by highest to lowest perf or vice versa')
-@click_global_conf_with_output_format
-@click.pass_context
-@error_printer
-def leaderboard(ctx, expand, objective_key, sort):
-    """Display objective leaderboard"""
-    client = get_client(ctx.obj)
-    board = client.leaderboard(objective_key, sort=sort)
-    printer = printers.get_leaderboard_printer(ctx.obj.output_format)
-    printer.print(board, expand=expand)
 
 
 @cli.group()
@@ -1081,19 +1033,6 @@ def update_data_sample(ctx, data_samples, dataset_key):
     display(res)
 
 
-@update.command('dataset')
-@click.argument('dataset-key')
-@click.argument('objective-key')
-@click_global_conf
-@click.pass_context
-@error_printer
-def update_dataset(ctx, dataset_key, objective_key):
-    """Link dataset with objective."""
-    client = get_client(ctx.obj)
-    res = client.link_dataset_with_objective(dataset_key, objective_key)
-    display(res)
-
-
 @update.command('compute_plan')
 @click.argument('compute_plan_key', type=click.STRING)
 @click.argument('tuples', type=click.Path(exists=True, dir_okay=False),
@@ -1144,7 +1083,7 @@ def update_compute_plan(ctx, compute_plan_key, tuples, no_auto_batching, batch_s
             "metadata": dict,
         }],
         "testtuples": list[{
-            "objective_key": str,
+            "metric_key": str,
             "data_manager_key": str,
             "test_data_sample_keys": list[str],
             "traintuple_id": str,

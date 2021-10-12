@@ -105,7 +105,7 @@ def test_command_login(workdir, mocker):
 
 
 @pytest.mark.parametrize('asset_name,model', [
-    ('objective', models.Objective),
+    ('metric', models.Metric),
     ('dataset', models.Dataset),
     ('algo', models.Algo),
     ('testtuple', models.Testtuple),
@@ -140,7 +140,7 @@ def test_command_list_node(workdir, mocker):
                     '--in-model-key', 'foo', '--data-samples-path']),
     ('traintuple', ['--algo-key', 'foo', '--dataset-key', 'foo',
                     '--in-model-key', 'foo', '--in-model-key', 'bar', '--data-samples-path']),
-    ('testtuple', ['--objective-key', 'foo', '--traintuple-key', 'foo', '--data-samples-path']),
+    ('testtuple', ['--metric-key', 'foo', '--traintuple-key', 'foo', '--data-samples-path']),
     ('compute_plan', []),
     ('composite_traintuple', ['--algo-key', 'foo', '--dataset-key', 'foo', '--data-samples-path']),
 ])
@@ -171,40 +171,28 @@ def test_command_add(asset_name, params, workdir, mocker):
     assert re.search(r"File '.*' does not exist\.", res)
 
 
-def test_command_add_objective(workdir, mocker):
+def test_command_add_metric(workdir, mocker):
     json_file = workdir / "valid_json_file.json"
     json_file.write_text(json.dumps({}))
 
-    m = mock_client_call(mocker, 'add_objective', response='foo')
-    item = getattr(datastore, 'OBJECTIVE')
-    m = mock_client_call(mocker, 'get_objective', item)
+    m = mock_client_call(mocker, 'add_metric', response='foo')
+    item = getattr(datastore, 'METRIC')
+    m = mock_client_call(mocker, 'get_metric', item)
 
-    client_execute(workdir, ['add', 'objective', str(json_file), '--dataset-key', 'foo',
-                             '--data-samples-path', str(json_file)])
+    client_execute(workdir, ['add', 'metric', str(json_file)])
     m.assert_called()
 
-    m = mock_client_call(mocker, 'add_objective', response={})
-    client_execute(workdir, ['add', 'objective', str(json_file)])
+    m = mock_client_call(mocker, 'add_metric', response={})
+    client_execute(workdir, ['add', 'metric', str(json_file)])
     m.assert_called()
 
-    res = client_execute(workdir, ['add', 'objective', 'non_existing_file.txt', '--dataset-key',
-                                   'foo', '--data-samples-path', str(json_file)], exit_code=2)
-    assert re.search(r"File '.*' does not exist\.", res)
-
-    res = client_execute(workdir, ['add', 'objective', str(json_file), '--dataset-key', 'foo',
-                                   '--data-samples-path', 'non_existing_file.txt'], exit_code=2)
+    res = client_execute(workdir, ['add', 'metric', 'non_existing_file.txt'], exit_code=2)
     assert re.search(r"File '.*' does not exist\.", res)
 
     invalid_json_file = workdir / "invalid_json_file.md"
     invalid_json_file.write_text("test")
 
-    res = client_execute(workdir, ['add', 'objective', str(invalid_json_file), '--dataset-key',
-                                   'foo', '--data-samples-path', str(json_file)], exit_code=2)
-    assert re.search(r"File '.*' is not a valid JSON file\.", res)
-
-    res = client_execute(workdir, ['add', 'objective', str(json_file), '--dataset-key',
-                                   'foo', '--data-samples-path', str(invalid_json_file)],
-                         exit_code=2)
+    res = client_execute(workdir, ['add', 'metric', str(invalid_json_file)], exit_code=2)
     assert re.search(r"File '.*' is not a valid JSON file\.", res)
 
 
@@ -253,7 +241,7 @@ def test_command_add_testtuple_no_data_samples(mocker, workdir):
     m = mock_client_call(mocker, 'add_testtuple', response='foo')
     item = getattr(datastore, 'testtuple'.upper())
     m = mock_client_call(mocker, 'get_testtuple', item)
-    client_execute(workdir, ['add', 'testtuple', '--objective-key', 'foo',
+    client_execute(workdir, ['add', 'testtuple', '--metric-key', 'foo',
                              '--traintuple-key', 'foo'])
     m.assert_called()
 
@@ -284,7 +272,7 @@ def test_command_add_data_sample_already_exists(workdir, mocker):
 
 
 @pytest.mark.parametrize('asset_name,model', [
-    ('objective', models.Objective),
+    ('metric', models.Metric),
     ('dataset', models.Dataset),
     ('algo', models.Algo),
     ('testtuple', models.Testtuple),
@@ -304,15 +292,15 @@ def test_command_get(asset_name, model, workdir, mocker):
 
 def test_command_describe(workdir, mocker):
     response = "My description."
-    m = mock_client_call(mocker, 'describe_objective', response)
-    output = client_execute(workdir, ['describe', 'objective', 'fakekey'])
+    m = mock_client_call(mocker, 'describe_metric', response)
+    output = client_execute(workdir, ['describe', 'metric', 'fakekey'])
     m.assert_called()
     assert response in output
 
 
 def test_command_download(workdir, mocker):
-    m = mock_client_call(mocker, 'download_objective')
-    client_execute(workdir, ['download', 'objective', 'fakekey'])
+    m = mock_client_call(mocker, 'download_metric')
+    client_execute(workdir, ['download', 'metric', 'fakekey'])
     m.assert_called()
 
 
@@ -357,19 +345,6 @@ def test_command_cancel_compute_plan(workdir, mocker):
         models.ComputePlan(**datastore.COMPUTE_PLAN)
     )
     client_execute(workdir, ['cancel', 'compute_plan', 'fakekey'])
-    m.assert_called()
-
-
-@pytest.mark.skip(reason="leaderboard will be removed soon")
-def test_command_leaderboard(workdir, mocker):
-    m = mock_client_call(mocker, 'leaderboard', datastore.LEADERBOARD)
-    client_execute(workdir, ['leaderboard', 'fakekey'])
-    m.assert_called()
-
-
-def test_command_update_dataset(workdir, mocker):
-    m = mock_client_call(mocker, 'link_dataset_with_objective')
-    client_execute(workdir, ['update', 'dataset', 'key1', 'key2'])
     m.assert_called()
 
 

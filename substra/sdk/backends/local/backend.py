@@ -266,23 +266,6 @@ class Local(base.BaseBackend):
 
         return compute_plan
 
-    def __format_for_leaderboard(self, testtuple):
-        traintuple = self._db.get(testtuple.traintuple_type, testtuple.traintuple_key)
-        algo = self._db.get(schemas.Type.Algo, traintuple.algo.key)
-        return {
-            'algo': {
-                'key': algo.key,
-                'checksum': algo.algorithm.checksum,
-                'name': algo.name,
-                'storage_address': str(algo.algorithm.storage_address)
-            },
-            'creator': testtuple.creator,
-            'key': testtuple.key,
-            'perf': testtuple.test.perf,
-            'tag': testtuple.tag,
-            'traintuple_key': testtuple.traintuple_key
-        }
-
     def __check_same_data_manager(self, data_manager_key, data_sample_keys):
         """Check that all data samples are linked to this data manager"""
         # If the dataset is remote: the backend does not return the datasets
@@ -346,7 +329,6 @@ class Local(base.BaseBackend):
             creation_date=self.__now(),
             owner=owner,
             name=spec.name,
-            objective_key=spec.objective_key if spec.objective_key else "",
             permissions={
                 "process": {
                     "public": permissions.public,
@@ -418,40 +400,22 @@ class Local(base.BaseBackend):
             data_samples.append(data_sample)
         return data_samples
 
-    def _add_objective(self, key, spec, spec_options):
+    def _add_metric(self, key, spec, spec_options):
 
         owner = self._check_metadata(spec.metadata)
-
-        # validate spec
-        if spec.test_data_manager_key:
-            dataset = self._db.get(schemas.Type.Dataset, spec.test_data_manager_key)
-            # validate test data samples
-            if spec.test_data_sample_keys is None:
-                spec.test_data_sample_keys = list()
-            self.__check_same_data_manager(spec.test_data_manager_key, spec.test_data_sample_keys)
-
-            if not dataset.objective_key:
-                dataset.objective_key = key
-            else:
-                raise substra.exceptions.InvalidRequest(
-                    "dataManager is already associated with a objective", 400
-                )
-            owner = dataset.owner
 
         permissions = self.__compute_permissions(spec.permissions, owner)
 
         # Copy files to the local dir
-        objective_file_path = self._db.save_file(spec.metrics, key)
-        objective_description_path = self._db.save_file(spec.description, key)
+        metric_file_path = self._db.save_file(spec.file, key)
+        metric_description_path = self._db.save_file(spec.description, key)
 
-        # create objective model instance
-        objective = models.Objective(
+        # create metric model instance
+        metric = models.Metric(
             key=key,
             creation_date=self.__now(),
             name=spec.name,
             owner=owner,
-            data_manager_key=spec.test_data_manager_key,
-            data_sample_keys=spec.test_data_sample_keys or [],
             permissions={
                 "process": {
                     "public": permissions.public,
@@ -459,21 +423,20 @@ class Local(base.BaseBackend):
                 },
             },
             description={
-                "checksum": fs.hash_file(objective_description_path),
-                "storage_address": objective_description_path
+                "checksum": fs.hash_file(metric_description_path),
+                "storage_address": metric_description_path
             },
-            metrics_name=spec.metrics_name,
-            metrics={
-                "checksum": fs.hash_file(objective_file_path),
-                "storage_address": objective_file_path
+            address={
+                "checksum": fs.hash_file(metric_file_path),
+                "storage_address": metric_file_path
             },
             metadata=spec.metadata if spec.metadata else dict(),
         )
 
-        # add objective to storage and update optionnally the associated dataset
-        objective = self._db.add(objective)
+        # add metric to storage and update optionnally the associated dataset
+        metric = self._db.add(metric)
 
-        return objective
+        return metric
 
     def _add_compute_plan(
         self,
@@ -602,7 +565,6 @@ class Local(base.BaseBackend):
 
         # validation
         owner = self._check_metadata(spec.metadata)
-        objective = self._db.get(schemas.Type.Objective, spec.objective_key)
 
         traintuple = None
         for tuple_type in [
@@ -625,31 +587,14 @@ class Local(base.BaseBackend):
                 the traintuple {traintuple.key} has a status {traintuple.status}",
                 400,
             )
-        if spec.data_manager_key is not None:
-            dataset = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
-            if spec.test_data_sample_keys is not None:
-                self.__check_same_data_manager(spec.data_manager_key, spec.test_data_sample_keys)
 
-            # create model
-            # if dataset is not defined, take it from objective
-            assert (
-                spec.test_data_sample_keys is not None and len(spec.test_data_sample_keys) > 0
-            )
-            dataset_key = spec.data_manager_key
-            test_data_sample_keys = spec.test_data_sample_keys
-            certified = (
-                objective.data_manager_key == spec.data_manager_key and
-                set(objective.data_sample_keys) == set(spec.test_data_sample_keys)
-            )
-            worker = dataset.owner
-        else:
-            assert (
-                objective.data_manager_key
-            ), "can not create a certified testtuple, no data associated with objective"
-            dataset_key = objective.data_manager_key
-            test_data_sample_keys = objective.data_sample_keys
-            certified = True
-            worker = objective.owner
+        dataset = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
+        self.__check_same_data_manager(spec.data_manager_key, spec.test_data_sample_keys)
+
+        assert len(spec.test_data_sample_keys) > 0
+        dataset_key = spec.data_manager_key
+        test_data_sample_keys = spec.test_data_sample_keys
+        worker = dataset.owner
 
         if traintuple.compute_plan_key:
             compute_plan = self._db.get(
@@ -662,8 +607,7 @@ class Local(base.BaseBackend):
             test=models._Test(
                 data_manager_key=dataset_key,
                 data_sample_keys=test_data_sample_keys,
-                objective_key=spec.objective_key,
-                certified=certified,
+                metric_key=spec.metric_key,
                 perf=-1,
             ),
             key=key,
@@ -859,18 +803,6 @@ class Local(base.BaseBackend):
             else:
                 return key
 
-    def link_dataset_with_objective(self, dataset_key, objective_key):
-        # validation
-        dataset = self._db.get(schemas.Type.Dataset, dataset_key)
-        self._db.get(schemas.Type.Objective, objective_key)
-        if dataset.objective_key:
-            raise substra.exceptions.InvalidRequest(
-                "Dataset already linked to an objective", 400
-            )
-
-        dataset.objective_key = objective_key
-        return dataset.key
-
     def link_dataset_with_data_samples(self, dataset_key, data_sample_keys):
         dataset = self._db.get(schemas.Type.Dataset, dataset_key)
         data_samples = list()
@@ -918,21 +850,6 @@ class Local(base.BaseBackend):
 
     def node_info(self):
         return {"type": "local backend"}
-
-    def leaderboard(self, objective_key, sort='desc'):
-        objective = self._db.get(schemas.Type.Objective, objective_key)
-        testtuples = self._db.list(schemas.Type.Testtuple, filters=None)
-        certified_testtuples = [
-            self.__format_for_leaderboard(t)
-            for t in testtuples
-            if t.objective.key == objective_key and t.certified
-        ]
-        certified_testtuples.sort(key=lambda x: x['perf'], reverse=(sort == 'desc'))
-        board = {
-            'objective': objective.dict(exclude_none=False, by_alias=True),
-            'testtuples': certified_testtuples
-        }
-        return board
 
     def cancel_compute_plan(self, key):
         # Execution is synchronous in the local backend so this

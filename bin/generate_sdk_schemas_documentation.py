@@ -12,7 +12,7 @@ local_dir = Path(__file__).parent
 schemas_list = [
     schemas.DataSampleSpec,
     schemas.DatasetSpec,
-    schemas.ObjectiveSpec,
+    schemas.MetricSpec,
     schemas.TesttupleSpec,
     schemas.TraintupleSpec,
     schemas.AggregatetupleSpec,
@@ -30,7 +30,7 @@ schemas_list = [
 models_list = [
     models.DataSample,
     models.Dataset,
-    models.Objective,
+    models.Metric,
     models.Testtuple,
     models.Traintuple,
     models.Aggregatetuple,

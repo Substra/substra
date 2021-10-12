@@ -165,22 +165,22 @@ keys as specified in [schemas.DatasetSpec](sdk_schemas.md#DatasetSpec).
 **Returns:**
 
  - `str`: Key of the dataset
-## add_objective
+## add_metric
 ```python
-add_objective(self, data: Union[dict, substra.sdk.schemas.ObjectiveSpec]) -> str
+add_metric(self, data: Union[dict, substra.sdk.schemas.MetricSpec]) -> str
 ```
 
-Create new objective asset.
+Create new metric asset.
 In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-the value becomes the 'creator' of the objective.
+the value becomes the 'creator' of the metric.
 
 **Arguments:**
- - `data (Union[dict, schemas.ObjectiveSpec], required)`: If it is a dict, it must have the same keys
-as specified in [schemas.ObjectiveSpec](sdk_schemas.md#ObjectiveSpec).
+ - `data (Union[dict, schemas.MetricSpec], required)`: If it is a dict, it must have the same keys
+as specified in [schemas.MetricSpec](sdk_schemas.md#MetricSpec).
 
 **Returns:**
 
- - `str`: Key of the objective
+ - `str`: Key of the metric
 ## add_testtuple
 ```python
 add_testtuple(self, data: Union[dict, substra.sdk.schemas.TesttupleSpec]) -> str
@@ -232,12 +232,12 @@ describe_dataset(self, key: str) -> str
 ```
 
 Get dataset description.
-## describe_objective
+## describe_metric
 ```python
-describe_objective(self, key: str) -> str
+describe_metric(self, key: str) -> str
 ```
 
-Get objective description.
+Get metric description.
 ## download_algo
 ```python
 download_algo(self, key: str, destination_folder: str) -> None
@@ -261,6 +261,13 @@ Download composite traintuple head model to destination file.
 This model was saved using the 'save_model' function of the algorithm.
 To load and use the model, please refer to the 'load_model' and 'predict' functions of the
 algorithm.
+## download_metric
+```python
+download_metric(self, key: str, destination_folder: str) -> None
+```
+
+Download metric resource.
+Download metrics script in destination folder.
 ## download_model
 ```python
 download_model(self, key: str, folder) -> None
@@ -288,13 +295,6 @@ Download traintuple model to destination file.
 This model was saved using the 'save_model' function of the algorithm.
 To load and use the model, please refer to the 'load_model' and 'predict' functions of the
 algorithm.
-## download_objective
-```python
-download_objective(self, key: str, destination_folder: str) -> None
-```
-
-Download objective resource.
-Download metrics script in destination folder.
 ## download_trunk_model_from_composite_traintuple
 ```python
 download_trunk_model_from_composite_traintuple(self, tuple_key: str, folder) -> None
@@ -366,13 +366,13 @@ get_dataset(self, key: str) -> substra.sdk.models.Dataset
 
 Get dataset by key, the returned object is described
 in the [models.Dataset](sdk_models.md#Dataset) model
-## get_objective
+## get_metric
 ```python
-get_objective(self, key: str) -> substra.sdk.models.Objective
+get_metric(self, key: str) -> substra.sdk.models.Metric
 ```
 
-Get objective by key, the returned object is described
-in the [models.Objective](sdk_models.md#Objective) model
+Get metric by key, the returned object is described
+in the [models.Metric](sdk_models.md#Metric) model
 ## get_testtuple
 ```python
 get_testtuple(self, key: str) -> substra.sdk.models.Testtuple
@@ -387,24 +387,13 @@ get_traintuple(self, key: str) -> substra.sdk.models.Traintuple
 
 Get traintuple by key, the returned object is described
 in the [models.Traintuple](sdk_models.md#Traintuple) model
-## leaderboard
-```python
-leaderboard(self, objective_key: str, sort: str = 'desc') -> str
-```
 
-Get objective leaderboard
 ## link_dataset_with_data_samples
 ```python
 link_dataset_with_data_samples(self, dataset_key: str, data_sample_keys: str) -> List[str]
 ```
 
 Link dataset with data samples.
-## link_dataset_with_objective
-```python
-link_dataset_with_objective(self, dataset_key: str, objective_key: str) -> str
-```
-
-Link dataset with objective.
 ## list_aggregatetuple
 ```python
 list_aggregatetuple(self, filters=None) -> List[substra.sdk.models.Aggregatetuple]
@@ -447,6 +436,13 @@ list_dataset(self, filters=None) -> List[substra.sdk.models.Dataset]
 
 List datasets, the returned object is described
 in the [models.Dataset](sdk_models.md#Dataset) model
+## list_metric
+```python
+list_metric(self, filters=None) -> List[substra.sdk.models.Metric]
+```
+
+List metrics, the returned object is described
+in the [models.Metric](sdk_models.md#Metric) model
 ## list_node
 ```python
 list_node(self, *args, **kwargs) -> List[substra.sdk.models.Node]
@@ -454,13 +450,6 @@ list_node(self, *args, **kwargs) -> List[substra.sdk.models.Node]
 
 List nodes, the returned object is described
 in the [models.Node](sdk_models.md#Node) model
-## list_objective
-```python
-list_objective(self, filters=None) -> List[substra.sdk.models.Objective]
-```
-
-List objectives, the returned object is described
-in the [models.Objective](sdk_models.md#Objective) model
 ## list_testtuple
 ```python
 list_testtuple(self, filters=None) -> List[substra.sdk.models.Testtuple]
@@ -483,7 +472,7 @@ login(self, username, password)
 Login to a remote server. 
 ## node_info
 ```python
-node_info(self) -> str
+node_info(self) -> dict
 ```
 
 Get node information.

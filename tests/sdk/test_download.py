@@ -27,7 +27,7 @@ from unittest.mock import patch
     'asset_name, filename', [
         ('dataset', 'opener.py'),
         ('algo', 'algo.tar.gz'),
-        ('objective', 'metrics.py'),
+        ('metric', 'metrics.py'),
         ('model', 'model_foo'),
     ]
 )
@@ -48,7 +48,7 @@ def test_download_asset(asset_name, filename, tmp_path, client, mocker):
 
 
 @pytest.mark.parametrize(
-    'asset_name', ['dataset', 'algo', 'objective', 'model']
+    'asset_name', ['dataset', 'algo', 'metric', 'model']
 )
 def test_download_asset_not_found(asset_name, tmp_path, client, mocker):
     m = mock_requests(mocker, "get", status=404)
@@ -61,7 +61,7 @@ def test_download_asset_not_found(asset_name, tmp_path, client, mocker):
 
 
 @pytest.mark.parametrize(
-    'asset_name', ['dataset', 'algo', 'objective', 'model']
+    'asset_name', ['dataset', 'algo', 'metric', 'model']
 )
 def test_download_content_not_found(asset_name, tmp_path, client, mocker):
     item = getattr(datastore, asset_name.upper())

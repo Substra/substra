@@ -21,7 +21,7 @@ from .utils import mock_requests, make_paginated_response
 
 
 @pytest.mark.parametrize('asset_name', [
-    'objective',
+    'metric',
     'dataset',
     'algo',
     'testtuple',

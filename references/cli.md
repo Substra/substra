@@ -4,7 +4,7 @@
 - [substra login](#substra-login)
 - [substra add data_sample](#substra-add-data_sample)
 - [substra add dataset](#substra-add-dataset)
-- [substra add objective](#substra-add-objective)
+- [substra add metric](#substra-add-metric)
 - [substra add algo](#substra-add-algo)
 - [substra add compute_plan](#substra-add-compute_plan)
 - [substra add traintuple](#substra-add-traintuple)
@@ -16,10 +16,8 @@
 - [substra describe](#substra-describe)
 - [substra node info](#substra-node-info)
 - [substra download](#substra-download)
-- [substra leaderboard](#substra-leaderboard)
 - [substra cancel compute_plan](#substra-cancel-compute_plan)
 - [substra update data_sample](#substra-update-data_sample)
-- [substra update dataset](#substra-update-dataset)
 - [substra update compute_plan](#substra-update-compute_plan)
 
 
@@ -121,7 +119,6 @@ Usage: substra add dataset [OPTIONS] PATH
   - permissions: define asset access permissions
 
 Options:
-  --objective-key TEXT
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
@@ -138,20 +135,19 @@ Options:
   --help                          Show this message and exit.
 ```
 
-## substra add objective
+## substra add metric
 
 ```bash
-Usage: substra add objective [OPTIONS] PATH
+Usage: substra add metric [OPTIONS] PATH
 
-  Add objective.
+  Add metric.
 
   The path must point to a valid JSON file with the following schema:
 
   {
       "name": str,
       "description": path,
-      "metrics_name": str,
-      "metrics": path,
+      "file": path,
       "permissions": {
           "public": bool,
           "authorized_ids": list[str],
@@ -160,26 +156,13 @@ Usage: substra add objective [OPTIONS] PATH
   }
 
   Where:
-  - name: name of the objective
-  - description: path to a markdown file describing the objective
-  - metrics_name: name of the metrics
-  - metrics: path to tar.gz or zip archive containing the metrics python
+  - name: name of the metric
+  - description: path to a markdown file describing the metric
+  - file: path to tar.gz or zip archive containing the metrics python
     script and its Dockerfile
   - permissions: define asset access permissions
 
-  The option --data-samples-path must point to a valid JSON file with the
-  following schema:
-
-  {
-      "keys": list[str],
-  }
-
-  Where:
-  - keys: list of test only data sample keys
-
 Options:
-  --dataset-key TEXT
-  --data-samples-path FILE        Test data samples.
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
@@ -283,7 +266,7 @@ Usage: substra add compute_plan [OPTIONS] PATH
           "metadata": dict
       }],
       "testtuples": list[{
-          "objective_key": str,
+          "metric_key": str,
           "data_manager_key": str,
           "test_data_sample_keys": list[str],
           "traintuple_id": str,
@@ -455,7 +438,7 @@ Usage: substra add testtuple [OPTIONS]
   - keys: list of data sample keys
 
 Options:
-  --objective-key TEXT            [required]
+  --metric-key TEXT               [required]
   --dataset-key TEXT
   --traintuple-key TEXT           [required]
   --data-samples-path FILE
@@ -480,8 +463,8 @@ Options:
 ## substra get
 
 ```bash
-Usage: substra get [OPTIONS] [algo|compute_plan|dataset|objective|testtuple|tr
-                   aintuple|composite_traintuple|aggregatetuple] ASSET_KEY
+Usage: substra get [OPTIONS] [algo|compute_plan|dataset|metric|testtuple|train
+                   tuple|composite_traintuple|aggregatetuple] ASSET_KEY
 
   Get asset definition.
 
@@ -503,9 +486,9 @@ Options:
 ## substra list
 
 ```bash
-Usage: substra list [OPTIONS] [algo|compute_plan|data_sample|dataset|objective
-                    |testtuple|traintuple|composite_traintuple|aggregatetuple|
-                    node]
+Usage: substra list [OPTIONS] [algo|compute_plan|data_sample|dataset|metric|te
+                    sttuple|traintuple|composite_traintuple|aggregatetuple|nod
+                    e]
 
   List assets.
 
@@ -536,7 +519,7 @@ Options:
 ## substra describe
 
 ```bash
-Usage: substra describe [OPTIONS] [algo|dataset|objective] ASSET_KEY
+Usage: substra describe [OPTIONS] [algo|dataset|metric] ASSET_KEY
 
   Display asset description.
 
@@ -576,13 +559,13 @@ Options:
 ## substra download
 
 ```bash
-Usage: substra download [OPTIONS] [algo|dataset|objective|model] KEY
+Usage: substra download [OPTIONS] [algo|dataset|metric|model] KEY
 
   Download asset implementation.
 
   - algo: the algo and its dependencies
   - dataset: the opener script
-  - objective: the metrics and its dependencies
+  - metric: the metrics and its dependencies
   - model: the output model
 
 Options:
@@ -613,30 +596,6 @@ Options:
   --help                          Show this message and exit.
 ```
 
-## substra leaderboard
-
-```bash
-Usage: substra leaderboard [OPTIONS] OBJECTIVE_KEY
-
-  Display objective leaderboard
-
-Options:
-  --expand                        Display associated assets details
-  --sort [asc|desc]               Sort models by highest to lowest perf or
-                                  vice versa  [default: desc]
-
-  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
-                                  Enable logging and set log level
-  --config PATH                   Config path (default ~/.substra).
-  --profile TEXT                  Profile name to use.
-  --tokens FILE                   Tokens file path to use (default ~/.substra-
-                                  tokens).
-
-  --verbose                       Enable verbose mode.
-  -o, --output [pretty|yaml|json]
-                                  Set output format  [default: pretty]
-  --help                          Show this message and exit.
-```
 
 ## substra cancel compute_plan
 
@@ -689,25 +648,6 @@ Options:
   --help                          Show this message and exit.
 ```
 
-## substra update dataset
-
-```bash
-Usage: substra update dataset [OPTIONS] DATASET_KEY OBJECTIVE_KEY
-
-  Link dataset with objective.
-
-Options:
-  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
-                                  Enable logging and set log level
-  --config PATH                   Config path (default ~/.substra).
-  --profile TEXT                  Profile name to use.
-  --tokens FILE                   Tokens file path to use (default ~/.substra-
-                                  tokens).
-
-  --verbose                       Enable verbose mode.
-  --help                          Show this message and exit.
-```
-
 ## substra update compute_plan
 
 ```bash
@@ -749,7 +689,7 @@ Usage: substra update compute_plan [OPTIONS] COMPUTE_PLAN_KEY TUPLES_PATH
           "metadata": dict,
       }],
       "testtuples": list[{
-          "objective_key": str,
+          "metric_key": str,
           "data_manager_key": str,
           "test_data_sample_keys": list[str],
           "traintuple_id": str,

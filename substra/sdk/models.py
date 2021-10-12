@@ -122,7 +122,6 @@ class Dataset(_Model):
     key: str
     name: str
     owner: str
-    objective_key: Optional[str]
     permissions: Permissions
     type: str
     train_data_sample_keys: List[str] = list()
@@ -136,27 +135,24 @@ class Dataset(_Model):
 
 
 class _Metric(schemas._PydanticConfig):
-    """Metric associated to a testtuple or objective"""
+    """Metric associated to a testtuple or metric"""
     checksum: str
     storage_address: UriPath
 
 
-class Objective(_Model):
-    """Objective"""
+class Metric(_Model):
+    """Metric"""
     key: str
     name: str
     owner: str
-    data_manager_key: str = None
-    data_sample_keys: List[str]
     metadata: Dict[str, str]
     permissions: Permissions
     creation_date: datetime
 
     description: _File
-    metrics_name: Optional[str]
-    metrics: _Metric
+    address: _Metric
 
-    type_: ClassVar[str] = schemas.Type.Objective
+    type_: ClassVar[str] = schemas.Type.Metric
 
 
 class Algo(_Model):
@@ -232,8 +228,7 @@ class _Aggregate(schemas._PydanticConfig):
 class _Test(schemas._PydanticConfig):
     data_manager_key: str
     data_sample_keys: List[str]
-    objective_key: str
-    certified: bool
+    metric_key: str
     perf: Optional[float]
 
 
@@ -300,7 +295,7 @@ SCHEMA_TO_MODEL = {
     schemas.Type.ComputePlan: ComputePlan,
     schemas.Type.DataSample: DataSample,
     schemas.Type.Dataset: Dataset,
-    schemas.Type.Objective: Objective,
+    schemas.Type.Metric: Metric,
     schemas.Type.Testtuple: Testtuple,
     schemas.Type.Traintuple: Traintuple,
     schemas.Type.Node: Node,

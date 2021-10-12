@@ -202,16 +202,6 @@ class Remote(base.BaseBackend):
                 key=key,
             )
 
-    def link_dataset_with_objective(self, dataset_key, objective_key):
-        """Returns the key of the dataset"""
-        self._client.request(
-            'post',
-            schemas.Type.Dataset.to_server(),
-            path=f"{dataset_key}/update_ledger/",
-            data={'objective_key': objective_key, },
-        )
-        return dataset_key
-
     def link_dataset_with_data_samples(self, dataset_key, data_sample_keys):
         """Returns the list of the data sample keys"""
         data = {
@@ -253,14 +243,6 @@ class Remote(base.BaseBackend):
     def node_info(self):
         response = self._client.get_data(f'{self._client.base_url}/info/')
         return response.json()
-
-    def leaderboard(self, objective_key, sort='desc'):
-        return self._client.request(
-            'get',
-            schemas.Type.Objective.to_server(),
-            f'{objective_key}/leaderboard',
-            params={'sort': sort},
-        )
 
     def cancel_compute_plan(self, key):
         asset = self._client.request(

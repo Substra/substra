@@ -29,7 +29,7 @@ with open(assets_keys_path, 'r') as f:
     assets_keys = json.load(f)
 
 algo_key = assets_keys['algo_random_forest']['algo_key']
-objective_key = assets_keys['objective_key']
+metric_key = assets_keys['metric_key']
 dataset_key = assets_keys['dataset_key']
 
 print(f'Loading folds keys from {os.path.abspath(folds_keys_path)}...')
@@ -52,7 +52,7 @@ for i, fold in enumerate(folds_keys['folds']):
 
     # testtuple
     testtuple_key = client.add_testtuple({
-        'objective_key': objective_key,
+        'metric_key': metric_key,
         'traintuple_key': traintuple_key,
         'data_manager_key': dataset_key,
         'test_data_sample_keys': fold['test_data_sample_keys'],

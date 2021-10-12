@@ -70,19 +70,18 @@ TRAIN_DATA_SAMPLES_PATHS = [
     for path in (assets_directory / "train_data_samples").glob("*")
 ]
 
-OBJECTIVE = {
+METRIC = {
     "name": "Titanic: Machine Learning From Disaster",
-    "description": assets_directory / "objective" / "description.md",
-    "metrics_name": "accuracy",
-    "metrics": assets_directory / "objective" / "metrics.zip",
+    "description": assets_directory / "metric" / "description.md",
+    "file": assets_directory / "metric" / "metrics.zip",
     "permissions": {"public": False, "authorized_ids": []},
 }
 METRICS_DOCKERFILE_FILES = [
-    assets_directory / "objective" / "metrics.py",
-    assets_directory / "objective" / "Dockerfile",
+    assets_directory / "metric" / "metrics.py",
+    assets_directory / "metric" / "Dockerfile",
 ]
 
-archive_path = OBJECTIVE["metrics"]
+archive_path = METRIC["file"]
 with zipfile.ZipFile(archive_path, "w") as z:
     for filepath in METRICS_DOCKERFILE_FILES:
         z.write(filepath, arcname=filepath.name)
@@ -155,20 +154,17 @@ client.link_dataset_with_data_samples(
     dataset_key, train_data_sample_keys + test_data_sample_keys,
 )
 
-#  Add the objective to Substra
-print("Adding objective...")
-objective_key = client.add_objective(
+#  Add the metric to Substra
+print("Adding metric...")
+metric_key = client.add_metric(
     {
-        "name": OBJECTIVE["name"],
-        "description": str(OBJECTIVE["description"]),
-        "metrics_name": OBJECTIVE["metrics_name"],
-        "metrics": str(OBJECTIVE["metrics"]),
-        "test_data_sample_keys": test_data_sample_keys,
-        "test_data_manager_key": dataset_key,
-        "permissions": OBJECTIVE["permissions"],
+        "name": METRIC["name"],
+        "description": str(METRIC["description"]),
+        "file": str(METRIC["file"]),
+        "permissions": METRIC["permissions"],
     },
 )
-assert objective_key, "Missing objective key"
+assert metric_key, "Missing metric key"
 
 # Add the algorithm
 print("Adding algo...")
@@ -196,7 +192,11 @@ assert traintuple_key, "Missing traintuple key"
 #  Add the testtuple
 print("Registering testtuple...")
 testtuple_key = client.add_testtuple(
-    {"objective_key": objective_key, "traintuple_key": traintuple_key}
+    {
+        "metric_key": metric_key, "traintuple_key": traintuple_key,
+        "data_manager_key": dataset_key,
+        "test_data_sample_keys": test_data_sample_keys,
+    }
 )
 assert testtuple_key, "Missing testtuple key"
 

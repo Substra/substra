@@ -335,33 +335,22 @@ class ComputePlanPrinter(AssetPrinter):
         return
 
 
-class ObjectivePrinter(AssetPrinter):
-    asset_name = 'objective'
+class MetricPrinter(AssetPrinter):
+    asset_name = 'metric'
 
     list_fields = (
         Field('Name', 'name'),
-        Field('Metrics', 'metrics_name'),
     )
     single_fields = (
         Field('Name', 'name'),
-        Field('Metrics', 'metrics_name'),
-        Field('Test dataset key', 'data_manager_key'),
-        KeysField('Test data sample keys', 'data_sample_keys'),
         Field('Owner', 'owner'),
         Field('Metadata', 'metadata'),
         PermissionField('Permissions', 'permissions'),
     )
-    download_message = 'Download this objective\'s metric:'
-
-    def print_leaderboard_message(self, item, profile=None):
-        key_value = self.key_field.get_value(item)
-        profile_arg = self.get_profile_arg(profile)
-        print('\nDisplay this objective\'s leaderboard:')
-        print(f'\tsubstra leaderboard {key_value} {profile_arg}')
+    download_message = 'Download this metric\'s metric:'
 
     def print_messages(self, item, profile=None):
         super().print_messages(item, profile)
-        self.print_leaderboard_message(item, profile)
 
 
 class DataSamplePrinter(AssetPrinter):
@@ -377,7 +366,7 @@ class DatasetPrinter(AssetPrinter):
     )
     single_fields = (
         Field('Name', 'name'),
-        Field('Objective key', 'objective_key'),
+        Field('Metric key', 'metric_key'),
         Field('Type', 'type'),
         KeysField('Train data sample keys', 'train_data_sample_keys'),
         KeysField('Test data sample keys', 'test_data_sample_keys'),
@@ -502,7 +491,6 @@ class TesttuplePrinter(AssetPrinter):
 
     list_fields = (
         Field('Algo name', 'algo.name'),
-        Field('Certified', 'test.certified'),
         Field('Status', 'status'),
         Field('Perf', 'test.perf'),
         Field('Rank', 'rank'),
@@ -513,8 +501,7 @@ class TesttuplePrinter(AssetPrinter):
         Field('Parent task keys', 'parent_task_keys'),
         Field('Algo key', 'algo.key'),
         Field('Algo name', 'algo.name'),
-        Field('Objective key', 'test.objective_key'),
-        Field('Certified', 'test.certified'),
+        Field('Metric key', 'metric.key'),
         Field('Status', 'status'),
         Field('Perf', 'test.perf'),
         Field('Dataset key', 'test.data_manager_key'),
@@ -537,29 +524,10 @@ class NodePrinter(AssetPrinter):
     )
 
 
-class LeaderBoardPrinter(BasePrinter):
-    objective_fields = (Field('Key', 'key'), ) + ObjectivePrinter.single_fields
-    board_item_fields = (
-        Field('Perf', 'perf'),
-        Field('Algo name', 'algo.name'),
-        Field('Traintuple key', 'compute_task_key'),
-    )
-
-    def print(self, leaderboard, expand):
-        objective = leaderboard['objective']
-        board_items = leaderboard['board_items']
-
-        print('========== OBJECTIVE ==========')
-        self.print_details(objective, self.objective_fields, expand)
-        print()
-        print('========= LEADERBOARD =========')
-        self.print_table(board_items, self.board_item_fields)
-
-
 PRINTERS = {
     assets.ALGO: AlgoPrinter,
     assets.COMPUTE_PLAN: ComputePlanPrinter,
-    assets.OBJECTIVE: ObjectivePrinter,
+    assets.METRIC: MetricPrinter,
     assets.DATASET: DatasetPrinter,
     assets.DATA_SAMPLE: DataSamplePrinter,
     assets.TRAINTUPLE: TraintuplePrinter,
@@ -573,16 +541,6 @@ PRINTERS = {
 def get_asset_printer(asset, output_format):
     if output_format == 'pretty' and asset in PRINTERS:
         return PRINTERS[asset]()
-
-    if output_format == 'yaml':
-        return YamlPrinter()
-
-    return JsonPrinter()
-
-
-def get_leaderboard_printer(output_format):
-    if output_format == 'pretty':
-        return LeaderBoardPrinter()
 
     if output_format == 'yaml':
         return YamlPrinter()

@@ -2,7 +2,7 @@
 
 - [DataSample](#DataSample)
 - [Dataset](#Dataset)
-- [Objective](#Objective)
+- [Metric](#Metric)
 - [Testtuple](#Testtuple)
 - [Traintuple](#Traintuple)
 - [Aggregatetuple](#Aggregatetuple)
@@ -37,7 +37,6 @@ Dataset asset
 - key: str
 - name: str
 - owner: str
-- objective_key: Optional[str]
 - permissions: Permissions
 - type: str
 - train_data_sample_keys: List[str]
@@ -48,27 +47,24 @@ Dataset asset
 - creation_date: datetime
 ```
 
-## Objective
-Objective
+## Metric
+Metric
 ```python
 - key: str
 - name: str
 - owner: str
-- data_manager_key: Optional[str]
-- data_sample_keys: List[str]
 - metadata: Mapping[str, str]
 - permissions: Permissions
 - creation_date: datetime
 - description: _File
-- metrics_name: Optional[str]
-- metrics: _Metric
+- address: _Metric
 ```
 
 ## Testtuple
 Testtuple
 ```python
 - key: str
-- category: str
+- category: TaskCategory
 - algo: Algo
 - owner: str
 - compute_plan_key: str
@@ -86,7 +82,7 @@ Testtuple
 Traintuple
 ```python
 - key: str
-- category: str
+- category: TaskCategory
 - algo: Algo
 - owner: str
 - compute_plan_key: str
@@ -104,7 +100,7 @@ Traintuple
 Aggregatetuple
 ```python
 - key: str
-- category: str
+- category: TaskCategory
 - algo: Algo
 - owner: str
 - compute_plan_key: str
@@ -122,7 +118,7 @@ Aggregatetuple
 CompositeTraintuple
 ```python
 - key: str
-- category: str
+- category: TaskCategory
 - algo: Algo
 - owner: str
 - compute_plan_key: str
@@ -144,7 +140,7 @@ Asset creation specification base class.
 - owner: str
 - permissions: Permissions
 - metadata: Mapping[str, str]
-- category: str
+- category: AlgoCategory
 - creation_date: datetime
 - description: _File
 - algorithm: _File
@@ -161,7 +157,7 @@ ComputePlan
 - task_count: int
 - failed_task: Optional[FailedTuple]
 - delete_intermediary_models: bool
-- status: str
+- status: ComputePlanStatus
 - creation_date: datetime
 ```
 
@@ -192,7 +188,7 @@ Out model of a traintuple, aggregate tuple or out trunk
 model of a composite traintuple
 ```python
 - key: str
-- category: str
+- category: ModelType
 - compute_task_key: str
 - address: Optional[InModel]
 - permissions: Permissions
@@ -208,7 +204,7 @@ File as stored in the models
 ```
 
 ## _Metric
-Metric associated to a testtuple or objective
+Metric associated to a testtuple or metric
 ```python
 - checksum: str
 - storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
