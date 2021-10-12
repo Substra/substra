@@ -492,7 +492,7 @@ class TesttuplePrinter(AssetPrinter):
     list_fields = (
         Field('Algo name', 'algo.name'),
         Field('Status', 'status'),
-        Field('Perf', 'test.perf'),
+        Field('Perfs', 'test.perfs'),
         Field('Rank', 'rank'),
         Field('Tag', 'tag'),
         Field('Compute Plan key', 'compute_plan_key'),

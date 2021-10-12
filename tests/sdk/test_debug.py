@@ -255,13 +255,13 @@ class TestsDebug:
 
         cp.testtuples = [
             substra.sdk.schemas.ComputePlanTesttupleSpec(
-                metric_key=metric_1_key,
+                metric_keys=[metric_1_key],
                 traintuple_id=traintuple_id_1,
                 data_manager_key=dataset_1_key,
                 test_data_sample_keys=[sample_1_test_key]
             ),
             substra.sdk.schemas.ComputePlanTesttupleSpec(
-                metric_key=metric_2_key,
+                metric_keys=[metric_2_key],
                 traintuple_id=traintuple_id_2,
                 data_manager_key=dataset_2_key,
                 test_data_sample_keys=[sample_2_test_key]
@@ -277,7 +277,10 @@ class TestsDebug:
         assert path_cp_2.is_dir()
 
         testtuples = client.list_testtuple()
-        aucs = [testtuple.test.perf for testtuple in testtuples if testtuple.compute_plan_key == compute_plan.key]
+        aucs = [
+            list(testtuple.test.perfs.values())[0]
+            for testtuple in testtuples if testtuple.compute_plan_key == compute_plan.key
+        ]
         assert all(auc == 2 for auc in aucs)
 
     def test_client_multi_nodes_cp_composite_aggregate(self, asset_factory, spawner):

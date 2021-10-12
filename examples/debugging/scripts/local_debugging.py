@@ -193,7 +193,8 @@ assert traintuple_key, "Missing traintuple key"
 print("Registering testtuple...")
 testtuple_key = client.add_testtuple(
     {
-        "metric_key": metric_key, "traintuple_key": traintuple_key,
+        "metric_keys": [metric_key],
+        "traintuple_key": traintuple_key,
         "data_manager_key": dataset_key,
         "test_data_sample_keys": test_data_sample_keys,
     }
@@ -202,4 +203,5 @@ assert testtuple_key, "Missing testtuple key"
 
 #  Get the performance
 testtuple = client.get_testtuple(key=testtuple_key)
-print(f"The performance on the test set is {testtuple.test.perf:.4f}")
+perf = list(testtuple.test.perfs.values())[0]
+print(f"The performance on the test set is {perf:.4f}")

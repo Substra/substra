@@ -607,8 +607,8 @@ class Local(base.BaseBackend):
             test=models._Test(
                 data_manager_key=dataset_key,
                 data_sample_keys=test_data_sample_keys,
-                metric_key=spec.metric_key,
-                perf=-1,
+                metric_keys=spec.metric_keys,
+                perfs={},
             ),
             key=key,
             creation_date=self.__now(),

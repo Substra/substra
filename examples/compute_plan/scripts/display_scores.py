@@ -38,7 +38,11 @@ columns = [
 testtuples = sorted(testtuples, key=lambda x: x.rank)
 
 for i, testtuple in enumerate(testtuples):
-    score = testtuple.test.perf if testtuple.status == 'STATUS_DONE' else testtuple.status
+    if testtuple.status == 'STATUS_DONE':
+        score = list(testtuple.test.perfs.values())[0]
+    else:
+        score = testtuple.status
+
     columns[0].append(str(testtuple.rank + 1))
     columns[1].append(str(score))
     columns[2].append(testtuple.parent_task_keys[0])

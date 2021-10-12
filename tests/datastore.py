@@ -483,8 +483,8 @@ TESTTUPLE = {
             "3180e12c-a821-434a-ad8a-a341076c7f98",
             "21bb59ca-abd4-4154-b04a-44a92556a078"
         ],
-        "metric_key": "e526243f-f51a-4737-9fea-a5d55f4205fe",
-        "perf": None
+        "metric_keys": ["e526243f-f51a-4737-9fea-a5d55f4205fe"],
+        "perfs": {}
     }
 }
 

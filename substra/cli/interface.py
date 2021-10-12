@@ -553,7 +553,7 @@ def add_compute_plan(ctx, data, no_auto_batching, batch_size):
             "metadata": dict
         }],
         "testtuples": list[{
-            "metric_key": str,
+            "metric_keys": list[str],
             "data_manager_key": str,
             "test_data_sample_keys": list[str],
             "traintuple_id": str,
@@ -749,7 +749,7 @@ def add_composite_traintuple(ctx, algo_key, dataset_key, data_samples, head_mode
 
 
 @add.command('testtuple')
-@click.option('--metric-key', required=True)
+@click.option('--metric-key', 'metric_keys', required=True, multiple=True)
 @click.option('--dataset-key')
 @click.option('--traintuple-key', required=True)
 @click.option('--data-samples-path', 'data_samples',
@@ -761,7 +761,7 @@ def add_composite_traintuple(ctx, algo_key, dataset_key, data_samples, head_mode
 @click_option_metadata
 @click.pass_context
 @error_printer
-def add_testtuple(ctx, metric_key, dataset_key, traintuple_key, data_samples, tag, metadata):
+def add_testtuple(ctx, metric_keys, dataset_key, traintuple_key, data_samples, tag, metadata):
     """Add testtuple.
 
     The option --data-samples-path must point to a valid JSON file with the
@@ -778,7 +778,7 @@ def add_testtuple(ctx, metric_key, dataset_key, traintuple_key, data_samples, ta
     """
     client = get_client(ctx.obj)
     data = {
-        'metric_key': metric_key,
+        'metric_keys': metric_keys,
         'data_manager_key': dataset_key,
         'traintuple_key': traintuple_key,
     }
@@ -1083,7 +1083,7 @@ def update_compute_plan(ctx, compute_plan_key, tuples, no_auto_batching, batch_s
             "metadata": dict,
         }],
         "testtuples": list[{
-            "metric_key": str,
+            "metric_keys": list[str],
             "data_manager_key": str,
             "test_data_sample_keys": list[str],
             "traintuple_id": str,

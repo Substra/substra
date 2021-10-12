@@ -421,7 +421,10 @@ class Worker:
                 raise exceptions.NotFound(f"Wrong pk {tuple_.parent_task_keys[0]}", 404)
 
             algo = self._db.get_with_files(schemas.Type.Algo, tuple_.algo.key)
-            metric = self._db.get_with_files(schemas.Type.Metric, tuple_.test.metric_key)
+            metrics = [
+                self._db.get_with_files(schemas.Type.Metric, metric_key)
+                for metric_key in tuple_.test.metric_keys
+            ]
             dataset = self._db.get_with_files(schemas.Type.Dataset, tuple_.test.data_manager_key)
 
             compute_plan = None
@@ -530,43 +533,44 @@ class Worker:
             )
 
             # Calculate the metrics
-            volumes = {
-                "_VOLUME_OUTPUT_PRED": predictions_volume,
-                "_VOLUME_OPENER": dataset.opener.storage_address,
-            }
+            for metric in metrics:
+                volumes = {
+                    "_VOLUME_OUTPUT_PRED": predictions_volume,
+                    "_VOLUME_OPENER": dataset.opener.storage_address,
+                }
 
-            if self._db.is_local(dataset.key, schemas.Type.Dataset):
-                data_sample_paths = self._get_data_sample_paths_arg(
-                    "${_VOLUME_INPUT_DATASAMPLES}",
-                    tuple_.test.data_sample_keys,
+                if self._db.is_local(dataset.key, schemas.Type.Dataset):
+                    data_sample_paths = self._get_data_sample_paths_arg(
+                        "${_VOLUME_INPUT_DATASAMPLES}",
+                        tuple_.test.data_sample_keys,
+                    )
+                    volumes["_VOLUME_INPUT_DATASAMPLES"] = data_volume
+                    command_template = "--fake-data-mode DISABLED"
+                    command_template += f" --data-sample-paths {data_sample_paths}"
+                else:
+                    command_template = "--fake-data-mode FAKE_Y"
+                    command_template += f" --n-fake-samples {len(tuple_.test.data_sample_keys)}"
+
+                command_template += " --opener-path ${_VOLUME_OPENER}"
+                command_template += " --input-predictions-path ${_VOLUME_OUTPUT_PRED}/pred"
+                command_template += " --output-perf-path ${_VOLUME_OUTPUT_PRED}/perf.json"
+
+                container_name = 'metrics_run_local'
+                self._spawner.spawn(
+                    container_name,
+                    str(metric.address.storage_address),
+                    command_template=string.Template(command_template),
+                    local_volumes=volumes,
                 )
-                volumes["_VOLUME_INPUT_DATASAMPLES"] = data_volume
-                command_template = "--fake-data-mode DISABLED"
-                command_template += f" --data-sample-paths {data_sample_paths}"
-            else:
-                command_template = "--fake-data-mode FAKE_Y"
-                command_template += f" --n-fake-samples {len(tuple_.test.data_sample_keys)}"
 
-            command_template += " --opener-path ${_VOLUME_OPENER}"
-            command_template += " --input-predictions-path ${_VOLUME_OUTPUT_PRED}/pred"
-            command_template += " --output-perf-path ${_VOLUME_OUTPUT_PRED}/perf.json"
+                # save move performances
+                tmp_path = os.path.join(predictions_volume, "perf.json")
+                pred_dir = _mkdir(os.path.join(self._local_worker_dir, "performances", tuple_.key))
+                pred_path = os.path.join(pred_dir, f"performance_{metric.key}.json")
+                shutil.copy(tmp_path, pred_path)
 
-            container_name = 'metrics_run_local'
-            self._spawner.spawn(
-                container_name,
-                str(metric.address.storage_address),
-                command_template=string.Template(command_template),
-                local_volumes=volumes,
-            )
-
-            # save move performances
-            tmp_path = os.path.join(predictions_volume, "perf.json")
-            pred_dir = _mkdir(os.path.join(self._local_worker_dir, "performances", tuple_.key))
-            pred_path = os.path.join(pred_dir, "performance.json")
-            shutil.copy(tmp_path, pred_path)
-
-            with open(pred_path, 'r') as f:
-                tuple_.test.perf = json.load(f).get('all')
+                with open(pred_path, 'r') as f:
+                    tuple_.test.perfs[metric.key] = json.load(f).get('all')
 
             # set status
             tuple_.status = models.Status.done

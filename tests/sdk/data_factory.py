@@ -478,7 +478,7 @@ class AssetsFactory:
     def create_testtuple(self, metric=None, traintuple=None, tag=None, dataset=None, data_samples=None,
                          metadata=None):
         return substra.sdk.schemas.TesttupleSpec(
-            metric_key=metric.key if metric else None,
+            metric_keys=[metric.key] if metric else [],
             traintuple_key=traintuple.key if traintuple else None,
             data_manager_key=dataset.key if dataset else None,
             test_data_sample_keys=_get_keys(data_samples),

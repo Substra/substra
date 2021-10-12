@@ -189,7 +189,7 @@ class ComputePlanCompositeTraintupleSpec(_Spec):
 class ComputePlanTesttupleSpec(_Spec):
     """Specification of a testtuple inside a compute
     plan specification"""
-    metric_key: str
+    metric_keys: List[str]
     traintuple_id: str
     tag: Optional[str]
     data_manager_key: str
@@ -368,7 +368,7 @@ class CompositeTraintupleSpec(_Spec):
 
 class TesttupleSpec(_Spec):
     """Specification for creating a testtuple"""
-    metric_key: str
+    metric_keys: List[str]
     traintuple_key: str
     tag: Optional[str]
     data_manager_key: str
@@ -384,7 +384,7 @@ class TesttupleSpec(_Spec):
         spec: ComputePlanTesttupleSpec
     ) -> "TesttupleSpec":
         return TesttupleSpec(
-            metric_key=spec.metric_key,
+            metric_keys=spec.metric_keys,
             traintuple_key=spec.traintuple_id,
             tag=spec.tag,
             data_manager_key=spec.data_manager_key,

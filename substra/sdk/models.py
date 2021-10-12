@@ -228,8 +228,8 @@ class _Aggregate(schemas._PydanticConfig):
 class _Test(schemas._PydanticConfig):
     data_manager_key: str
     data_sample_keys: List[str]
-    metric_key: str
-    perf: Optional[float]
+    metric_keys: List[str]
+    perfs: Optional[Dict[str, float]]
 
 
 class Traintuple(_GenericTraintuple):

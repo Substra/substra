@@ -52,7 +52,7 @@ for i, fold in enumerate(folds_keys['folds']):
 
     # testtuple
     testtuple_key = client.add_testtuple({
-        'metric_key': metric_key,
+        'metric_keys': [metric_key],
         'traintuple_key': traintuple_key,
         'data_manager_key': dataset_key,
         'test_data_sample_keys': fold['test_data_sample_keys'],

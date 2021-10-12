@@ -65,7 +65,7 @@ for train_data_sample_key in train_data_sample_keys:
         'in_models_ids': [previous_id] if previous_id else [],
     }
     testtuple = {
-        'metric_key': metric_key,
+        'metric_keys': [metric_key],
         'traintuple_id': traintuple['traintuple_id']
     }
     traintuples.append(traintuple)
