@@ -87,7 +87,7 @@ assert traintuple_key, 'Missing traintuple key'
 ########################################################
 print('Registering testtuple...')
 testtuple_key = client.add_testtuple({
-    'metric_keys': assets_keys['metric_key'],
+    'metric_keys': [assets_keys['metric_key']],
     'traintuple_key': traintuple_key,
     'data_manager_key': assets_keys['dataset_key'],
     'test_data_sample_keys': assets_keys['test_data_sample_keys'],

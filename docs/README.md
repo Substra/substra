@@ -11,7 +11,7 @@ To help you implement your assets in Python, please take a look at the [Substra 
 
 ## Learning about the Substra platform
 
-You can find more about Substra concepts in this [dedicated section](https://doc.substra.ai/concepts.html) (objective, dataset, algo, model, traintuple, testtuple and machine learning tasks, etc.).
+You can find more about Substra concepts in this [dedicated section](https://doc.substra.ai/concepts.html) (metric, dataset, algo, model, traintuple, testtuple and machine learning tasks, etc.).
 
 ## Running the platform locally
 

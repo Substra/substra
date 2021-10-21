@@ -78,7 +78,7 @@ Interacting with the Substra platform:
 
 Implementing your assets in python (thanks to [the substratools library](https://github.com/substrafoundation/substra-tools))
 
-- [Objective base class](https://github.com/SubstraFoundation/substra-tools/blob/master/docs/api.md#metrics)
+- [Metric base class](https://github.com/SubstraFoundation/substra-tools/blob/master/docs/api.md#metrics)
 - [Dataset base class](https://github.com/SubstraFoundation/substra-tools/blob/master/docs/api.md#opener)
 - [Algo base class](https://github.com/SubstraFoundation/substra-tools/blob/master/docs/api.md#algo)
 - [Composite algo base class](https://github.com/SubstraFoundation/substra-tools/blob/master/docs/api.md#compositealgo)

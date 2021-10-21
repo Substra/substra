@@ -9,7 +9,7 @@ go a different route, training our algo on a single data sample at once, chainin
 resulting model improves with each individual step.
 
 To do so, we'll generate a *compute plan* that describes each step of the training and have each of these steps 
-evaluated against the objective's test data so that we can see the score improving. 
+evaluated against the same metric and test data so that we can see the score improving. 
 
 We'll also need to add an updated version of the regression algo that can reuse a previously trained model.
 

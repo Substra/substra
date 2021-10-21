@@ -18,7 +18,7 @@ For more information on the debug mode, see the [documentation](https://doc.subs
 
 In this example, everything is run locally without a connection to a deployed Substra platform. This requires the user
 to create all of his assets locally.
-We use the same objective, data manager and algorithms as the Titanic example (see the `assets` folder in the Titanic
+We use the same metric, data manager and algorithms as the Titanic example (see the `assets` folder in the Titanic
 example).
 
 ### Prerequisites
@@ -46,13 +46,13 @@ train the algorithm and make predictions.
 
 The differences with the Titanic example (executed on a running Substra platform) are:
 - the client is given the argument `debug=True` and there is no need of a username and password
-- Adding the dataset and algorithm must be done in the same script since the objects (traintuple, objective...) are saved in memory and erased at the end of the script
+- Adding the dataset and algorithm must be done in the same script since the objects (traintuple, metric...) are saved in memory and erased at the end of the script
 
 Apart from this, this example is the same as the Titanic example.
 
 ## Debug locally using the Titanic example assets
 
-In this example, the dataset and objective are those from the Titanic example, on the deployed Substra platform
+In this example, the dataset and metric are those from the Titanic example, on the deployed Substra platform
 whereas the algo, traintuple and testtuple are created locally.
 
 For this, run the [Titanic example](../titanic/README.md) and keep the Substra platform running. You will need

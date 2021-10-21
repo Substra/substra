@@ -30,6 +30,7 @@ with open(assets_keys_path, 'r') as f:
     assets_keys = json.load(f)
 
 train_data_sample_keys = assets_keys['train_data_sample_keys']
+test_data_sample_keys = assets_keys['test_data_sample_keys']
 metric_key = assets_keys['metric_key']
 dataset_key = assets_keys['dataset_key']
 
@@ -66,7 +67,9 @@ for train_data_sample_key in train_data_sample_keys:
     }
     testtuple = {
         'metric_keys': [metric_key],
-        'traintuple_id': traintuple['traintuple_id']
+        'traintuple_id': traintuple['traintuple_id'],
+        'data_manager_key': dataset_key,
+        'test_data_sample_keys': test_data_sample_keys,
     }
     traintuples.append(traintuple)
     testtuples.append(testtuple)

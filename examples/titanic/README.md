@@ -2,7 +2,7 @@
 
 *This example is based on [the similarly named Kaggle challenge](https://www.kaggle.com/c/titanic/overview)*
 
-In this example, we'll see how to setup an objective with cross-validation in mind and how to train algorithms.
+In this example, we'll see how to setup a metric with cross-validation in mind and how to train algorithms.
 
 ## Prerequisites
 
@@ -48,9 +48,9 @@ This will create two sub-folders in the `assets` folder:
 The reason we have multiple train data samples is that this way we'll be able to finely select our training set later
 on.
 
-## Writing the objective and data manager
+## Writing the metric and data manager
 
-Both objective and data manager will need a proper markdown description, you can check them out in their respective
+Both metric and data manager will need a proper markdown description, you can check them out in their respective
 folders. Notice that the data manager's description includes a formal description of the data structure.
 
 Notice also that the `metrics.py` and `opener.py` module both rely on classes imported from the `substratools` module.
@@ -64,9 +64,9 @@ the train and predict tasks but also a lot of data preprocessing.
 
 ## Adding the assets to substra
 
-### Adding the objective, dataset and data samples to substra
+### Adding the metric, dataset and data samples to substra
 
-A script has been written that adds objective, data manager and data samples to substra. It uses the `substra` python
+A script has been written that adds metric, data manager and data samples to substra. It uses the `substra` python
 sdk to perform actions. It's main goal is to create assets, get their keys and use these keys in the creation of other
 assets.
 
@@ -74,7 +74,7 @@ To run it:
 
 ```sh
 pip install -r scripts/requirements.txt
-python scripts/add_dataset_objective.py
+python scripts/add_dataset_metric.py
 ```
 
 This script just generated an `assets_keys.json` file in the `titanic` folder. This file contains the keys of all assets
@@ -85,7 +85,7 @@ adding an algorithm so that we can automatically launch all training and testing
 ### Adding the algorithm and training it
 
 The script `add_train_algo_random_forest.py` pushes our simple algo to substra and then uses the `assets_keys.json` file
-we just generated to train it against the dataset and objective we previously set up. It will then update the
+we just generated to train it against the dataset and the metric we previously set up. It will then update the
 `assets_keys.json` file with the newly created assets keys (algo, traintuple and testtuple)
 
 To run it:
@@ -121,7 +121,7 @@ python assets/algo_random_forest/algo.py predict \
   --log-path assets/logs/train_predict.log \
   model
 
-python assets/objective/metrics.py \
+python assets/metric/metrics.py \
   --debug \
   --opener-path assets/dataset/opener.py \
   --data-sample-paths assets/train_data_samples/* \
@@ -142,7 +142,7 @@ python assets/algo_random_forest/algo.py predict \
   --log-path assets/logs/test_predict.log \
   model
 
-python assets/objective/metrics.py \
+python assets/metric/metrics.py \
   --debug \
   --opener-path assets/dataset/opener.py \
   --data-sample-paths assets/test_data_samples/* \
