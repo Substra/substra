@@ -19,6 +19,7 @@ import warnings
 from datetime import datetime
 from distutils import util
 from pathlib import Path
+from tqdm.auto import tqdm
 
 import substra
 from substra.sdk import schemas, models, exceptions, fs, graph, compute_plan as compute_plan_module
@@ -221,7 +222,10 @@ class Local(base.BaseBackend):
         compositetuples,
         spec_options
     ):
-        for id_, rank in sorted(visited.items(), key=lambda item: item[1]):
+        for id_, rank in tqdm(
+            sorted(visited.items(), key=lambda item: item[1]),
+            desc='Compute plan progress',
+        ):
             if id_ in traintuples:
                 traintuple = traintuples[id_]
                 traintuple_spec = schemas.TraintupleSpec.from_compute_plan(
@@ -258,7 +262,7 @@ class Local(base.BaseBackend):
                 )
 
         if spec.testtuples:
-            for testtuple in spec.testtuples:
+            for testtuple in tqdm(spec.testtuples, desc='Testtuples progress'):
                 testtuple_spec = schemas.TesttupleSpec.from_compute_plan(
                     spec=testtuple
                 )
@@ -446,7 +450,7 @@ class Local(base.BaseBackend):
     ):
         if spec.clean_models:
             warnings.warn(
-                "'clean_models=True' is not supported on the local backend."
+                "'clean_models=True' is ignored on the local backend."
             )
         self._check_metadata(spec.metadata)
         # Get all the tuples and their dependencies
@@ -458,7 +462,7 @@ class Local(base.BaseBackend):
         ) = compute_plan_module.get_dependency_graph(spec)
 
         # If chainkey is supported make sure it exists, else set support to False
-        if not (self._chainkey_dir / "node_name_id.json").is_file():
+        if self._support_chainkeys and not (self._chainkey_dir / "node_name_id.json").is_file():
             logger.warning(f"No chainkeys found in {self._chainkey_dir}.")
 
         # Define the rank of each traintuple, aggregate tuple and composite tuple
