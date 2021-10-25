@@ -201,23 +201,39 @@ class _GenericTraintuple(_Model):
     worker: str
     rank: Optional[int]
     parent_task_keys: List[str]
+    parent_tasks: Optional[List[Union['Traintuple',
+                                      'CompositeTraintuple',
+                                      'Aggregatetuple']]] = list()
     tag: str
     creation_date: datetime
 
 
+def check_data_manager_key(cls, values):
+    if values.get('data_manager'):
+        assert values['data_manager_key'] == values['data_manager'].key, \
+            'data_manager does not match data_manager_key'
+    return values
+
+
 class _Composite(schemas._PydanticConfig):
     data_manager_key: str
+    data_manager: Optional[Dataset] = None
     data_sample_keys: List[str]
     head_permissions: Permissions
     trunk_permissions: Permissions
     models: Optional[List[OutModel]]
 
+    _check_data_manager_key = root_validator(allow_reuse=True)(check_data_manager_key)
+
 
 class _Train(schemas._PydanticConfig):
     data_manager_key: str
+    data_manager: Optional[Dataset] = None
     data_sample_keys: List[str]
     model_permissions: Permissions
     models: Optional[List[OutModel]]
+
+    _check_data_manager_key = root_validator(allow_reuse=True)(check_data_manager_key)
 
 
 class _Aggregate(schemas._PydanticConfig):
@@ -227,9 +243,20 @@ class _Aggregate(schemas._PydanticConfig):
 
 class _Test(schemas._PydanticConfig):
     data_manager_key: str
+    data_manager: Optional[Dataset] = None
     data_sample_keys: List[str]
     metric_keys: List[str]
+    metrics: Optional[List[Metric]] = list()
     perfs: Optional[Dict[str, float]]
+
+    _check_data_manager_key = root_validator(allow_reuse=True)(check_data_manager_key)
+
+    @root_validator
+    def check_metric_keys(cls, values):
+        if values.get('metrics'):
+            assert values['metric_keys'] == [m.key for m in values['metrics']], \
+                'metrics do not match metric_keys'
+        return values
 
 
 class Traintuple(_GenericTraintuple):
@@ -248,6 +275,12 @@ class CompositeTraintuple(_GenericTraintuple):
     """CompositeTraintuple"""
     composite: _Composite
     type_: ClassVar[str] = schemas.Type.CompositeTraintuple
+
+
+_GenericTraintuple.update_forward_refs()
+Traintuple.update_forward_refs()
+Aggregatetuple.update_forward_refs()
+CompositeTraintuple.update_forward_refs()
 
 
 class Testtuple(_GenericTraintuple):

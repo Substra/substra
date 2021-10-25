@@ -349,3 +349,73 @@ class TestsDebug:
         assert path_cp_2.is_dir()
 
         assert compute_plan.status == models.ComputePlanStatus.done
+
+    def test_tasks_extra_fields(self, asset_factory):
+        client = substra.Client(debug=True)
+
+        # set dataset, metric and algo
+        dataset_query = asset_factory.create_dataset()
+        dataset_key = client.add_dataset(dataset_query)
+
+        data_sample = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
+        data_sample_key = client.add_data_sample(data_sample)
+
+        algo_query = asset_factory.create_algo(AlgoCategory.simple)
+        algo_key = client.add_algo(algo_query)
+
+        composite_algo_query = asset_factory.create_algo(AlgoCategory.composite)
+        composite_algo_key = client.add_algo(composite_algo_query)
+
+        metric_query = asset_factory.create_metric()
+        metric_key = client.add_metric(metric_query)
+
+        # test traintuple extra field
+
+        traintuple_key = client.add_traintuple(
+            substra.sdk.schemas.TraintupleSpec(
+                algo_key=algo_key,
+                data_manager_key=dataset_key,
+                train_data_sample_keys=[data_sample_key],
+            )
+        )
+
+        traintuple = client.get_traintuple(traintuple_key)
+        assert traintuple.train.data_manager
+        assert traintuple.train.data_manager.key == dataset_key
+        assert traintuple.parent_tasks == []
+
+        # test testtuple extra fields
+
+        testtuple_key = client.add_testtuple(
+            substra.sdk.schemas.TesttupleSpec(
+                traintuple_key=traintuple_key,
+                data_manager_key=dataset_key,
+                test_data_sample_keys=[data_sample_key],
+                metric_keys=[metric_key]
+            )
+        )
+        testtuple = client.get_testtuple(testtuple_key)
+        assert testtuple.test.data_manager
+        assert testtuple.test.data_manager.key == dataset_key
+        assert testtuple.test.metrics
+        assert [m.key for m in testtuple.test.metrics] == [metric_key]
+        assert [t.key for t in testtuple.parent_tasks] == [traintuple_key]
+
+        # test composite extra field
+
+        composite_traintuple_key = client.add_composite_traintuple(
+            substra.sdk.schemas.CompositeTraintupleSpec(
+                algo_key=composite_algo_key,
+                data_manager_key=dataset_key,
+                train_data_sample_keys=[data_sample_key],
+                out_trunk_model_permissions={
+                    "public": True,
+                    "authorized_ids": []
+                },
+            )
+        )
+
+        composite_traintuple = client.get_composite_traintuple(composite_traintuple_key)
+        assert composite_traintuple.composite.data_manager
+        assert composite_traintuple.composite.data_manager.key == dataset_key
+        assert composite_traintuple.parent_tasks == []

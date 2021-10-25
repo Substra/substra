@@ -80,7 +80,41 @@ class Local(base.BaseBackend):
         self._db.login(username, password)
 
     def get(self, asset_type, key):
-        return self._db.get(asset_type, key)
+        asset = self._db.get(asset_type, key)
+
+        # extra data for tasks
+
+        if asset_type == schemas.Type.Traintuple:
+            asset.train.data_manager = self._db.get(schemas.Type.Dataset,
+                                                    asset.train.data_manager_key)
+        if asset_type == schemas.Type.CompositeTraintuple:
+            asset.composite.data_manager = self._db.get(schemas.Type.Dataset,
+                                                        asset.composite.data_manager_key)
+        if asset_type == schemas.Type.Testtuple:
+            asset.test.data_manager = self._db.get(schemas.Type.Dataset,
+                                                   asset.test.data_manager_key)
+            asset.test.metrics = [self._db.get(schemas.Type.Metric, k)
+                                  for k in asset.test.metric_keys]
+        if asset_type in [schemas.Type.Traintuple,
+                          schemas.Type.CompositeTraintuple,
+                          schemas.Type.Aggregatetuple,
+                          schemas.Type.Testtuple]:
+            asset.parent_tasks = [self._get_parent_task(key) for key in asset.parent_task_keys]
+
+        return asset
+
+    def _get_parent_task(self, key):
+        for tuple_type in [
+            schemas.Type.Traintuple,
+            schemas.Type.CompositeTraintuple,
+            schemas.Type.Aggregatetuple,
+        ]:
+            try:
+                return self._db.get(tuple_type, key)
+            except exceptions.NotFound:
+                pass
+
+        raise exceptions.NotFound(f"Wrong pk {key}", 404)
 
     def list(self, asset_type, filters=None, paginated=True):
         """List the assets
@@ -570,20 +604,7 @@ class Local(base.BaseBackend):
         # validation
         owner = self._check_metadata(spec.metadata)
 
-        traintuple = None
-        for tuple_type in [
-            schemas.Type.Traintuple,
-            schemas.Type.CompositeTraintuple,
-            schemas.Type.Aggregatetuple,
-        ]:
-            try:
-                traintuple = self._db.get(tuple_type, spec.traintuple_key)
-                break
-            except exceptions.NotFound:
-                pass
-
-        if traintuple is None:
-            raise exceptions.NotFound(f"Wrong pk {spec.traintuple_key}", 404)
+        traintuple = self._get_parent_task(spec.traintuple_key)
 
         if traintuple.status in [models.Status.failed, models.Status.canceled]:
             raise substra.exceptions.InvalidRequest(
@@ -726,26 +747,13 @@ class Local(base.BaseBackend):
         in_tuples = list()
         in_permissions = list()
         for in_tuple_key in spec.in_models_keys:
-            in_tuple = None
-            for in_tuple_type in [
-                schemas.Type.Traintuple,
-                schemas.Type.Aggregatetuple,
-                schemas.Type.CompositeTraintuple,
-            ]:
-                try:
-                    in_tuple = self._db.get(in_tuple_type, key=in_tuple_key)
-                    break
-                except exceptions.NotFound:
-                    pass
+            in_tuple = self._get_parent_task(in_tuple_key)
 
-            if in_tuple is None:
-                raise exceptions.NotFound(f"Wrong pk {in_tuple_key}", 404)
-
-            if in_tuple_type == schemas.Type.Traintuple:
+            if in_tuple.type_ == schemas.Type.Traintuple:
                 permissions = in_tuple.train.model_permissions
-            elif in_tuple_type == schemas.Type.Aggregatetuple:
+            elif in_tuple.type_ == schemas.Type.Aggregatetuple:
                 permissions = in_tuple.aggregate.model_permissions
-            elif in_tuple_type == schemas.Type.CompositeTraintuple:
+            elif in_tuple.type_ == schemas.Type.CompositeTraintuple:
                 permissions = in_tuple.composite.trunk_permissions
 
             in_permissions.append(permissions)
