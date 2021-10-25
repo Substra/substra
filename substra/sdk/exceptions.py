@@ -164,3 +164,8 @@ class BadConfiguration(SDKException):
 class UserException(SDKException):
     """User Exception"""
     pass
+
+
+class EmptyInModelException(SDKException):
+    """No in_models when needed"""
+    pass

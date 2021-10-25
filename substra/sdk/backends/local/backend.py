@@ -751,6 +751,9 @@ class Local(base.BaseBackend):
             in_permissions.append(permissions)
             in_tuples.append(in_tuple)
 
+        if len(in_tuples) == 0:
+            raise exceptions.EmptyInModelException("aggregatetuple needs in_model to aggregate")
+
         # Compute plan
         compute_plan_key, rank = self.__create_compute_plan_from_tuple(spec, key, in_tuples)
 
