@@ -150,6 +150,8 @@ TRAINTUPLE = {
     "rank": 0,
     "parent_task_keys": [],
     "tag": "",
+    "start_date": "2021-10-12T09:28:06.947765800Z",
+    "end_date": "2021-10-12T09:30:04.705947400Z",
     "train": {
         "data_manager_key": "a67b9387-fd80-429a-bc2f-034fac430b0f",
         "data_sample_keys": [
@@ -250,6 +252,8 @@ AGGREGATETUPLE = {
     "rank": None,
     "parent_task_keys": [],
     "tag": "My super tag",
+    "start_date": "2021-10-12T09:28:06.947765800Z",
+    "end_date": "2021-10-12T09:30:04.705947400Z",
     "aggregate": {
         "model_permissions": {
             "process": {
@@ -339,6 +343,8 @@ COMPOSITE_TRAINTUPLE = {
     "rank": 0,
     "parent_task_keys": [],
     "tag": "",
+    "start_date": "2021-10-12T09:28:06.947765800Z",
+    "end_date": "2021-10-12T09:30:04.705947400Z",
     "composite": {
         "data_manager_key": "1ae64423-aa99-4b8a-8660-61a56e4ca42d",
         "data_sample_keys": [
@@ -477,6 +483,8 @@ TESTTUPLE = {
         "30c283be-d385-424e-94a6-4d8538275260"
     ],
     "tag": "",
+    "start_date": "2021-10-12T09:28:06.947765800Z",
+    "end_date": "2021-10-12T09:30:04.705947400Z",
     "test": {
         "data_manager_key": "a67b9387-fd80-429a-bc2f-034fac430b0f",
         "data_sample_keys": [

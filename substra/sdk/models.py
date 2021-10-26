@@ -206,6 +206,8 @@ class _GenericTraintuple(_Model):
                                       'Aggregatetuple']]] = list()
     tag: str
     creation_date: datetime
+    start_date: Optional[datetime]
+    end_date: Optional[datetime]
 
 
 def check_data_manager_key(cls, values):

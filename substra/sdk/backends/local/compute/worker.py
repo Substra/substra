@@ -172,6 +172,7 @@ class Worker:
         """Schedules a ML task (blocking)."""
         with self._context(tuple_.key) as tuple_dir:
             tuple_.status = models.Status.doing
+            tuple_.start_date = datetime.datetime.now()
 
             # fetch dependencies
             algo = self._db.get_with_files(schemas.Type.Algo, tuple_.algo.key)
@@ -392,6 +393,7 @@ class Worker:
 
             # set status
             tuple_.status = models.Status.done
+            tuple_.end_date = datetime.datetime.now()
 
             if tuple_.compute_plan_key:
                 compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_key)
@@ -403,6 +405,7 @@ class Worker:
         """Schedules a ML task (blocking)."""
         with self._context(tuple_.key) as tuple_dir:
             tuple_.status = models.Status.doing
+            tuple_.start_date = datetime.datetime.now()
 
             # fetch dependencies
             assert len(tuple_.parent_task_keys) == 1
@@ -574,6 +577,7 @@ class Worker:
 
             # set status
             tuple_.status = models.Status.done
+            tuple_.end_date = datetime.datetime.now()
 
             if compute_plan:
                 compute_plan.done_count += 1
