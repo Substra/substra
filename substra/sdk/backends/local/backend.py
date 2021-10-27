@@ -238,6 +238,7 @@ class Local(base.BaseBackend):
 
             # Add to the compute plan
             compute_plan.task_count += 1
+            compute_plan.todo_count += 1
             compute_plan.status = models.Status.waiting
 
         else:
@@ -510,6 +511,11 @@ class Local(base.BaseBackend):
             status=models.ComputePlanStatus.waiting,
             metadata=spec.metadata or dict(),
             task_count=0,
+            waiting_count=0,
+            todo_count=0,
+            doing_count=0,
+            canceled_count=0,
+            failed_count=0,
             done_count=0,
             owner='local',
             delete_intermediary_models=spec.clean_models
@@ -626,6 +632,7 @@ class Local(base.BaseBackend):
                 schemas.Type.ComputePlan, traintuple.compute_plan_key
             )
             compute_plan.task_count += 1
+            compute_plan.todo_count += 1
             compute_plan.status = models.Status.waiting
 
         testtuple = models.Testtuple(

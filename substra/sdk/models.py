@@ -303,8 +303,13 @@ class ComputePlan(_Model):
     tag: str
     owner: str
     metadata: Dict[str, str]
-    done_count: int
     task_count: int
+    waiting_count: int
+    todo_count: int
+    doing_count: int
+    canceled_count: int
+    failed_count: int
+    done_count: int
     failed_task: Optional[FailedTuple]
     delete_intermediary_models: bool = False
     status: ComputePlanStatus

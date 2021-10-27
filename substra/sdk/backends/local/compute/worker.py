@@ -398,6 +398,7 @@ class Worker:
             if tuple_.compute_plan_key:
                 compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_key)
                 compute_plan.done_count += 1
+                compute_plan.todo_count -= 1
                 if compute_plan.done_count == compute_plan.task_count:
                     compute_plan.status = models.ComputePlanStatus.done
 
@@ -581,5 +582,6 @@ class Worker:
 
             if compute_plan:
                 compute_plan.done_count += 1
+                compute_plan.todo_count -= 1
                 if compute_plan.done_count == compute_plan.task_count:
                     compute_plan.status = models.ComputePlanStatus.done

@@ -545,8 +545,13 @@ COMPUTE_PLAN = {
     "owner": "MyOrg1MSP",
     "creation_date": "2021-08-24T13:36:07.393646367Z",
     "status": "PLAN_STATUS_DONE",
-    "task_count": 2,
-    "done_count": 2,
+    "task_count": 21,
+    "waiting_count": 1,
+    "todo_count": 2,
+    "doing_count": 3,
+    "canceled_count": 4,
+    "failed_count": 5,
+    "done_count": 6,
     "metadata": {
         "foo": "bar"
     }
