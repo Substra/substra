@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Accept full datamanager, metrics and parent_tasks objects in get_*_tuple responses
 - Add task extra information related to start_date and end_date
 
+### Changed
+
+- (BREAKING) Replace objective by metric (#45)
+- (BREAKING) Multiple metrics and performances per test task (#47)
+
 ## [0.11.0] - 2021-10-04
 
 ### Added

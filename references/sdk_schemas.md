@@ -54,7 +54,7 @@ Specification for creating an metric
 ## TesttupleSpec
 Specification for creating a testtuple
 ```python
-- metric_key: str
+- metric_keys: List[str]
 - traintuple_key: str
 - tag: Optional[str]
 - data_manager_key: str
