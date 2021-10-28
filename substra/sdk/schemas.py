@@ -76,6 +76,13 @@ class _PydanticConfig(pydantic.BaseModel):
 class _Spec(_PydanticConfig, abc.ABC):
     """Asset creation specification base class."""
 
+    # pretty print
+    def __str__(self):
+        return self.json(indent=4)
+
+    def __repr__(self):
+        return self.json(indent=4)
+
     class Meta:
         file_attributes = None
 

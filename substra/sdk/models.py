@@ -93,8 +93,12 @@ class Permissions(schemas._PydanticConfig):
 class _Model(schemas._PydanticConfig, abc.ABC):
     """Asset creation specification base class."""
 
+    # pretty print
     def __str__(self):
-        return f"{self.__class__.type_.value}(key={self.key})"
+        return self.json(indent=4)
+
+    def __repr__(self):
+        return self.json(indent=4)
 
 
 class DataSample(_Model):
@@ -316,9 +320,6 @@ class ComputePlan(_Model):
     creation_date: datetime
 
     type_: ClassVar[str] = schemas.Type.ComputePlan
-
-    def __str__(self):
-        return f"{self.__class__.type_.value}(key={self.key})"
 
 
 class Node(schemas._PydanticConfig):
