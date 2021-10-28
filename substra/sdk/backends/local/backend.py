@@ -200,7 +200,7 @@ class Local(base.BaseBackend):
             status=models.ComputePlanStatus.waiting,
             tag="",
             task_count=task_count,
-            done_count=0,
+            todo_count=task_count,
             metadata=dict(),
             owner='local',
             delete_intermediary_models=False,
