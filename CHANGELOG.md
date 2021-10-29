@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - (BREAKING) Replace objective by metric (#45)
 - (BREAKING) Multiple metrics and performances per test task (#47)
 
+
+### Improvements
+- Local mode, execution in Docker: re-use the Docker images so that the execution is faster
+
 ## [0.11.0] - 2021-10-04
 
 ### Added

@@ -60,14 +60,23 @@ class Docker(BaseSpawner):
     ):
         """Spawn a docker container (blocking)."""
         with tempfile.TemporaryDirectory(dir=self._local_worker_dir) as tmpdir:
-            uncompress(archive_path, tmpdir)
+            image_exists = False
             try:
-                self._docker.images.build(path=tmpdir, tag=name, rm=True)
-            except docker.errors.BuildError as exc:
-                for line in exc.build_log:
-                    if 'stream' in line:
-                        logger.error(line['stream'].strip())
-                raise
+                self._docker.images.get(name=name)
+                image_exists = True
+            except docker.errors.ImageNotFound:
+                pass
+
+            if not image_exists:
+                try:
+                    logger.debug('Did not find the Docker image %s - building it', name)
+                    uncompress(archive_path, tmpdir)
+                    self._docker.images.build(path=tmpdir, tag=name, rm=True)
+                except docker.errors.BuildError as exc:
+                    for line in exc.build_log:
+                        if 'stream' in line:
+                            logger.error(line['stream'].strip())
+                    raise
 
         # format the command to replace each occurrence of a DOCKER_VOLUMES's key
         # by its "bind" value

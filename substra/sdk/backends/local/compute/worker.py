@@ -358,7 +358,7 @@ class Worker:
                     envs.update(self._get_chainkey_env(tuple_))
 
             # Execute the tuple
-            container_name = f"algo-{algo.key}"
+            container_name = f"algo-{algo.algorithm.checksum}"
             self._spawner.spawn(
                 container_name,
                 str(algo.algorithm.storage_address),
@@ -528,7 +528,7 @@ class Worker:
             command_template += " --opener-path ${_VOLUME_OPENER}"
             command_template += " --output-predictions-path ${_VOLUME_OUTPUT_PRED}/pred"
 
-            container_name = f"algo-{traintuple.algo.key}"
+            container_name = f"algo-{algo.algorithm.checksum}"
             self._spawner.spawn(
                 name=container_name,
                 archive_path=str(algo.algorithm.storage_address),
@@ -559,7 +559,7 @@ class Worker:
                 command_template += " --input-predictions-path ${_VOLUME_OUTPUT_PRED}/pred"
                 command_template += " --output-perf-path ${_VOLUME_OUTPUT_PRED}/perf.json"
 
-                container_name = 'metrics_run_local'
+                container_name = f'metrics-{metric.address.checksum}'
                 self._spawner.spawn(
                     container_name,
                     str(metric.address.storage_address),
