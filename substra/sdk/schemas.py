@@ -69,8 +69,8 @@ class AlgoCategory(str, enum.Enum):
 class _PydanticConfig(pydantic.BaseModel):
     """Shared configuration for all schemas here"""
     class Config:
-        # Raise an error for extra parameters at init
-        extra = 'forbid'
+        # Ignore extra fields, leave them unexposed
+        extra = 'ignore'
 
 
 class _Spec(_PydanticConfig, abc.ABC):

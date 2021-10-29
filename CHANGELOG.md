@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Ignore extra fields in API response (#84)
 - (BREAKING) Replace objective by metric (#45)
 - (BREAKING) Multiple metrics and performances per test task (#47)
 

@@ -47,3 +47,28 @@ def test_get_asset_not_found(client, mocker):
 
     with pytest.raises(substra.sdk.exceptions.NotFound):
         client.get_dataset("magic-key")
+
+
+@pytest.mark.parametrize('asset_name', [
+    'metric',
+    'dataset',
+    'algo',
+    'testtuple',
+    'traintuple',
+    'aggregatetuple',
+    'composite_traintuple',
+    'compute_plan',
+])
+def test_get_extra_field(asset_name, client, mocker):
+    item = getattr(datastore, asset_name.upper())
+    raw = getattr(datastore, asset_name.upper()).copy()
+    raw["unknown_extra_field"] = "some value"
+
+    method = getattr(client, f'get_{asset_name}')
+
+    m = mock_requests(mocker, "get", response=raw)
+
+    response = method("magic-key")
+
+    assert response == models.SCHEMA_TO_MODEL[schemas.Type(asset_name)](**item)
+    m.assert_called()
