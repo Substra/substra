@@ -543,21 +543,37 @@ class Local(base.BaseBackend):
         assert algo.category == schemas.AlgoCategory.simple
 
         dataset = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
-        in_traintuples = (
-            [self._db.get(schemas.Type.Traintuple, key) for key in spec.in_models_keys]
-            if spec.in_models_keys is not None
-            else []
-        )
+        in_tuples = []
+        if spec.in_models_keys is not None:
+            for in_tuple_key in spec.in_models_keys:
+                in_tuple = None
+                for in_tuple_type in [schemas.Type.Traintuple, schemas.Type.Aggregatetuple]:
+                    try:
+                        in_tuple = self._db.get(in_tuple_type, in_tuple_key)
+                        break
+                    except exceptions.NotFound:
+                        pass
+
+                if in_tuple is None:
+                    raise exceptions.NotFound(f"Wrong pk {key}", 404)
+                else:
+                    in_tuples.append(in_tuple)
+
         self.__check_same_data_manager(spec.data_manager_key, spec.train_data_sample_keys)
 
         # permissions
-        with_permissions = [algo, dataset] + in_traintuples
+        with_permissions = [algo, dataset] + in_tuples
 
         public = True
         authorized_ids = None
         for element in with_permissions:
-            permissions = element.permissions if hasattr(element, "permissions") \
-                else element.train.model_permissions
+            permissions = None
+            if hasattr(element, "permissions"):
+                permissions = element.permissions
+            elif hasattr(element, "train"):
+                permissions = element.train.model_permissions
+            else:
+                permissions = element.aggregate.model_permissions
             public = public and permissions.process.public
             if not permissions.process.public:
                 if authorized_ids is None:
@@ -574,7 +590,7 @@ class Local(base.BaseBackend):
         compute_plan_key, rank = self.__create_compute_plan_from_tuple(
             spec=spec,
             key=key,
-            in_tuples=in_traintuples
+            in_tuples=in_tuples
         )
 
         # create model
