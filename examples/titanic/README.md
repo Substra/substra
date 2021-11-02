@@ -16,7 +16,7 @@ In order to run this example, you'll need to:
 * create a substra profile to define the substra network to target, for instance:
     ```sh
     substra config --profile node-1 http://substra-backend.node-1.com
-    substra login --profile node-1 --username node-1 --password 'p@$swr0d44'
+    substra login --profile node-1 --username node-1 --password 'p@sswr0d44'
     ```
 * checkout this repository
 
