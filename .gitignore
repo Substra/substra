@@ -18,5 +18,7 @@ sdist/
 .vscode
 .env
 .venv
+.DS_Store
+.mypy_cache
 
 local-worker/
