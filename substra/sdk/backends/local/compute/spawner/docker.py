@@ -17,7 +17,7 @@ import string
 import tempfile
 import docker
 from substra.sdk.backends.local.compute.spawner.base import BaseSpawner, ExecutionError
-from substra.sdk.backends.local.compute.spawner.archive import uncompress
+from substra.sdk.archive import uncompress
 
 logger = logging.getLogger(__name__)
 

@@ -23,7 +23,7 @@ jobs:
       - name: Lint
         run: flake8 substra
       - name: Install substra
-        run: pip install -e .[test]
+        run: pip install -e .
       - name: Generate and validate CLI documentation
         run: |
           pip install pydantic==1.8.2

@@ -20,7 +20,7 @@ import sys
 import tempfile
 
 from substra.sdk.backends.local.compute.spawner.base import ExecutionError, BaseSpawner
-from substra.sdk.backends.local.compute.spawner.archive import uncompress
+from substra.sdk.archive import uncompress
 
 logger = logging.getLogger(__name__)
 

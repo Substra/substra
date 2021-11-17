@@ -50,11 +50,12 @@ setup(
     keywords=['cli', 'substra'],
     packages=find_packages(exclude=['tests*']),
     include_package_data=True,
-    install_requires=['click>=7.1.1,<8.0.0', 'requests', 'docker', 'consolemd', 'pyyaml', 'pydantic>=1.5.1', 'six'],
+    install_requires=['click>=7.1.1,<8.0.0', 'requests', 'docker', 'consolemd', 'pyyaml',
+                      'pydantic>=1.5.1', 'six', 'tqdm', 'tarsafe==0.0.3'],
     python_requires='>=3.6',
     setup_requires=['pytest-runner'],
     extras_require={
-        'test': ['pytest', 'pytest-cov', 'pytest-mock'],
+        'test': ['pytest', 'pytest-cov', 'pytest-mock', 'substratools>=0.9.0'],
     },
     entry_points={
         'console_scripts': [
