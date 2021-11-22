@@ -858,7 +858,7 @@ class Local(base.BaseBackend):
         return data_sample_keys
 
     def download(self, asset_type, url_field_path, key, destination):
-        if self._db.is_local(key, schemas.Type.Dataset):
+        if self._db.is_local(key, asset_type):
             asset = self._db.get(type_=asset_type, key=key)
             # Get the field containing the path to the file.
             file_path = asset
