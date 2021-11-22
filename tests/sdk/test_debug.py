@@ -1,14 +1,16 @@
-from pathlib import Path
-from substra.sdk.schemas import AlgoCategory
-import docker
 import os
-import pytest
-import substra
 import re
 import uuid
+from pathlib import Path
 
-from substra.sdk.backends.local.compute.spawner.subprocess import PYTHON_SCRIPT_NAME
+import docker
+import pytest
+import substra
 from substra.sdk import models
+from substra.sdk.backends.local.compute.spawner.subprocess import \
+    PYTHON_SCRIPT_NAME
+from substra.sdk.schemas import AlgoCategory
+
 
 def test_wrong_debug_spawner(monkeypatch):
     monkeypatch.setenv('DEBUG_SPAWNER', "test")
@@ -82,8 +84,8 @@ class TestsDebug:
             client.add_compute_plan(cp)
 
     def test_chainkey_exists(self, asset_factory, spawner, caplog):
-        """ Test that if chainkey is supported but it was not generated warning is logged and adding the compute plan
-        passes through nevertheless"""
+        """ Test that if chainkey is supported but it was not generated warning is
+        logged and adding the compute plan passes through nevertheless"""
         os.environ["CHAINKEYS_ENABLED"] = "True"
         # setting wrong directory, chainkeys should not be found
         os.environ["CHAINKEYS_DIR"] = str('/')

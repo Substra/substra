@@ -1,2 +1,0 @@
-click>=7.1.1,<8.0.0
-docstring-parser==0.7.3
