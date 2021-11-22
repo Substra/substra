@@ -252,7 +252,7 @@ class AssetPrinter(BasePrinter):
 class JsonPrinter:
     @staticmethod
     def print(data, *args, **kwargs):
-        print(json.dumps(data, indent=2))
+        print(json.dumps(data, indent=2, default=str))
 
 
 class YamlPrinter:
