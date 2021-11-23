@@ -389,3 +389,11 @@ def test_error_printer(mocker, exception):
     mocker.patch('substra.cli.interface.click.get_current_context', return_value=mock_click_context)
     with pytest.raises(click.ClickException, match='foo'):
         foo()
+
+
+def test_command_get_model_None(workdir, mocker):
+    item = models.CompositeTraintuple(**datastore.COMPOSITE_TRAINTUPLE_DOING)
+    m = mock_client_call(mocker, 'get_composite_traintuple', item)
+    output = client_execute(workdir, ['get', 'composite_traintuple', 'fakekey'])
+    m.assert_called()
+    assert item.key in output

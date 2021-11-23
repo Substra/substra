@@ -439,6 +439,87 @@ COMPOSITE_TRAINTUPLE = {
     }
 }
 
+COMPOSITE_TRAINTUPLE_DOING = {
+    "key": "aa09180a-fec6-46a5-a1a7-58c971b39217",
+    "category": "TASK_COMPOSITE",
+    "algo": {
+        "key": "c663b6e6-dd62-49fb-afe8-191fa7627a64",
+        "name": "c5e21113fcc64160b4dfac17892db879_test_aggregate_composite_traintuples - Algo 0",
+        "owner": "MyOrg1MSP",
+        "creation_date": "2021-08-24T13:36:07.428974249Z",
+        "permissions": {
+            "process": {
+                "public": True,
+                "authorized_ids": [
+                    "MyOrg1MSP"
+                ]
+            },
+            "download": {
+                "public": True,
+                "authorized_ids": [
+                    "MyOrg1MSP"
+                ]
+            }
+        },
+        "metadata": {},
+        "category": "ALGO_COMPOSITE",
+        "description": {
+            "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
+            "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/algo/c663b6e6-dd62-49fb-afe8-191fa7627a64/description/"
+        },
+        "algorithm": {
+            "checksum": "51bd5fe2e7f087b203d1b4a73f3b3276b9fde96a0fff9c1f5984de96e4675d59",
+            "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/algo/c663b6e6-dd62-49fb-afe8-191fa7627a64/file/"
+        }
+    },
+    "owner": "MyOrg1MSP",
+    "creation_date": "2021-08-24T13:36:07.393646367Z",
+    "compute_plan_key": "ed74db2f-b302-4a9d-b3d3-336eb8dcc3ff",
+    "metadata": {},
+    "status": "STATUS_DOING",
+    "worker": "MyOrg2MSP",
+    "rank": 0,
+    "parent_task_keys": [],
+    "tag": "",
+    "composite": {
+        "data_manager_key": "1ae64423-aa99-4b8a-8660-61a56e4ca42d",
+        "data_sample_keys": [
+            "1288d38c-dec2-4433-bc40-ec17f99f522a"
+        ],
+        "head_permissions": {
+            "process": {
+                "public": False,
+                "authorized_ids": [
+                    "MyOrg2MSP"
+                ]
+            },
+            "download": {
+                "public": False,
+                "authorized_ids": [
+                    "MyOrg2MSP"
+                ]
+            }
+        },
+        "trunk_permissions": {
+            "process": {
+                "public": False,
+                "authorized_ids": [
+                    "MyOrg1MSP",
+                    "MyOrg2MSP"
+                ]
+            },
+            "download": {
+                "public": False,
+                "authorized_ids": [
+                    "MyOrg1MSP",
+                    "MyOrg2MSP"
+                ]
+            }
+        },
+        "models": None
+    }
+}
+
 TESTTUPLE = {
     "key": "afa9c7b1-21b5-4e58-a098-79de4ecede35",
     "category": "TASK_TEST",

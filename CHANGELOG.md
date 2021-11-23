@@ -28,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Improvements
 - Local mode, execution in Docker: re-use the Docker images so that the execution is faster
 
+### Fixed
+- Fix the display of the composite traintuple if it has no input models
+
 ## [0.11.0] - 2021-10-04
 
 ### Added

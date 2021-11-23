@@ -103,7 +103,7 @@ class KeysField(Field):
 
 class HeadModelKeyField(Field):
     def get_value(self, item, expand=False):
-        value = super().get_value(item, expand)
+        value = super().get_value(item, expand) or list()  # item may be None
         for v in value:
             if v['category'] == models.ModelType.head:
                 return v['key']
@@ -111,7 +111,7 @@ class HeadModelKeyField(Field):
 
 class ModelKeyField(Field):
     def get_value(self, item, expand=False):
-        value = super().get_value(item, expand)
+        value = super().get_value(item, expand) or list()  # item may be None
         for v in value:
             if v['category'] == models.ModelType.simple:
                 return v['key']
