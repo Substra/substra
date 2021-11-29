@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fix the display of the composite traintuple if it has no input models
+- Properly prevent path traversal in archives and don't allow symbolic links
 
 ## [0.11.0] - 2021-10-04
 
