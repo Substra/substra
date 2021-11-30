@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Cyclic strategy example
+
+### Fixed
+
+- Local mode - the substra specific assets are now saved in `/substra_internal` instead of the work dir (#53)
+- Fix the display of the composite traintuple if it has no input models
+- Properly prevent path traversal in archives and don't allow symbolic links
+
 ## [0.13.0] - 2021-11-02
 
 ### Added
@@ -16,7 +26,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Display orchestrator and chaincode versions in node info command
 - Accept full datamanager, metrics and parent_tasks objects in get_*_tuple responses
 - Add task extra information related to start_date and end_date
-- Cyclic strategy example
 
 ### Changed
 
@@ -28,10 +37,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Improvements
 - Local mode, execution in Docker: re-use the Docker images so that the execution is faster
 
-### Fixed
-- Fix the display of the composite traintuple if it has no input models
-- Properly prevent path traversal in archives and don't allow symbolic links
+<<<<<<< HEAD
+=======
 
+>>>>>>> fix the changelog
 ## [0.11.0] - 2021-10-04
 
 ### Added

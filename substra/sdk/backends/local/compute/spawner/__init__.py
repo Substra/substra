@@ -14,7 +14,14 @@
 
 from substra.sdk.backends.local.compute.spawner.docker import Docker
 from substra.sdk.backends.local.compute.spawner.subprocess import Subprocess
+from substra.sdk.backends.local.compute.spawner.base import BaseSpawner
 
+
+__all__ = [
+    'BaseSpawner',
+    'Docker',
+    'Subprocess'
+]
 
 DEBUG_SPAWNER_CHOICES = {
     'docker': Docker,

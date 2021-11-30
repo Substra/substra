@@ -21,18 +21,17 @@ from substra.sdk.archive import uncompress
 
 logger = logging.getLogger(__name__)
 
-_DOCKER_CONTAINER_MODEL_PATH = "/sandbox/model"
+ROOT_DIR = "/substra_internal"
 
 DOCKER_VOLUMES = {
-    "_VOLUME_INPUT_DATASAMPLES": {"bind": "/sandbox/data", "mode": "ro"},
-    "_VOLUME_MODELS_RO": {"bind": _DOCKER_CONTAINER_MODEL_PATH, "mode": "ro"},
-    "_VOLUME_MODELS_RW": {"bind": _DOCKER_CONTAINER_MODEL_PATH, "mode": "rw"},
-    "_VOLUME_OPENER": {"bind": "/sandbox/opener/__init__.py", "mode": "ro"},
-    "_VOLUME_OUTPUT_PRED": {"bind": "/sandbox/pred", "mode": "rw"},
-    "_VOLUME_LOCAL": {"bind": "/sandbox/local", "mode": "rw"},
-    "_VOLUME_CHAINKEYS": {"bind": "/sandbox/chainkeys", "mode": "rw"},
-    "_VOLUME_INPUT_MODELS_RO": {"bind": "/sandbox/input_models", "mode": "ro"},
-    "_VOLUME_OUTPUT_MODELS_RW": {"bind": "/sandbox/output_models", "mode": "rw"},
+    "_VOLUME_INPUT_DATASAMPLES": {"bind": f"{ROOT_DIR}/data_samples", "mode": "ro"},
+    "_VOLUME_INPUT_MODELS": {"bind": f"{ROOT_DIR}/in_models", "mode": "ro"},
+    "_VOLUME_OUTPUT_MODELS": {"bind": f"{ROOT_DIR}/out_models", "mode": "rw"},
+    "_VOLUME_OPENER": {"bind": f"{ROOT_DIR}/opener/__init__.py", "mode": "ro"},
+    "_VOLUME_OUTPUT_PRED": {"bind": f"{ROOT_DIR}/pred", "mode": "rw"},
+    "_VOLUME_OUTPUT_PERF": {"bind": f"{ROOT_DIR}/perf", "mode": "rw"},
+    "_VOLUME_LOCAL": {"bind": f"{ROOT_DIR}/local", "mode": "rw"},
+    "_VOLUME_CHAINKEYS": {"bind": f"{ROOT_DIR}/chainkeys", "mode": "rw"},
 }
 
 
@@ -109,11 +108,11 @@ class Docker(BaseSpawner):
             execution_logs.append(line.decode('utf-8'))
 
         r = container.wait()
-        execution_logs = ''.join(execution_logs)
+        execution_logs_str = ''.join(execution_logs)
         exit_code = r['StatusCode']
         if exit_code != 0:
-            logger.error(f"\n\nExecution logs: {execution_logs}")
+            logger.error("\n\nExecution logs: %s", execution_logs_str)
             raise ExecutionError(f"Container '{name}' exited with status code '{exit_code}'")
 
         container.remove()
-        return execution_logs
+        return execution_logs_str

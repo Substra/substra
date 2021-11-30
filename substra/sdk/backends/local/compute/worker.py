@@ -17,13 +17,23 @@ import os
 import pathlib
 import shutil
 import string
+import typing
 import uuid
 import datetime
+from enum import Enum
 
 from substra.sdk import schemas, fs, models, exceptions
 from substra.sdk.backends.local import dal
 from substra.sdk.backends.local.compute import spawner
-from substra.sdk.backends.local.compute.spawner import DEBUG_SPAWNER_CHOICES
+from substra.sdk.backends.local.compute.spawner import DEBUG_SPAWNER_CHOICES, BaseSpawner
+
+
+class Filenames(str, Enum):
+    OUT_MODEL = "out-model"
+    OUT_HEAD_MODEL = "out-head-model"
+    OUT_TRUNK_MODEL = "out-trunk-model"
+    PREDICTIONS = "pred"
+    PERFORMANCE = "perf.json"
 
 
 def _mkdir(path, delete_if_exists=False):
@@ -48,7 +58,7 @@ class Worker:
         db: dal.DataAccess,
         local_worker_dir: pathlib.Path,
         support_chainkeys: bool,
-        debug_spawner: DEBUG_SPAWNER_CHOICES = DEBUG_SPAWNER_CHOICES['docker'],
+        debug_spawner: typing.Type[BaseSpawner] = DEBUG_SPAWNER_CHOICES['docker'],
         chainkey_dir=None,
     ):
         self._local_worker_dir = local_worker_dir
@@ -100,11 +110,11 @@ class Worker:
         return data_volume
 
     def _save_output_model(self, tuple_, model_name, models_volume, permissions) -> models.OutModel:
-        if model_name == 'output_head_model':
+        if model_name == Filenames.OUT_HEAD_MODEL:
             category = models.ModelType.head
-        elif model_name == 'output_trunk_model':
+        elif model_name == Filenames.OUT_TRUNK_MODEL:
             category = models.ModelType.simple
-        elif model_name == 'model':
+        elif model_name == Filenames.OUT_MODEL:
             category = models.ModelType.simple
         else:
             raise Exception(f"TODO write - Unknown model name {model_name}")
@@ -126,38 +136,6 @@ class Worker:
             owner=tuple_.worker,    # TODO: check this
             permissions=permissions,    # TODO: check this
         )
-
-    def _get_command_models_composite(self, is_train, tuple_, models_volume, container_volume):
-        command_template = ""
-        model_head_key = None
-        model_trunk_key = None
-        if not is_train:
-            model_head_key = tuple_.out_head_model.out_model.key
-            model_trunk_key = tuple_.out_trunk_model.out_model.key
-        else:
-            if tuple_.in_head_model:
-                model_head_key = "input_head_model"
-
-            if tuple_.in_trunk_model:
-                model_trunk_key = "input_trunk_model"
-
-        if model_head_key:
-            head_model_container_address = _get_address_in_container(
-                model_head_key,
-                models_volume,
-                container_volume
-            )
-            command_template += f" --input-head-model-filename {head_model_container_address}"
-
-        if model_trunk_key:
-            trunk_model_container_address = _get_address_in_container(
-                model_trunk_key,
-                models_volume,
-                container_volume
-            )
-            command_template += f" --input-trunk-model-filename {trunk_model_container_address}"
-
-        return command_template
 
     @contextlib.contextmanager
     def _context(self, key):
@@ -213,9 +191,11 @@ class Worker:
             # The in models command is a nargs+, so we have to append it to the
             # command template later
             in_models_command_template = ''
+
+            input_models_volume = _mkdir(os.path.join(tuple_dir, "input_models"))
+            volumes['_VOLUME_INPUT_MODELS'] = input_models_volume
+
             if isinstance(tuple_, models.CompositeTraintuple):
-                input_models_volume = _mkdir(os.path.join(tuple_dir, "input_models"))
-                output_models_volume = _mkdir(os.path.join(tuple_dir, "output_models"))
                 assert len(in_tuples) <= 2
 
                 for in_tuple in in_tuples:
@@ -232,7 +212,7 @@ class Worker:
                         head_model_container_address = _get_address_in_container(
                             "input_head_model",
                             input_models_volume,
-                            "${_VOLUME_INPUT_MODELS_RO}",
+                            "${_VOLUME_INPUT_MODELS}",
                         )
                         in_models_command_template += f' --input-head-model-filename \
                             {head_model_container_address}'
@@ -249,7 +229,7 @@ class Worker:
                             trunk_model_container_address = _get_address_in_container(
                                 "input_trunk_model",
                                 input_models_volume,
-                                "${_VOLUME_INPUT_MODELS_RO}",
+                                "${_VOLUME_INPUT_MODELS}",
                             )
                             in_models_command_template += f' --input-trunk-model-filename \
                                 {trunk_model_container_address}'
@@ -265,20 +245,16 @@ class Worker:
                         trunk_model_container_address = _get_address_in_container(
                             "input_trunk_model",
                             input_models_volume,
-                            "${_VOLUME_INPUT_MODELS_RO}",
+                            "${_VOLUME_INPUT_MODELS}",
                         )
                         in_models_command_template += f' --input-trunk-model-filename \
                             {trunk_model_container_address}'
                     else:
                         raise Exception('TODO write this - cannot link traintuple to composite')
 
-                volumes['_VOLUME_INPUT_MODELS_RO'] = input_models_volume
-                volumes['_VOLUME_OUTPUT_MODELS_RW'] = output_models_volume
-                command_template += " --output-models-path ${_VOLUME_OUTPUT_MODELS_RW}"
-
             else:
                 # The tuple is a traintuple or an aggregate traintuple
-                models_volume = _mkdir(os.path.join(tuple_dir, "models"))
+                in_models_command_template += ' --models-path ${_VOLUME_INPUT_MODELS}'
                 for idx, in_tuple in enumerate(in_tuples):
                     if isinstance(in_tuple, models.CompositeTraintuple):
                         input_models = [m for m in in_tuple.composite.models
@@ -299,14 +275,23 @@ class Worker:
                     model_filename = f"{idx}_{input_model.key}"
                     os.link(
                         input_model.address.storage_address,
-                        os.path.join(models_volume, model_filename)
+                        os.path.join(input_models_volume, model_filename)
                     )
                     in_models_command_template += f" {model_filename}"
 
-                volumes['_VOLUME_MODELS_RW'] = models_volume
-                command_template += " --models-path ${_VOLUME_MODELS_RW}"
-                command_template += " --output-model-path ${_VOLUME_MODELS_RW}/model"
+            # Prepare the out model command
+            output_models_volume = _mkdir(os.path.join(tuple_dir, "output_models"))
+            volumes['_VOLUME_OUTPUT_MODELS'] = output_models_volume
 
+            if isinstance(tuple_, models.CompositeTraintuple):
+                command_template += ' --output-models-path ${_VOLUME_OUTPUT_MODELS}'
+                command_template += f' --output-head-model-filename {Filenames.OUT_HEAD_MODEL}'
+                command_template += f' --output-trunk-model-filename {Filenames.OUT_TRUNK_MODEL}'
+            else:
+                command_template += ' --output-model-path ${_VOLUME_OUTPUT_MODELS}/' \
+                    f'{Filenames.OUT_MODEL}'
+
+            # Prepare the data
             if not isinstance(tuple_, models.Aggregatetuple):
                 # if this is a traintuple or composite traintuple, prepare the data
                 if isinstance(tuple_, models.Traintuple):
@@ -330,8 +315,8 @@ class Worker:
                     command_template += " --fake-data"
                     command_template += f" --n-fake-samples {len(dataset.train_data_sample_keys)}"
 
+            # Prepare the shared compute plan volume
             if tuple_.compute_plan_key:
-                #  Shared compute plan volume
                 local_volume = _mkdir(
                     os.path.join(
                         self._local_worker_dir, "compute_plans", tuple_.worker,
@@ -371,24 +356,26 @@ class Worker:
             if isinstance(tuple_, models.CompositeTraintuple):
                 head_model = self._save_output_model(
                     tuple_,
-                    'output_head_model',
+                    Filenames.OUT_HEAD_MODEL,
                     output_models_volume,
                     permissions=tuple_.composite.head_permissions
                 )
                 trunk_model = self._save_output_model(
                     tuple_,
-                    'output_trunk_model',
+                    Filenames.OUT_TRUNK_MODEL,
                     output_models_volume,
                     permissions=tuple_.composite.trunk_permissions
                 )
                 tuple_.composite.models = [head_model, trunk_model]
             elif isinstance(tuple_, models.Traintuple):
-                out_model = self._save_output_model(tuple_, 'model', models_volume,
-                                                    tuple_.train.model_permissions)
+                out_model = self._save_output_model(
+                    tuple_, Filenames.OUT_MODEL,
+                    output_models_volume, tuple_.train.model_permissions)
                 tuple_.train.models = [out_model]
             elif isinstance(tuple_, models.Aggregatetuple):
-                out_model = self._save_output_model(tuple_, 'model', models_volume,
-                                                    tuple_.aggregate.model_permissions)
+                out_model = self._save_output_model(
+                    tuple_, Filenames.OUT_MODEL,
+                    output_models_volume, tuple_.aggregate.model_permissions)
                 tuple_.aggregate.models = [out_model]
 
             # set status
@@ -443,10 +430,11 @@ class Worker:
             # prepare model and datasamples
             predictions_volume = _mkdir(os.path.join(tuple_dir, "pred"))
             models_volume = _mkdir(os.path.join(tuple_dir, "models"))
+            performance_volume = _mkdir(os.path.join(tuple_dir, "perf"))
 
             volumes = {
                 '_VOLUME_OPENER': dataset.opener.storage_address,
-                '_VOLUME_MODELS_RO': models_volume,
+                '_VOLUME_INPUT_MODELS': models_volume,
                 '_VOLUME_OUTPUT_PRED': predictions_volume,
             }
 
@@ -482,7 +470,7 @@ class Worker:
                 model_container_address = _get_address_in_container(
                     in_testtuple_model.key,
                     models_volume,
-                    "${_VOLUME_MODELS_RO}"
+                    "${_VOLUME_INPUT_MODELS}"
                 )
                 command_template += f" {model_container_address}"
 
@@ -497,7 +485,7 @@ class Worker:
                 model_container_address = _get_address_in_container(
                     in_testtuple_model.key,
                     models_volume,
-                    "${_VOLUME_MODELS_RO}"
+                    "${_VOLUME_INPUT_MODELS}"
                 )
                 command_template += f" {model_container_address}"
 
@@ -512,12 +500,12 @@ class Worker:
                     address_in_container = _get_address_in_container(
                         in_testtuple_model.key,
                         models_volume,
-                        "${_VOLUME_MODELS_RO}",
+                        "${_VOLUME_INPUT_MODELS}",
                     )
                     if in_testtuple_model.category == models.ModelType.head:
-                        command_name = '--input-head-model-filename'
+                        command_name = ' --input-head-model-filename'
                     elif in_testtuple_model.category == models.ModelType.simple:
-                        command_name = '--input-trunk-model-filename '
+                        command_name = ' --input-trunk-model-filename'
                     command_template += f" {command_name} {address_in_container}"
 
             if self._db.is_local(dataset.key, schemas.Type.Dataset):
@@ -531,7 +519,8 @@ class Worker:
                 command_template += f" --n-fake-samples {len(tuple_.test.data_sample_keys)}"
 
             command_template += " --opener-path ${_VOLUME_OPENER}"
-            command_template += " --output-predictions-path ${_VOLUME_OUTPUT_PRED}/pred"
+            command_template += " --output-predictions-path ${_VOLUME_OUTPUT_PRED}" \
+                f"/{Filenames.PREDICTIONS}"
 
             container_name = f"algo-{algo.algorithm.checksum}"
             self._spawner.spawn(
@@ -546,6 +535,7 @@ class Worker:
                 volumes = {
                     "_VOLUME_OUTPUT_PRED": predictions_volume,
                     "_VOLUME_OPENER": dataset.opener.storage_address,
+                    "_VOLUME_OUTPUT_PERF": performance_volume,
                 }
 
                 if self._db.is_local(dataset.key, schemas.Type.Dataset):
@@ -554,15 +544,17 @@ class Worker:
                         tuple_.test.data_sample_keys,
                     )
                     volumes["_VOLUME_INPUT_DATASAMPLES"] = data_volume
-                    command_template = "--fake-data-mode DISABLED"
+                    command_template = " --fake-data-mode DISABLED"
                     command_template += f" --data-sample-paths {data_sample_paths}"
                 else:
-                    command_template = "--fake-data-mode FAKE_Y"
+                    command_template = " --fake-data-mode FAKE_Y"
                     command_template += f" --n-fake-samples {len(tuple_.test.data_sample_keys)}"
 
                 command_template += " --opener-path ${_VOLUME_OPENER}"
-                command_template += " --input-predictions-path ${_VOLUME_OUTPUT_PRED}/pred"
-                command_template += " --output-perf-path ${_VOLUME_OUTPUT_PRED}/perf.json"
+                command_template += " --input-predictions-path ${_VOLUME_OUTPUT_PRED}" \
+                    f"/{Filenames.PREDICTIONS}"
+                command_template += " --output-perf-path ${_VOLUME_OUTPUT_PERF}" \
+                    f"/{Filenames.PERFORMANCE}"
 
                 container_name = f'metrics-{metric.address.checksum}'
                 self._spawner.spawn(
@@ -572,8 +564,8 @@ class Worker:
                     local_volumes=volumes,
                 )
 
-                # save move performances
-                tmp_path = os.path.join(predictions_volume, "perf.json")
+                # save move performance
+                tmp_path = os.path.join(performance_volume, Filenames.PERFORMANCE)
                 pred_dir = _mkdir(os.path.join(self._local_worker_dir, "performances", tuple_.key))
                 pred_path = os.path.join(pred_dir, f"performance_{metric.key}.json")
                 shutil.copy(tmp_path, pred_path)
