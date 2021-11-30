@@ -25,11 +25,13 @@ Defaults to False.
 In debug mode, new assets are created locally but can access assets from
 the deployed Substra platform. The platform is in read-only mode.
 Defaults to False.
+Additionally, you can set the environment variable `DEBUG_SPAWNER` to `'docker'` if you want the tasks to be executed in containers (default) or `'subprocess'` to execute them in Python subprocesses (faster, experimental: The `Dockerfile` commands are not executed, requires dependencies to be installed locally).
+
 ## temp_directory
-_This is a property._  
+_This is a property._
 Temporary directory for storing assets in debug mode.
         Deleted when the client is deleted.
-        
+
 ## add_aggregatetuple
 ```python
 add_aggregatetuple(self, data: Union[dict, substra.sdk.schemas.AggregatetupleSpec]) -> str
@@ -469,7 +471,7 @@ in the [models.Traintuple](sdk_models.md#Traintuple) model
 login(self, username, password)
 ```
 
-Login to a remote server. 
+Login to a remote server.
 ## node_info
 ```python
 node_info(self) -> dict

@@ -14,8 +14,9 @@ from substra.sdk.schemas import AlgoCategory
 
 def test_wrong_debug_spawner(monkeypatch):
     monkeypatch.setenv('DEBUG_SPAWNER', "test")
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError) as err:
         substra.Client(debug=True)
+    assert str(err.value) == "test is not a valid value for environment variable DEBUG_SPAWNER. Accepted values: ['docker', 'subprocess']"
 
 
 def test_regex_script_name_valid():
