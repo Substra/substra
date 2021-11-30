@@ -318,6 +318,10 @@ class ComputePlan(_Model):
     delete_intermediary_models: bool = False
     status: ComputePlanStatus
     creation_date: datetime
+    start_date: Optional[datetime]
+    end_date: Optional[datetime]
+    estimated_end_date: Optional[datetime]
+    duration: Optional[int]
 
     type_: ClassVar[str] = schemas.Type.ComputePlan
 

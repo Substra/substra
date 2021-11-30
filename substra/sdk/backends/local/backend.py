@@ -197,6 +197,7 @@ class Local(base.BaseBackend):
         compute_plan = models.ComputePlan(
             key=key,
             creation_date=self.__now(),
+            start_date=self.__now(),
             status=models.ComputePlanStatus.waiting,
             tag="",
             task_count=task_count,
@@ -302,6 +303,11 @@ class Local(base.BaseBackend):
                     spec=testtuple
                 )
                 self.add(testtuple_spec, spec_options)
+
+        compute_plan.end_date = datetime.now()
+        compute_plan.estimated_end_date = compute_plan.end_date
+        compute_plan.duration = int((compute_plan.end_date -
+                                     compute_plan.start_date).total_seconds())
 
         return compute_plan
 
@@ -507,6 +513,7 @@ class Local(base.BaseBackend):
         compute_plan = models.ComputePlan(
             key=key,
             creation_date=self.__now(),
+            start_date=self.__now(),
             tag=spec.tag or "",
             status=models.ComputePlanStatus.waiting,
             metadata=spec.metadata or dict(),

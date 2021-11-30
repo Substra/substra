@@ -296,7 +296,6 @@ class ComputePlanPrinter(AssetPrinter):
 
     list_fields = (
         ProgressField('Progress', 'done_count', 'task_count'),
-        Field('Failed task', 'failed_task.key'),
         Field('Status', 'status'),
         Field('Tag', 'tag'),
         Field('Clean model', 'delete_intermediary_models'),

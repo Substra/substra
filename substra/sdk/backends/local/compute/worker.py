@@ -401,6 +401,11 @@ class Worker:
                 compute_plan.todo_count -= 1
                 if compute_plan.done_count == compute_plan.task_count:
                     compute_plan.status = models.ComputePlanStatus.done
+                    compute_plan.end_date = datetime.datetime.now()
+                    compute_plan.estimated_end_date = compute_plan.end_date
+
+                    compute_plan.duration = int((compute_plan.end_date -
+                                                 compute_plan.start_date).total_seconds())
 
     def schedule_testtuple(self, tuple_):
         """Schedules a ML task (blocking)."""
@@ -585,3 +590,7 @@ class Worker:
                 compute_plan.todo_count -= 1
                 if compute_plan.done_count == compute_plan.task_count:
                     compute_plan.status = models.ComputePlanStatus.done
+                    compute_plan.end_date = datetime.datetime.now()
+                    compute_plan.estimated_end_date = compute_plan.end_date
+                    compute_plan.duration = int((compute_plan.end_date -
+                                                 compute_plan.start_date).total_seconds())
