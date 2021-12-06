@@ -50,6 +50,35 @@ def _get_script_name_from_dockerfile(tmpdir):
     raise ExecutionError("Couldn't get entrypoint in Dockerfile")
 
 
+def _get_py_command(script_name, tmpdir, command_template, local_volumes):
+    """
+    Substitute the local_volumes in the command_template ans split it to have the
+    py_command
+
+    Args:
+        script_name (str): the name of the script
+        tmpdir (pathlib.Path): the tmpdir in which the subprocess mode is running
+        command_template (string.Template): template containing all arguments for the subprocess
+        local_volumes (dict[str, str]): paths to substitute in command_template
+
+    Returns:
+        py_command (list[str]): the list with all commands for the subprocess
+    """
+    # modify local_volumes not to split paths with spaces
+    local_volumes = {k: str(v).replace(" ", "\\\\") for k, v in local_volumes.items()}
+    # replace volumes variables by local volumes
+    command = command_template.substitute(**local_volumes)
+    # split command to run into subprocess
+    command_args = command.split()
+    # replace paths with spaces that were modified
+    command_args = [command_arg.replace("\\\\", " ") for command_arg in command_args]
+    # put current python interpreter and script to launch before script command
+    py_command = [sys.executable, str(tmpdir / script_name)]
+    py_command.extend(command_args)
+
+    return py_command
+
+
 class Subprocess(BaseSpawner):
     """Wrapper to execute a command in a python process."""
 
@@ -70,13 +99,8 @@ class Subprocess(BaseSpawner):
             uncompress(archive_path, tmpdir)
             # TODO: use new generated venv from dockerfile (pip install substratools,...)
             script_name = _get_script_name_from_dockerfile(tmpdir)
-            # replace volumes variables by local volumes
-            command = command_template.substitute(**local_volumes)
-            # split command to run into subprocess
-            command_args = command.split()
-            # put current python interpreter and script to launch before script command
-            py_command = [sys.executable, str(tmpdir / script_name)]
-            py_command.extend(command_args)
+            # get py_command for subprocess
+            py_command = _get_py_command(script_name, tmpdir, command_template, local_volumes)
             # run subprocess
             try:
                 process = subprocess.run(py_command,
