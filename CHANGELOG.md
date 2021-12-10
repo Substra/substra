@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- No more crash when running a script in local subprocess mode from a path with spaces (#99)
 
 ## [0.14.0] - 2021-12-01
 
