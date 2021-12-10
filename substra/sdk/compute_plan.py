@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from copy import deepcopy
 import math
 import typing
+from copy import deepcopy
 
-from substra.sdk import schemas, graph, exceptions
+from substra.sdk import exceptions
+from substra.sdk import graph
+from substra.sdk import schemas
 
 
 def _insert_into_graph(tuple_graph, tuple_id, in_model_ids):
@@ -27,8 +29,7 @@ def _insert_into_graph(tuple_graph, tuple_id, in_model_ids):
 
 
 def get_dependency_graph(spec: schemas._BaseComputePlanSpec):
-    """Get the tuple dependency graph and, for each type of tuple, a mapping table id/tuple.
-    """
+    """Get the tuple dependency graph and, for each type of tuple, a mapping table id/tuple."""
     tuple_graph = dict()
     traintuples_by_ids = dict()
     if spec.traintuples:
@@ -78,8 +79,7 @@ def filter_tuples_in_list(
     composite_traintuples_by_ids: typing.Dict[str, schemas.ComputePlanCompositeTraintupleSpec],
     testtuples_by_ids: typing.Dict[str, schemas.ComputePlanTesttupleSpec],
 ):
-    """Return the tuple lists with only the elements which are in the tuple graph.
-    """
+    """Return the tuple lists with only the elements which are in the tuple graph."""
     filtered_traintuples = list()
     filtered_aggregatetuples = list()
     filtered_composite_traintuples = list()
@@ -103,8 +103,7 @@ def filter_tuples_in_list(
 
 
 def auto_batching(spec, is_creation: bool = True, batch_size: int = 20):
-    """Auto batching of the compute plan tuples
-    """
+    """Auto batching of the compute plan tuples"""
 
     # Create the dependency graph and get the dict
     # of tuples by id
@@ -125,9 +124,7 @@ def auto_batching(spec, is_creation: bool = True, batch_size: int = 20):
 
     # Compute the relative ranks of the new tuples (relatively to each other, these
     # are not their actual ranks in the compute plan)
-    id_ranks = graph.compute_ranks(
-        node_graph=tuple_graph, node_to_ignore=already_created_ids
-    )
+    id_ranks = graph.compute_ranks(node_graph=tuple_graph, node_to_ignore=already_created_ids)
 
     # Add the testtuples to 'visited' to take them into account in the batches
     testtuples_by_ids = dict()
@@ -137,9 +134,7 @@ def auto_batching(spec, is_creation: bool = True, batch_size: int = 20):
             if testtuple.traintuple_id not in id_ranks:
                 id_ranks["test_" + testtuple.traintuple_id] = 0
             else:
-                id_ranks["test_" + testtuple.traintuple_id] = (
-                    id_ranks[testtuple.traintuple_id] + 1
-                )
+                id_ranks["test_" + testtuple.traintuple_id] = id_ranks[testtuple.traintuple_id] + 1
             testtuples_by_ids["test_" + testtuple.traintuple_id] = testtuple
 
     # Sort the tuples by rank

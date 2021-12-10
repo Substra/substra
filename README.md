@@ -17,6 +17,7 @@ CLI and SDK for interacting with Substra platform.
 - [Compatibility table (open source)](#compatibility-table-open-source)
 - [Contributing](#contributing)
   - [Setup](#setup)
+  - [Code formatting](#code-formatting)
   - [Documentation](#documentation-1)
   - [Deploy](#deploy)
 
@@ -141,13 +142,25 @@ $ make test
 To setup the project in development mode, run:
 
 ```sh
-pip install -e ".[test]"
+pip install -e ".[dev]"
 ```
 
 To run all tests, use the following command:
 
 ```sh
 python setup.py test
+```
+
+### Code formatting
+
+You can opt into auto-formatting of code on pre-commit using [Black](https://github.com/psf/black).
+
+This relies on hooks managed by [pre-commit](https://pre-commit.com/), which you can set up as follows.
+
+Install [pre-commit](https://pre-commit.com/), then run:
+
+```sh
+pre-commit install
 ```
 
 ### Documentation

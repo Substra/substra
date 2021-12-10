@@ -1,6 +1,5 @@
-from sklearn.metrics import accuracy_score
-
 import substratools as tools
+from sklearn.metrics import accuracy_score
 
 
 class TitanicMetrics(tools.Metrics):
@@ -16,5 +15,5 @@ class TitanicMetrics(tools.Metrics):
         return accuracy_score(y_true, y_pred)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     tools.metrics.execute(TitanicMetrics())

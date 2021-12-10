@@ -19,13 +19,14 @@ import subprocess
 import sys
 import tempfile
 
-from substra.sdk.backends.local.compute.spawner.base import ExecutionError, BaseSpawner
 from substra.sdk.archive import uncompress
+from substra.sdk.backends.local.compute.spawner.base import BaseSpawner
+from substra.sdk.backends.local.compute.spawner.base import ExecutionError
 
 logger = logging.getLogger(__name__)
 
 # Find a name between quotes ending by '.py'
-PYTHON_SCRIPT_NAME = r'(?<=\")([^\"]*\.py)(?=\")'
+PYTHON_SCRIPT_NAME = r"(?<=\")([^\"]*\.py)(?=\")"
 
 
 def _get_script_name_from_dockerfile(tmpdir):
@@ -41,9 +42,7 @@ def _get_script_name_from_dockerfile(tmpdir):
 
             script_name = re.findall(PYTHON_SCRIPT_NAME, line)
             if not script_name:
-                raise ExecutionError(
-                    f"Couldn't get Python script in Dockerfile's entrypoint : {line}"
-                )
+                raise ExecutionError(f"Couldn't get Python script in Dockerfile's entrypoint : {line}")
 
             return script_name[0]
 
@@ -103,21 +102,15 @@ class Subprocess(BaseSpawner):
             py_command = _get_py_command(script_name, tmpdir, command_template, local_volumes)
             # run subprocess
             try:
-                process = subprocess.run(py_command,
-                                         capture_output=True,
-                                         check=True,
-                                         cwd=tmpdir,
-                                         env=envs)
+                process = subprocess.run(py_command, capture_output=True, check=True, cwd=tmpdir, env=envs)
             except subprocess.CalledProcessError as exc:
                 logger.error(exc)
-                logger.error(exc.stderr.decode('UTF-8'))
-                logger.error(exc.stdout.decode('UTF-8'))
-                raise ExecutionError(
-                    f"Subprocess '{name}' exited with status code '{exc.returncode}'"
-                )
+                logger.error(exc.stderr.decode("UTF-8"))
+                logger.error(exc.stdout.decode("UTF-8"))
+                raise ExecutionError(f"Subprocess '{name}' exited with status code '{exc.returncode}'")
 
         execution_logs = str(process)
-        execution_logs += str(process.stderr.decode('UTF-8'))
-        execution_logs += str(process.stdout.decode('UTF-8'))
+        execution_logs += str(process.stderr.decode("UTF-8"))
+        execution_logs += str(process.stdout.decode("UTF-8"))
 
         return execution_logs

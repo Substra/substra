@@ -33,20 +33,15 @@ def mock_response(response=None, status=200, headers=None, json_error=None):
 
 def mock_requests_responses(mocker, method, responses):
     return mocker.patch(
-        f'substra.sdk.backends.remote.rest_client.requests.{method}',
+        f"substra.sdk.backends.remote.rest_client.requests.{method}",
         side_effect=responses,
     )
 
 
 def mock_requests(mocker, method, response=None, status=200, headers=None, json_error=None):
     r = mock_response(response, status, headers, json_error)
-    return mock_requests_responses(mocker, method, (r, ))
+    return mock_requests_responses(mocker, method, (r,))
 
 
 def make_paginated_response(items):
-    return {
-        'count': len(items),
-        'next': None,
-        'previous': None,
-        'results': items
-    }
+    return {"count": len(items), "next": None, "previous": None, "results": items}

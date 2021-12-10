@@ -15,12 +15,14 @@
 import pytest
 
 import substra
+
 from . import data_factory
 
 
 def pytest_configure(config):
     config.addinivalue_line(
-        "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+        "markers",
+        "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     )
 
 
@@ -43,7 +45,10 @@ def dataset_query(tmpdir):
         "data_opener": str(opener_path),
         "type": "images",
         "description": str(desc_path),
-        "permissions": {"public": True, "authorized_ids": [], },
+        "permissions": {
+            "public": True,
+            "authorized_ids": [],
+        },
     }
 
 
@@ -59,7 +64,10 @@ def metric_query(tmpdir):
         "name": "metrics_name",
         "file": str(metrics_path),
         "description": str(desc_path),
-        "permissions": {"public": True, "authorized_ids": [], },
+        "permissions": {
+            "public": True,
+            "authorized_ids": [],
+        },
     }
 
 
@@ -76,7 +84,10 @@ def algo_query(tmpdir):
         "category": substra.sdk.schemas.AlgoCategory.simple,
         "description": str(desc_path),
         "file": str(algo_file_path),
-        "permissions": {"public": True, "authorized_ids": [], },
+        "permissions": {
+            "public": True,
+            "authorized_ids": [],
+        },
     }
 
 
@@ -100,9 +111,7 @@ def data_samples_query(tmpdir):
     for i in range(nb):
         data_sample_dir_path = tmpdir / f"data_sample_{i}"
         data_sample_file_path = data_sample_dir_path / "data.txt"
-        data_sample_file_path.write_text(
-            f"Hello world {i}", encoding="utf-8", ensure=True
-        )
+        data_sample_file_path.write_text(f"Hello world {i}", encoding="utf-8", ensure=True)
 
         paths.append(str(data_sample_dir_path))
 

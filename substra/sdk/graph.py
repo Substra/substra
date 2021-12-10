@@ -48,7 +48,7 @@ def _get_current_node(visited, ranks):
 def compute_ranks(
     node_graph: typing.Dict[str, typing.List[str]],
     node_to_ignore: typing.Set[str] = None,
-    ranks: typing.Dict[str, int] = None
+    ranks: typing.Dict[str, int] = None,
 ) -> typing.Dict[str, int]:
     """Compute the ranks of the nodes in the graph.
 
@@ -96,7 +96,8 @@ def compute_ranks(
             if (edge[1], edge[0]) in edges:
                 raise exceptions.InvalidRequest(
                     f"missing dependency among inModels IDs, \
-                        circular dependency between {edge[0]} and {edge[1]}", 400
+                        circular dependency between {edge[0]} and {edge[1]}",
+                    400,
                 )
             else:
                 edges.add(edge)

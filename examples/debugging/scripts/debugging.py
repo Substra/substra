@@ -27,8 +27,8 @@ algo_directory = current_directory.parent / "compute_plan" / "assets" / "algo_sg
 
 # Load the keys of the Titanic example assets
 assets_keys_path = pathlib.Path(__file__).resolve().parents[2] / "titanic" / "assets_keys.json"
-print(f'Loading existing asset keys from {assets_keys_path}...')
-with assets_keys_path.open('r') as f:
+print(f"Loading existing asset keys from {assets_keys_path}...")
+with assets_keys_path.open("r") as f:
     assets_keys = json.load(f)
 
 #################

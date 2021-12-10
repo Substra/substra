@@ -12,23 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from substra.sdk.backends.local.compute.spawner.base import BaseSpawner
 from substra.sdk.backends.local.compute.spawner.docker import Docker
 from substra.sdk.backends.local.compute.spawner.subprocess import Subprocess
-from substra.sdk.backends.local.compute.spawner.base import BaseSpawner
 
-
-__all__ = [
-    'BaseSpawner',
-    'Docker',
-    'Subprocess'
-]
+__all__ = ["BaseSpawner", "Docker", "Subprocess"]
 
 DEBUG_SPAWNER_CHOICES = {
-    'docker': Docker,
-    'subprocess': Subprocess,
+    "docker": Docker,
+    "subprocess": Subprocess,
 }
 
 
-def get(name='docker', *args, **kwargs):
-    """ Return a Docker Spawner by default, or a Process Spawner if name is subprocess """
+def get(name="docker", *args, **kwargs):
+    """Return a Docker Spawner by default, or a Process Spawner if name is subprocess"""
     return DEBUG_SPAWNER_CHOICES[name.lower()](*args, **kwargs)

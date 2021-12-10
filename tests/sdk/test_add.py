@@ -11,11 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import pydantic
 import pytest
+
 import substra
 from substra.sdk import models
-
-import pydantic
 
 from .. import datastore
 from .utils import mock_requests
@@ -34,7 +34,7 @@ def test_add_dataset(client, dataset_query, mocker):
 
 def test_add_dataset_invalid_args(client, dataset_query, mocker):
     mock_requests(mocker, "post", response=datastore.DATASET)
-    del dataset_query['data_opener']
+    del dataset_query["data_opener"]
 
     with pytest.raises(pydantic.error_wrappers.ValidationError):
         client.add_dataset(dataset_query)
@@ -48,12 +48,12 @@ def test_add_dataset_response_failure_500(client, dataset_query, mocker):
 
 
 def test_add_dataset_409_success(client, dataset_query, mocker):
-    mock_requests(mocker, "post", response={"key": datastore.DATASET['key']}, status=409)
+    mock_requests(mocker, "post", response={"key": datastore.DATASET["key"]}, status=409)
     mock_requests(mocker, "get", response=datastore.DATASET)
 
     key = client.add_dataset(dataset_query)
 
-    assert key == datastore.DATASET['key']
+    assert key == datastore.DATASET["key"]
 
 
 def test_add_metric(client, metric_query, mocker):
@@ -83,7 +83,7 @@ def test_add_data_sample(client, data_sample_query, mocker):
     m = mock_requests(mocker, "post", response=server_response)
     response = client.add_data_sample(data_sample_query)
 
-    assert response == server_response[0]['key']
+    assert response == server_response[0]["key"]
     m.assert_called()
 
 
@@ -106,7 +106,7 @@ def test_add_data_samples(client, data_samples_query, mocker):
     m = mock_requests(mocker, "post", response=server_response)
     response = client.add_data_samples(data_samples_query)
 
-    assert response == ['42']
+    assert response == ["42"]
     m.assert_called()
 
 

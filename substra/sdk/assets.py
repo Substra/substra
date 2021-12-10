@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ALGO = 'algo'
-DATA_SAMPLE = 'data_sample'
-DATASET = 'dataset'
-MODEL = 'model'
-METRIC = 'metric'
-TESTTUPLE = 'testtuple'
-TRAINTUPLE = 'traintuple'
-AGGREGATETUPLE = 'aggregatetuple'
-COMPOSITE_TRAINTUPLE = 'composite_traintuple'
-COMPUTE_PLAN = 'compute_plan'
-NODE = 'node'
+ALGO = "algo"
+DATA_SAMPLE = "data_sample"
+DATASET = "dataset"
+MODEL = "model"
+METRIC = "metric"
+TESTTUPLE = "testtuple"
+TRAINTUPLE = "traintuple"
+AGGREGATETUPLE = "aggregatetuple"
+COMPOSITE_TRAINTUPLE = "composite_traintuple"
+COMPUTE_PLAN = "compute_plan"
+NODE = "node"

@@ -36,9 +36,7 @@ class ZipFile(zipfile.ZipFile):
         """
         for zipinfo in self.infolist():
             if self._is_traversal_attempt(zipinfo):
-                raise Exception(
-                    f"Attempted directory traversal for member: {zipinfo.filename}"
-                )
+                raise Exception(f"Attempted directory traversal for member: {zipinfo.filename}")
             if self._is_symlink(zipinfo):
                 raise Exception(f"Unsupported symlink for member: {zipinfo.filename}")
 

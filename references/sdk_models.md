@@ -209,4 +209,3 @@ Metric associated to a testtuple or metric
 - checksum: str
 - storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
 ```
-

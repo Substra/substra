@@ -1,20 +1,19 @@
 import pandas as pd
+import substratools as tools
 from sklearn.externals import joblib
 from sklearn.linear_model import SGDClassifier
-
-import substratools as tools
 
 
 class Algo(tools.algo.Algo):
     def _normalize_X(self, X):
-        X = X.get(['Fare', 'Pclass', 'Age'])
-        median_age = X.median()['Age']
-        X['Age'] = X['Age'].fillna(median_age)
+        X = X.get(["Fare", "Pclass", "Age"])
+        median_age = X.median()["Age"]
+        X["Age"] = X["Age"].fillna(median_age)
         return X
 
     def _predict_pandas(self, model, X):
         y_pred = model.predict(X)
-        return pd.DataFrame(columns=['Survived'], data=y_pred)
+        return pd.DataFrame(columns=["Survived"], data=y_pred)
 
     def train(self, X, y, models, rank):
         X = self._normalize_X(X)
@@ -23,10 +22,7 @@ class Algo(tools.algo.Algo):
             model.warm_start = True
             model.partial_fit(X, y, classes=[0, 1])
         else:
-            model = SGDClassifier(warm_start=True,
-                                  learning_rate='invscaling',
-                                  power_t=0.5,
-                                  eta0=0.001)
+            model = SGDClassifier(warm_start=True, learning_rate="invscaling", power_t=0.5, eta0=0.001)
             model.partial_fit(X, y, classes=[0, 1])
         return model
 
@@ -41,5 +37,5 @@ class Algo(tools.algo.Algo):
         joblib.dump(model, path)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     tools.algo.execute(Algo())

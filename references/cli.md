@@ -719,4 +719,3 @@ Options:
                                   Set output format  [default: pretty]
   --help                          Show this message and exit.
 ```
-

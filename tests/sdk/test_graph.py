@@ -14,23 +14,18 @@
 
 import pytest
 
-from substra.sdk import graph, exceptions
+from substra.sdk import exceptions
+from substra.sdk import graph
 
 
 @pytest.fixture
 def node_graph():
-    return {
-        key: list(range(key))
-        for key in range(10)
-    }
+    return {key: list(range(key)) for key in range(10)}
 
 
 @pytest.fixture
 def node_graph_linear():
-    return {
-        key: [key - 1] if key > 0 else list()
-        for key in range(10)
-    }
+    return {key: [key - 1] if key > 0 else list() for key in range(10)}
 
 
 def test_compute_ranks(node_graph):
@@ -46,10 +41,7 @@ def test_compute_ranks_linear(node_graph_linear):
 
 
 def test_compute_ranks_no_correlation():
-    node_graph = {
-        key: list()
-        for key in range(10)
-    }
+    node_graph = {key: list() for key in range(10)}
     visited = graph.compute_ranks(node_graph=node_graph)
     for _, rank in visited.items():
         assert rank == 0
@@ -60,7 +52,7 @@ def test_compute_ranks_cycle(node_graph):
     with pytest.raises(exceptions.InvalidRequest) as e:
         graph.compute_ranks(node_graph=node_graph)
 
-    assert 'missing dependency among inModels IDs' in str(e.value)
+    assert "missing dependency among inModels IDs" in str(e.value)
 
 
 def test_compute_ranks_closed_cycle(node_graph_linear):
@@ -68,7 +60,7 @@ def test_compute_ranks_closed_cycle(node_graph_linear):
     with pytest.raises(exceptions.InvalidRequest) as e:
         graph.compute_ranks(node_graph=node_graph_linear)
 
-    assert 'missing dependency among inModels IDs' in str(e.value)
+    assert "missing dependency among inModels IDs" in str(e.value)
 
 
 def test_compute_ranks_ignore(node_graph):

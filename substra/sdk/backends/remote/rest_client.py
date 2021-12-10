@@ -17,12 +17,14 @@ import time
 
 import requests
 
-from substra.sdk import exceptions, utils, schemas
+from substra.sdk import exceptions
+from substra.sdk import schemas
+from substra.sdk import utils
 
 logger = logging.getLogger(__name__)
 
 
-class Client():
+class Client:
     """REST Client to communicate with Substra server."""
 
     @property
@@ -31,33 +33,31 @@ class Client():
 
     def __init__(self, url, insecure, token):
         self._default_kwargs = {
-            'verify': not insecure,
+            "verify": not insecure,
         }
         self._headers = {
-            'Authorization': f"Token {token}",
-            'Accept': 'application/json;version=0.0',
+            "Authorization": f"Token {token}",
+            "Accept": "application/json;version=0.0",
         }
         if not url:
             raise exceptions.SDKException("url required to connect to the Substra server")
-        self._base_url = url[:-1] if url.endswith('/') else url
+        self._base_url = url[:-1] if url.endswith("/") else url
 
     def login(self, username, password):
         # we do not use self._headers in order to avoid existing tokens to be sent alongside the
         # required Accept header
-        if 'Accept' not in self._headers:
+        if "Accept" not in self._headers:
             raise exceptions.SDKException("Cannot login: missing headers")
 
         headers = {
-            'Accept': self._headers['Accept'],
+            "Accept": self._headers["Accept"],
         }
         data = {
-            'username': username,
-            'password': password,
+            "username": username,
+            "password": password,
         }
         try:
-            r = requests.post(f'{self._base_url}/api-token-auth/',
-                              data=data,
-                              headers=headers)
+            r = requests.post(f"{self._base_url}/api-token-auth/", data=data, headers=headers)
             r.raise_for_status()
         except requests.exceptions.ConnectionError as e:
             raise exceptions.ConnectionError.from_request_exception(e)
@@ -72,24 +72,24 @@ class Client():
             raise exceptions.HTTPError.from_request_exception(e)
 
         try:
-            token = r.json()['token']
+            token = r.json()["token"]
         except json.decoder.JSONDecodeError:
             # sometimes requests seem to be fine, but the json is not being found
             # this might be if the url seems to be correct (in the syntax)
             # but it's not the right one
             raise exceptions.BadConfiguration(
-                'Unable to get token from json response. '
-                f'Make sure that given url: {self._base_url} is correct')
-        self._headers['Authorization'] = f"Token {token}"
+                "Unable to get token from json response. " f"Make sure that given url: {self._base_url} is correct"
+            )
+        self._headers["Authorization"] = f"Token {token}"
 
         return token
 
     def __request(self, request_name, url, **request_kwargs):
         """Base request helper."""
 
-        if request_name == 'get':
+        if request_name == "get":
             fn = requests.get
-        elif request_name == 'post':
+        elif request_name == "post":
             fn = requests.post
         else:
             raise NotImplementedError
@@ -99,8 +99,8 @@ class Client():
         kwargs.update(request_kwargs)
 
         # rewind files so that they are properly sent in retries as well
-        if 'files' in kwargs:
-            for file in kwargs['files'].values():
+        if "files" in kwargs:
+            for file in kwargs["files"].values():
                 file.seek(0)
 
         # do HTTP request and catch generic exceptions
@@ -158,13 +158,12 @@ class Client():
         finally:
             te = time.time()
             elaps = (te - ts) * 1000
-            logger.debug(f'{request_name} {url}: done in {elaps:.2f}ms error={error}')
+            logger.debug(f"{request_name} {url}: done in {elaps:.2f}ms error={error}")
 
-    def request(self, request_name, asset_name, path=None, json_response=True,
-                **request_kwargs):
+    def request(self, request_name, asset_name, path=None, json_response=True, **request_kwargs):
         """Base request."""
 
-        path = path or ''
+        path = path or ""
         url = f"{self._base_url}/{asset_name}/{path}"
         if not url.endswith("/"):
             url = url + "/"  # server requires a suffix /
@@ -187,7 +186,7 @@ class Client():
     def get(self, name, key):
         """Get asset by key."""
         return self.request(
-            'get',
+            "get",
             name,
             path=f"{key}",
         )
@@ -196,10 +195,10 @@ class Client():
         """List assets by filters."""
         request_kwargs = {}
         if filters:
-            request_kwargs['params'] = utils.parse_filters(filters)
+            request_kwargs["params"] = utils.parse_filters(filters)
 
         items = self.request(
-            'get',
+            "get",
             name,
             **request_kwargs,
         )
@@ -207,19 +206,21 @@ class Client():
         return items
 
     def _add(self, name, **request_kwargs):
-        """ Add asset wrapper.
+        """Add asset wrapper.
 
         Handles conflict error when created asset already exists.
         """
         try:
-            return self.request('post', name, **request_kwargs)
+            return self.request("post", name, **request_kwargs)
 
         except exceptions.AlreadyExists as e:
             key = e.key
             is_many = isinstance(key, list)
             if is_many:
-                logger.warning("AlreadyExists exception was received for a list of keys. "
-                               "Unable to determine which key(s) already exist.")
+                logger.warning(
+                    "AlreadyExists exception was received for a list of keys. "
+                    "Unable to determine which key(s) already exist."
+                )
                 raise
 
             logger.warning(f"{name} already exists: key='{key}'")
@@ -227,7 +228,7 @@ class Client():
                 # We only need to retrieve the full asset in the case of a Compute Plan.
                 return self.get(name, key)
             else:
-                return {'key': key}
+                return {"key": key}
 
     def add(self, name, retry_timeout=False, **request_kwargs):
         """Add asset.
@@ -243,8 +244,7 @@ class Client():
             if not retry_timeout or is_many:
                 raise e
 
-            logger.warning(
-                f'Request timeout, blocking till {name} is created: key={key}')
+            logger.warning(f"Request timeout, blocking till {name} is created: key={key}")
             retry = utils.retry_on_exception(
                 exceptions=(exceptions.RequestTimeout),
                 timeout=float(retry_timeout),
@@ -257,7 +257,7 @@ class Client():
     def get_data(self, address, **request_kwargs):
         """Get asset data."""
         return self._request(
-            'get',
+            "get",
             address,
             **request_kwargs,
         )

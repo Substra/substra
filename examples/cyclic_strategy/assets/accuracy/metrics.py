@@ -1,6 +1,5 @@
-from sklearn.metrics import accuracy_score
-
 import substratools as tools
+from sklearn.metrics import accuracy_score
 
 
 class MnistAccuracy(tools.Metrics):

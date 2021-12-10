@@ -26,7 +26,7 @@ local_dir = os.path.dirname(os.path.abspath(__file__))
 
 def _click_parse_node(name, command, parent, callback):
     ctx = click.Context(command, info_name=name, parent=parent)
-    if not hasattr(ctx.command, 'commands'):
+    if not hasattr(ctx.command, "commands"):
         callback(ctx.command_path)
         return
 
@@ -53,7 +53,7 @@ def generate_help(commands, fh):
     fh.write("# Summary\n\n")
 
     def _create_anchor(command):
-        return "#{}".format(command.replace(' ', '-'))
+        return "#{}".format(command.replace(" ", "-"))
 
     # XXX order when iterating on commands items must be consistent
     for command in commands:
@@ -65,10 +65,10 @@ def generate_help(commands, fh):
 
     for command in commands:
         anchor = _create_anchor(command)
-        command_args = command.split(' ')
-        command_args.append('--help')
+        command_args = command.split(" ")
+        command_args.append("--help")
         command_helper = subprocess.check_output(command_args)
-        command_helper = command_helper.decode('utf-8')
+        command_helper = command_helper.decode("utf-8")
 
         fh.write(f"## {command}\n\n")
         fh.write("```bash\n")
@@ -77,21 +77,21 @@ def generate_help(commands, fh):
 
 
 def write_help(path):
-    commands = click_get_commands('substra', cli)
-    with open(path, 'w') as fh:
+    commands = click_get_commands("substra", cli)
+    with open(path, "w") as fh:
         generate_help(commands, fh)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     def _cb(args):
         write_help(args.output_path)
 
-    doc_dir = os.path.join(local_dir, '../references')
-    default_path = os.path.join(doc_dir, 'cli.md')
+    doc_dir = os.path.join(local_dir, "../references")
+    default_path = os.path.join(doc_dir, "cli.md")
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--output-path', type=str, default=default_path, required=False)
+    parser.add_argument("--output-path", type=str, default=default_path, required=False)
     parser.set_defaults(func=_cb)
 
     args = parser.parse_args(sys.argv[1:])

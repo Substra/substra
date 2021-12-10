@@ -19,26 +19,26 @@ import os
 import substra
 
 current_directory = os.path.dirname(__file__)
-compute_plan_info_path = os.path.join(current_directory, '../compute_plan_info.json')
+compute_plan_info_path = os.path.join(current_directory, "../compute_plan_info.json")
 
 client = substra.Client.from_config_file(profile_name="node-1")
 
-with open(compute_plan_info_path, 'r') as f:
+with open(compute_plan_info_path, "r") as f:
     compute_plan_info = json.load(f)
 
 # fetch all data
-compute_plan_key = compute_plan_info['key']
-testtuples = client.list_testtuple(filters=[f'testtuple:compute_plan_key:{compute_plan_key}'])
+compute_plan_key = compute_plan_info["key"]
+testtuples = client.list_testtuple(filters=[f"testtuple:compute_plan_key:{compute_plan_key}"])
 columns = [
-    ['STEP'],
-    ['SCORE'],
-    ['TRAINTUPLE'],
-    ['TESTTUPLE'],
+    ["STEP"],
+    ["SCORE"],
+    ["TRAINTUPLE"],
+    ["TESTTUPLE"],
 ]
 testtuples = sorted(testtuples, key=lambda x: x.rank)
 
 for i, testtuple in enumerate(testtuples):
-    if testtuple.status == 'STATUS_DONE':
+    if testtuple.status == "STATUS_DONE":
         score = list(testtuple.test.perfs.values())[0]
     else:
         score = testtuple.status
@@ -57,5 +57,5 @@ for column in columns:
 
 for row_index in range(len(testtuples) + 1):
     for col_index, column in enumerate(columns):
-        print(column[row_index].ljust(column_widths[col_index]), end='')
+        print(column[row_index].ljust(column_widths[col_index]), end="")
     print()

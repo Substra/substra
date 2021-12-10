@@ -31,9 +31,7 @@ substra_logger.addHandler(default_stream_handler)
 def progress_bar(length):
     """Provide progress bar for for loops"""
     pg = tqdm(total=length)
-    progress_handler = logging.StreamHandler(
-        SimpleNamespace(write=lambda x: pg.write(x, end=""))
-    )
+    progress_handler = logging.StreamHandler(SimpleNamespace(write=lambda x: pg.write(x, end="")))
     substra_logger.removeHandler(default_stream_handler)
     substra_logger.addHandler(progress_handler)
     try:
@@ -61,13 +59,11 @@ DATASET = {
 }
 
 TEST_DATA_SAMPLES_PATHS = [
-    assets_directory / "test_data_samples" / path
-    for path in (assets_directory / "test_data_samples").glob("*")
+    assets_directory / "test_data_samples" / path for path in (assets_directory / "test_data_samples").glob("*")
 ]
 
 TRAIN_DATA_SAMPLES_PATHS = [
-    assets_directory / "train_data_samples" / path
-    for path in (assets_directory / "train_data_samples").glob("*")
+    assets_directory / "train_data_samples" / path for path in (assets_directory / "train_data_samples").glob("*")
 ]
 
 METRIC = {
@@ -151,7 +147,8 @@ for conf in data_samples_configs:
 #  of the data samples when they were created.
 print("Associating data samples with dataset...")
 client.link_dataset_with_data_samples(
-    dataset_key, train_data_sample_keys + test_data_sample_keys,
+    dataset_key,
+    train_data_sample_keys + test_data_sample_keys,
 )
 
 #  Add the metric to Substra

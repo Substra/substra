@@ -10,7 +10,7 @@ class Hasher:
 
     def update(self, v):
         if isinstance(v, str):
-            v = v.encode('utf-8')
+            v = v.encode("utf-8")
         self._h.update(v)
 
     def compute(self):

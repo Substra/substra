@@ -13,12 +13,13 @@
 # limitations under the License.
 
 from substra.__version__ import __version__
-from substra.sdk import Client, exceptions, DEBUG_OWNER
-
+from substra.sdk import DEBUG_OWNER
+from substra.sdk import Client
+from substra.sdk import exceptions
 
 __all__ = [
-    '__version__',
-    'Client',
-    'exceptions',
-    'DEBUG_OWNER',
+    "__version__",
+    "Client",
+    "exceptions",
+    "DEBUG_OWNER",
 ]

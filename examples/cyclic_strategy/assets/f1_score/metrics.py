@@ -1,6 +1,5 @@
-from sklearn.metrics import f1_score
-
 import substratools as tools
+from sklearn.metrics import f1_score
 
 
 class MnistF1(tools.Metrics):

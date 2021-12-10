@@ -15,15 +15,19 @@ def test_get_py_command_without_space():
         command_template = string.Template(command)
         local_volumes = {
             "_VOLUME_OPENER": "/a/path/without/any/space/opener.py",
-            "_VOLUME_LOCAL": "/another/path/without/any/space"
+            "_VOLUME_LOCAL": "/another/path/without/any/space",
         }
 
         py_commands = _get_py_command(script_name, tmpdir, command_template, local_volumes)
 
         valid_py_commands = [
-            sys.executable, str(tmpdir / script_name),
-            "train", "--opener-path", "/a/path/without/any/space/opener.py",
-            "--compute-plan-path", "/another/path/without/any/space"
+            sys.executable,
+            str(tmpdir / script_name),
+            "train",
+            "--opener-path",
+            "/a/path/without/any/space/opener.py",
+            "--compute-plan-path",
+            "/another/path/without/any/space",
         ]
 
         assert py_commands == valid_py_commands
@@ -38,15 +42,19 @@ def test_get_py_command_with_spaces():
         command_template = string.Template(command)
         local_volumes = {
             "_VOLUME_OPENER": "/a/path with spaces/opener.py",
-            "_VOLUME_LOCAL": "/another/path with spaces"
+            "_VOLUME_LOCAL": "/another/path with spaces",
         }
 
         py_commands = _get_py_command(script_name, tmpdir, command_template, local_volumes)
 
         valid_py_commands = [
-            sys.executable, str(tmpdir / script_name),
-            "train", "--opener-path", "/a/path with spaces/opener.py",
-            "--compute-plan-path", "/another/path with spaces"
+            sys.executable,
+            str(tmpdir / script_name),
+            "train",
+            "--opener-path",
+            "/a/path with spaces/opener.py",
+            "--compute-plan-path",
+            "/another/path with spaces",
         ]
 
         assert py_commands == valid_py_commands

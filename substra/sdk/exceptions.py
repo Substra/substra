@@ -31,7 +31,7 @@ class RequestException(SDKException):
     def from_request_exception(cls, request_exception):
         msg = None
         try:
-            msg = request_exception.response.json()['message']
+            msg = request_exception.response.json()["message"]
             msg = f"{request_exception}: {msg}"
         except Exception:
             msg = str(request_exception)
@@ -106,7 +106,7 @@ class RequestTimeout(HTTPError):
         r = request_exception.response.json()
 
         try:
-            key = r['key'] if 'key' in r else r['message'].get('key')
+            key = r["key"] if "key" in r else r["message"].get("key")
         except (AttributeError, KeyError):
             # XXX this is the case when doing a POST query to update the
             #     data manager for instance
@@ -128,9 +128,9 @@ class AlreadyExists(HTTPError):
         # XXX support list of keys; this could be the case when adding
         #     a list of data samples through a single POST request
         if isinstance(r, list):
-            key = [x['key'] for x in r]
+            key = [x["key"] for x in r]
         elif isinstance(r, dict):
-            key = r.get('key', None)
+            key = r.get("key", None)
         else:
             key = r
 
@@ -153,19 +153,23 @@ class AuthorizationError(HTTPError):
 
 class BadLoginException(RequestException):
     """The server refused to log-in with these credentials"""
+
     pass
 
 
 class BadConfiguration(SDKException):
     """Bad configuration"""
+
     pass
 
 
 class UserException(SDKException):
     """User Exception"""
+
     pass
 
 
 class EmptyInModelException(SDKException):
     """No in_models when needed"""
+
     pass

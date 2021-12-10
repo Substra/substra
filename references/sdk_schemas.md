@@ -190,4 +190,3 @@ ids are in authorized_ids can access the asset.
 ```python
 - authorized_ids: List[str]
 ```
-

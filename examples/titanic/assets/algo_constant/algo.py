@@ -1,12 +1,12 @@
-import pandas as pd
-import numpy as np
 import pickle
 
+import numpy as np
+import pandas as pd
 import substratools as tools
 
 
 def constant_clf(X):
-    return pd.DataFrame(columns=['Survived'], data=np.zeros(len(X)), dtype=np.int64)
+    return pd.DataFrame(columns=["Survived"], data=np.zeros(len(X)), dtype=np.int64)
 
 
 class TitanicAlgo(tools.algo.Algo):
@@ -20,9 +20,9 @@ class TitanicAlgo(tools.algo.Algo):
         return constant_clf
 
     def save_model(self, model, path):
-        with open(path, 'wb') as f:
+        with open(path, "wb") as f:
             pickle.dump(constant_clf, f)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     tools.algo.execute(TitanicAlgo())

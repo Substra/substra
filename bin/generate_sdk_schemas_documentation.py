@@ -1,11 +1,13 @@
 import argparse
 import inspect
-from pathlib import Path
 import sys
-import pydantic
 import warnings
+from pathlib import Path
 
-from substra.sdk import schemas, models
+import pydantic
+
+from substra.sdk import models
+from substra.sdk import schemas
 
 local_dir = Path(__file__).parent
 
@@ -87,24 +89,29 @@ def generate_help(fh, models: bool):
 
 
 def write_help(path, models: bool):
-    with path.open('w') as fh:
+    with path.open("w") as fh:
         generate_help(fh, models)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    if pydantic.VERSION != '1.8.2':
-        warnings.warn("The documentation should be generated with this exact version of pydantic or \
-            there might be mismatches with the CI.")
+    if pydantic.VERSION != "1.8.2":
+        warnings.warn(
+            "The documentation should be generated with this exact version of pydantic or \
+            there might be mismatches with the CI."
+        )
 
     doc_dir = local_dir.parent / "references"
     default_path = doc_dir / "sdk_schemas.md"
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--output-path', type=str, default=str(default_path.resolve()),
-                        required=False)
-    parser.add_argument('--models', action='store_true', help='Generate the doc for the models.\
-        Default: generate for the schemas')
+    parser.add_argument("--output-path", type=str, default=str(default_path.resolve()), required=False)
+    parser.add_argument(
+        "--models",
+        action="store_true",
+        help="Generate the doc for the models.\
+        Default: generate for the schemas",
+    )
 
     args = parser.parse_args(sys.argv[1:])
     write_help(Path(args.output_path), models=args.models)

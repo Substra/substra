@@ -17,52 +17,48 @@ import pytest
 import substra
 
 from .. import datastore
-from .utils import mock_response, mock_requests, mock_requests_responses
+from .utils import mock_requests
+from .utils import mock_requests_responses
+from .utils import mock_response
 
 
-@pytest.mark.parametrize(
-    'asset_name', ['dataset', 'algo', 'metric']
-)
+@pytest.mark.parametrize("asset_name", ["dataset", "algo", "metric"])
 def test_describe_asset(asset_name, client, mocker):
     item = getattr(datastore, asset_name.upper())
     responses = [
         mock_response(item),  # metadata
-        mock_response('foo'),  # data
+        mock_response("foo"),  # data
     ]
-    m = mock_requests_responses(mocker, 'get', responses)
+    m = mock_requests_responses(mocker, "get", responses)
 
-    method = getattr(client, f'describe_{asset_name}')
+    method = getattr(client, f"describe_{asset_name}")
     response = method("magic-key")
 
-    assert response == 'foo'
+    assert response == "foo"
     m.assert_called()
 
 
-@pytest.mark.parametrize(
-    'asset_name', ['dataset', 'algo', 'metric']
-)
+@pytest.mark.parametrize("asset_name", ["dataset", "algo", "metric"])
 def test_describe_asset_not_found(asset_name, client, mocker):
     m = mock_requests(mocker, "get", status=404)
 
     with pytest.raises(substra.sdk.exceptions.NotFound):
-        method = getattr(client, f'describe_{asset_name}')
-        method('foo')
+        method = getattr(client, f"describe_{asset_name}")
+        method("foo")
 
     assert m.call_count == 1
 
 
-@pytest.mark.parametrize(
-    'asset_name', ['dataset', 'algo', 'metric']
-)
+@pytest.mark.parametrize("asset_name", ["dataset", "algo", "metric"])
 def test_describe_description_not_found(asset_name, client, mocker):
     item = getattr(datastore, asset_name.upper())
     responses = [
         mock_response(item),  # metadata
-        mock_response('foo', 404),  # data
+        mock_response("foo", 404),  # data
     ]
-    m = mock_requests_responses(mocker, 'get', responses)
+    m = mock_requests_responses(mocker, "get", responses)
 
-    method = getattr(client, f'describe_{asset_name}')
+    method = getattr(client, f"describe_{asset_name}")
 
     with pytest.raises(substra.sdk.exceptions.NotFound):
         method("key")

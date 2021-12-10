@@ -45,7 +45,7 @@ class InMemoryDb:
             raise exceptions.NotFound(f"Wrong pk {key}", 404)
 
     def list(self, type_):
-        """"List assets."""
+        """ "List assets."""
         return list(self._data[type_].values())
 
     def update(self, asset):

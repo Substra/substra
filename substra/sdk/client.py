@@ -17,12 +17,15 @@ import logging
 import os
 import pathlib
 import time
-from typing import Union, Optional, List
+from typing import List
+from typing import Optional
+from typing import Union
 
-from substra.sdk import exceptions
-from substra.sdk import config as cfg
 from substra.sdk import backends
-from substra.sdk import schemas, models
+from substra.sdk import config as cfg
+from substra.sdk import exceptions
+from substra.sdk import models
+from substra.sdk import schemas
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +38,7 @@ def logit(f):
 
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
-        logger.debug(f'{f.__name__}: call')
+        logger.debug(f"{f.__name__}: call")
         ts = time.time()
         error = None
         try:
@@ -47,7 +50,7 @@ def logit(f):
             # add a log even if the function raises an exception
             te = time.time()
             elapsed = (te - ts) * 1000
-            logger.info(f'{f.__name__}: done in {elapsed:.2f}ms; error={error}')
+            logger.info(f"{f.__name__}: done in {elapsed:.2f}ms; error={error}")
 
     return wrapper
 
@@ -125,9 +128,9 @@ class Client(object):
 
     @logit
     def login(self, username, password):
-        """Login to a remote server. """
+        """Login to a remote server."""
         if not self._backend:
-            raise exceptions.SDKException('No backend found')
+            raise exceptions.SDKException("No backend found")
         self._token = self._backend.login(username, password)
         return self._token
 
@@ -145,7 +148,7 @@ class Client(object):
         tokens_path: Union[str, pathlib.Path] = cfg.DEFAULT_TOKENS_PATH,
         token: Optional[str] = None,
         retry_timeout: int = DEFAULT_RETRY_TIMEOUT,
-        debug: bool = False
+        debug: bool = False,
     ):
         """Returns a new Client configured with profile data from configuration files.
 
@@ -181,17 +184,13 @@ class Client(object):
         return Client(
             token=token,
             retry_timeout=retry_timeout,
-            url=profile['url'],
-            insecure=profile['insecure'],
+            url=profile["url"],
+            insecure=profile["insecure"],
             debug=debug,
         )
 
     @logit
-    def add_data_sample(
-        self,
-        data: Union[dict, schemas.DataSampleSpec],
-        local: bool = True
-    ) -> str:
+    def add_data_sample(self, data: Union[dict, schemas.DataSampleSpec], local: bool = True) -> str:
         """Create a new data sample asset and return its key.
 
         Args:
@@ -217,10 +216,7 @@ class Client(object):
         spec_options = {
             "local": local,
         }
-        return self._backend.add(
-            spec,
-            spec_options=spec_options
-        )
+        return self._backend.add(spec, spec_options=spec_options)
 
     @logit
     def add_data_samples(
@@ -316,10 +312,7 @@ class Client(object):
         return self._backend.add(spec)
 
     @logit
-    def add_traintuple(
-        self,
-        data: Union[dict, schemas.TraintupleSpec]
-    ) -> str:
+    def add_traintuple(self, data: Union[dict, schemas.TraintupleSpec]) -> str:
         """Create new traintuple asset.
 
         In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
@@ -336,10 +329,7 @@ class Client(object):
         return self._backend.add(spec)
 
     @logit
-    def add_aggregatetuple(
-        self,
-        data: Union[dict, schemas.AggregatetupleSpec]
-    ) -> str:
+    def add_aggregatetuple(self, data: Union[dict, schemas.AggregatetupleSpec]) -> str:
         """Create a new aggregate tuple asset.
 
         In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
@@ -357,10 +347,7 @@ class Client(object):
         return self._backend.add(spec)
 
     @logit
-    def add_composite_traintuple(
-        self,
-        data: Union[dict, schemas.CompositeTraintupleSpec]
-    ) -> str:
+    def add_composite_traintuple(self, data: Union[dict, schemas.CompositeTraintupleSpec]) -> str:
         """Create new composite traintuple asset.
 
         As specified in the data structure, output trunk models cannot be made
@@ -381,10 +368,7 @@ class Client(object):
         return self._backend.add(spec)
 
     @logit
-    def add_testtuple(
-        self,
-        data: Union[dict, schemas.TesttupleSpec]
-    ) -> str:
+    def add_testtuple(self, data: Union[dict, schemas.TesttupleSpec]) -> str:
         """Create new testtuple asset.
 
         In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
@@ -545,7 +529,7 @@ class Client(object):
         key: str,
         data: Union[dict, schemas.UpdateComputePlanSpec],
         auto_batching: bool = True,
-        batch_size: int = DEFAULT_BATCH_SIZE
+        batch_size: int = DEFAULT_BATCH_SIZE,
     ) -> models.ComputePlan:
         """Update compute plan.
 
@@ -571,21 +555,16 @@ class Client(object):
             "auto_batching": auto_batching,
             "batch_size": batch_size,
         }
-        return self._backend.update_compute_plan(
-            key,
-            spec,
-            spec_options=spec_options
-        )
+        return self._backend.update_compute_plan(key, spec, spec_options=spec_options)
 
     @logit
     def link_dataset_with_data_samples(
-        self, dataset_key: str,
+        self,
+        dataset_key: str,
         data_sample_keys: str,
     ) -> List[str]:
         """Link dataset with data samples."""
-        return self._backend.link_dataset_with_data_samples(
-            dataset_key, data_sample_keys
-        )
+        return self._backend.link_dataset_with_data_samples(dataset_key, data_sample_keys)
 
     @logit
     def download_dataset(self, key: str, destination_folder: str) -> None:
@@ -595,9 +574,9 @@ class Client(object):
         """
         self._backend.download(
             schemas.Type.Dataset,
-            'opener.storage_address',
+            "opener.storage_address",
             key,
-            os.path.join(destination_folder, 'opener.py'),
+            os.path.join(destination_folder, "opener.py"),
         )
 
     @logit
@@ -608,9 +587,9 @@ class Client(object):
         """
         self._backend.download(
             schemas.Type.Algo,
-            'algorithm.storage_address',
+            "algorithm.storage_address",
             key,
-            os.path.join(destination_folder, 'algo.tar.gz'),
+            os.path.join(destination_folder, "algo.tar.gz"),
         )
 
     @logit
@@ -621,9 +600,9 @@ class Client(object):
         """
         self._backend.download(
             schemas.Type.Metric,
-            'address.storage_address',
+            "address.storage_address",
             key,
-            os.path.join(destination_folder, 'metrics.py'),
+            os.path.join(destination_folder, "metrics.py"),
         )
 
     @logit
@@ -634,7 +613,7 @@ class Client(object):
         To load and use the model, please refer to the 'load_model' and 'predict' functions of the
         algorithm.
         """
-        self._backend.download_model(key, os.path.join(folder, f'model_{key}'))
+        self._backend.download_model(key, os.path.join(folder, f"model_{key}"))
 
     @logit
     def download_model_from_traintuple(self, tuple_key: str, folder) -> None:
@@ -674,8 +653,7 @@ class Client(object):
         To load and use the model, please refer to the 'load_model' and 'predict' functions of the
         algorithm.
         """
-        self._download_model_from_tuple(schemas.Type.CompositeTraintuple, tuple_key, folder,
-                                        "trunk")
+        self._download_model_from_tuple(schemas.Type.CompositeTraintuple, tuple_key, folder, "trunk")
 
     def _download_model_from_tuple(self, tuple_type, tuple_key, folder, head_trunk=None) -> None:
         """Download model to a destination file."""
@@ -692,10 +670,10 @@ class Client(object):
         elif tuple_type == schemas.Type.Traintuple:
             model = tuple.train.models[0]
         else:
-            raise exceptions.InvalidRequest(f'unhandled tuple type: {tuple_type}')
+            raise exceptions.InvalidRequest(f"unhandled tuple type: {tuple_type}")
 
         if not model:
-            desc = f'{head_trunk} ' if head_trunk else ""
+            desc = f"{head_trunk} " if head_trunk else ""
             msg = f'{tuple_type} {tuple_key}, status "{tuple.status}" has no {desc}out-model'
             raise exceptions.NotFound(msg, 404)
 

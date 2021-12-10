@@ -19,9 +19,12 @@ jobs:
         with:
           python-version: 3.7
       - name: Install tools
-        run: pip install flake8 wheel docstring-parser
+        run: pip install flake8 black isort wheel docstring-parser
       - name: Lint
-        run: flake8 substra
+        run: |
+          black --check substra
+          isort --check substra
+          flake8 substra
       - name: Install substra
         run: pip install -e .
       - name: Generate and validate CLI documentation
@@ -75,7 +78,7 @@ jobs:
       - name: Install substra tools
         run: pip install -i https://${{ secrets.OWKIN_PYPI_USER }}:${{ secrets.OWKIN_PYPI_PASSWORD }}@pypi.owkin.com/simple/ 'substratools>=0.8.0'
       - name: Install substra
-        run: pip install -e .[test]
+        run: pip install -e .[dev]
       - name: Test
         run: |
           export PATH=/home/runner/bin:$PATH

@@ -97,11 +97,11 @@ generate_data_samples.main()
 import json
 import uuid
 import zipfile
+from pathlib import Path
+
 from tqdm import tqdm
 
 import substra
-from pathlib import Path
-
 
 current_directory = Path(".").absolute()
 assets_directory = current_directory.parent / "assets"
@@ -146,10 +146,7 @@ if DEBUG:
     client = substra.Client(debug=True)
     clients = {profile_name: client for profile_name in PROFILE_NAMES}
 else:
-    clients = {
-        profile_name: substra.Client.from_config_file(profile_name)
-        for profile_name in PROFILE_NAMES
-    }
+    clients = {profile_name: substra.Client.from_config_file(profile_name) for profile_name in PROFILE_NAMES}
 
 nodes_assets_keys: dict = {profile_name: {} for profile_name in PROFILE_NAMES}
 
@@ -206,10 +203,10 @@ nodes_assets_keys: dict = {profile_name: {} for profile_name in PROFILE_NAMES}
 # Otherwise the file is shared accross all task, which is not the case when working on a
 # connect platform.
 
+from substra.sdk import DEBUG_OWNER
+from substra.sdk.schemas import DataSampleSpec
 from substra.sdk.schemas import DatasetSpec
 from substra.sdk.schemas import Permissions
-from substra.sdk.schemas import DataSampleSpec
-from substra.sdk import DEBUG_OWNER
 
 dataset = DatasetSpec(
     name="Mnist",
@@ -286,9 +283,7 @@ for profile_name in PROFILE_NAMES:
 from substra.sdk.schemas import MetricSpec
 
 
-def register_metric(
-    client: substra.Client, metric_folder: Path, metric_name: str, permissions: Permissions
-) -> str:
+def register_metric(client: substra.Client, metric_folder: Path, metric_name: str, permissions: Permissions) -> str:
     """This function register a metric.
     In the specified folder, there must be a `metric.py`, a `description.md`
     and a `Dockerfile`.
@@ -393,8 +388,9 @@ tqdm.write("Assets keys have been saved to %s" % assets_keys_path.absolute())
 # * **models** : a list containing the resulting model of the latest training task.
 # * **rank** : an integer which represents the the order of execution of our tasks (from 0 to n).
 
-from substra.sdk.schemas import AlgoSpec
 from typing import List
+
+from substra.sdk.schemas import AlgoSpec
 
 ALGO_DOCKERFILE_FILES: List[Path] = [
     algo_directory / "algo.py",
@@ -448,10 +444,9 @@ algo_key = clients[ALGO_NODE_PROFILE].add_algo(algo)
 # the traintuple_id and the **models** parameter will contain the resulting model of the task
 # identified by the **in_models_ids** parameters.
 
-from substra.sdk.schemas import ComputePlanTraintupleSpec
-from substra.sdk.schemas import ComputePlanTesttupleSpec
 from substra.sdk.schemas import ComputePlanSpec
-
+from substra.sdk.schemas import ComputePlanTesttupleSpec
+from substra.sdk.schemas import ComputePlanTraintupleSpec
 
 N_ROUNDS = 7
 
@@ -479,9 +474,7 @@ for _ in range(N_ROUNDS):
         testtuple = ComputePlanTesttupleSpec(
             metric_keys=metric_keys,
             traintuple_id=previous_id,
-            test_data_sample_keys=nodes_assets_keys[ALGO_NODE_PROFILE]["test"][
-                "test_data_sample_keys"
-            ],
+            test_data_sample_keys=nodes_assets_keys[ALGO_NODE_PROFILE]["test"]["test_data_sample_keys"],
             data_manager_key=nodes_assets_keys[ALGO_NODE_PROFILE]["test"]["dataset_key"],
         )
 
@@ -524,9 +517,7 @@ client.get_compute_plan(compute_plan.key)
 # the evolution of your compute plan. For example:
 import time
 
-submitted_testtuples = client.list_testtuple(
-    filters=[f'testtuple:compute_plan_key:{compute_plan_info["key"]}']
-)
+submitted_testtuples = client.list_testtuple(filters=[f'testtuple:compute_plan_key:{compute_plan_info["key"]}'])
 
 submitted_testtuples = sorted(submitted_testtuples, key=lambda x: x.rank)
 

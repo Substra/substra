@@ -14,16 +14,15 @@
 
 import contextlib
 import copy
-import io
 import functools
+import io
 import logging
-import time
+import ntpath
 import os
 import re
-from urllib.parse import quote
+import time
 import zipfile
-
-import ntpath
+from urllib.parse import quote
 
 from substra.sdk import exceptions
 
@@ -49,7 +48,7 @@ def extract_files(data, file_attributes):
     for k, f in paths.items():
         if not os.path.exists(f):
             raise exceptions.LoadDataException(f"The '{k}' attribute file ({f}) does not exit.")
-        files[k] = open(f, 'rb')
+        files[k] = open(f, "rb")
 
     try:
         yield (data, files)
@@ -59,7 +58,7 @@ def extract_files(data, file_attributes):
 
 
 def zip_folder(fp, path):
-    zipf = zipfile.ZipFile(fp, 'w', zipfile.ZIP_DEFLATED)
+    zipf = zipfile.ZipFile(fp, "w", zipfile.ZIP_DEFLATED)
     for root, dirs, files in os.walk(path):
         for f in files:
             abspath = os.path.join(root, f)
@@ -81,15 +80,15 @@ def extract_data_sample_files(data):
     data = copy.deepcopy(data)
 
     folders = {}
-    if data.get('path'):
-        attr = 'path'
+    if data.get("path"):
+        attr = "path"
         folders[attr] = data[attr]
         del data[attr]
 
-    if data.get('paths'):  # field is set and is not None/empty
-        for p in data['paths']:
+    if data.get("paths"):  # field is set and is not None/empty
+        for p in data["paths"]:
             folders[path_leaf(p)] = p
-        del data['paths']
+        del data["paths"]
 
     files = {}
     for k, f in folders.items():
@@ -109,34 +108,34 @@ def _join_and_groups(items):
     "-OR-" items separate the items that have to be grouped with an "AND" clause
     This function groups items from a same "AND group" with commas
     """
-    indexes = [k for k, v in enumerate(items) if v == '-OR-']
+    indexes = [k for k, v in enumerate(items) if v == "-OR-"]
     next_group = 0
     groups = []
     for i in indexes:
-        groups.append(','.join(items[next_group:i]))
-        groups.append('-OR-')
+        groups.append(",".join(items[next_group:i]))
+        groups.append("-OR-")
         next_group = i + 1
-    groups.append(','.join(items[next_group:]))
+    groups.append(",".join(items[next_group:]))
     return groups
 
 
 def _escape_filter(f):
     # handle OR
-    if f == 'OR':
-        return '-OR-'
+    if f == "OR":
+        return "-OR-"
 
     # handle filter value that contains ":"
     try:
-        asset, field, *value = f.split(':')
+        asset, field, *value = f.split(":")
     except ValueError:
         return f
 
-    return ':'.join([asset, field, quote(quote(':'.join(value)))])
+    return ":".join([asset, field, quote(quote(":".join(value)))])
 
 
 def parse_filters(filters):
     if not isinstance(filters, list):
-        raise ValueError('Cannot load filters. Please review the documentation')
+        raise ValueError("Cannot load filters. Please review the documentation")
 
     filters = [_escape_filter(f) for f in filters]
     filters = _join_and_groups(filters)
@@ -145,7 +144,7 @@ def parse_filters(filters):
     # quote
     # we're therefore passing a string (won't be escaped again) instead
     # of an object
-    return 'search=%s' % quote(''.join(filters))
+    return "search=%s" % quote("".join(filters))
 
 
 def retry_on_exception(exceptions, timeout=300):
@@ -169,6 +168,7 @@ def retry_on_exception(exceptions, timeout=300):
         retry(my_function)(arg1, arg2)
         ```
     """
+
     def _retry(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
@@ -183,23 +183,23 @@ def retry_on_exception(exceptions, timeout=300):
                 except exceptions:
                     if timeout is not False and time.time() - tstart > timeout:
                         raise
-                    logging.warning(
-                        f'Function {f.__name__} failed: retrying in {delay}s')
+                    logging.warning(f"Function {f.__name__} failed: retrying in {delay}s")
                     time.sleep(delay)
                     delay *= backoff
 
         return wrapper
+
     return _retry
 
 
 def response_get_destination_filename(response):
     """Get filename from content-disposition header."""
-    disposition = response.headers.get('content-disposition')
+    disposition = response.headers.get("content-disposition")
     if not disposition:
         return None
     filenames = re.findall("filename=(.+)", disposition)
     if not filenames:
         return None
     filename = filenames[0]
-    filename = filename.strip('\'"')
+    filename = filename.strip("'\"")
     return filename

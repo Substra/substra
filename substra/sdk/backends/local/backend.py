@@ -19,14 +19,21 @@ import warnings
 from datetime import datetime
 from distutils import util
 from pathlib import Path
+
 from tqdm.auto import tqdm
 
 import substra
-from substra.sdk import schemas, models, exceptions, fs, graph, compute_plan as compute_plan_module
+from substra.sdk import compute_plan as compute_plan_module
+from substra.sdk import exceptions
+from substra.sdk import fs
+from substra.sdk import graph
+from substra.sdk import models
+from substra.sdk import schemas
 from substra.sdk.backends import base
-from substra.sdk.backends.local import dal
 from substra.sdk.backends.local import compute
+from substra.sdk.backends.local import dal
 from substra.sdk.backends.local.compute.spawner import DEBUG_SPAWNER_CHOICES
+
 logger = logging.getLogger(__name__)
 
 _BACKEND_ID = "local-backend"
@@ -40,21 +47,24 @@ class Local(base.BaseBackend):
         self._local_worker_dir = Path.cwd() / "local-worker"
         self._local_worker_dir.mkdir(exist_ok=True)
 
-        self._support_chainkeys = bool(util.strtobool(os.getenv("CHAINKEYS_ENABLED", 'False')))
+        self._support_chainkeys = bool(util.strtobool(os.getenv("CHAINKEYS_ENABLED", "False")))
         self._chainkey_dir = self._local_worker_dir / "chainkeys"
         if self._support_chainkeys:
             logger.info(f"Chainkeys support is on, the directory is {self._chainkey_dir}")
 
-        self._debug_spawner = str(os.getenv("DEBUG_SPAWNER", 'docker'))
+        self._debug_spawner = str(os.getenv("DEBUG_SPAWNER", "docker"))
         if self._debug_spawner not in DEBUG_SPAWNER_CHOICES:
             raise ValueError(
                 f"{self._debug_spawner} is not a valid value for environment variable "
                 f"DEBUG_SPAWNER. "
-                f"Accepted values: {[spawner for spawner in DEBUG_SPAWNER_CHOICES]}")
+                f"Accepted values: {[spawner for spawner in DEBUG_SPAWNER_CHOICES]}"
+            )
 
-        if self._debug_spawner == 'subprocess':
-            logger.info("Environment variable DEBUG_SPAWNER is set to subprocess: "
-                        "running Substra tasks with Python subprocess")
+        if self._debug_spawner == "subprocess":
+            logger.info(
+                "Environment variable DEBUG_SPAWNER is set to subprocess: "
+                "running Substra tasks with Python subprocess"
+            )
 
         # create a store to abstract the db
         self._db = dal.DataAccess(backend, local_worker_dir=self._local_worker_dir)
@@ -85,20 +95,18 @@ class Local(base.BaseBackend):
         # extra data for tasks
 
         if asset_type == schemas.Type.Traintuple:
-            asset.train.data_manager = self._db.get(schemas.Type.Dataset,
-                                                    asset.train.data_manager_key)
+            asset.train.data_manager = self._db.get(schemas.Type.Dataset, asset.train.data_manager_key)
         if asset_type == schemas.Type.CompositeTraintuple:
-            asset.composite.data_manager = self._db.get(schemas.Type.Dataset,
-                                                        asset.composite.data_manager_key)
+            asset.composite.data_manager = self._db.get(schemas.Type.Dataset, asset.composite.data_manager_key)
         if asset_type == schemas.Type.Testtuple:
-            asset.test.data_manager = self._db.get(schemas.Type.Dataset,
-                                                   asset.test.data_manager_key)
-            asset.test.metrics = [self._db.get(schemas.Type.Metric, k)
-                                  for k in asset.test.metric_keys]
-        if asset_type in [schemas.Type.Traintuple,
-                          schemas.Type.CompositeTraintuple,
-                          schemas.Type.Aggregatetuple,
-                          schemas.Type.Testtuple]:
+            asset.test.data_manager = self._db.get(schemas.Type.Dataset, asset.test.data_manager_key)
+            asset.test.metrics = [self._db.get(schemas.Type.Metric, k) for k in asset.test.metric_keys]
+        if asset_type in [
+            schemas.Type.Traintuple,
+            schemas.Type.CompositeTraintuple,
+            schemas.Type.Aggregatetuple,
+            schemas.Type.Testtuple,
+        ]:
             asset.parent_tasks = [self._get_parent_task(key) for key in asset.parent_task_keys]
 
         return asset
@@ -140,9 +148,9 @@ class Local(base.BaseBackend):
         parsed_filters = dict()
         if filters is not None:
             for filter_ in filters:
-                splitted = filter_.split(':')
+                splitted = filter_.split(":")
                 field_name = splitted[1]
-                field_value = ''.join(splitted[2:])
+                field_value = "".join(splitted[2:])
                 parsed_filters[field_name] = field_value
         # Filter the list of assets
         result = list()
@@ -156,18 +164,9 @@ class Local(base.BaseBackend):
     def _check_metadata(metadata: typing.Optional[typing.Dict[str, str]]):
         if metadata is not None:
             if any([len(key) > _MAX_LEN_KEY_METADATA for key in metadata]):
-                raise exceptions.InvalidRequest(
-                    "The key in metadata cannot be more than 50 characters",
-                    400
-                )
-            if any([
-                len(value) > _MAX_LEN_VALUE_METADATA or len(value) == 0
-                for value in metadata.values()
-            ]):
-                raise exceptions.InvalidRequest(
-                    "Values in metadata cannot be empty or more than 100 characters",
-                    400
-                )
+                raise exceptions.InvalidRequest("The key in metadata cannot be more than 50 characters", 400)
+            if any([len(value) > _MAX_LEN_VALUE_METADATA or len(value) == 0 for value in metadata.values()]):
+                raise exceptions.InvalidRequest("Values in metadata cannot be empty or more than 100 characters", 400)
 
         # In debug mode, the user can define the owner of the data
         if metadata is not None and DEBUG_OWNER in metadata:
@@ -203,7 +202,7 @@ class Local(base.BaseBackend):
             task_count=task_count,
             todo_count=task_count,
             metadata=dict(),
-            owner='local',
+            owner="local",
             delete_intermediary_models=False,
         )
         return self._db.add(compute_plan)
@@ -216,9 +215,7 @@ class Local(base.BaseBackend):
             rank = 0
             compute_plan_key = compute_plan.key
         elif not spec.compute_plan_key and spec.rank is not None:
-            raise substra.sdk.exceptions.InvalidRequest(
-                "invalid inputs, a new ComputePlan should have a rank 0", 400
-            )
+            raise substra.sdk.exceptions.InvalidRequest("invalid inputs, a new ComputePlan should have a rank 0", 400)
         elif spec.compute_plan_key:
             compute_plan = self._db.get(schemas.Type.ComputePlan, spec.compute_plan_key)
             compute_plan_key = compute_plan.key
@@ -230,11 +227,7 @@ class Local(base.BaseBackend):
                     rank = 0
                 else:
                     rank = 1 + max(
-                        [
-                            in_tuple.rank
-                            for in_tuple in in_tuples
-                            if in_tuple.compute_plan_key == compute_plan_key
-                        ]
+                        [in_tuple.rank for in_tuple in in_tuples if in_tuple.compute_plan_key == compute_plan_key]
                     )
 
             # Add to the compute plan
@@ -249,34 +242,23 @@ class Local(base.BaseBackend):
         return compute_plan_key, rank
 
     def __execute_compute_plan(
-        self,
-        spec,
-        compute_plan,
-        visited,
-        traintuples,
-        aggregatetuples,
-        compositetuples,
-        spec_options
+        self, spec, compute_plan, visited, traintuples, aggregatetuples, compositetuples, spec_options
     ):
         for id_, rank in tqdm(
             sorted(visited.items(), key=lambda item: item[1]),
-            desc='Compute plan progress',
+            desc="Compute plan progress",
         ):
             if id_ in traintuples:
                 traintuple = traintuples[id_]
                 traintuple_spec = schemas.TraintupleSpec.from_compute_plan(
-                    compute_plan_key=compute_plan.key,
-                    rank=rank,
-                    spec=traintuple
+                    compute_plan_key=compute_plan.key, rank=rank, spec=traintuple
                 )
                 self._add_traintuple(key=id_, spec=traintuple_spec, spec_options=spec_options)
 
             elif id_ in aggregatetuples:
                 aggregatetuple = aggregatetuples[id_]
                 aggregatetuple_spec = schemas.AggregatetupleSpec.from_compute_plan(
-                    compute_plan_key=compute_plan.key,
-                    rank=rank,
-                    spec=aggregatetuple
+                    compute_plan_key=compute_plan.key, rank=rank, spec=aggregatetuple
                 )
                 self._add_aggregatetuple(
                     key=id_,
@@ -287,9 +269,7 @@ class Local(base.BaseBackend):
             elif id_ in compositetuples:
                 compositetuple = compositetuples[id_]
                 compositetuple_spec = schemas.CompositeTraintupleSpec.from_compute_plan(
-                    compute_plan_key=compute_plan.key,
-                    rank=rank,
-                    spec=compositetuple
+                    compute_plan_key=compute_plan.key, rank=rank, spec=compositetuple
                 )
                 self._add_composite_traintuple(
                     key=id_,
@@ -298,16 +278,13 @@ class Local(base.BaseBackend):
                 )
 
         if spec.testtuples:
-            for testtuple in tqdm(spec.testtuples, desc='Testtuples progress'):
-                testtuple_spec = schemas.TesttupleSpec.from_compute_plan(
-                    spec=testtuple
-                )
+            for testtuple in tqdm(spec.testtuples, desc="Testtuples progress"):
+                testtuple_spec = schemas.TesttupleSpec.from_compute_plan(spec=testtuple)
                 self.add(testtuple_spec, spec_options)
 
         compute_plan.end_date = datetime.now()
         compute_plan.estimated_end_date = compute_plan.end_date
-        compute_plan.duration = int((compute_plan.end_date -
-                                     compute_plan.start_date).total_seconds())
+        compute_plan.duration = int((compute_plan.end_date - compute_plan.start_date).total_seconds())
 
         return compute_plan
 
@@ -318,15 +295,12 @@ class Local(base.BaseBackend):
         if self._db.is_local(data_manager_key, schemas.Type.Dataset):
             same_data_manager = all(
                 [
-                    data_manager_key
-                    in self._db.get(schemas.Type.DataSample, key).data_manager_keys
+                    data_manager_key in self._db.get(schemas.Type.DataSample, key).data_manager_keys
                     for key in (data_sample_keys or list())
                 ]
             )
             if not same_data_manager:
-                raise substra.exceptions.InvalidRequest(
-                    "dataSample do not belong to the same dataManager", 400
-                )
+                raise substra.exceptions.InvalidRequest("dataSample do not belong to the same dataManager", 400)
 
     def __add_algo(self, key, spec, owner, spec_options=None):
 
@@ -345,14 +319,8 @@ class Local(base.BaseBackend):
                     "authorized_ids": permissions.authorized_ids,
                 },
             },
-            algorithm={
-                "checksum": fs.hash_file(algo_file_path),
-                "storage_address": algo_file_path
-            },
-            description={
-                "checksum": fs.hash_file(algo_description_path),
-                "storage_address": algo_description_path
-            },
+            algorithm={"checksum": fs.hash_file(algo_file_path), "storage_address": algo_file_path},
+            description={"checksum": fs.hash_file(algo_description_path), "storage_address": algo_description_path},
             metadata=spec.metadata if spec.metadata else dict(),
         )
         return self._db.add(algo)
@@ -383,13 +351,10 @@ class Local(base.BaseBackend):
             type=spec.type,
             train_data_sample_keys=list(),
             test_data_sample_keys=list(),
-            opener={
-                "checksum": fs.hash_file(dataset_file_path),
-                "storage_address": dataset_file_path
-            },
+            opener={"checksum": fs.hash_file(dataset_file_path), "storage_address": dataset_file_path},
             description={
                 "checksum": fs.hash_file(dataset_description_path),
-                "storage_address": dataset_description_path
+                "storage_address": dataset_description_path,
             },
             metadata=spec.metadata if spec.metadata else dict(),
         )
@@ -397,14 +362,8 @@ class Local(base.BaseBackend):
 
     def _add_data_sample(self, key, spec, spec_options=None):
         if len(spec.data_manager_keys) == 0:
-            raise exceptions.InvalidRequest(
-                "Please add at least one data manager for the data sample",
-                400
-            )
-        datasets = [
-            self._db.get(schemas.Type.Dataset, dataset_key)
-            for dataset_key in spec.data_manager_keys
-        ]
+            raise exceptions.InvalidRequest("Please add at least one data manager for the data sample", 400)
+        datasets = [self._db.get(schemas.Type.Dataset, dataset_key) for dataset_key in spec.data_manager_keys]
 
         data_sample_file_path = self._db.save_file(spec.path, key)
         data_sample = models.DataSample(
@@ -467,14 +426,8 @@ class Local(base.BaseBackend):
                     "authorized_ids": permissions.authorized_ids,
                 },
             },
-            description={
-                "checksum": fs.hash_file(metric_description_path),
-                "storage_address": metric_description_path
-            },
-            address={
-                "checksum": fs.hash_file(metric_file_path),
-                "storage_address": metric_file_path
-            },
+            description={"checksum": fs.hash_file(metric_description_path), "storage_address": metric_description_path},
+            address={"checksum": fs.hash_file(metric_file_path), "storage_address": metric_file_path},
             metadata=spec.metadata if spec.metadata else dict(),
         )
 
@@ -483,24 +436,12 @@ class Local(base.BaseBackend):
 
         return metric
 
-    def _add_compute_plan(
-        self,
-        key: str,
-        spec: schemas.ComputePlanSpec,
-        spec_options: dict = None
-    ):
+    def _add_compute_plan(self, key: str, spec: schemas.ComputePlanSpec, spec_options: dict = None):
         if spec.clean_models:
-            warnings.warn(
-                "'clean_models=True' is ignored on the local backend."
-            )
+            warnings.warn("'clean_models=True' is ignored on the local backend.")
         self._check_metadata(spec.metadata)
         # Get all the tuples and their dependencies
-        (
-            tuple_graph,
-            traintuples,
-            aggregatetuples,
-            compositetuples
-        ) = compute_plan_module.get_dependency_graph(spec)
+        (tuple_graph, traintuples, aggregatetuples, compositetuples) = compute_plan_module.get_dependency_graph(spec)
 
         # If chainkey is supported make sure it exists, else set support to False
         if self._support_chainkeys and not (self._chainkey_dir / "node_name_id.json").is_file():
@@ -524,21 +465,14 @@ class Local(base.BaseBackend):
             canceled_count=0,
             failed_count=0,
             done_count=0,
-            owner='local',
-            delete_intermediary_models=spec.clean_models
-            if spec.clean_models is not None else False,
+            owner="local",
+            delete_intermediary_models=spec.clean_models if spec.clean_models is not None else False,
         )
         compute_plan = self._db.add(compute_plan)
 
         # go through the tuples sorted by rank
         compute_plan = self.__execute_compute_plan(
-            spec,
-            compute_plan,
-            visited,
-            traintuples,
-            aggregatetuples,
-            compositetuples,
-            spec_options
+            spec, compute_plan, visited, traintuples, aggregatetuples, compositetuples, spec_options
         )
         return compute_plan
 
@@ -586,29 +520,23 @@ class Local(base.BaseBackend):
                 if authorized_ids is None:
                     authorized_ids = set(permissions.process.authorized_ids)
                 else:
-                    authorized_ids = set.intersection(
-                        authorized_ids, set(permissions.process.authorized_ids)
-                    )
+                    authorized_ids = set.intersection(authorized_ids, set(permissions.process.authorized_ids))
         if public or authorized_ids is None:
             authorized_ids = list()
         else:
             authorized_ids = list(authorized_ids)
 
-        compute_plan_key, rank = self.__create_compute_plan_from_tuple(
-            spec=spec,
-            key=key,
-            in_tuples=in_tuples
-        )
+        compute_plan_key, rank = self.__create_compute_plan_from_tuple(spec=spec, key=key, in_tuples=in_tuples)
 
         # create model
         traintuple = models.Traintuple(
             train={
-                'data_manager_key': spec.data_manager_key,
-                'data_sample_keys': spec.train_data_sample_keys,
-                'model_permissions': {
+                "data_manager_key": spec.data_manager_key,
+                "data_sample_keys": spec.train_data_sample_keys,
+                "model_permissions": {
                     "process": {"public": public, "authorized_ids": authorized_ids},
                 },
-                'models': None,
+                "models": None,
             },
             key=key,
             creation_date=self.__now(),
@@ -651,9 +579,7 @@ class Local(base.BaseBackend):
         worker = dataset.owner
 
         if traintuple.compute_plan_key:
-            compute_plan = self._db.get(
-                schemas.Type.ComputePlan, traintuple.compute_plan_key
-            )
+            compute_plan = self._db.get(schemas.Type.ComputePlan, traintuple.compute_plan_key)
             compute_plan.task_count += 1
             compute_plan.todo_count += 1
             compute_plan.status = models.Status.waiting
@@ -682,12 +608,7 @@ class Local(base.BaseBackend):
         self._worker.schedule_testtuple(testtuple)
         return testtuple
 
-    def _add_composite_traintuple(
-        self,
-        key: str,
-        spec: schemas.CompositeTraintupleSpec,
-        spec_options=None
-    ):
+    def _add_composite_traintuple(self, key: str, spec: schemas.CompositeTraintupleSpec, spec_options=None):
         # validation
         owner = self._check_metadata(spec.metadata)
         algo = self._db.get(schemas.Type.Algo, spec.algo_key)
@@ -703,9 +624,7 @@ class Local(base.BaseBackend):
         if spec.in_trunk_model_key:
             try:
                 # in trunk model is a composite traintuple out trunk model
-                in_trunk_tuple = self._db.get(
-                    schemas.Type.CompositeTraintuple, spec.in_trunk_model_key
-                )
+                in_trunk_tuple = self._db.get(schemas.Type.CompositeTraintuple, spec.in_trunk_model_key)
             except exceptions.NotFound:
                 # in trunk model is an aggregate tuple out model
                 in_trunk_tuple = self._db.get(schemas.Type.Aggregatetuple, spec.in_trunk_model_key)
@@ -716,21 +635,13 @@ class Local(base.BaseBackend):
 
         # permissions
         process_trunk_model_permissions = schemas.Permissions(
-            public=False,
-            authorized_ids=spec.out_trunk_model_permissions.authorized_ids
+            public=False, authorized_ids=spec.out_trunk_model_permissions.authorized_ids
         )
-        trunk_model_permissions = {
-            "process": self.__compute_permissions(process_trunk_model_permissions)
-        }
+        trunk_model_permissions = {"process": self.__compute_permissions(process_trunk_model_permissions)}
         if spec.in_head_model_key:
             head_model_permissions = in_head_tuple.composite.head_permissions
         else:
-            head_model_permissions = {
-                "process": {
-                    "public": False,
-                    "authorized_ids": [owner]
-                }
-            }
+            head_model_permissions = {"process": {"public": False, "authorized_ids": [owner]}}
 
         parent_task_keys: typing.List[str] = list()
         if spec.in_head_model_key is not None:
@@ -764,11 +675,12 @@ class Local(base.BaseBackend):
             self._worker.schedule_traintuple(composite_traintuple)
         return composite_traintuple
 
-    def _add_aggregatetuple(self,
-                            key: str,
-                            spec: schemas.AggregatetupleSpec,
-                            spec_options: dict = None,
-                            ):
+    def _add_aggregatetuple(
+        self,
+        key: str,
+        spec: schemas.AggregatetupleSpec,
+        spec_options: dict = None,
+    ):
         # validation
         owner = self._check_metadata(spec.metadata)
         algo = self._db.get(schemas.Type.Algo, spec.algo_key)
@@ -805,12 +717,7 @@ class Local(base.BaseBackend):
 
         aggregatetuple = models.Aggregatetuple(
             aggregate=models._Aggregate(
-                model_permissions={
-                    "process": {
-                        "authorized_ids": list(authorized_ids),
-                        "public": public
-                    }
-                },
+                model_permissions={"process": {"authorized_ids": list(authorized_ids), "public": public}},
                 models=None,
             ),
             creation_date=self.__now(),
@@ -901,31 +808,23 @@ class Local(base.BaseBackend):
         # function does not make sense.
         raise NotImplementedError
 
-    def update_compute_plan(self,
-                            key: str,
-                            spec: schemas.UpdateComputePlanSpec,
-                            spec_options: dict = None):
+    def update_compute_plan(self, key: str, spec: schemas.UpdateComputePlanSpec, spec_options: dict = None):
         compute_plan = self._db.get(schemas.Type.ComputePlan, key)
         # Get all the new tuples and their dependencies
-        (
-            tuple_graph,
-            traintuples,
-            aggregatetuples,
-            compositetuples
-        ) = compute_plan_module.get_dependency_graph(spec)
+        (tuple_graph, traintuples, aggregatetuples, compositetuples) = compute_plan_module.get_dependency_graph(spec)
 
         # Get the rank of all the tuples already in the compute plan
         cp_traintuples = self.list(
             asset_type=schemas.Type.Traintuple,
-            filters=[f'traintuple:compute_plan_key:{key}'],
+            filters=[f"traintuple:compute_plan_key:{key}"],
         )
         cp_aggregatetuples = self.list(
             asset_type=schemas.Type.Aggregatetuple,
-            filters=[f'aggregatetuple:compute_plan_key:{key}'],
+            filters=[f"aggregatetuple:compute_plan_key:{key}"],
         )
         cp_composite_traintuples = self.list(
             asset_type=schemas.Type.CompositeTraintuple,
-            filters=[f'composite_traintuple:compute_plan_key:{key}'],
+            filters=[f"composite_traintuple:compute_plan_key:{key}"],
         )
         visited = dict()
         for tuple_ in cp_traintuples + cp_aggregatetuples + cp_composite_traintuples:
@@ -936,12 +835,6 @@ class Local(base.BaseBackend):
         visited = graph.compute_ranks(node_graph=tuple_graph, ranks=visited)
 
         compute_plan = self.__execute_compute_plan(
-            spec,
-            compute_plan,
-            visited,
-            traintuples,
-            aggregatetuples,
-            compositetuples,
-            spec_options=dict()
+            spec, compute_plan, visited, traintuples, aggregatetuples, compositetuples, spec_options=dict()
         )
         return compute_plan

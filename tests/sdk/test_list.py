@@ -14,25 +14,30 @@
 
 import pytest
 
-from substra.sdk import models, schemas
+from substra.sdk import models
+from substra.sdk import schemas
 
 from .. import datastore
-from .utils import mock_requests, make_paginated_response
+from .utils import make_paginated_response
+from .utils import mock_requests
 
 
-@pytest.mark.parametrize('asset_name', [
-    'metric',
-    'dataset',
-    'algo',
-    'testtuple',
-    'traintuple',
-    'aggregatetuple',
-    'composite_traintuple',
-    'compute_plan',
-])
+@pytest.mark.parametrize(
+    "asset_name",
+    [
+        "metric",
+        "dataset",
+        "algo",
+        "testtuple",
+        "traintuple",
+        "aggregatetuple",
+        "composite_traintuple",
+        "compute_plan",
+    ],
+)
 def test_list_asset(asset_name, client, mocker):
     item = getattr(datastore, asset_name.upper())
-    method = getattr(client, f'list_{asset_name}')
+    method = getattr(client, f"list_{asset_name}")
 
     mocked_response = make_paginated_response([item])
     m = mock_requests(mocker, "get", response=mocked_response)
@@ -61,7 +66,7 @@ def test_list_asset_with_filters_failure(client, mocker):
     items = [datastore.ALGO]
     m = mock_requests(mocker, "get", response=items)
 
-    filters = 'foo'
+    filters = "foo"
     with pytest.raises(ValueError) as exc_info:
         client.list_algo(filters)
 

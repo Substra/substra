@@ -74,14 +74,10 @@ def custom_split(data: pd.DataFrame, n_split: int = N_NODES) -> List[pd.DataFram
     """
     rng = np.random.default_rng(42)
 
-    repartition = {
-        y: list(rng.dirichlet(np.ones(n_split), size=1)[0]) for y in data.target.unique()
-    }
+    repartition = {y: list(rng.dirichlet(np.ones(n_split), size=1)[0]) for y in data.target.unique()}
 
     # generate unbalance train data samples
-    data.loc[:, "node"] = data.target.apply(
-        lambda k: rng.choice(range(n_split), 1, replace=False, p=repartition[k])[0]
-    )
+    data.loc[:, "node"] = data.target.apply(lambda k: rng.choice(range(n_split), 1, replace=False, p=repartition[k])[0])
 
     data = data.groupby("node")
     data = [data.get_group(split).drop(columns="node") for split in range(n_split)]

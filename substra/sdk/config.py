@@ -19,9 +19,9 @@ import os
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_PATH = '~/.substra'
-DEFAULT_TOKENS_PATH = '~/.substra-tokens'
-DEFAULT_PROFILE_NAME = 'default'
+DEFAULT_PATH = "~/.substra"
+DEFAULT_TOKENS_PATH = "~/.substra-tokens"
+DEFAULT_PROFILE_NAME = "default"
 DEFAULT_INSECURE = False
 
 
@@ -51,7 +51,7 @@ class _ProfileManager(abc.ABC):
         return self._profiles
 
     def save(self):
-        with open(self._path, 'w') as fh:
+        with open(self._path, "w") as fh:
             json.dump(self._profiles, fh, indent=2, sort_keys=True)
 
     def get_profile(self, name):
@@ -70,18 +70,24 @@ class _ProfileManager(abc.ABC):
 
 class ConfigManager(_ProfileManager):
     def set_profile(self, name, url, insecure=False):
-        return super().set_profile(name, {
-            'url': url,
-            'insecure': insecure,
-        })
+        return super().set_profile(
+            name,
+            {
+                "url": url,
+                "insecure": insecure,
+            },
+        )
 
 
 class TokenManager(_ProfileManager):
     def set_profile(self, name, token):
-        return super().set_profile(name, {
-            'token': token,
-        })
+        return super().set_profile(
+            name,
+            {
+                "token": token,
+            },
+        )
 
     def get_profile(self, name):
         profile = super().get_profile(name)
-        return profile['token']
+        return profile["token"]

@@ -13,9 +13,7 @@ class TarSafe(tarfile.TarFile):
         self.directory = os.getcwd()
 
     @classmethod
-    def open(
-        cls, name=None, mode="r", fileobj=None, bufsize=tarfile.RECORDSIZE, **kwargs
-    ):
+    def open(cls, name=None, mode="r", fileobj=None, bufsize=tarfile.RECORDSIZE, **kwargs):
         return super().open(name, mode, fileobj, bufsize, **kwargs)
 
     def extract(self, member, path="", set_attrs=True, *, numeric_owner=False):
@@ -40,37 +38,25 @@ class TarSafe(tarfile.TarFile):
         try:
             for tarinfo in self.__iter__():
                 if self._is_traversal_attempt(tarinfo=tarinfo):
-                    raise TarSafeError(
-                        f"Attempted directory traversal for member: {tarinfo.name}"
-                    )
+                    raise TarSafeError(f"Attempted directory traversal for member: {tarinfo.name}")
                 if tarinfo.issym():
-                    raise TarSafeError(
-                        f"Unsupported symlink for member: {tarinfo.linkname}"
-                    )
+                    raise TarSafeError(f"Unsupported symlink for member: {tarinfo.linkname}")
                 if self._is_unsafe_link(tarinfo=tarinfo):
-                    raise TarSafeError(
-                        f"Attempted directory traversal via link for member: {tarinfo.linkname}"
-                    )
+                    raise TarSafeError(f"Attempted directory traversal via link for member: {tarinfo.linkname}")
                 if self._is_device(tarinfo=tarinfo):
                     raise TarSafeError("tarfile returns true for isblk() or ischr()")
         except Exception:
             raise
 
     def _is_traversal_attempt(self, tarinfo):
-        if not os.path.abspath(os.path.join(self.directory, tarinfo.name)).startswith(
-            self.directory
-        ):
+        if not os.path.abspath(os.path.join(self.directory, tarinfo.name)).startswith(self.directory):
             return True
         return False
 
     def _is_unsafe_link(self, tarinfo):
         if tarinfo.islnk():
-            link_file = pathlib.Path(
-                os.path.normpath(os.path.join(self.directory, tarinfo.linkname))
-            )
-            if not os.path.abspath(os.path.join(self.directory, link_file)).startswith(
-                self.directory
-            ):
+            link_file = pathlib.Path(os.path.normpath(os.path.join(self.directory, tarinfo.linkname)))
+            if not os.path.abspath(os.path.join(self.directory, link_file)).startswith(self.directory):
                 return True
         return False
 

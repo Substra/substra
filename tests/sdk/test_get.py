@@ -13,26 +13,31 @@
 # limitations under the License.
 
 import pytest
+
 import substra
-from substra.sdk import models, schemas
+from substra.sdk import models
+from substra.sdk import schemas
 
 from .. import datastore
 from .utils import mock_requests
 
 
-@pytest.mark.parametrize('asset_name', [
-    'metric',
-    'dataset',
-    'algo',
-    'testtuple',
-    'traintuple',
-    'aggregatetuple',
-    'composite_traintuple',
-    'compute_plan',
-])
+@pytest.mark.parametrize(
+    "asset_name",
+    [
+        "metric",
+        "dataset",
+        "algo",
+        "testtuple",
+        "traintuple",
+        "aggregatetuple",
+        "composite_traintuple",
+        "compute_plan",
+    ],
+)
 def test_get_asset(asset_name, client, mocker):
     item = getattr(datastore, asset_name.upper())
-    method = getattr(client, f'get_{asset_name}')
+    method = getattr(client, f"get_{asset_name}")
 
     m = mock_requests(mocker, "get", response=item)
 
@@ -49,22 +54,25 @@ def test_get_asset_not_found(client, mocker):
         client.get_dataset("magic-key")
 
 
-@pytest.mark.parametrize('asset_name', [
-    'metric',
-    'dataset',
-    'algo',
-    'testtuple',
-    'traintuple',
-    'aggregatetuple',
-    'composite_traintuple',
-    'compute_plan',
-])
+@pytest.mark.parametrize(
+    "asset_name",
+    [
+        "metric",
+        "dataset",
+        "algo",
+        "testtuple",
+        "traintuple",
+        "aggregatetuple",
+        "composite_traintuple",
+        "compute_plan",
+    ],
+)
 def test_get_extra_field(asset_name, client, mocker):
     item = getattr(datastore, asset_name.upper())
     raw = getattr(datastore, asset_name.upper()).copy()
     raw["unknown_extra_field"] = "some value"
 
-    method = getattr(client, f'get_{asset_name}')
+    method = getattr(client, f"get_{asset_name}")
 
     m = mock_requests(mocker, "get", response=raw)
 

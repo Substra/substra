@@ -5,18 +5,21 @@ from pathlib import Path
 
 import docker
 import pytest
+
 import substra
 from substra.sdk import models
-from substra.sdk.backends.local.compute.spawner.subprocess import \
-    PYTHON_SCRIPT_NAME
+from substra.sdk.backends.local.compute.spawner.subprocess import PYTHON_SCRIPT_NAME
 from substra.sdk.schemas import AlgoCategory
 
 
 def test_wrong_debug_spawner(monkeypatch):
-    monkeypatch.setenv('DEBUG_SPAWNER', "test")
+    monkeypatch.setenv("DEBUG_SPAWNER", "test")
     with pytest.raises(ValueError) as err:
         substra.Client(debug=True)
-    assert str(err.value) == "test is not a valid value for environment variable DEBUG_SPAWNER. Accepted values: ['docker', 'subprocess']"
+    assert (
+        str(err.value)
+        == "test is not a valid value for environment variable DEBUG_SPAWNER. Accepted values: ['docker', 'subprocess']"
+    )
 
 
 def test_regex_script_name_valid():
@@ -42,7 +45,7 @@ class TestsDebug:
     # run tests twice with and without docker
     @pytest.fixture(params=["docker", "subprocess"])
     def spawner(self, monkeypatch, request):
-        monkeypatch.setenv('DEBUG_SPAWNER', request.param)
+        monkeypatch.setenv("DEBUG_SPAWNER", request.param)
 
     def test_client_tmp_dir(self):
         """Test the creation of a temp directory for the debug client"""
@@ -52,17 +55,17 @@ class TestsDebug:
     def test_client_multi_nodes_dataset(self, dataset_query):
         """Assert that the owner is gotten from the metadata in debug mode"""
         client = substra.Client(debug=True)
-        dataset_query['metadata'] = {substra.DEBUG_OWNER: 'owner_1'}
+        dataset_query["metadata"] = {substra.DEBUG_OWNER: "owner_1"}
 
         key = client.add_dataset(dataset_query)
         asset = client.get_dataset(key)
-        assert asset.owner == 'owner_1'
+        assert asset.owner == "owner_1"
 
     @pytest.mark.parametrize("dockerfile_type", ("BAD_ENTRYPOINT", "NO_ENTRYPOINT"))
     def test_client_bad_dockerfile(self, asset_factory, dockerfile_type, spawner):
         client = substra.Client(debug=True)
 
-        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: 'owner_1'})
+        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
         dataset_1_key = client.add_dataset(dataset_query)
 
         data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=False)
@@ -80,21 +83,20 @@ class TestsDebug:
                 train_data_sample_keys=[sample_1_key],
             ),
         ]
-        with pytest.raises((substra.sdk.backends.local.compute.spawner.base.ExecutionError,
-                            docker.errors.APIError)):
+        with pytest.raises((substra.sdk.backends.local.compute.spawner.base.ExecutionError, docker.errors.APIError)):
             client.add_compute_plan(cp)
 
     def test_chainkey_exists(self, asset_factory, spawner, caplog):
-        """ Test that if chainkey is supported but it was not generated warning is
+        """Test that if chainkey is supported but it was not generated warning is
         logged and adding the compute plan passes through nevertheless"""
         os.environ["CHAINKEYS_ENABLED"] = "True"
         # setting wrong directory, chainkeys should not be found
-        os.environ["CHAINKEYS_DIR"] = str('/')
+        os.environ["CHAINKEYS_DIR"] = str("/")
 
         client = substra.Client(debug=True)
         assert len(caplog.text) == 0
 
-        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: 'owner_1'})
+        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
         dataset_1_key = client.add_dataset(dataset_query)
 
         data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=False)
@@ -114,16 +116,16 @@ class TestsDebug:
         ]
 
         client.add_compute_plan(cp)
-        assert 'No chainkeys found' in caplog.text
+        assert "No chainkeys found" in caplog.text
 
     def test_client_multi_nodes_cp(self, asset_factory, spawner):
         """Assert that there is one CP local folder per node"""
         client = substra.Client(debug=True)
 
-        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: 'owner_1'})
+        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
         dataset_1_key = client.add_dataset(dataset_query)
 
-        dataset_2_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: 'owner_2'})
+        dataset_2_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_2"})
         dataset_2_key = client.add_dataset(dataset_2_query)
 
         data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=False)
@@ -148,7 +150,7 @@ class TestsDebug:
                 data_manager_key=dataset_2_key,
                 traintuple_id=uuid.uuid4().hex,
                 train_data_sample_keys=[sample_2_key],
-            )
+            ),
         ]
 
         client.add_compute_plan(cp)
@@ -166,7 +168,8 @@ class TestsDebug:
                 tag=None,
                 clean_models=False,
                 metadata=dict(),
-            ))
+            )
+        )
 
         dataset_query = asset_factory.create_dataset()
         dataset_key = client.add_dataset(dataset_query)
@@ -201,17 +204,17 @@ class TestsDebug:
             key=compute_plan.key,
             data={
                 "traintuples": [traintuple],
-            }
+            },
         )
 
     def test_client_multi_nodes_cp_train_test(self, asset_factory, spawner):
         """Assert that there is one CP local folder per node"""
         client = substra.Client(debug=True)
 
-        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: 'owner_1'})
+        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
         dataset_1_key = client.add_dataset(dataset_query)
 
-        dataset_2_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: 'owner_2'})
+        dataset_2_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_2"})
         dataset_2_key = client.add_dataset(dataset_2_query)
 
         data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=False)
@@ -253,7 +256,7 @@ class TestsDebug:
                 data_manager_key=dataset_2_key,
                 traintuple_id=traintuple_id_2,
                 train_data_sample_keys=[sample_2_key],
-            )
+            ),
         ]
 
         cp.testtuples = [
@@ -261,13 +264,13 @@ class TestsDebug:
                 metric_keys=[metric_1_key],
                 traintuple_id=traintuple_id_1,
                 data_manager_key=dataset_1_key,
-                test_data_sample_keys=[sample_1_test_key]
+                test_data_sample_keys=[sample_1_test_key],
             ),
             substra.sdk.schemas.ComputePlanTesttupleSpec(
                 metric_keys=[metric_2_key],
                 traintuple_id=traintuple_id_2,
                 data_manager_key=dataset_2_key,
-                test_data_sample_keys=[sample_2_test_key]
+                test_data_sample_keys=[sample_2_test_key],
             ),
         ]
 
@@ -282,7 +285,8 @@ class TestsDebug:
         testtuples = client.list_testtuple()
         aucs = [
             list(testtuple.test.perfs.values())[0]
-            for testtuple in testtuples if testtuple.compute_plan_key == compute_plan.key
+            for testtuple in testtuples
+            if testtuple.compute_plan_key == compute_plan.key
         ]
         assert all(auc == 2 for auc in aucs)
 
@@ -290,10 +294,10 @@ class TestsDebug:
         """Assert that there is one CP local folder per node"""
         client = substra.Client(debug=True)
 
-        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: 'owner_1'})
+        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
         dataset_1_key = client.add_dataset(dataset_query)
 
-        dataset_2_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: 'owner_2'})
+        dataset_2_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_2"})
         dataset_2_key = client.add_dataset(dataset_2_query)
 
         data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=False)
@@ -317,21 +321,15 @@ class TestsDebug:
                 data_manager_key=dataset_1_key,
                 composite_traintuple_id=composite_1_key,
                 train_data_sample_keys=[sample_1_key],
-                out_trunk_model_permissions={
-                    "public": False,
-                    "authorized_ids": [dataset_1_key, dataset_2_key]
-                },
+                out_trunk_model_permissions={"public": False, "authorized_ids": [dataset_1_key, dataset_2_key]},
             ),
             substra.sdk.schemas.ComputePlanCompositeTraintupleSpec(
                 algo_key=algo_key,
                 data_manager_key=dataset_2_key,
                 composite_traintuple_id=composite_2_key,
                 train_data_sample_keys=[sample_2_key],
-                out_trunk_model_permissions={
-                    "public": False,
-                    "authorized_ids": [dataset_1_key, dataset_2_key]
-                },
-            )
+                out_trunk_model_permissions={"public": False, "authorized_ids": [dataset_1_key, dataset_2_key]},
+            ),
         ]
 
         cp.aggregatetuples = [
@@ -339,7 +337,7 @@ class TestsDebug:
                 aggregatetuple_id=uuid.uuid4().hex,
                 worker=dataset_1_key,
                 algo_key=aggregate_algo_key,
-                in_models_ids=[composite_1_key, composite_2_key]
+                in_models_ids=[composite_1_key, composite_2_key],
             )
         ]
 
@@ -394,7 +392,7 @@ class TestsDebug:
                 traintuple_key=traintuple_key,
                 data_manager_key=dataset_key,
                 test_data_sample_keys=[data_sample_key],
-                metric_keys=[metric_key]
+                metric_keys=[metric_key],
             )
         )
         testtuple = client.get_testtuple(testtuple_key)
@@ -411,10 +409,7 @@ class TestsDebug:
                 algo_key=composite_algo_key,
                 data_manager_key=dataset_key,
                 train_data_sample_keys=[data_sample_key],
-                out_trunk_model_permissions={
-                    "public": True,
-                    "authorized_ids": []
-                },
+                out_trunk_model_permissions={"public": True, "authorized_ids": []},
             )
         )
 

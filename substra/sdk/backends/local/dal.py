@@ -17,9 +17,10 @@ import shutil
 import tempfile
 import typing
 
-from substra.sdk import exceptions, schemas
-from substra.sdk.backends.remote import backend
+from substra.sdk import exceptions
+from substra.sdk import schemas
 from substra.sdk.backends.local import db
+from substra.sdk.backends.remote import backend
 
 _LOCAL_KEY = "local_"
 logger = logging.getLogger(__name__)
@@ -31,11 +32,7 @@ class DataAccess:
     This is an intermediate layer between the backend and the local/remote data access.
     """
 
-    def __init__(
-        self,
-        remote_backend: typing.Optional[backend.Remote],
-        local_worker_dir: pathlib.Path
-    ):
+    def __init__(self, remote_backend: typing.Optional[backend.Remote], local_worker_dir: pathlib.Path):
         self._db = db.InMemoryDb()
         self._remote = remote_backend
         self._tmp_dir = tempfile.TemporaryDirectory(prefix=str(local_worker_dir) + "/")
@@ -131,7 +128,7 @@ class DataAccess:
             raise
 
     def list(self, type_, filters):
-        """"List assets."""
+        """ "List assets."""
         local_assets = self._db.list(type_)
 
         remote_assets = list()
@@ -145,9 +142,7 @@ class DataAccess:
                 )
         return local_assets + remote_assets
 
-    def save_file(self,
-                  file_path: typing.Union[str, pathlib.Path],
-                  key: str):
+    def save_file(self, file_path: typing.Union[str, pathlib.Path], key: str):
         """Copy file or directory into the local temp dir to mimick
         the remote backend that saves the files given by the user.
         """
@@ -158,25 +153,13 @@ class DataAccess:
             pathlib.Path.mkdir(tmp_directory)
 
         if tmp_file.exists():
-            raise exceptions.AlreadyExists(
-                f"File {tmp_file.name} already exists for asset {key}",
-                409
-            )
+            raise exceptions.AlreadyExists(f"File {tmp_file.name} already exists for asset {key}", 409)
         elif pathlib.Path(file_path).is_file():
-            shutil.copyfile(
-                file_path,
-                tmp_file
-            )
+            shutil.copyfile(file_path, tmp_file)
         elif pathlib.Path(file_path).is_dir():
-            shutil.copytree(
-                file_path,
-                tmp_file
-            )
+            shutil.copytree(file_path, tmp_file)
         else:
-            raise exceptions.InvalidRequest(
-                f"Could not copy {file_path}",
-                400
-            )
+            raise exceptions.InvalidRequest(f"Could not copy {file_path}", 400)
         return tmp_file
 
     def update(self, asset):

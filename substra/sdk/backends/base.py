@@ -2,7 +2,6 @@ import abc
 
 
 class BaseBackend(abc.ABC):
-
     def login(self, username, password):
         pass
 

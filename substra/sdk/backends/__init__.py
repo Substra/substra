@@ -13,13 +13,12 @@
 # limitations under the License.
 
 
-from substra.sdk.backends.remote.backend import Remote
 from substra.sdk.backends.local.backend import Local
-
+from substra.sdk.backends.remote.backend import Remote
 
 _BACKEND_CHOICES = {
-    'remote': Remote,
-    'local': Local,
+    "remote": Remote,
+    "local": Local,
 }
 
 

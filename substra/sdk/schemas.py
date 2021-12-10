@@ -18,8 +18,10 @@ import enum
 import json
 import pathlib
 import typing
-from typing import Optional, List, Dict
 import uuid
+from typing import Dict
+from typing import List
+from typing import Optional
 
 import pydantic
 
@@ -32,22 +34,22 @@ from substra.sdk import utils
 
 
 _SERVER_NAMES = {
-    'dataset': 'data_manager',
+    "dataset": "data_manager",
 }
 
 
 class Type(enum.Enum):
-    Algo = 'algo'
-    DataSample = 'data_sample'
-    Dataset = 'dataset'
-    Model = 'model'
-    Metric = 'metric'
-    Testtuple = 'testtuple'
-    Traintuple = 'traintuple'
-    Aggregatetuple = 'aggregatetuple'
-    CompositeTraintuple = 'composite_traintuple'
-    ComputePlan = 'compute_plan'
-    Node = 'node'
+    Algo = "algo"
+    DataSample = "data_sample"
+    Dataset = "dataset"
+    Model = "model"
+    Metric = "metric"
+    Testtuple = "testtuple"
+    Traintuple = "traintuple"
+    Aggregatetuple = "aggregatetuple"
+    CompositeTraintuple = "composite_traintuple"
+    ComputePlan = "compute_plan"
+    Node = "node"
 
     def to_server(self):
         """Returns the name used to identify the asset on the backend."""
@@ -60,6 +62,7 @@ class Type(enum.Enum):
 
 class AlgoCategory(str, enum.Enum):
     """Algo category"""
+
     unknown = "ALGO_UNKNOWN"
     simple = "ALGO_SIMPLE"
     composite = "ALGO_COMPOSITE"
@@ -68,9 +71,10 @@ class AlgoCategory(str, enum.Enum):
 
 class _PydanticConfig(pydantic.BaseModel):
     """Shared configuration for all schemas here"""
+
     class Config:
         # Ignore extra fields, leave them unexposed
-        extra = 'ignore'
+        extra = "ignore"
 
 
 class _Spec(_PydanticConfig, abc.ABC):
@@ -109,6 +113,7 @@ class Permissions(_PydanticConfig):
     """Specification for permissions. If public is False,
     give the list of authorized ids.
     """
+
     public: bool
     authorized_ids: typing.List[str]  # List of authorized node ids if private
 
@@ -117,6 +122,7 @@ class PrivatePermissions(_PydanticConfig):
     """Specification for private permissions. Only the nodes whose
     ids are in authorized_ids can access the asset.
     """
+
     authorized_ids: typing.List[str]  # List of authorized node ids
 
 
@@ -125,6 +131,7 @@ class DataSampleSpec(_Spec):
     To create one data sample, use the 'path' field, otherwise use
     the 'paths' field.
     """
+
     path: Optional[pathlib.Path]  # Path to the data sample if only one
     paths: Optional[List[pathlib.Path]]  # Path to the data samples if several
     test_only: bool  # If the data sample is for train or test
@@ -138,9 +145,9 @@ class DataSampleSpec(_Spec):
     @pydantic.root_validator(pre=True)
     def exclusive_paths(cls, values):
         """Check that one and only one path(s) field is defined."""
-        if 'paths' in values and 'path' in values:
+        if "paths" in values and "path" in values:
             raise ValueError("'path' and 'paths' fields are exclusive.")
-        if 'paths' not in values and 'path' not in values:
+        if "paths" not in values and "path" not in values:
             raise ValueError("'path' or 'paths' field must be set.")
         return values
 
@@ -159,6 +166,7 @@ class DataSampleSpec(_Spec):
 class ComputePlanTraintupleSpec(_Spec):
     """Specification of a traintuple inside a compute
     plan specification"""
+
     algo_key: str
     data_manager_key: str
     train_data_sample_keys: List[str]
@@ -171,6 +179,7 @@ class ComputePlanTraintupleSpec(_Spec):
 class ComputePlanAggregatetupleSpec(_Spec):
     """Specification of an aggregate tuple inside a compute
     plan specification"""
+
     aggregatetuple_id: str
     algo_key: str
     worker: str
@@ -182,6 +191,7 @@ class ComputePlanAggregatetupleSpec(_Spec):
 class ComputePlanCompositeTraintupleSpec(_Spec):
     """Specification of a composite traintuple inside a compute
     plan specification"""
+
     composite_traintuple_id: str
     algo_key: str
     data_manager_key: str
@@ -196,6 +206,7 @@ class ComputePlanCompositeTraintupleSpec(_Spec):
 class ComputePlanTesttupleSpec(_Spec):
     """Specification of a testtuple inside a compute
     plan specification"""
+
     metric_keys: List[str]
     traintuple_id: str
     tag: Optional[str]
@@ -213,6 +224,7 @@ class _BaseComputePlanSpec(_Spec, abc.ABC):
 
 class ComputePlanSpec(_BaseComputePlanSpec):
     """Specification for creating a compute plan"""
+
     tag: Optional[str]
     clean_models: Optional[bool]
     metadata: Optional[Dict[str, str]]
@@ -222,11 +234,13 @@ class ComputePlanSpec(_BaseComputePlanSpec):
 
 class UpdateComputePlanSpec(_BaseComputePlanSpec):
     """Specification for updating a compute plan"""
+
     pass
 
 
 class DatasetSpec(_Spec):
     """Specification for creating a dataset"""
+
     name: str
     data_opener: pathlib.Path  # Path to the data opener
     type: str
@@ -237,11 +251,15 @@ class DatasetSpec(_Spec):
     type_: typing.ClassVar[Type] = Type.Dataset
 
     class Meta:
-        file_attributes = ('data_opener', 'description', )
+        file_attributes = (
+            "data_opener",
+            "description",
+        )
 
 
 class MetricSpec(_Spec):
     """Specification for creating an metric"""
+
     name: str
     description: pathlib.Path  # Path to the description file
     file: pathlib.Path  # Path to the metrics file
@@ -251,11 +269,15 @@ class MetricSpec(_Spec):
     type_: typing.ClassVar[Type] = Type.Metric
 
     class Meta:
-        file_attributes = ('file', 'description', )
+        file_attributes = (
+            "file",
+            "description",
+        )
 
 
 class AlgoSpec(_Spec):
     """Specification for creating an algo"""
+
     name: str
     description: pathlib.Path
     file: pathlib.Path
@@ -266,11 +288,15 @@ class AlgoSpec(_Spec):
     type_: typing.ClassVar[Type] = Type.Algo
 
     class Meta:
-        file_attributes = ('file', 'description', )
+        file_attributes = (
+            "file",
+            "description",
+        )
 
 
 class TraintupleSpec(_Spec):
     """Specification for creating a traintuple"""
+
     algo_key: str
     data_manager_key: str
     train_data_sample_keys: List[str]
@@ -284,12 +310,7 @@ class TraintupleSpec(_Spec):
     type_: typing.ClassVar[Type] = Type.Traintuple
 
     @classmethod
-    def from_compute_plan(
-        cls,
-        compute_plan_key: str,
-        rank: int,
-        spec: ComputePlanTraintupleSpec
-    ) -> "TraintupleSpec":
+    def from_compute_plan(cls, compute_plan_key: str, rank: int, spec: ComputePlanTraintupleSpec) -> "TraintupleSpec":
         return TraintupleSpec(
             algo_key=spec.algo_key,
             data_manager_key=spec.data_manager_key,
@@ -298,12 +319,13 @@ class TraintupleSpec(_Spec):
             tag=spec.tag,
             compute_plan_key=compute_plan_key,
             rank=rank,
-            metadata=spec.metadata
+            metadata=spec.metadata,
         )
 
 
 class AggregatetupleSpec(_Spec):
     """Specification for creating an aggregate tuple"""
+
     algo_key: str
     worker: str
     in_models_keys: List[str]
@@ -317,10 +339,7 @@ class AggregatetupleSpec(_Spec):
 
     @classmethod
     def from_compute_plan(
-        cls,
-        compute_plan_key: str,
-        rank: int,
-        spec: ComputePlanAggregatetupleSpec
+        cls, compute_plan_key: str, rank: int, spec: ComputePlanAggregatetupleSpec
     ) -> "AggregatetupleSpec":
         return AggregatetupleSpec(
             algo_key=spec.algo_key,
@@ -329,12 +348,13 @@ class AggregatetupleSpec(_Spec):
             tag=spec.tag,
             compute_plan_key=compute_plan_key,
             rank=rank,
-            metadata=spec.metadata
+            metadata=spec.metadata,
         )
 
 
 class CompositeTraintupleSpec(_Spec):
     """Specification for creating a composite traintuple"""
+
     algo_key: str
     data_manager_key: str
     train_data_sample_keys: List[str]
@@ -351,10 +371,7 @@ class CompositeTraintupleSpec(_Spec):
 
     @classmethod
     def from_compute_plan(
-        cls,
-        compute_plan_key: str,
-        rank: int,
-        spec: ComputePlanCompositeTraintupleSpec
+        cls, compute_plan_key: str, rank: int, spec: ComputePlanCompositeTraintupleSpec
     ) -> "CompositeTraintupleSpec":
         return CompositeTraintupleSpec(
             algo_key=spec.algo_key,
@@ -364,17 +381,18 @@ class CompositeTraintupleSpec(_Spec):
             in_trunk_model_key=spec.in_trunk_model_id,
             out_trunk_model_permissions={
                 "public": spec.out_trunk_model_permissions.public,
-                "authorized_ids": spec.out_trunk_model_permissions.authorized_ids
+                "authorized_ids": spec.out_trunk_model_permissions.authorized_ids,
             },
             tag=spec.tag,
             compute_plan_key=compute_plan_key,
             rank=rank,
-            metadata=spec.metadata
+            metadata=spec.metadata,
         )
 
 
 class TesttupleSpec(_Spec):
     """Specification for creating a testtuple"""
+
     metric_keys: List[str]
     traintuple_key: str
     tag: Optional[str]
@@ -386,10 +404,7 @@ class TesttupleSpec(_Spec):
     type_: typing.ClassVar[Type] = Type.Testtuple
 
     @classmethod
-    def from_compute_plan(
-        cls,
-        spec: ComputePlanTesttupleSpec
-    ) -> "TesttupleSpec":
+    def from_compute_plan(cls, spec: ComputePlanTesttupleSpec) -> "TesttupleSpec":
         return TesttupleSpec(
             metric_keys=spec.metric_keys,
             traintuple_key=spec.traintuple_id,

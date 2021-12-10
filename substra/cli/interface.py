@@ -12,19 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import functools
-import os
+import json
 import logging
+import os
 
 import click
 import consolemd
 
 from substra import __version__
 from substra.cli import printers
-from substra.sdk import assets, exceptions, utils
+from substra.sdk import assets
 from substra.sdk import config as configuration
-from substra.sdk.client import Client, DEFAULT_BATCH_SIZE
+from substra.sdk import exceptions
+from substra.sdk import utils
+from substra.sdk.client import DEFAULT_BATCH_SIZE
+from substra.sdk.client import Client
 
 DEFAULT_RETRY_TIMEOUT = 300
 
@@ -41,12 +44,10 @@ def get_client(global_conf):
         )
 
     except FileNotFoundError:
-        raise click.ClickException(
-            f"Config file '{global_conf.config}' not found. Please run '{help_command}'.")
+        raise click.ClickException(f"Config file '{global_conf.config}' not found. Please run '{help_command}'.")
 
     except configuration.ProfileNotFoundError:
-        raise click.ClickException(
-            f"Profile '{global_conf.profile}' not found. Please run '{help_command}'.")
+        raise click.ClickException(f"Profile '{global_conf.profile}' not found. Please run '{help_command}'.")
 
     return client
 
@@ -55,7 +56,7 @@ def load_json_from_path(ctx, param, value):
     if not value:
         return value
 
-    with open(value, 'r') as fp:
+    with open(value, "r") as fp:
         try:
             json_file = json.load(fp)
         except json.decoder.JSONDecodeError:
@@ -95,43 +96,46 @@ def update_global_conf(ctx, param, value):
 def click_global_conf_profile(f):
     """Add profile option to command."""
     return click.option(
-        '--profile',
+        "--profile",
         expose_value=False,
         callback=update_global_conf,
-        default='default',
-        help='Profile name to use.')(f)
+        default="default",
+        help="Profile name to use.",
+    )(f)
 
 
 def click_global_conf_tokens(f):
     """Add tokens option to command."""
     return click.option(
-        '--tokens',
+        "--tokens",
         expose_value=False,
         type=click.Path(dir_okay=False, resolve_path=True),
         callback=update_global_conf,
         default=os.path.expanduser(configuration.DEFAULT_TOKENS_PATH),
-        help=f'Tokens file path to use (default {configuration.DEFAULT_TOKENS_PATH}).')(f)
+        help=f"Tokens file path to use (default {configuration.DEFAULT_TOKENS_PATH}).",
+    )(f)
 
 
 def click_global_conf_config(f):
     """Add config option to command."""
     return click.option(
-        '--config',
+        "--config",
         expose_value=False,
         type=click.Path(exists=True, resolve_path=True),
         callback=update_global_conf,
         default=os.path.expanduser(configuration.DEFAULT_PATH),
-        help=f'Config path (default {configuration.DEFAULT_PATH}).')(f)
+        help=f"Config path (default {configuration.DEFAULT_PATH}).",
+    )(f)
 
 
 def click_global_conf_verbose(f):
     """Add verbose option to command."""
     return click.option(
-        '--verbose',
+        "--verbose",
         expose_value=False,
         callback=update_global_conf,
         is_flag=True,
-        help='Enable verbose mode.'
+        help="Enable verbose mode.",
     )(f)
 
 
@@ -143,24 +147,26 @@ def set_log_level(ctx, param, value):
 def click_global_conf_log_level(f):
     """Add verbose option to command."""
     return click.option(
-        '--log-level',
-        type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']),
+        "--log-level",
+        type=click.Choice(["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]),
         callback=set_log_level,
         expose_value=False,
-        help='Enable logging and set log level'
+        help="Enable logging and set log level",
     )(f)
 
 
 def click_global_conf_output_format(f):
     """Add output option to command."""
     return click.option(
-        '-o', '--output', 'output_format',
-        type=click.Choice(['pretty', 'yaml', 'json']),
+        "-o",
+        "--output",
+        "output_format",
+        type=click.Choice(["pretty", "yaml", "json"]),
         expose_value=False,
-        default='pretty',
+        default="pretty",
         show_default=True,
         callback=update_global_conf,
-        help='Set output format'
+        help="Set output format",
     )(f)
 
 
@@ -182,32 +188,30 @@ def click_global_conf_with_output_format(f):
 def click_option_metadata(f):
     """Add metadata option to command."""
     return click.option(
-        '--metadata-path',
-        'metadata',
+        "--metadata-path",
+        "metadata",
         callback=load_json_from_path,
         type=click.Path(exists=True, resolve_path=True, dir_okay=False),
-        help='Metadata file path')(f)
+        help="Metadata file path",
+    )(f)
 
 
 def click_option_expand(f):
     """Add expand option to command."""
-    return click.option(
-        '--expand',
-        is_flag=True,
-        help="Display associated assets details"
-    )(f)
+    return click.option("--expand", is_flag=True, help="Display associated assets details")(f)
 
 
 def click_global_conf_retry_timeout(f):
     """Add timeout option to command."""
     return click.option(
-        '--timeout', 'timeout',
+        "--timeout",
+        "timeout",
         type=click.INT,
         expose_value=False,
         default=DEFAULT_RETRY_TIMEOUT,
         show_default=True,
         callback=update_global_conf,
-        help='Max number of seconds the operation will be retried for'
+        help="Max number of seconds the operation will be retried for",
     )(f)
 
 
@@ -218,19 +222,19 @@ def validate_json(ctx, param, value):
     try:
         data = json.loads(value)
     except ValueError:
-        raise click.BadParameter('must be valid JSON')
+        raise click.BadParameter("must be valid JSON")
     return data
 
 
 def load_data_samples_keys(data_samples, option="--data-samples-path"):
     try:
-        return data_samples['keys']
+        return data_samples["keys"]
     except KeyError:
         raise click.BadParameter('File must contain a "keys" attribute.', param_hint=f'"{option}"')
 
 
 def _format_server_errors(fn, errors):
-    action = fn.__name__.replace('_', ' ')
+    action = fn.__name__.replace("_", " ")
 
     def _format_error_lines(errors_):
         lines_ = []
@@ -248,13 +252,17 @@ def _format_server_errors(fn, errors):
     else:
         lines.append(errors)
 
-    pluralized_error = 'errors' if len(lines) > 1 else 'error'
-    return f"Could not {action}, the server returned the following \
-        {pluralized_error}:\n- " + '\n- '.join(lines)
+    pluralized_error = "errors" if len(lines) > 1 else "error"
+    return (
+        f"Could not {action}, the server returned the following \
+        {pluralized_error}:\n- "
+        + "\n- ".join(lines)
+    )
 
 
 def error_printer(fn):
     """Command decorator to pretty print a few selected exceptions from sdk."""
+
     @functools.wraps(fn)
     def wrapper(*args, **kwargs):
         ctx = click.get_current_context()
@@ -265,20 +273,21 @@ def error_printer(fn):
         try:
             return fn(*args, **kwargs)
         except exceptions.BadLoginException:
-            raise click.ClickException('Login failed: No active account found with the'
-                                       ' given credentials.')
+            raise click.ClickException("Login failed: No active account found with the" " given credentials.")
         except exceptions.InvalidRequest as e:
             try:
-                errors = e.errors['message']
+                errors = e.errors["message"]
             except KeyError:
                 errors = e.errors
             raise click.ClickException(_format_server_errors(fn, errors))
         except exceptions.RequestException as e:
             raise click.ClickException(f"Request failed: {e.__class__.__name__}: {e}")
-        except (exceptions.ConnectionError,
-                exceptions.InvalidResponse,
-                exceptions.LoadDataException,
-                exceptions.BadConfiguration) as e:
+        except (
+            exceptions.ConnectionError,
+            exceptions.InvalidResponse,
+            exceptions.LoadDataException,
+            exceptions.BadConfiguration,
+        ) as e:
             raise click.ClickException(str(e))
 
     return wrapper
@@ -296,15 +305,16 @@ def cli(ctx):
     ctx.obj = GlobalConf()
 
 
-@cli.command('config')
-@click.argument('url')
-@click.option('--config', type=click.Path(),
-              default=os.path.expanduser(configuration.DEFAULT_PATH),
-              help=f'Config path (default {configuration.DEFAULT_PATH}).')
-@click.option('--profile', default='default',
-              help='Profile name to add')
-@click.option('--insecure', '-k', is_flag=True,
-              help='Do not verify SSL certificates')
+@cli.command("config")
+@click.argument("url")
+@click.option(
+    "--config",
+    type=click.Path(),
+    default=os.path.expanduser(configuration.DEFAULT_PATH),
+    help=f"Config path (default {configuration.DEFAULT_PATH}).",
+)
+@click.option("--profile", default="default", help="Profile name to add")
+@click.option("--insecure", "-k", is_flag=True, help="Do not verify SSL certificates")
 def add_profile_to_config(url, config, profile, insecure):
     """Add profile to config file."""
     manager = configuration.ConfigManager(config)
@@ -312,12 +322,12 @@ def add_profile_to_config(url, config, profile, insecure):
     manager.save()
 
 
-@cli.command('login')
+@cli.command("login")
 @click_global_conf
 @click.pass_context
 @error_printer
-@click.option('--username', '-u', envvar='SUBSTRA_USERNAME', prompt=True)
-@click.option('--password', '-p', envvar='SUBSTRA_PASSWORD', prompt=True, hide_input=True)
+@click.option("--username", "-u", envvar="SUBSTRA_USERNAME", prompt=True)
+@click.option("--password", "-p", envvar="SUBSTRA_PASSWORD", prompt=True, hide_input=True)
 def login(ctx, username, password):
     """Login to the Substra platform."""
     client = get_client(ctx.obj)
@@ -339,15 +349,12 @@ def add(ctx):
     pass
 
 
-@add.command('data_sample')
-@click.argument('path', type=click.Path(exists=True, file_okay=False))
-@click.option('--dataset-key', required=True)
-@click.option('--local/--remote', 'local', is_flag=True, default=True,
-              help='Data sample(s) location.')
-@click.option('--multiple', is_flag=True, default=False,
-              help='Add multiple data samples at once.')
-@click.option('--test-only', is_flag=True, default=False,
-              help='Data sample(s) used as test data only.')
+@add.command("data_sample")
+@click.argument("path", type=click.Path(exists=True, file_okay=False))
+@click.option("--dataset-key", required=True)
+@click.option("--local/--remote", "local", is_flag=True, default=True, help="Data sample(s) location.")
+@click.option("--multiple", is_flag=True, default=False, help="Add multiple data samples at once.")
+@click.option("--test-only", is_flag=True, default=False, help="Data sample(s) used as test data only.")
 @click_global_conf
 @click_global_conf_retry_timeout
 @click.pass_context
@@ -365,25 +372,29 @@ def add_data_sample(ctx, path, dataset_key, local, multiple, test_only):
         subdirs = next(os.walk(path))[1]
         paths = [os.path.join(path, s) for s in subdirs]
         if not paths:
-            raise click.UsageError(f'No data sample directory in {path}')
+            raise click.UsageError(f"No data sample directory in {path}")
 
     else:
         paths = [path]
 
     data = {
-        'paths': paths,
-        'data_manager_keys': [dataset_key],
-        'multiple': multiple,
+        "paths": paths,
+        "data_manager_keys": [dataset_key],
+        "multiple": multiple,
     }
     if test_only:
-        data['test_only'] = True
+        data["test_only"] = True
     key = client.add_data_samples(data, local=local)
     display(key)
 
 
-@add.command('dataset')
-@click.argument('data', type=click.Path(exists=True, dir_okay=False), callback=load_json_from_path,
-                metavar="PATH")
+@add.command("dataset")
+@click.argument(
+    "data",
+    type=click.Path(exists=True, dir_okay=False),
+    callback=load_json_from_path,
+    metavar="PATH",
+)
 @click_global_conf_with_output_format
 @click_global_conf_retry_timeout
 @click.pass_context
@@ -423,9 +434,13 @@ def add_dataset(ctx, data):
     printer.print(res, is_list=False)
 
 
-@add.command('metric')
-@click.argument('data', type=click.Path(exists=True, dir_okay=False), callback=load_json_from_path,
-                metavar="PATH")
+@add.command("metric")
+@click.argument(
+    "data",
+    type=click.Path(exists=True, dir_okay=False),
+    callback=load_json_from_path,
+    metavar="PATH",
+)
 @click_global_conf_with_output_format
 @click_global_conf_retry_timeout
 @click.pass_context
@@ -462,9 +477,13 @@ def add_metric(ctx, data):
     printer.print(res, is_list=False)
 
 
-@add.command('algo')
-@click.argument('data', type=click.Path(exists=True, dir_okay=False), callback=load_json_from_path,
-                metavar="PATH")
+@add.command("algo")
+@click.argument(
+    "data",
+    type=click.Path(exists=True, dir_okay=False),
+    callback=load_json_from_path,
+    metavar="PATH",
+)
 @click_global_conf_with_output_format
 @click_global_conf_retry_timeout
 @click.pass_context
@@ -504,14 +523,22 @@ def add_algo(ctx, data):
     printer.print(res, is_list=False)
 
 
-@add.command('compute_plan')
-@click.argument('data', type=click.Path(exists=True, dir_okay=False),
-                callback=load_json_from_path, metavar="PATH")
-@click.option('--no-auto-batching', '-n', is_flag=True,
-              help='Disable the auto batching feature')
-@click.option('--batch-size', '-b', type=int,
-              help='Batch size for the auto batching',
-              default=DEFAULT_BATCH_SIZE, show_default=True)
+@add.command("compute_plan")
+@click.argument(
+    "data",
+    type=click.Path(exists=True, dir_okay=False),
+    callback=load_json_from_path,
+    metavar="PATH",
+)
+@click.option("--no-auto-batching", "-n", is_flag=True, help="Disable the auto batching feature")
+@click.option(
+    "--batch-size",
+    "-b",
+    type=int,
+    help="Batch size for the auto batching",
+    default=DEFAULT_BATCH_SIZE,
+    show_default=True,
+)
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
@@ -571,24 +598,34 @@ def add_compute_plan(ctx, data, no_auto_batching, batch_size):
     tuples uploaded in each batch (default 20).
     """
     if no_auto_batching and batch_size:
-        raise click.BadOptionUsage('--batch_size',
-                                   "The --batch_size option cannot be used when using "
-                                   "--no_auto_batching.")
+        raise click.BadOptionUsage(
+            "--batch_size",
+            "The --batch_size option cannot be used when using " "--no_auto_batching.",
+        )
     client = get_client(ctx.obj)
     res = client.add_compute_plan(data, auto_batching=not no_auto_batching, batch_size=batch_size)
     printer = printers.get_asset_printer(assets.COMPUTE_PLAN, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
 
-@add.command('traintuple')
-@click.option('--algo-key', required=True)
-@click.option('--dataset-key', required=True)
-@click.option('--data-samples-path', 'data_samples', required=True,
-              type=click.Path(exists=True, resolve_path=True, dir_okay=False),
-              callback=load_json_from_path)
-@click.option('--in-model-key', 'in_models_keys', type=click.STRING, multiple=True,
-              help='In model traintuple key.')
-@click.option('--tag')
+@add.command("traintuple")
+@click.option("--algo-key", required=True)
+@click.option("--dataset-key", required=True)
+@click.option(
+    "--data-samples-path",
+    "data_samples",
+    required=True,
+    type=click.Path(exists=True, resolve_path=True, dir_okay=False),
+    callback=load_json_from_path,
+)
+@click.option(
+    "--in-model-key",
+    "in_models_keys",
+    type=click.STRING,
+    multiple=True,
+    help="In model traintuple key.",
+)
+@click.option("--tag")
 @click_global_conf_with_output_format
 @click_global_conf_retry_timeout
 @click_option_metadata
@@ -611,34 +648,39 @@ def add_traintuple(ctx, algo_key, dataset_key, data_samples, in_models_keys, tag
     """
     client = get_client(ctx.obj)
     data = {
-        'algo_key': algo_key,
-        'data_manager_key': dataset_key,
+        "algo_key": algo_key,
+        "data_manager_key": dataset_key,
     }
 
     if data_samples:
-        data['train_data_sample_keys'] = load_data_samples_keys(data_samples)
+        data["train_data_sample_keys"] = load_data_samples_keys(data_samples)
 
     if tag:
-        data['tag'] = tag
+        data["tag"] = tag
 
     if metadata:
-        data['metadata'] = metadata
+        data["metadata"] = metadata
 
     if in_models_keys:
-        data['in_models_keys'] = in_models_keys
+        data["in_models_keys"] = in_models_keys
     key = client.add_traintuple(data)
     res = ctx.obj.retry(client.get_traintuple)(key)
     printer = printers.get_asset_printer(assets.TRAINTUPLE, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
 
-@add.command('aggregatetuple')
-@click.option('--algo-key', required=True, help="Aggregate algo key.")
-@click.option('--in-model-key', 'in_models_keys', type=click.STRING, multiple=True,
-              help='In model traintuple key.')
-@click.option('--worker', required=True, help='Node ID for worker execution.')
-@click.option('--rank', type=click.INT)
-@click.option('--tag')
+@add.command("aggregatetuple")
+@click.option("--algo-key", required=True, help="Aggregate algo key.")
+@click.option(
+    "--in-model-key",
+    "in_models_keys",
+    type=click.STRING,
+    multiple=True,
+    help="In model traintuple key.",
+)
+@click.option("--worker", required=True, help="Node ID for worker execution.")
+@click.option("--rank", type=click.INT)
+@click.option("--tag")
 @click_global_conf_with_output_format
 @click_global_conf_retry_timeout
 @click_option_metadata
@@ -648,49 +690,63 @@ def add_aggregatetuple(ctx, algo_key, in_models_keys, worker, rank, tag, metadat
     """Add aggregatetuple."""
     client = get_client(ctx.obj)
     data = {
-        'algo_key': algo_key,
-        'worker': worker,
+        "algo_key": algo_key,
+        "worker": worker,
     }
 
     if in_models_keys:
-        data['in_models_keys'] = in_models_keys
+        data["in_models_keys"] = in_models_keys
 
     if rank is not None:
-        data['rank'] = rank
+        data["rank"] = rank
 
     if tag:
-        data['tag'] = tag
+        data["tag"] = tag
 
     if metadata:
-        data['metadata'] = metadata
+        data["metadata"] = metadata
     key = client.add_aggregatetuple(data)
     res = ctx.obj.retry(client.get_aggregatetuple)(key)
     printer = printers.get_asset_printer(assets.AGGREGATETUPLE, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
 
-@add.command('composite_traintuple')
-@click.option('--algo-key', required=True)
-@click.option('--dataset-key', required=True)
-@click.option('--data-samples-path', 'data_samples', required=True,
-              type=click.Path(exists=True, resolve_path=True, dir_okay=False),
-              callback=load_json_from_path)
-@click.option('--head-model-key',
-              help='Must be used with --trunk-model-key option.')
-@click.option('--trunk-model-key',
-              help='Must be used with --head-model-key option.')
-@click.option('--out-trunk-model-permissions-path', 'out_trunk_model_permissions',
-              type=click.Path(exists=True, resolve_path=True, dir_okay=False),
-              callback=load_json_from_path,
-              help='Load a permissions file.')
-@click.option('--tag')
+@add.command("composite_traintuple")
+@click.option("--algo-key", required=True)
+@click.option("--dataset-key", required=True)
+@click.option(
+    "--data-samples-path",
+    "data_samples",
+    required=True,
+    type=click.Path(exists=True, resolve_path=True, dir_okay=False),
+    callback=load_json_from_path,
+)
+@click.option("--head-model-key", help="Must be used with --trunk-model-key option.")
+@click.option("--trunk-model-key", help="Must be used with --head-model-key option.")
+@click.option(
+    "--out-trunk-model-permissions-path",
+    "out_trunk_model_permissions",
+    type=click.Path(exists=True, resolve_path=True, dir_okay=False),
+    callback=load_json_from_path,
+    help="Load a permissions file.",
+)
+@click.option("--tag")
 @click_global_conf_with_output_format
 @click_global_conf_retry_timeout
 @click_option_metadata
 @click.pass_context
 @error_printer
-def add_composite_traintuple(ctx, algo_key, dataset_key, data_samples, head_model_key,
-                             trunk_model_key, out_trunk_model_permissions, tag, metadata):
+def add_composite_traintuple(
+    ctx,
+    algo_key,
+    dataset_key,
+    data_samples,
+    head_model_key,
+    trunk_model_key,
+    out_trunk_model_permissions,
+    tag,
+    metadata,
+):
     """Add composite traintuple.
 
     The option --data-samples-path must point to a valid JSON file with the
@@ -715,47 +771,52 @@ def add_composite_traintuple(ctx, algo_key, dataset_key, data_samples, head_mode
     """
 
     if head_model_key and not trunk_model_key:
-        raise click.BadOptionUsage('--trunk-model-key',
-                                   "The --trunk-model-key option is required when using "
-                                   "--head-model-key.")
+        raise click.BadOptionUsage(
+            "--trunk-model-key",
+            "The --trunk-model-key option is required when using " "--head-model-key.",
+        )
     if trunk_model_key and not head_model_key:
-        raise click.BadOptionUsage('--head-model-key',
-                                   "The --head-model-key option is required when using "
-                                   "--trunk-model-key.")
+        raise click.BadOptionUsage(
+            "--head-model-key",
+            "The --head-model-key option is required when using " "--trunk-model-key.",
+        )
 
     client = get_client(ctx.obj)
     data = {
-        'algo_key': algo_key,
-        'data_manager_key': dataset_key,
-        'in_head_model_key': head_model_key,
-        'in_trunk_model_key': trunk_model_key,
+        "algo_key": algo_key,
+        "data_manager_key": dataset_key,
+        "in_head_model_key": head_model_key,
+        "in_trunk_model_key": trunk_model_key,
     }
 
     if data_samples:
-        data['train_data_sample_keys'] = load_data_samples_keys(data_samples)
+        data["train_data_sample_keys"] = load_data_samples_keys(data_samples)
 
     if out_trunk_model_permissions:
-        data['out_trunk_model_permissions'] = out_trunk_model_permissions
+        data["out_trunk_model_permissions"] = out_trunk_model_permissions
 
     if tag:
-        data['tag'] = tag
+        data["tag"] = tag
 
     if metadata:
-        data['metadata'] = metadata
+        data["metadata"] = metadata
     key = client.add_composite_traintuple(data)
     res = ctx.obj.retry(client.get_composite_traintuple)(key)
     printer = printers.get_asset_printer(assets.COMPOSITE_TRAINTUPLE, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
 
-@add.command('testtuple')
-@click.option('--metric-key', 'metric_keys', required=True, multiple=True)
-@click.option('--dataset-key')
-@click.option('--traintuple-key', required=True)
-@click.option('--data-samples-path', 'data_samples',
-              type=click.Path(exists=True, resolve_path=True, dir_okay=False),
-              callback=load_json_from_path)
-@click.option('--tag')
+@add.command("testtuple")
+@click.option("--metric-key", "metric_keys", required=True, multiple=True)
+@click.option("--dataset-key")
+@click.option("--traintuple-key", required=True)
+@click.option(
+    "--data-samples-path",
+    "data_samples",
+    type=click.Path(exists=True, resolve_path=True, dir_okay=False),
+    callback=load_json_from_path,
+)
+@click.option("--tag")
 @click_global_conf_with_output_format
 @click_global_conf_retry_timeout
 @click_option_metadata
@@ -778,19 +839,19 @@ def add_testtuple(ctx, metric_keys, dataset_key, traintuple_key, data_samples, t
     """
     client = get_client(ctx.obj)
     data = {
-        'metric_keys': metric_keys,
-        'data_manager_key': dataset_key,
-        'traintuple_key': traintuple_key,
+        "metric_keys": metric_keys,
+        "data_manager_key": dataset_key,
+        "traintuple_key": traintuple_key,
     }
 
     if data_samples:
-        data['test_data_sample_keys'] = load_data_samples_keys(data_samples)
+        data["test_data_sample_keys"] = load_data_samples_keys(data_samples)
 
     if tag:
-        data['tag'] = tag
+        data["tag"] = tag
 
     if metadata:
-        data['metadata'] = metadata
+        data["metadata"] = metadata
     key = client.add_testtuple(data)
     res = ctx.obj.retry(client.get_testtuple)(key)
     printer = printers.get_asset_printer(assets.TESTTUPLE, ctx.obj.output_format)
@@ -798,65 +859,87 @@ def add_testtuple(ctx, metric_keys, dataset_key, traintuple_key, data_samples, t
 
 
 @cli.command()
-@click.argument('asset-name', type=click.Choice([
-    assets.ALGO,
-    assets.COMPUTE_PLAN,
-    assets.DATASET,
-    assets.METRIC,
-    assets.TESTTUPLE,
-    assets.TRAINTUPLE,
-    assets.COMPOSITE_TRAINTUPLE,
-    assets.AGGREGATETUPLE,
-]))
-@click.argument('asset-key')
+@click.argument(
+    "asset-name",
+    type=click.Choice(
+        [
+            assets.ALGO,
+            assets.COMPUTE_PLAN,
+            assets.DATASET,
+            assets.METRIC,
+            assets.TESTTUPLE,
+            assets.TRAINTUPLE,
+            assets.COMPOSITE_TRAINTUPLE,
+            assets.AGGREGATETUPLE,
+        ]
+    ),
+)
+@click.argument("asset-key")
 @click_option_expand
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
 def get(ctx, expand, asset_name, asset_key):
     """Get asset definition."""
-    expand_valid_assets = (assets.DATASET, assets.TRAINTUPLE, assets.METRIC, assets.TESTTUPLE,
-                           assets.COMPOSITE_TRAINTUPLE, assets.AGGREGATETUPLE, assets.COMPUTE_PLAN)
+    expand_valid_assets = (
+        assets.DATASET,
+        assets.TRAINTUPLE,
+        assets.METRIC,
+        assets.TESTTUPLE,
+        assets.COMPOSITE_TRAINTUPLE,
+        assets.AGGREGATETUPLE,
+        assets.COMPUTE_PLAN,
+    )
     if expand and asset_name not in expand_valid_assets:  # fail fast
-        raise click.UsageError(
-            f'--expand option is available with assets {expand_valid_assets}')
+        raise click.UsageError(f"--expand option is available with assets {expand_valid_assets}")
 
     client = get_client(ctx.obj)
     # method must exist in sdk
-    method = getattr(client, f'get_{asset_name.lower()}')
+    method = getattr(client, f"get_{asset_name.lower()}")
     res = method(asset_key)
     printer = printers.get_asset_printer(asset_name, ctx.obj.output_format)
     printer.print(res, profile=ctx.obj.profile, expand=expand)
 
 
-@cli.command('list')
-@click.argument('asset-name', type=click.Choice([
-    assets.ALGO,
-    assets.COMPUTE_PLAN,
-    assets.DATA_SAMPLE,
-    assets.DATASET,
-    assets.METRIC,
-    assets.TESTTUPLE,
-    assets.TRAINTUPLE,
-    assets.COMPOSITE_TRAINTUPLE,
-    assets.AGGREGATETUPLE,
-    assets.NODE,
-]))
-@click.option('-f', '--filter', 'filters',
-              help='Only display assets that exactly match this filter. Valid syntax is: '
-                   '<asset>:<property>:<value>',
-              multiple=True)
-@click.option('--and', 'filters_logical_clause',
-              help='Combine filters using logical ANDs',
-              flag_value='and',
-              default=True)
-@click.option('--or', 'filters_logical_clause',
-              help='Combine filters using logical ORs',
-              flag_value='or')
-@click.option('--advanced-filters',
-              callback=validate_json,
-              help='Filter results using a complex search (must be a JSON array of valid filters). '
-                   'Incompatible with the --filter option')
+@cli.command("list")
+@click.argument(
+    "asset-name",
+    type=click.Choice(
+        [
+            assets.ALGO,
+            assets.COMPUTE_PLAN,
+            assets.DATA_SAMPLE,
+            assets.DATASET,
+            assets.METRIC,
+            assets.TESTTUPLE,
+            assets.TRAINTUPLE,
+            assets.COMPOSITE_TRAINTUPLE,
+            assets.AGGREGATETUPLE,
+            assets.NODE,
+        ]
+    ),
+)
+@click.option(
+    "-f",
+    "--filter",
+    "filters",
+    help="Only display assets that exactly match this filter. Valid syntax is: " "<asset>:<property>:<value>",
+    multiple=True,
+)
+@click.option(
+    "--and",
+    "filters_logical_clause",
+    help="Combine filters using logical ANDs",
+    flag_value="and",
+    default=True,
+)
+@click.option("--or", "filters_logical_clause", help="Combine filters using logical ORs", flag_value="or")
+@click.option(
+    "--advanced-filters",
+    callback=validate_json,
+    help="Filter results using a complex search (must be a JSON array of valid filters). "
+    "Incompatible with the --filter option",
+)
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
@@ -864,17 +947,17 @@ def list_(ctx, asset_name, filters, filters_logical_clause, advanced_filters):
     """List assets."""
     client = get_client(ctx.obj)
     # method must exist in sdk
-    method = getattr(client, f'list_{asset_name.lower()}')
+    method = getattr(client, f"list_{asset_name.lower()}")
     # handle filters
     if advanced_filters and filters:
-        raise click.UsageError('The --filter and --advanced-filters options are mutually exclusive')
+        raise click.UsageError("The --filter and --advanced-filters options are mutually exclusive")
     elif filters:
         filters = list(filters)
-        if filters_logical_clause == 'or':
+        if filters_logical_clause == "or":
             # insert 'OR' between each filter
             n = len(filters)
             for i in range(n - 1):
-                filters.insert(i + 1, 'OR')
+                filters.insert(i + 1, "OR")
     elif advanced_filters:
         filters = advanced_filters
     res = method(filters)
@@ -884,12 +967,17 @@ def list_(ctx, asset_name, filters, filters_logical_clause, advanced_filters):
 
 
 @cli.command()
-@click.argument('asset-name', type=click.Choice([
-    assets.ALGO,
-    assets.DATASET,
-    assets.METRIC,
-]))
-@click.argument('asset-key')
+@click.argument(
+    "asset-name",
+    type=click.Choice(
+        [
+            assets.ALGO,
+            assets.DATASET,
+            assets.METRIC,
+        ]
+    ),
+)
+@click.argument("asset-key")
 @click_global_conf
 @click.pass_context
 @error_printer
@@ -897,7 +985,7 @@ def describe(ctx, asset_name, asset_key):
     """Display asset description."""
     client = get_client(ctx.obj)
     # method must exist in sdk
-    method = getattr(client, f'describe_{asset_name.lower()}')
+    method = getattr(client, f"describe_{asset_name.lower()}")
     description = method(asset_key)
     renderer = consolemd.Renderer()
     renderer.render(description)
@@ -909,7 +997,7 @@ def node(ctx):
     """Display node description."""
 
 
-@node.command('info')
+@node.command("info")
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
@@ -922,39 +1010,33 @@ def node_info(ctx):
 
 
 @cli.command()
-@click.argument('asset-name', type=click.Choice([
-    assets.ALGO,
-    assets.DATASET,
-    assets.METRIC,
-    assets.MODEL
-]))
-@click.argument('key')
-@click.option('--folder', type=click.Path(), help='destination folder',
-              default='.')
-@click.option('--from-traintuple', 'model_src',
-              help=(
-                  '(model download only) if this option is set, '
-                  'the KEY argument refers to a traintuple key'
-              ),
-              flag_value='model_from_traintuple')
-@click.option('--from-aggregatetuple', 'model_src',
-              help=(
-                  '(model download only) if this option is set, '
-                  'the KEY argument refers to an aggregatetuple key'
-              ),
-              flag_value='model_from_aggregatetuple')
-@click.option('--from-composite-head', 'model_src',
-              help=(
-                  '(model download only) if this option is set, '
-                  'the KEY argument refers to a composite traintuple key'
-              ),
-              flag_value='head_model_from_composite_traintuple')
-@click.option('--from-composite-trunk', 'model_src',
-              help=(
-                  '(model download only) if this option is set, '
-                  'the KEY argument refers to a composite traintuple key'
-              ),
-              flag_value='trunk_model_from_composite_traintuple')
+@click.argument("asset-name", type=click.Choice([assets.ALGO, assets.DATASET, assets.METRIC, assets.MODEL]))
+@click.argument("key")
+@click.option("--folder", type=click.Path(), help="destination folder", default=".")
+@click.option(
+    "--from-traintuple",
+    "model_src",
+    help=("(model download only) if this option is set, " "the KEY argument refers to a traintuple key"),
+    flag_value="model_from_traintuple",
+)
+@click.option(
+    "--from-aggregatetuple",
+    "model_src",
+    help=("(model download only) if this option is set, " "the KEY argument refers to an aggregatetuple key"),
+    flag_value="model_from_aggregatetuple",
+)
+@click.option(
+    "--from-composite-head",
+    "model_src",
+    help=("(model download only) if this option is set, " "the KEY argument refers to a composite traintuple key"),
+    flag_value="head_model_from_composite_traintuple",
+)
+@click.option(
+    "--from-composite-trunk",
+    "model_src",
+    help=("(model download only) if this option is set, " "the KEY argument refers to a composite traintuple key"),
+    flag_value="trunk_model_from_composite_traintuple",
+)
 @click_global_conf
 @click.pass_context
 @error_printer
@@ -970,9 +1052,9 @@ def download(ctx, asset_name, key, folder, model_src):
     client = get_client(ctx.obj)
 
     if asset_name == assets.MODEL:
-        method = getattr(client, f'download_{model_src}' if model_src else 'download_model')
+        method = getattr(client, f"download_{model_src}" if model_src else "download_model")
     else:
-        method = getattr(client, f'download_{asset_name.lower()}')
+        method = getattr(client, f"download_{asset_name.lower()}")
 
     res = method(key, folder)
     display(res)
@@ -985,8 +1067,8 @@ def cancel(ctx):
     pass
 
 
-@cancel.command('compute_plan')
-@click.argument('compute_plan_key', type=click.STRING)
+@cancel.command("compute_plan")
+@click.argument("compute_plan_key", type=click.STRING)
 @click_global_conf_with_output_format
 @click.pass_context
 def cancel_compute_plan(ctx, compute_plan_key):
@@ -1005,10 +1087,14 @@ def update(ctx):
     pass
 
 
-@update.command('data_sample')
-@click.argument('data_samples', type=click.Path(exists=True, dir_okay=False),
-                callback=load_json_from_path, metavar="DATA_SAMPLES_PATH")
-@click.option('--dataset-key', required=True)
+@update.command("data_sample")
+@click.argument(
+    "data_samples",
+    type=click.Path(exists=True, dir_okay=False),
+    callback=load_json_from_path,
+    metavar="DATA_SAMPLES_PATH",
+)
+@click.option("--dataset-key", required=True)
 @click_global_conf
 @click.pass_context
 @error_printer
@@ -1029,19 +1115,28 @@ def update_data_sample(ctx, data_samples, dataset_key):
     """
     client = get_client(ctx.obj)
     res = client.link_dataset_with_data_samples(
-        dataset_key, load_data_samples_keys(data_samples, option="DATA_SAMPLES_PATH"))
+        dataset_key, load_data_samples_keys(data_samples, option="DATA_SAMPLES_PATH")
+    )
     display(res)
 
 
-@update.command('compute_plan')
-@click.argument('compute_plan_key', type=click.STRING)
-@click.argument('tuples', type=click.Path(exists=True, dir_okay=False),
-                callback=load_json_from_path, metavar="TUPLES_PATH")
-@click.option('--no-auto-batching', '-n', is_flag=True,
-              help='Disable the auto batching feature')
-@click.option('--batch-size', '-b', type=int,
-              help='Batch size for the auto batching',
-              default=DEFAULT_BATCH_SIZE, show_default=True)
+@update.command("compute_plan")
+@click.argument("compute_plan_key", type=click.STRING)
+@click.argument(
+    "tuples",
+    type=click.Path(exists=True, dir_okay=False),
+    callback=load_json_from_path,
+    metavar="TUPLES_PATH",
+)
+@click.option("--no-auto-batching", "-n", is_flag=True, help="Disable the auto batching feature")
+@click.option(
+    "--batch-size",
+    "-b",
+    type=int,
+    help="Batch size for the auto batching",
+    default=DEFAULT_BATCH_SIZE,
+    show_default=True,
+)
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
@@ -1098,14 +1193,15 @@ def update_compute_plan(ctx, compute_plan_key, tuples, no_auto_batching, batch_s
     tuples uploaded in each batch (default 20).
     """
     if no_auto_batching and batch_size:
-        raise click.BadOptionUsage('--batch_size',
-                                   "The --batch_size option cannot be used when using "
-                                   "--no_auto_batching.")
+        raise click.BadOptionUsage(
+            "--batch_size",
+            "The --batch_size option cannot be used when using " "--no_auto_batching.",
+        )
     client = get_client(ctx.obj)
     res = client.update_compute_plan(compute_plan_key, tuples, not no_auto_batching, batch_size)
     printer = printers.get_asset_printer(assets.COMPUTE_PLAN, ctx.obj.output_format)
     printer.print(res, is_list=False)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()

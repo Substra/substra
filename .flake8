@@ -1,2 +1,20 @@
 [flake8]
-max-line-length = 100
+max-line-length = 120
+ignore = E203, W503
+    # W503 is incompatible with flake8, see https://github.com/psf/black/pull/36
+    # E203 must be disabled for flake8 to work with Black.
+    # See https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html#id1
+per-file-ignores =
+    __init__.py:F401,
+    examples/cyclic_strategy/scripts/plot_cyclic_strategy.py:E402
+
+exclude =
+    .git
+    .github
+    .dvc
+    __pycache__
+    .venv
+    .mypy_cache
+    .pytest_cache
+    hubconf.py
+    **local-worker

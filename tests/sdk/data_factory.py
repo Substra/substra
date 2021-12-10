@@ -1,17 +1,16 @@
 import os
 import pathlib
 import shutil
-from substra.sdk.schemas import AlgoCategory
 import tempfile
 import uuid
 import zipfile
 
 import substra
+from substra.sdk.schemas import AlgoCategory
 
+DEFAULT_DATA_SAMPLE_FILENAME = "data.csv"
 
-DEFAULT_DATA_SAMPLE_FILENAME = 'data.csv'
-
-DEFAULT_SUBSTRATOOLS_VERSION = '0.8.0-minimal'
+DEFAULT_SUBSTRATOOLS_VERSION = "0.8.0-minimal"
 
 DEFAULT_OPENER_SCRIPT = f"""
 import csv
@@ -57,41 +56,41 @@ class TestOpener(tools.Opener):
             return json.dump(y_pred, f)
 """
 
-DEFAULT_METRICS_SCRIPT = f"""
+DEFAULT_METRICS_SCRIPT = """
 import json
 import substratools as tools
 class TestMetrics(tools.Metrics):
     def score(self, y_true, y_pred):
         res = sum(y_pred) - sum(y_true)
-        print(f'metrics, y_true: {{y_true}}, y_pred: {{y_pred}}, result: {{res}}')
+        print(f'metrics, y_true: {y_true}, y_pred: {y_pred}, result: {res}')
         return res
 if __name__ == '__main__':
     tools.metrics.execute(TestMetrics())
 """
 
-DEFAULT_ALGO_SCRIPT = f"""
+DEFAULT_ALGO_SCRIPT = """
 import json
 import substratools as tools
 class TestAlgo(tools.Algo):
     def train(self, X, y, models, rank):
-        print(f'Train, get X: {{X}}, y: {{y}}, models: {{models}}')
+        print(f'Train, get X: {X}, y: {y}, models: {models}')
 
         ratio = sum(y) / sum(X)
         err = 0.1 * ratio  # Add a small error
 
         if len(models) == 0:
-            res = {{'value': ratio + err }}
+            res = {'value': ratio + err }
         else:
             ratios = [m['value'] for m in models]
             avg = sum(ratios) / len(ratios)
-            res = {{'value': avg + err }}
+            res = {'value': avg + err }
 
-        print(f'Train, return {{res}}')
+        print(f'Train, return {res}')
         return res
 
     def predict(self, X, model):
         res = [x * model['value'] for x in X]
-        print(f'Predict, get X: {{X}}, model: {{model}}, return {{res}}')
+        print(f'Predict, get X: {X}, model: {model}, return {res}')
         return res
 
     def load_model(self, path):
@@ -106,16 +105,16 @@ if __name__ == '__main__':
     tools.algo.execute(TestAlgo())
 """
 
-DEFAULT_AGGREGATE_ALGO_SCRIPT = f"""
+DEFAULT_AGGREGATE_ALGO_SCRIPT = """
 import json
 import substratools as tools
 class TestAggregateAlgo(tools.AggregateAlgo):
     def aggregate(self, models, rank):
-        print(f'Aggregate models: {{models}}')
+        print(f'Aggregate models: {models}')
         values = [m['value'] for m in models]
         avg = sum(values) / len(values)
-        res = {{'value': avg}}
-        print(f'Aggregate result: {{res}}')
+        res = {'value': avg}
+        print(f'Aggregate result: {res}')
         return res
     def predict(self, X, model):
         predictions = 0
@@ -132,13 +131,13 @@ if __name__ == '__main__':
 
 # TODO we should have a different serializer for head and trunk models
 
-DEFAULT_COMPOSITE_ALGO_SCRIPT = f"""
+DEFAULT_COMPOSITE_ALGO_SCRIPT = """
 import json
 import substratools as tools
 class TestCompositeAlgo(tools.CompositeAlgo):
     def train(self, X, y, head_model, trunk_model, rank):
 
-        print(f'Composite algo train X: {{X}}, y: {{y}}, head_model: {{head_model}}, trunk_model: {{trunk_model}}')
+        print(f'Composite algo train X: {X}, y: {y}, head_model: {head_model}, trunk_model: {trunk_model}')
 
         ratio = sum(y) / sum(X)
         err_head = 0.1 * ratio  # Add a small error
@@ -154,15 +153,15 @@ class TestCompositeAlgo(tools.CompositeAlgo):
         else:
             res_trunk = ratio
 
-        res = {{'value' : res_head + err_head }}, {{'value' : res_trunk + err_trunk }}
-        print(f'Composite algo train head, trunk result: {{res}}')
+        res = {'value' : res_head + err_head }, {'value' : res_trunk + err_trunk }
+        print(f'Composite algo train head, trunk result: {res}')
         return res
 
     def predict(self, X, head_model, trunk_model):
-        print(f'Composite algo predict X: {{X}}, head_model: {{head_model}}, trunk_model: {{trunk_model}}')
+        print(f'Composite algo predict X: {X}, head_model: {head_model}, trunk_model: {trunk_model}')
         ratio_sum = head_model['value'] + trunk_model['value']
         res = [x * ratio_sum for x in X]
-        print(f'Composite algo predict result: {{res}}')
+        print(f'Composite algo predict result: {res}')
         return res
 
     def load_head_model(self, path):
@@ -196,9 +195,9 @@ DEFAULT_ALGO_SCRIPTS = {
     AlgoCategory.aggregate: DEFAULT_AGGREGATE_ALGO_SCRIPT,
 }
 
-INVALID_ALGO_SCRIPT = DEFAULT_ALGO_SCRIPT.replace('train', 'naitr')
-INVALID_COMPOSITE_ALGO_SCRIPT = DEFAULT_COMPOSITE_ALGO_SCRIPT.replace('train', 'naitr')
-INVALID_AGGREGATE_ALGO_SCRIPT = DEFAULT_AGGREGATE_ALGO_SCRIPT.replace('aggregate', 'etagergga')
+INVALID_ALGO_SCRIPT = DEFAULT_ALGO_SCRIPT.replace("train", "naitr")
+INVALID_COMPOSITE_ALGO_SCRIPT = DEFAULT_COMPOSITE_ALGO_SCRIPT.replace("train", "naitr")
+INVALID_AGGREGATE_ALGO_SCRIPT = DEFAULT_AGGREGATE_ALGO_SCRIPT.replace("aggregate", "etagergga")
 
 DEFAULT_METRICS_DOCKERFILE = f"""
 FROM gcr.io/connect-314908/connect-tools:{DEFAULT_SUBSTRATOOLS_VERSION}
@@ -228,9 +227,8 @@ DEFAULT_PERMISSIONS = substra.sdk.schemas.Permissions(public=True, authorized_id
 
 def zip_folder(path, destination=None):
     if not destination:
-        destination = os.path.join(os.path.dirname(path),
-                                   os.path.basename(path) + '.zip')
-    with zipfile.ZipFile(destination, 'w', zipfile.ZIP_DEFLATED) as zf:
+        destination = os.path.join(os.path.dirname(path), os.path.basename(path) + ".zip")
+    with zipfile.ZipFile(destination, "w", zipfile.ZIP_DEFLATED) as zf:
         for root, dirs, files in os.walk(path):
             for f in files:
                 abspath = os.path.join(root, f)
@@ -242,7 +240,7 @@ def zip_folder(path, destination=None):
 def create_archive(tmpdir, *files):
     tmpdir.mkdir()
     for path, content in files:
-        with open(tmpdir / path, 'w') as f:
+        with open(tmpdir / path, "w") as f:
             f.write(content)
     return zip_folder(str(tmpdir))
 
@@ -255,17 +253,17 @@ def _shorten_name(name):
     """Format asset name to ensure they match the backend requirements."""
     if len(name) < 100:
         return name
-    return name[:75] + '...' + name[:20]
+    return name[:75] + "..." + name[:20]
 
 
-def _get_key(obj, field='key'):
+def _get_key(obj, field="key"):
     """Get key from asset/spec or key."""
     if isinstance(obj, str):
         return obj
     return getattr(obj, field)
 
 
-def _get_keys(obj, field='key'):
+def _get_keys(obj, field="key"):
     """Get keys from asset/spec or key.
 
     This is particularly useful for data samples to accept as input args a list of keys
@@ -286,13 +284,12 @@ class Counter:
 
 
 class AssetsFactory:
-
     def __init__(self, name):
         self._data_sample_counter = Counter()
         self._dataset_counter = Counter()
         self._metric_counter = Counter()
         self._algo_counter = Counter()
-        self._workdir = pathlib.Path(tempfile.mkdtemp(prefix='/tmp/'))
+        self._workdir = pathlib.Path(tempfile.mkdtemp(prefix="/tmp/"))
         self._uuid = name
 
     def __enter__(self):
@@ -303,14 +300,14 @@ class AssetsFactory:
 
     def create_data_sample(self, content=None, datasets=None, test_only=False):
         idx = self._data_sample_counter.inc()
-        tmpdir = self._workdir / f'data-{idx}'
+        tmpdir = self._workdir / f"data-{idx}"
         tmpdir.mkdir()
 
-        content = content or '10,20'
-        content = content.encode('utf-8')
+        content = content or "10,20"
+        content = content.encode("utf-8")
 
         data_filepath = tmpdir / DEFAULT_DATA_SAMPLE_FILENAME
-        with open(data_filepath, 'wb') as f:
+        with open(data_filepath, "wb") as f:
             f.write(content)
 
         datasets = datasets or []
@@ -323,23 +320,23 @@ class AssetsFactory:
 
     def create_dataset(self, permissions=None, metadata=None, py_script=None):
         idx = self._dataset_counter.inc()
-        tmpdir = self._workdir / f'dataset-{idx}'
+        tmpdir = self._workdir / f"dataset-{idx}"
         tmpdir.mkdir()
-        name = _shorten_name(f'{self._uuid} - Dataset {idx}')
+        name = _shorten_name(f"{self._uuid} - Dataset {idx}")
 
-        description_path = tmpdir / 'description.md'
+        description_path = tmpdir / "description.md"
         description_content = name
-        with open(description_path, 'w') as f:
+        with open(description_path, "w") as f:
             f.write(description_content)
 
-        opener_path = tmpdir / 'opener.py'
-        with open(opener_path, 'w') as f:
+        opener_path = tmpdir / "opener.py"
+        with open(opener_path, "w") as f:
             f.write(py_script or DEFAULT_OPENER_SCRIPT)
 
         return substra.sdk.schemas.DatasetSpec(
             name=name,
             data_opener=str(opener_path),
-            type='Test',
+            type="Test",
             metadata=metadata,
             description=str(description_path),
             permissions=permissions or DEFAULT_PERMISSIONS,
@@ -347,19 +344,19 @@ class AssetsFactory:
 
     def create_metric(self, permissions=None, metadata=None):
         idx = self._metric_counter.inc()
-        tmpdir = self._workdir / f'metric-{idx}'
+        tmpdir = self._workdir / f"metric-{idx}"
         tmpdir.mkdir()
-        name = _shorten_name(f'{self._uuid} - Metric {idx}')
+        name = _shorten_name(f"{self._uuid} - Metric {idx}")
 
-        description_path = tmpdir / 'description.md'
+        description_path = tmpdir / "description.md"
         description_content = name
-        with open(description_path, 'w') as f:
+        with open(description_path, "w") as f:
             f.write(description_content)
 
         metrics_zip = create_archive(
-            tmpdir / 'metrics',
-            ('metrics.py', DEFAULT_METRICS_SCRIPT),
-            ('Dockerfile', DEFAULT_METRICS_DOCKERFILE),
+            tmpdir / "metrics",
+            ("metrics.py", DEFAULT_METRICS_SCRIPT),
+            ("Dockerfile", DEFAULT_METRICS_DOCKERFILE),
         )
 
         return substra.sdk.schemas.MetricSpec(
@@ -370,30 +367,43 @@ class AssetsFactory:
             permissions=permissions or DEFAULT_PERMISSIONS,
         )
 
-    def create_algo(self, category, py_script=None, permissions=None, metadata=None, algo_spec=substra.sdk.schemas.AlgoSpec,
-                     dockerfile_type=None):
+    def create_algo(
+        self,
+        category,
+        py_script=None,
+        permissions=None,
+        metadata=None,
+        algo_spec=substra.sdk.schemas.AlgoSpec,
+        dockerfile_type=None,
+    ):
         idx = self._algo_counter.inc()
-        tmpdir = self._workdir / f'algo-{idx}'
+        tmpdir = self._workdir / f"algo-{idx}"
         tmpdir.mkdir()
-        name = _shorten_name(f'{self._uuid} - Algo {idx}')
+        name = _shorten_name(f"{self._uuid} - Algo {idx}")
 
-        description_path = tmpdir / 'description.md'
+        description_path = tmpdir / "description.md"
         description_content = name
-        with open(description_path, 'w') as f:
+        with open(description_path, "w") as f:
             f.write(description_content)
 
         try:
             algo_content = py_script or DEFAULT_ALGO_SCRIPTS[category]
         except KeyError:
-            raise Exception('Invalid algo category: ', category)
+            raise Exception("Invalid algo category: ", category)
 
         algo_zip = create_archive(
-            tmpdir / 'algo',
-            ('algo.py', algo_content),
-            ('Dockerfile', (BAD_ENTRYPOINT_DOCKERFILE if dockerfile_type == "BAD_ENTRYPOINT"
-                            else NO_ENTRYPOINT_DOCKERFILE if dockerfile_type == "NO_ENTRYPOINT"
-                            else DEFAULT_ALGO_DOCKERFILE)
-             ),
+            tmpdir / "algo",
+            ("algo.py", algo_content),
+            (
+                "Dockerfile",
+                (
+                    BAD_ENTRYPOINT_DOCKERFILE
+                    if dockerfile_type == "BAD_ENTRYPOINT"
+                    else NO_ENTRYPOINT_DOCKERFILE
+                    if dockerfile_type == "NO_ENTRYPOINT"
+                    else DEFAULT_ALGO_DOCKERFILE
+                ),
+            ),
         )
 
         return algo_spec(
@@ -405,9 +415,17 @@ class AssetsFactory:
             metadata=metadata,
         )
 
-    def create_traintuple(self, algo_key=None, data_manager_key=None,
-                          train_data_sample_keys=None, traintuples=None, tag=None,
-                          compute_plan_key=None, rank=None, metadata=None):
+    def create_traintuple(
+        self,
+        algo_key=None,
+        data_manager_key=None,
+        train_data_sample_keys=None,
+        traintuples=None,
+        tag=None,
+        compute_plan_key=None,
+        rank=None,
+        metadata=None,
+    ):
         train_data_sample_keys = train_data_sample_keys or []
         traintuples = traintuples or []
 
@@ -425,9 +443,16 @@ class AssetsFactory:
             rank=rank,
         )
 
-    def create_aggregatetuple(self, algo=None, worker=None,
-                              traintuples=None, tag=None, compute_plan_key=None,
-                              rank=None, metadata=None):
+    def create_aggregatetuple(
+        self,
+        algo=None,
+        worker=None,
+        traintuples=None,
+        tag=None,
+        compute_plan_key=None,
+        rank=None,
+        metadata=None,
+    ):
         traintuples = traintuples or []
 
         for t in traintuples:
@@ -443,18 +468,26 @@ class AssetsFactory:
             rank=rank,
         )
 
-    def create_composite_traintuple(self, algo=None, dataset=None,
-                                    data_samples=None, head_traintuple=None,
-                                    trunk_traintuple=None, tag=None,
-                                    compute_plan_key=None, rank=None,
-                                    permissions=None, metadata=None):
+    def create_composite_traintuple(
+        self,
+        algo=None,
+        dataset=None,
+        data_samples=None,
+        head_traintuple=None,
+        trunk_traintuple=None,
+        tag=None,
+        compute_plan_key=None,
+        rank=None,
+        permissions=None,
+        metadata=None,
+    ):
         data_samples = data_samples or []
 
         if head_traintuple and trunk_traintuple:
             assert isinstance(head_traintuple, substra.sdk.models.CompositeTraintuple)
             assert isinstance(
                 trunk_traintuple,
-                (substra.sdk.models.CompositeTraintuple, substra.sdk.models.Aggregatetuple)
+                (substra.sdk.models.CompositeTraintuple, substra.sdk.models.Aggregatetuple),
             )
             in_head_model_key = head_traintuple.key
             in_trunk_model_key = trunk_traintuple.key
@@ -475,8 +508,7 @@ class AssetsFactory:
             out_trunk_model_permissions=permissions or DEFAULT_PERMISSIONS,
         )
 
-    def create_testtuple(self, metric=None, traintuple=None, tag=None, dataset=None, data_samples=None,
-                         metadata=None):
+    def create_testtuple(self, metric=None, traintuple=None, tag=None, dataset=None, data_samples=None, metadata=None):
         return substra.sdk.schemas.TesttupleSpec(
             metric_keys=[metric.key] if metric else [],
             traintuple_key=traintuple.key if traintuple else None,
@@ -486,7 +518,7 @@ class AssetsFactory:
             metadata=metadata,
         )
 
-    def create_compute_plan(self, tag='', clean_models=False, metadata=None):
+    def create_compute_plan(self, tag="", clean_models=False, metadata=None):
         return substra.sdk.schemas.ComputePlanSpec(
             traintuples=[],
             composite_traintuples=[],
@@ -494,7 +526,7 @@ class AssetsFactory:
             testtuples=[],
             tag=tag,
             metadata=metadata,
-            clean_models=clean_models
+            clean_models=clean_models,
         )
 
     def update_compute_plan(self, compute_plan):
