@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- (BREAKING) Remove the datasample.validated field as it's deprecated (#118)
+
 ### Fixed
 
 - CLI: fix the display of the assets in yaml and json format (#115)

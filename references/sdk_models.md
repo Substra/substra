@@ -26,7 +26,6 @@ Data sample
 - owner: str
 - data_manager_keys: Optional[List[str]]
 - path: Optional[DirectoryPath]
-- validated: bool
 - creation_date: datetime
 - test_only: bool
 ```

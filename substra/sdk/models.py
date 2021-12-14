@@ -120,7 +120,6 @@ class DataSample(_Model):
     owner: str
     data_manager_keys: Optional[List[str]]
     path: Optional[DirectoryPath]
-    validated: bool = True
     creation_date: datetime
     # The backend does not return this but it is needed for link_dataset_with_data_samples
     test_only: bool = False
