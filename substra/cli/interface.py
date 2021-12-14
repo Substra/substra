@@ -166,7 +166,11 @@ def click_global_conf_output_format(f):
         default="pretty",
         show_default=True,
         callback=update_global_conf,
-        help="Set output format",
+        help="Set output format                 \
+            - pretty: summarised view           \
+            - yaml: full view in YAML format    \
+            - json: full view in JSON format    \
+            ",
     )(f)
 
 

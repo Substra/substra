@@ -253,13 +253,15 @@ class AssetPrinter(BasePrinter):
 class JsonPrinter:
     @staticmethod
     def print(data, *args, **kwargs):
-        print(json.dumps(data, indent=2, default=str))
+        print(json.dumps(data.dict(), indent=2, default=str))
 
 
 class YamlPrinter:
     @staticmethod
     def print(data, *args, **kwargs):
-        print(yaml.dump(data, default_flow_style=False))
+        # We need the yaml format to display the same things than json format
+        json_format = json.dumps(data.dict(), indent=2, default=str)
+        print(yaml.dump(json.loads(json_format), default_flow_style=False))
 
 
 class AlgoPrinter(AssetPrinter):

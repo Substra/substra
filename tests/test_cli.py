@@ -20,6 +20,7 @@ from unittest import mock
 
 import click
 import pytest
+import yaml
 from click.testing import CliRunner
 
 import substra
@@ -311,13 +312,21 @@ def test_command_add_data_sample_already_exists(workdir, mocker):
         ("compute_plan", models.ComputePlan),
     ],
 )
-def test_command_get(asset_name, model, workdir, mocker):
+@pytest.mark.parametrize("format", ["pretty", "json", "yaml"])
+def test_command_get(asset_name, model, format, workdir, mocker):
     item = model(**getattr(datastore, asset_name.upper()))
     method_name = f"get_{asset_name}"
     m = mock_client_call(mocker, method_name, item)
-    output = client_execute(workdir, ["get", asset_name, "fakekey"])
+    if format == "pretty":
+        output = client_execute(workdir, ["get", asset_name, "fakekey"])
+    else:
+        output = client_execute(workdir, ["get", asset_name, "fakekey", "-o", format])
     m.assert_called()
     assert item.key in output
+    if format == "json":
+        json.loads(output)
+    elif format == "yaml":
+        yaml.load(output, Loader=yaml.Loader)
 
 
 def test_command_describe(workdir, mocker):
