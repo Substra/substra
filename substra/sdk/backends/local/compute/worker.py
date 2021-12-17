@@ -144,7 +144,9 @@ class Worker:
             # delete tuple working directory
             shutil.rmtree(tmp_dir, ignore_errors=True)
 
-    def schedule_traintuple(self, tuple_):
+    def schedule_traintuple(
+        self, tuple_: typing.Union[models.Traintuple, models.Aggregatetuple, models.CompositeTraintuple]
+    ):
         """Schedules a ML task (blocking)."""
         with self._context(tuple_.key) as tuple_dir:
             tuple_.status = models.Status.doing
@@ -378,7 +380,7 @@ class Worker:
 
                     compute_plan.duration = int((compute_plan.end_date - compute_plan.start_date).total_seconds())
 
-    def schedule_testtuple(self, tuple_):
+    def schedule_testtuple(self, tuple_: models.Testtuple):
         """Schedules a ML task (blocking)."""
         with self._context(tuple_.key) as tuple_dir:
             tuple_.status = models.Status.doing

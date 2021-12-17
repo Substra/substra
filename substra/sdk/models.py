@@ -82,6 +82,14 @@ class TaskCategory(str, enum.Enum):
     test = "TASK_TEST"
 
 
+class TaskErrorType(str, enum.Enum):
+    """Types of errors that can occur in a task"""
+
+    build = "BUILD_ERROR"
+    execution = "EXECUTION_ERROR"
+    internal = "INTERNAL_ERROR"
+
+
 class Permission(schemas._PydanticConfig):
     """Permissions of a task"""
 
@@ -228,6 +236,7 @@ class _GenericTraintuple(_Model):
     creation_date: datetime
     start_date: Optional[datetime]
     end_date: Optional[datetime]
+    error_type: Optional[TaskErrorType] = None
 
 
 def check_data_manager_key(cls, values):
