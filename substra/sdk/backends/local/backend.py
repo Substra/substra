@@ -32,7 +32,7 @@ from substra.sdk import schemas
 from substra.sdk.backends import base
 from substra.sdk.backends.local import compute
 from substra.sdk.backends.local import dal
-from substra.sdk.backends.local.compute.spawner import DEBUG_SPAWNER_CHOICES
+from substra.sdk.config import BackendType
 
 logger = logging.getLogger(__name__)
 
@@ -52,15 +52,8 @@ class Local(base.BaseBackend):
         if self._support_chainkeys:
             logger.info(f"Chainkeys support is on, the directory is {self._chainkey_dir}")
 
-        self._debug_spawner = str(os.getenv("DEBUG_SPAWNER", "docker"))
-        if self._debug_spawner not in DEBUG_SPAWNER_CHOICES:
-            raise ValueError(
-                f"{self._debug_spawner} is not a valid value for environment variable "
-                f"DEBUG_SPAWNER. "
-                f"Accepted values: {[spawner for spawner in DEBUG_SPAWNER_CHOICES]}"
-            )
-
-        if self._debug_spawner == "subprocess":
+        self._debug_spawner = BackendType(os.getenv("DEBUG_SPAWNER", BackendType.LOCAL_DOCKER))
+        if self._debug_spawner == BackendType.LOCAL_SUBPROCESS:
             logger.info(
                 "Environment variable DEBUG_SPAWNER is set to subprocess: "
                 "running Substra tasks with Python subprocess"
@@ -85,6 +78,11 @@ class Local(base.BaseBackend):
         """Get the temporary directory where the assets are saved.
         The directory is deleted at the end of the execution."""
         return self._db.tmp_dir
+
+    @property
+    def backend_mode(self) -> BackendType:
+        """Get the backend mode"""
+        return self._debug_spawner
 
     def login(self, username, password):
         self._db.login(username, password)

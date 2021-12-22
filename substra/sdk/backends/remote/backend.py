@@ -22,6 +22,7 @@ from substra.sdk import models
 from substra.sdk import schemas
 from substra.sdk.backends import base
 from substra.sdk.backends.remote import rest_client
+from substra.sdk.config import BackendType
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +42,11 @@ class Remote(base.BaseBackend):
     def __init__(self, url, insecure, token, retry_timeout):
         self._client = rest_client.Client(url, insecure, token)
         self._retry_timeout = retry_timeout or DEFAULT_RETRY_TIMEOUT
+
+    @property
+    def backend_mode(self) -> BackendType:
+        """Get the backend mode: deployed"""
+        return BackendType.DEPLOYED
 
     def login(self, username, password):
         return self._client.login(username, password)

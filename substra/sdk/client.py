@@ -126,6 +126,16 @@ class Client(object):
         if isinstance(self._backend, backends.Local):
             return self._backend.temp_directory
 
+    @property
+    def backend_mode(self) -> cfg.BackendType:
+        """Get the backend mode: deployed,
+        local and which type of local mode
+
+        Returns:
+            str: Backend mode
+        """
+        return self._backend.backend_mode
+
     @logit
     def login(self, username, password):
         """Login to a remote server."""

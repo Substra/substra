@@ -16,10 +16,24 @@ def test_wrong_debug_spawner(monkeypatch):
     monkeypatch.setenv("DEBUG_SPAWNER", "test")
     with pytest.raises(ValueError) as err:
         substra.Client(debug=True)
-    assert (
-        str(err.value)
-        == "test is not a valid value for environment variable DEBUG_SPAWNER. Accepted values: ['docker', 'subprocess']"
-    )
+    assert str(err.value) == "'test' is not a valid BackendType"
+
+
+def test_get_backend_type_docker(monkeypatch):
+    monkeypatch.setenv("DEBUG_SPAWNER", str(substra.BackendType.LOCAL_DOCKER.value))
+    client = substra.Client(debug=True)
+    assert client.backend_mode == substra.BackendType.LOCAL_DOCKER
+
+
+def test_get_backend_type_subprocess(monkeypatch):
+    monkeypatch.setenv("DEBUG_SPAWNER", str(substra.BackendType.LOCAL_SUBPROCESS.value))
+    client = substra.Client(debug=True)
+    assert client.backend_mode == substra.BackendType.LOCAL_SUBPROCESS
+
+
+def test_get_backend_type_deployed():
+    client = substra.Client(url="foo.com")
+    assert client.backend_mode == substra.BackendType.DEPLOYED
 
 
 def test_regex_script_name_valid():

@@ -16,6 +16,7 @@ import abc
 import json
 import logging
 import os
+from enum import Enum
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +24,12 @@ DEFAULT_PATH = "~/.substra"
 DEFAULT_TOKENS_PATH = "~/.substra-tokens"
 DEFAULT_PROFILE_NAME = "default"
 DEFAULT_INSECURE = False
+
+
+class BackendType(Enum):
+    DEPLOYED = "deployed"
+    LOCAL_DOCKER = "docker"
+    LOCAL_SUBPROCESS = "subprocess"
 
 
 class ConfigException(Exception):

@@ -28,7 +28,6 @@ from substra.sdk import models
 from substra.sdk import schemas
 from substra.sdk.backends.local import dal
 from substra.sdk.backends.local.compute import spawner
-from substra.sdk.backends.local.compute.spawner import DEBUG_SPAWNER_CHOICES
 from substra.sdk.backends.local.compute.spawner import BaseSpawner
 
 
@@ -62,7 +61,7 @@ class Worker:
         db: dal.DataAccess,
         local_worker_dir: pathlib.Path,
         support_chainkeys: bool,
-        debug_spawner: typing.Type[BaseSpawner] = DEBUG_SPAWNER_CHOICES["docker"],
+        debug_spawner: typing.Type[BaseSpawner],
         chainkey_dir=None,
     ):
         self._local_worker_dir = local_worker_dir
