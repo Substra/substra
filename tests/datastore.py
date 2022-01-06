@@ -52,6 +52,7 @@ DATASET = {
         "checksum": "0cfe73931279111b113b3c084ee3c7d4a2c84960b4bd9862ce67039fc118684e",
         "storage_address": "http://testserver/data_manager/d7dc4a5b-e81f-4f3f-b94c-5e2bbaca15cd/description/",
     },
+    "logs_permission": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
 }
 
 ALGO = {

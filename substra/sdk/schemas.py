@@ -247,6 +247,7 @@ class DatasetSpec(_Spec):
     description: pathlib.Path  # Path to the description file
     permissions: Permissions
     metadata: Optional[Dict[str, str]]
+    logs_permission: Permissions
 
     type_: typing.ClassVar[Type] = Type.Dataset
 

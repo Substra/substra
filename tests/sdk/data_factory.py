@@ -318,7 +318,7 @@ class AssetsFactory:
             data_manager_keys=datasets,
         )
 
-    def create_dataset(self, permissions=None, metadata=None, py_script=None):
+    def create_dataset(self, permissions=None, metadata=None, py_script=None, logs_permission=None):
         idx = self._dataset_counter.inc()
         tmpdir = self._workdir / f"dataset-{idx}"
         tmpdir.mkdir()
@@ -340,6 +340,7 @@ class AssetsFactory:
             metadata=metadata,
             description=str(description_path),
             permissions=permissions or DEFAULT_PERMISSIONS,
+            logs_permission=logs_permission or DEFAULT_PERMISSIONS,
         )
 
     def create_metric(self, permissions=None, metadata=None):

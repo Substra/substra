@@ -214,6 +214,7 @@ dataset = DatasetSpec(
     data_opener=assets_directory / "dataset" / "opener.py",
     description=assets_directory / "dataset" / "description.md",
     permissions=Permissions(public=True, authorized_ids=[]),
+    logs_permissions=Permissions(public=True, authorized_ids=[]),
 )
 
 for profile_name in PROFILE_NAMES:

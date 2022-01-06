@@ -332,6 +332,7 @@ class Local(base.BaseBackend):
         owner = self._check_metadata(spec.metadata)
 
         permissions = self.__compute_permissions(spec.permissions, owner)
+        logs_permission = self.__compute_permissions(spec.logs_permission, owner)
 
         dataset_file_path = self._db.save_file(spec.data_opener, key)
         dataset_description_path = self._db.save_file(spec.description, key)
@@ -355,6 +356,7 @@ class Local(base.BaseBackend):
                 "storage_address": dataset_description_path,
             },
             metadata=spec.metadata if spec.metadata else dict(),
+            logs_permission=logs_permission.dict(),
         )
         return self._db.add(asset)
 

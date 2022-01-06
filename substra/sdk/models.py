@@ -156,6 +156,7 @@ class Dataset(_Model):
     description: _File
     metadata: Dict[str, str]
     creation_date: datetime
+    logs_permission: Permission
 
     type_: ClassVar[str] = schemas.Type.Dataset
 

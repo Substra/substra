@@ -418,7 +418,11 @@ def add_dataset(ctx, data):
             "public": bool,
             "authorized_ids": list[str],
         },
-        "metadata": dict
+        "metadata": dict,
+        "logs_permission": {
+            "public": bool,
+            "authorized_ids": list[str],
+        },
     }
 
     \b
@@ -430,6 +434,8 @@ def add_dataset(ctx, data):
       'Spatial time series' and 'Hierarchical images')
     - data_opener: path to the opener python script
     - permissions: define asset access permissions
+    - logs_permission: define tuple execution logs access permissions
+    (in case of tuple execution failure)
     """
     client = get_client(ctx.obj)
     key = client.add_dataset(data)

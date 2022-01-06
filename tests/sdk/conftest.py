@@ -49,6 +49,10 @@ def dataset_query(tmpdir):
             "public": True,
             "authorized_ids": [],
         },
+        "logs_permission": {
+            "public": True,
+            "authorized_ids": [],
+        },
     }
 
 

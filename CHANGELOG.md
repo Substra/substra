@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - (BREAKING) Remove the datasample.validated field as it's deprecated (#118)
+- (BREAKING) Add a `logs_permission` field to Dataset schema and model (#122)
 
 ### Fixed
 
