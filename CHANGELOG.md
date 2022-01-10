@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] - 2022-01-10
+
 ### Changed
 
 - (BREAKING) Remove the datasample.validated field as it's deprecated (#118)
