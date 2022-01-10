@@ -122,11 +122,12 @@ def test_command_login(workdir, mocker):
         ("compute_plan", models.ComputePlan),
     ],
 )
-def test_command_list(asset_name, model, workdir, mocker):
+@pytest.mark.parametrize("format", ["pretty", "json", "yaml"])
+def test_command_list(asset_name, model, format, workdir, mocker):
     item = model(**getattr(datastore, asset_name.upper()))
     method_name = f"list_{asset_name}"
     m = mock_client_call(mocker, method_name, [item])
-    output = client_execute(workdir, ["list", asset_name])
+    output = client_execute(workdir, ["list", asset_name, "-o", format])
     m.assert_called()
     assert item.key in output
 
@@ -317,10 +318,7 @@ def test_command_get(asset_name, model, format, workdir, mocker):
     item = model(**getattr(datastore, asset_name.upper()))
     method_name = f"get_{asset_name}"
     m = mock_client_call(mocker, method_name, item)
-    if format == "pretty":
-        output = client_execute(workdir, ["get", asset_name, "fakekey"])
-    else:
-        output = client_execute(workdir, ["get", asset_name, "fakekey", "-o", format])
+    output = client_execute(workdir, ["get", asset_name, "fakekey", "-o", format])
     m.assert_called()
     assert item.key in output
     if format == "json":

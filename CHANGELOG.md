@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- CLI: fix the display of the assets in yaml and json format (#115)
+- CLI: fix the display of the assets in yaml and json format (#115 #127)
 - No more crash when running a script in local subprocess mode from a path with spaces (#99)
 
 ### Added
