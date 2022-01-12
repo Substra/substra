@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] - 2022-01-10
+
 ### Changed
 
 - (BREAKING) Remove the datasample.validated field as it's deprecated (#118)
@@ -20,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Error type to traintuple, testtuple, aggregatetuple and composite_traintuple
+- Expose the backend type (#119)
 
 ## [0.14.0] - 2021-12-01
 
