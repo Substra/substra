@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Error type to traintuple, testtuple, aggregatetuple and composite_traintuple
+- Expose the backend type (#119)
 
 ## [0.14.0] - 2021-12-01
 
