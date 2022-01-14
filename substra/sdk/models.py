@@ -104,7 +104,7 @@ class Permissions(schemas._PydanticConfig):
     download: Permission
 
     @root_validator(pre=True)
-    def set_process(cls, values):
+    def set_process(cls, values):  # noqa: N805
         if "download" not in values:
             values["download"] = values["process"]
         return values
@@ -283,7 +283,7 @@ class _Test(schemas._PydanticConfig):
     _check_data_manager_key = root_validator(allow_reuse=True)(check_data_manager_key)
 
     @root_validator
-    def check_metric_keys(cls, values):
+    def check_metric_keys(cls, values):  # noqa: N805
         if values.get("metrics"):
             assert values["metric_keys"] == [m.key for m in values["metrics"]], "metrics do not match metric_keys"
         return values

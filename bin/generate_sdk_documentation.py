@@ -68,7 +68,7 @@ def generate_help(fh):
             ]
             generate_function_help(fh, asset)
             generate_properties_help(fh, public_methods)
-            for f_name, f_method in public_methods:
+            for _, f_method in public_methods:
                 if not isinstance(f_method, property):
                     fh.write("#")  # Title for the methods are one level below
                     generate_function_help(fh, f_method)

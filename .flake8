@@ -1,9 +1,11 @@
 [flake8]
 max-line-length = 120
-ignore = E203, W503
+max-complexity = 10
+extend-ignore = E203, W503, N802, N803, N806
     # W503 is incompatible with flake8, see https://github.com/psf/black/pull/36
     # E203 must be disabled for flake8 to work with Black.
     # See https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html#id1
+    # N802, N803 and N806 prevent us from using upper cases in variables names, functions name and arguments.
 per-file-ignores =
     __init__.py:F401,
     examples/cyclic_strategy/scripts/plot_cyclic_strategy.py:E402

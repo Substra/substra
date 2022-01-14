@@ -37,7 +37,7 @@ def generate_batch_indexes(index, n_rounds, n_update, batch_size):
     batch_size = min(n, batch_size)
     k = 0
 
-    for batch in range(total_batches):
+    for _ in range(total_batches):
 
         # It is needed to convert the array to list.
         # Otherwise, you store references during the for loop and everything

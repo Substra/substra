@@ -32,7 +32,7 @@ def _click_parse_node(name, command, parent, callback):
 
     # command definitions are sorted in the python script as required for the
     # documentation
-    for k, c in ctx.command.commands.items():
+    for _, c in ctx.command.commands.items():
         _click_parse_node(c.name, c, ctx, callback)
 
 

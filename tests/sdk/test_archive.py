@@ -86,7 +86,7 @@ class TestsTarSafe:
             # create a tar archive of the foo folder
             tarpath = os.path.join(tmpdir, "foo.tgz")
             with tarfile.open(tarpath, "w:gz") as tar:
-                for root, dirs, files in os.walk(archive_root):
+                for root, _, files in os.walk(archive_root):
                     for file in files:
                         tar.add(os.path.join(root, file))
 

@@ -59,7 +59,7 @@ def extract_files(data, file_attributes):
 
 def zip_folder(fp, path):
     zipf = zipfile.ZipFile(fp, "w", zipfile.ZIP_DEFLATED)
-    for root, dirs, files in os.walk(path):
+    for root, _, files in os.walk(path):
         for f in files:
             abspath = os.path.join(root, f)
             archive_path = os.path.relpath(abspath, start=path)

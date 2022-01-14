@@ -165,7 +165,8 @@ class DataAccess:
     def update(self, asset):
         return self._db.update(asset)
 
-    def _get_local_model(self, key):
+    # TODO: '_get_local_model' is too complex, consider refactoring
+    def _get_local_model(self, key):  # noqa: C901
 
         for t in self.list(schemas.Type.Traintuple, filters=None):
             if t.train.models:

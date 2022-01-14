@@ -196,7 +196,7 @@ def test_command_add_metric(workdir, mocker):
     json_file.write_text(json.dumps({}))
 
     m = mock_client_call(mocker, "add_metric", response="foo")
-    item = getattr(datastore, "METRIC")
+    item = getattr(datastore, "METRIC")  # noqa: B009
     m = mock_client_call(mocker, "get_metric", item)
 
     client_execute(workdir, ["add", "metric", str(json_file)])

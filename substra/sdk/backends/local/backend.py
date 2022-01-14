@@ -476,7 +476,8 @@ class Local(base.BaseBackend):
         )
         return compute_plan
 
-    def _add_traintuple(self, key, spec, spec_options=None):
+    # TODO: '_add_traintuple' is too complex, consider refactoring
+    def _add_traintuple(self, key, spec, spec_options=None):  # noqa: C901
         # validation
         owner = self._check_metadata(spec.metadata)
 

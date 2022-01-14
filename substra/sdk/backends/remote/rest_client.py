@@ -84,7 +84,8 @@ class Client:
 
         return token
 
-    def __request(self, request_name, url, **request_kwargs):
+    # TODO: '__request' is too complex, consider refactoring
+    def __request(self, request_name, url, **request_kwargs):  # noqa: C901
         """Base request helper."""
 
         if request_name == "get":

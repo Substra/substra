@@ -37,7 +37,7 @@ columns = [
 ]
 testtuples = sorted(testtuples, key=lambda x: x.rank)
 
-for i, testtuple in enumerate(testtuples):
+for testtuple in testtuples:
     if testtuple.status == "STATUS_DONE":
         score = list(testtuple.test.perfs.values())[0]
     else:
