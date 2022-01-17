@@ -369,7 +369,7 @@ TESTTUPLE = {
             "21bb59ca-abd4-4154-b04a-44a92556a078",
         ],
         "metric_keys": ["e526243f-f51a-4737-9fea-a5d55f4205fe"],
-        "perfs": {},
+        "perfs": {"e526243f-f51a-4737-9fea-a5d55f4205fe": 0.82681566},
     },
 }
 

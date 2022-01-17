@@ -253,24 +253,19 @@ class AssetPrinter(BasePrinter):
 class JsonPrinter:
     @staticmethod
     def print(data, *args, **kwargs):
-        if isinstance(data, list):
-            for data_i in data:
-                print(json.dumps(data_i, indent=2, default=str))
-        else:
-            print(json.dumps(data.dict(), indent=2, default=str))
+        if isinstance(data, pydantic.BaseModel):
+            data = data.dict()
+        print(json.dumps(data, indent=2, default=str))
 
 
 class YamlPrinter:
     @staticmethod
     def print(data, *args, **kwargs):
         # We need the yaml format to display the same things than json format
-        if isinstance(data, list):
-            for data_i in data:
-                json_format = json.dumps(data_i, indent=2, default=str)
-                print(yaml.dump(json.loads(json_format), default_flow_style=False))
-        else:
-            json_format = json.dumps(data.dict(), indent=2, default=str)
-            print(yaml.dump(json.loads(json_format), default_flow_style=False))
+        if isinstance(data, pydantic.BaseModel):
+            data = data.dict()
+        json_format = json.dumps(data, indent=2, default=str)
+        print(yaml.dump(json.loads(json_format), default_flow_style=False))
 
 
 class AlgoPrinter(AssetPrinter):
@@ -507,9 +502,9 @@ class TesttuplePrinter(AssetPrinter):
         Field("Parent task keys", "parent_task_keys"),
         Field("Algo key", "algo.key"),
         Field("Algo name", "algo.name"),
-        Field("Metric key", "metric.key"),
+        Field("Metric keys", "test.metric_keys"),
         Field("Status", "status"),
-        Field("Perf", "test.perf"),
+        Field("Perfs", "test.perfs"),
         Field("Dataset key", "test.data_manager_key"),
         KeysField("Test data sample keys", "test.data_sample_keys"),
         Field("Rank", "rank"),

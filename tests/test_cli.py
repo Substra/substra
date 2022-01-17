@@ -423,3 +423,17 @@ def test_command_get_model_None(workdir, mocker):
     output = client_execute(workdir, ["get", "composite_traintuple", "fakekey"])
     m.assert_called()
     assert item.key in output
+
+
+@pytest.mark.parametrize("format", ["pretty", "json", "yaml"])
+def test_command_get_testtuple_metric_key_not_None(workdir, mocker, format):
+    # test if the metric key is present in `substra get testtuple`
+    item = models.Testtuple(**getattr(datastore, "TESTTUPLE"))
+    method_name = "get_testtuple"
+    m = mock_client_call(mocker, method_name, item)
+    output = client_execute(workdir, ["get", "testtuple", "fakekey", "-o", format])
+    m.assert_called()
+    metric_key = "e526243f-f51a-4737-9fea-a5d55f4205fe"
+    perfs = "0.82681566"
+    assert metric_key in output
+    assert perfs in output
