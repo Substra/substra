@@ -56,6 +56,10 @@ DATASET = {
     "data_opener": str(assets_directory / "dataset" / "opener.py"),
     "description": str(assets_directory / "dataset" / "description.md"),
     "permissions": {"public": False, "authorized_ids": []},
+    "logs_permission": {
+        "public": True,
+        "authorized_ids": [],
+    },
 }
 
 TEST_DATA_SAMPLES_PATHS = [

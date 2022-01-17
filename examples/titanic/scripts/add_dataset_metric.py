@@ -54,6 +54,10 @@ DATASET = {
     "data_opener": os.path.join(assets_directory, "dataset/opener.py"),
     "description": os.path.join(assets_directory, "dataset/description.md"),
     "permissions": {"public": False, "authorized_ids": []},
+    "logs_permission": {
+        "public": True,
+        "authorized_ids": [],
+    },
 }
 
 TEST_DATA_SAMPLES_PATHS = [

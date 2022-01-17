@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI: Fix the display of metric key and perfs for 'substra get testtuple' (#129)
 - CLI: fix the display of the assets in yaml and json format (#115 #127)
 - No more crash when running a script in local subprocess mode from a path with spaces (#99)
+- Examples: add dataset logs_permission field (#130)
 
 ### Added
 
