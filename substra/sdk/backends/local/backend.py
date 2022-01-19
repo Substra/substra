@@ -19,7 +19,6 @@ import warnings
 from datetime import datetime
 from distutils import util
 from pathlib import Path
-from typing import NoReturn
 
 from tqdm.auto import tqdm
 
@@ -791,11 +790,6 @@ class Local(base.BaseBackend):
             shutil.copyfile(asset.address.storage_address, destination_file)
         else:
             self._db.remote_download_model(key, destination_file)
-
-    def download_logs(self, tuple_key: str, destination_file: str = None) -> NoReturn:
-        # It does not make sense to download execution logs
-        # when tuple execution is local.
-        raise NotImplementedError
 
     def describe(self, asset_type, key):
         if self._db.is_local(key, schemas.Type.Dataset):

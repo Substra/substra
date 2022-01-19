@@ -363,16 +363,6 @@ def test_command_download_model(workdir, mocker):
     m.assert_called()
 
 
-def test_command_logs(workdir, mocker):
-    m = mock_client_call(mocker, "get_logs")
-    client_execute(workdir, ["logs", "fakekey"])
-    m.assert_called()
-
-    m = mock_client_call(mocker, "download_logs")
-    client_execute(workdir, ["logs", "fakekey", "--output-dir", "."])
-    m.assert_called()
-
-
 def test_command_cancel_compute_plan(workdir, mocker):
     m = mock_client_call(mocker, "cancel_compute_plan", models.ComputePlan(**datastore.COMPUTE_PLAN))
     client_execute(workdir, ["cancel", "compute_plan", "fakekey"])

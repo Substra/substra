@@ -51,7 +51,7 @@ def test_download_asset(asset_name, filename, tmp_path, client, mocker):
     m.assert_called()
 
 
-@pytest.mark.parametrize("asset_name", ["dataset", "algo", "metric", "model", "logs"])
+@pytest.mark.parametrize("asset_name", ["dataset", "algo", "metric", "model"])
 def test_download_asset_not_found(asset_name, tmp_path, client, mocker):
     m = mock_requests(mocker, "get", status=404)
 
@@ -110,19 +110,3 @@ def test_download_model_from_tuple(fake_download_model, tmp_path, client, method
 
     m.assert_called
     assert fake_download_model.call_count == 1
-
-
-def test_download_logs(tmp_path, client, mocker):
-    logs = b"Lorem ipsum dolor sit amet"
-    tuple_key = "key"
-
-    response = mock_response(logs)
-    response.iter_content.return_value = [logs]
-
-    m = mock_requests_responses(mocker, "get", [response])
-    client.download_logs(tuple_key, tmp_path)
-
-    m.assert_called_once()
-    response.iter_content.assert_called_once()
-
-    assert (tmp_path / f"tuple_logs_{tuple_key}.txt").read_bytes() == logs

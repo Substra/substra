@@ -1213,36 +1213,5 @@ def update_compute_plan(ctx, compute_plan_key, tuples, no_auto_batching, batch_s
     printer.print(res, is_list=False)
 
 
-@cli.command()
-@click.argument("tuple-key", type=click.STRING)
-@click.option(
-    "--output-dir",
-    "-o",
-    type=click.Path(exists=True, dir_okay=True, file_okay=False),
-    help="The directory the logs must be downloaded to. If not set, the logs are outputted to stdout.",
-)
-@click_global_conf
-@click.pass_context
-@error_printer
-def logs(ctx, tuple_key, output_dir):
-    """Display or download the logs of a failed tuple.
-
-    When an output directory is set, the logs are saved in the directory to a file named
-    'tuple_logs_{tuple_key}.txt'. Otherwise, the logs are outputted to stdout.
-
-    Logs are only available for tuples that experienced an execution failure.
-    Attempting to retrieve logs for tuples in any other states or for non-existing
-    tuples will result in an error.
-    """
-    client = get_client(ctx.obj)
-
-    if output_dir:
-        out_file_path = client.download_logs(tuple_key, output_dir)
-        display(f"Logs saved to {out_file_path}")
-    else:
-        logs_content = client.get_logs(tuple_key)
-        display(logs_content)
-
-
 if __name__ == "__main__":
     cli()
