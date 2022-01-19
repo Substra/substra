@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_RETRY_TIMEOUT = 5 * 60
 AUTO_BATCHING = "auto_batching"
 BATCH_SIZE = "batch_size"
+DOWNLOAD_CHUNK_SIZE = 1024
 
 
 def _find_asset_field(data, field):
@@ -214,24 +215,33 @@ class Remote(base.BaseBackend):
             data=data,
         )
 
-    def download(self, asset_type, url_field_path, key, destination):
+    def _download(self, url: str, destination_file: str) -> str:
+        response = self._client.get_data(url, stream=True)
+        with open(destination_file, "wb") as f:
+            for chunk in response.iter_content(DOWNLOAD_CHUNK_SIZE):
+                f.write(chunk)
+
+        return destination_file
+
+    def download(self, asset_type: schemas.Type, url_field_path: str, key: str, destination: str) -> str:
         data = self.get(asset_type, key)
         url = _find_asset_field(data, url_field_path)
-        response = self._client.get_data(url, stream=True)
-        chunk_size = 1024
-        with open(destination, "wb") as f:
-            for chunk in response.iter_content(chunk_size):
-                f.write(chunk)
+        return self._download(url, destination)
 
-        return destination
+    def download_model(self, key: str, destination_file: str) -> str:
+        url = f"{self._client.base_url}/model/{key}/file/"
+        return self._download(url, destination_file)
 
-    def download_model(self, key, destination_file):
-        response = self._client.get_data(f"{self._client.base_url}/model/{key}/file/", stream=True)
-        chunk_size = 1024
-        with open(destination_file, "wb") as f:
-            for chunk in response.iter_content(chunk_size):
-                f.write(chunk)
-        return destination_file
+    def download_logs(self, tuple_key: str, destination_file: str = None) -> str:
+        """Download the logs of a failed tuple. If destination_file is set, return the full
+        destination path, otherwise, return the logs as a str.
+        """
+        url = f"{self._client.base_url}/logs/{tuple_key}/file/"
+
+        if destination_file:
+            return self._download(url, destination_file)
+
+        return self._client.get_data(url).text
 
     def describe(self, asset_type, key):
         data = self.get(asset_type, key)
