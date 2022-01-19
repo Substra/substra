@@ -20,6 +20,8 @@ from substra.sdk import schemas
 
 from .. import datastore
 from .utils import mock_requests
+from .utils import mock_requests_responses
+from .utils import mock_response
 
 
 @pytest.mark.parametrize(
@@ -80,3 +82,15 @@ def test_get_extra_field(asset_name, client, mocker):
 
     assert response == models.SCHEMA_TO_MODEL[schemas.Type(asset_name)](**item)
     m.assert_called()
+
+
+def test_get_logs(client, mocker):
+    logs = "Lorem ipsum dolor sit amet"
+    tuple_key = "key"
+
+    responses = [mock_response(logs)]
+    m = mock_requests_responses(mocker, "get", responses)
+    result = client.get_logs(tuple_key)
+
+    m.assert_called_once()
+    assert result == logs

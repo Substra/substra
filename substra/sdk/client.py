@@ -473,6 +473,17 @@ class Client(object):
         return self._backend.get(schemas.Type.CompositeTraintuple, key)
 
     @logit
+    def get_logs(self, tuple_key: str) -> str:
+        """Get tuple logs by tuple key, the returned object is a string
+        containing the logs.
+
+        Logs are only available for tuples that experienced an execution failure.
+        Attempting to retrieve logs for tuples in any other states or for non-existing
+        tuples will result in a NotFound error.
+        """
+        return self._backend.download_logs(tuple_key, destination_file=None)
+
+    @logit
     def list_algo(self, filters=None) -> List[models.Algo]:
         """List algos, the returned object is described
         in the [models.Algo](sdk_models.md#Algo) model"""
@@ -688,6 +699,25 @@ class Client(object):
             raise exceptions.NotFound(msg, 404)
 
         self.download_model(model.key, folder)
+
+    @logit
+    def download_logs(self, tuple_key: str, folder: str) -> str:
+        """Download the execution logs of a failed tuple to a destination file.
+
+        The logs are saved in the folder to a file named 'tuple_logs_{tuple_key}.txt'.
+
+        Logs are only available for tuples that experienced an execution failure.
+        Attempting to retrieve logs for tuples in any other states or for non-existing
+        tuples will result in a NotFound error.
+
+        Args:
+            tuple_key: the key of the tuple that produced the logs
+            folder: the destination directory
+
+        Returns:
+            The path of the output file.
+        """
+        return self._backend.download_logs(tuple_key, os.path.join(folder, f"tuple_logs_{tuple_key}.txt"))
 
     @logit
     def describe_algo(self, key: str) -> str:

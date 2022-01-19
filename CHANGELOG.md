@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- CLI: Add the `logs` command to display and download the logs of a failed tuple (#120)
+- SDK: Add the `get_logs` and `download_logs` methods (#120)
+
 ## [0.15.0] - 2022-01-10
 
 ### Changed
