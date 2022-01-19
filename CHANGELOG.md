@@ -7,16 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.15.0] - 2022-01-10
+## [0.16.0] - 2022-01-14
 
 ### Changed
 
-- (BREAKING) Remove the datasample.validated field as it's deprecated (#118)
 - (BREAKING) Add a `logs_permission` field to Dataset schema and model (#122)
 
 ### Fixed
 
 - CLI: Fix the display of metric key and perfs for 'substra get testtuple' (#129)
+
+## [0.15.0] - 2022-01-10
+
+### Changed
+
+- (BREAKING) Remove the datasample.validated field as it's deprecated (#118)
+
+### Fixed
+
+
 - CLI: fix the display of the assets in yaml and json format (#115 #127)
 - No more crash when running a script in local subprocess mode from a path with spaces (#99)
 - Examples: add dataset logs_permission field (#130)
