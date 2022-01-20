@@ -39,6 +39,7 @@ Specification for creating a dataset
 - description: Path
 - permissions: Permissions
 - metadata: Optional[Mapping[str, str]]
+- logs_permission: Permissions
 ```
 
 ## MetricSpec
@@ -128,7 +129,7 @@ Specification for updating a compute plan
 Specification of a testtuple inside a compute
 plan specification
 ```python
-- metric_key: str
+- metric_keys: List[str]
 - traintuple_id: str
 - tag: Optional[str]
 - data_manager_key: str

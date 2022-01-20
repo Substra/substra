@@ -19,6 +19,7 @@
 - [substra cancel compute_plan](#substra-cancel-compute_plan)
 - [substra update data_sample](#substra-update-data_sample)
 - [substra update compute_plan](#substra-update-compute_plan)
+- [substra logs](#substra-logs)
 
 
 # Commands
@@ -106,7 +107,11 @@ Usage: substra add dataset [OPTIONS] PATH
           "public": bool,
           "authorized_ids": list[str],
       },
-      "metadata": dict
+      "metadata": dict,
+      "logs_permission": {
+          "public": bool,
+          "authorized_ids": list[str],
+      },
   }
 
   Where:
@@ -117,6 +122,8 @@ Usage: substra add dataset [OPTIONS] PATH
     'Spatial time series' and 'Hierarchical images')
   - data_opener: path to the opener python script
   - permissions: define asset access permissions
+  - logs_permission: define tuple execution logs access permissions
+  (in case of tuple execution failure)
 
 Options:
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
@@ -128,7 +135,12 @@ Options:
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
-                                  Set output format  [default: pretty]
+                                  Set output format
+                                  - pretty: summarised view
+                                  - yaml: full view in YAML format
+                                  - json: full view in JSON format
+                                  [default: pretty]
+
   --timeout INTEGER               Max number of seconds the operation will be
                                   retried for  [default: 300]
 
@@ -172,7 +184,12 @@ Options:
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
-                                  Set output format  [default: pretty]
+                                  Set output format
+                                  - pretty: summarised view
+                                  - yaml: full view in YAML format
+                                  - json: full view in JSON format
+                                  [default: pretty]
+
   --timeout INTEGER               Max number of seconds the operation will be
                                   retried for  [default: 300]
 
@@ -218,7 +235,12 @@ Options:
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
-                                  Set output format  [default: pretty]
+                                  Set output format
+                                  - pretty: summarised view
+                                  - yaml: full view in YAML format
+                                  - json: full view in JSON format
+                                  [default: pretty]
+
   --timeout INTEGER               Max number of seconds the operation will be
                                   retried for  [default: 300]
 
@@ -266,7 +288,7 @@ Usage: substra add compute_plan [OPTIONS] PATH
           "metadata": dict
       }],
       "testtuples": list[{
-          "metric_key": str,
+          "metric_keys": list[str],
           "data_manager_key": str,
           "test_data_sample_keys": list[str],
           "traintuple_id": str,
@@ -296,7 +318,12 @@ Options:
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
-                                  Set output format  [default: pretty]
+                                  Set output format
+                                  - pretty: summarised view
+                                  - yaml: full view in YAML format
+                                  - json: full view in JSON format
+                                  [default: pretty]
+
   --help                          Show this message and exit.
 ```
 
@@ -332,7 +359,12 @@ Options:
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
-                                  Set output format  [default: pretty]
+                                  Set output format
+                                  - pretty: summarised view
+                                  - yaml: full view in YAML format
+                                  - json: full view in JSON format
+                                  [default: pretty]
+
   --timeout INTEGER               Max number of seconds the operation will be
                                   retried for  [default: 300]
 
@@ -362,7 +394,12 @@ Options:
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
-                                  Set output format  [default: pretty]
+                                  Set output format
+                                  - pretty: summarised view
+                                  - yaml: full view in YAML format
+                                  - json: full view in JSON format
+                                  [default: pretty]
+
   --timeout INTEGER               Max number of seconds the operation will be
                                   retried for  [default: 300]
 
@@ -412,7 +449,12 @@ Options:
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
-                                  Set output format  [default: pretty]
+                                  Set output format
+                                  - pretty: summarised view
+                                  - yaml: full view in YAML format
+                                  - json: full view in JSON format
+                                  [default: pretty]
+
   --timeout INTEGER               Max number of seconds the operation will be
                                   retried for  [default: 300]
 
@@ -452,7 +494,12 @@ Options:
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
-                                  Set output format  [default: pretty]
+                                  Set output format
+                                  - pretty: summarised view
+                                  - yaml: full view in YAML format
+                                  - json: full view in JSON format
+                                  [default: pretty]
+
   --timeout INTEGER               Max number of seconds the operation will be
                                   retried for  [default: 300]
 
@@ -479,7 +526,12 @@ Options:
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
-                                  Set output format  [default: pretty]
+                                  Set output format
+                                  - pretty: summarised view
+                                  - yaml: full view in YAML format
+                                  - json: full view in JSON format
+                                  [default: pretty]
+
   --help                          Show this message and exit.
 ```
 
@@ -512,7 +564,12 @@ Options:
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
-                                  Set output format  [default: pretty]
+                                  Set output format
+                                  - pretty: summarised view
+                                  - yaml: full view in YAML format
+                                  - json: full view in JSON format
+                                  [default: pretty]
+
   --help                          Show this message and exit.
 ```
 
@@ -552,7 +609,12 @@ Options:
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
-                                  Set output format  [default: pretty]
+                                  Set output format
+                                  - pretty: summarised view
+                                  - yaml: full view in YAML format
+                                  - json: full view in JSON format
+                                  [default: pretty]
+
   --help                          Show this message and exit.
 ```
 
@@ -596,7 +658,6 @@ Options:
   --help                          Show this message and exit.
 ```
 
-
 ## substra cancel compute_plan
 
 ```bash
@@ -614,7 +675,12 @@ Options:
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
-                                  Set output format  [default: pretty]
+                                  Set output format
+                                  - pretty: summarised view
+                                  - yaml: full view in YAML format
+                                  - json: full view in JSON format
+                                  [default: pretty]
+
   --help                          Show this message and exit.
 ```
 
@@ -689,7 +755,7 @@ Usage: substra update compute_plan [OPTIONS] COMPUTE_PLAN_KEY TUPLES_PATH
           "metadata": dict,
       }],
       "testtuples": list[{
-          "metric_key": str,
+          "metric_keys": list[str],
           "data_manager_key": str,
           "test_data_sample_keys": list[str],
           "traintuple_id": str,
@@ -716,6 +782,42 @@ Options:
 
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
-                                  Set output format  [default: pretty]
+                                  Set output format
+                                  - pretty: summarised view
+                                  - yaml: full view in YAML format
+                                  - json: full view in JSON format
+                                  [default: pretty]
+
+  --help                          Show this message and exit.
+```
+
+## substra logs
+
+```bash
+Usage: substra logs [OPTIONS] TUPLE_KEY
+
+  Display or download the logs of a failed tuple.
+
+  When an output directory is set, the logs are saved in the directory to a
+  file named 'tuple_logs_{tuple_key}.txt'. Otherwise, the logs are outputted
+  to stdout.
+
+  Logs are only available for tuples that experienced an execution failure.
+  Attempting to retrieve logs for tuples in any other states or for non-
+  existing tuples will result in an error.
+
+Options:
+  -o, --output-dir DIRECTORY      The directory the logs must be downloaded
+                                  to. If not set, the logs are outputted to
+                                  stdout.
+
+  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
+                                  Enable logging and set log level
+  --config PATH                   Config path (default ~/.substra).
+  --profile TEXT                  Profile name to use.
+  --tokens FILE                   Tokens file path to use (default ~/.substra-
+                                  tokens).
+
+  --verbose                       Enable verbose mode.
   --help                          Show this message and exit.
 ```

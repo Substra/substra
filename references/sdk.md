@@ -25,7 +25,13 @@ Defaults to False.
 In debug mode, new assets are created locally but can access assets from
 the deployed Substra platform. The platform is in read-only mode.
 Defaults to False.
-Additionally, you can set the environment variable `DEBUG_SPAWNER` to `'docker'` if you want the tasks to be executed in containers (default) or `'subprocess'` to execute them in Python subprocesses (faster, experimental: The `Dockerfile` commands are not executed, requires dependencies to be installed locally).
+## backend_mode
+_This is a property._
+Get the backend mode: deployed,
+        local and which type of local mode
+
+        Returns:
+            str: Backend mode
 
 ## temp_directory
 _This is a property._
@@ -263,6 +269,24 @@ Download composite traintuple head model to destination file.
 This model was saved using the 'save_model' function of the algorithm.
 To load and use the model, please refer to the 'load_model' and 'predict' functions of the
 algorithm.
+## download_logs
+```python
+download_logs(self, tuple_key: str, folder: str) -> str
+```
+
+Download the execution logs of a failed tuple to a destination file.
+The logs are saved in the folder to a file named 'tuple_logs_{tuple_key}.txt'.
+
+Logs are only available for tuples that experienced an execution failure.
+Attempting to retrieve logs for tuples in any other states or for non-existing
+tuples will result in a NotFound error.
+
+**Arguments:**
+ - `tuple_key `: the key of the tuple that produced the logs
+ - `folder `: the destination directory
+
+**Returns:**
+The path of the output file.
 ## download_metric
 ```python
 download_metric(self, key: str, destination_folder: str) -> None
@@ -368,6 +392,17 @@ get_dataset(self, key: str) -> substra.sdk.models.Dataset
 
 Get dataset by key, the returned object is described
 in the [models.Dataset](sdk_models.md#Dataset) model
+## get_logs
+```python
+get_logs(self, tuple_key: str) -> str
+```
+
+Get tuple logs by tuple key, the returned object is a string
+containing the logs.
+
+Logs are only available for tuples that experienced an execution failure.
+Attempting to retrieve logs for tuples in any other states or for non-existing
+tuples will result in a NotFound error.
 ## get_metric
 ```python
 get_metric(self, key: str) -> substra.sdk.models.Metric
@@ -389,7 +424,6 @@ get_traintuple(self, key: str) -> substra.sdk.models.Traintuple
 
 Get traintuple by key, the returned object is described
 in the [models.Traintuple](sdk_models.md#Traintuple) model
-
 ## link_dataset_with_data_samples
 ```python
 link_dataset_with_data_samples(self, dataset_key: str, data_sample_keys: str) -> List[str]

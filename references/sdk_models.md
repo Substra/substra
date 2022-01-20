@@ -44,6 +44,7 @@ Dataset asset
 - description: _File
 - metadata: Mapping[str, str]
 - creation_date: datetime
+- logs_permission: Permission
 ```
 
 ## Metric
@@ -72,8 +73,12 @@ Testtuple
 - worker: str
 - rank: Optional[int]
 - parent_task_keys: List[str]
+- parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple')]]]
 - tag: str
 - creation_date: datetime
+- start_date: Optional[datetime]
+- end_date: Optional[datetime]
+- error_type: Optional[TaskErrorType]
 - test: _Test
 ```
 
@@ -90,8 +95,12 @@ Traintuple
 - worker: str
 - rank: Optional[int]
 - parent_task_keys: List[str]
+- parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple')]]]
 - tag: str
 - creation_date: datetime
+- start_date: Optional[datetime]
+- end_date: Optional[datetime]
+- error_type: Optional[TaskErrorType]
 - train: _Train
 ```
 
@@ -108,8 +117,12 @@ Aggregatetuple
 - worker: str
 - rank: Optional[int]
 - parent_task_keys: List[str]
+- parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple')]]]
 - tag: str
 - creation_date: datetime
+- start_date: Optional[datetime]
+- end_date: Optional[datetime]
+- error_type: Optional[TaskErrorType]
 - aggregate: _Aggregate
 ```
 
@@ -126,8 +139,12 @@ CompositeTraintuple
 - worker: str
 - rank: Optional[int]
 - parent_task_keys: List[str]
+- parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple')]]]
 - tag: str
 - creation_date: datetime
+- start_date: Optional[datetime]
+- end_date: Optional[datetime]
+- error_type: Optional[TaskErrorType]
 - composite: _Composite
 ```
 
@@ -152,12 +169,21 @@ ComputePlan
 - tag: str
 - owner: str
 - metadata: Mapping[str, str]
-- done_count: int
 - task_count: int
+- waiting_count: int
+- todo_count: int
+- doing_count: int
+- canceled_count: int
+- failed_count: int
+- done_count: int
 - failed_task: Optional[FailedTuple]
 - delete_intermediary_models: bool
 - status: ComputePlanStatus
 - creation_date: datetime
+- start_date: Optional[datetime]
+- end_date: Optional[datetime]
+- estimated_end_date: Optional[datetime]
+- duration: Optional[int]
 ```
 
 ## Node
