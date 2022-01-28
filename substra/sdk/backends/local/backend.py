@@ -366,12 +366,11 @@ class Local(base.BaseBackend):
             raise exceptions.InvalidRequest("Please add at least one data manager for the data sample", 400)
         datasets = [self._db.get(schemas.Type.Dataset, dataset_key) for dataset_key in spec.data_manager_keys]
 
-        data_sample_file_path = self._db.save_file(spec.path, key)
         data_sample = models.DataSample(
             key=key,
             creation_date=self.__now(),
             owner=_BACKEND_ID,
-            path=data_sample_file_path,
+            path=spec.path,
             data_manager_keys=spec.data_manager_keys,
             test_only=spec.test_only,
         )

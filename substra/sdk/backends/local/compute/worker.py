@@ -102,8 +102,8 @@ class Worker:
             data_sample_keys = tuple_.test.data_sample_keys
         samples = [self._db.get(schemas.Type.DataSample, key) for key in data_sample_keys]
         for sample in samples:
-            # TODO more efficient link (symlink?)
-            shutil.copytree(sample.path, os.path.join(data_volume, sample.key))
+            # copy the whole tree but using hard link to be fast and not use too much place
+            shutil.copytree(sample.path, os.path.join(data_volume, sample.key), copy_function=os.link)
         return data_volume
 
     def _save_output_model(self, tuple_, model_name, models_volume, permissions) -> models.OutModel:

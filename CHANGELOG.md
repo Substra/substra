@@ -7,11 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Speed and disk space usage improvement as datasamples are not copied to local backend folders anymore (#136)
+
 ### Added
 
 - CLI: Add the `logs` command to display and download the logs of a failed tuple (#120)
 - SDK: Add the `get_logs` and `download_logs` methods (#120)
-
 
 ## [0.16.0] - 2022-01-14
 
@@ -30,7 +33,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - (BREAKING) Remove the datasample.validated field as it's deprecated (#118)
 
 ### Fixed
-
 
 - CLI: fix the display of the assets in yaml and json format (#115 #127)
 - No more crash when running a script in local subprocess mode from a path with spaces (#99)
@@ -69,8 +71,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - (BREAKING) Replace objective by metric (#45)
 - (BREAKING) Multiple metrics and performances per test task (#47)
 
-
 ### Improvements
+
 - Local mode, execution in Docker: re-use the Docker images so that the execution is faster
 
 ## [0.11.0] - 2021-10-04
