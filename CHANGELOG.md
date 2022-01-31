@@ -26,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - CLI: Fix the display of metric key and perfs for 'substra get testtuple' (#129)
 
+### Removed
+- (BREAKING) Remove the download permissions
+
 ## [0.15.0] - 2022-01-10
 
 ### Changed

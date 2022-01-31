@@ -101,13 +101,6 @@ class Permissions(schemas._PydanticConfig):
     """Permissions structure stored in various asset types."""
 
     process: Permission
-    download: Permission
-
-    @root_validator(pre=True)
-    def set_process(cls, values):  # noqa: N805
-        if "download" not in values:
-            values["download"] = values["process"]
-        return values
 
 
 class _Model(schemas._PydanticConfig, abc.ABC):
