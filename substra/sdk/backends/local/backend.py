@@ -792,9 +792,7 @@ class Local(base.BaseBackend):
             self._db.remote_download_model(key, destination_file)
 
     def download_logs(self, tuple_key: str, destination_file: str = None) -> NoReturn:
-        # It does not make sense to download execution logs
-        # when tuple execution is local.
-        raise NotImplementedError
+        raise NotImplementedError("Logs of tuples ran in local mode are not accessible")
 
     def describe(self, asset_type, key):
         if self._db.is_local(key, schemas.Type.Dataset):
