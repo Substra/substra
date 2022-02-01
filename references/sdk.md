@@ -2,7 +2,7 @@
 
 # Client
 ```python
-Client(url: Union[str, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300, insecure: bool = False, debug: bool = False)
+Client(url: Optional[str] = None, token: Optional[str] = None, retry_timeout: int = 300, insecure: bool = False, debug: bool = False)
 ```
 
 Create a client
@@ -25,6 +25,9 @@ Defaults to False.
 In debug mode, new assets are created locally but can access assets from
 the deployed Substra platform. The platform is in read-only mode.
 Defaults to False.
+Additionally, you can set the environment variable `DEBUG_SPAWNER` to `docker` if you want the tasks to
+be executed in containers (default) or `subprocess` to execute them in Python subprocesses (faster,
+experimental: The `Dockerfile` commands are not executed, requires dependencies to be installed locally).
 ## backend_mode
 _This is a property._
 Get the backend mode: deployed,
@@ -332,7 +335,7 @@ To load and use the model, please refer to the 'load_model' and 'predict' functi
 algorithm.
 ## from_config_file
 ```python
-from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Union[str, NoneType] = None, retry_timeout: int = 300, debug: bool = False)
+from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Optional[str] = None, retry_timeout: int = 300, debug: bool = False)
 ```
 
 Returns a new Client configured with profile data from configuration files.

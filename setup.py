@@ -52,7 +52,7 @@ setup(
     packages=find_packages(exclude=["tests*"]),
     include_package_data=True,
     install_requires=[
-        "click>=7.1.1,<8.0.0",
+        "click>=7.1.1,!=8.0.0",  # issue with click 8.0.0 (#4)
         "requests",
         "docker",
         "consolemd",
@@ -72,6 +72,7 @@ setup(
             "black",
             "flake8",
             "isort",
+            "docstring_parser",
         ],
     },
     entry_points={

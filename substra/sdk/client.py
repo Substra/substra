@@ -76,6 +76,9 @@ class Client(object):
             In debug mode, new assets are created locally but can access assets from
             the deployed Substra platform. The platform is in read-only mode.
             Defaults to False.
+            Additionally, you can set the environment variable `DEBUG_SPAWNER` to `docker` if you want the tasks to
+            be executed in containers (default) or `subprocess` to execute them in Python subprocesses (faster,
+            experimental: The `Dockerfile` commands are not executed, requires dependencies to be installed locally).
     """
 
     def __init__(
