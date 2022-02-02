@@ -103,7 +103,7 @@ from tqdm import tqdm
 
 import substra
 
-current_directory = Path(".").absolute()
+current_directory = Path(__file__).resolve().parent
 assets_directory = current_directory.parent / "assets"
 algo_directory = assets_directory / "algo"
 assets_keys_path = current_directory / ".." / "assets_keys.json"
@@ -214,7 +214,7 @@ dataset = DatasetSpec(
     data_opener=assets_directory / "dataset" / "opener.py",
     description=assets_directory / "dataset" / "description.md",
     permissions=Permissions(public=True, authorized_ids=[]),
-    logs_permissions=Permissions(public=True, authorized_ids=[]),
+    logs_permission=Permissions(public=True, authorized_ids=[]),
 )
 
 for profile_name in PROFILE_NAMES:
