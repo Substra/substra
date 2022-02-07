@@ -50,18 +50,6 @@ def test_list_asset(asset_name, client, mocker):
     m.assert_called()
 
 
-def test_list_asset_with_filters(client, mocker):
-    items = [datastore.ALGO]
-    mocked_response = make_paginated_response(items)
-    m = mock_requests(mocker, "get", response=mocked_response)
-
-    filters = ["algo:name:ABC", "OR", "data_manager:name:EFG"]
-    response = client.list_algo(filters)
-
-    assert response == [models.Algo(**item) for item in items]
-    m.assert_called()
-
-
 def test_list_asset_with_filters_failure(client, mocker):
     items = [datastore.ALGO]
     m = mock_requests(mocker, "get", response=items)

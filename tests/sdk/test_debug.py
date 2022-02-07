@@ -9,6 +9,7 @@ import pytest
 import substra
 from substra.sdk import models
 from substra.sdk.backends.local.compute.spawner.subprocess import PYTHON_SCRIPT_NAME
+from substra.sdk.exceptions import InvalidRequest
 from substra.sdk.schemas import AlgoCategory
 
 
@@ -431,3 +432,160 @@ class TestsDebug:
         assert composite_traintuple.composite.data_manager
         assert composite_traintuple.composite.data_manager.key == dataset_key
         assert composite_traintuple.parent_tasks == []
+
+    def test_traintuple_with_test_data_sample(self, asset_factory, spawner):
+        """Check that we can't use test data samples for traintuples"""
+        client = substra.Client(debug=True)
+
+        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
+        dataset_1_key = client.add_dataset(dataset_query)
+
+        data_sample_1 = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=False)
+        sample_1_key = client.add_data_sample(data_sample_1)
+
+        data_sample_2 = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=True)
+        sample_2_key = client.add_data_sample(data_sample_2)
+
+        algo_query = asset_factory.create_algo(AlgoCategory.simple)
+        algo_key = client.add_algo(algo_query)
+
+        with pytest.raises(InvalidRequest) as e:
+            client.add_traintuple(
+                substra.sdk.schemas.TraintupleSpec(
+                    algo_key=algo_key,
+                    data_manager_key=dataset_1_key,
+                    traintuple_id=uuid.uuid4().hex,
+                    train_data_sample_keys=[sample_1_key, sample_2_key],
+                )
+            )
+
+        assert "Cannot create train task with test data" in str(e.value)
+
+    def test_composite_traintuple_with_test_data_sample(self, asset_factory, spawner):
+        """Check that we can't use test data samples for composite_traintuples"""
+        client = substra.Client(debug=True)
+
+        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
+        dataset_1_key = client.add_dataset(dataset_query)
+
+        data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=True)
+        sample_1_key = client.add_data_sample(data_sample)
+
+        composite_algo_query = asset_factory.create_algo(AlgoCategory.composite)
+        composite_algo_key = client.add_algo(composite_algo_query)
+
+        with pytest.raises(InvalidRequest) as e:
+            client.add_composite_traintuple(
+                substra.sdk.schemas.CompositeTraintupleSpec(
+                    algo_key=composite_algo_key,
+                    data_manager_key=dataset_1_key,
+                    traintuple_id=uuid.uuid4().hex,
+                    train_data_sample_keys=[sample_1_key],
+                    out_trunk_model_permissions={"public": True, "authorized_ids": []},
+                )
+            )
+
+        assert "Cannot create train task with test data" in str(e.value)
+
+    class TestsList:
+        "Test client.list... functions"
+
+        @pytest.fixture(scope="class")
+        def _init_data_samples(self, asset_factory):
+            client = substra.Client(debug=True)
+            data_samples_keys = []
+            dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
+            dataset_key = client.add_dataset(dataset_query)
+
+            data_sample_1 = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
+            data_samples_keys.append(client.add_data_sample(data_sample_1))
+
+            data_sample_2 = asset_factory.create_data_sample(datasets=[dataset_key], test_only=True)
+            data_samples_keys.append(client.add_data_sample(data_sample_2))
+
+            data_sample_3 = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
+            data_samples_keys.append(client.add_data_sample(data_sample_3))
+            return client, data_samples_keys
+
+        def test_list_datasamples_all(self, _init_data_samples, spawner):
+            # get all datasamples
+            client, data_sample_keys = _init_data_samples
+            data_samples = client.list_data_sample()
+            assert len(data_samples) == 3
+
+        def test_list_datasamples_key(self, _init_data_samples, spawner):
+            # Get sample 1 by key
+            client, data_sample_keys = _init_data_samples
+            filters = [f"datasample:key:{data_sample_keys[0]}"]
+            data_samples = client.list_data_sample(filters=filters)
+            assert len(data_samples) == 1
+            assert data_samples[0].key == data_sample_keys[0]
+
+        def test_list_datasamples_test_only(self, _init_data_samples, spawner):
+            # Get all samples with test_only
+            client, data_sample_keys = _init_data_samples
+            filters = ["datasample:test_only:False"]
+            data_samples = client.list_data_sample(filters=filters)
+            assert len(data_samples) == 2
+            assert data_samples[0].key == data_sample_keys[0]
+            assert data_samples[1].key == data_sample_keys[2]
+
+        def test_list_datasamples_OR(self, _init_data_samples, spawner):
+            # Get sample 1 and 2 by key
+            client, data_sample_keys = _init_data_samples
+            filters = [f"datasample:key:{data_sample_keys[0]}", "OR", f"datasample:key:{data_sample_keys[1]}"]
+            data_samples = client.list_data_sample(filters=filters)
+            assert len(data_samples) == 2
+            assert data_samples[0].key == data_sample_keys[0]
+            assert data_samples[1].key == data_sample_keys[1]
+
+        def test_list_datasamples_OR_same_asset(self, _init_data_samples, spawner):
+            # Check there is only one result when both sides of the OR return the same asset
+            client, data_sample_keys = _init_data_samples
+            filters = [f"datasample:key:{data_sample_keys[1]}", "OR", "datasample:test_only:True"]
+            data_samples = client.list_data_sample(filters=filters)
+            assert len(data_samples) == 1
+            assert data_samples[0].key == data_sample_keys[1]
+
+        def test_list_datasamples_AND_same_field(self, _init_data_samples, spawner):
+            # Get a sample with 2 different keys (should fail)
+            client, data_sample_keys = _init_data_samples
+            filters = [f"datasample:key:{data_sample_keys[0]}", "AND", f"datasample:key:{data_sample_keys[1]}"]
+            with pytest.raises(Exception):
+                _ = client.list_data_sample(filters=filters)
+
+        def test_list_datasamples_AND(self, _init_data_samples, spawner):
+            # Test the AND operator
+            # Get sample 1 by key and correct test_only value
+            client, data_sample_keys = _init_data_samples
+            filters = [f"datasample:key:{data_sample_keys[0]}", "AND", "datasample:test_only:False"]
+            data_samples = client.list_data_sample(filters=filters)
+            assert len(data_samples) == 1
+            assert data_samples[0].key == data_sample_keys[0]
+
+            # Get sample 1 by key and wrong test_only value (should send empty list)
+            client, data_sample_keys = _init_data_samples
+            filters = [f"datasample:key:{data_sample_keys[0]}", "AND", "datasample:test_only:True"]
+            data_samples = client.list_data_sample(filters=filters)
+            assert len(data_samples) == 0
+
+        def test_list_datasamples_AND_OR(self, _init_data_samples, spawner):
+            # Test priority of AND over OR
+            client, data_sample_keys = _init_data_samples
+            filters = [
+                "datasample:test_only:False",
+                "AND",
+                f"datasample:key:{data_sample_keys[2]}",
+                # should return data_samples[2]
+                "OR",
+                f"datasample:key:{data_sample_keys[0]}",
+                "AND",
+                "datasample:test_only:True",
+                # should return nothing.
+            ]
+            # If OR was prioritized, it would return nothing
+            # If the operations were read in order, it would return nothing
+
+            data_samples = client.list_data_sample(filters=filters)
+            assert len(data_samples) == 1
+            assert data_samples[0].key == data_sample_keys[2]

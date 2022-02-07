@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SDK: Add the `get_logs` and `download_logs` methods (#120)
 - doc: add DEBUG_SPAWNER doc (#140)
 
+### Fixed
+
+- Local mode should not accept test data samples for train tuples (#124)
+
 ## [0.16.0] - 2022-01-14
 
 ### Changed
@@ -28,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI: Fix the display of metric key and perfs for 'substra get testtuple' (#129)
 
 ### Removed
+
 - (BREAKING) Remove the download permissions
 
 ## [0.15.0] - 2022-01-10

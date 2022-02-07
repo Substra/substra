@@ -127,8 +127,8 @@ class DataAccess:
                 return self._remote.get(type_, key)
             raise
 
-    def list(self, type_, filters):
-        """ "List assets."""
+    def list(self, type_, filters=None):
+        """List assets."""
         local_assets = self._db.list(type_)
 
         remote_assets = list()

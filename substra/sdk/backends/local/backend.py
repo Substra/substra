@@ -14,12 +14,15 @@
 import logging
 import os
 import shutil
-import typing
 import warnings
 from datetime import datetime
 from distutils import util
 from pathlib import Path
+from typing import Dict
+from typing import List
 from typing import NoReturn
+from typing import Optional
+from typing import Tuple
 
 from tqdm.auto import tqdm
 
@@ -123,15 +126,76 @@ class Local(base.BaseBackend):
 
         raise exceptions.NotFound(f"Wrong pk {key}", 404)
 
-    def list(self, asset_type, filters=None, paginated=True):
+    def _filter_match_split(
+        self, db_assets: List[models._Model], match_filters: List[str]
+    ) -> Tuple[List[models._Model], List[models._Model]]:
+        """Return assets matching all filters (AND group), and the remaining ones"""
+        matching_assets = []
+        remaining_assets = []
+        for asset in db_assets:
+            # the filters use the 'response' (ie camel case) format
+            if all([str(getattr(asset, key)) == value for key, value in match_filters.items()]):
+                matching_assets.append(asset)
+            else:
+                remaining_assets.append(asset)
+        return matching_assets, remaining_assets
+
+    def _filter_assets(self, db_assets: List[models._Model], filters: List[str]) -> List[models._Model]:
+        """Filter the assets
+        C.f. the list function for doc
+        """
+        if filters is None or len(filters) == 0:
+            return db_assets
+
+        remaining_assets = db_assets
+        parsed_filters = dict()
+        result = list()
+
+        for filter_ in filters:
+            if filter_ == "OR":
+                if not parsed_filters:
+                    raise ValueError("Couldn't parse filters before OR statement")
+                # filter the remaining (non-matched) assets with the previous "AND group" of parsed filters
+                matching_assets, remaining_assets = self._filter_match_split(remaining_assets, parsed_filters)
+                result.extend(matching_assets)
+                # reset the filters
+                parsed_filters = dict()
+            elif filter_ == "AND":
+                if not parsed_filters:
+                    raise ValueError("Couldn't parse filter before AND statement")
+                # continue parsing filters
+            else:
+                splitted = filter_.split(":")
+                if len(splitted) < 3:
+                    raise ValueError(
+                        f"Wrong filter format, found {filter_}, must be 'asset_type:field_name:field_value'/'OR'/'AND'"
+                    )
+                field_name = splitted[1]
+                field_value = "".join(splitted[2:])
+                if field_name in parsed_filters:
+                    raise ValueError(f"filter '{filter_}': can't apply filter on the same field twice in a 'AND group'")
+                parsed_filters[field_name] = field_value
+
+        assert parsed_filters, "Can't parse filters"
+        # filter the remaining (non-matched) assets with the last (or only) "AND group" of parsed filters
+        matching_assets, _ = self._filter_match_split(remaining_assets, parsed_filters)
+        result.extend(matching_assets)
+        return result
+
+    def list(self, asset_type: schemas.Type, filters: List[str] = None, paginated: bool = True) -> List[models._Model]:
         """List the assets
 
-        This is a simplified version of the backend 'list' function,
-        with limited support for filters.
+        This is a simplified version of the backend 'list' function
 
-        The format of the filters is 'asset_type:field_name:field_value',
+        The format of the filters is 'asset_type:field_name:field_value'
         the function returns the assets whose fields equal those values.
-        It does not support more advanced filtering methods.
+        It also support 'AND' and 'OR' statement as a list item between 2 filters.
+        AND filter are prioritized : filter AND filter OR filter === (filter AND filter) OR filter
+        Example of filters:
+        ["traintuple:compute_plan_key:abc"]
+        ["testtuple:compute_plan_key:abc", "AND", "testtuple:data_manager_key:42", "OR",
+         "testtuple:compute_plan_key:abc"]
+
 
         Args:
             asset_type (schemas.Type): Type of asset to return
@@ -140,27 +204,20 @@ class Local(base.BaseBackend):
                 Ignored for local backend (responses are never paginated)
 
         Returns:
-            typing.List[models._BaseModel]: List of results
+            List[models._Model]: List of results
         """
-        db_assets = self._db.list(asset_type, filters=filters)
-        # Parse the filters
-        parsed_filters = dict()
-        if filters is not None:
-            for filter_ in filters:
-                splitted = filter_.split(":")
-                field_name = splitted[1]
-                field_value = "".join(splitted[2:])
-                parsed_filters[field_name] = field_value
-        # Filter the list of assets
-        result = list()
-        for asset in db_assets:
-            # the filters use the 'response' (ie camel case) format
-            if all([getattr(asset, key) == value for key, value in parsed_filters.items()]):
-                result.append(asset)
+        db_assets = self._db.list(asset_type, filters)
+
+        # Some filters in self._db.list() (substra/sdk/backends/local/dal.list) are not working, so we have to apply the
+        # filters after.
+        # TODO: once remote filters (substra/sdk/backends/remote/backend.list) are fixed, move the _filter_assets
+        # function to substra/sdk/backends/local/db.InMemoryDb.list
+        result = self._filter_assets(db_assets, filters)
+
         return result
 
     @staticmethod
-    def _check_metadata(metadata: typing.Optional[typing.Dict[str, str]]):
+    def _check_metadata(metadata: Optional[Dict[str, str]]):
         if metadata is not None:
             if any([len(key) > _MAX_LEN_KEY_METADATA for key in metadata]):
                 raise exceptions.InvalidRequest("The key in metadata cannot be more than 50 characters", 400)
@@ -287,19 +344,38 @@ class Local(base.BaseBackend):
 
         return compute_plan
 
-    def __check_same_data_manager(self, data_manager_key, data_sample_keys):
+    def __check_data_samples(self, data_manager_key: str, data_sample_keys: List[str], allow_test_only: bool):
+        """Get all the data samples from the db once and run sanity checks on them"""
+
+        filters = " OR ".join([f"datasample:key:{data_sample_key}" for data_sample_key in data_sample_keys]).split(" ")
+        data_samples = self.list(schemas.Type.DataSample, filters=filters)
+
+        # Check that we've got all the data_samples
+        if len(data_samples) != len(data_sample_keys):
+            raise substra.exceptions.InvalidRequest(
+                "Could not get all the data_samples in the database with the given data_sample_keys", 400
+            )
+
+        self.__check_same_data_manager(data_manager_key, data_samples)
+        if not allow_test_only:
+            self.__check_not_test_data(data_samples)
+
+    def __check_same_data_manager(self, data_manager_key, data_samples):
         """Check that all data samples are linked to this data manager"""
         # If the dataset is remote: the backend does not return the datasets
         # linked to each sample, so no check (already done in the backend).
         if self._db.is_local(data_manager_key, schemas.Type.Dataset):
             same_data_manager = all(
-                [
-                    data_manager_key in self._db.get(schemas.Type.DataSample, key).data_manager_keys
-                    for key in (data_sample_keys or list())
-                ]
+                [data_manager_key in data_sample.data_manager_keys for data_sample in (data_samples or list())]
             )
             if not same_data_manager:
-                raise substra.exceptions.InvalidRequest("dataSample do not belong to the same dataManager", 400)
+                raise substra.exceptions.InvalidRequest("A data_sample does not belong to the same dataManager", 400)
+
+    def __check_not_test_data(self, data_samples):
+        """Check that we do not use test data samples for train tuples"""
+        for data_sample in data_samples:
+            if data_sample.test_only:
+                raise substra.exceptions.InvalidRequest("Cannot create train task with test data", 400)
 
     def __add_algo(self, key, spec, owner, spec_options=None):
 
@@ -450,7 +526,6 @@ class Local(base.BaseBackend):
         # Define the rank of each traintuple, aggregate tuple and composite tuple
         visited = graph.compute_ranks(node_graph=tuple_graph)
 
-        # TODO
         compute_plan = models.ComputePlan(
             key=key,
             creation_date=self.__now(),
@@ -501,7 +576,9 @@ class Local(base.BaseBackend):
                 else:
                     in_tuples.append(in_tuple)
 
-        self.__check_same_data_manager(spec.data_manager_key, spec.train_data_sample_keys)
+        self.__check_data_samples(
+            data_manager_key=spec.data_manager_key, data_sample_keys=spec.train_data_sample_keys, allow_test_only=False
+        )
 
         # permissions
         with_permissions = [algo, dataset] + in_tuples
@@ -572,7 +649,9 @@ class Local(base.BaseBackend):
             )
 
         dataset = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
-        self.__check_same_data_manager(spec.data_manager_key, spec.test_data_sample_keys)
+        self.__check_data_samples(
+            data_manager_key=spec.data_manager_key, data_sample_keys=spec.test_data_sample_keys, allow_test_only=True
+        )
 
         assert len(spec.test_data_sample_keys) > 0
         dataset_key = spec.data_manager_key
@@ -615,8 +694,9 @@ class Local(base.BaseBackend):
         algo = self._db.get(schemas.Type.Algo, spec.algo_key)
         assert algo.category == schemas.AlgoCategory.composite
         dataset = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
-        self.__check_same_data_manager(spec.data_manager_key, spec.train_data_sample_keys)
-
+        self.__check_data_samples(
+            data_manager_key=spec.data_manager_key, data_sample_keys=spec.train_data_sample_keys, allow_test_only=False
+        )
         in_tuples = list()
         if spec.in_head_model_key:
             in_head_tuple = self._db.get(schemas.Type.CompositeTraintuple, spec.in_head_model_key)
@@ -644,7 +724,7 @@ class Local(base.BaseBackend):
         else:
             head_model_permissions = {"process": {"public": False, "authorized_ids": [owner]}}
 
-        parent_task_keys: typing.List[str] = list()
+        parent_task_keys: List[str] = list()
         if spec.in_head_model_key is not None:
             parent_task_keys.append(spec.in_head_model_key)
         if spec.in_trunk_model_key is not None:
