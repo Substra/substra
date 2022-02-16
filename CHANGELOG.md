@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Speed and disk space usage improvement as datasamples are not copied to local backend folders anymore (#136)
+- Documentation: Fix the display of the API reference (#144)
 
 ### Added
 

@@ -23,7 +23,7 @@
 Specification to create one or many data samples
 To create one data sample, use the 'path' field, otherwise use
 the 'paths' field.
-```python
+```text
 - path: Optional[Path]
 - paths: Optional[List[Path]]
 - test_only: bool
@@ -32,7 +32,7 @@ the 'paths' field.
 
 ## DatasetSpec
 Specification for creating a dataset
-```python
+```text
 - name: str
 - data_opener: Path
 - type: str
@@ -44,7 +44,7 @@ Specification for creating a dataset
 
 ## MetricSpec
 Specification for creating an metric
-```python
+```text
 - name: str
 - description: Path
 - file: Path
@@ -54,7 +54,7 @@ Specification for creating an metric
 
 ## TesttupleSpec
 Specification for creating a testtuple
-```python
+```text
 - metric_keys: List[str]
 - traintuple_key: str
 - tag: Optional[str]
@@ -66,7 +66,7 @@ Specification for creating a testtuple
 
 ## TraintupleSpec
 Specification for creating a traintuple
-```python
+```text
 - algo_key: str
 - data_manager_key: str
 - train_data_sample_keys: List[str]
@@ -79,7 +79,7 @@ Specification for creating a traintuple
 
 ## AggregatetupleSpec
 Specification for creating an aggregate tuple
-```python
+```text
 - algo_key: str
 - worker: str
 - in_models_keys: List[str]
@@ -91,7 +91,7 @@ Specification for creating an aggregate tuple
 
 ## CompositeTraintupleSpec
 Specification for creating a composite traintuple
-```python
+```text
 - algo_key: str
 - data_manager_key: str
 - train_data_sample_keys: List[str]
@@ -106,7 +106,7 @@ Specification for creating a composite traintuple
 
 ## ComputePlanSpec
 Specification for creating a compute plan
-```python
+```text
 - traintuples: Optional[List[ComputePlanTraintupleSpec]]
 - composite_traintuples: Optional[List[ComputePlanCompositeTraintupleSpec]]
 - aggregatetuples: Optional[List[ComputePlanAggregatetupleSpec]]
@@ -118,7 +118,7 @@ Specification for creating a compute plan
 
 ## UpdateComputePlanSpec
 Specification for updating a compute plan
-```python
+```text
 - traintuples: Optional[List[ComputePlanTraintupleSpec]]
 - composite_traintuples: Optional[List[ComputePlanCompositeTraintupleSpec]]
 - aggregatetuples: Optional[List[ComputePlanAggregatetupleSpec]]
@@ -128,7 +128,7 @@ Specification for updating a compute plan
 ## ComputePlanTesttupleSpec
 Specification of a testtuple inside a compute
 plan specification
-```python
+```text
 - metric_keys: List[str]
 - traintuple_id: str
 - tag: Optional[str]
@@ -140,7 +140,7 @@ plan specification
 ## ComputePlanAggregatetupleSpec
 Specification of an aggregate tuple inside a compute
 plan specification
-```python
+```text
 - aggregatetuple_id: str
 - algo_key: str
 - worker: str
@@ -152,7 +152,7 @@ plan specification
 ## ComputePlanCompositeTraintupleSpec
 Specification of a composite traintuple inside a compute
 plan specification
-```python
+```text
 - composite_traintuple_id: str
 - algo_key: str
 - data_manager_key: str
@@ -167,7 +167,7 @@ plan specification
 ## ComputePlanTraintupleSpec
 Specification of a traintuple inside a compute
 plan specification
-```python
+```text
 - algo_key: str
 - data_manager_key: str
 - train_data_sample_keys: List[str]
@@ -180,7 +180,7 @@ plan specification
 ## Permissions
 Specification for permissions. If public is False,
 give the list of authorized ids.
-```python
+```text
 - public: bool
 - authorized_ids: List[str]
 ```
@@ -188,6 +188,7 @@ give the list of authorized ids.
 ## PrivatePermissions
 Specification for private permissions. Only the nodes whose
 ids are in authorized_ids can access the asset.
-```python
+```text
 - authorized_ids: List[str]
 ```
+

@@ -17,7 +17,7 @@ def generate_function_help(fh, asset):
     """Write the description of a function"""
     fh.write(f"# {asset.__name__}\n")
     signature = str(inspect.signature(asset))
-    fh.write("```python\n")
+    fh.write("```text\n")
     fh.write(f"{asset.__name__}{signature}")
     fh.write("\n```")
     fh.write("\n\n")

@@ -71,7 +71,7 @@ def generate_help(commands, fh):
         command_helper = command_helper.decode("utf-8")
 
         fh.write(f"## {command}\n\n")
-        fh.write("```\n")
+        fh.write("```text\n")
         fh.write(command_helper)
         fh.write("```\n\n")
 

@@ -21,7 +21,7 @@
 
 ## DataSample
 Data sample
-```python
+```text
 - key: str
 - owner: str
 - data_manager_keys: Optional[List[str]]
@@ -32,7 +32,7 @@ Data sample
 
 ## Dataset
 Dataset asset
-```python
+```text
 - key: str
 - name: str
 - owner: str
@@ -49,7 +49,7 @@ Dataset asset
 
 ## Metric
 Metric
-```python
+```text
 - key: str
 - name: str
 - owner: str
@@ -62,7 +62,7 @@ Metric
 
 ## Testtuple
 Testtuple
-```python
+```text
 - key: str
 - category: TaskCategory
 - algo: Algo
@@ -84,7 +84,7 @@ Testtuple
 
 ## Traintuple
 Traintuple
-```python
+```text
 - key: str
 - category: TaskCategory
 - algo: Algo
@@ -106,7 +106,7 @@ Traintuple
 
 ## Aggregatetuple
 Aggregatetuple
-```python
+```text
 - key: str
 - category: TaskCategory
 - algo: Algo
@@ -128,7 +128,7 @@ Aggregatetuple
 
 ## CompositeTraintuple
 CompositeTraintuple
-```python
+```text
 - key: str
 - category: TaskCategory
 - algo: Algo
@@ -150,7 +150,7 @@ CompositeTraintuple
 
 ## Algo
 Asset creation specification base class.
-```python
+```text
 - key: str
 - name: str
 - owner: str
@@ -164,7 +164,7 @@ Asset creation specification base class.
 
 ## ComputePlan
 ComputePlan
-```python
+```text
 - key: str
 - tag: str
 - owner: str
@@ -188,7 +188,7 @@ ComputePlan
 
 ## Node
 Node
-```python
+```text
 - id: str
 - is_current: bool
 - creation_date: datetime
@@ -196,22 +196,21 @@ Node
 
 ## Permissions
 Permissions structure stored in various asset types.
-```python
+```text
 - process: Permission
-- download: Permission
 ```
 
 ## InModel
 In model of a traintuple, aggregate or composite traintuple
-```python
+```text
 - checksum: str
-- storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
+- storage_address: Union[FilePath, AnyUrl, str]
 ```
 
 ## OutModel
 Out model of a traintuple, aggregate tuple or out trunk
 model of a composite traintuple
-```python
+```text
 - key: str
 - category: ModelType
 - compute_task_key: str
@@ -223,14 +222,15 @@ model of a composite traintuple
 
 ## _File
 File as stored in the models
-```python
+```text
 - checksum: str
-- storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
+- storage_address: Union[FilePath, AnyUrl, str]
 ```
 
 ## _Metric
 Metric associated to a testtuple or metric
-```python
+```text
 - checksum: str
-- storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
+- storage_address: Union[FilePath, AnyUrl, str]
 ```
+

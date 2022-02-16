@@ -26,7 +26,7 @@
 
 ## substra config
 
-```
+```text
 Usage: substra config [OPTIONS] URL
 
   Add profile to config file.
@@ -40,7 +40,7 @@ Options:
 
 ## substra login
 
-```
+```text
 Usage: substra login [OPTIONS]
 
   Login to the Substra platform.
@@ -61,7 +61,7 @@ Options:
 
 ## substra add data_sample
 
-```
+```text
 Usage: substra add data_sample [OPTIONS] PATH
 
   Add data sample(s).
@@ -91,7 +91,7 @@ Options:
 
 ## substra add dataset
 
-```
+```text
 Usage: substra add dataset [OPTIONS] PATH
 
   Add dataset.
@@ -149,7 +149,7 @@ Options:
 
 ## substra add metric
 
-```
+```text
 Usage: substra add metric [OPTIONS] PATH
 
   Add metric.
@@ -198,7 +198,7 @@ Options:
 
 ## substra add algo
 
-```
+```text
 Usage: substra add algo [OPTIONS] PATH
 
   Add algo.
@@ -249,7 +249,7 @@ Options:
 
 ## substra add compute_plan
 
-```
+```text
 Usage: substra add compute_plan [OPTIONS] PATH
 
   Add compute plan.
@@ -329,7 +329,7 @@ Options:
 
 ## substra add traintuple
 
-```
+```text
 Usage: substra add traintuple [OPTIONS]
 
   Add traintuple.
@@ -374,7 +374,7 @@ Options:
 
 ## substra add aggregatetuple
 
-```
+```text
 Usage: substra add aggregatetuple [OPTIONS]
 
   Add aggregatetuple.
@@ -409,7 +409,7 @@ Options:
 
 ## substra add composite_traintuple
 
-```
+```text
 Usage: substra add composite_traintuple [OPTIONS]
 
   Add composite traintuple.
@@ -464,7 +464,7 @@ Options:
 
 ## substra add testtuple
 
-```
+```text
 Usage: substra add testtuple [OPTIONS]
 
   Add testtuple.
@@ -509,7 +509,7 @@ Options:
 
 ## substra get
 
-```
+```text
 Usage: substra get [OPTIONS] [algo|compute_plan|dataset|metric|testtuple|train
                    tuple|composite_traintuple|aggregatetuple] ASSET_KEY
 
@@ -537,7 +537,7 @@ Options:
 
 ## substra list
 
-```
+```text
 Usage: substra list [OPTIONS] [algo|compute_plan|data_sample|dataset|metric|te
                     sttuple|traintuple|composite_traintuple|aggregatetuple|nod
                     e]
@@ -575,7 +575,7 @@ Options:
 
 ## substra describe
 
-```
+```text
 Usage: substra describe [OPTIONS] [algo|dataset|metric] ASSET_KEY
 
   Display asset description.
@@ -594,7 +594,7 @@ Options:
 
 ## substra node info
 
-```
+```text
 Usage: substra node info [OPTIONS]
 
   Display node info.
@@ -620,7 +620,7 @@ Options:
 
 ## substra download
 
-```
+```text
 Usage: substra download [OPTIONS] [algo|dataset|metric|model] KEY
 
   Download asset implementation.
@@ -660,7 +660,7 @@ Options:
 
 ## substra cancel compute_plan
 
-```
+```text
 Usage: substra cancel compute_plan [OPTIONS] COMPUTE_PLAN_KEY
 
   Cancel execution of a compute plan.
@@ -686,7 +686,7 @@ Options:
 
 ## substra update data_sample
 
-```
+```text
 Usage: substra update data_sample [OPTIONS] DATA_SAMPLES_PATH
 
   Link data samples with dataset.
@@ -716,7 +716,7 @@ Options:
 
 ## substra update compute_plan
 
-```
+```text
 Usage: substra update compute_plan [OPTIONS] COMPUTE_PLAN_KEY TUPLES_PATH
 
   Update compute plan.
@@ -793,7 +793,7 @@ Options:
 
 ## substra logs
 
-```
+```text
 Usage: substra logs [OPTIONS] TUPLE_KEY
 
   Display or download the logs of a failed tuple.
@@ -821,3 +821,4 @@ Options:
   --verbose                       Enable verbose mode.
   --help                          Show this message and exit.
 ```
+

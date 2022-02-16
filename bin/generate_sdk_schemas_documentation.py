@@ -82,7 +82,7 @@ def generate_help(fh, models: bool):
         fh.write(f"{inspect.getdoc(asset)}\n")
         # List the fields and their types
         description = _get_field_description(asset.__fields__)
-        fh.write("```python\n")
+        fh.write("```text\n")
         fh.write("- " + "\n- ".join(description))
         fh.write("\n```")
         fh.write("\n\n")
@@ -95,10 +95,11 @@ def write_help(path, models: bool):
 
 if __name__ == "__main__":
 
-    if pydantic.VERSION != "1.8.2":
+    expected_pydantic_version = "1.9.0"
+    if pydantic.VERSION != expected_pydantic_version:
         warnings.warn(
-            "The documentation should be generated with this exact version of pydantic or \
-            there might be mismatches with the CI."
+            f"The documentation should be generated with the version {expected_pydantic_version} of pydantic or \
+            there might be mismatches with the CI: version {pydantic.VERSION} used"
         )
 
     doc_dir = local_dir.parent / "references"

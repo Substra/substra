@@ -1,8 +1,8 @@
 # substra.sdk
 
 # Client
-```python
-Client(url: Optional[str] = None, token: Optional[str] = None, retry_timeout: int = 300, insecure: bool = False, debug: bool = False)
+```text
+Client(url: Union[str, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300, insecure: bool = False, debug: bool = False)
 ```
 
 Create a client
@@ -29,20 +29,20 @@ Additionally, you can set the environment variable `DEBUG_SPAWNER` to `docker` i
 be executed in containers (default) or `subprocess` to execute them in Python subprocesses (faster,
 experimental: The `Dockerfile` commands are not executed, requires dependencies to be installed locally).
 ## backend_mode
-_This is a property._
+_This is a property._  
 Get the backend mode: deployed,
         local and which type of local mode
 
         Returns:
             str: Backend mode
-
+        
 ## temp_directory
-_This is a property._
+_This is a property._  
 Temporary directory for storing assets in debug mode.
         Deleted when the client is deleted.
-
+        
 ## add_aggregatetuple
-```python
+```text
 add_aggregatetuple(self, data: Union[dict, substra.sdk.schemas.AggregatetupleSpec]) -> str
 ```
 
@@ -59,7 +59,7 @@ keys as specified in
 
  - `str`: Key of the asset
 ## add_algo
-```python
+```text
 add_algo(self, data: Union[dict, substra.sdk.schemas.AlgoSpec]) -> str
 ```
 
@@ -75,7 +75,7 @@ as specified in [schemas.AlgoSpec](sdk_schemas.md#AlgoSpec).
 
  - `str`: Key of the algo
 ## add_composite_traintuple
-```python
+```text
 add_composite_traintuple(self, data: Union[dict, substra.sdk.schemas.CompositeTraintupleSpec]) -> str
 ```
 
@@ -95,7 +95,7 @@ same keys as specified in
 
  - `str`: Key of the asset
 ## add_compute_plan
-```python
+```text
 add_compute_plan(self, data: Union[dict, substra.sdk.schemas.ComputePlanSpec], auto_batching: bool = True, batch_size: int = 20) -> substra.sdk.models.ComputePlan
 ```
 
@@ -115,7 +115,7 @@ the number of tuples uploaded in each batch (default 20).
 
  - `models.ComputePlan`: Created compute plan
 ## add_data_sample
-```python
+```text
 add_data_sample(self, data: Union[dict, substra.sdk.schemas.DataSampleSpec], local: bool = True) -> str
 ```
 
@@ -137,7 +137,7 @@ mode is well suited for all kind of file sizes. Defaults to True.
 
  - `str`: key of the data sample
 ## add_data_samples
-```python
+```text
 add_data_samples(self, data: Union[dict, substra.sdk.schemas.DataSampleSpec], local: bool = True) -> List[str]
 ```
 
@@ -159,7 +159,7 @@ Defaults to True.
 
  - `List[str]`: List of the data sample keys
 ## add_dataset
-```python
+```text
 add_dataset(self, data: Union[dict, substra.sdk.schemas.DatasetSpec])
 ```
 
@@ -177,7 +177,7 @@ keys as specified in [schemas.DatasetSpec](sdk_schemas.md#DatasetSpec).
 
  - `str`: Key of the dataset
 ## add_metric
-```python
+```text
 add_metric(self, data: Union[dict, substra.sdk.schemas.MetricSpec]) -> str
 ```
 
@@ -193,7 +193,7 @@ as specified in [schemas.MetricSpec](sdk_schemas.md#MetricSpec).
 
  - `str`: Key of the metric
 ## add_testtuple
-```python
+```text
 add_testtuple(self, data: Union[dict, substra.sdk.schemas.TesttupleSpec]) -> str
 ```
 
@@ -209,7 +209,7 @@ keys as specified in [schemas.TesttupleSpec](sdk_schemas.md#TesttupleSpec).
 
  - `str`: Key of the asset
 ## add_traintuple
-```python
+```text
 add_traintuple(self, data: Union[dict, substra.sdk.schemas.TraintupleSpec]) -> str
 ```
 
@@ -225,46 +225,46 @@ keys as specified in [schemas.TraintupleSpec](sdk_schemas.md#TraintupleSpec).
 
  - `str`: Key of the asset
 ## cancel_compute_plan
-```python
+```text
 cancel_compute_plan(self, key: str) -> substra.sdk.models.ComputePlan
 ```
 
 Cancel execution of compute plan, the returned object is described
 in the [models.ComputePlan](sdk_models.md#ComputePlan) model
 ## describe_algo
-```python
+```text
 describe_algo(self, key: str) -> str
 ```
 
 Get algo description.
 ## describe_dataset
-```python
+```text
 describe_dataset(self, key: str) -> str
 ```
 
 Get dataset description.
 ## describe_metric
-```python
+```text
 describe_metric(self, key: str) -> str
 ```
 
 Get metric description.
 ## download_algo
-```python
+```text
 download_algo(self, key: str, destination_folder: str) -> None
 ```
 
 Download algo resource.
 Download algo package in destination folder.
 ## download_dataset
-```python
+```text
 download_dataset(self, key: str, destination_folder: str) -> None
 ```
 
 Download data manager resource.
 Download opener script in destination folder.
 ## download_head_model_from_composite_traintuple
-```python
+```text
 download_head_model_from_composite_traintuple(self, tuple_key: str, folder) -> None
 ```
 
@@ -273,7 +273,7 @@ This model was saved using the 'save_model' function of the algorithm.
 To load and use the model, please refer to the 'load_model' and 'predict' functions of the
 algorithm.
 ## download_logs
-```python
+```text
 download_logs(self, tuple_key: str, folder: str) -> str
 ```
 
@@ -291,14 +291,14 @@ tuples will result in a NotFound error.
 **Returns:**
 The path of the output file.
 ## download_metric
-```python
+```text
 download_metric(self, key: str, destination_folder: str) -> None
 ```
 
 Download metric resource.
 Download metrics script in destination folder.
 ## download_model
-```python
+```text
 download_model(self, key: str, folder) -> None
 ```
 
@@ -307,7 +307,7 @@ This model was saved using the 'save_model' function of the algorithm.
 To load and use the model, please refer to the 'load_model' and 'predict' functions of the
 algorithm.
 ## download_model_from_aggregatetuple
-```python
+```text
 download_model_from_aggregatetuple(self, tuple_key: str, folder) -> None
 ```
 
@@ -316,7 +316,7 @@ This model was saved using the 'save_model' function of the algorithm.
 To load and use the model, please refer to the 'load_model' and 'predict' functions of the
 algorithm.
 ## download_model_from_traintuple
-```python
+```text
 download_model_from_traintuple(self, tuple_key: str, folder) -> None
 ```
 
@@ -325,7 +325,7 @@ This model was saved using the 'save_model' function of the algorithm.
 To load and use the model, please refer to the 'load_model' and 'predict' functions of the
 algorithm.
 ## download_trunk_model_from_composite_traintuple
-```python
+```text
 download_trunk_model_from_composite_traintuple(self, tuple_key: str, folder) -> None
 ```
 
@@ -334,8 +334,8 @@ This model was saved using the 'save_model' function of the algorithm.
 To load and use the model, please refer to the 'load_model' and 'predict' functions of the
 algorithm.
 ## from_config_file
-```python
-from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Optional[str] = None, retry_timeout: int = 300, debug: bool = False)
+```text
+from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Union[str, NoneType] = None, retry_timeout: int = 300, debug: bool = False)
 ```
 
 Returns a new Client configured with profile data from configuration files.
@@ -361,42 +361,42 @@ Defaults to False.
 
  - `Client`: The new client.
 ## get_aggregatetuple
-```python
+```text
 get_aggregatetuple(self, key: str) -> substra.sdk.models.Aggregatetuple
 ```
 
 Get aggregatetuple by key, the returned object is described
 in the [models.Aggregatetuple](sdk_models.md#Aggregatetuple) model
 ## get_algo
-```python
+```text
 get_algo(self, key: str) -> substra.sdk.models.Algo
 ```
 
 Get algo by key, the returned object is described
 in the [models.Algo](sdk_models.md#Algo) model
 ## get_composite_traintuple
-```python
+```text
 get_composite_traintuple(self, key: str) -> substra.sdk.models.CompositeTraintuple
 ```
 
 Get composite traintuple by key, the returned object is described
 in the [models.CompositeTraintuple](sdk_models.md#CompositeTraintuple) model
 ## get_compute_plan
-```python
+```text
 get_compute_plan(self, key: str) -> substra.sdk.models.ComputePlan
 ```
 
 Get compute plan by key, the returned object is described
 in the [models.ComputePlan](sdk_models.md#ComputePlan) model
 ## get_dataset
-```python
+```text
 get_dataset(self, key: str) -> substra.sdk.models.Dataset
 ```
 
 Get dataset by key, the returned object is described
 in the [models.Dataset](sdk_models.md#Dataset) model
 ## get_logs
-```python
+```text
 get_logs(self, tuple_key: str) -> str
 ```
 
@@ -407,116 +407,116 @@ Logs are only available for tuples that experienced an execution failure.
 Attempting to retrieve logs for tuples in any other states or for non-existing
 tuples will result in a NotFound error.
 ## get_metric
-```python
+```text
 get_metric(self, key: str) -> substra.sdk.models.Metric
 ```
 
 Get metric by key, the returned object is described
 in the [models.Metric](sdk_models.md#Metric) model
 ## get_testtuple
-```python
+```text
 get_testtuple(self, key: str) -> substra.sdk.models.Testtuple
 ```
 
 Get testtuple by key, the returned object is described
 in the [models.Testtuple](sdk_models.md#Testtuple) model
 ## get_traintuple
-```python
+```text
 get_traintuple(self, key: str) -> substra.sdk.models.Traintuple
 ```
 
 Get traintuple by key, the returned object is described
 in the [models.Traintuple](sdk_models.md#Traintuple) model
 ## link_dataset_with_data_samples
-```python
+```text
 link_dataset_with_data_samples(self, dataset_key: str, data_sample_keys: str) -> List[str]
 ```
 
 Link dataset with data samples.
 ## list_aggregatetuple
-```python
+```text
 list_aggregatetuple(self, filters=None) -> List[substra.sdk.models.Aggregatetuple]
 ```
 
 List aggregatetuples, the returned object is described
 in the [models.Aggregatetuple](sdk_models.md#Aggregatetuple) model
 ## list_algo
-```python
+```text
 list_algo(self, filters=None) -> List[substra.sdk.models.Algo]
 ```
 
 List algos, the returned object is described
 in the [models.Algo](sdk_models.md#Algo) model
 ## list_composite_traintuple
-```python
+```text
 list_composite_traintuple(self, filters=None) -> List[substra.sdk.models.CompositeTraintuple]
 ```
 
 List composite traintuples, the returned object is described
 in the [models.CompositeTraintuple](sdk_models.md#CompositeTraintuple) model
 ## list_compute_plan
-```python
+```text
 list_compute_plan(self, filters=None) -> List[substra.sdk.models.ComputePlan]
 ```
 
 List compute plans, the returned object is described
 in the [models.ComputePlan](sdk_models.md#ComputePlan) model
 ## list_data_sample
-```python
+```text
 list_data_sample(self, filters=None) -> List[substra.sdk.models.DataSample]
 ```
 
 List data samples, the returned object is described
 in the [models.DataSample](sdk_models.md#DataSample) model
 ## list_dataset
-```python
+```text
 list_dataset(self, filters=None) -> List[substra.sdk.models.Dataset]
 ```
 
 List datasets, the returned object is described
 in the [models.Dataset](sdk_models.md#Dataset) model
 ## list_metric
-```python
+```text
 list_metric(self, filters=None) -> List[substra.sdk.models.Metric]
 ```
 
 List metrics, the returned object is described
 in the [models.Metric](sdk_models.md#Metric) model
 ## list_node
-```python
+```text
 list_node(self, *args, **kwargs) -> List[substra.sdk.models.Node]
 ```
 
 List nodes, the returned object is described
 in the [models.Node](sdk_models.md#Node) model
 ## list_testtuple
-```python
+```text
 list_testtuple(self, filters=None) -> List[substra.sdk.models.Testtuple]
 ```
 
 List testtuples, the returned object is described
 in the [models.Testtuple](sdk_models.md#Testtuple) model
 ## list_traintuple
-```python
+```text
 list_traintuple(self, filters=None) -> List[substra.sdk.models.Traintuple]
 ```
 
 List traintuples, the returned object is described
 in the [models.Traintuple](sdk_models.md#Traintuple) model
 ## login
-```python
+```text
 login(self, username, password)
 ```
 
 Login to a remote server.
 ## node_info
-```python
+```text
 node_info(self) -> dict
 ```
 
 Get node information.
 ## update_compute_plan
-```python
+```text
 update_compute_plan(self, key: str, data: Union[dict, substra.sdk.schemas.UpdateComputePlanSpec], auto_batching: bool = True, batch_size: int = 20) -> substra.sdk.models.ComputePlan
 ```
 
@@ -539,7 +539,7 @@ to define the number of tuples uploaded in each batch (default 20).
  - `models.ComputePlan`: updated compute plan, as described in the
 [models.ComputePlan](sdk_models.md#ComputePlan) model
 # retry_on_exception
-```python
+```text
 retry_on_exception(exceptions, timeout=300)
 ```
 
