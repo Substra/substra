@@ -14,6 +14,7 @@ local_dir = Path(__file__).parent
 schemas_list = [
     schemas.DataSampleSpec,
     schemas.DatasetSpec,
+    schemas.AlgoSpec,
     schemas.MetricSpec,
     schemas.TesttupleSpec,
     schemas.TraintupleSpec,
