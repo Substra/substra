@@ -1,3 +1,9 @@
+**This repository is inactive.**
+
+The Substra project is under active development as a closed-source solution. There are ongoing strategic discussions regarding the possibility of open-sourcing newer versions, but no conclusion has been reached yet.
+
+---
+
 <h1><img src="https://github.com/Substra/artwork/blob/main/horizontal/color/substra_horizontal-color.png" alt="substra logo"/></h1>
 
 CLI and SDK for interacting with Substra platform.
