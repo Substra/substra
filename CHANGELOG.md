@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.0] - 2022-03-01
+
 ### Changed
 
 - Speed and disk space usage improvement as datasamples are not copied to local backend folders anymore (#136)
