@@ -1,5 +1,5 @@
 # this base image works in both CPU and GPU enabled environments
-FROM gcr.io/connect-314908/connect-tools:0.8.0
+FROM gcr.io/connect-314908/connect-tools:0.10.0-nvidiacuda11.6.0-base-ubuntu20.04-python3.9
 
 # install dependencies
 RUN pip3 install sklearn
