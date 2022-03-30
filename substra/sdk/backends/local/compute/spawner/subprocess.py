@@ -100,17 +100,5 @@ class Subprocess(BaseSpawner):
             script_name = _get_script_name_from_dockerfile(tmpdir)
             # get py_command for subprocess
             py_command = _get_py_command(script_name, tmpdir, command_template, local_volumes)
-            # run subprocess
-            try:
-                process = subprocess.run(py_command, capture_output=True, check=True, cwd=tmpdir, env=envs)
-            except subprocess.CalledProcessError as exc:
-                logger.error(exc)
-                logger.error(exc.stderr.decode("UTF-8"))
-                logger.error(exc.stdout.decode("UTF-8"))
-                raise ExecutionError(f"Subprocess '{name}' exited with status code '{exc.returncode}'")
-
-        execution_logs = str(process)
-        execution_logs += str(process.stderr.decode("UTF-8"))
-        execution_logs += str(process.stdout.decode("UTF-8"))
-
-        return execution_logs
+            # run subprocess, don't capture output to be able to use pdb
+            subprocess.run(py_command, capture_output=False, check=True, cwd=tmpdir, env=envs)

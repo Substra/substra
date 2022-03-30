@@ -114,4 +114,3 @@ class Docker(BaseSpawner):
             raise ExecutionError(f"Container '{name}' exited with status code '{exit_code}'")
 
         container.remove()
-        return execution_logs_str

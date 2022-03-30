@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Be able to use pdb in subprocess mode (#137)
+
 ## [0.17.0] - 2022-03-01
 
 ### Changed
