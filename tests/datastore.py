@@ -427,8 +427,17 @@ COMPUTE_PLAN = {
 }
 
 MODEL = {
-    "key": "8a90514f-88c7-0002-608a-9868681dd158",
-    "checksum": "8a90514f88c70002608a9868681dd1589ea598e78d00a8cd7783c3ea0f9ceb09",
-    "storage_address": "/some/path/model",
-    "creation_date": "2021-08-24T13:36:07.393646367Z",
+    "address": {
+        "storage_address": "http://substra-backend.node-1.com/model/d7d88d74-d42f-43f4-affa-d0cdb99873fc/file/",
+        "checksum": "b7881c547f7b80f01200fd2c41546010a15c66e2db46722dbbffa428a0bd0a26",
+    },
+    "category": "MODEL_SIMPLE",
+    "compute_task_key": "b2b37c0f-de0a-4a61-9d00-58079efa9b33",
+    "creation_date": "2022-03-01T11:22:35.791650Z",
+    "key": "d7d88d74-d42f-43f4-affa-d0cdb99873fc",
+    "owner": "MyOrg1MSP",
+    "permissions": {
+        "download": {"authorized_ids": ["MyOrg1MSP"], "public": True},
+        "process": {"authorized_ids": ["MyOrg1MSP"], "public": True},
+    },
 }

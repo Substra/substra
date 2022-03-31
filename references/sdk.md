@@ -2,7 +2,7 @@
 
 # Client
 ```text
-Client(url: Union[str, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300, insecure: bool = False, debug: bool = False)
+Client(url: Optional[str] = None, token: Optional[str] = None, retry_timeout: int = 300, insecure: bool = False, debug: bool = False)
 ```
 
 Create a client
@@ -335,7 +335,7 @@ To load and use the model, please refer to the 'load_model' and 'predict' functi
 algorithm.
 ## from_config_file
 ```text
-from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Union[str, NoneType] = None, retry_timeout: int = 300, debug: bool = False)
+from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Optional[str] = None, retry_timeout: int = 300, debug: bool = False)
 ```
 
 Returns a new Client configured with profile data from configuration files.
@@ -413,6 +413,12 @@ get_metric(self, key: str) -> substra.sdk.models.Metric
 
 Get metric by key, the returned object is described
 in the [models.Metric](sdk_models.md#Metric) model
+## get_model
+```text
+get_model(self, key: str) -> substra.sdk.models.OutModel
+```
+
+None
 ## get_testtuple
 ```text
 get_testtuple(self, key: str) -> substra.sdk.models.Testtuple

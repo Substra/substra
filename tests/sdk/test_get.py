@@ -28,6 +28,7 @@ from .utils import mock_response
     "asset_name",
     [
         "metric",
+        "model",
         "dataset",
         "algo",
         "testtuple",
@@ -67,6 +68,7 @@ def test_get_asset_not_found(client, mocker):
         "aggregatetuple",
         "composite_traintuple",
         "compute_plan",
+        "model",
     ],
 )
 def test_get_extra_field(asset_name, client, mocker):

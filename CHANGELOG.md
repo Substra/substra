@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SDK: Add the `get_logs` and `download_logs` methods (#120)
 - doc: add DEBUG_SPAWNER doc (#140)
 - doc: add `AlgoSpec` to documentation (#145)
+- SDK: add `get_model` method
 
 ### Fixed
 

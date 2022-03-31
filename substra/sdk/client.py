@@ -487,6 +487,10 @@ class Client(object):
         return self._backend.download_logs(tuple_key, destination_file=None)
 
     @logit
+    def get_model(self, key: str) -> models.OutModel:
+        return self._backend.get(schemas.Type.Model, key)
+
+    @logit
     def list_algo(self, filters=None) -> List[models.Algo]:
         """List algos, the returned object is described
         in the [models.Algo](sdk_models.md#Algo) model"""
