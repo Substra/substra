@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Local mode - in a compute plan, the testtuples are executed at the same time as the other tasks instead of after all of them (#150)
+
 ### Fixed
 
 - Be able to use pdb in subprocess mode (#137)

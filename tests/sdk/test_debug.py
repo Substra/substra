@@ -589,3 +589,44 @@ class TestsDebug:
             data_samples = client.list_data_sample(filters=filters)
             assert len(data_samples) == 1
             assert data_samples[0].key == data_sample_keys[2]
+
+
+def test_execute_compute_plan_several_testtuples_per_train(asset_factory, monkeypatch):
+    monkeypatch.setenv("DEBUG_SPAWNER", "subprocess")
+    client = substra.Client(debug=True)
+
+    dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
+    dataset_key = client.add_dataset(dataset_query)
+
+    data_sample_1 = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
+    sample_1_key = client.add_data_sample(data_sample_1)
+
+    algo_query = asset_factory.create_algo(AlgoCategory.simple)
+    algo_key = client.add_algo(algo_query)
+
+    metric = asset_factory.create_metric()
+    metric_key = client.add_metric(metric)
+
+    cp = asset_factory.create_compute_plan()
+    traintuple = substra.sdk.schemas.ComputePlanTraintupleSpec(
+        algo_key=algo_key,
+        data_manager_key=dataset_key,
+        traintuple_id=uuid.uuid4().hex,
+        train_data_sample_keys=[sample_1_key],
+    )
+    cp.testtuples = [
+        substra.sdk.schemas.ComputePlanTesttupleSpec(
+            metric_keys=[metric_key],
+            traintuple_id=traintuple.traintuple_id,
+            data_manager_key=dataset_key,
+            test_data_sample_keys=[sample_1_key],
+        )
+        for _ in range(2)
+    ]
+    cp.traintuples = [traintuple]
+
+    compute_plan = client.add_compute_plan(cp)
+    assert compute_plan.done_count == 3
+
+    testtuples = client.list_testtuple(filters=[f"testtuple:compute_plan_key:{compute_plan.key}"])
+    assert len(testtuples) == 2

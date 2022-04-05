@@ -300,43 +300,54 @@ class Local(base.BaseBackend):
     def __execute_compute_plan(
         self, spec, compute_plan, visited, traintuples, aggregatetuples, compositetuples, spec_options
     ):
-        for id_, rank in tqdm(
-            sorted(visited.items(), key=lambda item: item[1]),
-            desc="Compute plan progress",
-        ):
-            if id_ in traintuples:
-                traintuple = traintuples[id_]
-                traintuple_spec = schemas.TraintupleSpec.from_compute_plan(
-                    compute_plan_key=compute_plan.key, rank=rank, spec=traintuple
-                )
-                self._add_traintuple(key=id_, spec=traintuple_spec, spec_options=spec_options)
-
-            elif id_ in aggregatetuples:
-                aggregatetuple = aggregatetuples[id_]
-                aggregatetuple_spec = schemas.AggregatetupleSpec.from_compute_plan(
-                    compute_plan_key=compute_plan.key, rank=rank, spec=aggregatetuple
-                )
-                self._add_aggregatetuple(
-                    key=id_,
-                    spec=aggregatetuple_spec,
-                    spec_options=spec_options,
-                )
-
-            elif id_ in compositetuples:
-                compositetuple = compositetuples[id_]
-                compositetuple_spec = schemas.CompositeTraintupleSpec.from_compute_plan(
-                    compute_plan_key=compute_plan.key, rank=rank, spec=compositetuple
-                )
-                self._add_composite_traintuple(
-                    key=id_,
-                    spec=compositetuple_spec,
-                    spec_options=spec_options,
-                )
-
+        testtuples = dict()
         if spec.testtuples:
-            for testtuple in tqdm(spec.testtuples, desc="Testtuples progress"):
-                testtuple_spec = schemas.TesttupleSpec.from_compute_plan(spec=testtuple)
-                self.add(testtuple_spec, spec_options)
+            for testtuple in spec.testtuples:
+                testtuples.setdefault(testtuple.traintuple_id, []).append(testtuple)
+
+        with tqdm(
+            total=len(visited) + len(testtuples),
+            desc="Compute plan progress",
+        ) as progress_bar:
+
+            for id_, rank in sorted(visited.items(), key=lambda item: item[1]):
+
+                if id_ in traintuples:
+                    traintuple = traintuples[id_]
+                    traintuple_spec = schemas.TraintupleSpec.from_compute_plan(
+                        compute_plan_key=compute_plan.key, rank=rank, spec=traintuple
+                    )
+                    self._add_traintuple(key=id_, spec=traintuple_spec, spec_options=spec_options)
+
+                elif id_ in aggregatetuples:
+                    aggregatetuple = aggregatetuples[id_]
+                    aggregatetuple_spec = schemas.AggregatetupleSpec.from_compute_plan(
+                        compute_plan_key=compute_plan.key, rank=rank, spec=aggregatetuple
+                    )
+                    self._add_aggregatetuple(
+                        key=id_,
+                        spec=aggregatetuple_spec,
+                        spec_options=spec_options,
+                    )
+
+                elif id_ in compositetuples:
+                    compositetuple = compositetuples[id_]
+                    compositetuple_spec = schemas.CompositeTraintupleSpec.from_compute_plan(
+                        compute_plan_key=compute_plan.key, rank=rank, spec=compositetuple
+                    )
+                    self._add_composite_traintuple(
+                        key=id_,
+                        spec=compositetuple_spec,
+                        spec_options=spec_options,
+                    )
+                progress_bar.update()
+
+                # Execute the testtuple right after its train task
+                if id_ in testtuples:
+                    for testtuple in testtuples[id_]:
+                        testtuple_spec = schemas.TesttupleSpec.from_compute_plan(spec=testtuple)
+                        self.add(testtuple_spec, spec_options)
+                        progress_bar.update()
 
         compute_plan.end_date = datetime.now()
         compute_plan.estimated_end_date = compute_plan.end_date
