@@ -87,13 +87,16 @@ class Worker:
             "NODE_INDEX": str(node_name_id.get(tuple_.worker, None)),
         }
 
-    def _get_data_sample_paths_arg(self, data_volume, data_sample_keys):
+    def _get_data_sample_paths_arg(self, data_sample_keys: typing.List[str], data_volume: str) -> str:
+        """Get the path to the data samples in the container or temp folder as a string for the CLI"""
         data_sample_paths = [os.path.join(data_volume, key) for key in data_sample_keys]
         data_sample_paths = " ".join(data_sample_paths)
         return data_sample_paths
 
-    def _get_data_volume(self, tuple_dir, tuple_):
-        data_volume = _mkdir(os.path.join(tuple_dir, "data"))
+    def _get_data_sample_paths(
+        self, tuple_: typing.Union[models.Traintuple, models.CompositeTraintuple, models.Testtuple]
+    ) -> typing.Dict[str, pathlib.Path]:
+        """Get the data sample key / original path matching"""
         if isinstance(tuple_, models.Traintuple):
             data_sample_keys = tuple_.train.data_sample_keys
         elif isinstance(tuple_, models.CompositeTraintuple):
@@ -101,10 +104,7 @@ class Worker:
         elif isinstance(tuple_, models.Testtuple):
             data_sample_keys = tuple_.test.data_sample_keys
         samples = [self._db.get(schemas.Type.DataSample, key) for key in data_sample_keys]
-        for sample in samples:
-            # copy the whole tree but using hard link to be fast and not use too much place
-            shutil.copytree(sample.path, os.path.join(data_volume, sample.key), copy_function=os.link)
-        return data_volume
+        return {sample.key: sample.path for sample in samples}
 
     def _save_output_model(self, tuple_, model_name, models_volume, permissions) -> models.OutModel:
         if model_name == Filenames.OUT_HEAD_MODEL:
@@ -151,6 +151,9 @@ class Worker:
         with self._context(tuple_.key) as tuple_dir:
             tuple_.status = models.Status.doing
             tuple_.start_date = datetime.datetime.now()
+
+            # If we are using fake data samples or an aggregate task, is None
+            data_sample_paths = None
 
             # fetch dependencies
             algo = self._db.get_with_files(schemas.Type.Algo, tuple_.algo.key)
@@ -294,13 +297,13 @@ class Worker:
                 dataset = self._db.get_with_files(schemas.Type.Dataset, dataset_key)
                 volumes["_VOLUME_OPENER"] = dataset.opener.storage_address
                 if self._db.is_local(dataset_key, schemas.Type.Dataset):
-                    data_volume = self._get_data_volume(tuple_dir, tuple_)
-                    volumes["_VOLUME_INPUT_DATASAMPLES"] = data_volume
-                    data_sample_paths = self._get_data_sample_paths_arg(
-                        "${_VOLUME_INPUT_DATASAMPLES}",
+                    volumes["_VOLUME_INPUT_DATASAMPLES"] = _mkdir(os.path.join(tuple_dir, "data"))
+                    data_sample_paths = self._get_data_sample_paths(tuple_)
+                    data_sample_paths_arg = self._get_data_sample_paths_arg(
                         train_data_sample_keys,
+                        data_volume="${_VOLUME_INPUT_DATASAMPLES}",
                     )
-                    command_template += f" --data-sample-paths {data_sample_paths}"
+                    command_template += f" --data-sample-paths {data_sample_paths_arg}"
                 else:
                     command_template += " --fake-data"
                     command_template += f" --n-fake-samples {len(dataset.train_data_sample_keys)}"
@@ -337,6 +340,7 @@ class Worker:
                 command_template=string.Template(command_template),
                 local_volumes=volumes,
                 envs=envs,
+                data_sample_paths=data_sample_paths,
             )
 
             # save move output models
@@ -387,6 +391,9 @@ class Worker:
             tuple_.status = models.Status.doing
             tuple_.start_date = datetime.datetime.now()
 
+            # If we are using fake data samples or an aggregate task, is None
+            data_sample_paths = None
+
             # fetch dependencies
             assert len(tuple_.parent_task_keys) == 1
             traintuple = None
@@ -423,11 +430,6 @@ class Worker:
                 "_VOLUME_INPUT_MODELS": models_volume,
                 "_VOLUME_OUTPUT_PRED": predictions_volume,
             }
-
-            # If use fake data, no data volume
-            if self._db.is_local(dataset.key, schemas.Type.Dataset):
-                data_volume = self._get_data_volume(tuple_dir, tuple_)
-                volumes["_VOLUME_INPUT_DATASAMPLES"] = data_volume
 
             # compute testtuple command_template
             command_template = "predict"
@@ -486,11 +488,13 @@ class Worker:
                     command_template += f" {command_name} {address_in_container}"
 
             if self._db.is_local(dataset.key, schemas.Type.Dataset):
-                data_sample_paths = self._get_data_sample_paths_arg(
-                    "${_VOLUME_INPUT_DATASAMPLES}",
+                volumes["_VOLUME_INPUT_DATASAMPLES"] = _mkdir(os.path.join(tuple_dir, "data"))
+                data_sample_paths = self._get_data_sample_paths(tuple_)
+                data_sample_paths_arg = self._get_data_sample_paths_arg(
                     tuple_.test.data_sample_keys,
+                    data_volume="${_VOLUME_INPUT_DATASAMPLES}",
                 )
-                command_template += f" --data-sample-paths {data_sample_paths}"
+                command_template += f" --data-sample-paths {data_sample_paths_arg}"
             else:
                 command_template += " --fake-data"
                 command_template += f" --n-fake-samples {len(tuple_.test.data_sample_keys)}"
@@ -504,6 +508,8 @@ class Worker:
                 archive_path=str(algo.algorithm.storage_address),
                 command_template=string.Template(command_template),
                 local_volumes=volumes,
+                data_sample_paths=data_sample_paths,
+                envs=None,
             )
 
             # Calculate the metrics
@@ -512,16 +518,12 @@ class Worker:
                     "_VOLUME_OUTPUT_PRED": predictions_volume,
                     "_VOLUME_OPENER": dataset.opener.storage_address,
                     "_VOLUME_OUTPUT_PERF": performance_volume,
+                    "_VOLUME_INPUT_DATASAMPLES": os.path.join(tuple_dir, "data"),
                 }
 
                 if self._db.is_local(dataset.key, schemas.Type.Dataset):
-                    data_sample_paths = self._get_data_sample_paths_arg(
-                        "${_VOLUME_INPUT_DATASAMPLES}",
-                        tuple_.test.data_sample_keys,
-                    )
-                    volumes["_VOLUME_INPUT_DATASAMPLES"] = data_volume
                     command_template = " --fake-data-mode DISABLED"
-                    command_template += f" --data-sample-paths {data_sample_paths}"
+                    command_template += f" --data-sample-paths {data_sample_paths_arg}"
                 else:
                     command_template = " --fake-data-mode FAKE_Y"
                     command_template += f" --n-fake-samples {len(tuple_.test.data_sample_keys)}"
@@ -536,6 +538,8 @@ class Worker:
                     str(metric.address.storage_address),
                     command_template=string.Template(command_template),
                     local_volumes=volumes,
+                    data_sample_paths=data_sample_paths,
+                    envs=None,
                 )
 
                 # save move performance

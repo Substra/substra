@@ -13,8 +13,10 @@
 # limitations under the License.
 import logging
 import pathlib
+import shutil
 import string
 import tempfile
+import typing
 
 import docker
 
@@ -38,6 +40,29 @@ DOCKER_VOLUMES = {
 }
 
 
+def _copy_data_samples(data_sample_paths: typing.Dict[str, pathlib.Path], dest_dir: str):
+    """Move the data samples to the data directory.
+
+    We copy the data samples even though it is slow because:
+
+    - symbolic links do not work with Docker container volumes
+    - hard links cannot be created across partitions
+    - mounting each data sample as its own volume causes permission errors
+
+    Args:
+        data_sample_paths (typing.Dict[str, pathlib.Path]): Paths to the samples
+        dest_dir (str): Temp data directory
+    """
+    # Check if there are already data samples in the dest dir (testtuples are executed in 2 parts)
+    sample_key = next(iter(data_sample_paths))
+    if (pathlib.Path(dest_dir) / sample_key).exists():
+        return
+    # copy the whole tree
+    for sample_key, sample_path in data_sample_paths.items():
+        dest_path = pathlib.Path(dest_dir) / sample_key
+        shutil.copytree(sample_path, dest_path)
+
+
 class Docker(BaseSpawner):
     """Wrapper around docker daemon to execute a command in a container."""
 
@@ -52,14 +77,7 @@ class Docker(BaseSpawner):
             )
         super().__init__(local_worker_dir=local_worker_dir)
 
-    def spawn(
-        self,
-        name,
-        archive_path,
-        command_template: string.Template,
-        local_volumes=None,
-        envs=None,
-    ):
+    def _build_docker_image(self, name: str, archive_path: pathlib.Path):
         """Spawn a docker container (blocking)."""
         with tempfile.TemporaryDirectory(dir=self._local_worker_dir) as tmpdir:
             image_exists = False
@@ -80,10 +98,29 @@ class Docker(BaseSpawner):
                             logger.error(line["stream"].strip())
                     raise
 
+    def spawn(
+        self,
+        name: str,
+        archive_path: pathlib.Path,
+        command_template: string.Template,
+        data_sample_paths: typing.Optional[typing.Dict[str, pathlib.Path]],
+        local_volumes: typing.Optional[dict],
+        envs: typing.Optional[typing.List[str]],
+    ):
+        """Build the docker image, copy the data samples then spawn a Docker container
+        and execute the task.
+        """
+        self._build_docker_image(name=name, archive_path=archive_path)
+
         # format the command to replace each occurrence of a DOCKER_VOLUMES's key
         # by its "bind" value
         volumes_format = {volume_name: volume_path["bind"] for volume_name, volume_path in DOCKER_VOLUMES.items()}
         command = command_template.substitute(**volumes_format)
+        if data_sample_paths is not None:
+            assert "_VOLUME_INPUT_DATASAMPLES" in local_volumes, (
+                "if there are data samples" + "then there must be a Docker volume"
+            )
+            _copy_data_samples(data_sample_paths, local_volumes["_VOLUME_INPUT_DATASAMPLES"])
 
         # create the volumes dict for docker by binding the local_volumes and the DOCKER_VOLUME
         volumes_docker = {

@@ -10,9 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Local mode - in a compute plan, the testtuples are executed at the same time as the other tasks instead of after all of them (#150)
+- Examples now use the connect-tools base Docker image 0.10.0 (#148)
 
 ### Fixed
 
+- Local mode works with data on another disk partition than the one the code is executed on (#149)
+  - In subprocess mode: the data samples are linked via a symbolic link to a temporary folder
+  - In Docker mode: the data samples are copied at the task execution time to a temporary folder
 - Be able to use pdb in subprocess mode (#137)
 
 ## [0.17.0] - 2022-03-01

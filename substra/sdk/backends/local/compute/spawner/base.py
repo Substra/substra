@@ -14,6 +14,7 @@
 import abc
 import pathlib
 import string
+import typing
 
 
 class ExecutionError(Exception):
@@ -32,8 +33,9 @@ class BaseSpawner(abc.ABC):
         name,
         archive_path,
         command_template: string.Template,
-        local_volumes=None,
-        envs=None,
+        data_sample_paths: typing.Optional[typing.Dict[str, pathlib.Path]],
+        local_volumes,
+        envs,
     ):
         """Execute archive in a contained environment."""
         raise NotImplementedError

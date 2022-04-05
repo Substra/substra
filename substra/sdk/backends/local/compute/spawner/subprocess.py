@@ -12,12 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import logging
+import os
 import pathlib
 import re
+import shutil
 import string
 import subprocess
 import sys
 import tempfile
+import typing
 
 from substra.sdk.archive import uncompress
 from substra.sdk.backends.local.compute.spawner.base import BaseSpawner
@@ -78,6 +81,24 @@ def _get_py_command(script_name, tmpdir, command_template, local_volumes):
     return py_command
 
 
+def _symlink_data_samples(data_sample_paths: typing.Dict[str, pathlib.Path], dest_dir: str):
+    """Create a symbolic link to "move" the data samples
+    to the data directory.
+
+    Args:
+        data_sample_paths (typing.Dict[str, pathlib.Path]): Paths to the samples
+        dest_dir (str): Temp data directory
+    """
+    # Check if there are already data samples in the dest dir (testtuples are executed in 2 parts)
+    sample_key = next(iter(data_sample_paths))
+    if (pathlib.Path(dest_dir) / sample_key).exists():
+        return
+    # copy the whole tree but using hard link to be fast and not use too much place
+    for sample_key, sample_path in data_sample_paths.items():
+        dest_path = pathlib.Path(dest_dir) / sample_key
+        shutil.copytree(sample_path, dest_path, copy_function=os.symlink)
+
+
 class Subprocess(BaseSpawner):
     """Wrapper to execute a command in a python process."""
 
@@ -89,8 +110,9 @@ class Subprocess(BaseSpawner):
         name,
         archive_path,
         command_template: string.Template,
-        local_volumes=None,
-        envs=None,
+        data_sample_paths: typing.Optional[typing.Dict[str, pathlib.Path]],
+        local_volumes,
+        envs,
     ):
         """Spawn a python process (blocking)."""
         with tempfile.TemporaryDirectory(dir=self._local_worker_dir) as tmpdir:
@@ -100,5 +122,12 @@ class Subprocess(BaseSpawner):
             script_name = _get_script_name_from_dockerfile(tmpdir)
             # get py_command for subprocess
             py_command = _get_py_command(script_name, tmpdir, command_template, local_volumes)
+
+            if data_sample_paths is not None:
+                assert "_VOLUME_INPUT_DATASAMPLES" in local_volumes, (
+                    "if there are data samples" + "then there must be a Docker volume"
+                )
+                _symlink_data_samples(data_sample_paths, local_volumes["_VOLUME_INPUT_DATASAMPLES"])
+
             # run subprocess, don't capture output to be able to use pdb
             subprocess.run(py_command, capture_output=False, check=True, cwd=tmpdir, env=envs)
