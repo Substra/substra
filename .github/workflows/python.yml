@@ -75,10 +75,18 @@ jobs:
           gcloud auth configure-docker
           export PATH=/home/runner/bin:$PATH
           /home/runner/bin/dockerd-rootless.sh &  # Start Docker rootless in the background
-      - name: Install substra tools
-        run: pip install -i https://${{ secrets.OWKIN_PYPI_USER }}:${{ secrets.OWKIN_PYPI_PASSWORD }}@pypi.owkin.com/simple/ 'substratools>=0.8.0'
-      - name: Install substra
-        run: pip install -e .[dev]
+      - name: Cloning substratools
+        uses: actions/checkout@v2
+        with:
+          repository: owkin/connect-tools
+          token: ${{ secrets.ACCESS_TOKEN }}
+          path: substratools
+          ref: main
+      - name: Install substra and substratools
+        run: |
+          pip install --no-cache-dir -e substratools
+          pip install --no-cache-dir -e .[dev]
+
       - name: Test
         run: |
           export PATH=/home/runner/bin:$PATH

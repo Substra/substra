@@ -6,11 +6,19 @@ import uuid
 import zipfile
 
 import substra
+
+import sys
+
 from substra.sdk.schemas import AlgoCategory
 
 DEFAULT_DATA_SAMPLE_FILENAME = "data.csv"
 
-DEFAULT_SUBSTRATOOLS_VERSION = "0.8.0-minimal"
+
+DEFAULT_SUBSTRATOOLS_VERSION = (
+    f"latest-nvidiacuda11.6.0-base-ubuntu20.04-python{sys.version_info.major}.{sys.version_info.minor}-minimal"
+)
+
+DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE = f"gcr.io/connect-314908/connect-tools:{DEFAULT_SUBSTRATOOLS_VERSION}"
 
 DEFAULT_OPENER_SCRIPT = f"""
 import csv
@@ -200,25 +208,25 @@ INVALID_COMPOSITE_ALGO_SCRIPT = DEFAULT_COMPOSITE_ALGO_SCRIPT.replace("train", "
 INVALID_AGGREGATE_ALGO_SCRIPT = DEFAULT_AGGREGATE_ALGO_SCRIPT.replace("aggregate", "etagergga")
 
 DEFAULT_METRICS_DOCKERFILE = f"""
-FROM gcr.io/connect-314908/connect-tools:{DEFAULT_SUBSTRATOOLS_VERSION}
+FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
 COPY metrics.py .
 ENTRYPOINT ["python3", "metrics.py"]
 """
 
 DEFAULT_ALGO_DOCKERFILE = f"""
-FROM gcr.io/connect-314908/connect-tools:{DEFAULT_SUBSTRATOOLS_VERSION}
+FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
 COPY algo.py .
 ENTRYPOINT ["python3", "algo.py"]
 """
 
 BAD_ENTRYPOINT_DOCKERFILE = f"""
-FROM gcr.io/connect-314908/connect-tools:{DEFAULT_SUBSTRATOOLS_VERSION}
+FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
 COPY algo.py .
 ENTRYPOINT ["python3", "algo.txt"]
 """
 
 NO_ENTRYPOINT_DOCKERFILE = f"""
-FROM gcr.io/connect-314908/connect-tools:{DEFAULT_SUBSTRATOOLS_VERSION}
+FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
 COPY algo.py .
 """
 
