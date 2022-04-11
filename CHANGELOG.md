@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.0] - 2022-04-11
+
 ### Changed
 
 - Local mode - in a compute plan, the testtuples are executed at the same time as the other tasks instead of after all of them (#150)
