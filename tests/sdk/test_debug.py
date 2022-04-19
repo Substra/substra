@@ -94,7 +94,7 @@ class TestsDebug:
             substra.sdk.schemas.ComputePlanTraintupleSpec(
                 algo_key=algo_key,
                 data_manager_key=dataset_1_key,
-                traintuple_id=uuid.uuid4().hex,
+                traintuple_id=str(uuid.uuid4()),
                 train_data_sample_keys=[sample_1_key],
             ),
         ]
@@ -125,7 +125,7 @@ class TestsDebug:
             substra.sdk.schemas.ComputePlanTraintupleSpec(
                 algo_key=algo_key,
                 data_manager_key=dataset_1_key,
-                traintuple_id=uuid.uuid4().hex,
+                traintuple_id=str(uuid.uuid4()),
                 train_data_sample_keys=[sample_1_key],
             )
         ]
@@ -157,13 +157,13 @@ class TestsDebug:
             substra.sdk.schemas.ComputePlanTraintupleSpec(
                 algo_key=algo_key,
                 data_manager_key=dataset_1_key,
-                traintuple_id=uuid.uuid4().hex,
+                traintuple_id=str(uuid.uuid4()),
                 train_data_sample_keys=[sample_1_key],
             ),
             substra.sdk.schemas.ComputePlanTraintupleSpec(
                 algo_key=algo_key,
                 data_manager_key=dataset_2_key,
-                traintuple_id=uuid.uuid4().hex,
+                traintuple_id=str(uuid.uuid4()),
                 train_data_sample_keys=[sample_2_key],
             ),
         ]
@@ -212,7 +212,7 @@ class TestsDebug:
             data_manager_key=dataset_key,
             train_data_sample_keys=[data_sample_key],
             in_models_ids=[traintuple_key],
-            traintuple_id=uuid.uuid4().hex,
+            traintuple_id=str(uuid.uuid4()),
         )
 
         compute_plan = client.update_compute_plan(
@@ -256,8 +256,8 @@ class TestsDebug:
         algo_query = asset_factory.create_algo(AlgoCategory.simple)
         algo_key = client.add_algo(algo_query)
 
-        traintuple_id_1 = uuid.uuid4().hex
-        traintuple_id_2 = uuid.uuid4().hex
+        traintuple_id_1 = str(uuid.uuid4())
+        traintuple_id_2 = str(uuid.uuid4())
         cp = asset_factory.create_compute_plan()
         cp.traintuples = [
             substra.sdk.schemas.ComputePlanTraintupleSpec(
@@ -328,8 +328,8 @@ class TestsDebug:
         aggregate_algo_key = client.add_algo(algo_query)
 
         cp = asset_factory.create_compute_plan()
-        composite_1_key = uuid.uuid4().hex
-        composite_2_key = uuid.uuid4().hex
+        composite_1_key = str(uuid.uuid4())
+        composite_2_key = str(uuid.uuid4())
         cp.composite_traintuples = [
             substra.sdk.schemas.ComputePlanCompositeTraintupleSpec(
                 algo_key=algo_key,
@@ -349,7 +349,7 @@ class TestsDebug:
 
         cp.aggregatetuples = [
             substra.sdk.schemas.ComputePlanAggregatetupleSpec(
-                aggregatetuple_id=uuid.uuid4().hex,
+                aggregatetuple_id=str(uuid.uuid4()),
                 worker=dataset_1_key,
                 algo_key=aggregate_algo_key,
                 in_models_ids=[composite_1_key, composite_2_key],
@@ -454,7 +454,7 @@ class TestsDebug:
                 substra.sdk.schemas.TraintupleSpec(
                     algo_key=algo_key,
                     data_manager_key=dataset_1_key,
-                    traintuple_id=uuid.uuid4().hex,
+                    traintuple_id=str(uuid.uuid4()),
                     train_data_sample_keys=[sample_1_key, sample_2_key],
                 )
             )
@@ -479,7 +479,7 @@ class TestsDebug:
                 substra.sdk.schemas.CompositeTraintupleSpec(
                     algo_key=composite_algo_key,
                     data_manager_key=dataset_1_key,
-                    traintuple_id=uuid.uuid4().hex,
+                    traintuple_id=str(uuid.uuid4()),
                     train_data_sample_keys=[sample_1_key],
                     out_trunk_model_permissions={"public": True, "authorized_ids": []},
                 )
@@ -611,7 +611,7 @@ def test_execute_compute_plan_several_testtuples_per_train(asset_factory, monkey
     traintuple = substra.sdk.schemas.ComputePlanTraintupleSpec(
         algo_key=algo_key,
         data_manager_key=dataset_key,
-        traintuple_id=uuid.uuid4().hex,
+        traintuple_id=str(uuid.uuid4()),
         train_data_sample_keys=[sample_1_key],
     )
     cp.testtuples = [

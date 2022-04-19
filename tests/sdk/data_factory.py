@@ -1,14 +1,12 @@
 import os
 import pathlib
 import shutil
+import sys
 import tempfile
 import uuid
 import zipfile
 
 import substra
-
-import sys
-
 from substra.sdk.schemas import AlgoCategory
 
 DEFAULT_DATA_SAMPLE_FILENAME = "data.csv"
@@ -254,7 +252,7 @@ def create_archive(tmpdir, *files):
 
 
 def random_uuid():
-    return uuid.uuid4().hex
+    return str(uuid.uuid4())
 
 
 def _shorten_name(name):

@@ -122,7 +122,7 @@ class Worker:
         shutil.copy(tmp_path, model_path)
 
         return models.OutModel(
-            key=uuid.uuid4().hex,
+            key=str(uuid.uuid4()),
             category=category,
             compute_task_key=tuple_.key,
             address=models.InModel(
