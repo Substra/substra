@@ -59,9 +59,7 @@ class Remote(base.BaseBackend):
 
     def list(self, asset_type, filters=None, paginated=True):
         """List assets per asset type."""
-        response = self._client.list(asset_type.to_server(), filters)
-        # in case response is expected to be paginated, extract asset list from returned structure
-        assets = response["results"] if paginated else response
+        assets = self._client.list(asset_type.to_server(), filters, paginated)
         return [models.SCHEMA_TO_MODEL[asset_type](**asset) for asset in assets]
 
     def _add(self, asset, data, files=None):

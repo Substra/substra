@@ -161,7 +161,7 @@ class Client:
             elaps = (te - ts) * 1000
             logger.debug(f"{request_name} {url}: done in {elaps:.2f}ms error={error}")
 
-    def request(self, request_name, asset_name, path=None, json_response=True, **request_kwargs):
+    def request(self, request_name, asset_name, path=None, json_response=True, paginated=False, **request_kwargs):
         """Base request."""
 
         path = path or ""
@@ -179,7 +179,21 @@ class Client:
             return response
 
         try:
-            return response.json()
+            json_resp = response.json()
+            if not paginated:
+                return json_resp
+            # in case response is expected to be paginated, get all pages
+            url_next = json_resp["next"]
+            while url_next:
+                resp = self._request(
+                    request_name,
+                    url_next,
+                    **request_kwargs,
+                )
+                json_resp["results"].extend(resp.json()["results"])
+                url_next = resp.json()["next"]
+            # extract full asset list from returned structure
+            return json_resp["results"]
         except ValueError as e:
             msg = f"Cannot parse response to JSON: {e}"
             raise exceptions.InvalidResponse(response, msg)
@@ -192,7 +206,7 @@ class Client:
             path=f"{key}",
         )
 
-    def list(self, name, filters=None):
+    def list(self, name, filters=None, paginated=True):
         """List assets by filters."""
         request_kwargs = {}
         if filters:
@@ -201,6 +215,7 @@ class Client:
         items = self.request(
             "get",
             name,
+            paginated=paginated,
             **request_kwargs,
         )
 
