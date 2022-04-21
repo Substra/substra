@@ -30,6 +30,22 @@ from substra.sdk.backends.local import dal
 from substra.sdk.backends.local.compute import spawner
 from substra.sdk.backends.local.compute.spawner import BaseSpawner
 
+# TODO: share those constants with connect-tools and substra
+TASK_IO_PREDICTIONS = "predictions"
+TASK_IO_OPENER = "opener"
+TASK_IO_LOCALFOLDER = "localfolder"
+TASK_IO_CHAINKEYS = "chainkeys"
+TASK_IO_DATASAMPLES = "datasamples"
+TRAIN_IO_MODELS = "models"
+TRAIN_IO_MODEL = "model"
+COMPOSITE_IO_SHARED = "shared"
+COMPOSITE_IO_LOCAL = "local"
+
+
+class TaskResource(dict):
+    def __init__(self, id: str, value: str):
+        super().__init__(self, id=id, value=value)
+
 
 class Filenames(str, Enum):
     OUT_MODEL = "out-model"
@@ -87,10 +103,9 @@ class Worker:
             "NODE_INDEX": str(node_name_id.get(tuple_.worker, None)),
         }
 
-    def _get_data_sample_paths_arg(self, data_sample_keys: typing.List[str], data_volume: str) -> str:
-        """Get the path to the data samples in the container or temp folder as a string for the CLI"""
+    def _get_data_sample_paths_arg(self, data_sample_keys: typing.List[str], data_volume: str) -> typing.List[str]:
+        """Get the path to the data samples in the container or temp folder"""
         data_sample_paths = [os.path.join(data_volume, key) for key in data_sample_keys]
-        data_sample_paths = " ".join(data_sample_paths)
         return data_sample_paths
 
     def _get_data_sample_paths(
@@ -154,6 +169,8 @@ class Worker:
 
             # If we are using fake data samples or an aggregate task, is None
             data_sample_paths = None
+            inputs: typing.List[TaskResource] = []
+            outputs: typing.List[TaskResource] = []
 
             # fetch dependencies
             algo = self._db.get_with_files(schemas.Type.Algo, tuple_.algo.key)
@@ -168,7 +185,7 @@ class Worker:
                 command_template = "aggregate"
             else:
                 command_template = "train"
-                command_template += " --opener-path ${_VOLUME_OPENER}"
+                inputs.append(TaskResource(id=TASK_IO_OPENER, value="${_VOLUME_OPENER}"))
 
             # Prepare input models
             in_tuples = list()
@@ -191,10 +208,6 @@ class Worker:
                     if in_tuple not in in_tuples:
                         in_tuples.append(in_tuple)
 
-            # The in models command is a nargs+, so we have to append it to the
-            # command template later
-            in_models_command_template = ""
-
             input_models_volume = _mkdir(os.path.join(tuple_dir, "input_models"))
             volumes["_VOLUME_INPUT_MODELS"] = input_models_volume
 
@@ -215,8 +228,7 @@ class Worker:
                             input_models_volume,
                             "${_VOLUME_INPUT_MODELS}",
                         )
-                        in_models_command_template += f" --input-head-model-filename \
-                            {head_model_container_address}"
+                        inputs.append(TaskResource(id=COMPOSITE_IO_LOCAL, value=str(head_model_container_address)))
 
                         if len(in_tuples) == 1:  # No other trunk
                             input_models = [
@@ -233,8 +245,10 @@ class Worker:
                                 input_models_volume,
                                 "${_VOLUME_INPUT_MODELS}",
                             )
-                            in_models_command_template += f" --input-trunk-model-filename \
-                                {trunk_model_container_address}"
+                            inputs.append(
+                                TaskResource(id=COMPOSITE_IO_SHARED, value=str(trunk_model_container_address))
+                            )
+
                     elif isinstance(in_tuple, models.Aggregatetuple):
                         assert in_tuple.aggregate.models is not None and len(in_tuple.aggregate.models) == 1
                         input_model = in_tuple.aggregate.models[0]
@@ -247,14 +261,13 @@ class Worker:
                             input_models_volume,
                             "${_VOLUME_INPUT_MODELS}",
                         )
-                        in_models_command_template += f" --input-trunk-model-filename \
-                            {trunk_model_container_address}"
+                        inputs.append(TaskResource(id=COMPOSITE_IO_SHARED, value=str(trunk_model_container_address)))
+
                     else:
                         raise Exception("TODO write this - cannot link traintuple to composite")
 
             else:
                 # The tuple is a traintuple or an aggregate traintuple
-                in_models_command_template += " --models-path ${_VOLUME_INPUT_MODELS}"
                 for idx, in_tuple in enumerate(in_tuples):
                     if isinstance(in_tuple, models.CompositeTraintuple):
                         input_models = [m for m in in_tuple.composite.models if m.category == models.ModelType.simple]
@@ -271,18 +284,28 @@ class Worker:
 
                     model_filename = f"{idx}_{input_model.key}"
                     os.link(input_model.address.storage_address, os.path.join(input_models_volume, model_filename))
-                    in_models_command_template += f" {model_filename}"
+
+                    inputs.append(
+                        TaskResource(id=TRAIN_IO_MODELS, value="${_VOLUME_INPUT_MODELS}/" f"{model_filename}")
+                    )
 
             # Prepare the out model command
             output_models_volume = _mkdir(os.path.join(tuple_dir, "output_models"))
             volumes["_VOLUME_OUTPUT_MODELS"] = output_models_volume
 
             if isinstance(tuple_, models.CompositeTraintuple):
-                command_template += " --output-models-path ${_VOLUME_OUTPUT_MODELS}"
-                command_template += f" --output-head-model-filename {Filenames.OUT_HEAD_MODEL}"
-                command_template += f" --output-trunk-model-filename {Filenames.OUT_TRUNK_MODEL}"
+                outputs.append(
+                    TaskResource(
+                        id=COMPOSITE_IO_SHARED, value="${_VOLUME_OUTPUT_MODELS}/" f"{Filenames.OUT_TRUNK_MODEL}"
+                    )
+                )
+                outputs.append(
+                    TaskResource(id=COMPOSITE_IO_LOCAL, value="${_VOLUME_OUTPUT_MODELS}/" f"{Filenames.OUT_HEAD_MODEL}")
+                )
             else:
-                command_template += " --output-model-path ${_VOLUME_OUTPUT_MODELS}/" f"{Filenames.OUT_MODEL}"
+                outputs.append(
+                    TaskResource(id=TRAIN_IO_MODEL, value="${_VOLUME_OUTPUT_MODELS}/" f"{Filenames.OUT_MODEL}")
+                )
 
             # Prepare the data
             if not isinstance(tuple_, models.Aggregatetuple):
@@ -299,11 +322,17 @@ class Worker:
                 if self._db.is_local(dataset_key, schemas.Type.Dataset):
                     volumes["_VOLUME_INPUT_DATASAMPLES"] = _mkdir(os.path.join(tuple_dir, "data"))
                     data_sample_paths = self._get_data_sample_paths(tuple_)
-                    data_sample_paths_arg = self._get_data_sample_paths_arg(
+                    data_sample_paths_arg_str = self._get_data_sample_paths_arg(
                         train_data_sample_keys,
                         data_volume="${_VOLUME_INPUT_DATASAMPLES}",
                     )
-                    command_template += f" --data-sample-paths {data_sample_paths_arg}"
+                    inputs.extend(
+                        [
+                            TaskResource(id=TASK_IO_DATASAMPLES, value=data_sample_path_arg)
+                            for data_sample_path_arg in data_sample_paths_arg_str
+                        ]
+                    )
+
                 else:
                     command_template += " --fake-data"
                     command_template += f" --n-fake-samples {len(dataset.train_data_sample_keys)}"
@@ -314,17 +343,15 @@ class Worker:
                     os.path.join(self._local_worker_dir, "compute_plans", tuple_.worker, tuple_.compute_plan_key)
                 )
                 volumes["_VOLUME_LOCAL"] = local_volume
-                command_template += " --compute-plan-path ${_VOLUME_LOCAL}"
+                inputs.append(TaskResource(id=TASK_IO_LOCALFOLDER, value="${_VOLUME_LOCAL}"))
+
                 if self._support_chainkeys and self._has_chainkey():
                     chainkey_volume = self._get_chainkey_volume(tuple_)
                     if chainkey_volume is not None:
                         volumes["_VOLUME_CHAINKEYS"] = chainkey_volume
-                        command_template += " --chainkeys-path ${_VOLUME_CHAINKEYS}"
+                        inputs.append(TaskResource(id=TASK_IO_CHAINKEYS, value="${_VOLUME_CHAINKEYS}"))
 
             command_template += f" --rank {tuple_.rank}"
-
-            # Add the in_models to the command_template
-            command_template += in_models_command_template
 
             # Get the environment variables
             envs = dict()
@@ -332,6 +359,9 @@ class Worker:
                 if self._support_chainkeys and self._has_chainkey():
                     envs.update(self._get_chainkey_env(tuple_))
 
+            command_template = (
+                command_template + " --inputs '" + json.dumps(inputs) + "' --outputs '" + json.dumps(outputs) + "'"
+            )
             # Execute the tuple
             container_name = f"algo-{algo.algorithm.checksum}"
             self._spawner.spawn(
@@ -433,17 +463,19 @@ class Worker:
 
             # compute testtuple command_template
             command_template = "predict"
+            inputs = []
+            outputs = []
 
             if tuple_.compute_plan_key:
                 local_volume = _mkdir(
                     os.path.join(self._local_worker_dir, "compute_plans", tuple_.worker, tuple_.compute_plan_key)
                 )
                 volumes["_VOLUME_LOCAL"] = local_volume
-                command_template += " --compute-plan-path ${_VOLUME_LOCAL}"
+                inputs.append(TaskResource(id=TASK_IO_LOCALFOLDER, value="${_VOLUME_LOCAL}"))
                 if self._support_chainkeys and self._has_chainkey():
                     chainkey_volume = self._get_chainkey_volume(tuple_)
                     volumes["_VOLUME_CHAINKEYS"] = chainkey_volume
-                    command_template += " --chainkeys-path ${_VOLUME_CHAINKEYS}"
+                    inputs.append(TaskResource(id=TASK_IO_CHAINKEYS, value="${_VOLUME_CHAINKEYS}"))
 
             if isinstance(traintuple, models.Traintuple):
                 assert traintuple.train.models is not None and len(traintuple.train.models) == 1
@@ -455,7 +487,7 @@ class Worker:
                 model_container_address = _get_address_in_container(
                     in_testtuple_model.key, models_volume, "${_VOLUME_INPUT_MODELS}"
                 )
-                command_template += f" {model_container_address}"
+                inputs.append(TaskResource(id=TRAIN_IO_MODELS, value=str(model_container_address)))
 
             elif isinstance(traintuple, models.Aggregatetuple):
                 assert traintuple.aggregate.models is not None and len(traintuple.aggregate.models) == 1
@@ -467,7 +499,7 @@ class Worker:
                 model_container_address = _get_address_in_container(
                     in_testtuple_model.key, models_volume, "${_VOLUME_INPUT_MODELS}"
                 )
-                command_template += f" {model_container_address}"
+                inputs.append(TaskResource(id=TRAIN_IO_MODELS, value=str(model_container_address)))
 
             elif isinstance(traintuple, models.CompositeTraintuple):
                 assert traintuple.composite.models is not None and len(traintuple.composite.models) == 2
@@ -482,26 +514,37 @@ class Worker:
                         "${_VOLUME_INPUT_MODELS}",
                     )
                     if in_testtuple_model.category == models.ModelType.head:
-                        command_name = " --input-head-model-filename"
+                        id_ = COMPOSITE_IO_LOCAL
                     elif in_testtuple_model.category == models.ModelType.simple:
-                        command_name = " --input-trunk-model-filename"
-                    command_template += f" {command_name} {address_in_container}"
+                        id_ = COMPOSITE_IO_SHARED
+
+                    inputs.append(TaskResource(id=id_, value=str(address_in_container)))
 
             if self._db.is_local(dataset.key, schemas.Type.Dataset):
                 volumes["_VOLUME_INPUT_DATASAMPLES"] = _mkdir(os.path.join(tuple_dir, "data"))
                 data_sample_paths = self._get_data_sample_paths(tuple_)
-                data_sample_paths_arg = self._get_data_sample_paths_arg(
+                data_sample_paths_arg_str = self._get_data_sample_paths_arg(
                     tuple_.test.data_sample_keys,
                     data_volume="${_VOLUME_INPUT_DATASAMPLES}",
                 )
-                command_template += f" --data-sample-paths {data_sample_paths_arg}"
+
+                inputs.extend(
+                    [
+                        TaskResource(id=TASK_IO_DATASAMPLES, value=data_sample_path_arg)
+                        for data_sample_path_arg in data_sample_paths_arg_str
+                    ]
+                )
             else:
                 command_template += " --fake-data"
                 command_template += f" --n-fake-samples {len(tuple_.test.data_sample_keys)}"
 
-            command_template += " --opener-path ${_VOLUME_OPENER}"
-            command_template += " --output-predictions-path ${_VOLUME_OUTPUT_PRED}" f"/{Filenames.PREDICTIONS}"
-
+            inputs.append(TaskResource(id=TASK_IO_OPENER, value="${_VOLUME_OPENER}"))
+            outputs.append(
+                TaskResource(id=TASK_IO_PREDICTIONS, value="${_VOLUME_OUTPUT_PRED}" f"/{Filenames.PREDICTIONS}")
+            )
+            command_template = (
+                command_template + " --inputs '" + json.dumps(inputs) + "' --outputs '" + json.dumps(outputs) + "'"
+            )
             container_name = f"algo-{algo.algorithm.checksum}"
             self._spawner.spawn(
                 name=container_name,
@@ -522,6 +565,7 @@ class Worker:
                 }
 
                 if self._db.is_local(dataset.key, schemas.Type.Dataset):
+                    data_sample_paths_arg = " ".join(data_sample_paths_arg_str)
                     command_template = " --fake-data-mode DISABLED"
                     command_template += f" --data-sample-paths {data_sample_paths_arg}"
                 else:

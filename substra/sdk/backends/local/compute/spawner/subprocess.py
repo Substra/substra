@@ -15,6 +15,7 @@ import logging
 import os
 import pathlib
 import re
+import shlex
 import shutil
 import string
 import subprocess
@@ -67,12 +68,14 @@ def _get_py_command(script_name, tmpdir, command_template, local_volumes):
         py_command (list[str]): the list with all commands for the subprocess
     """
     # modify local_volumes not to split paths with spaces
-    local_volumes = {k: str(v).replace(" ", "\\\\") for k, v in local_volumes.items()}
+    local_volumes = {k: str(v).replace(" ", r"\\\\") for k, v in local_volumes.items()}
     # replace volumes variables by local volumes
     command = command_template.substitute(**local_volumes)
     # split command to run into subprocess
-    command_args = command.split()
+    command_args = shlex.split(command)
     # replace paths with spaces that were modified
+    # Not using regex as shlex replaced '\' with '\\' automatically. Hence '\\\\' which was represented as '\\' is now
+    # '\\\\'
     command_args = [command_arg.replace("\\\\", " ") for command_arg in command_args]
     # put current python interpreter and script to launch before script command
     py_command = [sys.executable, str(tmpdir / script_name)]
