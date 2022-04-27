@@ -419,6 +419,20 @@ get_model(self, key: str) -> substra.sdk.models.OutModel
 ```
 
 None
+## get_performances
+```text
+get_performances(self, key: str) -> substra.sdk.models.Performances
+```
+
+Get the compute plan performances by key, the returned object is described
+in the [models.Performances](sdk_models.md#Performances) and easily convertible
+to pandas dataframe.
+
+**Examples:**
+```python
+perf = get_performances(cp_key)
+pd.DataFrame(perf.dict())
+```
 ## get_testtuple
 ```text
 get_testtuple(self, key: str) -> substra.sdk.models.Testtuple

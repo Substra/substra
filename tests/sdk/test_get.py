@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pandas as pd
 import pytest
 
 import substra
@@ -96,3 +97,18 @@ def test_get_logs(client, mocker):
 
     m.assert_called_once()
     assert result == logs
+
+
+def test_get_performances(client, mocker):
+    """Test the get_performances features, and test the immediate conversion to pandas DataFrame."""
+    cp_item = datastore.COMPUTE_PLAN
+    perf_item = datastore.COMPUTE_PLAN_PERF
+
+    m = mock_requests_responses(mocker, "get", [mock_response(cp_item), mock_response(perf_item)])
+
+    response = client.get_performances("magic-key")
+
+    df = pd.DataFrame(response.dict())
+    assert list(df.columns) == list(response.dict().keys())
+    assert df.shape[0] == perf_item["count"]
+    assert m.call_count == 2

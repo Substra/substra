@@ -349,6 +349,22 @@ class ComputePlan(_Model):
     type_: ClassVar[str] = schemas.Type.ComputePlan
 
 
+class Performances(_Model):
+    """Performances of the different compute tasks of a compute plan"""
+
+    compute_plan_key: List[str] = list()
+    compute_plan_tag: List[str] = list()
+    compute_plan_status: List[str] = list()
+    compute_plan_start_date: List[datetime] = list()
+    compute_plan_end_date: List[datetime] = list()
+    compute_plan_metadata: List[dict] = list()
+    worker: List[str] = list()
+    testtuple_key: List[str] = list()
+    metric_name: List[str] = list()
+    testtuple_rank: List[int] = list()
+    performance: List[float] = list()
+
+
 class Node(schemas._PydanticConfig):
     """Node"""
 

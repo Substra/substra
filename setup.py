@@ -65,6 +65,7 @@ setup(
     setup_requires=["pytest-runner"],
     extras_require={
         "dev": [
+            "pandas",
             "pytest",
             "pytest-cov",
             "pytest-mock",

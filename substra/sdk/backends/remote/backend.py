@@ -57,6 +57,31 @@ class Remote(base.BaseBackend):
         asset = self._client.get(asset_type.to_server(), key)
         return models.SCHEMA_TO_MODEL[asset_type](**asset)
 
+    def get_performances(self, key):
+        """Get an compute plan performance by key."""
+
+        compute_plan = self.get(schemas.Type.ComputePlan, key)
+        results = self._client.list(schemas.Type.ComputePlan.to_server(), path=key + "/perf", paginated=True)
+
+        performances = models.Performances()
+
+        for test_task in results:
+
+            performances.compute_plan_key.append(compute_plan.key)
+            performances.compute_plan_tag.append(compute_plan.tag)
+            performances.compute_plan_status.append(compute_plan.status)
+            performances.compute_plan_start_date.append(compute_plan.start_date)
+            performances.compute_plan_end_date.append(compute_plan.end_date)
+            performances.compute_plan_metadata.append(compute_plan.metadata)
+
+            performances.worker.append(test_task["compute_task"]["worker"])
+            performances.testtuple_key.append(test_task["compute_task"]["key"])
+            performances.metric_name.append(test_task["metric"]["name"])
+            performances.testtuple_rank.append(test_task["compute_task"]["rank"])
+            performances.performance.append(test_task["perf"])
+
+        return performances
+
     def list(self, asset_type, filters=None, paginated=True):
         """List assets per asset type."""
         assets = self._client.list(asset_type.to_server(), filters, paginated)

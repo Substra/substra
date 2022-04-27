@@ -65,11 +65,11 @@
 #
 # ``substra config --profile node-2 http://substra-backend.node-2.com``
 #
-# ``substra login --profile node-2 --username node-2 --password 'p@$swr0d45'``
+# ``substra login --profile node-2 --username node-2 --password 'p@sswr0d45'``
 #
 # ``substra config --profile node-1 http://substra-backend.node-1.com``
 #
-# ``substra login --profile node-1 --username node-1 --password 'p@$swr0d44'``
+# ``substra login --profile node-1 --username node-1 --password 'p@sswr0d44'``
 #
 # This example must be run from the `substra/examples/cyclic_strategy/scripts` directory.
 #
@@ -601,15 +601,15 @@ for submitted_testtuple in tqdm(submitted_testtuples):
 # * connect to you three nodes thanks to :
 # ``substra config --profile node-3 http://substra-backend.node-3.com``
 #
-# ``substra login --profile node-3 --username node-3 --password 'p@$swr0d46'``
+# ``substra login --profile node-3 --username node-3 --password 'p@sswr0d46'``
 #
 # ``substra config --profile node-2 http://substra-backend.node-2.com``
 #
-# ``substra login --profile node-2 --username node-2 --password 'p@$swr0d45'``
+# ``substra login --profile node-2 --username node-2 --password 'p@sswr0d45'``
 #
 # ``substra config --profile node-1 http://substra-backend.node-1.com``
 #
-# ``substra login --profile node-1 --username node-1 --password 'p@$swr0d44'``
+# ``substra login --profile node-1 --username node-1 --password 'p@sswr0d44'``
 #
 # * add `node-3` to `PROFILE_NAMES` and `MyOrg2MSP` to `NODES_IDS` in this file.
 #

@@ -40,6 +40,7 @@ models_list = [
     models.CompositeTraintuple,
     models.Algo,
     models.ComputePlan,
+    models.Performances,
     models.Node,
     models.Permissions,
     models.InModel,

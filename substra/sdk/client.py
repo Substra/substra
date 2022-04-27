@@ -440,6 +440,23 @@ class Client(object):
         return self._backend.get(schemas.Type.ComputePlan, key)
 
     @logit
+    def get_performances(self, key: str) -> models.Performances:
+        """Get the compute plan performances by key, the returned object is described
+        in the [models.Performances](sdk_models.md#Performances) and easily convertible
+        to pandas dataframe.
+
+        Example:
+            ```python
+            perf = get_performances(cp_key)
+            pd.DataFrame(perf.dict())
+            ```
+        """
+
+        performances = self._backend.get_performances(key)
+
+        return performances
+
+    @logit
     def get_dataset(self, key: str) -> models.Dataset:
         """Get dataset by key, the returned object is described
         in the [models.Dataset](sdk_models.md#Dataset) model"""

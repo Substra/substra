@@ -206,7 +206,13 @@ class Client:
             path=f"{key}",
         )
 
-    def list(self, name, filters=None, paginated=True):
+    def list(
+        self,
+        name,
+        filters=None,
+        paginated=True,
+        path=None,
+    ):
         """List assets by filters."""
         request_kwargs = {}
         if filters:
@@ -215,6 +221,7 @@ class Client:
         items = self.request(
             "get",
             name,
+            path=path,
             paginated=paginated,
             **request_kwargs,
         )

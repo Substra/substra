@@ -9,6 +9,7 @@
 - [CompositeTraintuple](#CompositeTraintuple)
 - [Algo](#Algo)
 - [ComputePlan](#ComputePlan)
+- [Performances](#Performances)
 - [Node](#Node)
 - [Permissions](#Permissions)
 - [InModel](#InModel)
@@ -184,6 +185,22 @@ ComputePlan
 - end_date: Optional[datetime]
 - estimated_end_date: Optional[datetime]
 - duration: Optional[int]
+```
+
+## Performances
+Performances of the different compute tasks of a compute plan
+```text
+- compute_plan_key: List[str]
+- compute_plan_tag: List[str]
+- compute_plan_status: List[str]
+- compute_plan_start_date: List[datetime]
+- compute_plan_end_date: List[datetime]
+- compute_plan_metadata: List[dict]
+- worker: List[str]
+- testtuple_key: List[str]
+- metric_name: List[str]
+- testtuple_rank: List[int]
+- performance: List[float]
 ```
 
 ## Node
