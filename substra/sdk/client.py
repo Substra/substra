@@ -508,6 +508,12 @@ class Client(object):
         return self._backend.get(schemas.Type.Model, key)
 
     @logit
+    def get_data_sample(self, key: str) -> models.DataSample:
+        """Get data sample by key, the returned object is described
+        in the [models.Datasample](sdk_models.md#DataSample) model"""
+        return self._backend.get(schemas.Type.DataSample, key)
+
+    @logit
     def list_algo(self, filters=None) -> List[models.Algo]:
         """List algos, the returned object is described
         in the [models.Algo](sdk_models.md#Algo) model"""

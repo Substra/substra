@@ -31,6 +31,7 @@ from .utils import mock_response
         "metric",
         "model",
         "dataset",
+        "data_sample",
         "algo",
         "testtuple",
         "traintuple",

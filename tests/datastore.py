@@ -55,6 +55,14 @@ DATASET = {
     "logs_permission": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
 }
 
+DATA_SAMPLE = {
+    "key": "d7dc4a5b-e81f-4f3f-b94c-5e2bbaca15cd",
+    "owner": "MyOrg1MSP",
+    "data_manager_keys": ["d7dc4a5b-e81f-4f3f-b94c-5e2bbaca15cd"],
+    "creation_date": "2021-08-24T13:36:07.428974249Z",
+    "test_only": False,
+}
+
 ALGO = {
     "key": "17f98afc-2b82-4ce9-b232-1a471633d020",
     "name": "def637b111f2495bb6b4771644d2409e_test_traintuple_data_samples_relative_order - Algo 0",

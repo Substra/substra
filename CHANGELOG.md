@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- feat(sdk): add `get_datasample` method (#171)
 - feat: add the get_performances(compute_plan.key) function to the client (#156)
 
 ### Changed
