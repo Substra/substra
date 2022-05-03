@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.0](https://github.com/owkin/substra/releases/tag/0.19.0) - 2022-05-03
+
 ### Added
 
 - feat(sdk): add `get_datasample` method (#171)
@@ -17,8 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - BREAKING CHANGE: local mode - arguments of each train, test, composite and aggregate task are passed as named inputs and outputs in a json format. Those changes are compatible with connect-tools `0.12.0`.
 - Rest client supports default backend pagination, list will automatically fetch all pages (#154)
 - BREAKING CHANGE: local mode - the format of the asset ids is now `uuid.UUID`, e.g. `3da0075f-360b-446d-902f-af60a38d9594` and not the hex representation.
+- update connect-tools version in examples Dockerfiles (#174)
 
-## [0.18.0] - 2022-04-11
+## [0.18.0](https://github.com/owkin/substra/releases/tag/0.18.0) - 2022-04-11
 
 ### Changed
 
@@ -32,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - In Docker mode: the data samples are copied at the task execution time to a temporary folder
 - Be able to use pdb in subprocess mode (#137)
 
-## [0.17.0] - 2022-03-01
+## [0.17.0](https://github.com/owkin/substra/releases/tag/0.17.0) - 2022-03-01
 
 ### Changed
 
@@ -51,7 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Local mode should not accept test data samples for train tuples (#124)
 
-## [0.16.0] - 2022-01-14
+## [0.16.0](https://github.com/owkin/substra/releases/tag/0.16.0) - 2022-01-14
 
 ### Changed
 
@@ -65,7 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - (BREAKING) Remove the download permissions
 
-## [0.15.0] - 2022-01-10
+## [0.15.0](https://github.com/owkin/substra/releases/tag/0.15.0) - 2022-01-10
 
 ### Changed
 
@@ -82,7 +85,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Error type to traintuple, testtuple, aggregatetuple and composite_traintuple
 - Expose the backend type (#119)
 
-## [0.14.0] - 2021-12-01
+## [0.14.0](https://github.com/owkin/substra/releases/tag/0.14.0) - 2021-12-01
 
 ### Added
 
@@ -94,14 +97,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix the display of the composite traintuple if it has no input models
 - Properly prevent path traversal in archives and don't allow symbolic links
 
-## [0.13.0] - 2021-11-02
+## [0.13.0](https://github.com/owkin/substra/releases/tag/0.13.0) - 2021-11-02
 
 ### Added
 
 - traintuple can take aggregatetuple as in_tuple
 - Pretty print for Model and Spec
 - Display orchestrator and chaincode versions in node info command
-- Accept full datamanager, metrics and parent_tasks objects in get_*_tuple responses
+- Accept full datamanager, metrics and parent_tasks objects in get\_\*\_tuple responses
 - Add task extra information related to start_date and end_date
 
 ### Changed
@@ -114,7 +117,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Local mode, execution in Docker: re-use the Docker images so that the execution is faster
 
-## [0.11.0] - 2021-10-04
+## [0.11.0](https://github.com/owkin/substra/releases/tag/0.11.0) - 2021-10-04
 
 ### Added
 
@@ -123,10 +126,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Internal: backend now serves paginated lists of asset. Client still returns simple lists as before.
-- [BREAKING CHANGE] All algos are now one single object with a category property.
-- [BREAKING CHANGE] Various API changes due to the architecture change introduced by the orchestrator.
+- (BREAKING CHANGE) All algos are now one single object with a category property.
+- (BREAKING CHANGE) Various API changes due to the architecture change introduced by the orchestrator.
 
-## [0.10.0] - 2021-08-05
+## [0.10.0](https://github.com/owkin/substra/releases/tag/0.10.0) - 2021-08-05
 
-[Unreleased]: https://github.com/owkin/substra/compare/0.10.0...HEAD
 [0.10.0]: https://github.com/owkin/substra/compare/0.9.0...0.10.0
+[unreleased]: https://github.com/owkin/substra/compare/0.10.0...HEAD
