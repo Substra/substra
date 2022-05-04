@@ -541,7 +541,7 @@ class Local(base.BaseBackend):
                 },
             },
             description={"checksum": fs.hash_file(metric_description_path), "storage_address": metric_description_path},
-            address={"checksum": fs.hash_file(metric_file_path), "storage_address": metric_file_path},
+            algorithm={"checksum": fs.hash_file(metric_file_path), "storage_address": metric_file_path},
             metadata=spec.metadata if spec.metadata else dict(),
         )
 

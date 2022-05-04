@@ -15,7 +15,6 @@
 - [InModel](#InModel)
 - [OutModel](#OutModel)
 - [_File](#_File)
-- [_Metric](#_Metric)
 
 
 # Models
@@ -54,11 +53,12 @@ Metric
 - key: str
 - name: str
 - owner: str
-- metadata: Mapping[str, str]
 - permissions: Permissions
+- metadata: Mapping[str, str]
+- category: AlgoCategory
 - creation_date: datetime
 - description: _File
-- address: _Metric
+- algorithm: _File
 ```
 
 ## Testtuple
@@ -239,13 +239,6 @@ model of a composite traintuple
 
 ## _File
 File as stored in the models
-```text
-- checksum: str
-- storage_address: Union[FilePath, AnyUrl, str]
-```
-
-## _Metric
-Metric associated to a testtuple or metric
 ```text
 - checksum: str
 - storage_address: Union[FilePath, AnyUrl, str]

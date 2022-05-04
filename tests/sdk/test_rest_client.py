@@ -20,11 +20,10 @@ from substra.sdk import exceptions
 from substra.sdk.backends.remote import rest_client
 from substra.sdk.client import Client
 
+from .. import datastore
 from .utils import mock_requests
 from .utils import mock_requests_responses
 from .utils import mock_response
-
-from .. import datastore
 
 CONFIG = {
     "url": "http://foo.com",
@@ -121,18 +120,24 @@ def test_list_paginated(mocker):
     asset_name = "traintuple"
     items = [datastore.TRAINTUPLE, datastore.TRAINTUPLE]
     responses = [
-        mock_response(response={
+        mock_response(
+            response={
                 "count": len(items),
                 "next": "http://foo.com/?page=2",
                 "previous": None,
                 "results": items[:1],
-            }, status=200),
-        mock_response(response={
+            },
+            status=200,
+        ),
+        mock_response(
+            response={
                 "count": len(items),
                 "next": None,
                 "previous": "http://foo.com/?page=1",
                 "results": items[1:],
-            }, status=200),
+            },
+            status=200,
+        ),
     ]
     m_get = mock_requests_responses(mocker, "get", responses)
     asset = _client_from_config(CONFIG).list(asset_name)
@@ -143,12 +148,17 @@ def test_list_paginated(mocker):
 def test_list_not_paginated(mocker):
     asset_name = "traintuple"
     items = [datastore.TRAINTUPLE, datastore.TRAINTUPLE]
-    m_get = mock_requests(mocker, "get", response={
-                "count": len(items),
-                "next": "http://foo.com/?page=2",
-                "previous": None,
-                "results": items[:1],
-            }, status=200)
+    m_get = mock_requests(
+        mocker,
+        "get",
+        response={
+            "count": len(items),
+            "next": "http://foo.com/?page=2",
+            "previous": None,
+            "results": items[:1],
+        },
+        status=200,
+    )
     asset = _client_from_config(CONFIG).list(asset_name, paginated=False)
     assert len(asset) != len(items)
     assert len(m_get.call_args_list) == 1

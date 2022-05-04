@@ -576,10 +576,10 @@ class Worker:
                 command_template += " --input-predictions-path ${_VOLUME_OUTPUT_PRED}" f"/{Filenames.PREDICTIONS}"
                 command_template += " --output-perf-path ${_VOLUME_OUTPUT_PERF}" f"/{Filenames.PERFORMANCE}"
 
-                container_name = f"metrics-{metric.address.checksum}"
+                container_name = f"metrics-{metric.algorithm.checksum}"
                 self._spawner.spawn(
                     container_name,
-                    str(metric.address.storage_address),
+                    str(metric.algorithm.storage_address),
                     command_template=string.Template(command_template),
                     local_volumes=volumes,
                     data_sample_paths=data_sample_paths,

@@ -651,7 +651,7 @@ class Client(object):
         """
         self._backend.download(
             schemas.Type.Metric,
-            "address.storage_address",
+            "algorithm.storage_address",
             key,
             os.path.join(destination_folder, "metrics.py"),
         )

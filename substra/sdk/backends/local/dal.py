@@ -62,7 +62,7 @@ class DataAccess:
 
         elif type_ == schemas.Type.Metric:
             asset_name = "metrics.zip"
-            field_name = "address"
+            field_name = "algorithm"
 
         else:
             raise ValueError(f"Cannot download this type of asset {type_}")

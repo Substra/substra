@@ -23,6 +23,7 @@ from typing import Union
 
 from pydantic import AnyUrl
 from pydantic import DirectoryPath
+from pydantic import Field
 from pydantic import FilePath
 from pydantic import root_validator
 
@@ -154,29 +155,6 @@ class Dataset(_Model):
     type_: ClassVar[str] = schemas.Type.Dataset
 
 
-class _Metric(schemas._PydanticConfig):
-    """Metric associated to a testtuple or metric"""
-
-    checksum: str
-    storage_address: UriPath
-
-
-class Metric(_Model):
-    """Metric"""
-
-    key: str
-    name: str
-    owner: str
-    metadata: Dict[str, str]
-    permissions: Permissions
-    creation_date: datetime
-
-    description: _File
-    address: _Metric
-
-    type_: ClassVar[str] = schemas.Type.Metric
-
-
 class Algo(_Model):
     key: str
     name: str
@@ -190,6 +168,13 @@ class Algo(_Model):
     algorithm: _File
 
     type_: ClassVar[str] = schemas.Type.Algo
+
+
+class Metric(Algo):
+    """Metric"""
+
+    category: schemas.AlgoCategory = Field(schemas.AlgoCategory.metric, const=True)
+    type_: ClassVar[str] = schemas.Type.Metric
 
 
 class InModel(schemas._PydanticConfig):

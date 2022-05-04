@@ -67,6 +67,7 @@ class AlgoCategory(str, enum.Enum):
     simple = "ALGO_SIMPLE"
     composite = "ALGO_COMPOSITE"
     aggregate = "ALGO_AGGREGATE"
+    metric = "ALGO_METRIC"
 
 
 class _PydanticConfig(pydantic.BaseModel):
@@ -258,24 +259,6 @@ class DatasetSpec(_Spec):
         )
 
 
-class MetricSpec(_Spec):
-    """Specification for creating an metric"""
-
-    name: str
-    description: pathlib.Path  # Path to the description file
-    file: pathlib.Path  # Path to the metrics file
-    permissions: Permissions
-    metadata: Optional[Dict[str, str]]
-
-    type_: typing.ClassVar[Type] = Type.Metric
-
-    class Meta:
-        file_attributes = (
-            "file",
-            "description",
-        )
-
-
 class AlgoSpec(_Spec):
     """Specification for creating an algo"""
 
@@ -293,6 +276,13 @@ class AlgoSpec(_Spec):
             "file",
             "description",
         )
+
+
+class MetricSpec(AlgoSpec):
+    """Specification for creating an metric"""
+
+    type_: typing.ClassVar[Type] = Type.Metric
+    category: AlgoCategory = pydantic.Field(AlgoCategory.metric, const=True)
 
 
 class TraintupleSpec(_Spec):

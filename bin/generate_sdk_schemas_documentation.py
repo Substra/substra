@@ -46,7 +46,6 @@ models_list = [
     models.InModel,
     models.OutModel,
     models._File,
-    models._Metric,
 ]
 
 

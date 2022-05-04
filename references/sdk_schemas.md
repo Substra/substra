@@ -62,6 +62,7 @@ Specification for creating an metric
 - file: Path
 - permissions: Permissions
 - metadata: Optional[Mapping[str, str]]
+- category: AlgoCategory
 ```
 
 ## TesttupleSpec
