@@ -550,7 +550,7 @@ class Local(base.BaseBackend):
 
         return metric
 
-    def _add_compute_plan(self, key: str, spec: schemas.ComputePlanSpec, spec_options: dict = None):
+    def _add_compute_plan(self, spec: schemas.ComputePlanSpec, spec_options: dict = None):
         if spec.clean_models:
             warnings.warn("'clean_models=True' is ignored on the local backend.")
         self._check_metadata(spec.metadata)
@@ -565,7 +565,7 @@ class Local(base.BaseBackend):
         visited = graph.compute_ranks(node_graph=tuple_graph)
 
         compute_plan = models.ComputePlan(
-            key=key,
+            key=spec.key,
             creation_date=self.__now(),
             start_date=self.__now(),
             tag=spec.tag or "",
@@ -867,11 +867,12 @@ class Local(base.BaseBackend):
             assets = add_asset(spec, spec_options)
             return [asset.key for asset in assets]
         else:
-            key = spec.compute_key()
-            asset = add_asset(key, spec, spec_options)
             if spec.__class__.type_ == schemas.Type.ComputePlan:
-                return asset
+                compute_plan = add_asset(spec, spec_options)
+                return compute_plan
             else:
+                key = spec.compute_key()
+                add_asset(key, spec, spec_options)
                 return key
 
     def link_dataset_with_data_samples(self, dataset_key, data_sample_keys):

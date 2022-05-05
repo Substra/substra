@@ -26,6 +26,7 @@ from substra.sdk import config as cfg
 from substra.sdk import exceptions
 from substra.sdk import models
 from substra.sdk import schemas
+from substra.sdk.utils import is_valid_uuid
 
 logger = logging.getLogger(__name__)
 
@@ -425,6 +426,13 @@ class Client(object):
             "auto_batching": auto_batching,
             "batch_size": batch_size,
         }
+
+        if not is_valid_uuid(spec.key):
+            raise exceptions.ComputePlanKeyFormatError(
+                "The compute plan key has to respect the UUID format. You can use the uuid library to generate it. \
+            Example: compute_plan_key=str(uuid.uuid4())"
+            )
+
         return self._backend.add(spec, spec_options=spec_options)
 
     @logit

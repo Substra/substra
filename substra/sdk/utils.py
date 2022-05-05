@@ -21,6 +21,7 @@ import ntpath
 import os
 import re
 import time
+import uuid
 import zipfile
 from urllib.parse import quote
 
@@ -203,3 +204,11 @@ def response_get_destination_filename(response):
     filename = filenames[0]
     filename = filename.strip("'\"")
     return filename
+
+
+def is_valid_uuid(value):
+    try:
+        uuid.UUID(value)
+        return True
+    except ValueError:
+        return False

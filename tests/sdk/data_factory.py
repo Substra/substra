@@ -525,8 +525,9 @@ class AssetsFactory:
             metadata=metadata,
         )
 
-    def create_compute_plan(self, tag="", clean_models=False, metadata=None):
+    def create_compute_plan(self, key=None, tag="", clean_models=False, metadata=None):
         return substra.sdk.schemas.ComputePlanSpec(
+            key=key or random_uuid(),
             traintuples=[],
             composite_traintuples=[],
             aggregatetuples=[],

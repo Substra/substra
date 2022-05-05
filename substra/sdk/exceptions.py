@@ -173,3 +173,15 @@ class EmptyInModelException(SDKException):
     """No in_models when needed"""
 
     pass
+
+
+class ComputePlanKeyFormatError(Exception):
+    """The given compute plan key has to respect the UUID format."""
+
+    pass
+
+
+class KeyAlreadyExistsError(Exception):
+    """The asset key has already been used."""
+
+    pass

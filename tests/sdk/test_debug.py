@@ -10,6 +10,7 @@ import substra
 from substra.sdk import models
 from substra.sdk.backends.local.compute.spawner.subprocess import PYTHON_SCRIPT_NAME
 from substra.sdk.exceptions import InvalidRequest
+from substra.sdk.exceptions import KeyAlreadyExistsError
 from substra.sdk.schemas import AlgoCategory
 
 
@@ -180,6 +181,7 @@ class TestsDebug:
         client = substra.Client(debug=True)
         compute_plan = client.add_compute_plan(
             substra.sdk.schemas.ComputePlanSpec(
+                key=str(uuid.uuid4()),
                 tag=None,
                 clean_models=False,
                 metadata=dict(),
@@ -486,6 +488,27 @@ class TestsDebug:
             )
 
         assert "Cannot create train task with test data" in str(e.value)
+
+    def test_add_two_compute_plan_with_same_cp_key(self, spawner):
+        client = substra.Client(debug=True)
+        common_cp_key = str(uuid.uuid4())
+        client.add_compute_plan(
+            substra.sdk.schemas.ComputePlanSpec(
+                key=common_cp_key,
+                tag=None,
+                clean_models=False,
+                metadata=dict(),
+            )
+        )
+        with pytest.raises(KeyAlreadyExistsError):
+            client.add_compute_plan(
+                substra.sdk.schemas.ComputePlanSpec(
+                    key=common_cp_key,
+                    tag=None,
+                    clean_models=False,
+                    metadata=dict(),
+                )
+            )
 
     class TestsList:
         "Test client.list... functions"

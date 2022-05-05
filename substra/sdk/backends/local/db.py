@@ -31,7 +31,8 @@ class InMemoryDb:
         """Add an asset."""
         type_ = asset.__class__.type_
         key = asset.key
-
+        if key in self._data[type_]:
+            raise exceptions.KeyAlreadyExistsError(f"The asset key {key} of type {type_} has already been used.")
         self._data[type_][key] = asset
         logger.info(f"{type_} with key '{key}' has been created.")
 

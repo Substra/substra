@@ -226,6 +226,7 @@ class _BaseComputePlanSpec(_Spec, abc.ABC):
 class ComputePlanSpec(_BaseComputePlanSpec):
     """Specification for creating a compute plan"""
 
+    key: str
     tag: Optional[str]
     clean_models: Optional[bool]
     metadata: Optional[Dict[str, str]]

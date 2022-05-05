@@ -11,11 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import pydantic
 import pytest
 
 import substra
 from substra.sdk import models
+from substra.sdk.exceptions import ComputePlanKeyFormatError
 
 from .. import datastore
 from .utils import mock_requests
@@ -114,3 +116,9 @@ def test_add_data_samples(client, data_samples_query, mocker):
 def test_add_data_samples_with_path(client, data_sample_query):
     with pytest.raises(ValueError):
         client.add_data_samples(data_sample_query)
+
+
+def test_add_compute_plan_wrong_key_format(client):
+    with pytest.raises(ComputePlanKeyFormatError):
+        data = {"key": "wrong_format"}
+        client.add_compute_plan(data)
