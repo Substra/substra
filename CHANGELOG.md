@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - BREAKING CHANGE: use algo spec for metric (#164)
+- (BREAKING) Cancel CP returns nothing (#177)
 
 ## [0.19.0](https://github.com/owkin/substra/releases/tag/0.19.0) - 2022-05-03
 

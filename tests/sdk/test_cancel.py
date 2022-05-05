@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from substra.sdk import models
-
 from .. import datastore
 from .utils import mock_requests
 
@@ -23,5 +21,5 @@ def test_cancel_compute_plan(client, mocker):
 
     response = client.cancel_compute_plan("magic-key")
 
-    assert response == models.ComputePlan(**datastore.COMPUTE_PLAN)
+    assert response is None
     m.assert_called()

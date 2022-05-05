@@ -277,9 +277,8 @@ class Remote(base.BaseBackend):
         return response.json()
 
     def cancel_compute_plan(self, key):
-        asset = self._client.request(
+        self._client.request(
             "post",
             schemas.Type.ComputePlan.to_server(),
             path=f"{key}/cancel",
         )
-        return models.ComputePlan(**asset)
