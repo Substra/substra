@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.0](https://github.com/owkin/substra/releases/tag/0.20.0) - 2022-05-09
+
 ### Changed
 
 - BREAKING CHANGE: use algo spec for metric (#164)
