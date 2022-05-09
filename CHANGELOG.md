@@ -12,7 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - BREAKING CHANGE: use algo spec for metric (#164)
-- (BREAKING) Cancel CP returns nothing (#177)
+- BREAKING CHANGE: Cancel CP returns nothing (#177)
+- BREAKING CHANGE: the user must give the key of the compute plan when creating a new compute plan (#173)
 
 ## [0.19.0](https://github.com/owkin/substra/releases/tag/0.19.0) - 2022-05-03
 
@@ -20,7 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - feat(sdk): add `get_datasample` method (#171)
 - feat: add the get_performances(compute_plan.key) function to the client (#156)
-- BREAKING CHANGE: the user must give the key of the compute plan when creating a new compute plan (#173)
 
 ### Changed
 
