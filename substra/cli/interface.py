@@ -599,6 +599,7 @@ def add_compute_plan(ctx, data, no_auto_batching, batch_size):
         }],
         "clean_models": bool,
         "tag": str,
+        "name": str,
         "metadata": dict
     }
 

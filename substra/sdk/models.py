@@ -313,6 +313,7 @@ class ComputePlan(_Model):
 
     key: str
     tag: str
+    name: str
     owner: str
     metadata: Dict[str, str]
     task_count: int = 0

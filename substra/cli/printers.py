@@ -313,6 +313,7 @@ class ComputePlanPrinter(AssetPrinter):
         Field("Failed task category", "failed_task.category"),
         Field("Status", "status"),
         Field("Tag", "tag"),
+        Field("Name", "name"),
         Field("Metadata", "metadata"),
         Field("Clean model", "delete_intermediary_models"),
     )

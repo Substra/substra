@@ -183,6 +183,7 @@ class TestsDebug:
             substra.sdk.schemas.ComputePlanSpec(
                 key=str(uuid.uuid4()),
                 tag=None,
+                name="My ultra cool compute plan",
                 clean_models=False,
                 metadata=dict(),
             )
@@ -496,6 +497,7 @@ class TestsDebug:
             substra.sdk.schemas.ComputePlanSpec(
                 key=common_cp_key,
                 tag=None,
+                name="My compute plan",
                 clean_models=False,
                 metadata=dict(),
             )
@@ -505,6 +507,7 @@ class TestsDebug:
                 substra.sdk.schemas.ComputePlanSpec(
                     key=common_cp_key,
                     tag=None,
+                    name="My other compute plan",
                     clean_models=False,
                     metadata=dict(),
                 )

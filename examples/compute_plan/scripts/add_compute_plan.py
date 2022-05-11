@@ -81,6 +81,7 @@ for train_data_sample_key in train_data_sample_keys:
 print("Adding compute plan...")
 compute_plan = client.add_compute_plan(
     {
+        "name": "My compute plan",
         "traintuples": traintuples,
         "testtuples": testtuples,
         "composite_traintuples": [],

@@ -120,5 +120,5 @@ def test_add_data_samples_with_path(client, data_sample_query):
 
 def test_add_compute_plan_wrong_key_format(client):
     with pytest.raises(ComputePlanKeyFormatError):
-        data = {"key": "wrong_format"}
+        data = {"key": "wrong_format", "name": "A perfectly valid name"}
         client.add_compute_plan(data)

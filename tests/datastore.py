@@ -419,6 +419,7 @@ NODES = [
 COMPUTE_PLAN = {
     "key": "e983a185-5368-bd0a-0190-183af9a8e560",
     "tag": "",
+    "name": "My test compute plan",
     "owner": "MyOrg1MSP",
     "creation_date": "2021-08-24T13:36:07.393646367Z",
     "start_date": "2021-08-24T13:36:37.947765800Z",

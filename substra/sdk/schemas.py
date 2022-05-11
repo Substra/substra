@@ -228,6 +228,7 @@ class ComputePlanSpec(_BaseComputePlanSpec):
 
     key: str
     tag: Optional[str]
+    name: str
     clean_models: Optional[bool]
     metadata: Optional[Dict[str, str]]
 
