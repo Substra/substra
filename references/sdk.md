@@ -394,7 +394,7 @@ get_data_sample(self, key: str) -> substra.sdk.models.DataSample
 ```
 
 Get data sample by key, the returned object is described
-in the [models.DataSample](sdk_models.md#DataSample) model
+in the [models.Datasample](sdk_models.md#DataSample) model
 ## get_dataset
 ```text
 get_dataset(self, key: str) -> substra.sdk.models.Dataset

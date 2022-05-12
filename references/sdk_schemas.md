@@ -124,6 +124,7 @@ Specification for creating a compute plan
 - composite_traintuples: Optional[List[ComputePlanCompositeTraintupleSpec]]
 - aggregatetuples: Optional[List[ComputePlanAggregatetupleSpec]]
 - testtuples: Optional[List[ComputePlanTesttupleSpec]]
+- key: str
 - tag: Optional[str]
 - clean_models: Optional[bool]
 - metadata: Optional[Mapping[str, str]]

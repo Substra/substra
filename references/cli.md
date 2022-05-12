@@ -52,7 +52,6 @@ Options:
   --profile TEXT                  Profile name to use.
   --tokens FILE                   Tokens file path to use (default ~/.substra-
                                   tokens).
-
   --verbose                       Enable verbose mode.
   -u, --username TEXT
   -p, --password TEXT
@@ -67,8 +66,7 @@ Usage: substra add data_sample [OPTIONS] PATH
   Add data sample(s).
 
   The path is either a directory representing a data sample or a parent
-  directory containing data samples directories (if --multiple option is
-  set).
+  directory containing data samples directories (if --multiple option is set).
 
 Options:
   --dataset-key TEXT              [required]
@@ -81,11 +79,9 @@ Options:
   --profile TEXT                  Profile name to use.
   --tokens FILE                   Tokens file path to use (default ~/.substra-
                                   tokens).
-
   --verbose                       Enable verbose mode.
   --timeout INTEGER               Max number of seconds the operation will be
                                   retried for  [default: 300]
-
   --help                          Show this message and exit.
 ```
 
@@ -132,7 +128,6 @@ Options:
   --profile TEXT                  Profile name to use.
   --tokens FILE                   Tokens file path to use (default ~/.substra-
                                   tokens).
-
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format
@@ -140,10 +135,8 @@ Options:
                                   - yaml: full view in YAML format
                                   - json: full view in JSON format
                                   [default: pretty]
-
   --timeout INTEGER               Max number of seconds the operation will be
                                   retried for  [default: 300]
-
   --help                          Show this message and exit.
 ```
 
@@ -181,7 +174,6 @@ Options:
   --profile TEXT                  Profile name to use.
   --tokens FILE                   Tokens file path to use (default ~/.substra-
                                   tokens).
-
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format
@@ -189,10 +181,8 @@ Options:
                                   - yaml: full view in YAML format
                                   - json: full view in JSON format
                                   [default: pretty]
-
   --timeout INTEGER               Max number of seconds the operation will be
                                   retried for  [default: 300]
-
   --help                          Show this message and exit.
 ```
 
@@ -232,7 +222,6 @@ Options:
   --profile TEXT                  Profile name to use.
   --tokens FILE                   Tokens file path to use (default ~/.substra-
                                   tokens).
-
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format
@@ -240,10 +229,8 @@ Options:
                                   - yaml: full view in YAML format
                                   - json: full view in JSON format
                                   [default: pretty]
-
   --timeout INTEGER               Max number of seconds the operation will be
                                   retried for  [default: 300]
-
   --help                          Show this message and exit.
 ```
 
@@ -301,21 +288,19 @@ Usage: substra add compute_plan [OPTIONS] PATH
   }
 
   Disable the auto batching to upload all the tuples of the compute plan at
-  once. If the auto batching is enabled, change the `batch_size` to define
-  the number of tuples uploaded in each batch (default 20).
+  once. If the auto batching is enabled, change the `batch_size` to define the
+  number of tuples uploaded in each batch (default 20).
 
 Options:
   -n, --no-auto-batching          Disable the auto batching feature
   -b, --batch-size INTEGER        Batch size for the auto batching  [default:
                                   20]
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
   --tokens FILE                   Tokens file path to use (default ~/.substra-
                                   tokens).
-
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format
@@ -323,7 +308,6 @@ Options:
                                   - yaml: full view in YAML format
                                   - json: full view in JSON format
                                   [default: pretty]
-
   --help                          Show this message and exit.
 ```
 
@@ -356,7 +340,6 @@ Options:
   --profile TEXT                  Profile name to use.
   --tokens FILE                   Tokens file path to use (default ~/.substra-
                                   tokens).
-
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format
@@ -364,10 +347,8 @@ Options:
                                   - yaml: full view in YAML format
                                   - json: full view in JSON format
                                   [default: pretty]
-
   --timeout INTEGER               Max number of seconds the operation will be
                                   retried for  [default: 300]
-
   --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
 ```
@@ -391,7 +372,6 @@ Options:
   --profile TEXT                  Profile name to use.
   --tokens FILE                   Tokens file path to use (default ~/.substra-
                                   tokens).
-
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format
@@ -399,10 +379,8 @@ Options:
                                   - yaml: full view in YAML format
                                   - json: full view in JSON format
                                   [default: pretty]
-
   --timeout INTEGER               Max number of seconds the operation will be
                                   retried for  [default: 300]
-
   --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
 ```
@@ -446,7 +424,6 @@ Options:
   --profile TEXT                  Profile name to use.
   --tokens FILE                   Tokens file path to use (default ~/.substra-
                                   tokens).
-
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format
@@ -454,10 +431,8 @@ Options:
                                   - yaml: full view in YAML format
                                   - json: full view in JSON format
                                   [default: pretty]
-
   --timeout INTEGER               Max number of seconds the operation will be
                                   retried for  [default: 300]
-
   --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
 ```
@@ -491,7 +466,6 @@ Options:
   --profile TEXT                  Profile name to use.
   --tokens FILE                   Tokens file path to use (default ~/.substra-
                                   tokens).
-
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format
@@ -499,10 +473,8 @@ Options:
                                   - yaml: full view in YAML format
                                   - json: full view in JSON format
                                   [default: pretty]
-
   --timeout INTEGER               Max number of seconds the operation will be
                                   retried for  [default: 300]
-
   --metadata-path FILE            Metadata file path
   --help                          Show this message and exit.
 ```
@@ -510,8 +482,8 @@ Options:
 ## substra get
 
 ```text
-Usage: substra get [OPTIONS] [algo|compute_plan|dataset|metric|testtuple|train
-                   tuple|composite_traintuple|aggregatetuple] ASSET_KEY
+Usage: substra get [OPTIONS] {algo|compute_plan|dataset|metric|testtuple|train
+                   tuple|composite_traintuple|aggregatetuple} ASSET_KEY
 
   Get asset definition.
 
@@ -523,7 +495,6 @@ Options:
   --profile TEXT                  Profile name to use.
   --tokens FILE                   Tokens file path to use (default ~/.substra-
                                   tokens).
-
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format
@@ -531,16 +502,15 @@ Options:
                                   - yaml: full view in YAML format
                                   - json: full view in JSON format
                                   [default: pretty]
-
   --help                          Show this message and exit.
 ```
 
 ## substra list
 
 ```text
-Usage: substra list [OPTIONS] [algo|compute_plan|data_sample|dataset|metric|te
+Usage: substra list [OPTIONS] {algo|compute_plan|data_sample|dataset|metric|te
                     sttuple|traintuple|composite_traintuple|aggregatetuple|nod
-                    e]
+                    e}
 
   List assets.
 
@@ -548,20 +518,17 @@ Options:
   -f, --filter TEXT               Only display assets that exactly match this
                                   filter. Valid syntax is:
                                   <asset>:<property>:<value>
-
   --and                           Combine filters using logical ANDs
   --or                            Combine filters using logical ORs
   --advanced-filters TEXT         Filter results using a complex search (must
                                   be a JSON array of valid filters).
                                   Incompatible with the --filter option
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
   --tokens FILE                   Tokens file path to use (default ~/.substra-
                                   tokens).
-
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format
@@ -569,14 +536,13 @@ Options:
                                   - yaml: full view in YAML format
                                   - json: full view in JSON format
                                   [default: pretty]
-
   --help                          Show this message and exit.
 ```
 
 ## substra describe
 
 ```text
-Usage: substra describe [OPTIONS] [algo|dataset|metric] ASSET_KEY
+Usage: substra describe [OPTIONS] {algo|dataset|metric} ASSET_KEY
 
   Display asset description.
 
@@ -587,7 +553,6 @@ Options:
   --profile TEXT                  Profile name to use.
   --tokens FILE                   Tokens file path to use (default ~/.substra-
                                   tokens).
-
   --verbose                       Enable verbose mode.
   --help                          Show this message and exit.
 ```
@@ -606,7 +571,6 @@ Options:
   --profile TEXT                  Profile name to use.
   --tokens FILE                   Tokens file path to use (default ~/.substra-
                                   tokens).
-
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format
@@ -614,14 +578,13 @@ Options:
                                   - yaml: full view in YAML format
                                   - json: full view in JSON format
                                   [default: pretty]
-
   --help                          Show this message and exit.
 ```
 
 ## substra download
 
 ```text
-Usage: substra download [OPTIONS] [algo|dataset|metric|model] KEY
+Usage: substra download [OPTIONS] {algo|dataset|metric|model} KEY
 
   Download asset implementation.
 
@@ -634,26 +597,21 @@ Options:
   --folder PATH                   destination folder
   --from-traintuple               (model download only) if this option is set,
                                   the KEY argument refers to a traintuple key
-
   --from-aggregatetuple           (model download only) if this option is set,
                                   the KEY argument refers to an aggregatetuple
                                   key
-
   --from-composite-head           (model download only) if this option is set,
                                   the KEY argument refers to a composite
                                   traintuple key
-
   --from-composite-trunk          (model download only) if this option is set,
                                   the KEY argument refers to a composite
                                   traintuple key
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
   --tokens FILE                   Tokens file path to use (default ~/.substra-
                                   tokens).
-
   --verbose                       Enable verbose mode.
   --help                          Show this message and exit.
 ```
@@ -672,7 +630,6 @@ Options:
   --profile TEXT                  Profile name to use.
   --tokens FILE                   Tokens file path to use (default ~/.substra-
                                   tokens).
-
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format
@@ -680,7 +637,6 @@ Options:
                                   - yaml: full view in YAML format
                                   - json: full view in JSON format
                                   [default: pretty]
-
   --help                          Show this message and exit.
 ```
 
@@ -709,7 +665,6 @@ Options:
   --profile TEXT                  Profile name to use.
   --tokens FILE                   Tokens file path to use (default ~/.substra-
                                   tokens).
-
   --verbose                       Enable verbose mode.
   --help                          Show this message and exit.
 ```
@@ -765,21 +720,19 @@ Usage: substra update compute_plan [OPTIONS] COMPUTE_PLAN_KEY TUPLES_PATH
   }
 
   Disable the auto batching to upload all the tuples of the compute plan at
-  once. If the auto batching is enabled, change the `batch_size` to define
-  the number of tuples uploaded in each batch (default 20).
+  once. If the auto batching is enabled, change the `batch_size` to define the
+  number of tuples uploaded in each batch (default 20).
 
 Options:
   -n, --no-auto-batching          Disable the auto batching feature
   -b, --batch-size INTEGER        Batch size for the auto batching  [default:
                                   20]
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
   --tokens FILE                   Tokens file path to use (default ~/.substra-
                                   tokens).
-
   --verbose                       Enable verbose mode.
   -o, --output [pretty|yaml|json]
                                   Set output format
@@ -787,7 +740,6 @@ Options:
                                   - yaml: full view in YAML format
                                   - json: full view in JSON format
                                   [default: pretty]
-
   --help                          Show this message and exit.
 ```
 
@@ -810,14 +762,12 @@ Options:
   -o, --output-dir DIRECTORY      The directory the logs must be downloaded
                                   to. If not set, the logs are outputted to
                                   stdout.
-
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
                                   Enable logging and set log level
   --config PATH                   Config path (default ~/.substra).
   --profile TEXT                  Profile name to use.
   --tokens FILE                   Tokens file path to use (default ~/.substra-
                                   tokens).
-
   --verbose                       Enable verbose mode.
   --help                          Show this message and exit.
 ```
