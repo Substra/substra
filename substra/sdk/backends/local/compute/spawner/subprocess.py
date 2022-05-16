@@ -55,7 +55,7 @@ def _get_script_name_from_dockerfile(tmpdir):
 
 def _get_py_command(script_name, tmpdir, command_template, local_volumes):
     """
-    Substitute the local_volumes in the command_template ans split it to have the
+    Substitute the local_volumes in the command_template and split it to have the
     py_command
 
     Args:

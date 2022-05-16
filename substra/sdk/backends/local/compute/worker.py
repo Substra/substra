@@ -369,7 +369,13 @@ class Worker:
                     envs.update(self._get_chainkey_env(tuple_))
 
             command_template = (
-                command_template + " --inputs '" + json.dumps(inputs) + "' --outputs '" + json.dumps(outputs) + "'"
+                command_template
+                + " --inputs '"
+                + json.dumps(inputs)
+                + "' --outputs '"
+                + json.dumps(outputs)
+                + "' --log-level "
+                + "warning"
             )
             # Execute the tuple
             container_name = f"algo-{algo.algorithm.checksum}"
@@ -552,7 +558,13 @@ class Worker:
                 TaskResource(id=TASK_IO_PREDICTIONS, value="${_VOLUME_OUTPUT_PRED}" f"/{Filenames.PREDICTIONS}")
             )
             command_template = (
-                command_template + " --inputs '" + json.dumps(inputs) + "' --outputs '" + json.dumps(outputs) + "'"
+                command_template
+                + " --inputs '"
+                + json.dumps(inputs)
+                + "' --outputs '"
+                + json.dumps(outputs)
+                + "' --log-level "
+                + "warning"
             )
             container_name = f"algo-{algo.algorithm.checksum}"
             self._spawner.spawn(
@@ -584,6 +596,7 @@ class Worker:
                 command_template += " --opener-path ${_VOLUME_OPENER}"
                 command_template += " --input-predictions-path ${_VOLUME_OUTPUT_PRED}" f"/{Filenames.PREDICTIONS}"
                 command_template += " --output-perf-path ${_VOLUME_OUTPUT_PERF}" f"/{Filenames.PERFORMANCE}"
+                command_template += " --log-level warning"
 
                 container_name = f"metrics-{metric.algorithm.checksum}"
                 self._spawner.spawn(
