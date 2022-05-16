@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- feat: save performances in live for local mode on a json file (#178)
+
+## [0.20.0](https://github.com/owkin/substra/releases/tag/0.20.0) - 2022-05-09
+
 ### Changed
 
 - BREAKING CHANGE: add mandatory name field to compute plan (#180)

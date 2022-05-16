@@ -21,6 +21,7 @@ import string
 import typing
 import uuid
 from enum import Enum
+from pathlib import Path
 
 from substra.sdk import exceptions
 from substra.sdk import fs
@@ -157,6 +158,14 @@ class Worker:
         finally:
             # delete tuple working directory
             shutil.rmtree(tmp_dir, ignore_errors=True)
+
+    def _save_cp_performances_as_json(self, compute_plan_key: str, path: Path):
+        """Dump a json file containing the performances of the given compute plan in the given path."""
+
+        performances = self._db.get_performances(compute_plan_key)
+
+        with (path).open("w", encoding="UTF-8") as json_file:
+            json.dump(performances.dict(), json_file, default=str)
 
     # TODO: 'schedule_traintuple' is too complex, consider refactoring
     def schedule_traintuple(  # noqa: C901
@@ -600,6 +609,13 @@ class Worker:
             tuple_.end_date = datetime.datetime.now()
 
             if compute_plan:
+                # save live performances
+                live_perf_path = Path(
+                    self._local_worker_dir / "live_performances" / compute_plan.key / "performances.json"
+                )
+                _mkdir(live_perf_path.parent)
+                self._save_cp_performances_as_json(compute_plan.key, live_perf_path)
+
                 compute_plan.done_count += 1
                 compute_plan.todo_count -= 1
                 if compute_plan.done_count == compute_plan.task_count:

@@ -115,28 +115,7 @@ class Local(base.BaseBackend):
 
     def get_performances(self, key):
 
-        compute_plan = self.get(schemas.Type.ComputePlan, key)
-        list_testtuple = self.list(schemas.Type.Testtuple, filters=[f"testtuple:compute_plan_key:{key}"])
-
-        performances = models.Performances()
-
-        for testtuple in list_testtuple:
-            if testtuple.status == models.Status.done:
-                for metric_key in testtuple.test.metric_keys:
-                    metric = self.get(schemas.Type.Metric, metric_key)
-
-                    performances.compute_plan_key.append(compute_plan.key)
-                    performances.compute_plan_tag.append(compute_plan.tag)
-                    performances.compute_plan_status.append(compute_plan.status)
-                    performances.compute_plan_start_date.append(compute_plan.start_date)
-                    performances.compute_plan_end_date.append(compute_plan.end_date)
-                    performances.compute_plan_metadata.append(compute_plan.metadata)
-
-                    performances.worker.append(testtuple.worker)
-                    performances.testtuple_key.append(testtuple.key)
-                    performances.metric_name.append(metric.name)
-                    performances.testtuple_rank.append(testtuple.rank)
-                    performances.performance.append(testtuple.test.perfs[metric_key])
+        performances = self._db.get_performances(key)
 
         return performances
 

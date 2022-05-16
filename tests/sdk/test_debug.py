@@ -513,6 +513,46 @@ class TestsDebug:
                 )
             )
 
+    def test_live_performances_json_file_exist(self, asset_factory, spawner):
+        """Assert the performances file is well created."""
+        client = substra.Client(debug=True)
+
+        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner"})
+        dataset_key = client.add_dataset(dataset_query)
+
+        data_sample = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
+        sample_key = client.add_data_sample(data_sample)
+
+        algo_query = asset_factory.create_algo(AlgoCategory.simple)
+        algo_key = client.add_algo(algo_query)
+
+        metric = asset_factory.create_metric()
+        metric_key = client.add_metric(metric)
+
+        cp = asset_factory.create_compute_plan()
+
+        traintuple = substra.sdk.schemas.ComputePlanTraintupleSpec(
+            algo_key=algo_key,
+            data_manager_key=dataset_key,
+            traintuple_id=str(uuid.uuid4()),
+            train_data_sample_keys=[sample_key],
+        )
+        cp.testtuples = [
+            substra.sdk.schemas.ComputePlanTesttupleSpec(
+                metric_keys=[metric_key],
+                traintuple_id=traintuple.traintuple_id,
+                data_manager_key=dataset_key,
+                test_data_sample_keys=[sample_key],
+            )
+        ]
+        cp.traintuples = [traintuple]
+
+        client.add_compute_plan(cp)
+
+        json_perf_path = Path.cwd() / "local-worker" / "live_performances" / cp.key / "performances.json"
+
+        assert json_perf_path.is_file()
+
     class TestsList:
         "Test client.list... functions"
 
