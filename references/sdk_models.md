@@ -168,6 +168,7 @@ ComputePlan
 ```text
 - key: str
 - tag: str
+- name: str
 - owner: str
 - metadata: Mapping[str, str]
 - task_count: int

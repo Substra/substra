@@ -284,6 +284,7 @@ Usage: substra add compute_plan [OPTIONS] PATH
       }],
       "clean_models": bool,
       "tag": str,
+      "name": str,
       "metadata": dict
   }
 
