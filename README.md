@@ -95,7 +95,7 @@ Implementing your assets in python (thanks to [the substratools library](https:/
 
 ## Compatibility table (close source)
 
-These sets of versions have been tested for compatilibility:
+These sets of versions have been tested for compatibility:
 
 |  connect  | substra  | connect-chaincode  | connect-backend  | connect-tests  | connect-hlf-k8s  | connect-frontend  | connect-tools |  orchestrator  |connectlib  |
 |---|---|---|---|---|---|---| --- | --- | --- |

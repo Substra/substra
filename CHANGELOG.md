@@ -7,14 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- feat: save performances in live for local mode on a json file (#178)
-- doc: update orchestrator compatible table for the Connect release 0.11.0 (#184)
-
-## [0.20.0](https://github.com/owkin/substra/releases/tag/0.20.0) - 2022-05-09
+## [0.21.0](https://github.com/owkin/substra/releases/tag/0.20.0) - 2022-05-16
 
 ### Changed
 
 - BREAKING CHANGE: add mandatory name field to compute plan (#180)
+- doc: update orchestrator compatibility table for the Connect release 0.11.0 (#184)
+
+### Added
+
+- feat: save performances in live for local mode on a json file (#178)
 
 ## [0.20.0](https://github.com/owkin/substra/releases/tag/0.20.0) - 2022-05-09
 
