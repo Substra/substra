@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- feat: add round_idx to get_performance() (#192)
 - feat: log level set to warning for connect-tools (#185)
 
 ## [0.21.0](<https://github.com/owkin/substra/releases/tag/0.21.0>) - 2022-05-16

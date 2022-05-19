@@ -78,6 +78,7 @@ class Remote(base.BaseBackend):
             performances.testtuple_key.append(test_task["compute_task"]["key"])
             performances.metric_name.append(test_task["metric"]["name"])
             performances.testtuple_rank.append(test_task["compute_task"]["rank"])
+            performances.round_idx.append(test_task["compute_task"]["round_idx"])
             performances.performance.append(test_task["perf"])
 
         return performances

@@ -348,6 +348,7 @@ class Performances(_Model):
     testtuple_key: List[str] = list()
     metric_name: List[str] = list()
     testtuple_rank: List[int] = list()
+    round_idx: List[int] = list()
     performance: List[float] = list()
 
 

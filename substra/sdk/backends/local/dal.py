@@ -153,6 +153,7 @@ class DataAccess:
                     performances.testtuple_key.append(testtuple.key)
                     performances.metric_name.append(metric.name)
                     performances.testtuple_rank.append(testtuple.rank)
+                    performances.round_idx.append(testtuple.metadata.get("round_idx"))
                     performances.performance.append(testtuple.test.perfs[metric_key])
 
         return performances
