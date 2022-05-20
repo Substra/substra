@@ -38,6 +38,45 @@ _SERVER_NAMES = {
 }
 
 
+ALGO_INPUTS_PER_CATEGORY = {
+    "ALGO_SIMPLE": {
+        "datasamples": {"kind": "ASSET_DATA_SAMPLE", "multiple": True, "optional": False},
+        "model": {"kind": "ASSET_MODEL", "multiple": False, "optional": True},
+        "opener": {"kind": "ASSET_DATA_MANAGER", "multiple": False, "optional": False},
+    },
+    "ALGO_AGGREGATE": {
+        "model": {"kind": "ASSET_MODEL", "multiple": True, "optional": False},
+    },
+    "ALGO_COMPOSITE": {
+        "datasamples": {"kind": "ASSET_DATA_SAMPLE", "multiple": True, "optional": False},
+        "local": {"kind": "ASSET_MODEL", "multiple": False, "optional": True},
+        "opener": {"kind": "ASSET_DATA_MANAGER", "multiple": False, "optional": False},
+        "shared": {"kind": "ASSET_MODEL", "multiple": False, "optional": True},
+    },
+    "ALGO_METRIC": {
+        "datasamples": {"kind": "ASSET_DATA_SAMPLE", "multiple": True, "optional": False},
+        "opener": {"kind": "ASSET_DATA_MANAGER", "multiple": False, "optional": False},
+        "predictions": {"kind": "ASSET_MODEL", "multiple": False, "optional": False},
+    },
+}
+
+ALGO_OUTPUTS_PER_CATEGORY = {
+    "ALGO_SIMPLE": {
+        "model": {"kind": "ASSET_MODEL", "multiple": False},
+    },
+    "ALGO_AGGREGATE": {
+        "model": {"kind": "ASSET_MODEL", "multiple": False},
+    },
+    "ALGO_COMPOSITE": {
+        "local": {"kind": "ASSET_MODEL", "multiple": False},
+        "shared": {"kind": "ASSET_MODEL", "multiple": False},
+    },
+    "ALGO_METRIC": {
+        "performance": {"kind": "ASSET_PERFORMANCE", "multiple": False},
+    },
+}
+
+
 class Type(enum.Enum):
     Algo = "algo"
     DataSample = "data_sample"
@@ -272,6 +311,25 @@ class AlgoSpec(_Spec):
     category: AlgoCategory
 
     type_: typing.ClassVar[Type] = Type.Algo
+
+    @contextlib.contextmanager
+    def build_request_kwargs(self):
+        # TODO should be located in the backends/remote module
+        # Serialize and deserialize to prevent errors eg with pathlib.Path
+        data = json.loads(self.json(exclude_unset=True))
+
+        # Waiting for algo inputs/outputs to be added by the public API,
+        # these data are added on the fly to the request, without being exposed to the user.
+        # Computed fields using `@property` are not dumped when `exclude_unset` flag is enabled,
+        # this is why we need to reimplement this custom function.
+        data["inputs"] = ALGO_INPUTS_PER_CATEGORY[self.category]
+        data["outputs"] = ALGO_OUTPUTS_PER_CATEGORY[self.category]
+
+        if self.Meta.file_attributes:
+            with utils.extract_files(data, self.Meta.file_attributes) as (data, files):
+                yield (data, files)
+        else:
+            yield data, None
 
     class Meta:
         file_attributes = (
