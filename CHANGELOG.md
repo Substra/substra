@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.0](<https://github.com/owkin/substra/releases/tag/0.22.0>) - 2022-05-22
+
 ### Added
+
 - feat: add round_idx to get_performance() (#192)
 
 ### Changed

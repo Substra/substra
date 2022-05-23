@@ -69,7 +69,7 @@ setup(
             "pytest",
             "pytest-cov",
             "pytest-mock",
-            "substratools>=0.12.0",
+            "substratools>=0.13.0",
             "black",
             "flake8",
             "isort",
