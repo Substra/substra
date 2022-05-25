@@ -189,6 +189,8 @@ class TestsDebug:
             )
         )
 
+        assert compute_plan.status == models.ComputePlanStatus.empty
+
         dataset_query = asset_factory.create_dataset()
         dataset_key = client.add_dataset(dataset_query)
 

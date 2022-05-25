@@ -63,6 +63,7 @@ class ComputePlanStatus(str, enum.Enum):
     todo = "PLAN_STATUS_TODO"
     waiting = "PLAN_STATUS_WAITING"
     canceled = "PLAN_STATUS_CANCELED"
+    empty = "PLAN_STATUS_EMPTY"
 
 
 class ModelType(str, enum.Enum):

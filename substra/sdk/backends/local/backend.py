@@ -550,7 +550,7 @@ class Local(base.BaseBackend):
             start_date=self.__now(),
             tag=spec.tag or "",
             name=spec.name,
-            status=models.ComputePlanStatus.waiting,
+            status=models.ComputePlanStatus.empty,
             metadata=spec.metadata or dict(),
             task_count=0,
             waiting_count=0,
