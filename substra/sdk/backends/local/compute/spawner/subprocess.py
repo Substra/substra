@@ -132,5 +132,9 @@ class Subprocess(BaseSpawner):
                 )
                 _symlink_data_samples(data_sample_paths, local_volumes["_VOLUME_INPUT_DATASAMPLES"])
 
-            # run subprocess, don't capture output to be able to use pdb
-            subprocess.run(py_command, capture_output=False, check=True, cwd=tmpdir, env=envs)
+            # Catching error and raising to be ISO to the docker local backend
+            # Don't capture the output to be able to use pdb
+            try:
+                subprocess.run(py_command, capture_output=False, check=True, cwd=tmpdir, env=envs)
+            except subprocess.CalledProcessError as e:
+                raise ExecutionError(e)

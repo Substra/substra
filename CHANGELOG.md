@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - feat: add empty compute plan status (#190)
 
+### Changed
+
+- feat: in debug mode, subprocess errors are now caught and raised as `ExecutionError` (#198)
+
 ## [0.22.0](<https://github.com/owkin/substra/releases/tag/0.22.0>) - 2022-05-22
 
 ### Added
