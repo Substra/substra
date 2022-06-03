@@ -36,7 +36,7 @@ def test_update_compute_plan_with_schema(client, mocker):
     m = mock_requests(mocker, "post", response=item)
     m_get = mock_requests(mocker, "get", response=datastore.COMPUTE_PLAN)
 
-    response = client.update_compute_plan("foo", schemas.UpdateComputePlanSpec())
+    response = client.update_compute_plan("foo", schemas.UpdateComputePlanSpec(key="foo"))
 
     assert response == models.ComputePlan(**item)
     m.assert_called

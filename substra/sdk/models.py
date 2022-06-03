@@ -74,16 +74,6 @@ class ModelType(str, enum.Enum):
     simple = "MODEL_SIMPLE"
 
 
-class TaskCategory(str, enum.Enum):
-    """Task category"""
-
-    unknown = "TASK_UNKNOWN"
-    train = "TASK_TRAIN"
-    aggregate = "TASK_AGGREGATE"
-    composite = "TASK_COMPOSITE"
-    test = "TASK_TEST"
-
-
 class TaskErrorType(str, enum.Enum):
     """Types of errors that can occur in a task"""
 
@@ -202,7 +192,7 @@ class OutModel(schemas._PydanticConfig):
 
 class _GenericTraintuple(_Model):
     key: str
-    category: TaskCategory
+    category: schemas.TaskCategory
     algo: Algo
     owner: str
     compute_plan_key: str

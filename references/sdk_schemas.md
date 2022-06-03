@@ -68,63 +68,71 @@ Specification for creating an metric
 ## TesttupleSpec
 Specification for creating a testtuple
 ```text
-- metric_keys: List[str]
-- traintuple_key: str
+- key: str
 - tag: Optional[str]
-- data_manager_key: str
-- test_data_sample_keys: List[str]
 - compute_plan_key: Optional[str]
 - metadata: Optional[Mapping[str, str]]
+- metric_keys: List[str]
+- traintuple_key: str
+- data_manager_key: str
+- test_data_sample_keys: List[str]
+- category: TaskCategory
 ```
 
 ## TraintupleSpec
 Specification for creating a traintuple
 ```text
+- key: str
+- tag: Optional[str]
+- compute_plan_key: Optional[str]
+- metadata: Optional[Mapping[str, str]]
 - algo_key: str
 - data_manager_key: str
 - train_data_sample_keys: List[str]
 - in_models_keys: Optional[List[str]]
-- tag: Optional[str]
-- compute_plan_key: Optional[str]
 - rank: Optional[int]
-- metadata: Optional[Mapping[str, str]]
+- category: TaskCategory
 ```
 
 ## AggregatetupleSpec
 Specification for creating an aggregate tuple
 ```text
+- key: str
+- tag: Optional[str]
+- compute_plan_key: Optional[str]
+- metadata: Optional[Mapping[str, str]]
 - algo_key: str
 - worker: str
 - in_models_keys: List[str]
-- tag: Optional[str]
-- compute_plan_key: Optional[str]
 - rank: Optional[int]
-- metadata: Optional[Mapping[str, str]]
+- category: TaskCategory
 ```
 
 ## CompositeTraintupleSpec
 Specification for creating a composite traintuple
 ```text
+- key: str
+- tag: Optional[str]
+- compute_plan_key: Optional[str]
+- metadata: Optional[Mapping[str, str]]
 - algo_key: str
 - data_manager_key: str
 - train_data_sample_keys: List[str]
 - in_head_model_key: Optional[str]
 - in_trunk_model_key: Optional[str]
-- tag: Optional[str]
-- compute_plan_key: Optional[str]
 - out_trunk_model_permissions: Permissions
 - rank: Optional[int]
-- metadata: Optional[Mapping[str, str]]
+- category: TaskCategory
 ```
 
 ## ComputePlanSpec
 Specification for creating a compute plan
 ```text
+- key: str
 - traintuples: Optional[List[ComputePlanTraintupleSpec]]
 - composite_traintuples: Optional[List[ComputePlanCompositeTraintupleSpec]]
 - aggregatetuples: Optional[List[ComputePlanAggregatetupleSpec]]
 - testtuples: Optional[List[ComputePlanTesttupleSpec]]
-- key: str
 - tag: Optional[str]
 - name: str
 - clean_models: Optional[bool]
@@ -134,6 +142,7 @@ Specification for creating a compute plan
 ## UpdateComputePlanSpec
 Specification for updating a compute plan
 ```text
+- key: str
 - traintuples: Optional[List[ComputePlanTraintupleSpec]]
 - composite_traintuples: Optional[List[ComputePlanCompositeTraintupleSpec]]
 - aggregatetuples: Optional[List[ComputePlanAggregatetupleSpec]]

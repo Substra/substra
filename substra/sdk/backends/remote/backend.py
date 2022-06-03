@@ -14,6 +14,7 @@
 
 import json
 import logging
+import math
 from copy import deepcopy
 
 from substra.sdk import compute_plan
@@ -133,7 +134,8 @@ class Remote(base.BaseBackend):
         """Add an asset."""
         spec_options = spec_options or {}
         asset_type = spec.__class__.type_
-        # Remove batch_size from spec_options
+        # Remove auto_batching and batch_size from spec_options
+        auto_batching = spec_options.pop(AUTO_BATCHING, False)
         batch_size = spec_options.pop(BATCH_SIZE, None)
 
         if asset_type == schemas.Type.DataSample:
@@ -142,89 +144,81 @@ class Remote(base.BaseBackend):
                 spec,
                 spec_options=spec_options,
             )
-        elif asset_type == schemas.Type.ComputePlan and spec_options.pop(AUTO_BATCHING, False):
+        elif asset_type == schemas.Type.ComputePlan:
+            cp = self._add_compute_plan(spec, spec_options)
+            self._add_tuples_from_computeplan(spec, spec_options, auto_batching, batch_size)
+            return cp
+        elif asset_type in (
+            schemas.Type.Traintuple,
+            schemas.Type.Aggregatetuple,
+            schemas.Type.CompositeTraintuple,
+            schemas.Type.Testtuple,
+        ):
+            cp_spec = schemas.ComputePlanSpec(name=f"{spec.category}_{spec.key}")
+            self._add_compute_plan(cp_spec, spec_options)
+            spec.compute_plan_key = cp_spec.key
+            return self._add_tuples([spec], spec_options)[0]["key"]
+
+        with spec.build_request_kwargs(**spec_options) as (data, files):
+            response = self._add(asset_type, data, files=files)
+
+        return response["key"]
+
+    def _add_compute_plan(self, spec, spec_options):
+        """Register compute plan info (without tuples)."""
+        cp_spec = spec.copy()
+        del cp_spec.traintuples
+        del cp_spec.testtuples
+        del cp_spec.aggregatetuples
+        del cp_spec.composite_traintuples
+
+        with spec.build_request_kwargs(**spec_options) as (data, _):
+            response = self._add(schemas.Type.ComputePlan, data)
+        return models.ComputePlan(**response)
+
+    def _add_tuples_from_computeplan(self, spec, spec_options, auto_batching, batch_size):
+        """Register batch(es) of tuples."""
+        tuples = compute_plan.get_tuples(spec)
+        if auto_batching:
             if not batch_size:
                 raise ValueError(
                     "Batch size must be defined to create a compute plan \
                     with the auto-batching feature."
                 )
-            # Compute plan auto batching feature
-            return self._auto_batching_compute_plan(
-                spec=spec,
-                batch_size=batch_size,
-                spec_options=spec_options,
-            )
+            # Split tuples by batch
+            batches = []
+            for i in range(math.ceil(len(tuples) / batch_size)):
+                start = i * batch_size
+                end = min(len(tuples), (i + 1) * batch_size)
+                batches.append(tuples[start:end])
+        else:
+            batches = [tuples]
 
-        with spec.build_request_kwargs(**spec_options) as (data, files):
-            response = self._add(asset_type, data, files=files)
-        # The backend returns only the key, except for the compute plan: it returns the
-        # whole object (otherwise we lose the id_to_key field)
-        if asset_type == schemas.Type.ComputePlan:
-            return models.ComputePlan(**response)
+        for batch in batches:
+            self._add_tuples(batch, spec_options)
 
-        return response["key"]
-
-    def _auto_batching_compute_plan(self, spec, batch_size, compute_plan_key=None, spec_options=None):
-        """Auto batching of the compute plan tuples
-
-        It computes the batches then, for each batch, it calls the 'add' and
-        'update_compute_plan' methods with auto_batching=False.
-        """
-        spec_options = spec_options or dict()
-        spec_options[AUTO_BATCHING] = False
-        spec_options[BATCH_SIZE] = batch_size
-
-        batches = compute_plan.auto_batching(
-            spec,
-            is_creation=compute_plan_key is None,
-            batch_size=batch_size,
+    def _add_tuples(self, batch, spec_options):
+        batch_data = []
+        for tuple_spec in batch:
+            with tuple_spec.build_request_kwargs(**spec_options) as (tuple_data, _):
+                batch_data.append(tuple_data)
+        return self._client.request(
+            "post",
+            "task",
+            path="bulk_create/",
+            json={"tasks": batch_data},
         )
 
-        asset = None
+    def update_compute_plan(self, spec, spec_options):
+        # Remove auto_batching and batch_size from spec_options
+        auto_batching = spec_options.pop(AUTO_BATCHING, False)
+        batch_size = spec_options.pop(BATCH_SIZE, None)
+        self._add_tuples_from_computeplan(spec, spec_options, auto_batching, batch_size)
 
-        # Create the compute plan if it does not exist
-        if not compute_plan_key:
-            first_spec = next(batches, None)
-            tmp_spec = first_spec or spec  # Special case: no tuples
-            asset = self.add(spec=tmp_spec, spec_options=deepcopy(spec_options))
-            compute_plan_key = asset.key
-
-        # Update the compute plan
-        for tmp_spec in batches:
-            asset = self.update_compute_plan(key=compute_plan_key, spec=tmp_spec, spec_options=deepcopy(spec_options))
-
-        # Special case: no tuples
-        if asset is None:
-            return self.get(
-                asset_type=schemas.Type.ComputePlan,
-                key=compute_plan_key,
-            )
-
-        return asset
-
-    def update_compute_plan(self, key, spec, spec_options=None):
-        spec_options = spec_options or {}
-        batch_size = spec_options.pop(BATCH_SIZE)
-        if spec_options.pop(AUTO_BATCHING):
-            return self._auto_batching_compute_plan(
-                spec=spec,
-                compute_plan_key=key,
-                batch_size=batch_size,
-                spec_options=spec_options,
-            )
-        else:
-            # Disable auto batching
-            self._client.request(
-                "post",
-                schemas.Type.ComputePlan.to_server(),
-                path=f"{key}/update_ledger/",
-                json=spec.dict(exclude_none=True),
-            )
-
-            return self.get(
-                asset_type=schemas.Type.ComputePlan,
-                key=key,
-            )
+        return self.get(
+            asset_type=schemas.Type.ComputePlan,
+            key=spec.key,
+        )
 
     def link_dataset_with_data_samples(self, dataset_key, data_sample_keys):
         """Returns the list of the data sample keys"""

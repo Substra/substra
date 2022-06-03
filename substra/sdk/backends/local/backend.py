@@ -304,57 +304,52 @@ class Local(base.BaseBackend):
 
         return compute_plan_key, rank
 
-    def __execute_compute_plan(
-        self, spec, compute_plan, visited, traintuples, aggregatetuples, compositetuples, spec_options
-    ):
-        testtuples = dict()
+    def __execute_compute_plan(self, spec, compute_plan, visited, tuples, spec_options):
         if spec.testtuples:
             for testtuple in spec.testtuples:
-                testtuples.setdefault(testtuple.traintuple_id, []).append(testtuple)
+                tuple_spec = schemas.TesttupleSpec.from_compute_plan(
+                    compute_plan_key=spec.key,
+                    spec=testtuple,
+                )
+                visited[tuple_spec.key] = visited.get(testtuple.traintuple_id, -1) + 1
+                tuples[tuple_spec.key] = tuple_spec
 
         with tqdm(
-            total=len(visited) + len(testtuples),
+            total=len(visited),
             desc="Compute plan progress",
         ) as progress_bar:
 
             for id_, rank in sorted(visited.items(), key=lambda item: item[1]):
 
-                if id_ in traintuples:
-                    traintuple = traintuples[id_]
-                    traintuple_spec = schemas.TraintupleSpec.from_compute_plan(
-                        compute_plan_key=compute_plan.key, rank=rank, spec=traintuple
-                    )
-                    self._add_traintuple(key=id_, spec=traintuple_spec, spec_options=spec_options)
+                tuple_spec = tuples.get(id_)
+                if not tuple_spec:
+                    continue
 
-                elif id_ in aggregatetuples:
-                    aggregatetuple = aggregatetuples[id_]
-                    aggregatetuple_spec = schemas.AggregatetupleSpec.from_compute_plan(
-                        compute_plan_key=compute_plan.key, rank=rank, spec=aggregatetuple
+                if tuple_spec.category == schemas.TaskCategory.train:
+                    self._add_traintuple(
+                        key=tuple_spec.key,
+                        spec=tuple_spec,
+                        spec_options=spec_options,
                     )
+
+                elif tuple_spec.category == schemas.TaskCategory.aggregate:
                     self._add_aggregatetuple(
-                        key=id_,
-                        spec=aggregatetuple_spec,
+                        key=tuple_spec.key,
+                        spec=tuple_spec,
                         spec_options=spec_options,
                     )
 
-                elif id_ in compositetuples:
-                    compositetuple = compositetuples[id_]
-                    compositetuple_spec = schemas.CompositeTraintupleSpec.from_compute_plan(
-                        compute_plan_key=compute_plan.key, rank=rank, spec=compositetuple
-                    )
+                elif tuple_spec.category == schemas.TaskCategory.composite:
                     self._add_composite_traintuple(
-                        key=id_,
-                        spec=compositetuple_spec,
+                        key=tuple_spec.key,
+                        spec=tuple_spec,
                         spec_options=spec_options,
                     )
-                progress_bar.update()
 
-                # Execute the testtuple right after its train task
-                if id_ in testtuples:
-                    for testtuple in testtuples[id_]:
-                        testtuple_spec = schemas.TesttupleSpec.from_compute_plan(spec=testtuple)
-                        self.add(testtuple_spec, spec_options)
-                        progress_bar.update()
+                elif tuple_spec.category == schemas.TaskCategory.test:
+                    self.add(tuple_spec, spec_options)
+
+                progress_bar.update()
 
         compute_plan.end_date = datetime.now()
         compute_plan.estimated_end_date = compute_plan.end_date
@@ -535,7 +530,7 @@ class Local(base.BaseBackend):
             warnings.warn("'clean_models=True' is ignored on the local backend.")
         self._check_metadata(spec.metadata)
         # Get all the tuples and their dependencies
-        (tuple_graph, traintuples, aggregatetuples, compositetuples) = compute_plan_module.get_dependency_graph(spec)
+        tuple_graph, tuples = compute_plan_module.get_dependency_graph(spec)
 
         # If chainkey is supported make sure it exists, else set support to False
         if self._support_chainkeys and not (self._chainkey_dir / "node_name_id.json").is_file():
@@ -565,9 +560,7 @@ class Local(base.BaseBackend):
         compute_plan = self._db.add(compute_plan)
 
         # go through the tuples sorted by rank
-        compute_plan = self.__execute_compute_plan(
-            spec, compute_plan, visited, traintuples, aggregatetuples, compositetuples, spec_options
-        )
+        compute_plan = self.__execute_compute_plan(spec, compute_plan, visited, tuples, spec_options)
         return compute_plan
 
     # TODO: '_add_traintuple' is too complex, consider refactoring
@@ -637,7 +630,7 @@ class Local(base.BaseBackend):
             },
             key=key,
             creation_date=self.__now(),
-            category=models.TaskCategory.train,
+            category=schemas.TaskCategory.train,
             algo=algo,
             owner=owner,
             worker=dataset.owner,
@@ -692,7 +685,7 @@ class Local(base.BaseBackend):
             ),
             key=key,
             creation_date=self.__now(),
-            category=models.TaskCategory.test,
+            category=schemas.TaskCategory.test,
             algo=traintuple.algo,
             owner=owner,
             worker=worker,
@@ -759,7 +752,7 @@ class Local(base.BaseBackend):
             ),
             key=key,
             creation_date=self.__now(),
-            category=models.TaskCategory.composite,
+            category=schemas.TaskCategory.composite,
             algo=algo,
             owner=owner,
             worker=dataset.owner,
@@ -822,7 +815,7 @@ class Local(base.BaseBackend):
             ),
             creation_date=self.__now(),
             key=key,
-            category=models.TaskCategory.aggregate,
+            category=schemas.TaskCategory.aggregate,
             algo=algo,
             owner=owner,
             worker=owner,
@@ -912,10 +905,11 @@ class Local(base.BaseBackend):
         # function does not make sense.
         raise NotImplementedError
 
-    def update_compute_plan(self, key: str, spec: schemas.UpdateComputePlanSpec, spec_options: dict = None):
+    def update_compute_plan(self, spec: schemas.UpdateComputePlanSpec, spec_options: dict = None):
+        key = spec.key
         compute_plan = self._db.get(schemas.Type.ComputePlan, key)
         # Get all the new tuples and their dependencies
-        (tuple_graph, traintuples, aggregatetuples, compositetuples) = compute_plan_module.get_dependency_graph(spec)
+        tuple_graph, tuples = compute_plan_module.get_dependency_graph(spec)
 
         # Get the rank of all the tuples already in the compute plan
         cp_traintuples = self.list(
@@ -938,7 +932,5 @@ class Local(base.BaseBackend):
         tuple_graph.update({k: list() for k in visited})
         visited = graph.compute_ranks(node_graph=tuple_graph, ranks=visited)
 
-        compute_plan = self.__execute_compute_plan(
-            spec, compute_plan, visited, traintuples, aggregatetuples, compositetuples, spec_options=dict()
-        )
+        compute_plan = self.__execute_compute_plan(spec, compute_plan, visited, tuples, spec_options)
         return compute_plan

@@ -117,6 +117,16 @@ class AlgoCategory(str, enum.Enum):
     predict = "ALGO_PREDICT"
 
 
+class TaskCategory(str, enum.Enum):
+    """Task category"""
+
+    unknown = "TASK_UNKNOWN"
+    train = "TASK_TRAIN"
+    aggregate = "TASK_AGGREGATE"
+    composite = "TASK_COMPOSITE"
+    test = "TASK_TEST"
+
+
 class _PydanticConfig(pydantic.BaseModel):
     """Shared configuration for all schemas here"""
 
@@ -264,6 +274,7 @@ class ComputePlanTesttupleSpec(_Spec):
 
 
 class _BaseComputePlanSpec(_Spec, abc.ABC):
+    key: str
     traintuples: Optional[List[ComputePlanTraintupleSpec]]
     composite_traintuples: Optional[List[ComputePlanCompositeTraintupleSpec]]
     aggregatetuples: Optional[List[ComputePlanAggregatetupleSpec]]
@@ -273,13 +284,21 @@ class _BaseComputePlanSpec(_Spec, abc.ABC):
 class ComputePlanSpec(_BaseComputePlanSpec):
     """Specification for creating a compute plan"""
 
-    key: str
+    key: str = pydantic.Field(default_factory=lambda: str(uuid.uuid4()))
     tag: Optional[str]
     name: str
     clean_models: Optional[bool]
     metadata: Optional[Dict[str, str]]
 
     type_: typing.ClassVar[Type] = Type.ComputePlan
+
+    @contextlib.contextmanager
+    def build_request_kwargs(self):
+        # default values are not dumped when `exclude_unset` flag is enabled,
+        # this is why we need to reimplement this custom function.
+        data = json.loads(self.json(exclude_unset=True))
+        data["key"] = self.key
+        yield data, None
 
 
 class UpdateComputePlanSpec(_BaseComputePlanSpec):
@@ -353,17 +372,31 @@ class MetricSpec(AlgoSpec):
     category: AlgoCategory = pydantic.Field(AlgoCategory.metric, const=True)
 
 
-class TraintupleSpec(_Spec):
+class _TupleSpec(_Spec):
+    key: str = pydantic.Field(default_factory=lambda: str(uuid.uuid4()))
+    tag: Optional[str]
+    compute_plan_key: Optional[str]
+    metadata: Optional[Dict[str, str]]
+
+    @contextlib.contextmanager
+    def build_request_kwargs(self):
+        # default values are not dumped when `exclude_unset` flag is enabled,
+        # this is why we need to reimplement this custom function.
+        data = json.loads(self.json(exclude_unset=True))
+        data["key"] = self.key
+        data["category"] = self.category
+        yield data, None
+
+
+class TraintupleSpec(_TupleSpec):
     """Specification for creating a traintuple"""
 
     algo_key: str
     data_manager_key: str
     train_data_sample_keys: List[str]
     in_models_keys: Optional[List[str]]
-    tag: Optional[str]
-    compute_plan_key: Optional[str]
     rank: Optional[int]  # Rank of the traintuple in the compute plan
-    metadata: Optional[Dict[str, str]]
+    category: TaskCategory = pydantic.Field(TaskCategory.train, const=True)
 
     compute_plan_attr_name: typing.ClassVar[str] = "traintuple_keys"
     type_: typing.ClassVar[Type] = Type.Traintuple
@@ -371,6 +404,7 @@ class TraintupleSpec(_Spec):
     @classmethod
     def from_compute_plan(cls, compute_plan_key: str, rank: int, spec: ComputePlanTraintupleSpec) -> "TraintupleSpec":
         return TraintupleSpec(
+            key=spec.traintuple_id,
             algo_key=spec.algo_key,
             data_manager_key=spec.data_manager_key,
             train_data_sample_keys=spec.train_data_sample_keys,
@@ -382,16 +416,14 @@ class TraintupleSpec(_Spec):
         )
 
 
-class AggregatetupleSpec(_Spec):
+class AggregatetupleSpec(_TupleSpec):
     """Specification for creating an aggregate tuple"""
 
     algo_key: str
     worker: str
     in_models_keys: List[str]
-    tag: Optional[str]
-    compute_plan_key: Optional[str]
     rank: Optional[int]
-    metadata: Optional[Dict[str, str]]
+    category: TaskCategory = pydantic.Field(TaskCategory.aggregate, const=True)
 
     compute_plan_attr_name: typing.ClassVar[str] = "aggregatetuple_keys"
     type_: typing.ClassVar[Type] = Type.Aggregatetuple
@@ -401,6 +433,7 @@ class AggregatetupleSpec(_Spec):
         cls, compute_plan_key: str, rank: int, spec: ComputePlanAggregatetupleSpec
     ) -> "AggregatetupleSpec":
         return AggregatetupleSpec(
+            key=spec.aggregatetuple_id,
             algo_key=spec.algo_key,
             worker=spec.worker,
             in_models_keys=spec.in_models_ids or list(),
@@ -411,7 +444,7 @@ class AggregatetupleSpec(_Spec):
         )
 
 
-class CompositeTraintupleSpec(_Spec):
+class CompositeTraintupleSpec(_TupleSpec):
     """Specification for creating a composite traintuple"""
 
     algo_key: str
@@ -419,11 +452,9 @@ class CompositeTraintupleSpec(_Spec):
     train_data_sample_keys: List[str]
     in_head_model_key: Optional[str]
     in_trunk_model_key: Optional[str]
-    tag: Optional[str]
-    compute_plan_key: Optional[str]
     out_trunk_model_permissions: Permissions
     rank: Optional[int]
-    metadata: Optional[Dict[str, str]]
+    category: TaskCategory = pydantic.Field(TaskCategory.composite, const=True)
 
     compute_plan_attr_name: typing.ClassVar[str] = "composite_traintuple_keys"
     type_: typing.ClassVar[Type] = Type.CompositeTraintuple
@@ -433,6 +464,7 @@ class CompositeTraintupleSpec(_Spec):
         cls, compute_plan_key: str, rank: int, spec: ComputePlanCompositeTraintupleSpec
     ) -> "CompositeTraintupleSpec":
         return CompositeTraintupleSpec(
+            key=spec.composite_traintuple_id,
             algo_key=spec.algo_key,
             data_manager_key=spec.data_manager_key,
             train_data_sample_keys=spec.train_data_sample_keys,
@@ -449,26 +481,25 @@ class CompositeTraintupleSpec(_Spec):
         )
 
 
-class TesttupleSpec(_Spec):
+class TesttupleSpec(_TupleSpec):
     """Specification for creating a testtuple"""
 
     metric_keys: List[str]
     traintuple_key: str
-    tag: Optional[str]
     data_manager_key: str
     test_data_sample_keys: List[str]
-    compute_plan_key: Optional[str]
-    metadata: Optional[Dict[str, str]]
+    category: TaskCategory = pydantic.Field(TaskCategory.test, const=True)
 
     type_: typing.ClassVar[Type] = Type.Testtuple
 
     @classmethod
-    def from_compute_plan(cls, spec: ComputePlanTesttupleSpec) -> "TesttupleSpec":
+    def from_compute_plan(cls, compute_plan_key: str, spec: ComputePlanTesttupleSpec) -> "TesttupleSpec":
         return TesttupleSpec(
             metric_keys=spec.metric_keys,
             traintuple_key=spec.traintuple_id,
             tag=spec.tag,
             data_manager_key=spec.data_manager_key,
             test_data_sample_keys=spec.test_data_sample_keys,
+            compute_plan_key=compute_plan_key,
             metadata=spec.metadata,
         )

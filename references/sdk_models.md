@@ -201,6 +201,7 @@ Performances of the different compute tasks of a compute plan
 - testtuple_key: List[str]
 - metric_name: List[str]
 - testtuple_rank: List[int]
+- round_idx: List[int]
 - performance: List[float]
 ```
 

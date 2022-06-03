@@ -609,12 +609,14 @@ class Client(object):
             models.ComputePlan: updated compute plan, as described in the
             [models.ComputePlan](sdk_models.md#ComputePlan) model
         """
+        if isinstance(data, dict):
+            data["key"] = key
         spec = self._get_spec(schemas.UpdateComputePlanSpec, data)
         spec_options = {
             "auto_batching": auto_batching,
             "batch_size": batch_size,
         }
-        return self._backend.update_compute_plan(key, spec, spec_options=spec_options)
+        return self._backend.update_compute_plan(spec, spec_options=spec_options)
 
     @logit
     def link_dataset_with_data_samples(
