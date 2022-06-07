@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.0](<https://github.com/owkin/substra/releases/tag/0.24.0>) - 2022-06-07
+
 ### Added
 
 - feat: add predict algo category (#201)
