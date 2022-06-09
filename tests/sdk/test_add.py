@@ -20,7 +20,7 @@ from substra.sdk import models
 from substra.sdk.exceptions import ComputePlanKeyFormatError
 
 from .. import datastore
-from .utils import mock_requests
+from ..utils import mock_requests
 
 
 def test_add_dataset(client, dataset_query, mocker):

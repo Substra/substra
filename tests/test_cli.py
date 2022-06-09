@@ -31,13 +31,6 @@ from substra.sdk import models
 from . import datastore
 
 
-@pytest.fixture
-def workdir(tmp_path):
-    d = tmp_path / "substra-cli"
-    d.mkdir()
-    return d
-
-
 def execute(command, exit_code=0):
     runner = CliRunner()
     result = runner.invoke(cli, command)
@@ -374,7 +367,7 @@ def test_command_logs(workdir, mocker):
 
 
 def test_command_cancel_compute_plan(workdir, mocker):
-    m = mock_client_call(mocker, "cancel_compute_plan", models.ComputePlan(**datastore.COMPUTE_PLAN))
+    m = mock_client_call(mocker, "cancel_compute_plan", None)
     client_execute(workdir, ["cancel", "compute_plan", "fakekey"])
     m.assert_called()
 
@@ -438,7 +431,7 @@ def test_command_get_model_None(workdir, mocker):
 @pytest.mark.parametrize("format", ["pretty", "json", "yaml"])
 def test_command_get_testtuple_metric_key_not_None(workdir, mocker, format):
     # test if the metric key is present in `substra get testtuple`
-    item = models.Testtuple(**getattr(datastore, "TESTTUPLE"))
+    item = models.Testtuple(**datastore.TESTTUPLE)
     method_name = "get_testtuple"
     m = mock_client_call(mocker, method_name, item)
     output = client_execute(workdir, ["get", "testtuple", "fakekey", "-o", format])

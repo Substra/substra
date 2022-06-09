@@ -16,7 +16,7 @@ from substra.sdk import models
 from substra.sdk import schemas
 
 from .. import datastore
-from .utils import mock_requests
+from ..utils import mock_requests
 
 
 def test_update_compute_plan(client, mocker):

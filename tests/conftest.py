@@ -33,6 +33,13 @@ def client(tmpdir):
 
 
 @pytest.fixture
+def workdir(tmp_path):
+    d = tmp_path / "substra-cli"
+    d.mkdir()
+    return d
+
+
+@pytest.fixture
 def dataset_query(tmpdir):
     opener_path = tmpdir / "opener.py"
     opener_path.write_text("raise ValueError()", encoding="utf-8")

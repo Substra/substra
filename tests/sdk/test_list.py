@@ -18,8 +18,8 @@ from substra.sdk import models
 from substra.sdk import schemas
 
 from .. import datastore
-from .utils import make_paginated_response
-from .utils import mock_requests
+from ..utils import make_paginated_response
+from ..utils import mock_requests
 
 
 @pytest.mark.parametrize(

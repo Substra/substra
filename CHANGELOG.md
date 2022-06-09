@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- cancel_compute_plan should return nothing (#193)
+
+  SDK:
+
+  ```diff
+  - cancel_compute_plan(self, key: str) -> substra.sdk.models.ComputePlan
+  + cancel_compute_plan(self, key: str) -> None
+
+  - Cancel execution of compute plan, the returned object is described in the [models.ComputePlan](sdk_models.md#ComputePlan) model
+  + Cancel execution of compute plan. Nothing is returned by this method
+  ```
+
+  CLI:
+
+  ```diff
+  substra cancel compute_plan [OPTIONS] COMPUTE_PLAN_KEY
+  -  Cancel execution of a compute plan.
+  +  Cancel execution of a compute plan. Nothing is printed, you can check again the compute plan status with `substra get compute_plan`.
+  ```
+
 ## [0.24.0](<https://github.com/owkin/substra/releases/tag/0.24.0>) - 2022-06-07
 
 ### Added

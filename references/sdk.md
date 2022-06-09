@@ -226,11 +226,10 @@ keys as specified in [schemas.TraintupleSpec](sdk_schemas.md#TraintupleSpec).
  - `str`: Key of the asset
 ## cancel_compute_plan
 ```text
-cancel_compute_plan(self, key: str) -> substra.sdk.models.ComputePlan
+cancel_compute_plan(self, key: str) -> None
 ```
 
-Cancel execution of compute plan, the returned object is described
-in the [models.ComputePlan](sdk_models.md#ComputePlan) model
+Cancel execution of compute plan. Nothing is returned by this method
 ## describe_algo
 ```text
 describe_algo(self, key: str) -> str

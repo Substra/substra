@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .. import datastore
-from .utils import mock_requests
+
+from tests import mocked_requests
 
 
 def test_cancel_compute_plan(client, mocker):
-    m = mock_requests(mocker, "post", response=datastore.COMPUTE_PLAN)
+    m = mocked_requests.cancel_compute_plan(mocker)
 
     response = client.cancel_compute_plan("magic-key")
 

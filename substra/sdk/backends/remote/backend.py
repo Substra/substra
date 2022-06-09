@@ -271,7 +271,7 @@ class Remote(base.BaseBackend):
         response = self._client.get_data(f"{self._client.base_url}/info/")
         return response.json()
 
-    def cancel_compute_plan(self, key):
+    def cancel_compute_plan(self, key: str) -> None:
         self._client.request(
             "post",
             schemas.Type.ComputePlan.to_server(),

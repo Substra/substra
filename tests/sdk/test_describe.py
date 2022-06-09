@@ -17,9 +17,9 @@ import pytest
 import substra
 
 from .. import datastore
-from .utils import mock_requests
-from .utils import mock_requests_responses
-from .utils import mock_response
+from ..utils import mock_requests
+from ..utils import mock_requests_responses
+from ..utils import mock_response
 
 
 @pytest.mark.parametrize("asset_name", ["dataset", "algo", "metric"])

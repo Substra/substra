@@ -21,9 +21,9 @@ from substra.sdk.backends.remote import rest_client
 from substra.sdk.client import Client
 
 from .. import datastore
-from .utils import mock_requests
-from .utils import mock_requests_responses
-from .utils import mock_response
+from ..utils import mock_requests
+from ..utils import mock_requests_responses
+from ..utils import mock_response
 
 CONFIG = {
     "url": "http://foo.com",

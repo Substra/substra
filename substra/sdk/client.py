@@ -780,7 +780,6 @@ class Client(object):
         return self._backend.node_info()
 
     @logit
-    def cancel_compute_plan(self, key: str) -> models.ComputePlan:
-        """Cancel execution of compute plan, the returned object is described
-        in the [models.ComputePlan](sdk_models.md#ComputePlan) model"""
-        return self._backend.cancel_compute_plan(key)
+    def cancel_compute_plan(self, key: str) -> None:
+        """Cancel execution of compute plan. Nothing is returned by this method"""
+        self._backend.cancel_compute_plan(key)

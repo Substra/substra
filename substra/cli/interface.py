@@ -1080,15 +1080,15 @@ def cancel(ctx):
 
 @cancel.command("compute_plan")
 @click.argument("compute_plan_key", type=click.STRING)
-@click_global_conf_with_output_format
+@click_global_conf
 @click.pass_context
 def cancel_compute_plan(ctx, compute_plan_key):
-    """Cancel execution of a compute plan."""
+    """Cancel execution of a compute plan.
+    Nothing is printed, you can check again the compute plan status with `substra get compute_plan`.
+    """
     client = get_client(ctx.obj)
     # method must exist in sdk
-    res = client.cancel_compute_plan(compute_plan_key)
-    printer = printers.get_asset_printer(assets.COMPUTE_PLAN, ctx.obj.output_format)
-    printer.print(res, profile=ctx.obj.profile)
+    client.cancel_compute_plan(compute_plan_key)
 
 
 @cli.group()
