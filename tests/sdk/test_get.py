@@ -26,7 +26,7 @@ from ..utils import mock_response
 
 
 @pytest.mark.parametrize(
-    "asset_name",
+    "asset_type",
     [
         "metric",
         "model",
@@ -40,15 +40,15 @@ from ..utils import mock_response
         "compute_plan",
     ],
 )
-def test_get_asset(asset_name, client, mocker):
-    item = getattr(datastore, asset_name.upper())
-    method = getattr(client, f"get_{asset_name}")
+def test_get_asset(asset_type, client, mocker):
+    item = getattr(datastore, asset_type.upper())
+    method = getattr(client, f"get_{asset_type}")
 
     m = mock_requests(mocker, "get", response=item)
 
     response = method("magic-key")
 
-    assert response == models.SCHEMA_TO_MODEL[schemas.Type(asset_name)](**item)
+    assert response == models.SCHEMA_TO_MODEL[schemas.Type(asset_type)](**item)
     m.assert_called()
 
 
@@ -60,7 +60,7 @@ def test_get_asset_not_found(client, mocker):
 
 
 @pytest.mark.parametrize(
-    "asset_name",
+    "asset_type",
     [
         "metric",
         "dataset",
@@ -73,18 +73,18 @@ def test_get_asset_not_found(client, mocker):
         "model",
     ],
 )
-def test_get_extra_field(asset_name, client, mocker):
-    item = getattr(datastore, asset_name.upper())
-    raw = getattr(datastore, asset_name.upper()).copy()
+def test_get_extra_field(asset_type, client, mocker):
+    item = getattr(datastore, asset_type.upper())
+    raw = getattr(datastore, asset_type.upper()).copy()
     raw["unknown_extra_field"] = "some value"
 
-    method = getattr(client, f"get_{asset_name}")
+    method = getattr(client, f"get_{asset_type}")
 
     m = mock_requests(mocker, "get", response=raw)
 
     response = method("magic-key")
 
-    assert response == models.SCHEMA_TO_MODEL[schemas.Type(asset_name)](**item)
+    assert response == models.SCHEMA_TO_MODEL[schemas.Type(asset_type)](**item)
     m.assert_called()
 
 

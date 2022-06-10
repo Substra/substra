@@ -103,7 +103,7 @@ def test_command_login(workdir, mocker):
 
 
 @pytest.mark.parametrize(
-    "asset_name,model",
+    "asset_type,model",
     [
         ("metric", models.Metric),
         ("dataset", models.Dataset),
@@ -116,11 +116,11 @@ def test_command_login(workdir, mocker):
     ],
 )
 @pytest.mark.parametrize("format", ["pretty", "json", "yaml"])
-def test_command_list(asset_name, model, format, workdir, mocker):
-    item = model(**getattr(datastore, asset_name.upper()))
-    method_name = f"list_{asset_name}"
+def test_command_list(asset_type, model, format, workdir, mocker):
+    item = model(**getattr(datastore, asset_type.upper()))
+    method_name = f"list_{asset_type}"
     m = mock_client_call(mocker, method_name, [item])
-    output = client_execute(workdir, ["list", asset_name, "-o", format])
+    output = client_execute(workdir, ["list", asset_type, "-o", format])
     m.assert_called()
     assert item.key in output
 
@@ -134,7 +134,7 @@ def test_command_list_node(workdir, mocker):
 
 
 @pytest.mark.parametrize(
-    "asset_name,params",
+    "asset_type,params",
     [
         ("dataset", []),
         ("algo", []),
@@ -159,28 +159,28 @@ def test_command_list_node(workdir, mocker):
         ("composite_traintuple", ["--algo-key", "foo", "--dataset-key", "foo", "--data-samples-path"]),
     ],
 )
-def test_command_add(asset_name, params, workdir, mocker):
-    method_name = f"add_{asset_name}"
+def test_command_add(asset_type, params, workdir, mocker):
+    method_name = f"add_{asset_type}"
 
-    if asset_name == "compute_plan":
+    if asset_type == "compute_plan":
         m = mock_client_call(mocker, method_name, response={"key": "foo"})
     else:
         m = mock_client_call(mocker, method_name, response="foo")
-    item = getattr(datastore, asset_name.upper())
-    mock_client_call(mocker, f"get_{asset_name}", item)
+    item = getattr(datastore, asset_type.upper())
+    mock_client_call(mocker, f"get_{asset_type}", item)
 
     json_file = workdir / "valid_json_file.json"
     json_file.write_text(json.dumps({}))
-    client_execute(workdir, ["add", asset_name] + params + [str(json_file)])
+    client_execute(workdir, ["add", asset_type] + params + [str(json_file)])
     m.assert_called()
 
     invalid_json_file = workdir / "invalid_json_file.txt"
     invalid_json_file.write_text("foo")
 
-    res = client_execute(workdir, ["add", asset_name] + params + [str(invalid_json_file)], exit_code=2)
+    res = client_execute(workdir, ["add", asset_type] + params + [str(invalid_json_file)], exit_code=2)
     assert re.search(r"File '.*' is not a valid JSON file\.", res)
 
-    res = client_execute(workdir, ["add", asset_name] + params + ["non_existing_file.txt"], exit_code=2)
+    res = client_execute(workdir, ["add", asset_type] + params + ["non_existing_file.txt"], exit_code=2)
     assert re.search(r"File '.*' does not exist\.", res)
 
 
@@ -294,7 +294,7 @@ def test_command_add_data_sample_already_exists(workdir, mocker):
 
 
 @pytest.mark.parametrize(
-    "asset_name,model",
+    "asset_type,model",
     [
         ("metric", models.Metric),
         ("dataset", models.Dataset),
@@ -307,11 +307,11 @@ def test_command_add_data_sample_already_exists(workdir, mocker):
     ],
 )
 @pytest.mark.parametrize("format", ["pretty", "json", "yaml"])
-def test_command_get(asset_name, model, format, workdir, mocker):
-    item = model(**getattr(datastore, asset_name.upper()))
-    method_name = f"get_{asset_name}"
+def test_command_get(asset_type, model, format, workdir, mocker):
+    item = model(**getattr(datastore, asset_type.upper()))
+    method_name = f"get_{asset_type}"
     m = mock_client_call(mocker, method_name, item)
-    output = client_execute(workdir, ["get", asset_name, "fakekey", "-o", format])
+    output = client_execute(workdir, ["get", asset_type, "fakekey", "-o", format])
     m.assert_called()
     assert item.key in output
     if format == "json":

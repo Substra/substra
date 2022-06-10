@@ -161,11 +161,11 @@ class Client:
             elaps = (te - ts) * 1000
             logger.debug(f"{request_name} {url}: done in {elaps:.2f}ms error={error}")
 
-    def request(self, request_name, asset_name, path=None, json_response=True, paginated=False, **request_kwargs):
+    def request(self, request_name, asset_type, path=None, json_response=True, paginated=False, **request_kwargs):
         """Base request."""
 
         path = path or ""
-        url = f"{self._base_url}/{asset_name}/{path}"
+        url = f"{self._base_url}/{asset_type}/{path}"
         if not url.endswith("/"):
             url = url + "/"  # server requires a suffix /
 

@@ -54,21 +54,21 @@ class DataAccess:
 
     def _get_asset_content_filename(self, type_):
         if type_ == schemas.Type.Algo:
-            asset_name = "algo.tar.gz"
+            filename = "algo.tar.gz"
             field_name = "algorithm"
 
         elif type_ == schemas.Type.Dataset:
-            asset_name = "opener.py"
+            filename = "opener.py"
             field_name = "opener"
 
         elif type_ == schemas.Type.Metric:
-            asset_name = "metrics.zip"
+            filename = "metrics.zip"
             field_name = "algorithm"
 
         else:
             raise ValueError(f"Cannot download this type of asset {type_}")
 
-        return asset_name, field_name
+        return filename, field_name
 
     def login(self, username, password):
         if self._remote:
@@ -96,10 +96,10 @@ class DataAccess:
         except exceptions.NotFound:
             if self._remote is not None:
                 # if not found, try remotely
-                asset_name, field_name = self._get_asset_content_filename(type_)
+                filename, field_name = self._get_asset_content_filename(type_)
                 asset = self._remote.get(type_, key)
                 tmp_directory = self.tmp_dir / key
-                asset_path = tmp_directory / asset_name
+                asset_path = tmp_directory / filename
 
                 if not tmp_directory.exists():
                     pathlib.Path.mkdir(tmp_directory)

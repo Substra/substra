@@ -27,7 +27,7 @@ from ..utils import mock_response
 
 
 @pytest.mark.parametrize(
-    "asset_name, filename",
+    "asset_type, filename",
     [
         ("dataset", "opener.py"),
         ("algo", "algo.tar.gz"),
@@ -35,15 +35,15 @@ from ..utils import mock_response
         ("model", "model_foo"),
     ],
 )
-def test_download_asset(asset_name, filename, tmp_path, client, mocker):
-    item = getattr(datastore, asset_name.upper())
+def test_download_asset(asset_type, filename, tmp_path, client, mocker):
+    item = getattr(datastore, asset_type.upper())
     responses = [
         mock_response(item),  # metadata
         mock_response("foo"),  # data
     ]
     m = mock_requests_responses(mocker, "get", responses)
 
-    method = getattr(client, f"download_{asset_name}")
+    method = getattr(client, f"download_{asset_type}")
     method("foo", tmp_path)
 
     temp_file = str(tmp_path) + "/" + filename
@@ -51,20 +51,20 @@ def test_download_asset(asset_name, filename, tmp_path, client, mocker):
     m.assert_called()
 
 
-@pytest.mark.parametrize("asset_name", ["dataset", "algo", "metric", "model", "logs"])
-def test_download_asset_not_found(asset_name, tmp_path, client, mocker):
+@pytest.mark.parametrize("asset_type", ["dataset", "algo", "metric", "model", "logs"])
+def test_download_asset_not_found(asset_type, tmp_path, client, mocker):
     m = mock_requests(mocker, "get", status=404)
 
     with pytest.raises(substra.sdk.exceptions.NotFound):
-        method = getattr(client, f"download_{asset_name}")
+        method = getattr(client, f"download_{asset_type}")
         method("foo", tmp_path)
 
     assert m.call_count == 1
 
 
-@pytest.mark.parametrize("asset_name", ["dataset", "algo", "metric", "model"])
-def test_download_content_not_found(asset_name, tmp_path, client, mocker):
-    item = getattr(datastore, asset_name.upper())
+@pytest.mark.parametrize("asset_type", ["dataset", "algo", "metric", "model"])
+def test_download_content_not_found(asset_type, tmp_path, client, mocker):
+    item = getattr(datastore, asset_type.upper())
 
     expected_call_count = 2
     responses = [
@@ -72,13 +72,13 @@ def test_download_content_not_found(asset_name, tmp_path, client, mocker):
         mock_response("foo", status=404),  # description
     ]
 
-    if asset_name == "model":
+    if asset_type == "model":
         responses = [responses[1]]  # No metadata for model download
         expected_call_count = 1
 
     m = mock_requests_responses(mocker, "get", responses)
 
-    method = getattr(client, f"download_{asset_name}")
+    method = getattr(client, f"download_{asset_type}")
 
     with pytest.raises(substra.sdk.exceptions.NotFound):
         method("key", tmp_path)

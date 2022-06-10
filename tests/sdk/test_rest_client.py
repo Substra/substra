@@ -86,21 +86,21 @@ def test_request_connection_error(mocker):
 
 
 def test_add_timeout_with_retry(mocker):
-    asset_name = "traintuple"
+    asset_type = "traintuple"
     responses = [
         mock_response(response={"key": "a-key"}, status=408),
         mock_response(response={"key": "a-key"}),
     ]
     m_post = mock_requests_responses(mocker, "post", responses)
-    asset = _client_from_config(CONFIG).add(asset_name, retry_timeout=60)
+    asset = _client_from_config(CONFIG).add(asset_type, retry_timeout=60)
     assert len(m_post.call_args_list) == 2
     assert asset == {"key": "a-key"}
 
 
 def test_add_already_exist(mocker):
-    asset_name = "traintuple"
+    asset_type = "traintuple"
     m_post = mock_requests(mocker, "post", response={"key": "a-key"}, status=409)
-    asset = _client_from_config(CONFIG).add(asset_name)
+    asset = _client_from_config(CONFIG).add(asset_type)
     assert len(m_post.call_args_list) == 1
     assert asset == {"key": "a-key"}
 
@@ -117,7 +117,7 @@ def test_add_wrong_url(mocker):
 
 
 def test_list_paginated(mocker):
-    asset_name = "traintuple"
+    asset_type = "traintuple"
     items = [datastore.TRAINTUPLE, datastore.TRAINTUPLE]
     responses = [
         mock_response(
@@ -140,13 +140,13 @@ def test_list_paginated(mocker):
         ),
     ]
     m_get = mock_requests_responses(mocker, "get", responses)
-    asset = _client_from_config(CONFIG).list(asset_name)
+    asset = _client_from_config(CONFIG).list(asset_type)
     assert len(asset) == len(items)
     assert len(m_get.call_args_list) == 2
 
 
 def test_list_not_paginated(mocker):
-    asset_name = "traintuple"
+    asset_type = "traintuple"
     items = [datastore.TRAINTUPLE, datastore.TRAINTUPLE]
     m_get = mock_requests(
         mocker,
@@ -159,6 +159,6 @@ def test_list_not_paginated(mocker):
         },
         status=200,
     )
-    asset = _client_from_config(CONFIG).list(asset_name, paginated=False)
+    asset = _client_from_config(CONFIG).list(asset_type, paginated=False)
     assert len(asset) != len(items)
     assert len(m_get.call_args_list) == 1

@@ -202,7 +202,7 @@ class BasePrinter:
 
 
 class AssetPrinter(BasePrinter):
-    asset_name = None
+    asset_type = None
 
     key_field = Field("key", "key")
     list_fields = ()
@@ -227,14 +227,14 @@ class AssetPrinter(BasePrinter):
             key_value = self.key_field.get_value(item)
             profile_arg = self.get_profile_arg(profile)
             print("\n" + self.download_message)
-            print(f"\tsubstra download {self.asset_name} {key_value} {profile_arg}")
+            print(f"\tsubstra download {self.asset_type} {key_value} {profile_arg}")
 
     def print_description_message(self, item, profile=None):
         if self.has_description:
             key_value = self.key_field.get_value(item)
             profile_arg = self.get_profile_arg(profile)
-            print(f"\nDisplay this {self.asset_name}'s description:")
-            print(f"\tsubstra describe {self.asset_name} {key_value} {profile_arg}")
+            print(f"\nDisplay this {self.asset_type}'s description:")
+            print(f"\tsubstra describe {self.asset_type} {key_value} {profile_arg}")
 
     def print_messages(self, item, profile=None):
         self.print_download_message(item, profile)
@@ -269,7 +269,7 @@ class YamlPrinter:
 
 
 class AlgoPrinter(AssetPrinter):
-    asset_name = "algo"
+    asset_type = "algo"
 
     list_fields = (Field("Name", "name"),)
     single_fields = (
@@ -297,7 +297,7 @@ class NodeInfoPrinter(BasePrinter):
 
 
 class ComputePlanPrinter(AssetPrinter):
-    asset_name = "compute_plan"
+    asset_type = "compute_plan"
 
     list_fields = (
         ProgressField("Progress", "done_count", "task_count"),
@@ -340,7 +340,7 @@ class ComputePlanPrinter(AssetPrinter):
 
 
 class MetricPrinter(AssetPrinter):
-    asset_name = "metric"
+    asset_type = "metric"
 
     list_fields = (Field("Name", "name"),)
     single_fields = (
@@ -356,11 +356,11 @@ class MetricPrinter(AssetPrinter):
 
 
 class DataSamplePrinter(AssetPrinter):
-    asset_name = "data sample"
+    asset_type = "data sample"
 
 
 class DatasetPrinter(AssetPrinter):
-    asset_name = "dataset"
+    asset_type = "dataset"
 
     list_fields = (
         Field("Name", "name"),
@@ -380,7 +380,7 @@ class DatasetPrinter(AssetPrinter):
 
 
 class TraintuplePrinter(AssetPrinter):
-    asset_name = "traintuple"
+    asset_type = "traintuple"
 
     list_fields = (
         Field("Algo name", "algo.name"),
@@ -416,7 +416,7 @@ class TraintuplePrinter(AssetPrinter):
 
 
 class AggregateTuplePrinter(AssetPrinter):
-    asset_name = "aggregatetuple"
+    asset_type = "aggregatetuple"
 
     list_fields = (
         Field("Algo name", "algo.name"),
@@ -450,7 +450,7 @@ class AggregateTuplePrinter(AssetPrinter):
 
 
 class CompositeTraintuplePrinter(AssetPrinter):
-    asset_name = "composite_traintuple"
+    asset_type = "composite_traintuple"
 
     list_fields = (
         Field("Composite algo name", "algo.name"),
@@ -489,7 +489,7 @@ class CompositeTraintuplePrinter(AssetPrinter):
 
 
 class TesttuplePrinter(AssetPrinter):
-    asset_name = "testtuple"
+    asset_type = "testtuple"
 
     list_fields = (
         Field("Algo name", "algo.name"),
@@ -519,7 +519,7 @@ class TesttuplePrinter(AssetPrinter):
 
 
 class NodePrinter(AssetPrinter):
-    asset_name = "node"
+    asset_type = "node"
     key_field = Field("NODE ID", "id")
     list_fields = (CurrentNodeField("", "is_current"),)
 

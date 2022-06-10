@@ -23,7 +23,7 @@ from ..utils import mock_requests
 
 
 @pytest.mark.parametrize(
-    "asset_name",
+    "asset_type",
     [
         "metric",
         "dataset",
@@ -35,16 +35,16 @@ from ..utils import mock_requests
         "compute_plan",
     ],
 )
-def test_list_asset(asset_name, client, mocker):
-    item = getattr(datastore, asset_name.upper())
-    method = getattr(client, f"list_{asset_name}")
+def test_list_asset(asset_type, client, mocker):
+    item = getattr(datastore, asset_type.upper())
+    method = getattr(client, f"list_{asset_type}")
 
     mocked_response = make_paginated_response([item])
     m = mock_requests(mocker, "get", response=mocked_response)
 
     response = method()
 
-    schema_type = asset_name
+    schema_type = asset_type
 
     assert response == [models.SCHEMA_TO_MODEL[schemas.Type(schema_type)](**item)]
     m.assert_called()

@@ -871,7 +871,7 @@ def add_testtuple(ctx, metric_keys, dataset_key, traintuple_key, data_samples, t
 
 @cli.command()
 @click.argument(
-    "asset-name",
+    "asset-type",
     type=click.Choice(
         [
             assets.ALGO,
@@ -890,7 +890,7 @@ def add_testtuple(ctx, metric_keys, dataset_key, traintuple_key, data_samples, t
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
-def get(ctx, expand, asset_name, asset_key):
+def get(ctx, expand, asset_type, asset_key):
     """Get asset definition."""
     expand_valid_assets = (
         assets.DATASET,
@@ -901,20 +901,20 @@ def get(ctx, expand, asset_name, asset_key):
         assets.AGGREGATETUPLE,
         assets.COMPUTE_PLAN,
     )
-    if expand and asset_name not in expand_valid_assets:  # fail fast
+    if expand and asset_type not in expand_valid_assets:  # fail fast
         raise click.UsageError(f"--expand option is available with assets {expand_valid_assets}")
 
     client = get_client(ctx.obj)
     # method must exist in sdk
-    method = getattr(client, f"get_{asset_name.lower()}")
+    method = getattr(client, f"get_{asset_type.lower()}")
     res = method(asset_key)
-    printer = printers.get_asset_printer(asset_name, ctx.obj.output_format)
+    printer = printers.get_asset_printer(asset_type, ctx.obj.output_format)
     printer.print(res, profile=ctx.obj.profile, expand=expand)
 
 
 @cli.command("list")
 @click.argument(
-    "asset-name",
+    "asset-type",
     type=click.Choice(
         [
             assets.ALGO,
@@ -954,11 +954,11 @@ def get(ctx, expand, asset_name, asset_key):
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
-def list_(ctx, asset_name, filters, filters_logical_clause, advanced_filters):
+def list_(ctx, asset_type, filters, filters_logical_clause, advanced_filters):
     """List assets."""
     client = get_client(ctx.obj)
     # method must exist in sdk
-    method = getattr(client, f"list_{asset_name.lower()}")
+    method = getattr(client, f"list_{asset_type.lower()}")
     # handle filters
     if advanced_filters and filters:
         raise click.UsageError("The --filter and --advanced-filters options are mutually exclusive")
@@ -972,14 +972,14 @@ def list_(ctx, asset_name, filters, filters_logical_clause, advanced_filters):
     elif advanced_filters:
         filters = advanced_filters
     res = method(filters)
-    printer = printers.get_asset_printer(asset_name, ctx.obj.output_format)
+    printer = printers.get_asset_printer(asset_type, ctx.obj.output_format)
     dict_res = [result.dict(exclude_none=False, by_alias=True) for result in res]
     printer.print(dict_res, is_list=True)
 
 
 @cli.command()
 @click.argument(
-    "asset-name",
+    "asset-type",
     type=click.Choice(
         [
             assets.ALGO,
@@ -992,11 +992,11 @@ def list_(ctx, asset_name, filters, filters_logical_clause, advanced_filters):
 @click_global_conf
 @click.pass_context
 @error_printer
-def describe(ctx, asset_name, asset_key):
+def describe(ctx, asset_type, asset_key):
     """Display asset description."""
     client = get_client(ctx.obj)
     # method must exist in sdk
-    method = getattr(client, f"describe_{asset_name.lower()}")
+    method = getattr(client, f"describe_{asset_type.lower()}")
     description = method(asset_key)
     renderer = consolemd.Renderer()
     renderer.render(description)
@@ -1021,7 +1021,7 @@ def node_info(ctx):
 
 
 @cli.command()
-@click.argument("asset-name", type=click.Choice([assets.ALGO, assets.DATASET, assets.METRIC, assets.MODEL]))
+@click.argument("asset-type", type=click.Choice([assets.ALGO, assets.DATASET, assets.METRIC, assets.MODEL]))
 @click.argument("key")
 @click.option("--folder", type=click.Path(), help="destination folder", default=".")
 @click.option(
@@ -1051,7 +1051,7 @@ def node_info(ctx):
 @click_global_conf
 @click.pass_context
 @error_printer
-def download(ctx, asset_name, key, folder, model_src):
+def download(ctx, asset_type, key, folder, model_src):
     """Download asset implementation.
 
     \b
@@ -1062,10 +1062,10 @@ def download(ctx, asset_name, key, folder, model_src):
     """
     client = get_client(ctx.obj)
 
-    if asset_name == assets.MODEL:
+    if asset_type == assets.MODEL:
         method = getattr(client, f"download_{model_src}" if model_src else "download_model")
     else:
-        method = getattr(client, f"download_{asset_name.lower()}")
+        method = getattr(client, f"download_{asset_type.lower()}")
 
     res = method(key, folder)
     display(res)
