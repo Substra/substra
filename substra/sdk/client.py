@@ -455,8 +455,9 @@ class Client(object):
 
         Example:
             ```python
-            perf = get_performances(cp_key)
-            pd.DataFrame(perf.dict())
+            perf = client.get_performances(cp_key)
+            df = pd.DataFrame(perf.dict())
+            print(df)
             ```
         """
 

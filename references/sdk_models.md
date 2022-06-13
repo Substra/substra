@@ -223,7 +223,7 @@ Permissions structure stored in various asset types.
 In model of a traintuple, aggregate or composite traintuple
 ```text
 - checksum: str
-- storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
+- storage_address: Union[FilePath, AnyUrl, str]
 ```
 
 ## OutModel
@@ -243,6 +243,6 @@ model of a composite traintuple
 File as stored in the models
 ```text
 - checksum: str
-- storage_address: Union[pydantic.types.FilePath, pydantic.networks.AnyUrl, str]
+- storage_address: Union[FilePath, AnyUrl, str]
 ```
 
