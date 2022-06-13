@@ -89,7 +89,7 @@ class Worker:
 
     def _has_chainkey(self):
         # checks if chainkey exists in the chainkey_dir
-        return os.path.exists(self._chainkey_dir / "node_name_id.json")
+        return os.path.exists(self._chainkey_dir / "organization_name_id.json")
 
     def _get_chainkey_volume(self, tuple_):
         compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_key)
@@ -99,9 +99,9 @@ class Worker:
         return tuple_chainkey_volume
 
     def _get_chainkey_env(self, tuple_):
-        node_name_id = json.loads((self._chainkey_dir / "node_name_id.json").read_text())
+        organization_name_id = json.loads((self._chainkey_dir / "organization_name_id.json").read_text())
         return {
-            "NODE_INDEX": str(node_name_id.get(tuple_.worker, None)),
+            "ORGANIZATION_INDEX": str(organization_name_id.get(tuple_.worker, None)),
         }
 
     def _get_data_sample_paths_arg(self, data_sample_keys: typing.List[str], data_volume: str) -> typing.List[str]:

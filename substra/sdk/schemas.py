@@ -95,7 +95,7 @@ class Type(enum.Enum):
     Aggregatetuple = "aggregatetuple"
     CompositeTraintuple = "composite_traintuple"
     ComputePlan = "compute_plan"
-    Node = "node"
+    Organization = "organization"
 
     def to_server(self):
         """Returns the name used to identify the asset on the backend."""
@@ -173,15 +173,15 @@ class Permissions(_PydanticConfig):
     """
 
     public: bool
-    authorized_ids: typing.List[str]  # List of authorized node ids if private
+    authorized_ids: typing.List[str]  # List of authorized organization ids if private
 
 
 class PrivatePermissions(_PydanticConfig):
-    """Specification for private permissions. Only the nodes whose
+    """Specification for private permissions. Only the organizations whose
     ids are in authorized_ids can access the asset.
     """
 
-    authorized_ids: typing.List[str]  # List of authorized node ids
+    authorized_ids: typing.List[str]  # List of authorized organization ids
 
 
 class DataSampleSpec(_Spec):

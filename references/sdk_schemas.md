@@ -210,7 +210,7 @@ give the list of authorized ids.
 ```
 
 ## PrivatePermissions
-Specification for private permissions. Only the nodes whose
+Specification for private permissions. Only the organizations whose
 ids are in authorized_ids can access the asset.
 ```text
 - authorized_ids: List[str]

@@ -68,7 +68,7 @@ class TestsDebug:
         client = substra.Client(debug=True)
         assert client.temp_directory
 
-    def test_client_multi_nodes_dataset(self, dataset_query):
+    def test_client_multi_organizations_dataset(self, dataset_query):
         """Assert that the owner is gotten from the metadata in debug mode"""
         client = substra.Client(debug=True)
         dataset_query["metadata"] = {substra.DEBUG_OWNER: "owner_1"}
@@ -134,8 +134,8 @@ class TestsDebug:
         client.add_compute_plan(cp)
         assert "No chainkeys found" in caplog.text
 
-    def test_client_multi_nodes_cp(self, asset_factory, spawner):
-        """Assert that there is one CP local folder per node"""
+    def test_client_multi_organizations_cp(self, asset_factory, spawner):
+        """Assert that there is one CP local folder per organization"""
         client = substra.Client(debug=True)
 
         dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
@@ -227,8 +227,8 @@ class TestsDebug:
             },
         )
 
-    def test_client_multi_nodes_cp_train_test(self, asset_factory, spawner):
-        """Assert that there is one CP local folder per node"""
+    def test_client_multi_organizations_cp_train_test(self, asset_factory, spawner):
+        """Assert that there is one CP local folder per organization"""
         client = substra.Client(debug=True)
 
         dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
@@ -310,8 +310,8 @@ class TestsDebug:
         ]
         assert all(auc == 2 for auc in aucs)
 
-    def test_client_multi_nodes_cp_composite_aggregate(self, asset_factory, spawner):
-        """Assert that there is one CP local folder per node"""
+    def test_client_multi_organizations_cp_composite_aggregate(self, asset_factory, spawner):
+        """Assert that there is one CP local folder per organization"""
         client = substra.Client(debug=True)
 
         dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})

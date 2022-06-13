@@ -165,8 +165,8 @@ add_dataset(self, data: Union[dict, substra.sdk.schemas.DatasetSpec])
 
 Create new dataset asset and return its key.
 In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-the value becomes the node owner of the data, and all tuples using this data
-have their worker set to this node. This has no impact on how the tuples are
+the value becomes the organization owner of the data, and all tuples using this data
+have their worker set to this organization. This has no impact on how the tuples are
 executed except if chainkey support is enabled.
 
 **Arguments:**
@@ -509,13 +509,13 @@ list_metric(self, filters=None) -> List[substra.sdk.models.Metric]
 
 List metrics, the returned object is described
 in the [models.Metric](sdk_models.md#Metric) model
-## list_node
+## list_organization
 ```text
-list_node(self, *args, **kwargs) -> List[substra.sdk.models.Node]
+list_organization(self, *args, **kwargs) -> List[substra.sdk.models.Organization]
 ```
 
-List nodes, the returned object is described
-in the [models.Node](sdk_models.md#Node) model
+List organizations, the returned object is described
+in the [models.Organization](sdk_models.md#Organization) model
 ## list_testtuple
 ```text
 list_testtuple(self, filters=None) -> List[substra.sdk.models.Testtuple]
@@ -536,12 +536,12 @@ login(self, username, password)
 ```
 
 Login to a remote server.
-## node_info
+## organization_info
 ```text
-node_info(self) -> dict
+organization_info(self) -> dict
 ```
 
-Get node information.
+Get organization information.
 ## update_compute_plan
 ```text
 update_compute_plan(self, key: str, data: Union[dict, substra.sdk.schemas.UpdateComputePlanSpec], auto_batching: bool = True, batch_size: int = 20) -> substra.sdk.models.ComputePlan

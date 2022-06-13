@@ -126,7 +126,7 @@ class CountField(Field):
         return 0
 
 
-class CurrentNodeField(Field):
+class CurrentOrganizationField(Field):
     def get_value(self, item, expand=False):
         value = super().get_value(item, expand)
         if value:
@@ -282,7 +282,7 @@ class AlgoPrinter(AssetPrinter):
     download_message = "Download this algorithm's code:"
 
 
-class NodeInfoPrinter(BasePrinter):
+class OrganizationInfoPrinter(BasePrinter):
     single_fields = (
         Field("Host", "host"),
         Field("Channel", "channel"),
@@ -518,10 +518,10 @@ class TesttuplePrinter(AssetPrinter):
     has_description = False
 
 
-class NodePrinter(AssetPrinter):
-    asset_type = "node"
-    key_field = Field("NODE ID", "id")
-    list_fields = (CurrentNodeField("", "is_current"),)
+class OrganizationPrinter(AssetPrinter):
+    asset_name = "organization"
+    key_field = Field("ORGANIZATION ID", "id")
+    list_fields = (CurrentOrganizationField("", "is_current"),)
 
 
 PRINTERS = {
@@ -534,7 +534,7 @@ PRINTERS = {
     assets.AGGREGATETUPLE: AggregateTuplePrinter,
     assets.COMPOSITE_TRAINTUPLE: CompositeTraintuplePrinter,
     assets.TESTTUPLE: TesttuplePrinter,
-    assets.NODE: NodePrinter,
+    assets.ORGANIZATION: OrganizationPrinter,
 }
 
 

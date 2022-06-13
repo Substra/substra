@@ -14,7 +14,7 @@
 - [substra get](#substra-get)
 - [substra list](#substra-list)
 - [substra describe](#substra-describe)
-- [substra node info](#substra-node-info)
+- [substra organization info](#substra-organization-info)
 - [substra download](#substra-download)
 - [substra cancel compute_plan](#substra-cancel-compute_plan)
 - [substra update data_sample](#substra-update-data_sample)
@@ -364,7 +364,8 @@ Usage: substra add aggregatetuple [OPTIONS]
 Options:
   --algo-key TEXT                 Aggregate algo key.  [required]
   --in-model-key TEXT             In model traintuple key.
-  --worker TEXT                   Node ID for worker execution.  [required]
+  --worker TEXT                   Organization ID for worker execution.
+                                  [required]
   --rank INTEGER
   --tag TEXT
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
@@ -510,8 +511,8 @@ Options:
 
 ```text
 Usage: substra list [OPTIONS] {algo|compute_plan|data_sample|dataset|metric|te
-                    sttuple|traintuple|composite_traintuple|aggregatetuple|nod
-                    e}
+                    sttuple|traintuple|composite_traintuple|aggregatetuple|org
+                    anization}
 
   List assets.
 
@@ -558,12 +559,12 @@ Options:
   --help                          Show this message and exit.
 ```
 
-## substra node info
+## substra organization info
 
 ```text
-Usage: substra node info [OPTIONS]
+Usage: substra organization info [OPTIONS]
 
-  Display node info.
+  Display organization info.
 
 Options:
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]

@@ -18,7 +18,7 @@ import zipfile
 import substra
 
 # Define the client
-client = substra.Client.from_config_file(profile_name="node-1", debug=True)
+client = substra.Client.from_config_file(profile_name="organization-1", debug=True)
 
 # Define the current and asset directories
 current_directory = pathlib.Path(__file__).resolve().parents[1]

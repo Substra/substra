@@ -6,6 +6,6 @@ In this example, we'll see how to train a multi-class classifier with a federate
 
 It consists in training our algorithm on each dataset one after the other thanks to incremental learning.
 
-In this example, we will train our algorithm on two separated datasets hosted on two different substra nodes.
+In this example, we will train our algorithm on two separated datasets hosted on two different substra organizations.
 
 All the instructions are in [plot_cyclic_strategy.py](./scripts/plot_cyclic_strategy.py)

@@ -8,31 +8,31 @@
 # The data used for this example is the Mnist digits dataset from scikit-learn.
 # You can find details of this dataset `here <../assets/dataset/description.md>`
 #
-# A cyclic strategy consists in training your algorithm on one node after the other.
+# A cyclic strategy consists in training your algorithm on one organization after the other.
 #
 # Some vocabulary:
-# * a *round* represents the fact that the algorithm has been fit on each node
-# * a *step* represents the training of the algorithm on one node
+# * a *round* represents the fact that the algorithm has been fit on each organization
+# * a *step* represents the training of the algorithm on one organization
 # * an *epoch* is one complete pass through the training data
 # * a *batch* is a fixed sample size of a training data
 # * an *update* is the number of times the algorithm will be trained on different
 # batches at each step
 #
 # A basic cyclic strategy is to incrementally train your model on small batches of
-# your datasets on one node after the other.
+# your datasets on one organization after the other.
 #
 # The elements of our architectures are:
-# * node-1: hosting training data samples
-# * node-2: hosting training data samples
-# * node-2: hosting the compute plan, the test data samples, the metric and the algorithm.
+# * organization-1: hosting training data samples
+# * organization-2: hosting training data samples
+# * organization-2: hosting the compute plan, the test data samples, the metric and the algorithm.
 # All those elements (the compute plan, the test data samples, the metric and the algorithm)
-# could be hosted on different nodes.
+# could be hosted on different organizations.
 #
 # One round will be implemented as follow:
-# * train on node-1
-# * test on node-1
-# * train on node-2
-# * test on node-2
+# * train on organization-1
+# * test on organization-1
+# * train on organization-2
+# * test on organization-2
 #
 # It is to be noted that each train step depends only on the latest train step
 # meaning that training step and testing step can be run in parallel.
@@ -59,17 +59,17 @@
 # to deploy a local connect platform
 # * have access to a connect platform of your own
 #
-# If you have access to a connect platform, be sure to log your substra client to the nodes you
+# If you have access to a connect platform, be sure to log your substra client to the organizations you
 # will use.
 # If you followed the previous tutorial, this bash command will do the trick:
 #
-# ``substra config --profile node-2 http://substra-backend.node-2.com``
+# ``substra config --profile organization-2 http://substra-backend.org-2.com``
 #
-# ``substra login --profile node-2 --username node-2 --password 'p@sswr0d45'``
+# ``substra login --profile organization-2 --username org-2 --password 'p@sswr0d45'``
 #
-# ``substra config --profile node-1 http://substra-backend.node-1.com``
+# ``substra config --profile organization-1 http://substra-backend.org-1.com``
 #
-# ``substra login --profile node-1 --username node-1 --password 'p@sswr0d44'``
+# ``substra login --profile organization-1 --username org-1 --password 'p@sswr0d44'``
 #
 # This example must be run from the `substra/examples/cyclic_strategy/scripts` directory.
 #
@@ -80,9 +80,9 @@
 # Let's generate the data needed for the example.
 #
 # This file will create three folders:
-# * *node_1*: containing training set
-# * *node_2*: containing a training set
-# * *algo_node*: containing the test set
+# * *organization_1*: containing training set
+# * *organization_2*: containing a training set
+# * *algo_organization*: containing the test set
 #
 # To demonstrate the  value of cyclic strategies, we unbalanced the data both in target
 # distribution and volumes accross our training sets.
@@ -114,32 +114,32 @@ compute_plan_info_path = current_directory / ".." / "compute_plan_info.json"
 # Configuration of our connect platform
 # --------------------------------------
 #
-# For this example, we decided to use two nodes, you will find a way to use three nodes at
+# For this example, we decided to use two organizations, you will find a way to use three organizations at
 # the end of the notebook.
 # The default mode is `Debug` so everything runs locally.
 # If you have access to a connect platform, be sure to configure your substra client and
-# to login to the different nodes before executing the script and to set DEBUG to False in
+# to login to the different organizations before executing the script and to set DEBUG to False in
 # the cell bellow.
 #
 # If you deployed your own connect platform with the tutorial, you are all set. Otherwise be
-# sure to change the **PROFILE_NAMES, NODES_IDS, ALGO_NODE_ID, ALGO_NODE_PROFILE**
+# sure to change the **PROFILE_NAMES, ORGANIZATIONS_IDS, ALGO_ORGANIZATION_ID, ALGO_ORGANIZATION_PROFILE**
 # below:
 
 
-N_NODES = 2
+N_ORGANIZATIONS = 2
 DEBUG = True
 
-PROFILE_NAMES = ["node-1", "node-2"]
-NODES_IDS = ["MyOrg1MSP", "MyOrg2MSP"]
-ALGO_NODE_ID = "MyOrg2MSP"
-ALGO_NODE_PROFILE = "node-2"
+PROFILE_NAMES = ["organization-1", "organization-2"]
+ORGANIZATIONS_IDS = ["MyOrg1MSP", "MyOrg2MSP"]
+ALGO_ORGANIZATION_ID = "MyOrg2MSP"
+ALGO_ORGANIZATION_PROFILE = "organization-2"
 
 
 # %%
 # Interraction with the platform
 # -------------------------------
 #
-# In debug mode, there is no notion of nodes. To mimic it, we duplicate an original
+# In debug mode, there is no notion of organizations. To mimic it, we duplicate an original
 # client for each of our profiles.
 
 if DEBUG:
@@ -148,7 +148,7 @@ if DEBUG:
 else:
     clients = {profile_name: substra.Client.from_config_file(profile_name) for profile_name in PROFILE_NAMES}
 
-nodes_assets_keys: dict = {profile_name: {} for profile_name in PROFILE_NAMES}
+organizations_assets_keys: dict = {profile_name: {} for profile_name in PROFILE_NAMES}
 
 
 # %%
@@ -162,9 +162,9 @@ nodes_assets_keys: dict = {profile_name: {} for profile_name in PROFILE_NAMES}
 # ^^^^^^^^^^^^
 #
 # We have three data samples :
-# * train data samples on node-1
-# * train data samples on node-2
-# * test data samples on node-2
+# * train data samples on organization-1
+# * train data samples on organization-2
+# * test data samples on organization-2
 #
 #
 # Opener
@@ -178,7 +178,7 @@ nodes_assets_keys: dict = {profile_name: {} for profile_name in PROFILE_NAMES}
 # ^^^^^^^^
 #
 # A dataset links one or multiple data samples to an opener for a training or a testing task.
-# It also specifyes who can access those datasamples. On each node, we will create a dataset linked
+# It also specifyes who can access those datasamples. On each organization, we will create a dataset linked
 # to our opener containing a train datasample and a test datasample (if it exists).
 #
 #
@@ -196,8 +196,8 @@ nodes_assets_keys: dict = {profile_name: {} for profile_name in PROFILE_NAMES}
 # Debug mode specificities
 # ^^^^^^^^^^^^^^^^^^^^^^^^
 #
-# As we said earlier, there is only one node in debug mode. But, we'll see later that our
-# algorithm will save and update a file on each of our nodes at each step of our strategy.
+# As we said earlier, there is only one organization in debug mode. But, we'll see later that our
+# algorithm will save and update a file on each of our organizations at each step of our strategy.
 # Adding a **DEBUG_OWNER** to our dataset metadata specifies to the algorithm working on
 # this dataset that it can only access to the stored information when it works on this dataset.
 # Otherwise the file is shared accross all task, which is not the case when working on a
@@ -219,7 +219,7 @@ dataset = DatasetSpec(
 
 for profile_name in PROFILE_NAMES:
     dataset.metadata = {DEBUG_OWNER: profile_name}
-    dataset.permissions = Permissions(public=False, authorized_ids=NODES_IDS)
+    dataset.permissions = Permissions(public=False, authorized_ids=ORGANIZATIONS_IDS)
     client = clients[profile_name]
 
     dataset_key = client.add_dataset(dataset)
@@ -237,7 +237,7 @@ for profile_name in PROFILE_NAMES:
         data_sample,
         local=True,
     )
-    nodes_assets_keys[profile_name].update(
+    organizations_assets_keys[profile_name].update(
         {
             "train": {
                 "dataset_key": dataset_key,
@@ -246,20 +246,20 @@ for profile_name in PROFILE_NAMES:
         }
     )
 
-    if profile_name == ALGO_NODE_PROFILE:
-        dataset.permissions = Permissions(public=False, authorized_ids=[ALGO_NODE_ID])
+    if profile_name == ALGO_ORGANIZATION_PROFILE:
+        dataset.permissions = Permissions(public=False, authorized_ids=[ALGO_ORGANIZATION_ID])
         dataset_key = client.add_dataset(dataset)
         data_sample = DataSampleSpec(
             data_manager_keys=[dataset_key],
             test_only=True,
-            path=assets_directory / "node_algo" / "test",
+            path=assets_directory / "organization_algo" / "test",
         )
         data_sample_key = client.add_data_sample(
             data_sample,
             local=True,
         )
 
-        nodes_assets_keys[profile_name].update(
+        organizations_assets_keys[profile_name].update(
             {
                 "test": {
                     "dataset_key": dataset_key,
@@ -276,7 +276,7 @@ for profile_name in PROFILE_NAMES:
 # `here <https://doc.substra.ai/concepts.html#metric>`.
 #
 # In our case, we will use multiple metrics : an accuracy and a f1 score.
-# As for the test dataset, we will host the metrics on the algorithm node i.e. node-2.
+# As for the test dataset, we will host the metrics on the algorithm organization i.e. organization-2.
 #
 # The accuracy metrics is implemented `here file <./../assets/accuracy.py>`_ and
 # The f1 `here <./../assets/f1_score.py>`_ .
@@ -324,16 +324,16 @@ accuracy_key = register_metric(
     client,
     assets_directory / "accuracy",
     "accuracy",
-    Permissions(public=False, authorized_ids=[ALGO_NODE_ID]),
+    Permissions(public=False, authorized_ids=[ALGO_ORGANIZATION_ID]),
 )
 f1_score_key = register_metric(
     client,
     assets_directory / "f1_score",
     "f1_score",
-    Permissions(public=False, authorized_ids=[ALGO_NODE_ID]),
+    Permissions(public=False, authorized_ids=[ALGO_ORGANIZATION_ID]),
 )
 
-nodes_assets_keys[ALGO_NODE_PROFILE]["test"].update(
+organizations_assets_keys[ALGO_ORGANIZATION_PROFILE]["test"].update(
     {
         "accuracy": accuracy_key,
         "f1_score": f1_score_key,
@@ -341,7 +341,7 @@ nodes_assets_keys[ALGO_NODE_PROFILE]["test"].update(
 )
 
 with open(assets_keys_path, "w") as f:
-    json.dump(nodes_assets_keys, f, indent=2)
+    json.dump(organizations_assets_keys, f, indent=2)
 
 tqdm.write("Assets keys have been saved to %s" % assets_keys_path.absolute())
 
@@ -359,7 +359,7 @@ tqdm.write("Assets keys have been saved to %s" % assets_keys_path.absolute())
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # Our datasets are unbalanced in both volume and target distribution. To avoid over
-# fitting on either of our nodes dataset's,
+# fitting on either of our organizations dataset's,
 # we'll train our algorithm on little batches (32 samples) at each step.
 #
 # We created our batch thanks to a random draw without re-throw. A batch can be of a smaller
@@ -367,7 +367,7 @@ tqdm.write("Assets keys have been saved to %s" % assets_keys_path.absolute())
 # After each epoch, we re-shuffled the dataset to generate new batches.
 #
 # In substra, you can't store this kind of information in your model. A workaround is to
-# store it on each node.
+# store it on each organization.
 #
 # In the *train* and *predict* method of your Algo class (`here <./../assets/algo/algo.py>`_) you
 # can access the *self.compute_plan_path* argument
@@ -410,12 +410,12 @@ algo = AlgoSpec(
     description=algo_directory / "description.md",
     permissions={
         "public": False,
-        "authorized_ids": list(set(NODES_IDS + [ALGO_NODE_ID])),
+        "authorized_ids": list(set(ORGANIZATIONS_IDS + [ALGO_ORGANIZATION_ID])),
     },
     category=substra.sdk.schemas.AlgoCategory.simple,
 )
 
-algo_key = clients[ALGO_NODE_PROFILE].add_algo(algo)
+algo_key = clients[ALGO_ORGANIZATION_PROFILE].add_algo(algo)
 
 # %%
 # Traintuple, testtuple and compute plan
@@ -434,8 +434,8 @@ algo_key = clients[ALGO_NODE_PROFILE].add_algo(algo)
 #
 # The cyclic strategy is defined here.
 #
-# For each round, we want to train our algorithm on each node, and after each step, test
-# the algorithm (on our test dataset hosted on node-2). This schema is defined thanks to
+# For each round, we want to train our algorithm on each organization, and after each step, test
+# the algorithm (on our test dataset hosted on organization-2). This schema is defined thanks to
 # the **in_models_ids** of each traintuple and the traintuple_id of the testtuples.
 #
 # For the traintuple, if nothing is specified int the **in_models_ids** field, it will be
@@ -459,9 +459,9 @@ metric_keys = [accuracy_key, f1_score_key]
 
 for _ in range(N_ROUNDS):
     # This is where you define training plan for each round
-    # Here it is : train on node 1, test, train on node 2, test
-    for node in PROFILE_NAMES:
-        assets_keys = nodes_assets_keys[node]
+    # Here it is : train on organization 1, test, train on organization 2, test
+    for organization in PROFILE_NAMES:
+        assets_keys = organizations_assets_keys[organization]
         traintuple = ComputePlanTraintupleSpec(
             algo_key=algo_key,
             data_manager_key=assets_keys["train"]["dataset_key"],
@@ -475,8 +475,8 @@ for _ in range(N_ROUNDS):
         testtuple = ComputePlanTesttupleSpec(
             metric_keys=metric_keys,
             traintuple_id=previous_id,
-            test_data_sample_keys=nodes_assets_keys[ALGO_NODE_PROFILE]["test"]["test_data_sample_keys"],
-            data_manager_key=nodes_assets_keys[ALGO_NODE_PROFILE]["test"]["dataset_key"],
+            test_data_sample_keys=organizations_assets_keys[ALGO_ORGANIZATION_PROFILE]["test"]["test_data_sample_keys"],
+            data_manager_key=organizations_assets_keys[ALGO_ORGANIZATION_PROFILE]["test"]["dataset_key"],
         )
 
         testtuples.append(testtuple)
@@ -488,7 +488,7 @@ compute_plan_spec = ComputePlanSpec(
 )
 
 
-compute_plan = clients[ALGO_NODE_PROFILE].add_compute_plan(compute_plan_spec)
+compute_plan = clients[ALGO_ORGANIZATION_PROFILE].add_compute_plan(compute_plan_spec)
 compute_plan_info = compute_plan_spec.dict(exclude_none=False, by_alias=True)
 compute_plan_info.update({"key": compute_plan.key})
 with open(compute_plan_info_path, "w") as f:
@@ -514,7 +514,7 @@ client.get_compute_plan(compute_plan.key)
 # Displaying Scores
 # -----------------
 #
-# When you are connected to a remote connect instance, you can access your node to follow
+# When you are connected to a remote connect instance, you can access your organization to follow
 # the evolution of your compute plan. For example:
 import time
 
@@ -560,61 +560,61 @@ for submitted_testtuple in tqdm(submitted_testtuples):
 #
 #
 # At first sight, we could think that each train dataset must be accessible from
-# his node, and the algorithm's node each train dataset must be accessible from
-# his node, the metric's node and the algorithm's node
+# his organization, and the algorithm's organization each train dataset must be accessible from
+# his organization, the metric's organization and the algorithm's organization
 #
 # But as for traintuples, the permissions inherit from the parent task, each train
-# dataset's node needs access to all the previous train dataset's nodes.
+# dataset's organization needs access to all the previous train dataset's organizations.
 #
 # For the testtuples it is quite different as a test task can't be a parent of an
-# other task. Each dataset node involved in the training of the algorithm must grant
-# access to the nodes's test dataset But the test dataset only need to be accessible
-# by the node of both algorithm and metrics.
+# other task. Each dataset organization involved in the training of the algorithm must grant
+# access to the organizations's test dataset But the test dataset only need to be accessible
+# by the organization of both algorithm and metrics.
 #
 # In other word, it means that when a user puts data into substra platform, they decide
 # which other person can access a model trained on his data.
 #
 #
-# Deploy this example on three nodes
+# Deploy this example on three organizations
 # ----------------------------------
 #
-# First, you need to change the *N_NODES* variable in this file,
+# First, you need to change the *N_ORGANIZATIONS* variable in this file,
 # `genearate_data_samples.py <./generate_data_samples.py>`_ and
 # `algo.py <./../assets/algo/algo.py>`_
 #
-# Then, delete the node_1, node_2 and algo_node folder.
+# Then, delete the organization_1, organization_2 and algo_organization folder.
 #
 # If you are using your own connect platform
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
-# * configure and connect your substra client to the third node
-# * add the profile name and the node id to PROFILE_NAMES and NODES_IDS in this file.
+# * configure and connect your substra client to the third organization
+# * add the profile name and the organization id to PROFILE_NAMES and ORGANIZATIONS_IDS in this file.
 #
 #
 # If you deployed a local connect platform
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # * follow `this tutorial
-# <https://github.com/owkin/tech-team/wiki/Add-a-node-to-a-local-connect-platform>`
-# to add a third node to your k3s cluster.
+# <https://github.com/owkin/tech-team/wiki/Add-a-organization-to-a-local-connect-platform>`
+# to add a third organization to your k3s cluster.
 #
-# * connect to you three nodes thanks to :
-# ``substra config --profile node-3 http://substra-backend.node-3.com``
+# * connect to you three organizations thanks to :
+# ``substra config --profile organization-3 http://substra-backend.org-3.com``
 #
-# ``substra login --profile node-3 --username node-3 --password 'p@sswr0d46'``
+# ``substra login --profile organization-3 --username org-3 --password 'p@sswr0d46'``
 #
-# ``substra config --profile node-2 http://substra-backend.node-2.com``
+# ``substra config --profile organization-2 http://substra-backend.org-2.com``
 #
-# ``substra login --profile node-2 --username node-2 --password 'p@sswr0d45'``
+# ``substra login --profile organization-2 --username org-2 --password 'p@sswr0d45'``
 #
-# ``substra config --profile node-1 http://substra-backend.node-1.com``
+# ``substra config --profile organization-1 http://substra-backend.org-1.com``
 #
-# ``substra login --profile node-1 --username node-1 --password 'p@sswr0d44'``
+# ``substra login --profile organization-1 --username org-1 --password 'p@sswr0d44'``
 #
-# * add `node-3` to `PROFILE_NAMES` and `MyOrg2MSP` to `NODES_IDS` in this file.
+# * add `organization-3` to `PROFILE_NAMES` and `MyOrg2MSP` to `ORGANIZATIONS_IDS` in this file.
 #
 #
-# Running the example for three nodes
+# Running the example for three organizations
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # You can re-run this file, everything should work :)

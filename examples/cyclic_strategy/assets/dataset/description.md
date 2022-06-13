@@ -21,9 +21,9 @@ Were all pixels are integer between 0 and 16 and the target is the number (0 -> 
 
 When running `generate_data_samples.py` we'll split the data into two equals part for the training and the testing phases.
 
-### Split data between nodes
+### Split data between organizations
 
-This example runs from two nodes. Hence we have split the train data into two different folds.
+This example runs from two organizations. Hence we have split the train data into two different folds.
 
 To demonstrate the relevance of Federated learning we have unbalanced the folds both in volume and distribution of the target.
 

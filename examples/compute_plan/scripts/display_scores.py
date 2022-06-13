@@ -21,7 +21,7 @@ import substra
 current_directory = os.path.dirname(__file__)
 compute_plan_info_path = os.path.join(current_directory, "../compute_plan_info.json")
 
-client = substra.Client.from_config_file(profile_name="node-1")
+client = substra.Client.from_config_file(profile_name="organization-1")
 
 with open(compute_plan_info_path, "r") as f:
     compute_plan_info = json.load(f)

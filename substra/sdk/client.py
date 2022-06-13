@@ -274,8 +274,8 @@ class Client(object):
         """Create new dataset asset and return its key.
 
         In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-        the value becomes the node owner of the data, and all tuples using this data
-        have their worker set to this node. This has no impact on how the tuples are
+        the value becomes the organization owner of the data, and all tuples using this data
+        have their worker set to this organization. This has no impact on how the tuples are
         executed except if chainkey support is enabled.
 
         Args:
@@ -577,11 +577,11 @@ class Client(object):
         return self._backend.list(schemas.Type.CompositeTraintuple, filters)
 
     @logit
-    def list_node(self, *args, **kwargs) -> List[models.Node]:
-        """List nodes, the returned object is described
-        in the [models.Node](sdk_models.md#Node) model"""
-        # results are not paginated for nodes
-        return self._backend.list(schemas.Type.Node, paginated=False)
+    def list_organization(self, *args, **kwargs) -> List[models.Organization]:
+        """List organizations, the returned object is described
+        in the [models.Organization](sdk_models.md#Organization) model"""
+        # results are not paginated for organizations
+        return self._backend.list(schemas.Type.Organization, paginated=False)
 
     @logit
     def update_compute_plan(
@@ -776,9 +776,9 @@ class Client(object):
         return self._backend.describe(schemas.Type.Metric, key)
 
     @logit
-    def node_info(self) -> dict:
-        """Get node information."""
-        return self._backend.node_info()
+    def organization_info(self) -> dict:
+        """Get organization information."""
+        return self._backend.organization_info()
 
     @logit
     def cancel_compute_plan(self, key: str) -> None:

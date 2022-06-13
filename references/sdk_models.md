@@ -10,7 +10,7 @@
 - [Algo](#Algo)
 - [ComputePlan](#ComputePlan)
 - [Performances](#Performances)
-- [Node](#Node)
+- [Organization](#Organization)
 - [Permissions](#Permissions)
 - [InModel](#InModel)
 - [OutModel](#OutModel)
@@ -205,8 +205,8 @@ Performances of the different compute tasks of a compute plan
 - performance: List[float]
 ```
 
-## Node
-Node
+## Organization
+Organization
 ```text
 - id: str
 - is_current: bool

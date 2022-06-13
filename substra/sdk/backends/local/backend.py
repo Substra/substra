@@ -240,7 +240,7 @@ class Local(base.BaseBackend):
     def __compute_permissions(permissions, owner=_BACKEND_ID):
         """Compute the permissions
 
-        If the permissions are private, the active node is
+        If the permissions are private, the active organization is
         in the authorized ids.
         """
         if permissions.public:
@@ -533,7 +533,7 @@ class Local(base.BaseBackend):
         tuple_graph, tuples = compute_plan_module.get_dependency_graph(spec)
 
         # If chainkey is supported make sure it exists, else set support to False
-        if self._support_chainkeys and not (self._chainkey_dir / "node_name_id.json").is_file():
+        if self._support_chainkeys and not (self._chainkey_dir / "organization_name_id.json").is_file():
             logger.warning(f"No chainkeys found in {self._chainkey_dir}.")
 
         # Define the rank of each traintuple, aggregate tuple and composite tuple
@@ -897,7 +897,7 @@ class Local(base.BaseBackend):
         else:
             return self._db.get_remote_description(asset_type, key)
 
-    def node_info(self):
+    def organization_info(self):
         return {"type": "local backend"}
 
     def cancel_compute_plan(self, key):

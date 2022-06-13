@@ -26,14 +26,14 @@ Script to generate data to be registered to Substra
 cyclic example
 """
 # number of data samples for the train and test sets
-# 2 training data samples as we are training on 2 nodes
-# 1 testing data sample (on the last node)
+# 2 training data samples as we are training on 2 organizations
+# 1 testing data sample (on the last organization)
 # You can generate as many training data samples as you want by changing the value
 # of N_NOES
-N_NODES = 2
+N_ORGANIZATIONS = 2
 
 
-folds = range(N_NODES)
+folds = range(N_ORGANIZATIONS)
 
 root_path = os.path.dirname(__file__)
 asset_path = os.path.join(root_path, "../assets")
@@ -61,13 +61,13 @@ def load_sklearn_mnnist() -> pd.DataFrame:
     return data
 
 
-def custom_split(data: pd.DataFrame, n_split: int = N_NODES) -> List[pd.DataFrame]:
+def custom_split(data: pd.DataFrame, n_split: int = N_ORGANIZATIONS) -> List[pd.DataFrame]:
     """Splits a dataset into n unbalanced splits both in target
     distribution and size.
 
     Args:
         data (pd.DataFrame): input data (must contains a 'target' column)
-        n_split (int, optional): Number of siplits. Defaults to N_NODES.
+        n_split (int, optional): Number of siplits. Defaults to N_ORGANIZATIONS.
 
     Returns:
         List[pd.DataFrame]: List of dataframe
@@ -77,10 +77,10 @@ def custom_split(data: pd.DataFrame, n_split: int = N_NODES) -> List[pd.DataFram
     repartition = {y: list(rng.dirichlet(np.ones(n_split), size=1)[0]) for y in data.target.unique()}
 
     # generate unbalance train data samples
-    data.loc[:, "node"] = data.target.apply(lambda k: rng.choice(range(n_split), 1, replace=False, p=repartition[k])[0])
+    data.loc[:, "organization"] = data.target.apply(lambda k: rng.choice(range(n_split), 1, replace=False, p=repartition[k])[0])
 
-    data = data.groupby("node")
-    data = [data.get_group(split).drop(columns="node") for split in range(n_split)]
+    data = data.groupby("organization")
+    data = [data.get_group(split).drop(columns="organization") for split in range(n_split)]
 
     return data
 
@@ -90,18 +90,18 @@ def main():
     # Split data into 60% train and 40% test subsets
     train, test = train_test_split(mnist, test_size=0.4, shuffle=True, random_state=42)
 
-    # Split the train set between nodes with:
+    # Split the train set between organizations with:
     #   an unbalanced target repartition
     #   different size
-    trains = custom_split(train, n_split=N_NODES)
+    trains = custom_split(train, n_split=N_ORGANIZATIONS)
 
-    for node, train in enumerate(trains):
-        os.makedirs(os.path.join(asset_path, f"node_{node+1}/train"), exist_ok=True)
-        filename = os.path.join(asset_path, f"node_{node+1}/train/train.csv")
+    for organization, train in enumerate(trains):
+        os.makedirs(os.path.join(asset_path, f"organization_{organization+1}/train"), exist_ok=True)
+        filename = os.path.join(asset_path, f"organization_{organization+1}/train/train.csv")
         train.to_csv(filename)
 
-    os.makedirs(os.path.join(asset_path, "node_algo/test"), exist_ok=True)
-    test.to_csv(os.path.join(asset_path, "node_algo/test/test.csv"))
+    os.makedirs(os.path.join(asset_path, "organization_algo/test"), exist_ok=True)
+    test.to_csv(os.path.join(asset_path, "organization_algo/test/test.csv"))
 
 
 if __name__ == "__main__":

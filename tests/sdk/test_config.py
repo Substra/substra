@@ -47,22 +47,22 @@ def test_add_from_config_file(tmpdir):
 def test_add_from_config_file_from_file(tmpdir):
     path = tmpdir / "substra.cfg"
     conf = {
-        "node-1": {
+        "organization-1": {
             "insecure": False,
-            "url": "http://substra-backend.node-1.com",
+            "url": "http://substra-backend.org-1.com",
         },
     }
 
     path.write_text(json.dumps(conf), "UTF-8")
     manager = configuration.ConfigManager(str(path))
-    profile = manager.get_profile("node-1")
+    profile = manager.get_profile("organization-1")
 
-    assert conf["node-1"] == profile
+    assert conf["organization-1"] == profile
 
 
 def test_add_load_bad_profile_from_file(tmpdir):
     path = tmpdir / "substra.cfg"
-    conf = "node-1"
+    conf = "organization-1"
 
     path.write_text(conf, "UTF-8")
 

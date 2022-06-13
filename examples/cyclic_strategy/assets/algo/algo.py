@@ -8,7 +8,7 @@ from sklearn.linear_model import SGDClassifier
 
 N_UPDATE = 1
 BATCH_SIZE = 32
-N_NODES = 2
+N_ORGANIZATIONS = 2
 N_ROUNDS = 7
 
 
@@ -63,7 +63,7 @@ class Algo(tools.algo.Algo):
     def train(self, X, y, models, rank):
         """Train function of the algorithm.
         To train the algorithm on different batches on each step
-        we generate the list of index for each node (the first time the
+        we generate the list of index for each organization (the first time the
         algorithm is trained on it). We save this list and for each task
         read it from the self.compute_plan_path folder which is a place
         where you can store information locally.
@@ -80,11 +80,11 @@ class Algo(tools.algo.Algo):
 
         compute_plan_path = Path(self.compute_plan_path)
 
-        # Since our strategy is to train our algorithm on each node one after the other,
-        # if the rank is in [0, N_NODES[ it means that this is the first time we are
-        # training the algorithm on this node. Therefore, the batches have not yet been
+        # Since our strategy is to train our algorithm on each organization one after the other,
+        # if the rank is in [0, N_ORGANIZATIONS[ it means that this is the first time we are
+        # training the algorithm on this organization. Therefore, the batches have not yet been
         # generated and saved.
-        if rank in range(N_NODES):
+        if rank in range(N_ORGANIZATIONS):
             batches_loc = generate_batch_indexes(
                 X.index,
                 n_rounds=N_ROUNDS,
@@ -93,7 +93,7 @@ class Algo(tools.algo.Algo):
             )
 
         else:
-            batches_loc = eval((compute_plan_path / "batches_loc_node.txt").read_text())
+            batches_loc = eval((compute_plan_path / "batches_loc_organization.txt").read_text())
 
         # Reuse or instantiate model
         if models:
@@ -110,9 +110,9 @@ class Algo(tools.algo.Algo):
             clf.partial_fit(X, y.values.ravel(), list(range(10)))
 
         # Save the remaining batches indexes
-        (compute_plan_path / "batches_loc_node.txt").write_text(str(batches_loc))
+        (compute_plan_path / "batches_loc_organization.txt").write_text(str(batches_loc))
 
-        # Return the classifier for it to be used on the next node
+        # Return the classifier for it to be used on the next organization
         return clf
 
     def predict(self, X, model):

@@ -411,7 +411,7 @@ LEADERBOARD = {
     "testtuples": [],
 }
 
-NODES = [
+ORGANIZATIONS = [
     {"id": "foo", "is_current": False, "creation_date": "2021-08-24T13:36:07.393646367Z"},
     {"id": "bar", "is_current": True, "creation_date": "2021-08-24T13:36:07.393646367Z"},
 ]
@@ -507,7 +507,7 @@ COMPUTE_PLAN_PERF = {
 
 MODEL = {
     "address": {
-        "storage_address": "http://substra-backend.node-1.com/model/d7d88d74-d42f-43f4-affa-d0cdb99873fc/file/",
+        "storage_address": "http://substra-backend.org-1.com/model/d7d88d74-d42f-43f4-affa-d0cdb99873fc/file/",
         "checksum": "b7881c547f7b80f01200fd2c41546010a15c66e2db46722dbbffa428a0bd0a26",
     },
     "category": "MODEL_SIMPLE",

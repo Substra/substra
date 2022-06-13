@@ -267,7 +267,7 @@ class Remote(base.BaseBackend):
         r = self._client.get_data(url)
         return r.text
 
-    def node_info(self):
+    def organization_info(self):
         response = self._client.get_data(f"{self._client.base_url}/info/")
         return response.json()
 

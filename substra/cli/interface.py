@@ -689,7 +689,7 @@ def add_traintuple(ctx, algo_key, dataset_key, data_samples, in_models_keys, tag
     multiple=True,
     help="In model traintuple key.",
 )
-@click.option("--worker", required=True, help="Node ID for worker execution.")
+@click.option("--worker", required=True, help="Organization ID for worker execution.")
 @click.option("--rank", type=click.INT)
 @click.option("--tag")
 @click_global_conf_with_output_format
@@ -926,7 +926,7 @@ def get(ctx, expand, asset_type, asset_key):
             assets.TRAINTUPLE,
             assets.COMPOSITE_TRAINTUPLE,
             assets.AGGREGATETUPLE,
-            assets.NODE,
+            assets.ORGANIZATION,
         ]
     ),
 )
@@ -1004,19 +1004,19 @@ def describe(ctx, asset_type, asset_key):
 
 @cli.group()
 @click.pass_context
-def node(ctx):
-    """Display node description."""
+def organization(ctx):
+    """Display organization description."""
 
 
-@node.command("info")
+@organization.command("info")
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
-def node_info(ctx):
-    """Display node info."""
+def organization_info(ctx):
+    """Display organization info."""
     client = get_client(ctx.obj)
-    res = client.node_info()
-    printer = printers.NodeInfoPrinter()
+    res = client.organization_info()
+    printer = printers.OrganizationInfoPrinter()
     printer.print(res)
 
 

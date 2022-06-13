@@ -343,8 +343,8 @@ class Performances(_Model):
     performance: List[float] = list()
 
 
-class Node(schemas._PydanticConfig):
-    """Node"""
+class Organization(schemas._PydanticConfig):
+    """Organization"""
 
     id: str
     is_current: bool
@@ -361,6 +361,6 @@ SCHEMA_TO_MODEL = {
     schemas.Type.Metric: Metric,
     schemas.Type.Testtuple: Testtuple,
     schemas.Type.Traintuple: Traintuple,
-    schemas.Type.Node: Node,
+    schemas.Type.Organization: Organization,
     schemas.Type.Model: OutModel,
 }

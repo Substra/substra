@@ -125,11 +125,15 @@ def test_command_list(asset_type, model, format, workdir, mocker):
     assert item.key in output
 
 
-def test_command_list_node(workdir, mocker):
-    mock_client_call(mocker, "list_node", [models.Node(**node) for node in datastore.NODES])
-    output = client_execute(workdir, ["list", "node"])
+def test_command_list_organization(workdir, mocker):
+    mock_client_call(
+        mocker, "list_organization", [models.Organization(**organization) for organization in datastore.ORGANIZATIONS]
+    )
+    output = client_execute(workdir, ["list", "organization"])
     assert output == (
-        "NODE ID                     \n" "foo                         \n" "bar         (current)       \n"
+        "ORGANIZATION ID                     \n"
+        "foo                                 \n"
+        "bar                 (current)       \n"
     )
 
 

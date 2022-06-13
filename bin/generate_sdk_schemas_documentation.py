@@ -41,7 +41,7 @@ models_list = [
     models.Algo,
     models.ComputePlan,
     models.Performances,
-    models.Node,
+    models.Organization,
     models.Permissions,
     models.InModel,
     models.OutModel,
