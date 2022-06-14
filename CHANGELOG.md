@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.25.0](<https://github.com/owkin/substra/releases/tag/0.25.0>) - 2022-06-14
+
 ### Fixed
 
 - cancel_compute_plan should return nothing (#193)
