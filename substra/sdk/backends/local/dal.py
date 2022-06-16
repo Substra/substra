@@ -139,6 +139,13 @@ class DataAccess:
 
         for testtuple in list_testtuple:
             if testtuple.status == models.Status.done:
+
+                # TODO: temporary fix to filter on local dal.
+                # For the permanent fix, the filters should be take into account in
+                # self._db.list() to filter on local assets.
+                if testtuple.compute_plan_key != compute_plan.key:
+                    continue
+
                 for metric_key in testtuple.test.metric_keys:
                     metric = self.get(schemas.Type.Metric, metric_key)
 

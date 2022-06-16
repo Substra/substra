@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- fix: get_performance test tuples filter on local dal (#209)
+
 ## [0.25.0](<https://github.com/owkin/substra/releases/tag/0.25.0>) - 2022-06-14
 
 ### Fixed
@@ -34,11 +38,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changes
 
 - BREAKING CHANGE (rename node to organization) (#204):
-    - SDK: `client.list_node` renamed to `client.list_organization`
-    - SDK: `client.node_info` renamed to `client.organization_info`
-    - CLI: the command `substra node info` is now `substra organization info`
-    - CLI: the command `substra list node` is now `substra list organization`
-    - local mode: when using chainkeys, the chainkey file is renamed from `node_name_id.json` to `organization_name_id.json`
+  - SDK: `client.list_node` renamed to `client.list_organization`
+  - SDK: `client.node_info` renamed to `client.organization_info`
+  - CLI: the command `substra node info` is now `substra organization info`
+  - CLI: the command `substra list node` is now `substra list organization`
+  - local mode: when using chainkeys, the chainkey file is renamed from `node_name_id.json` to `organization_name_id.json`
 
 ## [0.24.0](<https://github.com/owkin/substra/releases/tag/0.24.0>) - 2022-06-07
 
