@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.26.0](<https://github.com/owkin/substra/releases/tag/0.26.0>) - 2022-06-20
+
 ### Fixed
 
 - fix: get_performance test tuples filter on local dal (#209)
