@@ -27,8 +27,7 @@ with open(compute_plan_info_path, "r") as f:
     compute_plan_info = json.load(f)
 
 # fetch all data
-compute_plan_key = compute_plan_info["key"]
-testtuples = client.list_testtuple(filters=[f"testtuple:compute_plan_key:{compute_plan_key}"])
+testtuples = client.list_testtuple(filters={"compute_plan_key": [compute_plan_info["key"]]})
 columns = [
     ["STEP"],
     ["SCORE"],

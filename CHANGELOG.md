@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changes
+
+- BREAKING CHANGE: implement filtering and ordering for list methods in SDK (#187)
+  - Removed filtering syntax `asset::key::value` in SDK and CLI
+  - New filtering syntax in SDK `filters={key:["value1", "value2"]}` and ordering possibility:
+
+      ```diff
+      - list_***(self, filters=None) -> List[substra.sdk.models.***]
+      + list_***(self, filters: dict = None, order_by: str = 'creation_date', ascending: bool = False) -> List[substra.sdk.models.***]
+      ```
+
 ## [0.26.0](<https://github.com/owkin/substra/releases/tag/0.26.0>) - 2022-06-20
 
 ### Fixed

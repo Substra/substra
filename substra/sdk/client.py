@@ -26,6 +26,8 @@ from substra.sdk import config as cfg
 from substra.sdk import exceptions
 from substra.sdk import models
 from substra.sdk import schemas
+from substra.sdk.utils import check_and_format_search_filters
+from substra.sdk.utils import check_search_ordering
 from substra.sdk.utils import is_valid_uuid
 
 logger = logging.getLogger(__name__)
@@ -522,59 +524,299 @@ class Client(object):
         in the [models.Datasample](sdk_models.md#DataSample) model"""
         return self._backend.get(schemas.Type.DataSample, key)
 
-    @logit
-    def list_algo(self, filters=None) -> List[models.Algo]:
-        """List algos, the returned object is described
-        in the [models.Algo](sdk_models.md#Algo) model"""
-        return self._backend.list(schemas.Type.Algo, filters)
+    def _list(
+        self, asset_type, filters: dict = None, order_by: str = None, ascending: bool = False, paginated: bool = True
+    ):
+        filters = check_and_format_search_filters(asset_type, filters)
+        check_search_ordering(order_by)
+        return self._backend.list(asset_type, filters, order_by, ascending)
 
     @logit
-    def list_compute_plan(self, filters=None) -> List[models.ComputePlan]:
-        """List compute plans, the returned object is described
-        in the [models.ComputePlan](sdk_models.md#ComputePlan) model"""
-        return self._backend.list(schemas.Type.ComputePlan, filters)
+    def list_algo(self, filters: dict = None, ascending: bool = False) -> List[models.Algo]:
+        """List algos.
+
+        Args:
+            filters (dict, optional): List of key values pair to filter on. Default None.
+            ascending (bool, optional): Sorts results by oldest creation_date first. Default False (descending order).
+
+        Returns:
+            models.Algo: the returned object is described in the [models.Algo](sdk_models.md#Algo) model
+
+        ``Filters allowed keys:``\n
+            key (List[str]): list algo with given keys.\n
+            name (str): list algo with name partially matching given string. Remote only.\n
+            owner (List[str]): list algo with given owners.\n
+            metadata (dict)
+                {
+                    "key": str # the key of the metadata to filter on
+                    "type": "is", "contains" or "exists" # the type of query that will be used
+                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+                }: list algo matching provided conditions in metadata.\n
+            permissions (List[str]): list algo which can be used by any of the listed nodes. Remote only.
+            compute_plan_key (str): list algo that are in the given compute plan. Remote only.
+            dataset_key (str): list algo linked or using this dataset. Remote only.
+            data_sample_key (List[str]): list algo linked or that used this data sample(s). Remote only."""
+
+        return self._list(schemas.Type.Algo, filters, "creation_date", ascending)
 
     @logit
-    def list_data_sample(self, filters=None) -> List[models.DataSample]:
-        """List data samples, the returned object is described
-        in the [models.DataSample](sdk_models.md#DataSample) model"""
-        return self._backend.list(schemas.Type.DataSample, filters)
+    def list_compute_plan(
+        self, filters: dict = None, order_by: str = "creation_date", ascending: bool = False
+    ) -> List[models.ComputePlan]:
+        """List compute plans.
+
+        Args:
+            filters (dict, optional): List of key values pair to filter on. Default None.
+            order_by (str, optional): Field to sort results by.
+                Possible values: `creation_date`, `start_date`, `end_date`. Default creation_date.
+            ascending (bool, optional): Sorts results on order_by by ascending order. Default False (descending order).
+
+        Returns:
+            models.ComputePlan: the returned object is described
+        in the [models.ComputePlan](sdk_models.md#ComputePlan) model
+
+        ``Filters allowed keys:``\n
+            key (List[str]): list compute plans with listed keys.\n
+            name (str): list compute plans with name partially matching given string. Remote only.\n
+            owner (List[str]): list compute plans with listed owners.\n
+            worker (List[str]): list compute plans which ran on listed workers. Remote only.\n
+            status (str): list compute plans with given status.
+                            Possible values: 'waiting', 'todo', 'doing', 'done', 'canceled', 'failed'\n
+            metadata (dict)
+                {
+                    "key": str # the key of the metadata to filter on
+                    "type": "is", "contains" or "exists" # the type of query that will be used
+                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+                }: list compute plans matching provided conditions in metadata. Remote only.
+            algo_key (str): list compute plans that used the given algo. Remote only.
+            dataset_key (str): list compute plans linked or using this dataset. Remote only.
+            data_sample_key (List[str]): list compute plans linked or that used this data sample(s). Remote only."""
+
+        return self._list(schemas.Type.ComputePlan, filters, order_by, ascending)
 
     @logit
-    def list_dataset(self, filters=None) -> List[models.Dataset]:
-        """List datasets, the returned object is described
-        in the [models.Dataset](sdk_models.md#Dataset) model"""
-        return self._backend.list(schemas.Type.Dataset, filters)
+    def list_data_sample(self, filters: dict = None, ascending: bool = False) -> List[models.DataSample]:
+        """List data samples.
+
+        Args:
+            filters (dict, optional): List of key values pair to filter on. Default None.
+            ascending (bool, optional): Sorts results on order_by by ascending order. Default False (descending order).
+
+        Returns:
+            models.DataSample: the returned object is described
+        in the [models.DataSample](sdk_models.md#DataSample) model
+
+        ``Filters allowed keys:``\n
+            key (List[str]): list data samples with listed keys.\n
+            owner (List[str]): list data samples with listed owners.
+            compute_plan_key (str): list data samples that are in the given compute plan. Remote only.
+            algo_key (str): list data samples that used the given algo. Remote only.
+            dataset_key (str): list data samples linked or using this dataset. Remote only."""
+
+        return self._list(schemas.Type.DataSample, filters, "creation_date", ascending)
 
     @logit
-    def list_metric(self, filters=None) -> List[models.Metric]:
-        """List metrics, the returned object is described
-        in the [models.Metric](sdk_models.md#Metric) model"""
-        return self._backend.list(schemas.Type.Metric, filters)
+    def list_dataset(self, filters: dict = None, ascending: bool = False) -> List[models.Dataset]:
+        """List datasets.
+
+        Args:
+            filters (dict, optional): List of key values pair to filter on. Default None.
+            ascending (bool, optional): Sorts results by oldest creation_date first. Default False (descending order).
+
+        Returns:
+            models.Dataset: the returned object is described
+        in the [models.Dataset](sdk_models.md#Dataset) model
+
+        ``Filters allowed keys:``\n
+            key (List[str]): list dataset with given keys.\n
+            name (str): list dataset with name partially matching given string. Remote only.\n
+            owner (List[str]): list dataset with given owners.\n
+            metadata (dict)
+                {
+                    "key": str # the key of the metadata to filter on
+                    "type": "is", "contains" or "exists" # the type of query that will be used
+                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+                }: list dataset matching provided conditions in metadata.\n
+            permissions (List[str]) : list dataset which can be used by any of the listed nodes. Remote only.
+            compute_plan_key (str): list dataset that are in the given compute plan. Remote only.
+            algo_key (str): list dataset that used the given algo. Remote only.
+            data_sample_key (List[str]): list dataset linked or that used this data sample(s). Remote only."""
+
+        return self._list(schemas.Type.Dataset, filters, "creation_date", ascending)
 
     @logit
-    def list_testtuple(self, filters=None) -> List[models.Testtuple]:
-        """List testtuples, the returned object is described
-        in the [models.Testtuple](sdk_models.md#Testtuple) model"""
-        return self._backend.list(schemas.Type.Testtuple, filters)
+    def list_metric(self, filters: dict = None, ascending: bool = False) -> List[models.Metric]:
+        """List metrics.
+
+        Args:
+            filters (dict, optional): List of key values pair to filter on. Default None.
+            ascending (bool, optional): Sorts results by oldest creation_date first. Default False (descending order).
+
+        Returns:
+            models.Metric: the returned object is described
+        in the [models.Metric](sdk_models.md#Metric) model
+
+        ``Filters allowed keys:``\n
+            key (List[str]): list metrics with given keys.\n
+            name (str): list metrics with name partially matching given string. Remote only.\n
+            owner (List[str]): list metrics with given owners.\n
+            metadata (dict)
+                {
+                    "key": str # the key of the metadata to filter on
+                    "type": "is", "contains" or "exists" # the type of query that will be used
+                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+                }: list metrics matching provided conditions in metadata.\n
+            permissions (List[str]) : list metrics which can be used by any of the listed nodes. Remote only.
+            compute_plan_key (str): list metrics that are in the given compute plan. Remote only.
+            dataset_key (str): list metrics linked or using this dataset. Remote only.
+            data_sample_key (List[str]): list metrics linked or that used this data sample(s). Remote only."""
+
+        return self._list(schemas.Type.Metric, filters, "creation_date", ascending)
 
     @logit
-    def list_traintuple(self, filters=None) -> List[models.Traintuple]:
-        """List traintuples, the returned object is described
-        in the [models.Traintuple](sdk_models.md#Traintuple) model"""
-        return self._backend.list(schemas.Type.Traintuple, filters)
+    def list_testtuple(
+        self, filters: dict = None, order_by: str = "creation_date", ascending: bool = False
+    ) -> List[models.Testtuple]:
+        """List testtuples.
+
+        Args:
+            filters (dict, optional): List of key values pair to filter on. Default None.
+            order_by (str, optional): Field to sort results by.
+                Possible values: `creation_date`, `start_date`, `end_date`. Default creation_date.
+            ascending (bool, optional): Sorts results on order_by by ascending order. Default False (descending order).
+
+        Returns:
+            models.Testtuple: the returned object is described
+        in the [models.Testtuple](sdk_models.md#Testtuple) model
+
+        ``Filters allowed keys:``\n
+            key (List[str]): list testtuples with listed keys.\n
+            owner (List[str]): list testtuples with listed owners.\n
+            worker (List[str]): list testtuples which ran on listed workers. Remote only.\n
+            rank (List[int]): list testtuples which are at given ranks.\n
+            status (str): list testtuples with given status.
+                            Possible values: 'waiting', 'todo', 'doing', 'done', 'canceled', 'failed'\n
+            metadata (dict)
+                {
+                    "key": str # the key of the metadata to filter on
+                    "type": "is", "contains" or "exists" # the type of query that will be used
+                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+                }: list testtuples matching provided conditions in metadata. Remote only.
+            compute_plan_key (str): list testtuples that are in the given compute plan. Remote only.
+            algo_key (str): list testtuples that used the given algo. Remote only.
+            dataset_key (str): list testtuples linked or using this dataset. Remote only.
+            data_sample_key (List[str]): list testtuples linked or that used this data sample(s). Remote only."""
+
+        return self._list(schemas.Type.Testtuple, filters, order_by, ascending)
 
     @logit
-    def list_aggregatetuple(self, filters=None) -> List[models.Aggregatetuple]:
-        """List aggregatetuples, the returned object is described
-        in the [models.Aggregatetuple](sdk_models.md#Aggregatetuple) model"""
-        return self._backend.list(schemas.Type.Aggregatetuple, filters)
+    def list_traintuple(
+        self, filters: dict = None, order_by: str = "creation_date", ascending: bool = False
+    ) -> List[models.Traintuple]:
+        """List traintuples.
+
+        Args:
+            filters (dict, optional): List of key values pair to filter on. Default None.
+            order_by (str, optional): Field to sort results by.
+                Possible values: `creation_date`, `start_date`, `end_date`. Default creation_date.
+            ascending (bool, optional): Sorts results on order_by by ascending order. Default False (descending order).
+
+        Returns:
+            models.Traintuple: the returned object is described
+        in the [models.Traintuple](sdk_models.md#Traintuple) model
+
+        ``Filters allowed keys:``\n
+            key (List[str]): list traintuples with listed keys.\n
+            owner (List[str]): list traintuples with listed owners.\n
+            worker (List[str]): list traintuples which ran on listed workers. Remote only.\n
+            rank (List[int]): list traintuples which are at given ranks.\n
+            status (str): list traintuples with given status.
+                            Possible values: 'waiting', 'todo', 'doing', 'done', 'canceled', 'failed'\n
+            metadata (dict)
+                {
+                    "key": str # the key of the metadata to filter on
+                    "type": "is", "contains" or "exists" # the type of query that will be used
+                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+                }: list traintuples matching provided conditions in metadata. Remote only.
+            compute_plan_key (str): list traintuples that are in the given compute plan. Remote only.
+            algo_key (str): list traintuples that used the given algo. Remote only.
+            dataset_key (str): list traintuples linked or using this dataset. Remote only.
+            data_sample_key (List[str]): list traintuples linked or that used this data sample(s). Remote only."""
+
+        return self._list(schemas.Type.Traintuple, filters, order_by, ascending)
 
     @logit
-    def list_composite_traintuple(self, filters=None) -> List[models.CompositeTraintuple]:
-        """List composite traintuples, the returned object is described
-        in the [models.CompositeTraintuple](sdk_models.md#CompositeTraintuple) model"""
-        return self._backend.list(schemas.Type.CompositeTraintuple, filters)
+    def list_aggregatetuple(
+        self, filters: dict = None, order_by: str = "creation_date", ascending: bool = False
+    ) -> List[models.Aggregatetuple]:
+        """List aggregatetuples.
+
+        Args:
+            filters (dict, optional): List of key values pair to filter on. Default None.
+            order_by (str, optional): Field to sort results by.
+                Possible values: `creation_date`, `start_date`, `end_date`. Default creation_date.
+            ascending (bool, optional): Sorts results on order_by by ascending order. Default False (descending order).
+
+        Returns:
+            models.Aggregatetuple: the returned object is described
+        in the [models.Aggregatetuple](sdk_models.md#Aggregatetuple) model
+
+        ``Filters allowed keys:``\n
+            key (List[str]): list aggregatetuples with listed keys.\n
+            owner (List[str]): list aggregatetuples with listed owners.\n
+            worker (List[str]): list aggregatetuples which ran on listed workers. Remote only.\n
+            rank (List[int]): list aggregatetuples which are at given ranks.\n
+            status (str): list aggregatetuples with given status.
+                            Possible values: 'waiting', 'todo', 'doing', 'done', 'canceled', 'failed'\n
+            metadata (dict)
+                {
+                    "key": str # the key of the metadata to filter on
+                    "type": "is", "contains" or "exists" # the type of query that will be used
+                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+                }: list aggregatetuples matching provided conditions in metadata. Remote only.
+            compute_plan_key (str): list aggregatetuples that are in the given compute plan. Remote only.
+            algo_key (str): list aggregatetuples that used the given algo. Remote only.
+            dataset_key (str): list aggregatetuples linked or using this dataset. Remote only.
+            data_sample_key (List[str]): list aggregatetuples linked or that used this data sample(s). Remote only."""
+
+        return self._list(schemas.Type.Aggregatetuple, filters, order_by, ascending)
+
+    @logit
+    def list_composite_traintuple(
+        self, filters: dict = None, order_by: str = "creation_date", ascending: bool = False
+    ) -> List[models.CompositeTraintuple]:
+        """List composite traintuples.
+
+        Args:
+            filters (dict, optional): List of key values pair to filter on. Default None.
+            order_by (str, optional): Field to sort results by.
+                Possible values: `creation_date`, `start_date`, `end_date`. Default creation_date.
+            ascending (bool, optional): Sorts results on order_by by ascending order. Default False (descending order).
+
+        Returns:
+            models.CompositeTraintuple: the returned object is described
+        in the [models.CompositeTraintuple](sdk_models.md#CompositeTraintuple) model.
+
+        ``Filters allowed keys:``\n
+            key (List[str]): list composite traintuples with listed keys.\n
+            owner (List[str]): list composite traintuples with listed owners.\n
+            worker (List[str]): list composite traintuples which ran on listed workers. Remote only.\n
+            rank (List[int]): list composite traintuples which are at given ranks.\n
+            status (str): list composite traintuples with given status.
+                            Possible values: 'waiting', 'todo', 'doing', 'done', 'canceled', 'failed'\n
+            metadata (dict)
+                {
+                    "key": str # the key of the metadata to filter on
+                    "type": "is", "contains" or "exists" # the type of query that will be used
+                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+                }: list composite traintuples matching provided conditions in metadata. Remote only.
+            compute_plan_key (str): list composite traintuples that are in the given compute plan. Remote only.
+            algo_key (str): list composite traintuples that used the given algo. Remote only.
+            dataset_key (str): list composite traintuples linked or using this dataset. Remote only.
+            data_sample_key (List[str]): list composite traintuples linked or that used this data sample(s).
+                Remote only."""
+
+        return self._list(schemas.Type.CompositeTraintuple, filters, order_by, ascending)
 
     @logit
     def list_organization(self, *args, **kwargs) -> List[models.Organization]:

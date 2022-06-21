@@ -518,7 +518,7 @@ client.get_compute_plan(compute_plan.key)
 # the evolution of your compute plan. For example:
 import time
 
-submitted_testtuples = client.list_testtuple(filters=[f'testtuple:compute_plan_key:{compute_plan_info["key"]}'])
+submitted_testtuples = client.list_testtuple(filters={"compute_plan_key": [compute_plan_info["key"]]})
 
 submitted_testtuples = sorted(submitted_testtuples, key=lambda x: x.rank)
 

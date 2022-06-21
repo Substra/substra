@@ -376,7 +376,7 @@ class AssetsFactory:
 
     def create_algo(
         self,
-        category,
+        category=AlgoCategory.simple,
         py_script=None,
         permissions=None,
         metadata=None,

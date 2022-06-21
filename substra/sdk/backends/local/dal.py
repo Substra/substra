@@ -133,18 +133,17 @@ class DataAccess:
         easily convertible to dict, filled by the performances data of done testtuples.
         """
         compute_plan = self.get(schemas.Type.ComputePlan, key)
-        list_testtuple = self.list(schemas.Type.Testtuple, filters=[f"testtuple:compute_plan_key:{key}"])
+        list_testtuple = self.list(
+            schemas.Type.Testtuple,
+            filters={"compute_plan_key": [key]},
+            order_by="rank",
+            ascending=True,
+        )
 
         performances = models.Performances()
 
         for testtuple in list_testtuple:
             if testtuple.status == models.Status.done:
-
-                # TODO: temporary fix to filter on local dal.
-                # For the permanent fix, the filters should be take into account in
-                # self._db.list() to filter on local assets.
-                if testtuple.compute_plan_key != compute_plan.key:
-                    continue
 
                 for metric_key in testtuple.test.metric_keys:
                     metric = self.get(schemas.Type.Metric, metric_key)
@@ -165,14 +164,20 @@ class DataAccess:
 
         return performances
 
-    def list(self, type_, filters=None):
-        """List assets."""
-        local_assets = self._db.list(type_)
+    def list(
+        self, type_: str, filters: typing.Dict[str, typing.List[str]], order_by: str = None, ascending: bool = False
+    ):
+        """Joins the results of the [local db](substra.sdk.backends.local.db.list) and the
+        [remote db](substra.sdk.backends.rest_client.list) in hybrid mode.
+        """
+        local_assets = self._db.list(type_=type_, filters=filters, order_by=order_by, ascending=ascending)
 
         remote_assets = list()
         if self._remote:
             try:
-                remote_assets = self._remote.list(type_, filters)
+                remote_assets = self._remote.list(
+                    asset_type=type_, filters=filters, order_by=order_by, ascending=ascending
+                )
             except Exception as e:
                 logger.info(
                     f"Could not list assets from the remote platform:\n{e}. \

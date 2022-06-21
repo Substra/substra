@@ -938,14 +938,6 @@ def get(ctx, expand, asset_type, asset_key):
     multiple=True,
 )
 @click.option(
-    "--and",
-    "filters_logical_clause",
-    help="Combine filters using logical ANDs",
-    flag_value="and",
-    default=True,
-)
-@click.option("--or", "filters_logical_clause", help="Combine filters using logical ORs", flag_value="or")
-@click.option(
     "--advanced-filters",
     callback=validate_json,
     help="Filter results using a complex search (must be a JSON array of valid filters). "
@@ -954,7 +946,7 @@ def get(ctx, expand, asset_type, asset_key):
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
-def list_(ctx, asset_type, filters, filters_logical_clause, advanced_filters):
+def list_(ctx, asset_type, filters, advanced_filters):
     """List assets."""
     client = get_client(ctx.obj)
     # method must exist in sdk
@@ -964,11 +956,6 @@ def list_(ctx, asset_type, filters, filters_logical_clause, advanced_filters):
         raise click.UsageError("The --filter and --advanced-filters options are mutually exclusive")
     elif filters:
         filters = list(filters)
-        if filters_logical_clause == "or":
-            # insert 'OR' between each filter
-            n = len(filters)
-            for i in range(n - 1):
-                filters.insert(i + 1, "OR")
     elif advanced_filters:
         filters = advanced_filters
     res = method(filters)

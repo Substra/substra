@@ -14,12 +14,16 @@
 import json
 import logging
 import time
+from typing import Dict
+from typing import List
+from typing import Union
 
 import requests
 
 from substra.sdk import exceptions
 from substra.sdk import schemas
 from substra.sdk import utils
+from substra.sdk.backends.remote import request_formatter
 
 logger = logging.getLogger(__name__)
 
@@ -161,14 +165,41 @@ class Client:
             elaps = (te - ts) * 1000
             logger.debug(f"{request_name} {url}: done in {elaps:.2f}ms error={error}")
 
-    def request(self, request_name, asset_type, path=None, json_response=True, paginated=False, **request_kwargs):
-        """Base request."""
+    def request(
+        self,
+        request_name: str,
+        asset_type: str,
+        path: str = None,
+        json_response: bool = True,
+        paginated: bool = False,
+        **request_kwargs,
+    ):
+        """
+        Base request
+
+        Args:
+            request_name (str): http rest method invoked. e.g. "get" or "post"
+            asset_type (str): asset type. e.g. "algo"
+            path (str, optional): additional route e.g. "cp_key/perf" in /compute_plan/cp_key/perf. Defaults to None.
+            json_response (bool, optional): whether the expected response is formatted in json. Defaults to True.
+            paginated (bool, optional): whether the response would be paginated or not. Defaults to False.
+            request_kwargs (dict): the args. The arg ["params"] is a dict with keys = attributes, values = list of
+                values for this attribute. e.g. {name:[name1, name2]}
+
+        Raises:
+            exceptions.InvalidResponse:
+
+        Returns:
+            Union[requests.Response, dict, List] : the assets. Type: requests.Response if json_response is False, a dict
+                if paginated is False, a List otherwise.
+        """
 
         path = path or ""
         url = f"{self._base_url}/{asset_type}/{path}"
         if not url.endswith("/"):
             url = url + "/"  # server requires a suffix /
 
+        # first request
         response = self._request(
             request_name,
             url,
@@ -208,19 +239,42 @@ class Client:
 
     def list(
         self,
-        name,
-        filters=None,
-        paginated=True,
-        path=None,
-    ):
-        """List assets by filters."""
-        request_kwargs = {}
+        asset_type: str,
+        filters: Dict[str, Union[List[str], str, dict]] = None,
+        order_by: str = None,
+        ascending: bool = False,
+        paginated: bool = True,
+        path: str = None,
+    ) -> List[Dict]:
+        """List assets by filters.
+
+        Args:
+            asset_type (str): asset type. e.g. "algo"
+            filters (dict, optional): keys = attributes, values = value(s) for this attribute
+                (depends on the attribute, cf [sdk reference](references/sdk.md)).
+                e.g. {"key": ["key1", "key2"]}. "," corresponds to an "OR". Defaults to None.
+                                "," corresponds to an "OR".
+            order_by (str, optional): attribute name to order the results on. Defaults to None.
+                e.g. "name" for an ordering on name.
+            ascending (bool, optional): to reverse ordering. Defaults to False (descending order).
+            paginated (bool, optional): whether the response would be paginated or not. Defaults to True.
+            path (str, optional): additional route e.g. "cp_key/perf" in /compute_plan/cp_key/perf. Defaults to None.
+
+        Returns:
+            List[Dict] : a List of assets (dicts)
+        """
+
+        request_kwargs = {"params": {}}
         if filters:
-            request_kwargs["params"] = utils.parse_filters(filters)
+            request_kwargs["params"] = request_formatter.format_search_filters_for_remote(filters)
+        if order_by:
+            request_kwargs["params"]["ordering"] = request_formatter.format_search_ordering_for_remote(
+                order_by, ascending
+            )
 
         items = self.request(
             "get",
-            name,
+            asset_type,
             path=path,
             paginated=paginated,
             **request_kwargs,

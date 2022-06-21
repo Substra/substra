@@ -520,8 +520,6 @@ Options:
   -f, --filter TEXT               Only display assets that exactly match this
                                   filter. Valid syntax is:
                                   <asset>:<property>:<value>
-  --and                           Combine filters using logical ANDs
-  --or                            Combine filters using logical ORs
   --advanced-filters TEXT         Filter results using a complex search (must
                                   be a JSON array of valid filters).
                                   Incompatible with the --filter option

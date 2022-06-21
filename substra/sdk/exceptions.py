@@ -181,6 +181,24 @@ class ComputePlanKeyFormatError(Exception):
     pass
 
 
+class OrderingFormatError(Exception):
+    """The given ordering parameter has to respect expected format."""
+
+    pass
+
+
+class FilterFormatError(Exception):
+    """The given filters has to respect expected format."""
+
+    pass
+
+
+class NotAllowedFilterError(Exception):
+    """The given filter is not available on asset."""
+
+    pass
+
+
 class KeyAlreadyExistsError(Exception):
     """The asset key has already been used."""
 

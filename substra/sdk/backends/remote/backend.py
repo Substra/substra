@@ -16,6 +16,9 @@ import json
 import logging
 import math
 from copy import deepcopy
+from typing import Dict
+from typing import List
+from typing import Union
 
 from substra.sdk import compute_plan
 from substra.sdk import exceptions
@@ -84,9 +87,29 @@ class Remote(base.BaseBackend):
 
         return performances
 
-    def list(self, asset_type, filters=None, paginated=True):
-        """List assets per asset type."""
-        assets = self._client.list(asset_type.to_server(), filters, paginated)
+    def list(
+        self,
+        asset_type: schemas.Type,
+        filters: Dict[str, Union[List[str], str, dict]] = None,
+        order_by: str = None,
+        ascending: bool = False,
+        paginated: bool = True,
+    ) -> List[models._Model]:
+        """List assets of asset_type with filters.
+
+        Args:
+            cf [rest_client](substra.sdk.backends.rest_client.list)
+
+        Returns:
+            List[models._Model] : a List of assets
+        """
+        assets = self._client.list(
+            asset_type=asset_type.to_server(),
+            filters=filters,
+            order_by=order_by,
+            ascending=ascending,
+            paginated=paginated,
+        )
         return [models.SCHEMA_TO_MODEL[asset_type](**asset) for asset in assets]
 
     def _add(self, asset, data, files=None):

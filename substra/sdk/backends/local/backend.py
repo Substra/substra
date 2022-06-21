@@ -22,7 +22,6 @@ from typing import Dict
 from typing import List
 from typing import NoReturn
 from typing import Optional
-from typing import Tuple
 
 from tqdm.auto import tqdm
 
@@ -132,94 +131,25 @@ class Local(base.BaseBackend):
 
         raise exceptions.NotFound(f"Wrong pk {key}", 404)
 
-    def _filter_match_split(
-        self, db_assets: List[models._Model], match_filters: List[str]
-    ) -> Tuple[List[models._Model], List[models._Model]]:
-        """Return assets matching all filters (AND group), and the remaining ones"""
-        matching_assets = []
-        remaining_assets = []
-        for asset in db_assets:
-            # the filters use the 'response' (ie camel case) format
-            if all([str(getattr(asset, key)) == value for key, value in match_filters.items()]):
-                matching_assets.append(asset)
-            else:
-                remaining_assets.append(asset)
-        return matching_assets, remaining_assets
-
-    def _filter_assets(self, db_assets: List[models._Model], filters: List[str]) -> List[models._Model]:
-        """Filter the assets
-        C.f. the list function for doc
-        """
-        if filters is None or len(filters) == 0:
-            return db_assets
-
-        remaining_assets = db_assets
-        parsed_filters = dict()
-        result = list()
-
-        for filter_ in filters:
-            if filter_ == "OR":
-                if not parsed_filters:
-                    raise ValueError("Couldn't parse filters before OR statement")
-                # filter the remaining (non-matched) assets with the previous "AND group" of parsed filters
-                matching_assets, remaining_assets = self._filter_match_split(remaining_assets, parsed_filters)
-                result.extend(matching_assets)
-                # reset the filters
-                parsed_filters = dict()
-            elif filter_ == "AND":
-                if not parsed_filters:
-                    raise ValueError("Couldn't parse filter before AND statement")
-                # continue parsing filters
-            else:
-                splitted = filter_.split(":")
-                if len(splitted) < 3:
-                    raise ValueError(
-                        f"Wrong filter format, found {filter_}, must be 'asset_type:field_name:field_value'/'OR'/'AND'"
-                    )
-                field_name = splitted[1]
-                field_value = "".join(splitted[2:])
-                if field_name in parsed_filters:
-                    raise ValueError(f"filter '{filter_}': can't apply filter on the same field twice in a 'AND group'")
-                parsed_filters[field_name] = field_value
-
-        assert parsed_filters, "Can't parse filters"
-        # filter the remaining (non-matched) assets with the last (or only) "AND group" of parsed filters
-        matching_assets, _ = self._filter_match_split(remaining_assets, parsed_filters)
-        result.extend(matching_assets)
-        return result
-
-    def list(self, asset_type: schemas.Type, filters: List[str] = None, paginated: bool = True) -> List[models._Model]:
+    def list(
+        self,
+        asset_type: schemas.Type,
+        filters: Dict[str, List[str]] = None,
+        order_by: str = None,
+        ascending: bool = False,
+        paginated: bool = True,
+    ) -> List[models._Model]:
         """List the assets
 
-        This is a simplified version of the backend 'list' function
-
-        The format of the filters is 'asset_type:field_name:field_value'
-        the function returns the assets whose fields equal those values.
-        It also support 'AND' and 'OR' statement as a list item between 2 filters.
-        AND filter are prioritized : filter AND filter OR filter === (filter AND filter) OR filter
-        Example of filters:
-        ["traintuple:compute_plan_key:abc"]
-        ["testtuple:compute_plan_key:abc", "AND", "testtuple:data_manager_key:42", "OR",
-         "testtuple:compute_plan_key:abc"]
-
         Args:
-            asset_type (schemas.Type): Type of asset to return
-            filters (str, optional): Filter the list of results. Defaults to None.
-            paginated (bool): True if server response is expected to be paginated.
+            paginated (bool, optional): True if server response is expected to be paginated.
                 Ignored for local backend (responses are never paginated)
+            others: cf [dal](substra.sdk.backends.local.dal.list)
 
         Returns:
             List[models._Model]: List of results
         """
-        db_assets = self._db.list(asset_type, filters)
-
-        # Some filters in self._db.list() (substra/sdk/backends/local/dal.list) are not working, so we have to apply the
-        # filters after.
-        # TODO: once remote filters (substra/sdk/backends/remote/backend.list) are fixed, move the _filter_assets
-        # function to substra/sdk/backends/local/db.InMemoryDb.list
-        result = self._filter_assets(db_assets, filters)
-
-        return result
+        return self._db.list(type_=asset_type, filters=filters, order_by=order_by, ascending=ascending)
 
     @staticmethod
     def _check_metadata(metadata: Optional[Dict[str, str]]):
@@ -360,8 +290,7 @@ class Local(base.BaseBackend):
     def __check_data_samples(self, data_manager_key: str, data_sample_keys: List[str], allow_test_only: bool):
         """Get all the data samples from the db once and run sanity checks on them"""
 
-        filters = " OR ".join([f"datasample:key:{data_sample_key}" for data_sample_key in data_sample_keys]).split(" ")
-        data_samples = self.list(schemas.Type.DataSample, filters=filters)
+        data_samples = self.list(schemas.Type.DataSample, filters={"key": data_sample_keys})
 
         # Check that we've got all the data_samples
         if len(data_samples) != len(data_sample_keys):
@@ -912,17 +841,18 @@ class Local(base.BaseBackend):
         tuple_graph, tuples = compute_plan_module.get_dependency_graph(spec)
 
         # Get the rank of all the tuples already in the compute plan
+        filters = {"compute_plan_key": [key]}
         cp_traintuples = self.list(
             asset_type=schemas.Type.Traintuple,
-            filters=[f"traintuple:compute_plan_key:{key}"],
+            filters=filters,
         )
         cp_aggregatetuples = self.list(
             asset_type=schemas.Type.Aggregatetuple,
-            filters=[f"aggregatetuple:compute_plan_key:{key}"],
+            filters=filters,
         )
         cp_composite_traintuples = self.list(
             asset_type=schemas.Type.CompositeTraintuple,
-            filters=[f"composite_traintuple:compute_plan_key:{key}"],
+            filters=filters,
         )
         visited = dict()
         for tuple_ in cp_traintuples + cp_aggregatetuples + cp_composite_traintuples:

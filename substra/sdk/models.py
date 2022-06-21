@@ -82,6 +82,23 @@ class TaskErrorType(str, enum.Enum):
     internal = "INTERNAL_ERROR"
 
 
+class OrderingFields(str, enum.Enum):
+    """Model fields ordering is allowed on for list"""
+
+    creation_date = "creation_date"
+    start_date = "start_date"
+    end_date = "end_date"
+
+    @classmethod
+    def __contains__(cls, item):
+        try:
+            cls(item)
+        except ValueError:
+            return False
+        else:
+            return True
+
+
 class Permission(schemas._PydanticConfig):
     """Permissions of a task"""
 
@@ -105,6 +122,11 @@ class _Model(schemas._PydanticConfig, abc.ABC):
     def __repr__(self):
         return self.json(indent=4)
 
+    @staticmethod
+    def allowed_filters() -> List[str]:
+        """allowed fields to filter on"""
+        return list()
+
 
 class DataSample(_Model):
     """Data sample"""
@@ -118,6 +140,10 @@ class DataSample(_Model):
     test_only: bool = False
 
     type_: ClassVar[str] = schemas.Type.DataSample
+
+    @staticmethod
+    def allowed_filters() -> List[str]:
+        return ["key", "owner", "compute_plan_key", "algo_key", "dataset_key", "test_only"]
 
 
 class _File(schemas._PydanticConfig):
@@ -145,6 +171,10 @@ class Dataset(_Model):
 
     type_: ClassVar[str] = schemas.Type.Dataset
 
+    @staticmethod
+    def allowed_filters() -> List[str]:
+        return ["key", "name", "owner", "permissions", "compute_plan_key", "algo_key", "data_sample_key"]
+
 
 class Algo(_Model):
     key: str
@@ -159,6 +189,10 @@ class Algo(_Model):
     algorithm: _File
 
     type_: ClassVar[str] = schemas.Type.Algo
+
+    @staticmethod
+    def allowed_filters() -> List[str]:
+        return ["key", "name", "owner", "metadata", "permissions", "compute_plan_key", "dataset_key", "data_sample_key"]
 
 
 class Metric(Algo):
@@ -197,7 +231,7 @@ class _GenericTraintuple(_Model):
     owner: str
     compute_plan_key: str
     metadata: Dict[str, str]
-    status: str
+    status: Status
     worker: str
     rank: Optional[int]
     parent_task_keys: List[str]
@@ -207,6 +241,21 @@ class _GenericTraintuple(_Model):
     start_date: Optional[datetime]
     end_date: Optional[datetime]
     error_type: Optional[TaskErrorType] = None
+
+    @staticmethod
+    def allowed_filters() -> List[str]:
+        return [
+            "key",
+            "owner",
+            "worker",
+            "rank",
+            "status",
+            "metadata",
+            "compute_plan_key",
+            "algo_key",
+            "dataset_key",
+            "data_sample_key",
+        ]
 
 
 def check_data_manager_key(cls, values):
@@ -324,6 +373,10 @@ class ComputePlan(_Model):
     duration: Optional[int]
 
     type_: ClassVar[str] = schemas.Type.ComputePlan
+
+    @staticmethod
+    def allowed_filters() -> List[str]:
+        return ["key", "name", "owner", "worker", "status", "metadata", "algo_key", "dataset_key", "data_sample_key"]
 
 
 class Performances(_Model):

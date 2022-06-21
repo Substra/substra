@@ -17,6 +17,8 @@ import zipfile
 
 import pytest
 
+from substra.sdk import exceptions
+from substra.sdk import schemas
 from substra.sdk import utils
 
 
@@ -60,41 +62,63 @@ def test_zip_folder(tmp_path):
 
 
 @pytest.mark.parametrize(
-    "raw, parsed",
+    "filters,expected,exception",
     [
-        (["foo"], ["foo"]),
-        (["foo", "bar"], ["foo,bar"]),
-        (["foo", "-OR-", "bar"], ["foo", "-OR-", "bar"]),
-        (["foo", "bar", "-OR-", "baz"], ["foo,bar", "-OR-", "baz"]),
-        (["foo", "bar", "-OR-", "baz", "qux"], ["foo,bar", "-OR-", "baz,qux"]),
-        (["foo", "-OR-", "bar", "baz", "qux"], ["foo", "-OR-", "bar,baz,qux"]),
-        (["foo", "-OR-", "bar", "-OR-", "baz"], ["foo", "-OR-", "bar", "-OR-", "baz"]),
+        ({"metadata": "str"}, None, exceptions.FilterFormatError),
+        ({"metadata": {}}, None, exceptions.FilterFormatError),
         (
-            ["foo", "bar", "-OR-", "baz", "qux", "-OR-", "quux", "corge"],
-            ["foo,bar", "-OR-", "baz,qux", "-OR-", "quux,corge"],
+            {"metadata": {"key": "foo", "type": "bar", "value": "baz"}},
+            None,
+            exceptions.FilterFormatError,
         ),
+        ({"metadata": {"key": "foo", "type": "is", "value": "baz"}}, None, None),
     ],
 )
-def test_join_and_groups(raw, parsed):
-    assert utils._join_and_groups(raw) == parsed
+def test_check_metadata_search_filter(filters, expected, exception):
+    if exception:
+        with pytest.raises(exception):
+            utils._check_metadata_search_filter(filters, "metadata")
+    else:
+        assert utils._check_metadata_search_filter(filters, "metadata") == expected
 
 
 @pytest.mark.parametrize(
-    "raw,parsed,exception",
+    "asset_type,filters,expected,exception",
     [
-        (["foo", "OR", "bar"], "search=foo-OR-bar", None),
-        (["foo:bar:baz"], "search=foo%3Abar%3Abaz", None),
-        (["foo:bar:baz qux"], "search=foo%3Abar%3Abaz%252520qux", None),
-        (["foo:bar:baz:qux"], "search=foo%3Abar%3Abaz%25253Aqux", None),
-        (["foo", "bar"], "search=foo%2Cbar", None),
-        (None, None, ValueError),
-        ("foo", None, ValueError),
-        ({}, None, ValueError),
+        (schemas.Type.ComputePlan, {"status": "doing"}, {"status": "PLAN_STATUS_DOING"}, None),
+        (schemas.Type.Traintuple, {"status": "done"}, {"status": "STATUS_DONE"}, None),
+        (schemas.Type.Traintuple, {"rank": [1]}, {"rank": ["1"]}, None),
+        (schemas.Type.DataSample, ["wrong filter type"], None, exceptions.FilterFormatError),
+        (schemas.Type.ComputePlan, {"name": ["list"]}, None, exceptions.FilterFormatError),
+        (schemas.Type.Traintuple, {"foo": "not allowed key"}, None, exceptions.NotAllowedFilterError),
+        (
+            schemas.Type.ComputePlan,
+            {"name": "cp1", "key": ["key1", "key2"]},
+            {"name": "cp1", "key": ["key1", "key2"]},
+            None,
+        ),
     ],
 )
-def test_parse_filters(raw, parsed, exception):
+def test_check_and_format_search_filters(asset_type, filters, expected, exception):
     if exception:
         with pytest.raises(exception):
-            utils.parse_filters(raw)
+            utils.check_and_format_search_filters(asset_type, filters)
     else:
-        assert utils.parse_filters(raw) == parsed
+        assert utils.check_and_format_search_filters(asset_type, filters) == expected
+
+
+@pytest.mark.parametrize(
+    "ordering, exception",
+    [
+        ("creation_date", None),
+        ("start_date", None),
+        ("foo", exceptions.OrderingFormatError),
+        (None, None),
+    ],
+)
+def test_check_search_ordering(ordering, exception):
+    if exception:
+        with pytest.raises(exception):
+            utils.check_search_ordering(ordering)
+    else:
+        utils.check_search_ordering(ordering)

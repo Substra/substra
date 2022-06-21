@@ -59,7 +59,9 @@ def test_regex_script_name_invalid():
 
 class TestsDebug:
     # run tests twice with and without docker
-    @pytest.fixture(params=["docker", "subprocess"])
+    @pytest.fixture(
+        params=[str(substra.BackendType.LOCAL_DOCKER.value), str(substra.BackendType.LOCAL_SUBPROCESS.value)]
+    )
     def spawner(self, monkeypatch, request):
         monkeypatch.setenv("DEBUG_SPAWNER", request.param)
 
@@ -555,112 +557,108 @@ class TestsDebug:
 
         assert json_perf_path.is_file()
 
-    class TestsList:
-        "Test client.list... functions"
 
-        @pytest.fixture(scope="class")
-        def _init_data_samples(self, asset_factory):
-            client = substra.Client(debug=True)
-            data_samples_keys = []
-            dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
-            dataset_key = client.add_dataset(dataset_query)
+class TestsList:
+    "Test client.list... functions"
 
-            data_sample_1 = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
-            data_samples_keys.append(client.add_data_sample(data_sample_1))
+    @pytest.mark.parametrize(
+        "asset_name",
+        [
+            "metric",
+            "dataset",
+            "algo",
+        ],
+    )
+    def test_list_assets(self, asset_name, asset_factory):
+        client = substra.Client(debug=True)
+        query = getattr(asset_factory, f"create_{asset_name}")(metadata={substra.DEBUG_OWNER: "owner_1"})
+        key = getattr(client, f"add_{asset_name}")(query)
 
-            data_sample_2 = asset_factory.create_data_sample(datasets=[dataset_key], test_only=True)
-            data_samples_keys.append(client.add_data_sample(data_sample_2))
+        assets = getattr(client, f"list_{asset_name}")()
 
-            data_sample_3 = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
-            data_samples_keys.append(client.add_data_sample(data_sample_3))
-            return client, data_samples_keys
+        assert assets[0].key == key
 
-        def test_list_datasamples_all(self, _init_data_samples, spawner):
-            # get all datasamples
-            client, data_sample_keys = _init_data_samples
-            data_samples = client.list_data_sample()
-            assert len(data_samples) == 3
+    @pytest.fixture
+    def _init_data_samples(self, asset_factory):
+        client = substra.Client(debug=True)
+        data_samples_keys = []
+        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
+        dataset_key = client.add_dataset(dataset_query)
 
-        def test_list_datasamples_key(self, _init_data_samples, spawner):
-            # Get sample 1 by key
-            client, data_sample_keys = _init_data_samples
-            filters = [f"datasample:key:{data_sample_keys[0]}"]
-            data_samples = client.list_data_sample(filters=filters)
-            assert len(data_samples) == 1
-            assert data_samples[0].key == data_sample_keys[0]
+        data_sample_1 = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
+        data_samples_keys.append(client.add_data_sample(data_sample_1))
 
-        def test_list_datasamples_test_only(self, _init_data_samples, spawner):
-            # Get all samples with test_only
-            client, data_sample_keys = _init_data_samples
-            filters = ["datasample:test_only:False"]
-            data_samples = client.list_data_sample(filters=filters)
-            assert len(data_samples) == 2
-            assert data_samples[0].key == data_sample_keys[0]
-            assert data_samples[1].key == data_sample_keys[2]
+        data_sample_2 = asset_factory.create_data_sample(datasets=[dataset_key], test_only=True)
+        data_samples_keys.append(client.add_data_sample(data_sample_2))
 
-        def test_list_datasamples_OR(self, _init_data_samples, spawner):
-            # Get sample 1 and 2 by key
-            client, data_sample_keys = _init_data_samples
-            filters = [f"datasample:key:{data_sample_keys[0]}", "OR", f"datasample:key:{data_sample_keys[1]}"]
-            data_samples = client.list_data_sample(filters=filters)
-            assert len(data_samples) == 2
-            assert data_samples[0].key == data_sample_keys[0]
-            assert data_samples[1].key == data_sample_keys[1]
+        data_sample_3 = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
+        data_samples_keys.append(client.add_data_sample(data_sample_3))
+        return client, data_samples_keys
 
-        def test_list_datasamples_OR_same_asset(self, _init_data_samples, spawner):
-            # Check there is only one result when both sides of the OR return the same asset
-            client, data_sample_keys = _init_data_samples
-            filters = [f"datasample:key:{data_sample_keys[1]}", "OR", "datasample:test_only:True"]
-            data_samples = client.list_data_sample(filters=filters)
-            assert len(data_samples) == 1
-            assert data_samples[0].key == data_sample_keys[1]
+    def test_list_datasamples_all(self, _init_data_samples):
+        # get all datasamples
+        client, _ = _init_data_samples
+        data_samples = client.list_data_sample(ascending=False)
+        assert len(data_samples) == 3
+        # assert dates in descending order
+        assert all(
+            data_samples[i].creation_date >= data_samples[i + 1].creation_date for i in range(len(data_samples) - 1)
+        )
 
-        def test_list_datasamples_AND_same_field(self, _init_data_samples, spawner):
-            # Get a sample with 2 different keys (should fail)
-            client, data_sample_keys = _init_data_samples
-            filters = [f"datasample:key:{data_sample_keys[0]}", "AND", f"datasample:key:{data_sample_keys[1]}"]
-            with pytest.raises(Exception):
-                _ = client.list_data_sample(filters=filters)
+    def test_list_datasamples_all_order_ascending(self, _init_data_samples):
+        # get all datasamples
+        client, _ = _init_data_samples
+        data_samples = client.list_data_sample(ascending=True)
+        assert len(data_samples) == 3
+        # assert dates in ascending order
+        assert all(
+            data_samples[i].creation_date <= data_samples[i + 1].creation_date for i in range(len(data_samples) - 1)
+        )
 
-        def test_list_datasamples_AND(self, _init_data_samples, spawner):
-            # Test the AND operator
-            # Get sample 1 by key and correct test_only value
-            client, data_sample_keys = _init_data_samples
-            filters = [f"datasample:key:{data_sample_keys[0]}", "AND", "datasample:test_only:False"]
-            data_samples = client.list_data_sample(filters=filters)
-            assert len(data_samples) == 1
-            assert data_samples[0].key == data_sample_keys[0]
+    def test_list_datasamples_key(self, _init_data_samples):
+        # Get sample 1 by key
+        client, data_sample_keys = _init_data_samples
+        filters = {"key": [data_sample_keys[0]]}
+        data_samples = client.list_data_sample(filters=filters)
+        assert len(data_samples) == 1
+        assert data_samples[0].key == data_sample_keys[0]
 
-            # Get sample 1 by key and wrong test_only value (should send empty list)
-            client, data_sample_keys = _init_data_samples
-            filters = [f"datasample:key:{data_sample_keys[0]}", "AND", "datasample:test_only:True"]
-            data_samples = client.list_data_sample(filters=filters)
-            assert len(data_samples) == 0
+    def test_list_datasamples_test_only(self, _init_data_samples):
+        # Get all samples with test_only
+        client, data_sample_keys = _init_data_samples
+        filters = {"test_only": ["False"]}
+        data_samples = client.list_data_sample(filters=filters)
+        assert len(data_samples) == 2
+        assert data_samples[0].key == data_sample_keys[2]
+        assert data_samples[1].key == data_sample_keys[0]
 
-        def test_list_datasamples_AND_OR(self, _init_data_samples, spawner):
-            # Test priority of AND over OR
-            client, data_sample_keys = _init_data_samples
-            filters = [
-                "datasample:test_only:False",
-                "AND",
-                f"datasample:key:{data_sample_keys[2]}",
-                # should return data_samples[2]
-                "OR",
-                f"datasample:key:{data_sample_keys[0]}",
-                "AND",
-                "datasample:test_only:True",
-                # should return nothing.
-            ]
-            # If OR was prioritized, it would return nothing
-            # If the operations were read in order, it would return nothing
+    def test_list_datasamples_OR(self, _init_data_samples):
+        # Get sample 1 and 2 by key
+        client, data_sample_keys = _init_data_samples
+        filters = {"key": [data_sample_keys[0], data_sample_keys[1]]}
+        data_samples = client.list_data_sample(filters=filters)
+        assert len(data_samples) == 2
+        assert data_samples[0].key == data_sample_keys[1]
+        assert data_samples[1].key == data_sample_keys[0]
 
-            data_samples = client.list_data_sample(filters=filters)
-            assert len(data_samples) == 1
-            assert data_samples[0].key == data_sample_keys[2]
+    def test_list_datasamples_AND(self, _init_data_samples):
+        # Test the AND operator
+        # Get sample 1 by key and correct test_only value
+        client, data_sample_keys = _init_data_samples
+        filters = {"key": [data_sample_keys[0]], "test_only": ["False"]}
+        data_samples = client.list_data_sample(filters=filters)
+        assert len(data_samples) == 1
+        assert data_samples[0].key == data_sample_keys[0]
+
+        # Get sample 1 by key and wrong test_only value (should send empty list)
+        client, data_sample_keys = _init_data_samples
+        filters = {"key": [data_sample_keys[0]], "test_only": ["True"]}
+        data_samples = client.list_data_sample(filters=filters)
+        assert len(data_samples) == 0
 
 
 def test_execute_compute_plan_several_testtuples_per_train(asset_factory, monkeypatch):
-    monkeypatch.setenv("DEBUG_SPAWNER", "subprocess")
+    monkeypatch.setenv("DEBUG_SPAWNER", str(substra.BackendType.LOCAL_SUBPROCESS.value))
     client = substra.Client(debug=True)
 
     dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
@@ -696,5 +694,5 @@ def test_execute_compute_plan_several_testtuples_per_train(asset_factory, monkey
     compute_plan = client.add_compute_plan(cp)
     assert compute_plan.done_count == 3
 
-    testtuples = client.list_testtuple(filters=[f"testtuple:compute_plan_key:{compute_plan.key}"])
+    testtuples = client.list_testtuple(filters={"compute_plan_key": [compute_plan.key]})
     assert len(testtuples) == 2

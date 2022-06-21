@@ -21,11 +21,12 @@ import ntpath
 import os
 import re
 import time
+import typing
 import uuid
 import zipfile
-from urllib.parse import quote
 
 from substra.sdk import exceptions
+from substra.sdk import models
 
 
 def path_leaf(path):
@@ -104,48 +105,83 @@ def extract_data_sample_files(data):
             f.close()
 
 
-def _join_and_groups(items):
-    """
-    "-OR-" items separate the items that have to be grouped with an "AND" clause
-    This function groups items from a same "AND group" with commas
-    """
-    indexes = [k for k, v in enumerate(items) if v == "-OR-"]
-    next_group = 0
-    groups = []
-    for i in indexes:
-        groups.append(",".join(items[next_group:i]))
-        groups.append("-OR-")
-        next_group = i + 1
-    groups.append(",".join(items[next_group:]))
-    return groups
+def _check_metadata_search_filter(filters, key):
+    if not isinstance(filters[key], dict):
+        raise exceptions.FilterFormatError(
+            "Cannot load filters. Please review the documentation, metadata filter should be a dict"
+        )
+    if "key" not in filters[key] or "type" not in filters[key] or "value" not in filters[key]:
+        raise exceptions.FilterFormatError(
+            """Cannot load filters. Please review the documentation, metadata filter
+                should be a dict containing key, type and value key"""
+        )
+    if filters[key]["type"] not in ["is", "contains", "exists"]:
+        raise exceptions.FilterFormatError(
+            """Cannot load filters. Please review the documentation, metadata filter type
+                should be 'is', 'contains' or 'exists'"""
+        )
+    return
 
 
-def _escape_filter(f):
-    # handle OR
-    if f == "OR":
-        return "-OR-"
+def check_and_format_search_filters(asset_type, filters):  # noqa: C901
+    # do not check if no filters
+    if filters is None:
+        return filters
 
-    # handle filter value that contains ":"
-    try:
-        asset, field, *value = f.split(":")
-    except ValueError:
-        return f
+    # check filters structure
+    if not isinstance(filters, dict):
+        raise exceptions.FilterFormatError(
+            "Cannot load filters. Please review the documentation, filters should be a dict"
+        )
 
-    return ":".join([asset, field, quote(quote(":".join(value)))])
+    # retrieving asset allowed fields to filter on
+    allowed_filters = models.SCHEMA_TO_MODEL[asset_type].allowed_filters()
+
+    # for each attribute (key) to filter on
+    for key in filters:
+        # check that key is a valid filter
+        if key not in allowed_filters:
+            raise exceptions.NotAllowedFilterError(
+                f"Cannot filter on {key}. Please review the documentation, filtering allowed only on {allowed_filters}"
+            )
+        # check/format special cases (not Lists)
+        elif key == "status":
+            if not isinstance(filters[key], str):
+                raise exceptions.FilterFormatError(
+                    """Cannot load filters. Please review the documentation, 'status' must be a str and be one of the
+                    following values: 'waiting', 'todo', 'doing', 'done', 'canceled', 'failed'"""
+                )
+            # map status with right enum entry
+            status_enum = typing.get_type_hints(models.SCHEMA_TO_MODEL[asset_type])["status"]
+            filters[key] = status_enum[filters[key]]
+        elif key == "name":
+            if not isinstance(filters[key], str):
+                raise exceptions.FilterFormatError(
+                    """Cannot load filters. Please review the documentation, 'name' filter is partial match in remote, exact match in local,
+                        value should be str"""
+                )
+        elif key == "metadata":
+            _check_metadata_search_filter(filters, key)
+        # all other filters should be a list, throw an error if not
+        elif not isinstance(filters[key], list):
+            raise exceptions.FilterFormatError(
+                "Cannot load filters. Please review the documentation, filters values should be a list"
+            )
+        # handle default case (List)
+        else:
+            # convert all keys to str, needed for rank as user can give int, can prevent errors if user doesn't give str
+            filters[key] = [str(v) for v in filters[key]]
+
+    return filters
 
 
-def parse_filters(filters):
-    if not isinstance(filters, list):
-        raise ValueError("Cannot load filters. Please review the documentation")
-
-    filters = [_escape_filter(f) for f in filters]
-    filters = _join_and_groups(filters)
-
-    # requests uses quote_plus to escape the params, but we want to use
-    # quote
-    # we're therefore passing a string (won't be escaped again) instead
-    # of an object
-    return "search=%s" % quote("".join(filters))
+def check_search_ordering(order_by):
+    if order_by is None:
+        return
+    elif not models.OrderingFields.__contains__(order_by):
+        raise exceptions.OrderingFormatError(
+            f"Please review the documentation, ordering is available only on {list(models.OrderingFields.__members__)}"
+        )
 
 
 def retry_on_exception(exceptions, timeout=300):

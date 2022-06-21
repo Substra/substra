@@ -70,7 +70,7 @@ Testtuple
 - owner: str
 - compute_plan_key: str
 - metadata: Mapping[str, str]
-- status: str
+- status: Status
 - worker: str
 - rank: Optional[int]
 - parent_task_keys: List[str]
@@ -92,7 +92,7 @@ Traintuple
 - owner: str
 - compute_plan_key: str
 - metadata: Mapping[str, str]
-- status: str
+- status: Status
 - worker: str
 - rank: Optional[int]
 - parent_task_keys: List[str]
@@ -114,7 +114,7 @@ Aggregatetuple
 - owner: str
 - compute_plan_key: str
 - metadata: Mapping[str, str]
-- status: str
+- status: Status
 - worker: str
 - rank: Optional[int]
 - parent_task_keys: List[str]
@@ -136,7 +136,7 @@ CompositeTraintuple
 - owner: str
 - compute_plan_key: str
 - metadata: Mapping[str, str]
-- status: str
+- status: Status
 - worker: str
 - rank: Optional[int]
 - parent_task_keys: List[str]

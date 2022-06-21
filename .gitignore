@@ -10,7 +10,7 @@ sdist/
 
 # Unit test / coverage reports
 .cache
-.coverage
+.coverage*
 .pytest_cache/
 
 # Developer environments
