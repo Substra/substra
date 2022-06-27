@@ -105,7 +105,6 @@ def test_command_login(workdir, mocker):
 @pytest.mark.parametrize(
     "asset_type,model",
     [
-        ("metric", models.Metric),
         ("dataset", models.Dataset),
         ("algo", models.Algo),
         ("testtuple", models.Testtuple),
@@ -188,28 +187,28 @@ def test_command_add(asset_type, params, workdir, mocker):
     assert re.search(r"File '.*' does not exist\.", res)
 
 
-def test_command_add_metric(workdir, mocker):
+def test_command_add_algo(workdir, mocker):
     json_file = workdir / "valid_json_file.json"
     json_file.write_text(json.dumps({}))
 
-    m = mock_client_call(mocker, "add_metric", response="foo")
-    item = getattr(datastore, "METRIC")  # noqa: B009
-    m = mock_client_call(mocker, "get_metric", item)
+    m = mock_client_call(mocker, "add_algo", response="foo")
+    item = getattr(datastore, "ALGO")  # noqa: B009
+    m = mock_client_call(mocker, "get_algo", item)
 
-    client_execute(workdir, ["add", "metric", str(json_file)])
+    client_execute(workdir, ["add", "algo", str(json_file)])
     m.assert_called()
 
-    m = mock_client_call(mocker, "add_metric", response={})
-    client_execute(workdir, ["add", "metric", str(json_file)])
+    m = mock_client_call(mocker, "add_algo", response={})
+    client_execute(workdir, ["add", "algo", str(json_file)])
     m.assert_called()
 
-    res = client_execute(workdir, ["add", "metric", "non_existing_file.txt"], exit_code=2)
+    res = client_execute(workdir, ["add", "algo", "non_existing_file.txt"], exit_code=2)
     assert re.search(r"File '.*' does not exist\.", res)
 
     invalid_json_file = workdir / "invalid_json_file.md"
     invalid_json_file.write_text("test")
 
-    res = client_execute(workdir, ["add", "metric", str(invalid_json_file)], exit_code=2)
+    res = client_execute(workdir, ["add", "algo", str(invalid_json_file)], exit_code=2)
     assert re.search(r"File '.*' is not a valid JSON file\.", res)
 
 
@@ -300,7 +299,6 @@ def test_command_add_data_sample_already_exists(workdir, mocker):
 @pytest.mark.parametrize(
     "asset_type,model",
     [
-        ("metric", models.Metric),
         ("dataset", models.Dataset),
         ("algo", models.Algo),
         ("testtuple", models.Testtuple),
@@ -326,15 +324,15 @@ def test_command_get(asset_type, model, format, workdir, mocker):
 
 def test_command_describe(workdir, mocker):
     response = "My description."
-    m = mock_client_call(mocker, "describe_metric", response)
-    output = client_execute(workdir, ["describe", "metric", "fakekey"])
+    m = mock_client_call(mocker, "describe_algo", response)
+    output = client_execute(workdir, ["describe", "algo", "fakekey"])
     m.assert_called()
     assert response in output
 
 
 def test_command_download(workdir, mocker):
-    m = mock_client_call(mocker, "download_metric")
-    client_execute(workdir, ["download", "metric", "fakekey"])
+    m = mock_client_call(mocker, "download_algo")
+    client_execute(workdir, ["download", "algo", "fakekey"])
     m.assert_called()
 
 

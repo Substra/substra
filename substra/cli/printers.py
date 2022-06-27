@@ -339,22 +339,6 @@ class ComputePlanPrinter(AssetPrinter):
         return
 
 
-class MetricPrinter(AssetPrinter):
-    asset_type = "metric"
-
-    list_fields = (Field("Name", "name"),)
-    single_fields = (
-        Field("Name", "name"),
-        Field("Owner", "owner"),
-        Field("Metadata", "metadata"),
-        PermissionField("Permissions", "permissions"),
-    )
-    download_message = "Download this metric's metric:"
-
-    def print_messages(self, item, profile=None):
-        super().print_messages(item, profile)
-
-
 class DataSamplePrinter(AssetPrinter):
     asset_type = "data sample"
 
@@ -527,7 +511,6 @@ class OrganizationPrinter(AssetPrinter):
 PRINTERS = {
     assets.ALGO: AlgoPrinter,
     assets.COMPUTE_PLAN: ComputePlanPrinter,
-    assets.METRIC: MetricPrinter,
     assets.DATASET: DatasetPrinter,
     assets.DATA_SAMPLE: DataSamplePrinter,
     assets.TRAINTUPLE: TraintuplePrinter,

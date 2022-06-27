@@ -444,49 +444,6 @@ def add_dataset(ctx, data):
     printer.print(res, is_list=False)
 
 
-@add.command("metric")
-@click.argument(
-    "data",
-    type=click.Path(exists=True, dir_okay=False),
-    callback=load_json_from_path,
-    metavar="PATH",
-)
-@click_global_conf_with_output_format
-@click_global_conf_retry_timeout
-@click.pass_context
-@error_printer
-def add_metric(ctx, data):
-    """Add metric.
-
-    The path must point to a valid JSON file with the following schema:
-
-    \b
-    {
-        "name": str,
-        "description": path,
-        "file": path,
-        "permissions": {
-            "public": bool,
-            "authorized_ids": list[str],
-        },
-        "metadata": dict
-    }
-
-    \b
-    Where:
-    - name: name of the metric
-    - description: path to a markdown file describing the metric
-    - file: path to tar.gz or zip archive containing the metrics python
-      script and its Dockerfile
-    - permissions: define asset access permissions
-    """
-    client = get_client(ctx.obj)
-    key = client.add_metric(data)
-    res = ctx.obj.retry(client.get_metric)(key)
-    printer = printers.get_asset_printer(assets.METRIC, ctx.obj.output_format)
-    printer.print(res, is_list=False)
-
-
 @add.command("algo")
 @click.argument(
     "data",
@@ -877,7 +834,6 @@ def add_testtuple(ctx, metric_keys, dataset_key, traintuple_key, data_samples, t
             assets.ALGO,
             assets.COMPUTE_PLAN,
             assets.DATASET,
-            assets.METRIC,
             assets.TESTTUPLE,
             assets.TRAINTUPLE,
             assets.COMPOSITE_TRAINTUPLE,
@@ -895,7 +851,6 @@ def get(ctx, expand, asset_type, asset_key):
     expand_valid_assets = (
         assets.DATASET,
         assets.TRAINTUPLE,
-        assets.METRIC,
         assets.TESTTUPLE,
         assets.COMPOSITE_TRAINTUPLE,
         assets.AGGREGATETUPLE,
@@ -921,7 +876,6 @@ def get(ctx, expand, asset_type, asset_key):
             assets.COMPUTE_PLAN,
             assets.DATA_SAMPLE,
             assets.DATASET,
-            assets.METRIC,
             assets.TESTTUPLE,
             assets.TRAINTUPLE,
             assets.COMPOSITE_TRAINTUPLE,
@@ -965,16 +919,7 @@ def list_(ctx, asset_type, filters, advanced_filters):
 
 
 @cli.command()
-@click.argument(
-    "asset-type",
-    type=click.Choice(
-        [
-            assets.ALGO,
-            assets.DATASET,
-            assets.METRIC,
-        ]
-    ),
-)
+@click.argument("asset-type", type=click.Choice([assets.ALGO, assets.DATASET]))
 @click.argument("asset-key")
 @click_global_conf
 @click.pass_context
@@ -1008,7 +953,7 @@ def organization_info(ctx):
 
 
 @cli.command()
-@click.argument("asset-type", type=click.Choice([assets.ALGO, assets.DATASET, assets.METRIC, assets.MODEL]))
+@click.argument("asset-type", type=click.Choice([assets.ALGO, assets.DATASET, assets.MODEL]))
 @click.argument("key")
 @click.option("--folder", type=click.Path(), help="destination folder", default=".")
 @click.option(
@@ -1044,7 +989,6 @@ def download(ctx, asset_type, key, folder, model_src):
     \b
     - algo: the algo and its dependencies
     - dataset: the opener script
-    - metric: the metrics and its dependencies
     - model: the output model
     """
     client = get_client(ctx.obj)

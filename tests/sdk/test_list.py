@@ -26,7 +26,6 @@ from ..utils import mock_requests
 @pytest.mark.parametrize(
     "asset_type",
     [
-        "metric",
         "dataset",
         "algo",
         "testtuple",
@@ -53,7 +52,6 @@ def test_list_asset(asset_type, client, mocker):
 @pytest.mark.parametrize(
     "asset_type,filters",
     [
-        ("metric", {"key": ["foo", "bar"]}),
         ("dataset", {"permissions": ["foo", "bar"]}),
         ("algo", {"owner": ["foo", "bar"]}),
         ("testtuple", {"rank": [1, 3]}),

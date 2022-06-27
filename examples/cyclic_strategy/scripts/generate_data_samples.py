@@ -77,7 +77,9 @@ def custom_split(data: pd.DataFrame, n_split: int = N_ORGANIZATIONS) -> List[pd.
     repartition = {y: list(rng.dirichlet(np.ones(n_split), size=1)[0]) for y in data.target.unique()}
 
     # generate unbalance train data samples
-    data.loc[:, "organization"] = data.target.apply(lambda k: rng.choice(range(n_split), 1, replace=False, p=repartition[k])[0])
+    data.loc[:, "organization"] = data.target.apply(
+        lambda k: rng.choice(range(n_split), 1, replace=False, p=repartition[k])[0]
+    )
 
     data = data.groupby("organization")
     data = [data.get_group(split).drop(columns="organization") for split in range(n_split)]

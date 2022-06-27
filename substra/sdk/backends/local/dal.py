@@ -61,10 +61,6 @@ class DataAccess:
             filename = "opener.py"
             field_name = "opener"
 
-        elif type_ == schemas.Type.Metric:
-            filename = "metrics.zip"
-            field_name = "algorithm"
-
         else:
             raise ValueError(f"Cannot download this type of asset {type_}")
 
@@ -146,7 +142,7 @@ class DataAccess:
             if testtuple.status == models.Status.done:
 
                 for metric_key in testtuple.test.metric_keys:
-                    metric = self.get(schemas.Type.Metric, metric_key)
+                    metric = self.get(schemas.Type.Algo, metric_key)
 
                     performances.compute_plan_key.append(compute_plan.key)
                     performances.compute_plan_tag.append(compute_plan.tag)

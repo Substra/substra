@@ -28,7 +28,6 @@ from ..utils import mock_response
 @pytest.mark.parametrize(
     "asset_type",
     [
-        "metric",
         "model",
         "dataset",
         "data_sample",
@@ -62,7 +61,6 @@ def test_get_asset_not_found(client, mocker):
 @pytest.mark.parametrize(
     "asset_type",
     [
-        "metric",
         "dataset",
         "algo",
         "testtuple",

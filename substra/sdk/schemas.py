@@ -89,7 +89,6 @@ class Type(enum.Enum):
     DataSample = "data_sample"
     Dataset = "dataset"
     Model = "model"
-    Metric = "metric"
     Testtuple = "testtuple"
     Traintuple = "traintuple"
     Aggregatetuple = "aggregatetuple"
@@ -363,13 +362,6 @@ class AlgoSpec(_Spec):
             "file",
             "description",
         )
-
-
-class MetricSpec(AlgoSpec):
-    """Specification for creating an metric"""
-
-    type_: typing.ClassVar[Type] = Type.Metric
-    category: AlgoCategory = pydantic.Field(AlgoCategory.metric, const=True)
 
 
 class _TupleSpec(_Spec):

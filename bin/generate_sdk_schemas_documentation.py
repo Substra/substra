@@ -15,7 +15,6 @@ schemas_list = [
     schemas.DataSampleSpec,
     schemas.DatasetSpec,
     schemas.AlgoSpec,
-    schemas.MetricSpec,
     schemas.TesttupleSpec,
     schemas.TraintupleSpec,
     schemas.AggregatetupleSpec,
@@ -33,7 +32,6 @@ schemas_list = [
 models_list = [
     models.DataSample,
     models.Dataset,
-    models.Metric,
     models.Testtuple,
     models.Traintuple,
     models.Aggregatetuple,

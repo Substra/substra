@@ -291,26 +291,6 @@ class Client(object):
         return self._backend.add(spec)
 
     @logit
-    def add_metric(
-        self,
-        data: Union[dict, schemas.MetricSpec],
-    ) -> str:
-        """Create new metric asset.
-
-        In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-        the value becomes the 'creator' of the metric.
-
-        Args:
-            data (Union[dict, schemas.MetricSpec]): If it is a dict, it must have the same keys
-                as specified in [schemas.MetricSpec](sdk_schemas.md#MetricSpec).
-
-        Returns:
-            str: Key of the metric
-        """
-        spec = self._get_spec(schemas.MetricSpec, data)
-        return self._backend.add(spec)
-
-    @logit
     def add_algo(self, data: Union[dict, schemas.AlgoSpec]) -> str:
         """Create new algo asset.
 
@@ -472,12 +452,6 @@ class Client(object):
         """Get dataset by key, the returned object is described
         in the [models.Dataset](sdk_models.md#Dataset) model"""
         return self._backend.get(schemas.Type.Dataset, key)
-
-    @logit
-    def get_metric(self, key: str) -> models.Metric:
-        """Get metric by key, the returned object is described
-        in the [models.Metric](sdk_models.md#Metric) model"""
-        return self._backend.get(schemas.Type.Metric, key)
 
     @logit
     def get_testtuple(self, key: str) -> models.Testtuple:
@@ -643,35 +617,6 @@ class Client(object):
             data_sample_key (List[str]): list dataset linked or that used this data sample(s). Remote only."""
 
         return self._list(schemas.Type.Dataset, filters, "creation_date", ascending)
-
-    @logit
-    def list_metric(self, filters: dict = None, ascending: bool = False) -> List[models.Metric]:
-        """List metrics.
-
-        Args:
-            filters (dict, optional): List of key values pair to filter on. Default None.
-            ascending (bool, optional): Sorts results by oldest creation_date first. Default False (descending order).
-
-        Returns:
-            models.Metric: the returned object is described
-        in the [models.Metric](sdk_models.md#Metric) model
-
-        ``Filters allowed keys:``\n
-            key (List[str]): list metrics with given keys.\n
-            name (str): list metrics with name partially matching given string. Remote only.\n
-            owner (List[str]): list metrics with given owners.\n
-            metadata (dict)
-                {
-                    "key": str # the key of the metadata to filter on
-                    "type": "is", "contains" or "exists" # the type of query that will be used
-                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-                }: list metrics matching provided conditions in metadata.\n
-            permissions (List[str]) : list metrics which can be used by any of the listed nodes. Remote only.
-            compute_plan_key (str): list metrics that are in the given compute plan. Remote only.
-            dataset_key (str): list metrics linked or using this dataset. Remote only.
-            data_sample_key (List[str]): list metrics linked or that used this data sample(s). Remote only."""
-
-        return self._list(schemas.Type.Metric, filters, "creation_date", ascending)
 
     @logit
     def list_testtuple(
@@ -897,19 +842,6 @@ class Client(object):
         )
 
     @logit
-    def download_metric(self, key: str, destination_folder: str) -> None:
-        """Download metric resource.
-
-        Download metrics script in destination folder.
-        """
-        self._backend.download(
-            schemas.Type.Metric,
-            "algorithm.storage_address",
-            key,
-            os.path.join(destination_folder, "metrics.py"),
-        )
-
-    @logit
     def download_model(self, key: str, folder) -> None:
         """Download model to destination file.
 
@@ -1011,11 +943,6 @@ class Client(object):
     def describe_dataset(self, key: str) -> str:
         """Get dataset description."""
         return self._backend.describe(schemas.Type.Dataset, key)
-
-    @logit
-    def describe_metric(self, key: str) -> str:
-        """Get metric description."""
-        return self._backend.describe(schemas.Type.Metric, key)
 
     @logit
     def organization_info(self) -> dict:

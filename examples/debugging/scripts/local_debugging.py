@@ -21,6 +21,7 @@ from types import SimpleNamespace
 from tqdm import tqdm
 
 import substra
+from substra.sdk.schemas import AlgoCategory
 
 default_stream_handler = logging.StreamHandler()
 substra_logger = logging.getLogger("substra")
@@ -157,8 +158,9 @@ client.link_dataset_with_data_samples(
 
 #  Add the metric to Substra
 print("Adding metric...")
-metric_key = client.add_metric(
+metric_key = client.add_algo(
     {
+        "category": AlgoCategory.metric,
         "name": METRIC["name"],
         "description": str(METRIC["description"]),
         "file": str(METRIC["file"]),

@@ -23,7 +23,6 @@ from typing import Union
 
 from pydantic import AnyUrl
 from pydantic import DirectoryPath
-from pydantic import Field
 from pydantic import FilePath
 from pydantic import root_validator
 
@@ -33,12 +32,6 @@ from substra.sdk import schemas
 UriPath = Union[FilePath, AnyUrl, str]
 CAMEL_TO_SNAKE_PATTERN = re.compile(r"(.)([A-Z][a-z]+)")
 CAMEL_TO_SNAKE_PATTERN_2 = re.compile(r"([a-z0-9])([A-Z])")
-
-
-def _to_snake_case(camel_str):
-    name = CAMEL_TO_SNAKE_PATTERN.sub(r"\1_\2", camel_str)
-    name = CAMEL_TO_SNAKE_PATTERN_2.sub(r"\1_\2", name).lower()
-    return name.replace("_i_d", "_id")
 
 
 class Status(str, enum.Enum):
@@ -195,13 +188,6 @@ class Algo(_Model):
         return ["key", "name", "owner", "metadata", "permissions", "compute_plan_key", "dataset_key", "data_sample_key"]
 
 
-class Metric(Algo):
-    """Metric"""
-
-    category: schemas.AlgoCategory = Field(schemas.AlgoCategory.metric, const=True)
-    type_: ClassVar[str] = schemas.Type.Metric
-
-
 class InModel(schemas._PydanticConfig):
     """In model of a traintuple, aggregate or composite traintuple"""
 
@@ -295,7 +281,7 @@ class _Test(schemas._PydanticConfig):
     data_manager: Optional[Dataset] = None
     data_sample_keys: List[str]
     metric_keys: List[str]
-    metrics: Optional[List[Metric]] = list()
+    metrics: Optional[List[Algo]] = list()
     perfs: Optional[Dict[str, float]]
 
     _check_data_manager_key = root_validator(allow_reuse=True)(check_data_manager_key)
@@ -411,7 +397,6 @@ SCHEMA_TO_MODEL = {
     schemas.Type.ComputePlan: ComputePlan,
     schemas.Type.DataSample: DataSample,
     schemas.Type.Dataset: Dataset,
-    schemas.Type.Metric: Metric,
     schemas.Type.Testtuple: Testtuple,
     schemas.Type.Traintuple: Traintuple,
     schemas.Type.Organization: Organization,

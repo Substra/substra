@@ -26,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - fix: get_performance test tuples filter on local dal (#209)
 
+### Removed
+
+- BREAKING: Removed metrics APIs and types; use algo APIs and types instead (#210)
+
 ## [0.25.0](<https://github.com/owkin/substra/releases/tag/0.25.0>) - 2022-06-14
 
 ### Fixed

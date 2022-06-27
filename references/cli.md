@@ -4,7 +4,6 @@
 - [substra login](#substra-login)
 - [substra add data_sample](#substra-add-data_sample)
 - [substra add dataset](#substra-add-dataset)
-- [substra add metric](#substra-add-metric)
 - [substra add algo](#substra-add-algo)
 - [substra add compute_plan](#substra-add-compute_plan)
 - [substra add traintuple](#substra-add-traintuple)
@@ -120,52 +119,6 @@ Usage: substra add dataset [OPTIONS] PATH
   - permissions: define asset access permissions
   - logs_permission: define tuple execution logs access permissions
   (in case of tuple execution failure)
-
-Options:
-  --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
-                                  Enable logging and set log level
-  --config PATH                   Config path (default ~/.substra).
-  --profile TEXT                  Profile name to use.
-  --tokens FILE                   Tokens file path to use (default ~/.substra-
-                                  tokens).
-  --verbose                       Enable verbose mode.
-  -o, --output [pretty|yaml|json]
-                                  Set output format
-                                  - pretty: summarised view
-                                  - yaml: full view in YAML format
-                                  - json: full view in JSON format
-                                  [default: pretty]
-  --timeout INTEGER               Max number of seconds the operation will be
-                                  retried for  [default: 300]
-  --help                          Show this message and exit.
-```
-
-## substra add metric
-
-```text
-Usage: substra add metric [OPTIONS] PATH
-
-  Add metric.
-
-  The path must point to a valid JSON file with the following schema:
-
-  {
-      "name": str,
-      "description": path,
-      "file": path,
-      "permissions": {
-          "public": bool,
-          "authorized_ids": list[str],
-      },
-      "metadata": dict
-  }
-
-  Where:
-  - name: name of the metric
-  - description: path to a markdown file describing the metric
-  - file: path to tar.gz or zip archive containing the metrics python
-    script and its Dockerfile
-  - permissions: define asset access permissions
 
 Options:
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
@@ -484,8 +437,8 @@ Options:
 ## substra get
 
 ```text
-Usage: substra get [OPTIONS] {algo|compute_plan|dataset|metric|testtuple|train
-                   tuple|composite_traintuple|aggregatetuple} ASSET_KEY
+Usage: substra get [OPTIONS] {algo|compute_plan|dataset|testtuple|traintuple|c
+                   omposite_traintuple|aggregatetuple} ASSET_KEY
 
   Get asset definition.
 
@@ -510,9 +463,9 @@ Options:
 ## substra list
 
 ```text
-Usage: substra list [OPTIONS] {algo|compute_plan|data_sample|dataset|metric|te
-                    sttuple|traintuple|composite_traintuple|aggregatetuple|org
-                    anization}
+Usage: substra list [OPTIONS] {algo|compute_plan|data_sample|dataset|testtuple
+                    |traintuple|composite_traintuple|aggregatetuple|organizati
+                    on}
 
   List assets.
 
@@ -542,7 +495,7 @@ Options:
 ## substra describe
 
 ```text
-Usage: substra describe [OPTIONS] {algo|dataset|metric} ASSET_KEY
+Usage: substra describe [OPTIONS] {algo|dataset} ASSET_KEY
 
   Display asset description.
 
@@ -584,13 +537,12 @@ Options:
 ## substra download
 
 ```text
-Usage: substra download [OPTIONS] {algo|dataset|metric|model} KEY
+Usage: substra download [OPTIONS] {algo|dataset|model} KEY
 
   Download asset implementation.
 
   - algo: the algo and its dependencies
   - dataset: the opener script
-  - metric: the metrics and its dependencies
   - model: the output model
 
 Options:

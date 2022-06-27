@@ -281,7 +281,8 @@ for profile_name in PROFILE_NAMES:
 # The accuracy metrics is implemented `here file <./../assets/accuracy.py>`_ and
 # The f1 `here <./../assets/f1_score.py>`_ .
 
-from substra.sdk.schemas import MetricSpec
+from substra.sdk.schemas import AlgoCategory
+from substra.sdk.schemas import AlgoSpec
 
 
 def register_metric(client: substra.Client, metric_folder: Path, metric_name: str, permissions: Permissions) -> str:
@@ -298,7 +299,8 @@ def register_metric(client: substra.Client, metric_folder: Path, metric_name: st
         str: The registration key retrive by the client.
     """
 
-    metric = MetricSpec(
+    metric = AlgoSpec(
+        category=AlgoCategory.metric,
         name=metric_name,
         description=metric_folder / "description.md",
         file=metric_folder / "metrics.zip",
@@ -315,7 +317,7 @@ def register_metric(client: substra.Client, metric_folder: Path, metric_name: st
         for filepath in METRICS_DOCKERFILE_FILES:
             z.write(filepath, arcname=filepath.name)
 
-    metric_key = client.add_metric(metric)
+    metric_key = client.add_algo(metric)
 
     return metric_key
 

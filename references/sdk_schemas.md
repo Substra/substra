@@ -3,7 +3,6 @@
 - [DataSampleSpec](#DataSampleSpec)
 - [DatasetSpec](#DatasetSpec)
 - [AlgoSpec](#AlgoSpec)
-- [MetricSpec](#MetricSpec)
 - [TesttupleSpec](#TesttupleSpec)
 - [TraintupleSpec](#TraintupleSpec)
 - [AggregatetupleSpec](#AggregatetupleSpec)
@@ -45,17 +44,6 @@ Specification for creating a dataset
 
 ## AlgoSpec
 Specification for creating an algo
-```text
-- name: str
-- description: Path
-- file: Path
-- permissions: Permissions
-- metadata: Optional[Mapping[str, str]]
-- category: AlgoCategory
-```
-
-## MetricSpec
-Specification for creating an metric
 ```text
 - name: str
 - description: Path

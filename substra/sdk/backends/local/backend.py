@@ -101,7 +101,7 @@ class Local(base.BaseBackend):
             asset.composite.data_manager = self._db.get(schemas.Type.Dataset, asset.composite.data_manager_key)
         if asset_type == schemas.Type.Testtuple:
             asset.test.data_manager = self._db.get(schemas.Type.Dataset, asset.test.data_manager_key)
-            asset.test.metrics = [self._db.get(schemas.Type.Metric, k) for k in asset.test.metric_keys]
+            asset.test.metrics = [self._db.get(schemas.Type.Algo, k) for k in asset.test.metric_keys]
         if asset_type in [
             schemas.Type.Traintuple,
             schemas.Type.CompositeTraintuple,
@@ -421,38 +421,6 @@ class Local(base.BaseBackend):
             )
             data_samples.append(data_sample)
         return data_samples
-
-    def _add_metric(self, key, spec, spec_options):
-
-        owner = self._check_metadata(spec.metadata)
-
-        permissions = self.__compute_permissions(spec.permissions, owner)
-
-        # Copy files to the local dir
-        metric_file_path = self._db.save_file(spec.file, key)
-        metric_description_path = self._db.save_file(spec.description, key)
-
-        # create metric model instance
-        metric = models.Metric(
-            key=key,
-            creation_date=self.__now(),
-            name=spec.name,
-            owner=owner,
-            permissions={
-                "process": {
-                    "public": permissions.public,
-                    "authorized_ids": permissions.authorized_ids,
-                },
-            },
-            description={"checksum": fs.hash_file(metric_description_path), "storage_address": metric_description_path},
-            algorithm={"checksum": fs.hash_file(metric_file_path), "storage_address": metric_file_path},
-            metadata=spec.metadata if spec.metadata else dict(),
-        )
-
-        # add metric to storage and update optionnally the associated dataset
-        metric = self._db.add(metric)
-
-        return metric
 
     def _add_compute_plan(self, spec: schemas.ComputePlanSpec, spec_options: dict = None):
         if spec.clean_models:

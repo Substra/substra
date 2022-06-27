@@ -456,9 +456,7 @@ class Worker:
                 raise exceptions.NotFound(f"Wrong pk {tuple_.parent_task_keys[0]}", 404)
 
             algo = self._db.get_with_files(schemas.Type.Algo, tuple_.algo.key)
-            metrics = [
-                self._db.get_with_files(schemas.Type.Metric, metric_key) for metric_key in tuple_.test.metric_keys
-            ]
+            metrics = [self._db.get_with_files(schemas.Type.Algo, metric_key) for metric_key in tuple_.test.metric_keys]
             dataset = self._db.get_with_files(schemas.Type.Dataset, tuple_.test.data_manager_key)
 
             compute_plan = None

@@ -254,11 +254,11 @@ class TestsDebug:
         # client.link_dataset_with_data_samples(dataset_1_key, [sample_1_test_key])
         # client.link_dataset_with_data_samples(dataset_2_key, [sample_2_test_key])
 
-        metric = asset_factory.create_metric()
-        metric_1_key = client.add_metric(metric)
+        metric = asset_factory.create_algo(category=AlgoCategory.metric)
+        metric_1_key = client.add_algo(metric)
 
-        metric = asset_factory.create_metric()
-        metric_2_key = client.add_metric(metric)
+        metric = asset_factory.create_algo(category=AlgoCategory.metric)
+        metric_2_key = client.add_algo(metric)
 
         algo_query = asset_factory.create_algo(AlgoCategory.simple)
         algo_key = client.add_algo(algo_query)
@@ -389,8 +389,8 @@ class TestsDebug:
         composite_algo_query = asset_factory.create_algo(AlgoCategory.composite)
         composite_algo_key = client.add_algo(composite_algo_query)
 
-        metric_query = asset_factory.create_metric()
-        metric_key = client.add_metric(metric_query)
+        metric_query = asset_factory.create_algo(category=AlgoCategory.metric)
+        metric_key = client.add_algo(metric_query)
 
         # test traintuple extra field
 
@@ -530,8 +530,8 @@ class TestsDebug:
         algo_query = asset_factory.create_algo(AlgoCategory.simple)
         algo_key = client.add_algo(algo_query)
 
-        metric = asset_factory.create_metric()
-        metric_key = client.add_metric(metric)
+        metric = asset_factory.create_algo(category=AlgoCategory.metric)
+        metric_key = client.add_algo(metric)
 
         cp = asset_factory.create_compute_plan()
 
@@ -561,14 +561,7 @@ class TestsDebug:
 class TestsList:
     "Test client.list... functions"
 
-    @pytest.mark.parametrize(
-        "asset_name",
-        [
-            "metric",
-            "dataset",
-            "algo",
-        ],
-    )
+    @pytest.mark.parametrize("asset_name", ["dataset", "algo"])
     def test_list_assets(self, asset_name, asset_factory):
         client = substra.Client(debug=True)
         query = getattr(asset_factory, f"create_{asset_name}")(metadata={substra.DEBUG_OWNER: "owner_1"})
@@ -670,8 +663,8 @@ def test_execute_compute_plan_several_testtuples_per_train(asset_factory, monkey
     algo_query = asset_factory.create_algo(AlgoCategory.simple)
     algo_key = client.add_algo(algo_query)
 
-    metric = asset_factory.create_metric()
-    metric_key = client.add_metric(metric)
+    metric = asset_factory.create_algo(category=AlgoCategory.metric)
+    metric_key = client.add_algo(metric)
 
     cp = asset_factory.create_compute_plan()
     traintuple = substra.sdk.schemas.ComputePlanTraintupleSpec(

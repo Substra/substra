@@ -29,18 +29,18 @@ Additionally, you can set the environment variable `DEBUG_SPAWNER` to `docker` i
 be executed in containers (default) or `subprocess` to execute them in Python subprocesses (faster,
 experimental: The `Dockerfile` commands are not executed, requires dependencies to be installed locally).
 ## backend_mode
-_This is a property._
+_This is a property._  
 Get the backend mode: deployed,
         local and which type of local mode
 
         Returns:
             str: Backend mode
-
+        
 ## temp_directory
-_This is a property._
+_This is a property._  
 Temporary directory for storing assets in debug mode.
         Deleted when the client is deleted.
-
+        
 ## add_aggregatetuple
 ```text
 add_aggregatetuple(self, data: Union[dict, substra.sdk.schemas.AggregatetupleSpec]) -> str
@@ -176,22 +176,6 @@ keys as specified in [schemas.DatasetSpec](sdk_schemas.md#DatasetSpec).
 **Returns:**
 
  - `str`: Key of the dataset
-## add_metric
-```text
-add_metric(self, data: Union[dict, substra.sdk.schemas.MetricSpec]) -> str
-```
-
-Create new metric asset.
-In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-the value becomes the 'creator' of the metric.
-
-**Arguments:**
- - `data (Union[dict, schemas.MetricSpec], required)`: If it is a dict, it must have the same keys
-as specified in [schemas.MetricSpec](sdk_schemas.md#MetricSpec).
-
-**Returns:**
-
- - `str`: Key of the metric
 ## add_testtuple
 ```text
 add_testtuple(self, data: Union[dict, substra.sdk.schemas.TesttupleSpec]) -> str
@@ -242,12 +226,6 @@ describe_dataset(self, key: str) -> str
 ```
 
 Get dataset description.
-## describe_metric
-```text
-describe_metric(self, key: str) -> str
-```
-
-Get metric description.
 ## download_algo
 ```text
 download_algo(self, key: str, destination_folder: str) -> None
@@ -289,13 +267,6 @@ tuples will result in a NotFound error.
 
 **Returns:**
 The path of the output file.
-## download_metric
-```text
-download_metric(self, key: str, destination_folder: str) -> None
-```
-
-Download metric resource.
-Download metrics script in destination folder.
 ## download_model
 ```text
 download_model(self, key: str, folder) -> None
@@ -412,13 +383,6 @@ containing the logs.
 Logs are only available for tuples that experienced an execution failure.
 Attempting to retrieve logs for tuples in any other states or for non-existing
 tuples will result in a NotFound error.
-## get_metric
-```text
-get_metric(self, key: str) -> substra.sdk.models.Metric
-```
-
-Get metric by key, the returned object is described
-in the [models.Metric](sdk_models.md#Metric) model
 ## get_model
 ```text
 get_model(self, key: str) -> substra.sdk.models.OutModel
@@ -476,31 +440,6 @@ Possible values: `creation_date`, `start_date`, `end_date`. Default creation_dat
 **Returns:**
 
  - `models.Aggregatetuple`: the returned object is described
-in the [models.Aggregatetuple](sdk_models.md#Aggregatetuple) model
-
-``Filters allowed keys:``
-
-    key (List[str]): list aggregatetuples with listed keys.
-
-    owner (List[str]): list aggregatetuples with listed owners.
-
-    worker (List[str]): list aggregatetuples which ran on listed workers. Remote only.
-
-    rank (List[int]): list aggregatetuples which are at given ranks.
-
-    status (str): list aggregatetuples with given status.
-                    Possible values: 'waiting', 'todo', 'doing', 'done', 'canceled', 'failed'
-
-    metadata (dict)
-        {
-            "key": str # the key of the metadata to filter on
-            "type": "is", "contains" or "exists" # the type of query that will be used
-            "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-        }: list aggregatetuples matching provided conditions in metadata. Remote only.
-    compute_plan_key (str): list aggregatetuples that are in the given compute plan. Remote only.
-    algo_key (str): list aggregatetuples that used the given algo. Remote only.
-    dataset_key (str): list aggregatetuples linked or using this dataset. Remote only.
-    data_sample_key (List[str]): list aggregatetuples linked or that used this data sample(s). Remote only.
 ## list_algo
 ```text
 list_algo(self, filters: dict = None, ascending: bool = False) -> List[substra.sdk.models.Algo]
@@ -515,25 +454,6 @@ List algos.
 **Returns:**
 
  - `models.Algo`: the returned object is described in the [models.Algo](sdk_models.md#Algo) model
-``Filters allowed keys:``
-
-    key (List[str]): list algo with given keys.
-
-    name (str): list algo with name partially matching given string. Remote only.
-
-    owner (List[str]): list algo with given owners.
-
-    metadata (dict)
-        {
-            "key": str # the key of the metadata to filter on
-            "type": "is", "contains" or "exists" # the type of query that will be used
-            "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-        }: list algo matching provided conditions in metadata.
-
-    permissions (List[str]): list algo which can be used by any of the listed nodes. Remote only.
-    compute_plan_key (str): list algo that are in the given compute plan. Remote only.
-    dataset_key (str): list algo linked or using this dataset. Remote only.
-    data_sample_key (List[str]): list algo linked or that used this data sample(s). Remote only.
 ## list_composite_traintuple
 ```text
 list_composite_traintuple(self, filters: dict = None, order_by: str = 'creation_date', ascending: bool = False) -> List[substra.sdk.models.CompositeTraintuple]
@@ -550,32 +470,6 @@ Possible values: `creation_date`, `start_date`, `end_date`. Default creation_dat
 **Returns:**
 
  - `models.CompositeTraintuple`: the returned object is described
-in the [models.CompositeTraintuple](sdk_models.md#CompositeTraintuple) model.
-
-``Filters allowed keys:``
-
-    key (List[str]): list composite traintuples with listed keys.
-
-    owner (List[str]): list composite traintuples with listed owners.
-
-    worker (List[str]): list composite traintuples which ran on listed workers. Remote only.
-
-    rank (List[int]): list composite traintuples which are at given ranks.
-
-    status (str): list composite traintuples with given status.
-                    Possible values: 'waiting', 'todo', 'doing', 'done', 'canceled', 'failed'
-
-    metadata (dict)
-        {
-            "key": str # the key of the metadata to filter on
-            "type": "is", "contains" or "exists" # the type of query that will be used
-            "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-        }: list composite traintuples matching provided conditions in metadata. Remote only.
-    compute_plan_key (str): list composite traintuples that are in the given compute plan. Remote only.
-    algo_key (str): list composite traintuples that used the given algo. Remote only.
-    dataset_key (str): list composite traintuples linked or using this dataset. Remote only.
-    data_sample_key (List[str]): list composite traintuples linked or that used this data sample(s).
-        Remote only.
 ## list_compute_plan
 ```text
 list_compute_plan(self, filters: dict = None, order_by: str = 'creation_date', ascending: bool = False) -> List[substra.sdk.models.ComputePlan]
@@ -592,30 +486,6 @@ Possible values: `creation_date`, `start_date`, `end_date`. Default creation_dat
 **Returns:**
 
  - `models.ComputePlan`: the returned object is described
-in the [models.ComputePlan](sdk_models.md#ComputePlan) model
-
-``Filters allowed keys:``
-
-    key (List[str]): list compute plans with listed keys.
-
-    name (str): list compute plans with name partially matching given string. Remote only.
-
-    owner (List[str]): list compute plans with listed owners.
-
-    worker (List[str]): list compute plans which ran on listed workers. Remote only.
-
-    status (str): list compute plans with given status.
-                    Possible values: 'waiting', 'todo', 'doing', 'done', 'canceled', 'failed'
-
-    metadata (dict)
-        {
-            "key": str # the key of the metadata to filter on
-            "type": "is", "contains" or "exists" # the type of query that will be used
-            "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-        }: list compute plans matching provided conditions in metadata. Remote only.
-    algo_key (str): list compute plans that used the given algo. Remote only.
-    dataset_key (str): list compute plans linked or using this dataset. Remote only.
-    data_sample_key (List[str]): list compute plans linked or that used this data sample(s). Remote only.
 ## list_data_sample
 ```text
 list_data_sample(self, filters: dict = None, ascending: bool = False) -> List[substra.sdk.models.DataSample]
@@ -630,16 +500,6 @@ List data samples.
 **Returns:**
 
  - `models.DataSample`: the returned object is described
-in the [models.DataSample](sdk_models.md#DataSample) model
-
-``Filters allowed keys:``
-
-    key (List[str]): list data samples with listed keys.
-
-    owner (List[str]): list data samples with listed owners.
-    compute_plan_key (str): list data samples that are in the given compute plan. Remote only.
-    algo_key (str): list data samples that used the given algo. Remote only.
-    dataset_key (str): list data samples linked or using this dataset. Remote only.
 ## list_dataset
 ```text
 list_dataset(self, filters: dict = None, ascending: bool = False) -> List[substra.sdk.models.Dataset]
@@ -654,62 +514,6 @@ List datasets.
 **Returns:**
 
  - `models.Dataset`: the returned object is described
-in the [models.Dataset](sdk_models.md#Dataset) model
-
-``Filters allowed keys:``
-
-    key (List[str]): list dataset with given keys.
-
-    name (str): list dataset with name partially matching given string. Remote only.
-
-    owner (List[str]): list dataset with given owners.
-
-    metadata (dict)
-        {
-            "key": str # the key of the metadata to filter on
-            "type": "is", "contains" or "exists" # the type of query that will be used
-            "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-        }: list dataset matching provided conditions in metadata.
-
-    permissions (List[str]) : list dataset which can be used by any of the listed nodes. Remote only.
-    compute_plan_key (str): list dataset that are in the given compute plan. Remote only.
-    algo_key (str): list dataset that used the given algo. Remote only.
-    data_sample_key (List[str]): list dataset linked or that used this data sample(s). Remote only.
-## list_metric
-```text
-list_metric(self, filters: dict = None, ascending: bool = False) -> List[substra.sdk.models.Metric]
-```
-
-List metrics.
-
-**Arguments:**
- - `filters (dict, optional)`: List of key values pair to filter on. Default None.
- - `ascending (bool, optional)`: Sorts results by oldest creation_date first. Default False (descending order).
-
-**Returns:**
-
- - `models.Metric`: the returned object is described
-in the [models.Metric](sdk_models.md#Metric) model
-
-``Filters allowed keys:``
-
-    key (List[str]): list metrics with given keys.
-
-    name (str): list metrics with name partially matching given string. Remote only.
-
-    owner (List[str]): list metrics with given owners.
-
-    metadata (dict)
-        {
-            "key": str # the key of the metadata to filter on
-            "type": "is", "contains" or "exists" # the type of query that will be used
-            "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-        }: list metrics matching provided conditions in metadata.
-
-    permissions (List[str]) : list metrics which can be used by any of the listed nodes. Remote only.
-    compute_plan_key (str): list metrics that are in the given compute plan. Remote only.
-    dataset_key (str): list metrics linked or using this dataset. Remote only.
-    data_sample_key (List[str]): list metrics linked or that used this data sample(s). Remote only.
 ## list_organization
 ```text
 list_organization(self, *args, **kwargs) -> List[substra.sdk.models.Organization]
@@ -733,31 +537,6 @@ Possible values: `creation_date`, `start_date`, `end_date`. Default creation_dat
 **Returns:**
 
  - `models.Testtuple`: the returned object is described
-in the [models.Testtuple](sdk_models.md#Testtuple) model
-
-``Filters allowed keys:``
-
-    key (List[str]): list testtuples with listed keys.
-
-    owner (List[str]): list testtuples with listed owners.
-
-    worker (List[str]): list testtuples which ran on listed workers. Remote only.
-
-    rank (List[int]): list testtuples which are at given ranks.
-
-    status (str): list testtuples with given status.
-                    Possible values: 'waiting', 'todo', 'doing', 'done', 'canceled', 'failed'
-
-    metadata (dict)
-        {
-            "key": str # the key of the metadata to filter on
-            "type": "is", "contains" or "exists" # the type of query that will be used
-            "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-        }: list testtuples matching provided conditions in metadata. Remote only.
-    compute_plan_key (str): list testtuples that are in the given compute plan. Remote only.
-    algo_key (str): list testtuples that used the given algo. Remote only.
-    dataset_key (str): list testtuples linked or using this dataset. Remote only.
-    data_sample_key (List[str]): list testtuples linked or that used this data sample(s). Remote only.
 ## list_traintuple
 ```text
 list_traintuple(self, filters: dict = None, order_by: str = 'creation_date', ascending: bool = False) -> List[substra.sdk.models.Traintuple]
@@ -774,31 +553,6 @@ Possible values: `creation_date`, `start_date`, `end_date`. Default creation_dat
 **Returns:**
 
  - `models.Traintuple`: the returned object is described
-in the [models.Traintuple](sdk_models.md#Traintuple) model
-
-``Filters allowed keys:``
-
-    key (List[str]): list traintuples with listed keys.
-
-    owner (List[str]): list traintuples with listed owners.
-
-    worker (List[str]): list traintuples which ran on listed workers. Remote only.
-
-    rank (List[int]): list traintuples which are at given ranks.
-
-    status (str): list traintuples with given status.
-                    Possible values: 'waiting', 'todo', 'doing', 'done', 'canceled', 'failed'
-
-    metadata (dict)
-        {
-            "key": str # the key of the metadata to filter on
-            "type": "is", "contains" or "exists" # the type of query that will be used
-            "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-        }: list traintuples matching provided conditions in metadata. Remote only.
-    compute_plan_key (str): list traintuples that are in the given compute plan. Remote only.
-    algo_key (str): list traintuples that used the given algo. Remote only.
-    dataset_key (str): list traintuples linked or using this dataset. Remote only.
-    data_sample_key (List[str]): list traintuples linked or that used this data sample(s). Remote only.
 ## login
 ```text
 login(self, username, password)

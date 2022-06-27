@@ -2,7 +2,6 @@
 
 - [DataSample](#DataSample)
 - [Dataset](#Dataset)
-- [Metric](#Metric)
 - [Testtuple](#Testtuple)
 - [Traintuple](#Traintuple)
 - [Aggregatetuple](#Aggregatetuple)
@@ -45,20 +44,6 @@ Dataset asset
 - metadata: Mapping[str, str]
 - creation_date: datetime
 - logs_permission: Permission
-```
-
-## Metric
-Metric
-```text
-- key: str
-- name: str
-- owner: str
-- permissions: Permissions
-- metadata: Mapping[str, str]
-- category: AlgoCategory
-- creation_date: datetime
-- description: _File
-- algorithm: _File
 ```
 
 ## Testtuple

@@ -62,7 +62,7 @@ class TestOpener(tools.Opener):
             return json.dump(y_pred, f)
 """
 
-DEFAULT_METRICS_SCRIPT = """
+DEFAULT_METRIC_ALGO_SCRIPT = """
 import json
 import substratools as tools
 class TestMetrics(tools.Metrics):
@@ -199,6 +199,7 @@ DEFAULT_ALGO_SCRIPTS = {
     AlgoCategory.simple: DEFAULT_ALGO_SCRIPT,
     AlgoCategory.composite: DEFAULT_COMPOSITE_ALGO_SCRIPT,
     AlgoCategory.aggregate: DEFAULT_AGGREGATE_ALGO_SCRIPT,
+    AlgoCategory.metric: DEFAULT_METRIC_ALGO_SCRIPT,
 }
 
 INVALID_ALGO_SCRIPT = DEFAULT_ALGO_SCRIPT.replace("train", "naitr")
@@ -347,31 +348,6 @@ class AssetsFactory:
             description=str(description_path),
             permissions=permissions or DEFAULT_PERMISSIONS,
             logs_permission=logs_permission or DEFAULT_PERMISSIONS,
-        )
-
-    def create_metric(self, permissions=None, metadata=None):
-        idx = self._metric_counter.inc()
-        tmpdir = self._workdir / f"metric-{idx}"
-        tmpdir.mkdir()
-        name = _shorten_name(f"{self._uuid} - Metric {idx}")
-
-        description_path = tmpdir / "description.md"
-        description_content = name
-        with open(description_path, "w") as f:
-            f.write(description_content)
-
-        metrics_zip = create_archive(
-            tmpdir / "metrics",
-            ("metrics.py", DEFAULT_METRICS_SCRIPT),
-            ("Dockerfile", DEFAULT_METRICS_DOCKERFILE),
-        )
-
-        return substra.sdk.schemas.MetricSpec(
-            name=name,
-            description=str(description_path),
-            file=str(metrics_zip),
-            metadata=metadata,
-            permissions=permissions or DEFAULT_PERMISSIONS,
         )
 
     def create_algo(
