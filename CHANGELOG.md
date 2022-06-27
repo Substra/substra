@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.27.0](<https://github.com/owkin/substra/releases/tag/0.27.0>) - 2022-06-27
+
 ### Changes
 
 - BREAKING CHANGE: implement filtering and ordering for list methods in SDK (#187)
