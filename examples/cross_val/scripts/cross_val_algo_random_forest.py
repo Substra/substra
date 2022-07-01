@@ -68,6 +68,3 @@ with open(folds_keys_path, "w") as f:
     json.dump(folds_keys, f, indent=2)
 
 print(f"Tuples keys have been saved to {os.path.abspath(folds_keys_path)}")
-print("\nRun the following commands to track the status of the tuples:")
-print(f'    substra list traintuple -f "traintuple:tag:{tag}" --profile organization-1')
-print(f'    substra list testtuple -f "testtuple:tag:{tag}" --profile organization-1')

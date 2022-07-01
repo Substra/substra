@@ -7,11 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- CLI commands `add`, `get` and `list` (#224)
+
 ## [0.27.0](https://github.com/owkin/substra/releases/tag/0.27.0) - 2022-06-27
 
-### Changes
+### Changed
 
-- BREAKING CHANGE: implement filtering and ordering for list methods in SDK (#187)
+- BREAKING: implement filtering and ordering for list methods in SDK (#187)
 
   - Removed filtering syntax `asset::key::value` in SDK and CLI
   - New filtering syntax in SDK `filters={key:["value1", "value2"]}` and ordering possibility:

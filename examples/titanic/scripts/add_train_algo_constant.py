@@ -108,6 +108,4 @@ with open(assets_keys_path, "w") as f:
     json.dump(assets_keys, f, indent=2)
 
 print(f"Assets keys have been saved to {os.path.abspath(assets_keys_path)}")
-print("\nRun the following commands to track the status of the tuples:")
-print(f"    substra get traintuple {traintuple_key} --profile org-1")
-print(f"    substra get testtuple {testtuple_key} --profile org-1")
+

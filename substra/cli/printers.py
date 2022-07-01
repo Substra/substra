@@ -20,7 +20,6 @@ import pydantic
 import yaml
 
 from substra.sdk import assets
-from substra.sdk import models
 
 
 def find_dict_composite_key_value(asset_dict, composite_key):
@@ -62,76 +61,6 @@ class Field:
                 print(f"{name}None")
         else:
             print(f"{name}{value}")
-
-
-class PermissionField(Field):
-    def get_value(self, item, expand=False):
-        is_public = find_dict_composite_key_value(item, f"{self.ref}.process.public")
-        if is_public:
-            return "Processable by anyone"
-
-        authorized_ids = find_dict_composite_key_value(item, f"{self.ref}.process.authorized_ids")
-        if not authorized_ids:
-            return "Processable by its owner only"
-
-        return authorized_ids
-
-    def print_details(self, item, field_length, expand):
-        value = self.get_value(item, expand)
-        if isinstance(value, list):
-            name = self.name.upper().ljust(field_length)
-            padding = " " * field_length
-            print(f"{name}Processable by:")
-            for v in value:
-                print(f"{padding}- {v}")
-        else:
-            super().print_details(item, field_length, expand)
-
-
-class KeysField(Field):
-    def _get_key(self, v):
-        return v
-
-    def get_value(self, item, expand=False):
-        value = super().get_value(item, expand)
-        if not expand and value:
-            n = len(value)
-            value = f"{n} key" if n == 1 else f"{n} keys"
-        elif value:
-            value = [self._get_key(v) for v in value]
-        return value
-
-
-class HeadModelKeyField(Field):
-    def get_value(self, item, expand=False):
-        value = super().get_value(item, expand) or list()  # item may be None
-        for v in value:
-            if v["category"] == models.ModelType.head:
-                return v["key"]
-
-
-class ModelKeyField(Field):
-    def get_value(self, item, expand=False):
-        value = super().get_value(item, expand) or list()  # item may be None
-        for v in value:
-            if v["category"] == models.ModelType.simple:
-                return v["key"]
-
-
-class CountField(Field):
-    def get_value(self, item, **kwargs):
-        value = super().get_value(item)
-        if value:
-            return len(value)
-        return 0
-
-
-class CurrentOrganizationField(Field):
-    def get_value(self, item, expand=False):
-        value = super().get_value(item, expand)
-        if value:
-            return "(current)"
-        return ""
 
 
 class ProgressField(Field):
@@ -208,7 +137,6 @@ class AssetPrinter(BasePrinter):
     list_fields = ()
     single_fields = ()
 
-    download_message = None
     has_description = True
 
     def _get_list_fields(self):
@@ -222,13 +150,6 @@ class AssetPrinter(BasePrinter):
             return f"--profile {profile}"
         return ""
 
-    def print_download_message(self, item, profile=None):
-        if self.download_message:
-            key_value = self.key_field.get_value(item)
-            profile_arg = self.get_profile_arg(profile)
-            print("\n" + self.download_message)
-            print(f"\tsubstra download {self.asset_type} {key_value} {profile_arg}")
-
     def print_description_message(self, item, profile=None):
         if self.has_description:
             key_value = self.key_field.get_value(item)
@@ -237,7 +158,6 @@ class AssetPrinter(BasePrinter):
             print(f"\tsubstra describe {self.asset_type} {key_value} {profile_arg}")
 
     def print_messages(self, item, profile=None):
-        self.print_download_message(item, profile)
         self.print_description_message(item, profile)
 
     def print(self, data, profile=None, expand=False, is_list=False):
@@ -266,20 +186,6 @@ class YamlPrinter:
             data = data.dict()
         json_format = json.dumps(data, indent=2, default=str)
         print(yaml.dump(json.loads(json_format), default_flow_style=False))
-
-
-class AlgoPrinter(AssetPrinter):
-    asset_type = "algo"
-
-    list_fields = (Field("Name", "name"),)
-    single_fields = (
-        Field("Name", "name"),
-        Field("Owner", "owner"),
-        Field("Metadata", "metadata"),
-        PermissionField("Permissions", "permissions"),
-    )
-
-    download_message = "Download this algorithm's code:"
 
 
 class OrganizationInfoPrinter(BasePrinter):
@@ -318,206 +224,9 @@ class ComputePlanPrinter(AssetPrinter):
         Field("Clean model", "delete_intermediary_models"),
     )
 
-    def print_messages(self, item, profile=None):
-        key_value = self.key_field.get_value(item)
-        profile_arg = self.get_profile_arg(profile)
-
-        print("\nDisplay this compute_plan's traintuples:")
-        print(f"\tsubstra list traintuple -f " f'"traintuple:compute_plan_key:{key_value}" {profile_arg}')
-
-        print("\nDisplay this compute_plan's composite_traintuples:")
-        print(
-            f"\tsubstra list composite_traintuple"
-            f' -f "composite_traintuple:compute_plan_key:{key_value}" {profile_arg}'
-        )
-
-        print("\nDisplay this compute_plan's aggregatetuples:")
-        print(f"\tsubstra list aggregatetuple" f' -f "aggregatetuple:compute_plan_key:{key_value}" {profile_arg}')
-
-        print("\nDisplay this compute_plan's testtuples:")
-        print(f"\tsubstra list testtuple" f' -f "testtuple:compute_plan_key:{key_value}" {profile_arg}')
-        return
-
-
-class DataSamplePrinter(AssetPrinter):
-    asset_type = "data sample"
-
-
-class DatasetPrinter(AssetPrinter):
-    asset_type = "dataset"
-
-    list_fields = (
-        Field("Name", "name"),
-        Field("Type", "type"),
-    )
-    single_fields = (
-        Field("Name", "name"),
-        Field("Metric key", "metric_key"),
-        Field("Type", "type"),
-        KeysField("Train data sample keys", "train_data_sample_keys"),
-        KeysField("Test data sample keys", "test_data_sample_keys"),
-        Field("Owner", "owner"),
-        Field("Metadata", "metadata"),
-        PermissionField("Permissions", "permissions"),
-    )
-    download_message = "Download this data manager's opener:"
-
-
-class TraintuplePrinter(AssetPrinter):
-    asset_type = "traintuple"
-
-    list_fields = (
-        Field("Algo name", "algo.name"),
-        Field("Status", "status"),
-        Field("Rank", "rank"),
-        Field("Tag", "tag"),
-        Field("Compute Plan key", "compute_plan_key"),
-    )
-    single_fields = (
-        ModelKeyField("Model key", "train.models"),
-        Field("Algo key", "algo.key"),
-        Field("Algo name", "algo.name"),
-        Field("Status", "status"),
-        Field("Dataset key", "train.data_manager_key"),
-        KeysField("Train data sample keys", "train.data_sample_keys"),
-        Field("Parent task keys", "parent_task_keys"),
-        Field("Rank", "rank"),
-        Field("Compute Plan key", "compute_plan_key"),
-        Field("Tag", "tag"),
-        Field("Owner", "owner"),
-        Field("Worker", "worker"),
-        Field("Metadata", "metadata"),
-        PermissionField("Permissions", "train.model_permissions"),
-    )
-    has_description = False
-
-    def print_messages(self, item, profile=None):
-        key_value = self.key_field.get_value(item)
-        profile_arg = self.get_profile_arg(profile)
-
-        print("\nDisplay this traintuple's testtuples:")
-        print(f'\tsubstra list testtuple -f "testtuple:traintuple_key:{key_value}" {profile_arg}')
-
-
-class AggregateTuplePrinter(AssetPrinter):
-    asset_type = "aggregatetuple"
-
-    list_fields = (
-        Field("Algo name", "algo.name"),
-        Field("Status", "status"),
-        Field("Rank", "rank"),
-        Field("Tag", "tag"),
-        Field("Compute Plan key", "compute_plan_key"),
-    )
-    single_fields = (
-        ModelKeyField("Model key", "aggregate.models"),
-        Field("Algo key", "algo.key"),
-        Field("Algo name", "algo.name"),
-        Field("Status", "status"),
-        Field("Parent task keys", "parent_task_keys"),
-        Field("Rank", "rank"),
-        Field("Compute Plan key", "compute_plan_key"),
-        Field("Tag", "tag"),
-        Field("Owner", "owner"),
-        Field("Worker", "worker"),
-        Field("Metadata", "metadata"),
-        PermissionField("Permissions", "aggregate.model_permissions"),
-    )
-    has_description = False
-
-    def print_messages(self, item, profile=None):
-        key_value = self.key_field.get_value(item)
-        profile_arg = self.get_profile_arg(profile)
-
-        print("\nDisplay this aggregatetuple's testtuples:")
-        print(f'\tsubstra list testtuple -f "testtuple:traintuple_key:{key_value}" {profile_arg}')
-
-
-class CompositeTraintuplePrinter(AssetPrinter):
-    asset_type = "composite_traintuple"
-
-    list_fields = (
-        Field("Composite algo name", "algo.name"),
-        Field("Status", "status"),
-        Field("Rank", "rank"),
-        Field("Tag", "tag"),
-        Field("Compute Plan key", "compute_plan_key"),
-    )
-
-    single_fields = (
-        HeadModelKeyField("Out head model key", "composite.models"),
-        PermissionField("Out head model permissions", "composite.head_permissions"),
-        ModelKeyField("Out trunk model key", "composite.models"),
-        PermissionField("Out trunk model permissions", "composite.trunk_permissions"),
-        Field("Composite algo key", "algo.key"),
-        Field("Composite algo name", "algo.name"),
-        Field("Status", "status"),
-        Field("Dataset key", "composite.data_manager_key"),
-        KeysField("Train data sample keys", "composite.data_sample_keys"),
-        Field("Parent task keys", "parent_task_keys"),
-        Field("Rank", "rank"),
-        Field("Compute Plan key", "compute_plan_key"),
-        Field("Tag", "tag"),
-        Field("Owner", "owner"),
-        Field("Worker", "worker"),
-        Field("Metadata", "metadata"),
-    )
-    has_description = False
-
-    def print_messages(self, item, profile=None):
-        key_value = self.key_field.get_value(item)
-        profile_arg = self.get_profile_arg(profile)
-
-        print("\nDisplay this composite traintuple's testtuples:")
-        print(f'\tsubstra list testtuple -f "testtuple:traintuple_key:{key_value}" {profile_arg}')
-
-
-class TesttuplePrinter(AssetPrinter):
-    asset_type = "testtuple"
-
-    list_fields = (
-        Field("Algo name", "algo.name"),
-        Field("Status", "status"),
-        Field("Perfs", "test.perfs"),
-        Field("Rank", "rank"),
-        Field("Tag", "tag"),
-        Field("Compute Plan key", "compute_plan_key"),
-    )
-    single_fields = (
-        Field("Parent task keys", "parent_task_keys"),
-        Field("Algo key", "algo.key"),
-        Field("Algo name", "algo.name"),
-        Field("Metric keys", "test.metric_keys"),
-        Field("Status", "status"),
-        Field("Perfs", "test.perfs"),
-        Field("Dataset key", "test.data_manager_key"),
-        KeysField("Test data sample keys", "test.data_sample_keys"),
-        Field("Rank", "rank"),
-        Field("Tag", "tag"),
-        Field("Metadata", "metadata"),
-        Field("Compute Plan key", "compute_plan_key"),
-        Field("Owner", "owner"),
-        Field("Worker", "worker"),
-    )
-    has_description = False
-
-
-class OrganizationPrinter(AssetPrinter):
-    asset_name = "organization"
-    key_field = Field("ORGANIZATION ID", "id")
-    list_fields = (CurrentOrganizationField("", "is_current"),)
-
 
 PRINTERS = {
-    assets.ALGO: AlgoPrinter,
     assets.COMPUTE_PLAN: ComputePlanPrinter,
-    assets.DATASET: DatasetPrinter,
-    assets.DATA_SAMPLE: DataSamplePrinter,
-    assets.TRAINTUPLE: TraintuplePrinter,
-    assets.AGGREGATETUPLE: AggregateTuplePrinter,
-    assets.COMPOSITE_TRAINTUPLE: CompositeTraintuplePrinter,
-    assets.TESTTUPLE: TesttuplePrinter,
-    assets.ORGANIZATION: OrganizationPrinter,
 }
 
 

@@ -39,9 +39,9 @@ def test_find_dict_composite_key_value_fails():
 @pytest.mark.parametrize(
     "asset,output_format,printer_cls",
     [
-        ("algo", "pretty", printers.AssetPrinter),
-        ("algo", "json", printers.JsonPrinter),
-        ("algo", "yaml", printers.YamlPrinter),
+        ("compute_plan", "pretty", printers.AssetPrinter),
+        ("compute_plan", "json", printers.JsonPrinter),
+        ("compute_plan", "yaml", printers.YamlPrinter),
         ("foo", "pretty", printers.JsonPrinter),
         ("foo", "json", printers.JsonPrinter),
         ("foo", "yaml", printers.YamlPrinter),
