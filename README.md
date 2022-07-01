@@ -14,8 +14,6 @@ CLI and SDK for interacting with Substra platform.
   - [SDK](#sdk)
 - [Documentation](#documentation)
 - [Examples](#examples)
-- [Compatibility table (close source)](#compatibility-table-close-source)
-- [Compatibility table (open source)](#compatibility-table-open-source)
 - [Contributing](#contributing)
   - [Setup](#setup)
   - [Code formatting](#code-formatting)
