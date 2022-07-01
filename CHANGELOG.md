@@ -7,20 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.27.0](<https://github.com/owkin/substra/releases/tag/0.27.0>) - 2022-06-27
+## [0.27.0](https://github.com/owkin/substra/releases/tag/0.27.0) - 2022-06-27
 
 ### Changes
 
 - BREAKING CHANGE: implement filtering and ordering for list methods in SDK (#187)
+
   - Removed filtering syntax `asset::key::value` in SDK and CLI
   - New filtering syntax in SDK `filters={key:["value1", "value2"]}` and ordering possibility:
 
-      ```diff
-      - list_***(self, filters=None) -> List[substra.sdk.models.***]
-      + list_***(self, filters: dict = None, order_by: str = 'creation_date', ascending: bool = False) -> List[substra.sdk.models.***]
-      ```
+    ```diff
+    - list_***(self, filters=None) -> List[substra.sdk.models.***]
+    + list_***(self, filters: dict = None, order_by: str = 'creation_date', ascending: bool = False) -> List[substra.sdk.models.***]
+    ```
 
-## [0.26.0](<https://github.com/owkin/substra/releases/tag/0.26.0>) - 2022-06-20
+## [0.26.0](https://github.com/owkin/substra/releases/tag/0.26.0) - 2022-06-20
 
 ### Fixed
 
@@ -30,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - BREAKING: Removed metrics APIs and types; use algo APIs and types instead (#210)
 
-## [0.25.0](<https://github.com/owkin/substra/releases/tag/0.25.0>) - 2022-06-14
+## [0.25.0](https://github.com/owkin/substra/releases/tag/0.25.0) - 2022-06-14
 
 ### Fixed
 
@@ -63,7 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - CLI: the command `substra list node` is now `substra list organization`
   - local mode: when using chainkeys, the chainkey file is renamed from `node_name_id.json` to `organization_name_id.json`
 
-## [0.24.0](<https://github.com/owkin/substra/releases/tag/0.24.0>) - 2022-06-07
+## [0.24.0](https://github.com/owkin/substra/releases/tag/0.24.0) - 2022-06-07
 
 ### Added
 
@@ -73,7 +74,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - BREAKING CHANGE (UpdateComputePlanSpec key field): Use new register tasks endpoint (#196)
 
-## [0.23.0](<https://github.com/owkin/substra/releases/tag/0.23.0>) - 2022-05-31
+## [0.23.0](https://github.com/owkin/substra/releases/tag/0.23.0) - 2022-05-31
 
 ### Added
 
@@ -83,7 +84,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - feat: in debug mode, subprocess errors are now caught and raised as `ExecutionError` (#198)
 
-## [0.22.0](<https://github.com/owkin/substra/releases/tag/0.22.0>) - 2022-05-22
+## [0.22.0](https://github.com/owkin/substra/releases/tag/0.22.0) - 2022-05-22
 
 ### Added
 
@@ -94,7 +95,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - feat: Add algo named inputs and outputs for existing task in remote mode (#191)
 - feat: log level set to warning for connect-tools (#185)
 
-## [0.21.0](<https://github.com/owkin/substra/releases/tag/0.21.0>) - 2022-05-16
+## [0.21.0](https://github.com/owkin/substra/releases/tag/0.21.0) - 2022-05-16
 
 ### Changed
 
