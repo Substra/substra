@@ -565,9 +565,9 @@ organization_info(self) -> dict
 ```
 
 Get organization information.
-## update_compute_plan
+## add_compute_plan_tuples
 ```text
-update_compute_plan(self, key: str, data: Union[dict, substra.sdk.schemas.UpdateComputePlanSpec], auto_batching: bool = True, batch_size: int = 20) -> substra.sdk.models.ComputePlan
+add_compute_plan_tuples(self, key: str, data: Union[dict, substra.sdk.schemas.UpdateComputePlanSpec], auto_batching: bool = True, batch_size: int = 20) -> substra.sdk.models.ComputePlan
 ```
 
 Update compute plan.

@@ -232,7 +232,7 @@ class Remote(base.BaseBackend):
             json={"tasks": batch_data},
         )
 
-    def update_compute_plan(self, spec, spec_options):
+    def add_compute_plan_tuples(self, spec, spec_options):
         # Remove auto_batching and batch_size from spec_options
         auto_batching = spec_options.pop(AUTO_BATCHING, False)
         batch_size = spec_options.pop(BATCH_SIZE, None)

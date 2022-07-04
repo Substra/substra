@@ -222,7 +222,7 @@ class TestsDebug:
             traintuple_id=str(uuid.uuid4()),
         )
 
-        compute_plan = client.update_compute_plan(
+        compute_plan = client.add_compute_plan_tuples(
             key=compute_plan.key,
             data={
                 "traintuples": [traintuple],

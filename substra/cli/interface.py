@@ -455,7 +455,7 @@ def update(ctx):
     pass
 
 
-@update.command("data_sample")
+@update.command("dataset_data_samples_link")
 @click.argument(
     "data_samples",
     type=click.Path(exists=True, dir_okay=False),
@@ -466,7 +466,7 @@ def update(ctx):
 @click_global_conf
 @click.pass_context
 @error_printer
-def update_data_sample(ctx, data_samples, dataset_key):
+def link_dataset_with_data_samples(ctx, data_samples, dataset_key):
     """Link data samples with dataset.
 
     The data samples path must point to a valid JSON file with the following
@@ -488,7 +488,7 @@ def update_data_sample(ctx, data_samples, dataset_key):
     display(res)
 
 
-@update.command("compute_plan")
+@update.command("compute_plan_tuples")
 @click.argument("compute_plan_key", type=click.STRING)
 @click.argument(
     "tuples",
@@ -508,8 +508,8 @@ def update_data_sample(ctx, data_samples, dataset_key):
 @click_global_conf_with_output_format
 @click.pass_context
 @error_printer
-def update_compute_plan(ctx, compute_plan_key, tuples, no_auto_batching, batch_size):
-    """Update compute plan.
+def add_compute_plan_tuples(ctx, compute_plan_key, tuples, no_auto_batching, batch_size):
+    """Add tuples to compute plan.
 
     The tuples path must point to a valid JSON file with the following schema:
 
@@ -566,7 +566,7 @@ def update_compute_plan(ctx, compute_plan_key, tuples, no_auto_batching, batch_s
             "The --batch_size option cannot be used when using " "--no_auto_batching.",
         )
     client = get_client(ctx.obj)
-    res = client.update_compute_plan(compute_plan_key, tuples, not no_auto_batching, batch_size)
+    res = client.add_compute_plan_tuples(compute_plan_key, tuples, not no_auto_batching, batch_size)
     printer = printers.get_asset_printer(assets.COMPUTE_PLAN, ctx.obj.output_format)
     printer.print(res, is_list=False)
 

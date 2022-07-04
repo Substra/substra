@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changes
+
+- BREAKING CHANGE: Client.update_compute_plan renamed Client.add_compute_plan_tuples (#223)
+
 ### Removed
 
 - CLI commands `add`, `get` and `list` (#224)

@@ -771,7 +771,7 @@ class Client(object):
         return self._backend.list(schemas.Type.Organization, paginated=False)
 
     @logit
-    def update_compute_plan(
+    def add_compute_plan_tuples(
         self,
         key: str,
         data: Union[dict, schemas.UpdateComputePlanSpec],
@@ -804,7 +804,7 @@ class Client(object):
             "auto_batching": auto_batching,
             "batch_size": batch_size,
         }
-        return self._backend.update_compute_plan(spec, spec_options=spec_options)
+        return self._backend.add_compute_plan_tuples(spec, spec_options=spec_options)
 
     @logit
     def link_dataset_with_data_samples(

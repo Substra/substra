@@ -150,7 +150,7 @@ def test_command_cancel_compute_plan(workdir, mocker):
     m.assert_called()
 
 
-def test_command_update_data_sample(workdir, mocker):
+def test_command_link_dataset_with_data_samples(workdir, mocker):
     data_samples = {
         "keys": ["key1", "key2"],
     }
@@ -159,19 +159,19 @@ def test_command_update_data_sample(workdir, mocker):
     json_file.write_text(json.dumps(data_samples))
 
     m = mock_client_call(mocker, "link_dataset_with_data_samples")
-    client_execute(workdir, ["update", "data_sample", str(json_file), "--dataset-key", "foo"])
+    client_execute(workdir, ["update", "dataset_data_samples_link", str(json_file), "--dataset-key", "foo"])
     m.assert_called()
 
     invalid_json_file = workdir / "invalid_json_file.json"
     invalid_json_file.write_text("test")
 
     res = client_execute(
-        workdir, ["update", "data_sample", str(invalid_json_file), "--dataset-key", "foo"], exit_code=2
+        workdir, ["update", "dataset_data_samples_link", str(invalid_json_file), "--dataset-key", "foo"], exit_code=2
     )
     assert re.search(r"File '.*' is not a valid JSON file\.", res)
 
     res = client_execute(
-        workdir, ["update", "data_sample", "non_existing_file.txt", "--dataset-key", "foo"], exit_code=2
+        workdir, ["update", "dataset_data_samples_link", "non_existing_file.txt", "--dataset-key", "foo"], exit_code=2
     )
     assert re.search(r"File '.*' does not exist\.", res)
 
