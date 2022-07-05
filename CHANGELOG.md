@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.28.0](https://github.com/owkin/substra/releases/tag/0.28.0) - 2022-07-05
+
 ### Changes
 
 - BREAKING CHANGE: Client.update_compute_plan renamed Client.add_compute_plan_tuples (#223)
