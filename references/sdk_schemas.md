@@ -3,12 +3,14 @@
 - [DataSampleSpec](#DataSampleSpec)
 - [DatasetSpec](#DatasetSpec)
 - [AlgoSpec](#AlgoSpec)
+- [PredicttupleSpec](#PredicttupleSpec)
 - [TesttupleSpec](#TesttupleSpec)
 - [TraintupleSpec](#TraintupleSpec)
 - [AggregatetupleSpec](#AggregatetupleSpec)
 - [CompositeTraintupleSpec](#CompositeTraintupleSpec)
 - [ComputePlanSpec](#ComputePlanSpec)
 - [UpdateComputePlanSpec](#UpdateComputePlanSpec)
+- [ComputePlanPredicttupleSpec](#ComputePlanPredicttupleSpec)
 - [ComputePlanTesttupleSpec](#ComputePlanTesttupleSpec)
 - [ComputePlanAggregatetupleSpec](#ComputePlanAggregatetupleSpec)
 - [ComputePlanCompositeTraintupleSpec](#ComputePlanCompositeTraintupleSpec)
@@ -53,6 +55,20 @@ Specification for creating an algo
 - category: AlgoCategory
 ```
 
+## PredicttupleSpec
+Specification for creating a predict tuple
+```text
+- key: str
+- tag: Optional[str]
+- compute_plan_key: Optional[str]
+- metadata: Optional[Mapping[str, str]]
+- algo_key: str
+- traintuple_key: str
+- data_manager_key: str
+- test_data_sample_keys: List[str]
+- category: TaskCategory
+```
+
 ## TesttupleSpec
 Specification for creating a testtuple
 ```text
@@ -60,8 +76,8 @@ Specification for creating a testtuple
 - tag: Optional[str]
 - compute_plan_key: Optional[str]
 - metadata: Optional[Mapping[str, str]]
-- metric_keys: List[str]
-- traintuple_key: str
+- algo_key: str
+- predicttuple_key: str
 - data_manager_key: str
 - test_data_sample_keys: List[str]
 - category: TaskCategory
@@ -120,6 +136,7 @@ Specification for creating a compute plan
 - traintuples: Optional[List[ComputePlanTraintupleSpec]]
 - composite_traintuples: Optional[List[ComputePlanCompositeTraintupleSpec]]
 - aggregatetuples: Optional[List[ComputePlanAggregatetupleSpec]]
+- predicttuples: Optional[List[ComputePlanPredicttupleSpec]]
 - testtuples: Optional[List[ComputePlanTesttupleSpec]]
 - tag: Optional[str]
 - name: str
@@ -134,15 +151,29 @@ Specification for updating a compute plan
 - traintuples: Optional[List[ComputePlanTraintupleSpec]]
 - composite_traintuples: Optional[List[ComputePlanCompositeTraintupleSpec]]
 - aggregatetuples: Optional[List[ComputePlanAggregatetupleSpec]]
+- predicttuples: Optional[List[ComputePlanPredicttupleSpec]]
 - testtuples: Optional[List[ComputePlanTesttupleSpec]]
+```
+
+## ComputePlanPredicttupleSpec
+Specification of a predict tuple inside a compute
+plan specification
+```text
+- predicttuple_id: str
+- algo_key: str
+- traintuple_id: str
+- tag: Optional[str]
+- data_manager_key: str
+- test_data_sample_keys: List[str]
+- metadata: Optional[Mapping[str, str]]
 ```
 
 ## ComputePlanTesttupleSpec
 Specification of a testtuple inside a compute
 plan specification
 ```text
-- metric_keys: List[str]
-- traintuple_id: str
+- algo_key: str
+- predicttuple_id: str
 - tag: Optional[str]
 - data_manager_key: str
 - test_data_sample_keys: List[str]

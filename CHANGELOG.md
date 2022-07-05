@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - feat: support metadata filters in local mode (#218)
 
+### Changed
+
+- BREAKING: convert (test task) to (predict task + test task) (#202)
+
 ## [0.28.0](https://github.com/owkin/substra/releases/tag/0.28.0) - 2022-07-05
 
 ### Changes
@@ -20,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - CLI commands `add`, `get` and `list` (#224)
+
 
 ## [0.27.0](https://github.com/owkin/substra/releases/tag/0.27.0) - 2022-06-27
 

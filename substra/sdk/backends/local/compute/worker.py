@@ -52,7 +52,7 @@ class Filenames(str, Enum):
     OUT_MODEL = "out-model"
     OUT_HEAD_MODEL = "out-head-model"
     OUT_TRUNK_MODEL = "out-trunk-model"
-    PREDICTIONS = "pred"
+    PREDICTIONS = "predictions"
     PERFORMANCE = "perf.json"
 
 
@@ -119,6 +119,8 @@ class Worker:
             data_sample_keys = tuple_.composite.data_sample_keys
         elif isinstance(tuple_, models.Testtuple):
             data_sample_keys = tuple_.test.data_sample_keys
+        elif isinstance(tuple_, models.Predicttuple):
+            data_sample_keys = tuple_.predict.data_sample_keys
         samples = [self._db.get(schemas.Type.DataSample, key) for key in data_sample_keys]
         return {sample.key: sample.path for sample in samples}
 
@@ -128,6 +130,8 @@ class Worker:
         elif model_name == Filenames.OUT_TRUNK_MODEL:
             category = models.ModelType.simple
         elif model_name == Filenames.OUT_MODEL:
+            category = models.ModelType.simple
+        elif model_name == Filenames.PREDICTIONS:
             category = models.ModelType.simple
         else:
             raise Exception(f"TODO write - Unknown model name {model_name}")
@@ -429,8 +433,8 @@ class Worker:
 
                     compute_plan.duration = int((compute_plan.end_date - compute_plan.start_date).total_seconds())
 
-    # TODO: 'schedule_testtuple' is too complex, consider refactoring
-    def schedule_testtuple(self, tuple_: models.Testtuple):  # noqa: C901
+    # TODO: 'schedule_predicttuple' is too complex, consider refactoring
+    def schedule_predicttuple(self, tuple_: models.Testtuple):  # noqa: C901
         """Schedules a ML task (blocking)."""
         with self._context(tuple_.key) as tuple_dir:
             tuple_.status = models.Status.doing
@@ -456,8 +460,7 @@ class Worker:
                 raise exceptions.NotFound(f"Wrong pk {tuple_.parent_task_keys[0]}", 404)
 
             algo = self._db.get_with_files(schemas.Type.Algo, tuple_.algo.key)
-            metrics = [self._db.get_with_files(schemas.Type.Algo, metric_key) for metric_key in tuple_.test.metric_keys]
-            dataset = self._db.get_with_files(schemas.Type.Dataset, tuple_.test.data_manager_key)
+            dataset = self._db.get_with_files(schemas.Type.Dataset, tuple_.predict.data_manager_key)
 
             compute_plan = None
             if tuple_.compute_plan_key:
@@ -466,7 +469,6 @@ class Worker:
             # prepare model and datasamples
             predictions_volume = _mkdir(os.path.join(tuple_dir, "pred"))
             models_volume = _mkdir(os.path.join(tuple_dir, "models"))
-            performance_volume = _mkdir(os.path.join(tuple_dir, "perf"))
 
             volumes = {
                 "_VOLUME_OPENER": dataset.opener.storage_address,
@@ -537,7 +539,7 @@ class Worker:
                 volumes["_VOLUME_INPUT_DATASAMPLES"] = _mkdir(os.path.join(tuple_dir, "data"))
                 data_sample_paths = self._get_data_sample_paths(tuple_)
                 data_sample_paths_arg_str = self._get_data_sample_paths_arg(
-                    tuple_.test.data_sample_keys,
+                    tuple_.predict.data_sample_keys,
                     data_volume="${_VOLUME_INPUT_DATASAMPLES}",
                 )
 
@@ -549,11 +551,11 @@ class Worker:
                 )
             else:
                 command_template += " --fake-data"
-                command_template += f" --n-fake-samples {len(tuple_.test.data_sample_keys)}"
+                command_template += f" --n-fake-samples {len(tuple_.predict.data_sample_keys)}"
 
             inputs.append(TaskResource(id=TASK_IO_OPENER, value="${_VOLUME_OPENER}"))
             outputs.append(
-                TaskResource(id=TASK_IO_PREDICTIONS, value="${_VOLUME_OUTPUT_PRED}" f"/{Filenames.PREDICTIONS}")
+                TaskResource(id=TASK_IO_PREDICTIONS, value="${_VOLUME_OUTPUT_PRED}" + f"/{Filenames.PREDICTIONS}")
             )
             command_template = (
                 command_template
@@ -574,50 +576,127 @@ class Worker:
                 envs=None,
             )
 
-            # Calculate the metrics
-            for metric in metrics:
-                volumes = {
-                    "_VOLUME_OUTPUT_PRED": predictions_volume,
-                    "_VOLUME_OPENER": dataset.opener.storage_address,
-                    "_VOLUME_OUTPUT_PERF": performance_volume,
-                    "_VOLUME_INPUT_DATASAMPLES": os.path.join(tuple_dir, "data"),
-                }
-
-                if self._db.is_local(dataset.key, schemas.Type.Dataset):
-                    data_sample_paths_arg = " ".join(data_sample_paths_arg_str)
-                    command_template = " --fake-data-mode DISABLED"
-                    command_template += f" --data-sample-paths {data_sample_paths_arg}"
-                else:
-                    command_template = " --fake-data-mode FAKE_Y"
-                    command_template += f" --n-fake-samples {len(tuple_.test.data_sample_keys)}"
-
-                command_template += " --opener-path ${_VOLUME_OPENER}"
-                command_template += " --input-predictions-path ${_VOLUME_OUTPUT_PRED}" f"/{Filenames.PREDICTIONS}"
-                command_template += " --output-perf-path ${_VOLUME_OUTPUT_PERF}" f"/{Filenames.PERFORMANCE}"
-                command_template += " --log-level warning"
-
-                container_name = f"metrics-{metric.algorithm.checksum}"
-                self._spawner.spawn(
-                    container_name,
-                    str(metric.algorithm.storage_address),
-                    command_template=string.Template(command_template),
-                    local_volumes=volumes,
-                    data_sample_paths=data_sample_paths,
-                    envs=None,
-                )
-
-                # save move performance
-                tmp_path = os.path.join(performance_volume, Filenames.PERFORMANCE)
-                pred_dir = _mkdir(os.path.join(self._local_worker_dir, "performances", tuple_.key))
-                pred_path = os.path.join(pred_dir, f"performance_{metric.key}.json")
-                shutil.copy(tmp_path, pred_path)
-
-                with open(pred_path, "r") as f:
-                    tuple_.test.perfs[metric.key] = json.load(f).get("all")
+            # save move output models
+            prediction = self._save_output_model(
+                tuple_,
+                Filenames.PREDICTIONS,
+                predictions_volume,
+                permissions=tuple_.predict.prediction_permissions,
+            )
+            tuple_.predict.models = [prediction]
 
             # set status
             tuple_.status = models.Status.done
             tuple_.end_date = datetime.datetime.now()
+
+            if compute_plan:
+                compute_plan.done_count += 1
+                compute_plan.todo_count -= 1
+                if compute_plan.done_count == compute_plan.task_count:
+                    compute_plan.status = models.ComputePlanStatus.done
+                    compute_plan.end_date = datetime.datetime.now()
+                    compute_plan.estimated_end_date = compute_plan.end_date
+                    compute_plan.duration = int((compute_plan.end_date - compute_plan.start_date).total_seconds())
+
+    def schedule_testtuple(self, tuple_: models.Testtuple):  # noqa: C901
+
+        with self._context(tuple_.key) as tuple_dir:
+            tuple_.status = models.Status.doing
+            tuple_.start_date = datetime.datetime.now()
+
+            # If we are using fake data samples or an aggregate task, is None
+            data_sample_paths = None
+
+            # fetch dependencies
+            assert len(tuple_.parent_task_keys) == 1
+            predicttuple = self._db.get(schemas.Type.Predicttuple, tuple_.parent_task_keys[0])
+
+            metric = self._db.get_with_files(schemas.Type.Algo, tuple_.algo.key)
+            dataset = self._db.get_with_files(schemas.Type.Dataset, tuple_.test.data_manager_key)
+
+            compute_plan = None
+            if tuple_.compute_plan_key:
+                compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_key)
+
+            # prepare model and datasamples
+            predictions_volume = _mkdir(os.path.join(tuple_dir, "pred"))
+            performance_volume = _mkdir(os.path.join(tuple_dir, "perf"))
+
+            os.link(
+                predicttuple.predict.models[0].address.storage_address,
+                os.path.join(predictions_volume, Filenames.PREDICTIONS),
+            )
+
+            # compute testtuple command_template
+            command_template = ""
+
+            volumes = {
+                "_VOLUME_OUTPUT_PRED": predictions_volume,
+                "_VOLUME_OPENER": dataset.opener.storage_address,
+                "_VOLUME_OUTPUT_PERF": performance_volume,
+                "_VOLUME_INPUT_DATASAMPLES": os.path.join(tuple_dir, "data"),
+            }
+
+            if tuple_.compute_plan_key:
+                local_volume = _mkdir(
+                    os.path.join(self._local_worker_dir, "compute_plans", tuple_.worker, tuple_.compute_plan_key)
+                )
+                volumes["_VOLUME_LOCAL"] = local_volume
+                if self._support_chainkeys and self._has_chainkey():
+                    chainkey_volume = self._get_chainkey_volume(tuple_)
+                    volumes["_VOLUME_CHAINKEYS"] = chainkey_volume
+
+            if self._db.is_local(dataset.key, schemas.Type.Dataset):
+                volumes["_VOLUME_INPUT_DATASAMPLES"] = _mkdir(os.path.join(tuple_dir, "data"))
+                data_sample_paths = self._get_data_sample_paths(tuple_)
+                data_sample_paths_arg_str = self._get_data_sample_paths_arg(
+                    tuple_.test.data_sample_keys,
+                    data_volume="${_VOLUME_INPUT_DATASAMPLES}",
+                )
+                data_sample_paths_arg = " ".join(data_sample_paths_arg_str)
+                command_template += " --fake-data-mode DISABLED"
+                command_template += f" --data-sample-paths {data_sample_paths_arg}"
+            else:
+                command_template += " --fake-data-mode FAKE_Y"
+                command_template += f" --n-fake-samples {len(tuple_.test.data_sample_keys)}"
+
+            command_template += " --opener-path ${_VOLUME_OPENER}"
+            command_template += " --input-predictions-path ${_VOLUME_OUTPUT_PRED}" f"/{Filenames.PREDICTIONS}"
+            command_template += " --output-perf-path ${_VOLUME_OUTPUT_PERF}" f"/{Filenames.PERFORMANCE}"
+            command_template += " --log-level warning"
+
+            container_name = f"metrics-{metric.algorithm.checksum}"
+            self._spawner.spawn(
+                container_name,
+                str(metric.algorithm.storage_address),
+                command_template=string.Template(command_template),
+                local_volumes=volumes,
+                data_sample_paths=data_sample_paths,
+                envs=None,
+            )
+
+            # save move performance
+            tmp_path = os.path.join(performance_volume, Filenames.PERFORMANCE)
+            perf_dir = _mkdir(os.path.join(self._local_worker_dir, "performances", tuple_.key))
+            perf_path = os.path.join(perf_dir, f"performance_{metric.key}.json")
+            shutil.copy(tmp_path, perf_path)
+
+            with open(perf_path, "r") as f:
+                tuple_.test.perfs[metric.key] = json.load(f).get("all")
+
+            # set status
+            tuple_.status = models.Status.done
+            tuple_.end_date = datetime.datetime.now()
+
+            container_name = f"algo-{metric.algorithm.checksum}"
+            self._spawner.spawn(
+                name=container_name,
+                archive_path=str(metric.algorithm.storage_address),
+                command_template=string.Template(command_template),
+                local_volumes=volumes,
+                data_sample_paths=data_sample_paths,
+                envs=None,
+            )
 
             if compute_plan:
                 # save live performances

@@ -176,6 +176,22 @@ keys as specified in [schemas.DatasetSpec](sdk_schemas.md#DatasetSpec).
 **Returns:**
 
  - `str`: Key of the dataset
+## add_predicttuple
+```text
+add_predicttuple(self, data: Union[dict, substra.sdk.schemas.PredicttupleSpec]) -> str
+```
+
+Create new predicttuple asset.
+In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
+the value becomes the 'creator' of the predicttuple.
+
+**Arguments:**
+ - `data (Union[dict, schemas.PredicttupleSpec], required)`: If it is a dict, it must have the same
+keys as specified in [schemas.PredicttupleSpec](sdk_schemas.md#PredicttupleSpec).
+
+**Returns:**
+
+ - `str`: Key of the asset
 ## add_testtuple
 ```text
 add_testtuple(self, data: Union[dict, substra.sdk.schemas.TesttupleSpec]) -> str
@@ -404,6 +420,13 @@ perf = client.get_performances(cp_key)
 df = pd.DataFrame(perf.dict())
 print(df)
 ```
+## get_predicttuple
+```text
+get_predicttuple(self, key: str) -> substra.sdk.models.Predicttuple
+```
+
+Get predicttuple by key, the returned object is described
+in the [models.Predicttuple](sdk_models.md#Predicttuple) model
 ## get_testtuple
 ```text
 get_testtuple(self, key: str) -> substra.sdk.models.Testtuple
@@ -521,6 +544,22 @@ list_organization(self, *args, **kwargs) -> List[substra.sdk.models.Organization
 
 List organizations, the returned object is described
 in the [models.Organization](sdk_models.md#Organization) model
+## list_predicttuple
+```text
+list_predicttuple(self, filters: dict = None, order_by: str = 'creation_date', ascending: bool = False) -> List[substra.sdk.models.Predicttuple]
+```
+
+List predicttuples.
+
+**Arguments:**
+ - `filters (dict, optional)`: List of key values pair to filter on. Default None.
+ - `order_by (str, optional)`: Field to sort results by.
+Possible values: `creation_date`, `start_date`, `end_date`. Default creation_date.
+ - `ascending (bool, optional)`: Sorts results on order_by by ascending order. Default False (descending order).
+
+**Returns:**
+
+ - `models.Predicttuple`: the returned object is described
 ## list_testtuple
 ```text
 list_testtuple(self, filters: dict = None, order_by: str = 'creation_date', ascending: bool = False) -> List[substra.sdk.models.Testtuple]

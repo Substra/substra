@@ -89,6 +89,7 @@ class Type(enum.Enum):
     DataSample = "data_sample"
     Dataset = "dataset"
     Model = "model"
+    Predicttuple = "predicttuple"
     Testtuple = "testtuple"
     Traintuple = "traintuple"
     Aggregatetuple = "aggregatetuple"
@@ -123,6 +124,7 @@ class TaskCategory(str, enum.Enum):
     train = "TASK_TRAIN"
     aggregate = "TASK_AGGREGATE"
     composite = "TASK_COMPOSITE"
+    predict = "TASK_PREDICT"
     test = "TASK_TEST"
 
 
@@ -260,12 +262,25 @@ class ComputePlanCompositeTraintupleSpec(_Spec):
     metadata: Optional[Dict[str, str]]
 
 
+class ComputePlanPredicttupleSpec(_Spec):
+    """Specification of a predict tuple inside a compute
+    plan specification"""
+
+    predicttuple_id: str
+    algo_key: str
+    traintuple_id: str
+    tag: Optional[str]
+    data_manager_key: str
+    test_data_sample_keys: List[str]
+    metadata: Optional[Dict[str, str]]
+
+
 class ComputePlanTesttupleSpec(_Spec):
     """Specification of a testtuple inside a compute
     plan specification"""
 
-    metric_keys: List[str]
-    traintuple_id: str
+    algo_key: str
+    predicttuple_id: str
     tag: Optional[str]
     data_manager_key: str
     test_data_sample_keys: List[str]
@@ -277,6 +292,7 @@ class _BaseComputePlanSpec(_Spec, abc.ABC):
     traintuples: Optional[List[ComputePlanTraintupleSpec]]
     composite_traintuples: Optional[List[ComputePlanCompositeTraintupleSpec]]
     aggregatetuples: Optional[List[ComputePlanAggregatetupleSpec]]
+    predicttuples: Optional[List[ComputePlanPredicttupleSpec]]
     testtuples: Optional[List[ComputePlanTesttupleSpec]]
 
 
@@ -369,6 +385,7 @@ class _TupleSpec(_Spec):
     tag: Optional[str]
     compute_plan_key: Optional[str]
     metadata: Optional[Dict[str, str]]
+    algo_key: str
 
     @contextlib.contextmanager
     def build_request_kwargs(self):
@@ -383,7 +400,6 @@ class _TupleSpec(_Spec):
 class TraintupleSpec(_TupleSpec):
     """Specification for creating a traintuple"""
 
-    algo_key: str
     data_manager_key: str
     train_data_sample_keys: List[str]
     in_models_keys: Optional[List[str]]
@@ -411,7 +427,6 @@ class TraintupleSpec(_TupleSpec):
 class AggregatetupleSpec(_TupleSpec):
     """Specification for creating an aggregate tuple"""
 
-    algo_key: str
     worker: str
     in_models_keys: List[str]
     rank: Optional[int]
@@ -439,7 +454,6 @@ class AggregatetupleSpec(_TupleSpec):
 class CompositeTraintupleSpec(_TupleSpec):
     """Specification for creating a composite traintuple"""
 
-    algo_key: str
     data_manager_key: str
     train_data_sample_keys: List[str]
     in_head_model_key: Optional[str]
@@ -473,11 +487,35 @@ class CompositeTraintupleSpec(_TupleSpec):
         )
 
 
+class PredicttupleSpec(_TupleSpec):
+    """Specification for creating a predict tuple"""
+
+    traintuple_key: str
+    data_manager_key: str
+    test_data_sample_keys: List[str]
+    category: TaskCategory = pydantic.Field(TaskCategory.predict, const=True)
+
+    compute_plan_attr_name: typing.ClassVar[str] = "predicttuple_keys"
+    type_: typing.ClassVar[Type] = Type.Predicttuple
+
+    @classmethod
+    def from_compute_plan(cls, compute_plan_key: str, spec: ComputePlanPredicttupleSpec) -> "PredicttupleSpec":
+        return PredicttupleSpec(
+            key=spec.predicttuple_id,
+            algo_key=spec.algo_key,
+            traintuple_key=spec.traintuple_id,
+            tag=spec.tag,
+            data_manager_key=spec.data_manager_key,
+            test_data_sample_keys=spec.test_data_sample_keys,
+            compute_plan_key=compute_plan_key,
+            metadata=spec.metadata,
+        )
+
+
 class TesttupleSpec(_TupleSpec):
     """Specification for creating a testtuple"""
 
-    metric_keys: List[str]
-    traintuple_key: str
+    predicttuple_key: str
     data_manager_key: str
     test_data_sample_keys: List[str]
     category: TaskCategory = pydantic.Field(TaskCategory.test, const=True)
@@ -487,8 +525,8 @@ class TesttupleSpec(_TupleSpec):
     @classmethod
     def from_compute_plan(cls, compute_plan_key: str, spec: ComputePlanTesttupleSpec) -> "TesttupleSpec":
         return TesttupleSpec(
-            metric_keys=spec.metric_keys,
-            traintuple_key=spec.traintuple_id,
+            algo_key=spec.algo_key,
+            predicttuple_key=spec.predicttuple_id,
             tag=spec.tag,
             data_manager_key=spec.data_manager_key,
             test_data_sample_keys=spec.test_data_sample_keys,

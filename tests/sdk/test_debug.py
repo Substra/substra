@@ -281,16 +281,35 @@ class TestsDebug:
             ),
         ]
 
-        cp.testtuples = [
-            substra.sdk.schemas.ComputePlanTesttupleSpec(
-                metric_keys=[metric_1_key],
+        predicttuple_id_1 = str(uuid.uuid4())
+        predicttuple_id_2 = str(uuid.uuid4())
+        cp.predicttuples = [
+            substra.sdk.schemas.ComputePlanPredicttupleSpec(
+                predicttuple_id=predicttuple_id_1,
+                algo_key=algo_key,
                 traintuple_id=traintuple_id_1,
                 data_manager_key=dataset_1_key,
                 test_data_sample_keys=[sample_1_test_key],
             ),
-            substra.sdk.schemas.ComputePlanTesttupleSpec(
-                metric_keys=[metric_2_key],
+            substra.sdk.schemas.ComputePlanPredicttupleSpec(
+                predicttuple_id=predicttuple_id_2,
+                algo_key=algo_key,
                 traintuple_id=traintuple_id_2,
+                data_manager_key=dataset_2_key,
+                test_data_sample_keys=[sample_2_test_key],
+            ),
+        ]
+
+        cp.testtuples = [
+            substra.sdk.schemas.ComputePlanTesttupleSpec(
+                algo_key=metric_1_key,
+                predicttuple_id=predicttuple_id_1,
+                data_manager_key=dataset_1_key,
+                test_data_sample_keys=[sample_1_test_key],
+            ),
+            substra.sdk.schemas.ComputePlanTesttupleSpec(
+                algo_key=metric_2_key,
+                predicttuple_id=predicttuple_id_2,
                 data_manager_key=dataset_2_key,
                 test_data_sample_keys=[sample_2_test_key],
             ),
@@ -407,22 +426,37 @@ class TestsDebug:
         assert traintuple.train.data_manager.key == dataset_key
         assert traintuple.parent_tasks == []
 
+        # test predicttuple extra fields
+        predicttuple_key = client.add_predicttuple(
+            substra.sdk.schemas.PredicttupleSpec(
+                traintuple_key=traintuple_key,
+                algo_key=algo_key,
+                data_manager_key=dataset_key,
+                test_data_sample_keys=[data_sample_key],
+            )
+        )
+
+        predicttuple = client.get_predicttuple(predicttuple_key)
+        assert predicttuple.predict.data_manager
+        assert predicttuple.predict.data_manager.key == dataset_key
+        assert [p.key for p in predicttuple.parent_tasks] == [traintuple_key]
+
         # test testtuple extra fields
 
         testtuple_key = client.add_testtuple(
             substra.sdk.schemas.TesttupleSpec(
-                traintuple_key=traintuple_key,
+                predicttuple_key=predicttuple_key,
                 data_manager_key=dataset_key,
                 test_data_sample_keys=[data_sample_key],
-                metric_keys=[metric_key],
+                algo_key=metric_key,
             )
         )
         testtuple = client.get_testtuple(testtuple_key)
         assert testtuple.test.data_manager
         assert testtuple.test.data_manager.key == dataset_key
-        assert testtuple.test.metrics
-        assert [m.key for m in testtuple.test.metrics] == [metric_key]
-        assert [t.key for t in testtuple.parent_tasks] == [traintuple_key]
+        assert testtuple.algo
+        assert testtuple.algo.key == metric_key
+        assert [t.key for t in testtuple.parent_tasks] == [predicttuple_key]
 
         # test composite extra field
 
@@ -541,15 +575,25 @@ class TestsDebug:
             traintuple_id=str(uuid.uuid4()),
             train_data_sample_keys=[sample_key],
         )
+
+        predicttuple = substra.sdk.schemas.ComputePlanPredicttupleSpec(
+            algo_key=algo_key,
+            data_manager_key=dataset_key,
+            traintuple_id=traintuple.traintuple_id,
+            predicttuple_id=str(uuid.uuid4()),
+            test_data_sample_keys=[sample_key],
+        )
+
         cp.testtuples = [
             substra.sdk.schemas.ComputePlanTesttupleSpec(
-                metric_keys=[metric_key],
-                traintuple_id=traintuple.traintuple_id,
+                algo_key=metric_key,
+                predicttuple_id=predicttuple.predicttuple_id,
                 data_manager_key=dataset_key,
                 test_data_sample_keys=[sample_key],
             )
         ]
         cp.traintuples = [traintuple]
+        cp.predicttuples = [predicttuple]
 
         client.add_compute_plan(cp)
 
@@ -667,25 +711,36 @@ def test_execute_compute_plan_several_testtuples_per_train(asset_factory, monkey
     metric_key = client.add_algo(metric)
 
     cp = asset_factory.create_compute_plan()
+
     traintuple = substra.sdk.schemas.ComputePlanTraintupleSpec(
         algo_key=algo_key,
         data_manager_key=dataset_key,
         traintuple_id=str(uuid.uuid4()),
         train_data_sample_keys=[sample_1_key],
     )
+
+    predicttuple = substra.sdk.schemas.ComputePlanPredicttupleSpec(
+        algo_key=algo_key,
+        data_manager_key=dataset_key,
+        traintuple_id=traintuple.traintuple_id,
+        predicttuple_id=str(uuid.uuid4()),
+        test_data_sample_keys=[sample_1_key],
+    )
+
     cp.testtuples = [
         substra.sdk.schemas.ComputePlanTesttupleSpec(
-            metric_keys=[metric_key],
-            traintuple_id=traintuple.traintuple_id,
+            algo_key=metric_key,
+            predicttuple_id=predicttuple.predicttuple_id,
             data_manager_key=dataset_key,
             test_data_sample_keys=[sample_1_key],
         )
         for _ in range(2)
     ]
     cp.traintuples = [traintuple]
+    cp.predicttuples = [predicttuple]
 
     compute_plan = client.add_compute_plan(cp)
-    assert compute_plan.done_count == 3
+    assert compute_plan.done_count == 4
 
     testtuples = client.list_testtuple(filters={"compute_plan_key": [compute_plan.key]})
     assert len(testtuples) == 2

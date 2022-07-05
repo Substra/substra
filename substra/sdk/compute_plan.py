@@ -96,6 +96,16 @@ def get_tuples(spec):
     # are not their actual ranks in the compute plan)
     id_ranks = graph.compute_ranks(node_graph=tuple_graph, node_to_ignore=already_created_ids)
 
+    # Add the predicttuples to 'visited' to take them into account in the batches
+    if spec.predicttuples:
+        for predicttuple in spec.predicttuples:
+            tuple_spec = schemas.PredicttupleSpec.from_compute_plan(
+                compute_plan_key=spec.key,
+                spec=predicttuple,
+            )
+            id_ranks[tuple_spec.key] = id_ranks.get(predicttuple.traintuple_id, -1) + 1
+            tuples[tuple_spec.key] = tuple_spec
+
     # Add the testtuples to 'visited' to take them into account in the batches
     if spec.testtuples:
         for testtuple in spec.testtuples:
@@ -103,7 +113,7 @@ def get_tuples(spec):
                 compute_plan_key=spec.key,
                 spec=testtuple,
             )
-            id_ranks[tuple_spec.key] = id_ranks.get(testtuple.traintuple_id, -1) + 1
+            id_ranks[tuple_spec.key] = id_ranks.get(testtuple.predicttuple_id, -1) + 1
             tuples[tuple_spec.key] = tuple_spec
 
     # Sort the tuples by rank

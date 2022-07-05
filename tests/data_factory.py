@@ -199,6 +199,7 @@ DEFAULT_ALGO_SCRIPTS = {
     AlgoCategory.simple: DEFAULT_ALGO_SCRIPT,
     AlgoCategory.composite: DEFAULT_COMPOSITE_ALGO_SCRIPT,
     AlgoCategory.aggregate: DEFAULT_AGGREGATE_ALGO_SCRIPT,
+    AlgoCategory.predict: DEFAULT_ALGO_SCRIPT,
     AlgoCategory.metric: DEFAULT_METRIC_ALGO_SCRIPT,
 }
 
@@ -507,6 +508,7 @@ class AssetsFactory:
             traintuples=[],
             composite_traintuples=[],
             aggregatetuples=[],
+            predicttuples=[],
             testtuples=[],
             tag=tag,
             name=name,
@@ -519,6 +521,7 @@ class AssetsFactory:
             traintuples=[],
             composite_traintuples=[],
             aggregatetuples=[],
+            predicttuples=[],
             testtuples=[],
             key=compute_plan.key,
         )

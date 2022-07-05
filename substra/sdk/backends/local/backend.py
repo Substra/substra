@@ -101,11 +101,13 @@ class Local(base.BaseBackend):
             asset.composite.data_manager = self._db.get(schemas.Type.Dataset, asset.composite.data_manager_key)
         if asset_type == schemas.Type.Testtuple:
             asset.test.data_manager = self._db.get(schemas.Type.Dataset, asset.test.data_manager_key)
-            asset.test.metrics = [self._db.get(schemas.Type.Algo, k) for k in asset.test.metric_keys]
+        if asset_type == schemas.Type.Predicttuple:
+            asset.predict.data_manager = self._db.get(schemas.Type.Dataset, asset.predict.data_manager_key)
         if asset_type in [
             schemas.Type.Traintuple,
             schemas.Type.CompositeTraintuple,
             schemas.Type.Aggregatetuple,
+            schemas.Type.Predicttuple,
             schemas.Type.Testtuple,
         ]:
             asset.parent_tasks = [self._get_parent_task(key) for key in asset.parent_task_keys]
@@ -121,6 +123,7 @@ class Local(base.BaseBackend):
     def _get_parent_task(self, key):
         for tuple_type in [
             schemas.Type.Traintuple,
+            schemas.Type.Predicttuple,
             schemas.Type.CompositeTraintuple,
             schemas.Type.Aggregatetuple,
         ]:
@@ -235,13 +238,22 @@ class Local(base.BaseBackend):
         return compute_plan_key, rank
 
     def __execute_compute_plan(self, spec, compute_plan, visited, tuples, spec_options):
+        if spec.predicttuples:
+            for predicttuple in spec.predicttuples:
+                tuple_spec = schemas.PredicttupleSpec.from_compute_plan(
+                    compute_plan_key=spec.key,
+                    spec=predicttuple,
+                )
+                visited[tuple_spec.key] = visited.get(predicttuple.traintuple_id, -1) + 1
+                tuples[tuple_spec.key] = tuple_spec
+
         if spec.testtuples:
             for testtuple in spec.testtuples:
                 tuple_spec = schemas.TesttupleSpec.from_compute_plan(
                     compute_plan_key=spec.key,
                     spec=testtuple,
                 )
-                visited[tuple_spec.key] = visited.get(testtuple.traintuple_id, -1) + 1
+                visited[tuple_spec.key] = visited.get(testtuple.predicttuple_id, -1) + 1
                 tuples[tuple_spec.key] = tuple_spec
 
         with tqdm(
@@ -249,35 +261,17 @@ class Local(base.BaseBackend):
             desc="Compute plan progress",
         ) as progress_bar:
 
-            for id_, rank in sorted(visited.items(), key=lambda item: item[1]):
+            for id_, _ in sorted(visited.items(), key=lambda item: item[1]):
 
                 tuple_spec = tuples.get(id_)
                 if not tuple_spec:
                     continue
 
-                if tuple_spec.category == schemas.TaskCategory.train:
-                    self._add_traintuple(
-                        key=tuple_spec.key,
-                        spec=tuple_spec,
-                        spec_options=spec_options,
-                    )
-
-                elif tuple_spec.category == schemas.TaskCategory.aggregate:
-                    self._add_aggregatetuple(
-                        key=tuple_spec.key,
-                        spec=tuple_spec,
-                        spec_options=spec_options,
-                    )
-
-                elif tuple_spec.category == schemas.TaskCategory.composite:
-                    self._add_composite_traintuple(
-                        key=tuple_spec.key,
-                        spec=tuple_spec,
-                        spec_options=spec_options,
-                    )
-
-                elif tuple_spec.category == schemas.TaskCategory.test:
-                    self.add(tuple_spec, spec_options)
+                self.add(
+                    key=tuple_spec.key,
+                    spec=tuple_spec,
+                    spec_options=spec_options,
+                )
 
                 progress_bar.update()
 
@@ -543,10 +537,11 @@ class Local(base.BaseBackend):
         self._worker.schedule_traintuple(traintuple)
         return traintuple
 
-    def _add_testtuple(self, key, spec, spec_options=None):
+    def _add_predicttuple(self, key, spec, spec_options=None):
 
         # validation
         owner = self._check_metadata(spec.metadata)
+        algo = self._db.get(schemas.Type.Algo, spec.algo_key)
 
         traintuple = self._get_parent_task(spec.traintuple_key)
 
@@ -563,8 +558,6 @@ class Local(base.BaseBackend):
         )
 
         assert len(spec.test_data_sample_keys) > 0
-        dataset_key = spec.data_manager_key
-        test_data_sample_keys = spec.test_data_sample_keys
         worker = dataset.owner
 
         if traintuple.compute_plan_key:
@@ -573,17 +566,16 @@ class Local(base.BaseBackend):
             compute_plan.todo_count += 1
             compute_plan.status = models.Status.waiting
 
-        testtuple = models.Testtuple(
-            test=models._Test(
-                data_manager_key=dataset_key,
-                data_sample_keys=test_data_sample_keys,
-                metric_keys=spec.metric_keys,
-                perfs={},
+        predicttuple = models.Predicttuple(
+            predict=models._Predict(
+                data_manager_key=spec.data_manager_key,
+                data_sample_keys=spec.test_data_sample_keys,
+                prediction_permissions={"process": {"public": False, "authorized_ids": [owner]}},  # TODO to verify
             ),
             key=key,
             creation_date=self.__now(),
-            category=schemas.TaskCategory.test,
-            algo=traintuple.algo,
+            category=schemas.TaskCategory.predict,
+            algo=algo,
             owner=owner,
             worker=worker,
             compute_plan_key=traintuple.compute_plan_key,
@@ -591,7 +583,61 @@ class Local(base.BaseBackend):
             tag=spec.tag or "",
             status=models.Status.waiting,
             metadata=spec.metadata if spec.metadata else dict(),
-            parent_task_keys=[spec.traintuple_key],
+            parent_task_keys=[traintuple.key],
+        )
+        predicttuple = self._db.add(predicttuple)
+        self._worker.schedule_predicttuple(predicttuple)
+        return predicttuple
+
+    def _add_testtuple(self, key, spec, spec_options=None):
+
+        # validation
+        owner = self._check_metadata(spec.metadata)
+        algo = self._db.get(schemas.Type.Algo, spec.algo_key)
+
+        predicttuple = self._get_parent_task(spec.predicttuple_key)
+
+        if predicttuple.status in [models.Status.failed, models.Status.canceled]:
+            raise substra.exceptions.InvalidRequest(
+                f"could not register this testtuple, \
+                the traintuple {predicttuple.key} has a status {predicttuple.status}",
+                400,
+            )
+
+        dataset = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
+        self.__check_data_samples(
+            data_manager_key=spec.data_manager_key, data_sample_keys=spec.test_data_sample_keys, allow_test_only=True
+        )
+
+        assert len(spec.test_data_sample_keys) > 0
+        dataset_key = spec.data_manager_key
+        test_data_sample_keys = spec.test_data_sample_keys
+        worker = dataset.owner
+
+        if predicttuple.compute_plan_key:
+            compute_plan = self._db.get(schemas.Type.ComputePlan, predicttuple.compute_plan_key)
+            compute_plan.task_count += 1
+            compute_plan.todo_count += 1
+            compute_plan.status = models.Status.waiting
+
+        testtuple = models.Testtuple(
+            test=models._Test(
+                data_manager_key=dataset_key,
+                data_sample_keys=test_data_sample_keys,
+                perfs={},
+            ),
+            key=key,
+            creation_date=self.__now(),
+            category=schemas.TaskCategory.test,
+            algo=algo,
+            owner=owner,
+            worker=worker,
+            compute_plan_key=predicttuple.compute_plan_key,
+            rank=predicttuple.rank,
+            tag=spec.tag or "",
+            status=models.Status.waiting,
+            metadata=spec.metadata if spec.metadata else dict(),
+            parent_task_keys=[predicttuple.key],
         )
         testtuple = self._db.add(testtuple)
         self._worker.schedule_testtuple(testtuple)
@@ -728,7 +774,7 @@ class Local(base.BaseBackend):
             self._worker.schedule_traintuple(aggregatetuple)
         return aggregatetuple
 
-    def add(self, spec, spec_options=None):
+    def add(self, spec, spec_options=None, key=None):
         # find dynamically the method to call to create the asset
         method_name = f"_add_{spec.__class__.type_.value}"
         if spec.is_many():
@@ -742,7 +788,7 @@ class Local(base.BaseBackend):
                 compute_plan = add_asset(spec, spec_options)
                 return compute_plan
             else:
-                key = spec.compute_key()
+                key = key or spec.compute_key()
                 add_asset(key, spec, spec_options)
                 return key
 

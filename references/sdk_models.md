@@ -2,6 +2,7 @@
 
 - [DataSample](#DataSample)
 - [Dataset](#Dataset)
+- [Predicttuple](#Predicttuple)
 - [Testtuple](#Testtuple)
 - [Traintuple](#Traintuple)
 - [Aggregatetuple](#Aggregatetuple)
@@ -46,6 +47,28 @@ Dataset asset
 - logs_permission: Permission
 ```
 
+## Predicttuple
+Predicttuple
+```text
+- key: str
+- category: TaskCategory
+- algo: Algo
+- owner: str
+- compute_plan_key: str
+- metadata: Mapping[str, str]
+- status: Status
+- worker: str
+- rank: Optional[int]
+- parent_task_keys: List[str]
+- parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple'), ForwardRef('Predicttuple')]]]
+- tag: str
+- creation_date: datetime
+- start_date: Optional[datetime]
+- end_date: Optional[datetime]
+- error_type: Optional[TaskErrorType]
+- predict: _Predict
+```
+
 ## Testtuple
 Testtuple
 ```text
@@ -59,7 +82,7 @@ Testtuple
 - worker: str
 - rank: Optional[int]
 - parent_task_keys: List[str]
-- parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple')]]]
+- parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple'), ForwardRef('Predicttuple')]]]
 - tag: str
 - creation_date: datetime
 - start_date: Optional[datetime]
@@ -81,7 +104,7 @@ Traintuple
 - worker: str
 - rank: Optional[int]
 - parent_task_keys: List[str]
-- parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple')]]]
+- parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple'), ForwardRef('Predicttuple')]]]
 - tag: str
 - creation_date: datetime
 - start_date: Optional[datetime]
@@ -103,7 +126,7 @@ Aggregatetuple
 - worker: str
 - rank: Optional[int]
 - parent_task_keys: List[str]
-- parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple')]]]
+- parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple'), ForwardRef('Predicttuple')]]]
 - tag: str
 - creation_date: datetime
 - start_date: Optional[datetime]
@@ -125,7 +148,7 @@ CompositeTraintuple
 - worker: str
 - rank: Optional[int]
 - parent_task_keys: List[str]
-- parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple')]]]
+- parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple'), ForwardRef('Predicttuple')]]]
 - tag: str
 - creation_date: datetime
 - start_date: Optional[datetime]

@@ -140,23 +140,21 @@ class DataAccess:
 
         for testtuple in list_testtuple:
             if testtuple.status == models.Status.done:
+                metric = self.get(schemas.Type.Algo, testtuple.algo.key)
 
-                for metric_key in testtuple.test.metric_keys:
-                    metric = self.get(schemas.Type.Algo, metric_key)
+                performances.compute_plan_key.append(compute_plan.key)
+                performances.compute_plan_tag.append(compute_plan.tag)
+                performances.compute_plan_status.append(compute_plan.status)
+                performances.compute_plan_start_date.append(compute_plan.start_date)
+                performances.compute_plan_end_date.append(compute_plan.end_date)
+                performances.compute_plan_metadata.append(compute_plan.metadata)
 
-                    performances.compute_plan_key.append(compute_plan.key)
-                    performances.compute_plan_tag.append(compute_plan.tag)
-                    performances.compute_plan_status.append(compute_plan.status)
-                    performances.compute_plan_start_date.append(compute_plan.start_date)
-                    performances.compute_plan_end_date.append(compute_plan.end_date)
-                    performances.compute_plan_metadata.append(compute_plan.metadata)
-
-                    performances.worker.append(testtuple.worker)
-                    performances.testtuple_key.append(testtuple.key)
-                    performances.metric_name.append(metric.name)
-                    performances.testtuple_rank.append(testtuple.rank)
-                    performances.round_idx.append(testtuple.metadata.get("round_idx"))
-                    performances.performance.append(testtuple.test.perfs[metric_key])
+                performances.worker.append(testtuple.worker)
+                performances.testtuple_key.append(testtuple.key)
+                performances.metric_name.append(metric.name)
+                performances.testtuple_rank.append(testtuple.rank)
+                performances.round_idx.append(testtuple.metadata.get("round_idx"))
+                performances.performance.append(testtuple.test.perfs[testtuple.algo.key])
 
         return performances
 

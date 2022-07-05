@@ -227,7 +227,7 @@ class _GenericTraintuple(_Model):
     worker: str
     rank: Optional[int]
     parent_task_keys: List[str]
-    parent_tasks: Optional[List[Union["Traintuple", "CompositeTraintuple", "Aggregatetuple"]]] = list()
+    parent_tasks: Optional[List[Union["Traintuple", "CompositeTraintuple", "Aggregatetuple", "Predicttuple"]]] = list()
     tag: str
     creation_date: datetime
     start_date: Optional[datetime]
@@ -282,21 +282,23 @@ class _Aggregate(schemas._PydanticConfig):
     models: Optional[List[OutModel]]
 
 
+class _Predict(schemas._PydanticConfig):
+    data_manager_key: str
+    data_manager: Optional[Dataset] = None
+    data_sample_keys: List[str]
+    prediction_permissions: Permissions
+    models: Optional[List[OutModel]]
+
+    _check_data_manager_key = root_validator(allow_reuse=True)(check_data_manager_key)
+
+
 class _Test(schemas._PydanticConfig):
     data_manager_key: str
     data_manager: Optional[Dataset] = None
     data_sample_keys: List[str]
-    metric_keys: List[str]
-    metrics: Optional[List[Algo]] = list()
     perfs: Optional[Dict[str, float]]
 
     _check_data_manager_key = root_validator(allow_reuse=True)(check_data_manager_key)
-
-    @root_validator
-    def check_metric_keys(cls, values):  # noqa: N805
-        if values.get("metrics"):
-            assert values["metric_keys"] == [m.key for m in values["metrics"]], "metrics do not match metric_keys"
-        return values
 
 
 class Traintuple(_GenericTraintuple):
@@ -320,7 +322,15 @@ class CompositeTraintuple(_GenericTraintuple):
     type_: ClassVar[str] = schemas.Type.CompositeTraintuple
 
 
+class Predicttuple(_GenericTraintuple):
+    """Predicttuple"""
+
+    predict: _Predict
+    type_: ClassVar[str] = schemas.Type.Predicttuple
+
+
 _GenericTraintuple.update_forward_refs()
+Predicttuple.update_forward_refs()
 Traintuple.update_forward_refs()
 Aggregatetuple.update_forward_refs()
 CompositeTraintuple.update_forward_refs()
@@ -403,6 +413,7 @@ SCHEMA_TO_MODEL = {
     schemas.Type.ComputePlan: ComputePlan,
     schemas.Type.DataSample: DataSample,
     schemas.Type.Dataset: Dataset,
+    schemas.Type.Predicttuple: Predicttuple,
     schemas.Type.Testtuple: Testtuple,
     schemas.Type.Traintuple: Traintuple,
     schemas.Type.Organization: Organization,

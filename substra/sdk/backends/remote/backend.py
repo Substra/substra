@@ -175,6 +175,7 @@ class Remote(base.BaseBackend):
             schemas.Type.Traintuple,
             schemas.Type.Aggregatetuple,
             schemas.Type.CompositeTraintuple,
+            schemas.Type.Predicttuple,
             schemas.Type.Testtuple,
         ):
             cp_spec = schemas.ComputePlanSpec(name=f"{spec.category}_{spec.key}")
@@ -191,6 +192,7 @@ class Remote(base.BaseBackend):
         """Register compute plan info (without tuples)."""
         cp_spec = spec.copy()
         del cp_spec.traintuples
+        del cp_spec.predicttuples
         del cp_spec.testtuples
         del cp_spec.aggregatetuples
         del cp_spec.composite_traintuples

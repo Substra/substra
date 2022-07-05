@@ -364,6 +364,23 @@ class Client(object):
         return self._backend.add(spec)
 
     @logit
+    def add_predicttuple(self, data: Union[dict, schemas.PredicttupleSpec]) -> str:
+        """Create new predicttuple asset.
+
+        In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
+        the value becomes the 'creator' of the predicttuple.
+
+        Args:
+            data (Union[dict, schemas.PredicttupleSpec]): If it is a dict, it must have the same
+                keys as specified in [schemas.PredicttupleSpec](sdk_schemas.md#PredicttupleSpec).
+
+        Returns:
+            str: Key of the asset
+        """
+        spec = self._get_spec(schemas.PredicttupleSpec, data)
+        return self._backend.add(spec)
+
+    @logit
     def add_testtuple(self, data: Union[dict, schemas.TesttupleSpec]) -> str:
         """Create new testtuple asset.
 
@@ -452,6 +469,12 @@ class Client(object):
         """Get dataset by key, the returned object is described
         in the [models.Dataset](sdk_models.md#Dataset) model"""
         return self._backend.get(schemas.Type.Dataset, key)
+
+    @logit
+    def get_predicttuple(self, key: str) -> models.Predicttuple:
+        """Get predicttuple by key, the returned object is described
+        in the [models.Predicttuple](sdk_models.md#Predicttuple) model"""
+        return self._backend.get(schemas.Type.Predicttuple, key)
 
     @logit
     def get_testtuple(self, key: str) -> models.Testtuple:
@@ -617,6 +640,42 @@ class Client(object):
             data_sample_key (List[str]): list dataset linked or that used this data sample(s). Remote only."""
 
         return self._list(schemas.Type.Dataset, filters, "creation_date", ascending)
+
+    @logit
+    def list_predicttuple(
+        self, filters: dict = None, order_by: str = "creation_date", ascending: bool = False
+    ) -> List[models.Predicttuple]:
+        """List predicttuples.
+
+        Args:
+            filters (dict, optional): List of key values pair to filter on. Default None.
+            order_by (str, optional): Field to sort results by.
+                Possible values: `creation_date`, `start_date`, `end_date`. Default creation_date.
+            ascending (bool, optional): Sorts results on order_by by ascending order. Default False (descending order).
+
+        Returns:
+            models.Predicttuple: the returned object is described
+        in the [models.Predicttuple](sdk_models.md#Predicttuple) model
+
+        ``Filters allowed keys:``\n
+            key (List[str]): list predicttuples with listed keys.\n
+            owner (List[str]): list predicttuples with listed owners.\n
+            worker (List[str]): list predicttuples which ran on listed workers. Remote only.\n
+            rank (List[int]): list predicttuples which are at given ranks.\n
+            status (str): list predicttuples with given status.
+                            Possible values: 'waiting', 'todo', 'doing', 'done', 'canceled', 'failed'\n
+            metadata (dict)
+                {
+                    "key": str # the key of the metadata to filter on
+                    "type": "is", "contains" or "exists" # the type of query that will be used
+                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+                }: list predicttuples matching provided conditions in metadata. Remote only.
+            compute_plan_key (str): list predicttuples that are in the given compute plan. Remote only.
+            algo_key (str): list predicttuples that used the given algo. Remote only.
+            dataset_key (str): list predicttuples linked or using this dataset. Remote only.
+            data_sample_key (List[str]): list predicttuples linked or that used this data sample(s). Remote only."""
+
+        return self._list(schemas.Type.Predicttuple, filters, order_by, ascending)
 
     @logit
     def list_testtuple(
