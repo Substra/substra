@@ -34,6 +34,12 @@ CAMEL_TO_SNAKE_PATTERN = re.compile(r"(.)([A-Z][a-z]+)")
 CAMEL_TO_SNAKE_PATTERN_2 = re.compile(r"([a-z0-9])([A-Z])")
 
 
+class MetadataFilterType(str, enum.Enum):
+    is_equal = "is"
+    contains = "contains"
+    exists = "exists"
+
+
 class Status(str, enum.Enum):
     """Status of the task"""
 
@@ -185,7 +191,7 @@ class Algo(_Model):
 
     @staticmethod
     def allowed_filters() -> List[str]:
-        return ["key", "name", "owner", "metadata", "permissions", "compute_plan_key", "dataset_key", "data_sample_key"]
+        return ["key", "name", "owner", "permissions", "compute_plan_key", "dataset_key", "data_sample_key"]
 
 
 class InModel(schemas._PydanticConfig):

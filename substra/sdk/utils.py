@@ -105,22 +105,42 @@ def extract_data_sample_files(data):
             f.close()
 
 
-def _check_metadata_search_filter(filters, key):
-    if not isinstance(filters[key], dict):
+def _check_metadata_search_filter(filter):
+    if not isinstance(filter, dict):
         raise exceptions.FilterFormatError(
-            "Cannot load filters. Please review the documentation, metadata filter should be a dict"
+            "Cannot load filters. Please review the documentation, metadata filter should be a list of dict."
+            "But one passed elements is not."
         )
-    if "key" not in filters[key] or "type" not in filters[key] or "value" not in filters[key]:
+
+    if "key" not in filter.keys() or "type" not in filter.keys():
+        raise exceptions.FilterFormatError("Each metadata filter, must contains both `key` and `type` as key.")
+
+    if filter["type"] not in ("is", "contains", "exists"):
         raise exceptions.FilterFormatError(
-            """Cannot load filters. Please review the documentation, metadata filter
-                should be a dict containing key, type and value key"""
+            "Each metadata filter `type` filed value must be `is`, `contains` or `exists`"
         )
-    if filters[key]["type"] not in ["is", "contains", "exists"]:
+
+    if filter["type"] in ("is", "contains"):
+        if "value" not in filter.keys():
+            raise exceptions.FilterFormatError(
+                "For each metadata filter, if `type` value is `is` or `contains`, the filter should also contain the "
+                "`value` key."
+            )
+
+        if not isinstance(filter.get("value"), str):
+            raise exceptions.FilterFormatError(
+                "For each metadata filter, if a `value` is passed, it should be a string."
+            )
+
+
+def _check_metadata_search_filters(filters):
+    if not isinstance(filters, list):
         raise exceptions.FilterFormatError(
-            """Cannot load filters. Please review the documentation, metadata filter type
-                should be 'is', 'contains' or 'exists'"""
+            "Cannot load filters. Please review the documentation, metadata filter should be a list of dict."
         )
-    return
+
+    for filter in filters:
+        _check_metadata_search_filter(filter)
 
 
 def check_and_format_search_filters(asset_type, filters):  # noqa: C901
@@ -161,7 +181,8 @@ def check_and_format_search_filters(asset_type, filters):  # noqa: C901
                         value should be str"""
                 )
         elif key == "metadata":
-            _check_metadata_search_filter(filters, key)
+            _check_metadata_search_filters(filters[key])
+
         # all other filters should be a list, throw an error if not
         elif not isinstance(filters[key], list):
             raise exceptions.FilterFormatError(

@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import json
 
 
 def format_search_filters_for_remote(filters):
@@ -23,13 +24,14 @@ def format_search_filters_for_remote(filters):
         # handle special cases name and metadata
         if key == "name":
             formatted_filters["match"] = filters[key]
-            continue
-        if key == "metadata":
-            formatted_filters[key] = filters[key]
-            continue
-        # all other filters are formatted as a csv string without spaces
-        values = ",".join(filters[key])
-        formatted_filters[key] = values.replace(" ", "")
+        elif key == "metadata":
+            formatted_filters["metadata"] = json.dumps(filters["metadata"]).replace(" ", "")
+
+        else:
+            # all other filters are formatted as a csv string without spaces
+            values = ",".join(filters[key])
+            formatted_filters[key] = values.replace(" ", "")
+
     return formatted_filters
 
 

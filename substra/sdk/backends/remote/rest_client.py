@@ -271,14 +271,7 @@ class Client:
             request_kwargs["params"]["ordering"] = request_formatter.format_search_ordering_for_remote(
                 order_by, ascending
             )
-
-        items = self.request(
-            "get",
-            asset_type,
-            path=path,
-            paginated=paginated,
-            **request_kwargs,
-        )
+        items = self.request("get", asset_type, path=path, paginated=paginated, **request_kwargs)
 
         return items
 

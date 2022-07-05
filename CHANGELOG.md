@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- feat: support metadata filters in local mode (#218)
+
 ## [0.28.0](https://github.com/owkin/substra/releases/tag/0.28.0) - 2022-07-05
 
 ### Changes

@@ -29,8 +29,8 @@ from substra.sdk.backends.remote import request_formatter
         ),
         ({"name": "bar,baz"}, {"match": "bar,baz"}),
         (
-            {"metadata": {"key": "epochs", "type": "is", "value": "10"}},
-            {"metadata": {"key": "epochs", "type": "is", "value": "10"}},
+            {"metadata": [{"key": "epochs", "type": "is", "value": "10"}]},
+            {"metadata": '[{"key":"epochs","type":"is","value":"10"}]'},
         ),
         (None, {}),
     ],

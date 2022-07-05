@@ -64,22 +64,23 @@ def test_zip_folder(tmp_path):
 @pytest.mark.parametrize(
     "filters,expected,exception",
     [
-        ({"metadata": "str"}, None, exceptions.FilterFormatError),
-        ({"metadata": {}}, None, exceptions.FilterFormatError),
+        ("str", None, exceptions.FilterFormatError),
+        ({}, None, exceptions.FilterFormatError),
         (
-            {"metadata": {"key": "foo", "type": "bar", "value": "baz"}},
+            [{"key": "foo", "type": "bar", "value": "baz"}],
             None,
             exceptions.FilterFormatError,
         ),
-        ({"metadata": {"key": "foo", "type": "is", "value": "baz"}}, None, None),
+        ([{"key": "foo", "type": "is", "value": "baz"}, {}], None, exceptions.FilterFormatError),
+        ([{"key": "foo", "type": "is", "value": "baz"}], None, None),
     ],
 )
 def test_check_metadata_search_filter(filters, expected, exception):
     if exception:
         with pytest.raises(exception):
-            utils._check_metadata_search_filter(filters, "metadata")
+            utils._check_metadata_search_filters(filters)
     else:
-        assert utils._check_metadata_search_filter(filters, "metadata") == expected
+        assert utils._check_metadata_search_filters(filters) == expected
 
 
 @pytest.mark.parametrize(

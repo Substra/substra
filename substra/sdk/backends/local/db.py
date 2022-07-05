@@ -47,16 +47,41 @@ class InMemoryDb:
         except KeyError:
             raise exceptions.NotFound(f"Wrong pk {key}", 404)
 
+    def _match_asset(self, asset: models._Model, attribute: str, values: typing.Union[typing.Dict, typing.List]):
+        """Checks if an asset attributes matches the given values.
+        For the metadata, it checks that all the given filters returns True (AND condition)"""
+        if attribute == "metadata":
+            metadata_conditions = []
+            for value in values:
+                if value["type"] == models.MetadataFilterType.exists:
+                    metadata_conditions.append(value["key"] in asset.metadata.keys())
+
+                elif asset.metadata.get(value["key"]) is None:
+                    # for is_equal and contains, if the key is not there then return False
+                    metadata_conditions.append(False)
+
+                elif value["type"] == models.MetadataFilterType.is_equal:
+                    metadata_conditions.append(str(value["value"]) == str(asset.metadata[value["key"]]))
+
+                elif value["type"] == models.MetadataFilterType.contains:
+                    metadata_conditions.append(str(value["value"]) in str(asset.metadata.get(value["key"])))
+                else:
+                    raise NotImplementedError
+
+            return all(metadata_conditions)
+
+        return str(getattr(asset, attribute)) in values
+
     def _filter_assets(
         self, db_assets: typing.List[models._Model], filters: typing.Dict[str, typing.List[str]]
     ) -> typing.List[models._Model]:
-        """Return assets matching one of the values for a given attribute (OR group), and the remaining ones"""
-        matching_assets = []
+        """Return assets matching al the given filters"""
 
-        for asset in db_assets:
-            if all(str(getattr(asset, attribute)) in values for attribute, values in filters.items()):
-                matching_assets.append(asset)
-
+        matching_assets = [
+            asset
+            for asset in db_assets
+            if all(self._match_asset(asset, attribute, values) for attribute, values in filters.items())
+        ]
         return matching_assets
 
     def list(
