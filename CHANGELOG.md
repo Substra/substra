@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - BREAKING: convert (test task) to (predict task + test task) (#202)
 
+### Fixed
+
+- fix: add mandatory cp name in cyclic strategy example (#216)
+
 ## [0.28.0](https://github.com/owkin/substra/releases/tag/0.28.0) - 2022-07-05
 
 ### Changes

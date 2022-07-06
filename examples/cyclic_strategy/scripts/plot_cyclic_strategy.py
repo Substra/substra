@@ -485,6 +485,7 @@ for _ in range(N_ROUNDS):
 
 
 compute_plan_spec = ComputePlanSpec(
+    name="cyclic_strategy_cp",
     traintuples=traintuples,
     testtuples=testtuples,
 )
