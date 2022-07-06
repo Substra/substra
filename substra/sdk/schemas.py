@@ -222,69 +222,62 @@ class DataSampleSpec(_Spec):
             yield data, None
 
 
-class ComputePlanTraintupleSpec(_Spec):
-    """Specification of a traintuple inside a compute
-    plan specification"""
+class _ComputePlanComputeTaskSpec(_Spec):
+    """Specification of a compute task inside a compute plan specification"""
 
     algo_key: str
-    data_manager_key: str
-    train_data_sample_keys: List[str]
-    traintuple_id: str
-    in_models_ids: Optional[List[str]]
     tag: Optional[str]
     metadata: Optional[Dict[str, str]]
 
 
-class ComputePlanAggregatetupleSpec(_Spec):
+class ComputePlanTraintupleSpec(_ComputePlanComputeTaskSpec):
+    """Specification of a traintuple inside a compute
+    plan specification"""
+
+    data_manager_key: str
+    train_data_sample_keys: List[str]
+    traintuple_id: str
+    in_models_ids: Optional[List[str]]
+
+
+class ComputePlanAggregatetupleSpec(_ComputePlanComputeTaskSpec):
     """Specification of an aggregate tuple inside a compute
     plan specification"""
 
     aggregatetuple_id: str
-    algo_key: str
     worker: str
     in_models_ids: Optional[List[str]]
-    tag: Optional[str]
-    metadata: Optional[Dict[str, str]]
 
 
-class ComputePlanCompositeTraintupleSpec(_Spec):
+class ComputePlanCompositeTraintupleSpec(_ComputePlanComputeTaskSpec):
     """Specification of a composite traintuple inside a compute
     plan specification"""
 
     composite_traintuple_id: str
-    algo_key: str
     data_manager_key: str
     train_data_sample_keys: List[str]
     in_head_model_id: Optional[str]
     in_trunk_model_id: Optional[str]
-    tag: Optional[str]
     out_trunk_model_permissions: Permissions
-    metadata: Optional[Dict[str, str]]
 
 
-class ComputePlanPredicttupleSpec(_Spec):
+class ComputePlanPredicttupleSpec(_ComputePlanComputeTaskSpec):
     """Specification of a predict tuple inside a compute
     plan specification"""
 
     predicttuple_id: str
-    algo_key: str
     traintuple_id: str
-    tag: Optional[str]
     data_manager_key: str
     test_data_sample_keys: List[str]
-    metadata: Optional[Dict[str, str]]
 
 
-class ComputePlanTesttupleSpec(_Spec):
+class ComputePlanTesttupleSpec(_ComputePlanComputeTaskSpec):
     """Specification of a testtuple inside a compute
     plan specification"""
 
-    algo_key: str
     predicttuple_id: str
-    tag: Optional[str]
     data_manager_key: str
     test_data_sample_keys: List[str]
-    metadata: Optional[Dict[str, str]]
 
 
 class _BaseComputePlanSpec(_Spec, abc.ABC):

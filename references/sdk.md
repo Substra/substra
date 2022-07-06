@@ -114,6 +114,29 @@ the number of tuples uploaded in each batch (default 20).
 **Returns:**
 
  - `models.ComputePlan`: Created compute plan
+## add_compute_plan_tuples
+```text
+add_compute_plan_tuples(self, key: str, data: Union[dict, substra.sdk.schemas.UpdateComputePlanSpec], auto_batching: bool = True, batch_size: int = 20) -> substra.sdk.models.ComputePlan
+```
+
+Update compute plan.
+As specified in the data dict structure, output trunk models of composite
+traintuples cannot be made public.
+
+**Arguments:**
+ - `key (str, required)`: Compute plan key
+ - `data (Union[dict, schemas.UpdateComputePlanSpec], required)`: If it is a dict,
+it must have the same keys as specified in
+[schemas.UpdateComputePlanSpec](sdk_schemas.md#UpdateComputePlanSpec).
+ - `auto_batching (bool, optional)`: Set 'auto_batching' to False to upload all
+the tuples of the compute plan at once. Defaults to True.
+ - `batch_size (int, optional)`: If 'auto_batching' is True, change `batch_size`
+to define the number of tuples uploaded in each batch (default 20).
+
+**Returns:**
+
+ - `models.ComputePlan`: updated compute plan, as described in the
+[models.ComputePlan](sdk_models.md#ComputePlan) model
 ## add_data_sample
 ```text
 add_data_sample(self, data: Union[dict, substra.sdk.schemas.DataSampleSpec], local: bool = True) -> str
@@ -604,29 +627,6 @@ organization_info(self) -> dict
 ```
 
 Get organization information.
-## add_compute_plan_tuples
-```text
-add_compute_plan_tuples(self, key: str, data: Union[dict, substra.sdk.schemas.UpdateComputePlanSpec], auto_batching: bool = True, batch_size: int = 20) -> substra.sdk.models.ComputePlan
-```
-
-Update compute plan.
-As specified in the data dict structure, output trunk models of composite
-traintuples cannot be made public.
-
-**Arguments:**
- - `key (str, required)`: Compute plan key
- - `data (Union[dict, schemas.UpdateComputePlanSpec], required)`: If it is a dict,
-it must have the same keys as specified in
-[schemas.UpdateComputePlanSpec](sdk_schemas.md#UpdateComputePlanSpec).
- - `auto_batching (bool, optional)`: Set 'auto_batching' to False to upload all
-the tuples of the compute plan at once. Defaults to True.
- - `batch_size (int, optional)`: If 'auto_batching' is True, change `batch_size`
-to define the number of tuples uploaded in each batch (default 20).
-
-**Returns:**
-
- - `models.ComputePlan`: updated compute plan, as described in the
-[models.ComputePlan](sdk_models.md#ComputePlan) model
 # retry_on_exception
 ```text
 retry_on_exception(exceptions, timeout=300)

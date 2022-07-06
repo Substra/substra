@@ -159,13 +159,13 @@ Specification for updating a compute plan
 Specification of a predict tuple inside a compute
 plan specification
 ```text
-- predicttuple_id: str
 - algo_key: str
-- traintuple_id: str
 - tag: Optional[str]
+- metadata: Optional[Mapping[str, str]]
+- predicttuple_id: str
+- traintuple_id: str
 - data_manager_key: str
 - test_data_sample_keys: List[str]
-- metadata: Optional[Mapping[str, str]]
 ```
 
 ## ComputePlanTesttupleSpec
@@ -173,38 +173,38 @@ Specification of a testtuple inside a compute
 plan specification
 ```text
 - algo_key: str
-- predicttuple_id: str
 - tag: Optional[str]
+- metadata: Optional[Mapping[str, str]]
+- predicttuple_id: str
 - data_manager_key: str
 - test_data_sample_keys: List[str]
-- metadata: Optional[Mapping[str, str]]
 ```
 
 ## ComputePlanAggregatetupleSpec
 Specification of an aggregate tuple inside a compute
 plan specification
 ```text
-- aggregatetuple_id: str
 - algo_key: str
-- worker: str
-- in_models_ids: Optional[List[str]]
 - tag: Optional[str]
 - metadata: Optional[Mapping[str, str]]
+- aggregatetuple_id: str
+- worker: str
+- in_models_ids: Optional[List[str]]
 ```
 
 ## ComputePlanCompositeTraintupleSpec
 Specification of a composite traintuple inside a compute
 plan specification
 ```text
-- composite_traintuple_id: str
 - algo_key: str
+- tag: Optional[str]
+- metadata: Optional[Mapping[str, str]]
+- composite_traintuple_id: str
 - data_manager_key: str
 - train_data_sample_keys: List[str]
 - in_head_model_id: Optional[str]
 - in_trunk_model_id: Optional[str]
-- tag: Optional[str]
 - out_trunk_model_permissions: Permissions
-- metadata: Optional[Mapping[str, str]]
 ```
 
 ## ComputePlanTraintupleSpec
@@ -212,12 +212,12 @@ Specification of a traintuple inside a compute
 plan specification
 ```text
 - algo_key: str
+- tag: Optional[str]
+- metadata: Optional[Mapping[str, str]]
 - data_manager_key: str
 - train_data_sample_keys: List[str]
 - traintuple_id: str
 - in_models_ids: Optional[List[str]]
-- tag: Optional[str]
-- metadata: Optional[Mapping[str, str]]
 ```
 
 ## Permissions

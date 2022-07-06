@@ -6,8 +6,8 @@
 - [substra organization info](#substra-organization-info)
 - [substra download](#substra-download)
 - [substra cancel compute_plan](#substra-cancel-compute_plan)
-- [substra update data_sample](#substra-update-data_sample)
-- [substra update compute_plan](#substra-update-compute_plan)
+- [substra update dataset_data_samples_link](#substra-update-dataset_data_samples_link)
+- [substra update compute_plan_tuples](#substra-update-compute_plan_tuples)
 - [substra logs](#substra-logs)
 
 
@@ -141,10 +141,10 @@ Options:
   --help                          Show this message and exit.
 ```
 
-## substra update data_sample
+## substra update dataset_data_samples_link
 
 ```text
-Usage: substra update data_sample [OPTIONS] DATA_SAMPLES_PATH
+Usage: substra update dataset_data_samples_link [OPTIONS] DATA_SAMPLES_PATH
 
   Link data samples with dataset.
 
@@ -170,12 +170,13 @@ Options:
   --help                          Show this message and exit.
 ```
 
-## substra update compute_plan
+## substra update compute_plan_tuples
 
 ```text
-Usage: substra update compute_plan [OPTIONS] COMPUTE_PLAN_KEY TUPLES_PATH
+Usage: substra update compute_plan_tuples [OPTIONS] COMPUTE_PLAN_KEY
+                                          TUPLES_PATH
 
-  Update compute plan.
+  Add tuples to compute plan.
 
   The tuples path must point to a valid JSON file with the following schema:
 

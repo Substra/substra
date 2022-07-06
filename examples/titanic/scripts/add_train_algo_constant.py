@@ -108,4 +108,3 @@ with open(assets_keys_path, "w") as f:
     json.dump(assets_keys, f, indent=2)
 
 print(f"Assets keys have been saved to {os.path.abspath(assets_keys_path)}")
-
