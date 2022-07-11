@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.29.0](https://github.com/owkin/substra/releases/tag/0.29.0) - 2022-07-11
+
 ### Added
 
 - feat: support metadata filters in local mode (#218)
@@ -29,7 +31,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - CLI commands `add`, `get` and `list` (#224)
 - BREAKING: Removed metrics APIs and types; use algo APIs and types instead (#210)
-
 
 ## [0.27.0](https://github.com/owkin/substra/releases/tag/0.27.0) - 2022-06-27
 
