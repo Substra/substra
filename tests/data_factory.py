@@ -11,7 +11,6 @@ from substra.sdk.schemas import AlgoCategory
 
 DEFAULT_DATA_SAMPLE_FILENAME = "data.csv"
 
-
 DEFAULT_SUBSTRATOOLS_VERSION = (
     f"latest-nvidiacuda11.6.0-base-ubuntu20.04-python{sys.version_info.major}.{sys.version_info.minor}-minimal"
 )
@@ -203,16 +202,6 @@ DEFAULT_ALGO_SCRIPTS = {
     AlgoCategory.metric: DEFAULT_METRIC_ALGO_SCRIPT,
 }
 
-INVALID_ALGO_SCRIPT = DEFAULT_ALGO_SCRIPT.replace("train", "naitr")
-INVALID_COMPOSITE_ALGO_SCRIPT = DEFAULT_COMPOSITE_ALGO_SCRIPT.replace("train", "naitr")
-INVALID_AGGREGATE_ALGO_SCRIPT = DEFAULT_AGGREGATE_ALGO_SCRIPT.replace("aggregate", "etagergga")
-
-DEFAULT_METRICS_DOCKERFILE = f"""
-FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
-COPY metrics.py .
-ENTRYPOINT ["python3", "metrics.py"]
-"""
-
 DEFAULT_ALGO_DOCKERFILE = f"""
 FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
 COPY algo.py .
@@ -262,24 +251,6 @@ def _shorten_name(name):
     if len(name) < 100:
         return name
     return name[:75] + "..." + name[:20]
-
-
-def _get_key(obj, field="key"):
-    """Get key from asset/spec or key."""
-    if isinstance(obj, str):
-        return obj
-    return getattr(obj, field)
-
-
-def _get_keys(obj, field="key"):
-    """Get keys from asset/spec or key.
-
-    This is particularly useful for data samples to accept as input args a list of keys
-    and a list of data samples.
-    """
-    if not obj:
-        return []
-    return [_get_key(x, field=field) for x in obj]
 
 
 class Counter:
@@ -399,109 +370,6 @@ class AssetsFactory:
             metadata=metadata,
         )
 
-    def create_traintuple(
-        self,
-        algo_key=None,
-        data_manager_key=None,
-        train_data_sample_keys=None,
-        traintuples=None,
-        tag=None,
-        compute_plan_key=None,
-        rank=None,
-        metadata=None,
-    ):
-        train_data_sample_keys = train_data_sample_keys or []
-        traintuples = traintuples or []
-
-        for t in traintuples:
-            assert isinstance(t, substra.sdk.models.Traintuple)
-
-        return substra.sdk.schemas.TraintupleSpec(
-            algo_key=algo_key,
-            data_manager_key=data_manager_key,
-            train_data_sample_keys=train_data_sample_keys,
-            in_models_keys=traintuples,
-            tag=tag,
-            metadata=metadata,
-            compute_plan_key=compute_plan_key,
-            rank=rank,
-        )
-
-    def create_aggregatetuple(
-        self,
-        algo=None,
-        worker=None,
-        traintuples=None,
-        tag=None,
-        compute_plan_key=None,
-        rank=None,
-        metadata=None,
-    ):
-        traintuples = traintuples or []
-
-        for t in traintuples:
-            assert isinstance(t, (substra.sdk.models.Traintuple, substra.sdk.models.CompositeTraintuple))
-
-        return substra.sdk.schemas.AggregatetupleSpec(
-            algo_key=algo.key if algo else None,
-            worker=worker,
-            in_models_keys=[t.key for t in traintuples],
-            tag=tag,
-            metadata=metadata,
-            compute_plan_key=compute_plan_key,
-            rank=rank,
-        )
-
-    def create_composite_traintuple(
-        self,
-        algo=None,
-        dataset=None,
-        data_samples=None,
-        head_traintuple=None,
-        trunk_traintuple=None,
-        tag=None,
-        compute_plan_key=None,
-        rank=None,
-        permissions=None,
-        metadata=None,
-    ):
-        data_samples = data_samples or []
-
-        if head_traintuple and trunk_traintuple:
-            assert isinstance(head_traintuple, substra.sdk.models.CompositeTraintuple)
-            assert isinstance(
-                trunk_traintuple,
-                (substra.sdk.models.CompositeTraintuple, substra.sdk.models.Aggregatetuple),
-            )
-            in_head_model_key = head_traintuple.key
-            in_trunk_model_key = trunk_traintuple.key
-        else:
-            in_head_model_key = None
-            in_trunk_model_key = None
-
-        return substra.sdk.schemas.CompositeTraintupleSpec(
-            algo_key=algo.key if algo else None,
-            data_manager_key=dataset.key if dataset else None,
-            train_data_sample_keys=_get_keys(data_samples),
-            in_head_model_key=in_head_model_key,
-            in_trunk_model_key=in_trunk_model_key,
-            tag=tag,
-            metadata=metadata,
-            compute_plan_key=compute_plan_key,
-            rank=rank,
-            out_trunk_model_permissions=permissions or DEFAULT_PERMISSIONS,
-        )
-
-    def create_testtuple(self, metric=None, traintuple=None, tag=None, dataset=None, data_samples=None, metadata=None):
-        return substra.sdk.schemas.TesttupleSpec(
-            metric_keys=[metric.key] if metric else [],
-            traintuple_key=traintuple.key if traintuple else None,
-            data_manager_key=dataset.key if dataset else None,
-            test_data_sample_keys=_get_keys(data_samples),
-            tag=tag,
-            metadata=metadata,
-        )
-
     def create_compute_plan(self, key=None, tag="", name="Test compute plan", clean_models=False, metadata=None):
         return substra.sdk.schemas.ComputePlanSpec(
             key=key or random_uuid(),
@@ -514,14 +382,4 @@ class AssetsFactory:
             name=name,
             metadata=metadata,
             clean_models=clean_models,
-        )
-
-    def add_compute_plan_tuples(self, compute_plan):
-        return substra.sdk.schemas.UpdateComputePlanSpec(
-            traintuples=[],
-            composite_traintuples=[],
-            aggregatetuples=[],
-            predicttuples=[],
-            testtuples=[],
-            key=compute_plan.key,
         )
