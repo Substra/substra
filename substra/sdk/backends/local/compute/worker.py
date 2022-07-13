@@ -171,6 +171,52 @@ class Worker:
         with (path).open("w", encoding="UTF-8") as json_file:
             json.dump(performances.dict(), json_file, default=str)
 
+    def _composite_trunk_to_trunk(self, in_tuple, input_models_volume):
+        # get the trunk from composite in_tuple and return the TaskRessource to set it as model trunk
+        input_models = [m for m in in_tuple.composite.models if m.category == models.ModelType.simple]
+        assert len(input_models) == 1, f"Unavailable input model {input_models}"
+        input_model = input_models[0]
+        os.link(
+            input_model.address.storage_address,
+            os.path.join(input_models_volume, "input_trunk_model"),
+        )
+        trunk_model_container_address = _get_address_in_container(
+            "input_trunk_model",
+            input_models_volume,
+            "${_VOLUME_INPUT_MODELS}",
+        )
+
+        return TaskResource(id=COMPOSITE_IO_SHARED, value=str(trunk_model_container_address))
+
+    def _composite_head_to_head(self, in_tuple, input_models_volume):
+        input_models = [m for m in in_tuple.composite.models if m.category == models.ModelType.head]
+        assert len(input_models) == 1, f"Unavailable input model {input_models}"
+        input_model = input_models[0]
+
+        os.link(
+            input_model.address.storage_address,
+            os.path.join(input_models_volume, "input_head_model"),
+        )
+        head_model_container_address = _get_address_in_container(
+            "input_head_model",
+            input_models_volume,
+            "${_VOLUME_INPUT_MODELS}",
+        )
+
+        return TaskResource(id=COMPOSITE_IO_LOCAL, value=str(head_model_container_address))
+
+    def _aggregate_to_trunk(self, in_tuple, input_models_volume):
+        assert in_tuple.aggregate.models is not None and len(in_tuple.aggregate.models) == 1
+        input_model = in_tuple.aggregate.models[0]
+
+        os.link(input_model.address.storage_address, os.path.join(input_models_volume, "input_trunk_model"))
+        trunk_model_container_address = _get_address_in_container(
+            "input_trunk_model",
+            input_models_volume,
+            "${_VOLUME_INPUT_MODELS}",
+        )
+        return TaskResource(id=COMPOSITE_IO_SHARED, value=str(trunk_model_container_address))
+
     # TODO: 'schedule_traintuple' is too complex, consider refactoring
     def schedule_traintuple(  # noqa: C901
         self, tuple_: typing.Union[models.Traintuple, models.Aggregatetuple, models.CompositeTraintuple]
@@ -225,56 +271,36 @@ class Worker:
             volumes["_VOLUME_INPUT_MODELS"] = input_models_volume
 
             if isinstance(tuple_, models.CompositeTraintuple):
+                # the order of the task is defined here: substra.sdk.compute_plan.get_dependency_graph
                 assert len(in_tuples) <= 2
 
-                for in_tuple in in_tuples:
+                for k, in_tuple in enumerate(in_tuples):
                     if isinstance(in_tuple, models.CompositeTraintuple):
-                        input_models = [m for m in in_tuple.composite.models if m.category == models.ModelType.head]
-                        assert len(input_models) == 1, f"Unavailable input model {input_models}"
-                        input_model = input_models[0]
+                        if k == 0:
 
-                        os.link(
-                            input_model.address.storage_address, os.path.join(input_models_volume, "input_head_model")
-                        )
-                        head_model_container_address = _get_address_in_container(
-                            "input_head_model",
-                            input_models_volume,
-                            "${_VOLUME_INPUT_MODELS}",
-                        )
-                        inputs.append(TaskResource(id=COMPOSITE_IO_LOCAL, value=str(head_model_container_address)))
+                            head_task = self._composite_head_to_head(
+                                in_tuple=in_tuple, input_models_volume=input_models_volume
+                            )
+                            inputs.append(head_task)
 
-                        if len(in_tuples) == 1:  # No other trunk
-                            input_models = [
-                                m for m in in_tuple.composite.models if m.category == models.ModelType.simple
-                            ]
-                            assert len(input_models) == 1, f"Unavailable input model {input_models}"
-                            input_model = input_models[0]
-                            os.link(
-                                input_model.address.storage_address,
-                                os.path.join(input_models_volume, "input_trunk_model"),
+                            if len(in_tuples) == 1:  # No other trunk
+                                trunk_task = self._composite_trunk_to_trunk(
+                                    in_tuple=in_tuple, input_models_volume=input_models_volume
+                                )
+                                inputs.append(trunk_task)
+
+                        # Second composite is passed as trunk
+                        if k == 1:
+                            trunk_task = self._composite_trunk_to_trunk(
+                                in_tuple=in_tuple, input_models_volume=input_models_volume
                             )
-                            trunk_model_container_address = _get_address_in_container(
-                                "input_trunk_model",
-                                input_models_volume,
-                                "${_VOLUME_INPUT_MODELS}",
-                            )
-                            inputs.append(
-                                TaskResource(id=COMPOSITE_IO_SHARED, value=str(trunk_model_container_address))
-                            )
+                            inputs.append(trunk_task)
 
                     elif isinstance(in_tuple, models.Aggregatetuple):
-                        assert in_tuple.aggregate.models is not None and len(in_tuple.aggregate.models) == 1
-                        input_model = in_tuple.aggregate.models[0]
-
-                        os.link(
-                            input_model.address.storage_address, os.path.join(input_models_volume, "input_trunk_model")
+                        trunk_task = self._aggregate_to_trunk(
+                            in_tuple=in_tuple, input_models_volume=input_models_volume
                         )
-                        trunk_model_container_address = _get_address_in_container(
-                            "input_trunk_model",
-                            input_models_volume,
-                            "${_VOLUME_INPUT_MODELS}",
-                        )
-                        inputs.append(TaskResource(id=COMPOSITE_IO_SHARED, value=str(trunk_model_container_address)))
+                        inputs.append(trunk_task)
 
                     else:
                         raise Exception("TODO write this - cannot link traintuple to composite")

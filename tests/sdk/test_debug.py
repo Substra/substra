@@ -744,3 +744,73 @@ def test_execute_compute_plan_several_testtuples_per_train(asset_factory, monkey
 
     testtuples = client.list_testtuple(filters={"compute_plan_key": [compute_plan.key]})
     assert len(testtuples) == 2
+
+
+def test_two_composite_to_composite(asset_factory, monkeypatch):
+    monkeypatch.setenv("DEBUG_SPAWNER", str(substra.BackendType.LOCAL_SUBPROCESS.value))
+    client = substra.Client(debug=True)
+
+    dataset_query = asset_factory.create_dataset()
+    dataset_key = client.add_dataset(dataset_query)
+
+    data_sample_1 = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
+    sample_1_key = client.add_data_sample(data_sample_1)
+
+    algo_query = asset_factory.create_algo(AlgoCategory.composite)
+    algo_key = client.add_algo(algo_query)
+
+    metric = asset_factory.create_algo(category=AlgoCategory.metric)
+    metric_key = client.add_algo(metric)
+
+    cp = asset_factory.create_compute_plan()
+
+    composite_1_key = str(uuid.uuid4())
+    composite_1 = substra.sdk.schemas.ComputePlanCompositeTraintupleSpec(
+        algo_key=algo_key,
+        data_manager_key=dataset_key,
+        composite_traintuple_id=composite_1_key,
+        train_data_sample_keys=[sample_1_key],
+        out_trunk_model_permissions={"public": False, "authorized_ids": ["MyOrg1", "MyOrg2"]},
+    )
+    composite_2_key = str(uuid.uuid4())
+    composite_2 = substra.sdk.schemas.ComputePlanCompositeTraintupleSpec(
+        algo_key=algo_key,
+        data_manager_key=dataset_key,
+        composite_traintuple_id=composite_2_key,
+        train_data_sample_keys=[sample_1_key],
+        out_trunk_model_permissions={"public": False, "authorized_ids": ["MyOrg1", "MyOrg2"]},
+    )
+    composite_3_key = str(uuid.uuid4())
+    composite_3 = substra.sdk.schemas.ComputePlanCompositeTraintupleSpec(
+        algo_key=algo_key,
+        data_manager_key=dataset_key,
+        composite_traintuple_id=composite_3_key,
+        train_data_sample_keys=[sample_1_key],
+        out_trunk_model_permissions={"public": False, "authorized_ids": ["MyOrg1", "MyOrg2"]},
+        in_head_model_id=composite_1_key,
+        in_trunk_model_id=composite_2_key,
+    )
+
+    predicttuple_key = str(uuid.uuid4())
+    predicttuple = substra.sdk.schemas.ComputePlanPredicttupleSpec(
+        algo_key=algo_key,
+        data_manager_key=dataset_key,
+        traintuple_id=composite_3_key,
+        predicttuple_id=predicttuple_key,
+        test_data_sample_keys=[sample_1_key],
+    )
+
+    testtuple = substra.sdk.schemas.ComputePlanTesttupleSpec(
+        algo_key=metric_key,
+        predicttuple_id=predicttuple_key,
+        data_manager_key=dataset_key,
+        test_data_sample_keys=[sample_1_key],
+    )
+
+    cp.composite_traintuples = [composite_1, composite_2, composite_3]
+    cp.predicttuples = [predicttuple]
+    cp.testtuples = [testtuple]
+
+    compute_plan = client.add_compute_plan(cp)
+    assert compute_plan.done_count == 5
+    assert client.get_performances(compute_plan.key).performance[0] == 32

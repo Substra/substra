@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- feat: support two composite as input of a composite in local mode (#232)
 - feat: support metadata filters in local mode (#218)
 
 ### Changed
