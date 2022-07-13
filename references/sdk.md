@@ -96,7 +96,7 @@ same keys as specified in
  - `str`: Key of the asset
 ## add_compute_plan
 ```text
-add_compute_plan(self, data: Union[dict, substra.sdk.schemas.ComputePlanSpec], auto_batching: bool = True, batch_size: int = 20) -> substra.sdk.models.ComputePlan
+add_compute_plan(self, data: Union[dict, substra.sdk.schemas.ComputePlanSpec], auto_batching: bool = True, batch_size: int = 500) -> substra.sdk.models.ComputePlan
 ```
 
 Create new compute plan asset.
@@ -109,14 +109,14 @@ keys as specified in [schemas.ComputePlanSpec](sdk_schemas.md#ComputePlanSpec).
  - `auto_batching (bool, optional)`: Set 'auto_batching' to False to upload all the tuples of
 the compute plan at once. Defaults to True.
  - `batch_size (int, optional)`: If 'auto_batching' is True, change `batch_size` to define
-the number of tuples uploaded in each batch (default 20).
+the number of tuples uploaded in each batch (default 500).
 
 **Returns:**
 
  - `models.ComputePlan`: Created compute plan
 ## add_compute_plan_tuples
 ```text
-add_compute_plan_tuples(self, key: str, data: Union[dict, substra.sdk.schemas.UpdateComputePlanSpec], auto_batching: bool = True, batch_size: int = 20) -> substra.sdk.models.ComputePlan
+add_compute_plan_tuples(self, key: str, data: Union[dict, substra.sdk.schemas.UpdateComputePlanSpec], auto_batching: bool = True, batch_size: int = 500) -> substra.sdk.models.ComputePlan
 ```
 
 Update compute plan.

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- feat: change DEFAULT_BATCH_SIZE to 500 (#226)
+
 ## [0.29.0](https://github.com/owkin/substra/releases/tag/0.29.0) - 2022-07-11
 
 ### Added

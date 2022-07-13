@@ -558,7 +558,7 @@ def add_compute_plan_tuples(ctx, compute_plan_key, tuples, no_auto_batching, bat
     Disable the auto batching to upload all the tuples of the
     compute plan at once.
     If the auto batching is enabled, change the `batch_size` to define the number of
-    tuples uploaded in each batch (default 20).
+    tuples uploaded in each batch (default 500).
     """
     if no_auto_batching and batch_size:
         raise click.BadOptionUsage(

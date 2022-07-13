@@ -33,7 +33,7 @@ from substra.sdk.utils import is_valid_uuid
 logger = logging.getLogger(__name__)
 
 DEFAULT_RETRY_TIMEOUT = 5 * 60
-DEFAULT_BATCH_SIZE = 20
+DEFAULT_BATCH_SIZE = 500
 
 
 def logit(f):
@@ -415,7 +415,7 @@ class Client(object):
             auto_batching (bool, optional): Set 'auto_batching' to False to upload all the tuples of
                 the compute plan at once. Defaults to True.
             batch_size (int, optional): If 'auto_batching' is True, change `batch_size` to define
-                the number of tuples uploaded in each batch (default 20).
+                the number of tuples uploaded in each batch (default 500).
 
         Returns:
             models.ComputePlan: Created compute plan
@@ -850,7 +850,7 @@ class Client(object):
             auto_batching (bool, optional): Set 'auto_batching' to False to upload all
                 the tuples of the compute plan at once. Defaults to True.
             batch_size (int, optional): If 'auto_batching' is True, change `batch_size`
-                to define the number of tuples uploaded in each batch (default 20).
+                to define the number of tuples uploaded in each batch (default 500).
 
         Returns:
             models.ComputePlan: updated compute plan, as described in the
