@@ -11,7 +11,16 @@ from substra.sdk import models
 from substra.sdk.backends.local.compute.spawner.subprocess import PYTHON_SCRIPT_NAME
 from substra.sdk.exceptions import InvalidRequest
 from substra.sdk.exceptions import KeyAlreadyExistsError
-from substra.sdk.schemas import AlgoCategory
+from substra.sdk.schemas import AlgoCategory, ComputeTaskOutput, Permissions
+
+
+PUBLIC_PERMISSIONS = Permissions(public=True, authorized_ids=[])
+
+MODEL_ID = "model"
+SHARED_ID = "shared"
+LOCAL_ID = "local"
+PREDICTIONS_ID = "predictions"
+PERFORMANCE_ID = "performance"
 
 
 def test_wrong_debug_spawner(monkeypatch):
@@ -99,6 +108,9 @@ class TestsDebug:
                 data_manager_key=dataset_1_key,
                 traintuple_id=str(uuid.uuid4()),
                 train_data_sample_keys=[sample_1_key],
+                outputs={
+                    MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                },
             ),
         ]
         with pytest.raises((substra.sdk.backends.local.compute.spawner.base.ExecutionError, docker.errors.APIError)):
@@ -130,6 +142,9 @@ class TestsDebug:
                 data_manager_key=dataset_1_key,
                 traintuple_id=str(uuid.uuid4()),
                 train_data_sample_keys=[sample_1_key],
+                outputs={
+                    MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                },
             )
         ]
 
@@ -162,12 +177,18 @@ class TestsDebug:
                 data_manager_key=dataset_1_key,
                 traintuple_id=str(uuid.uuid4()),
                 train_data_sample_keys=[sample_1_key],
+                outputs={
+                    MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                },
             ),
             substra.sdk.schemas.ComputePlanTraintupleSpec(
                 algo_key=algo_key,
                 data_manager_key=dataset_2_key,
                 traintuple_id=str(uuid.uuid4()),
                 train_data_sample_keys=[sample_2_key],
+                outputs={
+                    MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                },
             ),
         ]
 
@@ -211,6 +232,9 @@ class TestsDebug:
                 compute_plan_key=compute_plan.key,
                 rank=None,
                 metadata=None,
+                outputs={
+                    MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                },
             )
         )
 
@@ -220,6 +244,9 @@ class TestsDebug:
             train_data_sample_keys=[data_sample_key],
             in_models_ids=[traintuple_key],
             traintuple_id=str(uuid.uuid4()),
+            outputs={
+                MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+            },
         )
 
         compute_plan = client.add_compute_plan_tuples(
@@ -272,12 +299,18 @@ class TestsDebug:
                 data_manager_key=dataset_1_key,
                 traintuple_id=traintuple_id_1,
                 train_data_sample_keys=[sample_1_key],
+                outputs={
+                    MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                },
             ),
             substra.sdk.schemas.ComputePlanTraintupleSpec(
                 algo_key=algo_key,
                 data_manager_key=dataset_2_key,
                 traintuple_id=traintuple_id_2,
                 train_data_sample_keys=[sample_2_key],
+                outputs={
+                    MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                },
             ),
         ]
 
@@ -290,6 +323,9 @@ class TestsDebug:
                 traintuple_id=traintuple_id_1,
                 data_manager_key=dataset_1_key,
                 test_data_sample_keys=[sample_1_test_key],
+                outputs={
+                    PREDICTIONS_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                },
             ),
             substra.sdk.schemas.ComputePlanPredicttupleSpec(
                 predicttuple_id=predicttuple_id_2,
@@ -297,6 +333,9 @@ class TestsDebug:
                 traintuple_id=traintuple_id_2,
                 data_manager_key=dataset_2_key,
                 test_data_sample_keys=[sample_2_test_key],
+                outputs={
+                    PREDICTIONS_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                },
             ),
         ]
 
@@ -306,12 +345,18 @@ class TestsDebug:
                 predicttuple_id=predicttuple_id_1,
                 data_manager_key=dataset_1_key,
                 test_data_sample_keys=[sample_1_test_key],
+                outputs={
+                    PERFORMANCE_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                },
             ),
             substra.sdk.schemas.ComputePlanTesttupleSpec(
                 algo_key=metric_2_key,
                 predicttuple_id=predicttuple_id_2,
                 data_manager_key=dataset_2_key,
                 test_data_sample_keys=[sample_2_test_key],
+                outputs={
+                    PERFORMANCE_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                },
             ),
         ]
 
@@ -362,14 +407,20 @@ class TestsDebug:
                 data_manager_key=dataset_1_key,
                 composite_traintuple_id=composite_1_key,
                 train_data_sample_keys=[sample_1_key],
-                out_trunk_model_permissions={"public": False, "authorized_ids": [dataset_1_key, dataset_2_key]},
+                outputs={
+                    SHARED_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                    LOCAL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                },
             ),
             substra.sdk.schemas.ComputePlanCompositeTraintupleSpec(
                 algo_key=algo_key,
                 data_manager_key=dataset_2_key,
                 composite_traintuple_id=composite_2_key,
                 train_data_sample_keys=[sample_2_key],
-                out_trunk_model_permissions={"public": False, "authorized_ids": [dataset_1_key, dataset_2_key]},
+                outputs={
+                    SHARED_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                    LOCAL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                },
             ),
         ]
 
@@ -379,6 +430,9 @@ class TestsDebug:
                 worker=dataset_1_key,
                 algo_key=aggregate_algo_key,
                 in_models_ids=[composite_1_key, composite_2_key],
+                outputs={
+                    MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                },
             )
         ]
 
@@ -418,6 +472,9 @@ class TestsDebug:
                 algo_key=algo_key,
                 data_manager_key=dataset_key,
                 train_data_sample_keys=[data_sample_key],
+                outputs={
+                    MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                },
             )
         )
 
@@ -433,6 +490,9 @@ class TestsDebug:
                 algo_key=algo_key,
                 data_manager_key=dataset_key,
                 test_data_sample_keys=[data_sample_key],
+                outputs={
+                    PREDICTIONS_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                },
             )
         )
 
@@ -449,6 +509,9 @@ class TestsDebug:
                 data_manager_key=dataset_key,
                 test_data_sample_keys=[data_sample_key],
                 algo_key=metric_key,
+                outputs={
+                    PERFORMANCE_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                },
             )
         )
         testtuple = client.get_testtuple(testtuple_key)
@@ -465,7 +528,10 @@ class TestsDebug:
                 algo_key=composite_algo_key,
                 data_manager_key=dataset_key,
                 train_data_sample_keys=[data_sample_key],
-                out_trunk_model_permissions={"public": True, "authorized_ids": []},
+                outputs={
+                    SHARED_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                    LOCAL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                },
             )
         )
 
@@ -497,6 +563,9 @@ class TestsDebug:
                     data_manager_key=dataset_1_key,
                     traintuple_id=str(uuid.uuid4()),
                     train_data_sample_keys=[sample_1_key, sample_2_key],
+                    outputs={
+                        MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                    },
                 )
             )
 
@@ -522,7 +591,10 @@ class TestsDebug:
                     data_manager_key=dataset_1_key,
                     traintuple_id=str(uuid.uuid4()),
                     train_data_sample_keys=[sample_1_key],
-                    out_trunk_model_permissions={"public": True, "authorized_ids": []},
+                    outputs={
+                        SHARED_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                        LOCAL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                    },
                 )
             )
 
@@ -574,6 +646,9 @@ class TestsDebug:
             data_manager_key=dataset_key,
             traintuple_id=str(uuid.uuid4()),
             train_data_sample_keys=[sample_key],
+            outputs={
+                MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+            },
         )
 
         predicttuple = substra.sdk.schemas.ComputePlanPredicttupleSpec(
@@ -582,6 +657,9 @@ class TestsDebug:
             traintuple_id=traintuple.traintuple_id,
             predicttuple_id=str(uuid.uuid4()),
             test_data_sample_keys=[sample_key],
+            outputs={
+                PREDICTIONS_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+            },
         )
 
         cp.testtuples = [
@@ -590,6 +668,9 @@ class TestsDebug:
                 predicttuple_id=predicttuple.predicttuple_id,
                 data_manager_key=dataset_key,
                 test_data_sample_keys=[sample_key],
+                outputs={
+                    PERFORMANCE_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                },
             )
         ]
         cp.traintuples = [traintuple]
@@ -717,6 +798,9 @@ def test_execute_compute_plan_several_testtuples_per_train(asset_factory, monkey
         data_manager_key=dataset_key,
         traintuple_id=str(uuid.uuid4()),
         train_data_sample_keys=[sample_1_key],
+        outputs={
+            MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+        },
     )
 
     predicttuple = substra.sdk.schemas.ComputePlanPredicttupleSpec(
@@ -725,6 +809,9 @@ def test_execute_compute_plan_several_testtuples_per_train(asset_factory, monkey
         traintuple_id=traintuple.traintuple_id,
         predicttuple_id=str(uuid.uuid4()),
         test_data_sample_keys=[sample_1_key],
+        outputs={
+            PREDICTIONS_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+        },
     )
 
     cp.testtuples = [
@@ -733,6 +820,9 @@ def test_execute_compute_plan_several_testtuples_per_train(asset_factory, monkey
             predicttuple_id=predicttuple.predicttuple_id,
             data_manager_key=dataset_key,
             test_data_sample_keys=[sample_1_key],
+            outputs={
+                PERFORMANCE_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+            },
         )
         for _ in range(2)
     ]
@@ -764,13 +854,18 @@ def test_two_composite_to_composite(asset_factory, monkeypatch):
 
     cp = asset_factory.create_compute_plan()
 
+    permissions = Permissions(public=False, authorized_ids=["MyOrg1", "MyOrg2"])
+
     composite_1_key = str(uuid.uuid4())
     composite_1 = substra.sdk.schemas.ComputePlanCompositeTraintupleSpec(
         algo_key=algo_key,
         data_manager_key=dataset_key,
         composite_traintuple_id=composite_1_key,
         train_data_sample_keys=[sample_1_key],
-        out_trunk_model_permissions={"public": False, "authorized_ids": ["MyOrg1", "MyOrg2"]},
+        outputs={
+            SHARED_ID: ComputeTaskOutput(permissions=permissions),
+            LOCAL_ID: ComputeTaskOutput(permissions=permissions),
+        },
     )
     composite_2_key = str(uuid.uuid4())
     composite_2 = substra.sdk.schemas.ComputePlanCompositeTraintupleSpec(
@@ -778,7 +873,10 @@ def test_two_composite_to_composite(asset_factory, monkeypatch):
         data_manager_key=dataset_key,
         composite_traintuple_id=composite_2_key,
         train_data_sample_keys=[sample_1_key],
-        out_trunk_model_permissions={"public": False, "authorized_ids": ["MyOrg1", "MyOrg2"]},
+        outputs={
+            SHARED_ID: ComputeTaskOutput(permissions=permissions),
+            LOCAL_ID: ComputeTaskOutput(permissions=permissions),
+        },
     )
     composite_3_key = str(uuid.uuid4())
     composite_3 = substra.sdk.schemas.ComputePlanCompositeTraintupleSpec(
@@ -786,9 +884,12 @@ def test_two_composite_to_composite(asset_factory, monkeypatch):
         data_manager_key=dataset_key,
         composite_traintuple_id=composite_3_key,
         train_data_sample_keys=[sample_1_key],
-        out_trunk_model_permissions={"public": False, "authorized_ids": ["MyOrg1", "MyOrg2"]},
         in_head_model_id=composite_1_key,
         in_trunk_model_id=composite_2_key,
+        outputs={
+            SHARED_ID: ComputeTaskOutput(permissions=permissions),
+            LOCAL_ID: ComputeTaskOutput(permissions=permissions),
+        },
     )
 
     predicttuple_key = str(uuid.uuid4())
@@ -798,6 +899,9 @@ def test_two_composite_to_composite(asset_factory, monkeypatch):
         traintuple_id=composite_3_key,
         predicttuple_id=predicttuple_key,
         test_data_sample_keys=[sample_1_key],
+        outputs={
+            PREDICTIONS_ID: ComputeTaskOutput(permissions=permissions),
+        },
     )
 
     testtuple = substra.sdk.schemas.ComputePlanTesttupleSpec(
@@ -805,6 +909,9 @@ def test_two_composite_to_composite(asset_factory, monkeypatch):
         predicttuple_id=predicttuple_key,
         data_manager_key=dataset_key,
         test_data_sample_keys=[sample_1_key],
+        outputs={
+            PERFORMANCE_ID: ComputeTaskOutput(permissions=permissions),
+        },
     )
 
     cp.composite_traintuples = [composite_1, composite_2, composite_3]

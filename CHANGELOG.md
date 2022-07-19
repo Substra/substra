@@ -14,6 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - feat: change DEFAULT_BATCH_SIZE to 500 (#226)
+### Added
+
+- "outputs" field to substra.sdk.schemas.*tupleSpec (#219)
+
+### Removed
+
+- BREAKING: "out_trunk_model_permissions" field from substra.sdk.schemas.CompositeTraintupleSpec (superseded by "outputs") (#219)
 
 ### Added
 

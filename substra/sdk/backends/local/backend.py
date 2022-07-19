@@ -670,10 +670,10 @@ class Local(base.BaseBackend):
         compute_plan_key, rank = self.__create_compute_plan_from_tuple(spec, key, in_tuples)
 
         # permissions
-        process_trunk_model_permissions = schemas.Permissions(
-            public=False, authorized_ids=spec.out_trunk_model_permissions.authorized_ids
+        process_shared_model_permissions = schemas.Permissions(
+            public=False, authorized_ids=spec.outputs["shared"].permissions.authorized_ids
         )
-        trunk_model_permissions = {"process": self.__compute_permissions(process_trunk_model_permissions)}
+        shared_model_permissions = {"process": self.__compute_permissions(process_shared_model_permissions)}
         if spec.in_head_model_key:
             head_model_permissions = in_head_tuple.composite.head_permissions
         else:
@@ -690,7 +690,7 @@ class Local(base.BaseBackend):
                 data_manager_key=spec.data_manager_key,
                 data_sample_keys=spec.train_data_sample_keys,
                 head_permissions=head_model_permissions,
-                trunk_permissions=trunk_model_permissions,
+                trunk_permissions=shared_model_permissions,
                 models=list(),
             ),
             key=key,

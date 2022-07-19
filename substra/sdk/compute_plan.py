@@ -57,7 +57,6 @@ def get_dependency_graph(spec: schemas._BaseComputePlanSpec):
 
     if spec.composite_traintuples:
         for compositetuple in spec.composite_traintuples:
-            assert not compositetuple.out_trunk_model_permissions.public
             _insert_into_graph(
                 tuple_graph=tuple_graph,
                 tuple_id=compositetuple.composite_traintuple_id,

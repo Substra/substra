@@ -449,12 +449,17 @@ algo_key = clients[ALGO_ORGANIZATION_PROFILE].add_algo(algo)
 
 from substra.sdk.schemas import ComputePlanSpec
 from substra.sdk.schemas import ComputePlanTesttupleSpec
+from substra.sdk.schemas import ComputePlanPredicttupleSpec
 from substra.sdk.schemas import ComputePlanTraintupleSpec
+from substra.sdk.schemas import ComputeTaskOutput
+from substra.sdk.schemas import Permissions
 
 N_ROUNDS = 7
+PUBLIC_PERMISSIONS = Permissions(public=True, authorized_ids=[])
 
 traintuples = []
 testtuples = []
+predicttuples = []
 previous_id = None
 
 metric_keys = [accuracy_key, f1_score_key]
@@ -470,23 +475,50 @@ for _ in range(N_ROUNDS):
             train_data_sample_keys=assets_keys["train"]["train_data_sample_keys"],
             traintuple_id=str(uuid.uuid4()),
             in_models_ids=[previous_id] if previous_id else [],
+            outputs={
+                "model": ComputeTaskOutput(
+                    permissions=Permissions(public=False, authorized_ids=[PROFILE_NAMES])
+                ),
+            },
         )
         traintuples.append(traintuple)
         previous_id = traintuple.traintuple_id
 
-        testtuple = ComputePlanTesttupleSpec(
-            metric_keys=metric_keys,
+        predicttuple = ComputePlanPredicttupleSpec(
+            predicttuple_id=str(uuid.uuid4()),
+            algo_key=algo_key,
             traintuple_id=previous_id,
             test_data_sample_keys=organizations_assets_keys[ALGO_ORGANIZATION_PROFILE]["test"]["test_data_sample_keys"],
             data_manager_key=organizations_assets_keys[ALGO_ORGANIZATION_PROFILE]["test"]["dataset_key"],
+            outputs={
+                "predictions": ComputeTaskOutput(
+                    permissions=Permissions(public=False, authorized_ids=[organization])
+                ),
+            },
         )
 
-        testtuples.append(testtuple)
+        predicttuples.append(predicttuple)
+
+        testtuples += [
+            ComputePlanTesttupleSpec(
+                metric_keys=metric_key,
+                test_data_sample_keys=organizations_assets_keys[ALGO_ORGANIZATION_PROFILE]["test"][
+                    "test_data_sample_keys"
+                ],
+                data_manager_key=organizations_assets_keys[ALGO_ORGANIZATION_PROFILE]["test"]["dataset_key"],
+                predicttuple_id=predicttuple.predicttuple_id,
+                outputs={
+                    "performance": ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                },
+            )
+            for metric_key in metric_keys
+        ]
 
 
 compute_plan_spec = ComputePlanSpec(
     name="cyclic_strategy_cp",
     traintuples=traintuples,
+    predicttuples=predicttuples,
     testtuples=testtuples,
 )
 

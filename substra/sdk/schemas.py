@@ -222,12 +222,18 @@ class DataSampleSpec(_Spec):
             yield data, None
 
 
+class ComputeTaskOutput(_PydanticConfig):
+    permissions: Permissions
+    # "is_transient" will be added here
+
+
 class _ComputePlanComputeTaskSpec(_Spec):
     """Specification of a compute task inside a compute plan specification"""
 
     algo_key: str
     tag: Optional[str]
     metadata: Optional[Dict[str, str]]
+    outputs: Optional[Dict[str, ComputeTaskOutput]]
 
 
 class ComputePlanTraintupleSpec(_ComputePlanComputeTaskSpec):
@@ -258,7 +264,6 @@ class ComputePlanCompositeTraintupleSpec(_ComputePlanComputeTaskSpec):
     train_data_sample_keys: List[str]
     in_head_model_id: Optional[str]
     in_trunk_model_id: Optional[str]
-    out_trunk_model_permissions: Permissions
 
 
 class ComputePlanPredicttupleSpec(_ComputePlanComputeTaskSpec):
@@ -379,6 +384,7 @@ class _TupleSpec(_Spec):
     compute_plan_key: Optional[str]
     metadata: Optional[Dict[str, str]]
     algo_key: str
+    outputs: Optional[Dict[str, ComputeTaskOutput]]
 
     @contextlib.contextmanager
     def build_request_kwargs(self):
@@ -387,6 +393,7 @@ class _TupleSpec(_Spec):
         data = json.loads(self.json(exclude_unset=True))
         data["key"] = self.key
         data["category"] = self.category
+        data["outputs"] = {k: v.dict() for k, v in self.outputs.items()} if self.outputs else {}
         yield data, None
 
 
@@ -410,6 +417,7 @@ class TraintupleSpec(_TupleSpec):
             data_manager_key=spec.data_manager_key,
             train_data_sample_keys=spec.train_data_sample_keys,
             in_models_keys=spec.in_models_ids or list(),
+            outputs=spec.outputs,
             tag=spec.tag,
             compute_plan_key=compute_plan_key,
             rank=rank,
@@ -437,6 +445,7 @@ class AggregatetupleSpec(_TupleSpec):
             algo_key=spec.algo_key,
             worker=spec.worker,
             in_models_keys=spec.in_models_ids or list(),
+            outputs=spec.outputs,
             tag=spec.tag,
             compute_plan_key=compute_plan_key,
             rank=rank,
@@ -451,7 +460,6 @@ class CompositeTraintupleSpec(_TupleSpec):
     train_data_sample_keys: List[str]
     in_head_model_key: Optional[str]
     in_trunk_model_key: Optional[str]
-    out_trunk_model_permissions: Permissions
     rank: Optional[int]
     category: TaskCategory = pydantic.Field(TaskCategory.composite, const=True)
 
@@ -469,10 +477,7 @@ class CompositeTraintupleSpec(_TupleSpec):
             train_data_sample_keys=spec.train_data_sample_keys,
             in_head_model_key=spec.in_head_model_id,
             in_trunk_model_key=spec.in_trunk_model_id,
-            out_trunk_model_permissions={
-                "public": spec.out_trunk_model_permissions.public,
-                "authorized_ids": spec.out_trunk_model_permissions.authorized_ids,
-            },
+            outputs=spec.outputs,
             tag=spec.tag,
             compute_plan_key=compute_plan_key,
             rank=rank,
@@ -497,6 +502,7 @@ class PredicttupleSpec(_TupleSpec):
             key=spec.predicttuple_id,
             algo_key=spec.algo_key,
             traintuple_key=spec.traintuple_id,
+            outputs=spec.outputs,
             tag=spec.tag,
             data_manager_key=spec.data_manager_key,
             test_data_sample_keys=spec.test_data_sample_keys,
@@ -520,6 +526,7 @@ class TesttupleSpec(_TupleSpec):
         return TesttupleSpec(
             algo_key=spec.algo_key,
             predicttuple_key=spec.predicttuple_id,
+            outputs=spec.outputs,
             tag=spec.tag,
             data_manager_key=spec.data_manager_key,
             test_data_sample_keys=spec.test_data_sample_keys,
