@@ -441,68 +441,70 @@ COMPUTE_PLAN_PERF = {
     "count": 3,
     "previous": None,
     "next": None,
-    "results": [
-        {
-            "compute_task": {
-                "key": "afa9c7b1-21b5-4e58-a098-79de4ecede35",
-                "data_manager_key": "a67b9387-fd80-429a-bc2f-034fac430b0f",
-                "algo_key": "17f98afc-2b82-4ce9-b232-1a471633d020",
-                "rank": 1,
-                "epoch": None,
-                "round_idx": None,
-                "data_samples": [
-                    "3180e12c-a821-434a-ad8a-a341076c7f98",
-                    "21bb59ca-abd4-4154-b04a-44a92556a078",
-                ],
-                "worker": "MyOrg1MSP",
+    "results": {
+        "performances": [
+            {
+                "compute_task": {
+                    "key": "afa9c7b1-21b5-4e58-a098-79de4ecede35",
+                    "data_manager_key": "a67b9387-fd80-429a-bc2f-034fac430b0f",
+                    "algo_key": "17f98afc-2b82-4ce9-b232-1a471633d020",
+                    "rank": 1,
+                    "epoch": None,
+                    "round_idx": None,
+                    "data_samples": [
+                        "3180e12c-a821-434a-ad8a-a341076c7f98",
+                        "21bb59ca-abd4-4154-b04a-44a92556a078",
+                    ],
+                    "worker": "MyOrg1MSP",
+                },
+                "metric": {
+                    "key": "e526243f-f51a-4737-9fea-a5d55f4205fe",
+                    "name": "accuracy",
+                },
+                "perf": 0.673,
             },
-            "metric": {
-                "key": "e526243f-f51a-4737-9fea-a5d55f4205fe",
-                "name": "accuracy",
+            {
+                "compute_task": {
+                    "key": "afa9c7b1-21b5-4e58-a098-79de4ecede35",
+                    "data_manager_key": "a67b9387-fd80-429a-bc2f-034fac430b0f",
+                    "algo_key": "17f98afc-2b82-4ce9-b232-1a471633d020",
+                    "rank": 2,
+                    "epoch": None,
+                    "round_idx": None,
+                    "data_samples": [
+                        "3180e12c-a821-434a-ad8a-a341076c7f98",
+                        "21bb59ca-abd4-4154-b04a-44a92556a078",
+                    ],
+                    "worker": "MyOrg1MSP",
+                },
+                "metric": {
+                    "key": "e526243f-f51a-4737-9fea-a5d55f4205fe",
+                    "name": "accuracy",
+                },
+                "perf": 0.834,
             },
-            "perf": 0.673,
-        },
-        {
-            "compute_task": {
-                "key": "afa9c7b1-21b5-4e58-a098-79de4ecede35",
-                "data_manager_key": "a67b9387-fd80-429a-bc2f-034fac430b0f",
-                "algo_key": "17f98afc-2b82-4ce9-b232-1a471633d020",
-                "rank": 2,
-                "epoch": None,
-                "round_idx": None,
-                "data_samples": [
-                    "3180e12c-a821-434a-ad8a-a341076c7f98",
-                    "21bb59ca-abd4-4154-b04a-44a92556a078",
-                ],
-                "worker": "MyOrg1MSP",
+            {
+                "compute_task": {
+                    "key": "afa9c7b1-21b5-4e58-a098-79de4ecede35",
+                    "data_manager_key": "a67b9387-fd80-429a-bc2f-034fac430b0f",
+                    "algo_key": "17f98afc-2b82-4ce9-b232-1a471633d020",
+                    "rank": 3,
+                    "epoch": None,
+                    "round_idx": None,
+                    "data_samples": [
+                        "3180e12c-a821-434a-ad8a-a341076c7f98",
+                        "21bb59ca-abd4-4154-b04a-44a92556a078",
+                    ],
+                    "worker": "MyOrg1MSP",
+                },
+                "metric": {
+                    "key": "e526243f-f51a-4737-9fea-a5d55f4205fe",
+                    "name": "accuracy",
+                },
+                "perf": 0.956,
             },
-            "metric": {
-                "key": "e526243f-f51a-4737-9fea-a5d55f4205fe",
-                "name": "accuracy",
-            },
-            "perf": 0.834,
-        },
-        {
-            "compute_task": {
-                "key": "afa9c7b1-21b5-4e58-a098-79de4ecede35",
-                "data_manager_key": "a67b9387-fd80-429a-bc2f-034fac430b0f",
-                "algo_key": "17f98afc-2b82-4ce9-b232-1a471633d020",
-                "rank": 3,
-                "epoch": None,
-                "round_idx": None,
-                "data_samples": [
-                    "3180e12c-a821-434a-ad8a-a341076c7f98",
-                    "21bb59ca-abd4-4154-b04a-44a92556a078",
-                ],
-                "worker": "MyOrg1MSP",
-            },
-            "metric": {
-                "key": "e526243f-f51a-4737-9fea-a5d55f4205fe",
-                "name": "accuracy",
-            },
-            "perf": 0.956,
-        },
-    ],
+        ],
+    },
 }
 
 MODEL = {

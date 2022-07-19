@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- fix: `get_performances` works again in remote (#236)
+
 ### Changed
 
 - feat: change DEFAULT_BATCH_SIZE to 500 (#226)
