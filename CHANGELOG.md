@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - feat: change DEFAULT_BATCH_SIZE to 500 (#226)
 
+### Added
+
+- feat: add "outputs" field to *tuple models (#235)
+
 ## [0.29.0](https://github.com/owkin/substra/releases/tag/0.29.0) - 2022-07-11
 
 ### Added

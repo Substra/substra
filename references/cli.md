@@ -222,8 +222,8 @@ Usage: substra update compute_plan_tuples [OPTIONS] COMPUTE_PLAN_KEY
   }
 
   Disable the auto batching to upload all the tuples of the compute plan at
-  once. If the auto batching is enabled, change the `batch_size` to define
-  the number of tuples uploaded in each batch (default 500).
+  once. If the auto batching is enabled, change the `batch_size` to define the
+  number of tuples uploaded in each batch (default 500).
 
 Options:
   -n, --no-auto-batching          Disable the auto batching feature

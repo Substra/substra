@@ -216,6 +216,11 @@ class OutModel(schemas._PydanticConfig):
     type_: ClassVar[str] = schemas.Type.Model
 
 
+class ComputeTaskOutput(schemas._PydanticConfig):
+    permissions: Permissions
+    # "is_transient" will be added here
+
+
 class _GenericTraintuple(_Model):
     key: str
     category: schemas.TaskCategory
@@ -228,6 +233,7 @@ class _GenericTraintuple(_Model):
     rank: Optional[int]
     parent_task_keys: List[str]
     parent_tasks: Optional[List[Union["Traintuple", "CompositeTraintuple", "Aggregatetuple", "Predicttuple"]]] = list()
+    outputs: Optional[Dict[str, ComputeTaskOutput]]
     tag: str
     creation_date: datetime
     start_date: Optional[datetime]

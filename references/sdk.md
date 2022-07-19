@@ -131,7 +131,7 @@ it must have the same keys as specified in
  - `auto_batching (bool, optional)`: Set 'auto_batching' to False to upload all
 the tuples of the compute plan at once. Defaults to True.
  - `batch_size (int, optional)`: If 'auto_batching' is True, change `batch_size`
-to define the number of tuples uploaded in each batch (default 20).
+to define the number of tuples uploaded in each batch (default 500).
 
 **Returns:**
 
