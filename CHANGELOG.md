@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.30.0](https://github.com/owkin/substra/releases/tag/0.30.0) - 2022-07-11
+
 ### Fixed
 
 - fix: `get_performances` works again in remote (#236)
@@ -14,17 +16,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - feat: change DEFAULT_BATCH_SIZE to 500 (#226)
+
 ### Added
 
 - "outputs" field to substra.sdk.schemas.*tupleSpec (#219)
+- feat: add "outputs" field to *tuple models (#235)
 
 ### Removed
 
 - BREAKING: "out_trunk_model_permissions" field from substra.sdk.schemas.CompositeTraintupleSpec (superseded by "outputs") (#219)
-
-### Added
-
-- feat: add "outputs" field to *tuple models (#235)
 
 ## [0.29.0](https://github.com/owkin/substra/releases/tag/0.29.0) - 2022-07-11
 
