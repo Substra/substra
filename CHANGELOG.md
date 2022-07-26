@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.30.1](https://github.com/owkin/substra/releases/tag/0.30.1) - 2022-07-26
+
 ### Fixed
 
 - revert: fix: `get_performances` works again in remote (#240)
 
-## [0.30.0](https://github.com/owkin/substra/releases/tag/0.30.0) - 2022-07-11
+## [0.30.0](https://github.com/owkin/substra/releases/tag/0.30.0) - 2022-07-25
 
 ### Fixed
 
