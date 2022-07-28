@@ -206,6 +206,7 @@ organizations_assets_keys: dict = {profile_name: {} for profile_name in PROFILE_
 from substra.sdk import DEBUG_OWNER
 from substra.sdk.schemas import DataSampleSpec
 from substra.sdk.schemas import DatasetSpec
+from substra.sdk.schemas import InputRef
 from substra.sdk.schemas import Permissions
 
 dataset = DatasetSpec(
@@ -393,8 +394,6 @@ tqdm.write("Assets keys have been saved to %s" % assets_keys_path.absolute())
 
 from typing import List
 
-from substra.sdk.schemas import AlgoSpec
-
 ALGO_DOCKERFILE_FILES: List[Path] = [
     algo_directory / "algo.py",
     algo_directory / "Dockerfile",
@@ -447,9 +446,11 @@ algo_key = clients[ALGO_ORGANIZATION_PROFILE].add_algo(algo)
 # the traintuple_id and the **models** parameter will contain the resulting model of the task
 # identified by the **in_models_ids** parameters.
 
+from typing import Optional
+
+from substra.sdk.schemas import ComputePlanPredicttupleSpec
 from substra.sdk.schemas import ComputePlanSpec
 from substra.sdk.schemas import ComputePlanTesttupleSpec
-from substra.sdk.schemas import ComputePlanPredicttupleSpec
 from substra.sdk.schemas import ComputePlanTraintupleSpec
 from substra.sdk.schemas import ComputeTaskOutput
 from substra.sdk.schemas import Permissions
@@ -464,21 +465,53 @@ previous_id = None
 
 metric_keys = [accuracy_key, f1_score_key]
 
+
+def _build_task_inputs(
+    dataset_key: str,
+    data_sample_keys: str,
+    parent_task_key: Optional[str],
+    parent_task_output_identifier: Optional[str],
+) -> List[InputRef]:
+
+    res = [
+        InputRef(identifier="opener", asset_key=dataset_key),
+    ]
+
+    for key in data_sample_keys:
+        res.add(InputRef(identifier="datasamples", asset_key=key))
+
+    if parent_task_key:
+        res.add(
+            InputRef(
+                identifier="model",
+                parent_task_key=parent_task_key,
+                parent_task_output_identifier=parent_task_output_identifier,
+            )
+        )
+
+    return res
+
+
 for _ in range(N_ROUNDS):
     # This is where you define training plan for each round
     # Here it is : train on organization 1, test, train on organization 2, test
     for organization in PROFILE_NAMES:
         assets_keys = organizations_assets_keys[organization]
+
         traintuple = ComputePlanTraintupleSpec(
             algo_key=algo_key,
             data_manager_key=assets_keys["train"]["dataset_key"],
             train_data_sample_keys=assets_keys["train"]["train_data_sample_keys"],
             traintuple_id=str(uuid.uuid4()),
             in_models_ids=[previous_id] if previous_id else [],
+            inputs=_build_task_inputs(
+                assets_keys["train"]["dataset_key"],
+                assets_keys["train"]["train_data_sample_keys"],
+                previous_id,
+                "model",
+            ),
             outputs={
-                "model": ComputeTaskOutput(
-                    permissions=Permissions(public=False, authorized_ids=[PROFILE_NAMES])
-                ),
+                "model": ComputeTaskOutput(permissions=Permissions(public=False, authorized_ids=[PROFILE_NAMES])),
             },
         )
         traintuples.append(traintuple)
@@ -490,10 +523,14 @@ for _ in range(N_ROUNDS):
             traintuple_id=previous_id,
             test_data_sample_keys=organizations_assets_keys[ALGO_ORGANIZATION_PROFILE]["test"]["test_data_sample_keys"],
             data_manager_key=organizations_assets_keys[ALGO_ORGANIZATION_PROFILE]["test"]["dataset_key"],
+            inputs=_build_task_inputs(
+                organizations_assets_keys[ALGO_ORGANIZATION_PROFILE]["test"]["dataset_key"],
+                organizations_assets_keys[ALGO_ORGANIZATION_PROFILE]["test"]["test_data_sample_keys"],
+                previous_id,
+                "model",
+            ),
             outputs={
-                "predictions": ComputeTaskOutput(
-                    permissions=Permissions(public=False, authorized_ids=[organization])
-                ),
+                "predictions": ComputeTaskOutput(permissions=Permissions(public=False, authorized_ids=[organization])),
             },
         )
 
@@ -507,6 +544,12 @@ for _ in range(N_ROUNDS):
                 ],
                 data_manager_key=organizations_assets_keys[ALGO_ORGANIZATION_PROFILE]["test"]["dataset_key"],
                 predicttuple_id=predicttuple.predicttuple_id,
+                inputs=_build_task_inputs(
+                    organizations_assets_keys[ALGO_ORGANIZATION_PROFILE]["test"]["dataset_key"],
+                    organizations_assets_keys[ALGO_ORGANIZATION_PROFILE]["test"]["test_data_sample_keys"],
+                    predicttuple.predicttuple_id,
+                    "predictions",
+                ),
                 outputs={
                     "performance": ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
                 },

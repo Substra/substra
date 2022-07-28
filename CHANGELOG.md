@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- "inputs" field to substra.sdk.schemas.*tupleSpec (#215)
+
 ## [0.30.1](https://github.com/owkin/substra/releases/tag/0.30.1) - 2022-07-26
 
 ### Fixed

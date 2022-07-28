@@ -11,7 +11,7 @@ from substra.sdk import models
 from substra.sdk.backends.local.compute.spawner.subprocess import PYTHON_SCRIPT_NAME
 from substra.sdk.exceptions import InvalidRequest
 from substra.sdk.exceptions import KeyAlreadyExistsError
-from substra.sdk.schemas import AlgoCategory, ComputeTaskOutput, Permissions
+from substra.sdk.schemas import AlgoCategory, ComputeTaskOutput, Permissions, InputRef
 
 
 PUBLIC_PERMISSIONS = Permissions(public=True, authorized_ids=[])
@@ -108,6 +108,10 @@ class TestsDebug:
                 data_manager_key=dataset_1_key,
                 traintuple_id=str(uuid.uuid4()),
                 train_data_sample_keys=[sample_1_key],
+                inputs=[
+                    InputRef(identifier="opener", asset_key=dataset_1_key),
+                    InputRef(identifier="datasamples", asset_key=sample_1_key),
+                ],
                 outputs={
                     MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
                 },
@@ -142,6 +146,10 @@ class TestsDebug:
                 data_manager_key=dataset_1_key,
                 traintuple_id=str(uuid.uuid4()),
                 train_data_sample_keys=[sample_1_key],
+                inputs=[
+                    InputRef(identifier="opener", asset_key=dataset_1_key),
+                    InputRef(identifier="datasamples", asset_key=sample_1_key),
+                ],
                 outputs={
                     MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
                 },
@@ -177,6 +185,10 @@ class TestsDebug:
                 data_manager_key=dataset_1_key,
                 traintuple_id=str(uuid.uuid4()),
                 train_data_sample_keys=[sample_1_key],
+                inputs=[
+                    InputRef(identifier="opener", asset_key=dataset_1_key),
+                    InputRef(identifier="datasamples", asset_key=sample_1_key),
+                ],
                 outputs={
                     MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
                 },
@@ -186,6 +198,10 @@ class TestsDebug:
                 data_manager_key=dataset_2_key,
                 traintuple_id=str(uuid.uuid4()),
                 train_data_sample_keys=[sample_2_key],
+                inputs=[
+                    InputRef(identifier="opener", asset_key=dataset_2_key),
+                    InputRef(identifier="datasamples", asset_key=sample_2_key),
+                ],
                 outputs={
                     MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
                 },
@@ -244,6 +260,11 @@ class TestsDebug:
             train_data_sample_keys=[data_sample_key],
             in_models_ids=[traintuple_key],
             traintuple_id=str(uuid.uuid4()),
+            inputs=[
+                InputRef(identifier="opener", asset_key=dataset_key),
+                InputRef(identifier="datasamples", asset_key=data_sample_key),
+                InputRef(identifier="model", parent_task_key=traintuple_key, parent_task_output_identifier="model")
+            ],
             outputs={
                 MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
             },
@@ -299,6 +320,10 @@ class TestsDebug:
                 data_manager_key=dataset_1_key,
                 traintuple_id=traintuple_id_1,
                 train_data_sample_keys=[sample_1_key],
+                inputs=[
+                    InputRef(identifier="opener", asset_key=dataset_1_key),
+                    InputRef(identifier="datasamples", asset_key=sample_1_key),
+                ],
                 outputs={
                     MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
                 },
@@ -308,6 +333,10 @@ class TestsDebug:
                 data_manager_key=dataset_2_key,
                 traintuple_id=traintuple_id_2,
                 train_data_sample_keys=[sample_2_key],
+                inputs=[
+                    InputRef(identifier="opener", asset_key=dataset_2_key),
+                    InputRef(identifier="datasamples", asset_key=sample_2_key),
+                ],
                 outputs={
                     MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
                 },
@@ -433,6 +462,10 @@ class TestsDebug:
                 outputs={
                     MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
                 },
+                inputs=[
+                    InputRef(identifier="model", parent_task_key=composite_1_key, parent_task_output_identifier="local"),
+                    InputRef(identifier="model", parent_task_key=composite_2_key, parent_task_output_identifier="shared"),
+                ],
             )
         ]
 
@@ -646,6 +679,10 @@ class TestsDebug:
             data_manager_key=dataset_key,
             traintuple_id=str(uuid.uuid4()),
             train_data_sample_keys=[sample_key],
+            inputs=[
+                InputRef(identifier="opener", asset_key=dataset_key),
+                InputRef(identifier="datasamples", asset_key=sample_key),
+            ],
             outputs={
                 MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
             },
@@ -798,6 +835,10 @@ def test_execute_compute_plan_several_testtuples_per_train(asset_factory, monkey
         data_manager_key=dataset_key,
         traintuple_id=str(uuid.uuid4()),
         train_data_sample_keys=[sample_1_key],
+        inputs=[
+            InputRef(identifier="opener", asset_key=dataset_key),
+            InputRef(identifier="datasamples", asset_key=sample_1_key),
+        ],
         outputs={
             MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
         },

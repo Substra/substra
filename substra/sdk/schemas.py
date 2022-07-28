@@ -38,29 +38,32 @@ _SERVER_NAMES = {
 }
 
 
+ALGO_INPUT_IDENTIFIER_OPENER = "opener"
+ALGO_INPUT_IDENTIFIER_DATASAMPLES = "datasamples"
+
 ALGO_INPUTS_PER_CATEGORY = {
     "ALGO_SIMPLE": {
-        "datasamples": {"kind": "ASSET_DATA_SAMPLE", "multiple": True, "optional": False},
-        "model": {"kind": "ASSET_MODEL", "multiple": False, "optional": True},
-        "opener": {"kind": "ASSET_DATA_MANAGER", "multiple": False, "optional": False},
+        ALGO_INPUT_IDENTIFIER_DATASAMPLES: {"kind": "ASSET_DATA_SAMPLE", "multiple": True, "optional": False},
+        "model": {"kind": "ASSET_MODEL", "multiple": True, "optional": True},
+        ALGO_INPUT_IDENTIFIER_OPENER: {"kind": "ASSET_DATA_MANAGER", "multiple": False, "optional": False},
     },
     "ALGO_AGGREGATE": {
         "model": {"kind": "ASSET_MODEL", "multiple": True, "optional": False},
     },
     "ALGO_COMPOSITE": {
-        "datasamples": {"kind": "ASSET_DATA_SAMPLE", "multiple": True, "optional": False},
+        ALGO_INPUT_IDENTIFIER_DATASAMPLES: {"kind": "ASSET_DATA_SAMPLE", "multiple": True, "optional": False},
         "local": {"kind": "ASSET_MODEL", "multiple": False, "optional": True},
-        "opener": {"kind": "ASSET_DATA_MANAGER", "multiple": False, "optional": False},
+        ALGO_INPUT_IDENTIFIER_OPENER: {"kind": "ASSET_DATA_MANAGER", "multiple": False, "optional": False},
         "shared": {"kind": "ASSET_MODEL", "multiple": False, "optional": True},
     },
     "ALGO_METRIC": {
-        "datasamples": {"kind": "ASSET_DATA_SAMPLE", "multiple": True, "optional": False},
-        "opener": {"kind": "ASSET_DATA_MANAGER", "multiple": False, "optional": False},
+        ALGO_INPUT_IDENTIFIER_DATASAMPLES: {"kind": "ASSET_DATA_SAMPLE", "multiple": True, "optional": False},
+        ALGO_INPUT_IDENTIFIER_OPENER: {"kind": "ASSET_DATA_MANAGER", "multiple": False, "optional": False},
         "predictions": {"kind": "ASSET_MODEL", "multiple": False, "optional": False},
     },
     "ALGO_PREDICT": {
-        "datasamples": {"kind": "ASSET_DATA_SAMPLE", "multiple": True, "optional": False},
-        "opener": {"kind": "ASSET_DATA_MANAGER", "multiple": False, "optional": False},
+        ALGO_INPUT_IDENTIFIER_DATASAMPLES: {"kind": "ASSET_DATA_SAMPLE", "multiple": True, "optional": False},
+        ALGO_INPUT_IDENTIFIER_OPENER: {"kind": "ASSET_DATA_MANAGER", "multiple": False, "optional": False},
         "model": {"kind": "ASSET_MODEL", "multiple": False, "optional": False},
         "shared": {"kind": "ASSET_MODEL", "multiple": False, "optional": True},
     },
@@ -222,6 +225,30 @@ class DataSampleSpec(_Spec):
             yield data, None
 
 
+def check_asset_key_or_parent_ref(cls, values):
+    """Check that either (asset key) or (parent_task_key, parent_task_output_identifier) are set, but not both."""
+
+    has_asset_key = bool(values.get("asset_key"))
+    has_parent = bool(values.get("parent_task_key")) and bool(values.get("parent_task_output_identifier"))
+
+    if has_asset_key != has_parent:  # xor
+        return values
+
+    raise ValueError("either asset_key or both (parent_task_key, parent_task_output_identifier) must be provided")
+
+
+class InputRef(_PydanticConfig):
+    """Specification of a compute task input"""
+
+    identifier: str
+    asset_key: Optional[str]
+    parent_task_key: Optional[str]
+    parent_task_output_identifier: Optional[str]
+
+    # either (asset_key) or (parent_task_key, parent_task_output_identifier) must be specified
+    _check_asset_key_or_parent_ref = pydantic.root_validator(allow_reuse=True)(check_asset_key_or_parent_ref)
+
+
 class ComputeTaskOutput(_PydanticConfig):
     permissions: Permissions
     # "is_transient" will be added here
@@ -233,6 +260,7 @@ class _ComputePlanComputeTaskSpec(_Spec):
     algo_key: str
     tag: Optional[str]
     metadata: Optional[Dict[str, str]]
+    inputs: Optional[List[InputRef]]
     outputs: Optional[Dict[str, ComputeTaskOutput]]
 
 
@@ -384,6 +412,7 @@ class _TupleSpec(_Spec):
     compute_plan_key: Optional[str]
     metadata: Optional[Dict[str, str]]
     algo_key: str
+    inputs: Optional[List[InputRef]]
     outputs: Optional[Dict[str, ComputeTaskOutput]]
 
     @contextlib.contextmanager
@@ -393,6 +422,7 @@ class _TupleSpec(_Spec):
         data = json.loads(self.json(exclude_unset=True))
         data["key"] = self.key
         data["category"] = self.category
+        data["inputs"] = [input.dict() for input in self.inputs] if self.inputs else []
         data["outputs"] = {k: v.dict() for k, v in self.outputs.items()} if self.outputs else {}
         yield data, None
 
@@ -417,6 +447,7 @@ class TraintupleSpec(_TupleSpec):
             data_manager_key=spec.data_manager_key,
             train_data_sample_keys=spec.train_data_sample_keys,
             in_models_keys=spec.in_models_ids or list(),
+            inputs=spec.inputs,
             outputs=spec.outputs,
             tag=spec.tag,
             compute_plan_key=compute_plan_key,
@@ -445,6 +476,7 @@ class AggregatetupleSpec(_TupleSpec):
             algo_key=spec.algo_key,
             worker=spec.worker,
             in_models_keys=spec.in_models_ids or list(),
+            inputs=spec.inputs,
             outputs=spec.outputs,
             tag=spec.tag,
             compute_plan_key=compute_plan_key,
@@ -477,6 +509,7 @@ class CompositeTraintupleSpec(_TupleSpec):
             train_data_sample_keys=spec.train_data_sample_keys,
             in_head_model_key=spec.in_head_model_id,
             in_trunk_model_key=spec.in_trunk_model_id,
+            inputs=spec.inputs,
             outputs=spec.outputs,
             tag=spec.tag,
             compute_plan_key=compute_plan_key,
@@ -502,6 +535,7 @@ class PredicttupleSpec(_TupleSpec):
             key=spec.predicttuple_id,
             algo_key=spec.algo_key,
             traintuple_key=spec.traintuple_id,
+            inputs=spec.inputs,
             outputs=spec.outputs,
             tag=spec.tag,
             data_manager_key=spec.data_manager_key,
@@ -526,6 +560,7 @@ class TesttupleSpec(_TupleSpec):
         return TesttupleSpec(
             algo_key=spec.algo_key,
             predicttuple_key=spec.predicttuple_id,
+            inputs=spec.inputs,
             outputs=spec.outputs,
             tag=spec.tag,
             data_manager_key=spec.data_manager_key,
