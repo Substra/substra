@@ -177,8 +177,8 @@ def check_and_format_search_filters(asset_type, filters):  # noqa: C901
         elif key == "name":
             if not isinstance(filters[key], str):
                 raise exceptions.FilterFormatError(
-                    """Cannot load filters. Please review the documentation, 'name' filter is partial match in remote, exact match in local,
-                        value should be str"""
+                    """Cannot load filters. Please review the documentation, 'name' filter is partial match in remote,
+                    exact match in local, value should be str"""
                 )
         elif key == "metadata":
             _check_metadata_search_filters(filters[key])

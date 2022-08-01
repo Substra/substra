@@ -11,8 +11,10 @@ from substra.sdk import models
 from substra.sdk.backends.local.compute.spawner.subprocess import PYTHON_SCRIPT_NAME
 from substra.sdk.exceptions import InvalidRequest
 from substra.sdk.exceptions import KeyAlreadyExistsError
-from substra.sdk.schemas import AlgoCategory, ComputeTaskOutput, Permissions, InputRef
-
+from substra.sdk.schemas import AlgoCategory
+from substra.sdk.schemas import ComputeTaskOutput
+from substra.sdk.schemas import InputRef
+from substra.sdk.schemas import Permissions
 
 PUBLIC_PERMISSIONS = Permissions(public=True, authorized_ids=[])
 
@@ -263,7 +265,7 @@ class TestsDebug:
             inputs=[
                 InputRef(identifier="opener", asset_key=dataset_key),
                 InputRef(identifier="datasamples", asset_key=data_sample_key),
-                InputRef(identifier="model", parent_task_key=traintuple_key, parent_task_output_identifier="model")
+                InputRef(identifier="model", parent_task_key=traintuple_key, parent_task_output_identifier="model"),
             ],
             outputs={
                 MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
@@ -463,8 +465,12 @@ class TestsDebug:
                     MODEL_ID: ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
                 },
                 inputs=[
-                    InputRef(identifier="model", parent_task_key=composite_1_key, parent_task_output_identifier="local"),
-                    InputRef(identifier="model", parent_task_key=composite_2_key, parent_task_output_identifier="shared"),
+                    InputRef(
+                        identifier="model", parent_task_key=composite_1_key, parent_task_output_identifier="local"
+                    ),
+                    InputRef(
+                        identifier="model", parent_task_key=composite_2_key, parent_task_output_identifier="shared"
+                    ),
                 ],
             )
         ]
