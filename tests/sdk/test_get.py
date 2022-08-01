@@ -32,6 +32,7 @@ from ..utils import mock_response
         "dataset",
         "data_sample",
         "algo",
+        "predicttuple",
         "testtuple",
         "traintuple",
         "aggregatetuple",
@@ -63,6 +64,7 @@ def test_get_asset_not_found(client, mocker):
     [
         "dataset",
         "algo",
+        "predicttuple",
         "testtuple",
         "traintuple",
         "aggregatetuple",

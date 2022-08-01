@@ -527,6 +527,8 @@ class Local(base.BaseBackend):
             worker=dataset.owner,
             compute_plan_key=compute_plan_key,
             rank=rank,
+            inputs=spec.inputs or [],
+            outputs=_output_from_spec(spec.outputs),
             tag=spec.tag or "",
             status=models.Status.waiting,
             metadata=spec.metadata if spec.metadata else dict(),
@@ -580,6 +582,8 @@ class Local(base.BaseBackend):
             worker=worker,
             compute_plan_key=traintuple.compute_plan_key,
             rank=traintuple.rank,
+            inputs=spec.inputs or [],
+            outputs=_output_from_spec(spec.outputs),
             tag=spec.tag or "",
             status=models.Status.waiting,
             metadata=spec.metadata if spec.metadata else dict(),
@@ -634,6 +638,8 @@ class Local(base.BaseBackend):
             worker=worker,
             compute_plan_key=predicttuple.compute_plan_key,
             rank=predicttuple.rank,
+            inputs=spec.inputs or [],
+            outputs=_output_from_spec(spec.outputs),
             tag=spec.tag or "",
             status=models.Status.waiting,
             metadata=spec.metadata if spec.metadata else dict(),
@@ -701,6 +707,8 @@ class Local(base.BaseBackend):
             worker=dataset.owner,
             compute_plan_key=compute_plan_key,
             rank=rank,
+            inputs=spec.inputs or [],
+            outputs=_output_from_spec(spec.outputs),
             tag=spec.tag or "",
             status=models.Status.waiting,
             metadata=spec.metadata if spec.metadata else dict(),
@@ -764,6 +772,8 @@ class Local(base.BaseBackend):
             worker=owner,
             compute_plan_key=compute_plan_key,
             rank=rank,
+            inputs=spec.inputs or [],
+            outputs=_output_from_spec(spec.outputs),
             tag=spec.tag or "",
             status=models.Status.waiting,
             metadata=spec.metadata if spec.metadata else dict(),
@@ -878,3 +888,15 @@ class Local(base.BaseBackend):
 
         compute_plan = self.__execute_compute_plan(spec, compute_plan, visited, tuples, spec_options)
         return compute_plan
+
+
+def _output_from_spec(spec_outputs: Optional[Dict]) -> Dict:
+    """builds the outputs dict from the spec outputs"""
+    # TODO: Remove this when outputs will be a mandatory field
+    outputs = {}
+    if spec_outputs:
+        outputs = {
+            identifier: {"permissions": {"process": output.permissions, "download": output.permissions}}
+            for identifier, output in spec_outputs.items()
+        }
+    return outputs

@@ -85,6 +85,51 @@ ALGO = {
     },
 }
 
+
+ALGO_PREDICT = {
+    "key": "681eedb9-db00-4480-a66f-63c86cc20280",
+    "name": "def637b111f2495bb6b4771644d2409e_test_traintuple_data_samples_relative_order - Algo Predict",
+    "owner": "MyOrg1MSP",
+    "creation_date": "2021-08-24T13:36:07.393646367Z",
+    "permissions": {
+        "process": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
+        "download": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
+    },
+    "metadata": {},
+    "category": "ALGO_PREDICT",
+    "description": {
+        "checksum": "756589d5971c421a388a751d533ab8ce09715c93040e9e8fff1365e831545aa2",
+        "storage_address": "http://testserver/algo/681eedb9-db00-4480-a66f-63c86cc20280/description/",
+    },
+    "algorithm": {
+        "checksum": "aa8d43bf6e3341b0034a2e396451ab731ccca95a4c1d4f65a4fcd30f9081ec7d",
+        "storage_address": "http://testserver/algo/681eedb9-db00-4480-a66f-63c86cc20280/file/",
+    },
+}
+
+
+ALGO_METRIC = {
+    "key": "6a8ada2e-740f-46f4-af0f-11376763ed72",
+    "name": "def637b111f2495bb6b4771644d2409e_test_traintuple_data_samples_relative_order - Algo Metric",
+    "owner": "MyOrg1MSP",
+    "creation_date": "2021-08-24T13:36:07.393646367Z",
+    "permissions": {
+        "process": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
+        "download": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
+    },
+    "metadata": {},
+    "category": "ALGO_METRIC",
+    "description": {
+        "checksum": "756589d5971c421a388a751d533ab8ce09715c93040e9e8fff1365e831545aa2",
+        "storage_address": "http://testserver/algo/6a8ada2e-740f-46f4-af0f-11376763ed72/description/",
+    },
+    "algorithm": {
+        "checksum": "aa8d43bf6e3341b0034a2e396451ab731ccca95a4c1d4f65a4fcd30f9081ec7d",
+        "storage_address": "http://testserver/algo/6a8ada2e-740f-46f4-af0f-11376763ed72/file/",
+    },
+}
+
+
 TRAINTUPLE = {
     "key": "30c283be-d385-424e-94a6-4d8538275260",
     "category": "TASK_TRAIN",
@@ -119,6 +164,21 @@ TRAINTUPLE = {
     "tag": "",
     "start_date": "2021-10-12T09:28:06.947765800Z",
     "end_date": "2021-10-12T09:30:04.705947400Z",
+    "inputs": [
+        {"identifier": "opener", "asset_key": "a67b9387-fd80-429a-bc2f-034fac430b0f"},
+        {"identifier": "datasamples", "asset_key": "3180e12c-a821-434a-ad8a-a341076c7f98"},
+        {"identifier": "datasamples", "asset_key": "21bb59ca-abd4-4154-b04a-44a92556a078"},
+        {"identifier": "datasamples", "asset_key": "67512646-2464-4521-84de-419b1b307d30"},
+        {"identifier": "datasamples", "asset_key": "8c5e430b-cb6b-4f4e-95da-499b523d9f5b"},
+    ],
+    "outputs": {
+        "model": {
+            "permissions": {
+                "process": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
+                "download": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
+            },
+        },
+    },
     "train": {
         "data_manager_key": "a67b9387-fd80-429a-bc2f-034fac430b0f",
         "data_sample_keys": [
@@ -185,6 +245,15 @@ AGGREGATETUPLE = {
     "tag": "My super tag",
     "start_date": "2021-10-12T09:28:06.947765800Z",
     "end_date": "2021-10-12T09:30:04.705947400Z",
+    "inputs": [],
+    "outputs": {
+        "model": {
+            "permissions": {
+                "process": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
+                "download": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
+            },
+        },
+    },
     "aggregate": {
         "model_permissions": {
             "process": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
@@ -244,6 +313,24 @@ COMPOSITE_TRAINTUPLE = {
     "tag": "",
     "start_date": "2021-10-12T09:28:06.947765800Z",
     "end_date": "2021-10-12T09:30:04.705947400Z",
+    "inputs": [
+        {"identifier": "opener", "asset_key": "1ae64423-aa99-4b8a-8660-61a56e4ca42d"},
+        {"identifier": "datasamples", "asset_key": "1288d38c-dec2-4433-bc40-ec17f99f522a"},
+    ],
+    "outputs": {
+        "shared": {
+            "permissions": {
+                "process": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
+                "download": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
+            },
+        },
+        "local": {
+            "permissions": {
+                "process": {"public": False, "authorized_ids": ["MyOrg2MSP"]},
+                "download": {"public": False, "authorized_ids": ["MyOrg2MSP"]},
+            },
+        },
+    },
     "composite": {
         "data_manager_key": "1ae64423-aa99-4b8a-8660-61a56e4ca42d",
         "data_sample_keys": ["1288d38c-dec2-4433-bc40-ec17f99f522a"],
@@ -322,6 +409,24 @@ COMPOSITE_TRAINTUPLE_DOING = {
     "rank": 0,
     "parent_task_keys": [],
     "tag": "",
+    "inputs": [
+        {"identifier": "opener", "asset_key": "1ae64423-aa99-4b8a-8660-61a56e4ca42d"},
+        {"identifier": "datasamples", "asset_key": "1288d38c-dec2-4433-bc40-ec17f99f522a"},
+    ],
+    "outputs": {
+        "shared": {
+            "permissions": {
+                "process": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
+                "download": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
+            },
+        },
+        "local": {
+            "permissions": {
+                "process": {"public": False, "authorized_ids": ["MyOrg2MSP"]},
+                "download": {"public": False, "authorized_ids": ["MyOrg2MSP"]},
+            },
+        },
+    },
     "composite": {
         "data_manager_key": "1ae64423-aa99-4b8a-8660-61a56e4ca42d",
         "data_sample_keys": ["1288d38c-dec2-4433-bc40-ec17f99f522a"],
@@ -337,12 +442,12 @@ COMPOSITE_TRAINTUPLE_DOING = {
     },
 }
 
-TESTTUPLE = {
+PREDICTTUPLE = {
     "key": "afa9c7b1-21b5-4e58-a098-79de4ecede35",
-    "category": "TASK_TEST",
+    "category": "TASK_PREDICT",
     "algo": {
-        "key": "17f98afc-2b82-4ce9-b232-1a471633d020",
-        "name": "def637b111f2495bb6b4771644d2409e_test_traintuple_data_samples_relative_order - Algo 0",
+        "key": "681eedb9-db00-4480-a66f-63c86cc20280",
+        "name": "def637b111f2495bb6b4771644d2409e_test_traintuple_data_samples_relative_order - Algo Predict681eedb9-db00-4480-a66f-63c86cc20280",
         "owner": "MyOrg1MSP",
         "creation_date": "2021-08-24T13:36:07.428974249Z",
         "permissions": {
@@ -350,14 +455,14 @@ TESTTUPLE = {
             "download": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
         },
         "metadata": {},
-        "category": "ALGO_SIMPLE",
+        "category": "ALGO_PREDICT",
         "description": {
             "checksum": "756589d5971c421a388a751d533ab8ce09715c93040e9e8fff1365e831545aa2",
-            "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/algo/17f98afc-2b82-4ce9-b232-1a471633d020/description/",  # noqa: E501
+            "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/algo/681eedb9-db00-4480-a66f-63c86cc20280/description/",  # noqa: E501
         },
         "algorithm": {
             "checksum": "aa8d43bf6e3341b0034a2e396451ab731ccca95a4c1d4f65a4fcd30f9081ec7d",
-            "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/algo/17f98afc-2b82-4ce9-b232-1a471633d020/file/",  # noqa: E501
+            "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/algo/681eedb9-db00-4480-a66f-63c86cc20280/file/",  # noqa: E501
         },
     },
     "owner": "MyOrg1MSP",
@@ -371,6 +476,81 @@ TESTTUPLE = {
     "tag": "",
     "start_date": "2021-10-12T09:28:06.947765800Z",
     "end_date": "2021-10-12T09:30:04.705947400Z",
+    "inputs": [
+        {"identifier": "opener", "asset_key": "a67b9387-fd80-429a-bc2f-034fac430b0f"},
+        {"identifier": "datasamples", "asset_key": "3180e12c-a821-434a-ad8a-a341076c7f98"},
+        {"identifier": "datasamples", "asset_key": "21bb59ca-abd4-4154-b04a-44a92556a078"},
+        {"identifier": "model", "parent_task_key": "30c283be-d385-424e-94a6-4d8538275260", "parent_task_output_identifier": "model"},  # noqa: E501
+    ],
+    "outputs": {
+        "predictions": {
+            "permissions": {
+                "process": {"public": True, "authorized_ids": []},
+                "download": {"public": True, "authorized_ids": []},
+            },
+        },
+    },
+    "predict": {
+        "data_manager_key": "a67b9387-fd80-429a-bc2f-034fac430b0f",
+        "data_sample_keys": [
+            "3180e12c-a821-434a-ad8a-a341076c7f98",
+            "21bb59ca-abd4-4154-b04a-44a92556a078",
+        ],
+        "prediction_permissions": {
+            "process": {"public": True, "authorized_ids": []},
+            "download": {"public": True, "authorized_ids": []},
+        },
+    },
+}
+
+TESTTUPLE = {
+    "key": "afa9c7b1-21b5-4e58-a098-79de4ecede35",
+    "category": "TASK_TEST",
+    "algo": {
+        "key": "6a8ada2e-740f-46f4-af0f-11376763ed72",
+        "name": "def637b111f2495bb6b4771644d2409e_test_traintuple_data_samples_relative_order - Algo Metric",
+        "owner": "MyOrg1MSP",
+        "creation_date": "2021-08-24T13:36:07.428974249Z",
+        "permissions": {
+            "process": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
+            "download": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
+        },
+        "metadata": {},
+        "category": "ALGO_METRIC",
+        "description": {
+            "checksum": "756589d5971c421a388a751d533ab8ce09715c93040e9e8fff1365e831545aa2",
+            "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/algo/6a8ada2e-740f-46f4-af0f-11376763ed72/description/",  # noqa: E501
+        },
+        "algorithm": {
+            "checksum": "aa8d43bf6e3341b0034a2e396451ab731ccca95a4c1d4f65a4fcd30f9081ec7d",
+            "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/algo/6a8ada2e-740f-46f4-af0f-11376763ed72/file/",  # noqa: E501
+        },
+    },
+    "owner": "MyOrg1MSP",
+    "creation_date": "2021-08-24T13:36:07.393646367Z",
+    "compute_plan_key": "a428d7a3-7458-421d-a818-7a2448225b8d",
+    "metadata": {},
+    "status": "STATUS_DONE",
+    "worker": "MyOrg1MSP",
+    "rank": 0,
+    "parent_task_keys": ["05cf2e58-5862-444b-82de-cdaaead97c53"],
+    "tag": "",
+    "start_date": "2021-10-12T09:28:06.947765800Z",
+    "end_date": "2021-10-12T09:30:04.705947400Z",
+    "inputs": [
+        {"identifier": "opener", "asset_key": "a67b9387-fd80-429a-bc2f-034fac430b0f"},
+        {"identifier": "datasamples", "asset_key": "3180e12c-a821-434a-ad8a-a341076c7f98"},
+        {"identifier": "datasamples", "asset_key": "21bb59ca-abd4-4154-b04a-44a92556a078"},
+        {"identifier": "predictions", "parent_task_key": "05cf2e58-5862-444b-82de-cdaaead97c53", "parent_task_output_identifier": "predictions"},  # noqa: E501
+    ],
+    "outputs": {
+        "performance": {
+            "permissions": {
+                "process": {"public": True, "authorized_ids": []},
+                "download": {"public": True, "authorized_ids": []},
+            },
+        },
+    },
     "test": {
         "data_manager_key": "a67b9387-fd80-429a-bc2f-034fac430b0f",
         "data_sample_keys": [

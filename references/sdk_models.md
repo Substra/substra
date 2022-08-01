@@ -61,7 +61,8 @@ Predicttuple
 - rank: Optional[int]
 - parent_task_keys: List[str]
 - parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple'), ForwardRef('Predicttuple')]]]
-- outputs: Optional[Mapping[str, ComputeTaskOutput]]
+- inputs: List[InputRef]
+- outputs: Mapping[str, ComputeTaskOutput]
 - tag: str
 - creation_date: datetime
 - start_date: Optional[datetime]
@@ -84,7 +85,8 @@ Testtuple
 - rank: Optional[int]
 - parent_task_keys: List[str]
 - parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple'), ForwardRef('Predicttuple')]]]
-- outputs: Optional[Mapping[str, ComputeTaskOutput]]
+- inputs: List[InputRef]
+- outputs: Mapping[str, ComputeTaskOutput]
 - tag: str
 - creation_date: datetime
 - start_date: Optional[datetime]
@@ -107,7 +109,8 @@ Traintuple
 - rank: Optional[int]
 - parent_task_keys: List[str]
 - parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple'), ForwardRef('Predicttuple')]]]
-- outputs: Optional[Mapping[str, ComputeTaskOutput]]
+- inputs: List[InputRef]
+- outputs: Mapping[str, ComputeTaskOutput]
 - tag: str
 - creation_date: datetime
 - start_date: Optional[datetime]
@@ -130,7 +133,8 @@ Aggregatetuple
 - rank: Optional[int]
 - parent_task_keys: List[str]
 - parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple'), ForwardRef('Predicttuple')]]]
-- outputs: Optional[Mapping[str, ComputeTaskOutput]]
+- inputs: List[InputRef]
+- outputs: Mapping[str, ComputeTaskOutput]
 - tag: str
 - creation_date: datetime
 - start_date: Optional[datetime]
@@ -153,7 +157,8 @@ CompositeTraintuple
 - rank: Optional[int]
 - parent_task_keys: List[str]
 - parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple'), ForwardRef('Predicttuple')]]]
-- outputs: Optional[Mapping[str, ComputeTaskOutput]]
+- inputs: List[InputRef]
+- outputs: Mapping[str, ComputeTaskOutput]
 - tag: str
 - creation_date: datetime
 - start_date: Optional[datetime]

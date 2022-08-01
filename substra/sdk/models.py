@@ -21,6 +21,7 @@ from typing import List
 from typing import Optional
 from typing import Union
 
+import pydantic
 from pydantic import AnyUrl
 from pydantic import DirectoryPath
 from pydantic import FilePath
@@ -216,9 +217,20 @@ class OutModel(schemas._PydanticConfig):
     type_: ClassVar[str] = schemas.Type.Model
 
 
+class InputRef(schemas._PydanticConfig):
+    identifier: str
+    asset_key: Optional[str]
+    parent_task_key: Optional[str]
+    parent_task_output_identifier: Optional[str]
+
+    # either (asset_key) or (parent_task_key, parent_task_output_identifier) must be specified
+    _check_asset_key_or_parent_ref = pydantic.root_validator(allow_reuse=True)(schemas.check_asset_key_or_parent_ref)
+
+
 class ComputeTaskOutput(schemas._PydanticConfig):
     permissions: Permissions
     # "is_transient" will be added here
+    """Specification of a compute task input"""
 
 
 class _GenericTraintuple(_Model):
@@ -233,7 +245,8 @@ class _GenericTraintuple(_Model):
     rank: Optional[int]
     parent_task_keys: List[str]
     parent_tasks: Optional[List[Union["Traintuple", "CompositeTraintuple", "Aggregatetuple", "Predicttuple"]]] = list()
-    outputs: Optional[Dict[str, ComputeTaskOutput]]
+    inputs: List[InputRef]
+    outputs: Dict[str, ComputeTaskOutput]
     tag: str
     creation_date: datetime
     start_date: Optional[datetime]

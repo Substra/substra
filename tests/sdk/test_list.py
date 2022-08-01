@@ -28,6 +28,7 @@ from ..utils import mock_requests
     [
         "dataset",
         "algo",
+        "predicttuple",
         "testtuple",
         "traintuple",
         "aggregatetuple",
@@ -54,6 +55,7 @@ def test_list_asset(asset_type, client, mocker):
     [
         ("dataset", {"permissions": ["foo", "bar"]}),
         ("algo", {"owner": ["foo", "bar"]}),
+        ("predicttuple", {"rank": [1, 3]}),
         ("testtuple", {"rank": [1, 3]}),
         ("traintuple", {"key": ["foo", "bar"]}),
         ("aggregatetuple", {"worker": ["foo", "bar"]}),
@@ -90,6 +92,7 @@ def test_list_asset_with_filters_failure(client, mocker):
 @pytest.mark.parametrize(
     "asset_type",
     [
+        "predicttuple",
         "testtuple",
         "traintuple",
         "aggregatetuple",
