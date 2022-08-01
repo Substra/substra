@@ -55,7 +55,6 @@ setup(
         "click>=7.1.1,!=8.0.0",  # issue with click 8.0.0 (#4)
         "requests",
         "docker",
-        "consolemd",
         "pyyaml",
         "pydantic>=1.5.1",
         "six",

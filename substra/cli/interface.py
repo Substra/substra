@@ -18,15 +18,12 @@ import logging
 import os
 
 import click
-import consolemd
 
 from substra import __version__
 from substra.cli import printers
-from substra.sdk import assets
 from substra.sdk import config as configuration
 from substra.sdk import exceptions
 from substra.sdk import utils
-from substra.sdk.client import DEFAULT_BATCH_SIZE
 from substra.sdk.client import Client
 
 DEFAULT_RETRY_TIMEOUT = 300
@@ -50,18 +47,6 @@ def get_client(global_conf):
         raise click.ClickException(f"Profile '{global_conf.profile}' not found. Please run '{help_command}'.")
 
     return client
-
-
-def load_json_from_path(ctx, param, value):
-    if not value:
-        return value
-
-    with open(value, "r") as fp:
-        try:
-            json_file = json.load(fp)
-        except json.decoder.JSONDecodeError:
-            raise click.BadParameter(f"File '{value}' is not a valid JSON file.")
-    return json_file
 
 
 def display(res):
@@ -189,17 +174,6 @@ def click_global_conf_with_output_format(f):
     return f
 
 
-def click_option_metadata(f):
-    """Add metadata option to command."""
-    return click.option(
-        "--metadata-path",
-        "metadata",
-        callback=load_json_from_path,
-        type=click.Path(exists=True, resolve_path=True, dir_okay=False),
-        help="Metadata file path",
-    )(f)
-
-
 def click_option_expand(f):
     """Add expand option to command."""
     return click.option("--expand", is_flag=True, help="Display associated assets details")(f)
@@ -217,24 +191,6 @@ def click_global_conf_retry_timeout(f):
         callback=update_global_conf,
         help="Max number of seconds the operation will be retried for",
     )(f)
-
-
-def validate_json(ctx, param, value):
-    if not value:
-        return value
-
-    try:
-        data = json.loads(value)
-    except ValueError:
-        raise click.BadParameter("must be valid JSON")
-    return data
-
-
-def load_data_samples_keys(data_samples, option="--data-samples-path"):
-    try:
-        return data_samples["keys"]
-    except KeyError:
-        raise click.BadParameter('File must contain a "keys" attribute.', param_hint=f'"{option}"')
 
 
 def _format_server_errors(fn, errors):
@@ -346,22 +302,6 @@ def login(ctx, username, password):
     display(f"Token: {token}")
 
 
-@cli.command()
-@click.argument("asset-type", type=click.Choice([assets.ALGO, assets.DATASET]))
-@click.argument("asset-key")
-@click_global_conf
-@click.pass_context
-@error_printer
-def describe(ctx, asset_type, asset_key):
-    """Display asset description."""
-    client = get_client(ctx.obj)
-    # method must exist in sdk
-    method = getattr(client, f"describe_{asset_type.lower()}")
-    description = method(asset_key)
-    renderer = consolemd.Renderer()
-    renderer.render(description)
-
-
 @cli.group()
 @click.pass_context
 def organization(ctx):
@@ -380,56 +320,6 @@ def organization_info(ctx):
     printer.print(res)
 
 
-@cli.command()
-@click.argument("asset-type", type=click.Choice([assets.ALGO, assets.DATASET, assets.MODEL]))
-@click.argument("key")
-@click.option("--folder", type=click.Path(), help="destination folder", default=".")
-@click.option(
-    "--from-traintuple",
-    "model_src",
-    help=("(model download only) if this option is set, " "the KEY argument refers to a traintuple key"),
-    flag_value="model_from_traintuple",
-)
-@click.option(
-    "--from-aggregatetuple",
-    "model_src",
-    help=("(model download only) if this option is set, " "the KEY argument refers to an aggregatetuple key"),
-    flag_value="model_from_aggregatetuple",
-)
-@click.option(
-    "--from-composite-head",
-    "model_src",
-    help=("(model download only) if this option is set, " "the KEY argument refers to a composite traintuple key"),
-    flag_value="head_model_from_composite_traintuple",
-)
-@click.option(
-    "--from-composite-trunk",
-    "model_src",
-    help=("(model download only) if this option is set, " "the KEY argument refers to a composite traintuple key"),
-    flag_value="trunk_model_from_composite_traintuple",
-)
-@click_global_conf
-@click.pass_context
-@error_printer
-def download(ctx, asset_type, key, folder, model_src):
-    """Download asset implementation.
-
-    \b
-    - algo: the algo and its dependencies
-    - dataset: the opener script
-    - model: the output model
-    """
-    client = get_client(ctx.obj)
-
-    if asset_type == assets.MODEL:
-        method = getattr(client, f"download_{model_src}" if model_src else "download_model")
-    else:
-        method = getattr(client, f"download_{asset_type.lower()}")
-
-    res = method(key, folder)
-    display(res)
-
-
 @cli.group()
 @click.pass_context
 def cancel(ctx):
@@ -446,160 +336,6 @@ def cancel_compute_plan(ctx, compute_plan_key):
     client = get_client(ctx.obj)
     # method must exist in sdk
     client.cancel_compute_plan(compute_plan_key)
-
-
-@cli.group()
-@click.pass_context
-def update(ctx):
-    """Update asset."""
-    pass
-
-
-@update.command("dataset_data_samples_link")
-@click.argument(
-    "data_samples",
-    type=click.Path(exists=True, dir_okay=False),
-    callback=load_json_from_path,
-    metavar="DATA_SAMPLES_PATH",
-)
-@click.option("--dataset-key", required=True)
-@click_global_conf
-@click.pass_context
-@error_printer
-def link_dataset_with_data_samples(ctx, data_samples, dataset_key):
-    """Link data samples with dataset.
-
-    The data samples path must point to a valid JSON file with the following
-    schema:
-
-    \b
-    {
-        "keys": list[str],
-    }
-
-    \b
-    Where:
-    - keys: list of data sample keys
-    """
-    client = get_client(ctx.obj)
-    res = client.link_dataset_with_data_samples(
-        dataset_key, load_data_samples_keys(data_samples, option="DATA_SAMPLES_PATH")
-    )
-    display(res)
-
-
-@update.command("compute_plan_tuples")
-@click.argument("compute_plan_key", type=click.STRING)
-@click.argument(
-    "tuples",
-    type=click.Path(exists=True, dir_okay=False),
-    callback=load_json_from_path,
-    metavar="TUPLES_PATH",
-)
-@click.option("--no-auto-batching", "-n", is_flag=True, help="Disable the auto batching feature")
-@click.option(
-    "--batch-size",
-    "-b",
-    type=int,
-    help="Batch size for the auto batching",
-    default=DEFAULT_BATCH_SIZE,
-    show_default=True,
-)
-@click_global_conf_with_output_format
-@click.pass_context
-@error_printer
-def add_compute_plan_tuples(ctx, compute_plan_key, tuples, no_auto_batching, batch_size):
-    """Add tuples to compute plan.
-
-    The tuples path must point to a valid JSON file with the following schema:
-
-    \b
-    {
-        "traintuples": list[{
-            "algo_key": str,
-            "data_manager_key": str,
-            "train_data_sample_keys": list[str],
-            "traintuple_id": str,
-            "in_models_ids": list[str],
-            "tag": str,
-            "metadata": dict,
-        }],
-        "composite_traintuples": list[{
-            "composite_traintuple_id": str,
-            "algo_key": str,
-            "data_manager_key": str,
-            "train_data_sample_keys": list[str],
-            "in_head_model_id": str,
-            "in_trunk_model_id": str,
-            "out_trunk_model_permissions": {
-                "authorized_ids": list[str],
-            },
-            "tag": str,
-            "metadata": dict,
-        }]
-        "aggregatetuples": list[{
-            "aggregatetuple_id": str,
-            "algo_key": str,
-            "worker": str,
-            "in_models_ids": list[str],
-            "tag": str,
-            "metadata": dict,
-        }],
-        "testtuples": list[{
-            "metric_keys": list[str],
-            "data_manager_key": str,
-            "test_data_sample_keys": list[str],
-            "traintuple_id": str,
-            "tag": str,
-            "metadata": dict,
-        }]
-    }
-
-    Disable the auto batching to upload all the tuples of the
-    compute plan at once.
-    If the auto batching is enabled, change the `batch_size` to define the number of
-    tuples uploaded in each batch (default 500).
-    """
-    if no_auto_batching and batch_size:
-        raise click.BadOptionUsage(
-            "--batch_size",
-            "The --batch_size option cannot be used when using " "--no_auto_batching.",
-        )
-    client = get_client(ctx.obj)
-    res = client.add_compute_plan_tuples(compute_plan_key, tuples, not no_auto_batching, batch_size)
-    printer = printers.get_asset_printer(assets.COMPUTE_PLAN, ctx.obj.output_format)
-    printer.print(res, is_list=False)
-
-
-@cli.command()
-@click.argument("tuple-key", type=click.STRING)
-@click.option(
-    "--output-dir",
-    "-o",
-    type=click.Path(exists=True, dir_okay=True, file_okay=False),
-    help="The directory the logs must be downloaded to. If not set, the logs are outputted to stdout.",
-)
-@click_global_conf
-@click.pass_context
-@error_printer
-def logs(ctx, tuple_key, output_dir):
-    """Display or download the logs of a failed tuple.
-
-    When an output directory is set, the logs are saved in the directory to a file named
-    'tuple_logs_{tuple_key}.txt'. Otherwise, the logs are outputted to stdout.
-
-    Logs are only available for tuples that experienced an execution failure.
-    Attempting to retrieve logs for tuples in any other states or for non-existing
-    tuples will result in an error.
-    """
-    client = get_client(ctx.obj)
-
-    if output_dir:
-        out_file_path = client.download_logs(tuple_key, output_dir)
-        display(f"Logs saved to {out_file_path}")
-    else:
-        logs_content = client.get_logs(tuple_key)
-        display(logs_content)
 
 
 if __name__ == "__main__":

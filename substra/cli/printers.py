@@ -19,8 +19,6 @@ import math
 import pydantic
 import yaml
 
-from substra.sdk import assets
-
 
 def find_dict_composite_key_value(asset_dict, composite_key):
     def _recursive_find(d, keys):
@@ -61,18 +59,6 @@ class Field:
                 print(f"{name}None")
         else:
             print(f"{name}{value}")
-
-
-class ProgressField(Field):
-    def __init__(self, name, progress_ref, total_ref):
-        self.name = name
-        self.progress_ref = progress_ref
-        self.total_ref = total_ref
-
-    def get_value(self, item, expand=False):
-        done_count = find_dict_composite_key_value(item, self.progress_ref)
-        tuple_count = find_dict_composite_key_value(item, self.total_ref)
-        return f"{done_count}/{tuple_count}"
 
 
 class MappingField(Field):
@@ -130,46 +116,6 @@ class BasePrinter:
             field.print_details(item, field_length, expand)
 
 
-class AssetPrinter(BasePrinter):
-    asset_type = None
-
-    key_field = Field("key", "key")
-    list_fields = ()
-    single_fields = ()
-
-    has_description = True
-
-    def _get_list_fields(self):
-        return (self.key_field,) + self.list_fields
-
-    def _get_single_fields(self):
-        return (self.key_field,) + self.single_fields
-
-    def get_profile_arg(self, profile):
-        if profile and profile != "default":
-            return f"--profile {profile}"
-        return ""
-
-    def print_description_message(self, item, profile=None):
-        if self.has_description:
-            key_value = self.key_field.get_value(item)
-            profile_arg = self.get_profile_arg(profile)
-            print(f"\nDisplay this {self.asset_type}'s description:")
-            print(f"\tsubstra describe {self.asset_type} {key_value} {profile_arg}")
-
-    def print_messages(self, item, profile=None):
-        self.print_description_message(item, profile)
-
-    def print(self, data, profile=None, expand=False, is_list=False):
-        if isinstance(data, pydantic.BaseModel):
-            data = data.dict(exclude_none=False, by_alias=True)
-        if is_list:
-            self.print_table(data, self._get_list_fields())
-        else:
-            self.print_details(data, self._get_single_fields(), expand)
-            self.print_messages(data, profile)
-
-
 class JsonPrinter:
     @staticmethod
     def print(data, *args, **kwargs):
@@ -200,41 +146,3 @@ class OrganizationInfoPrinter(BasePrinter):
 
     def print(self, data):
         self.print_details(data, self.single_fields, expand=True)
-
-
-class ComputePlanPrinter(AssetPrinter):
-    asset_type = "compute_plan"
-
-    list_fields = (
-        ProgressField("Progress", "done_count", "task_count"),
-        Field("Status", "status"),
-        Field("Tag", "tag"),
-        Field("Clean model", "delete_intermediary_models"),
-    )
-    single_fields = (
-        Field("Done count", "done_count"),
-        Field("Task count", "task_count"),
-        ProgressField("Progress", "done_count", "task_count"),
-        Field("Failed task", "failed_task.key"),
-        Field("Failed task category", "failed_task.category"),
-        Field("Status", "status"),
-        Field("Tag", "tag"),
-        Field("Name", "name"),
-        Field("Metadata", "metadata"),
-        Field("Clean model", "delete_intermediary_models"),
-    )
-
-
-PRINTERS = {
-    assets.COMPUTE_PLAN: ComputePlanPrinter,
-}
-
-
-def get_asset_printer(asset, output_format):
-    if output_format == "pretty" and asset in PRINTERS:
-        return PRINTERS[asset]()
-
-    if output_format == "yaml":
-        return YamlPrinter()
-
-    return JsonPrinter()

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- CLI: keep only the cancel, profile, login and organization commands
+
 ## [0.31.0](https://github.com/owkin/substra/releases/tag/0.31.0) - 2022-08-01
 
 ### Added

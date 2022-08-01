@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import json
-import re
 import sys
 import traceback
 from unittest import mock
@@ -98,82 +97,10 @@ def test_command_login(workdir, mocker):
     m.assert_called()
 
 
-def test_command_describe(workdir, mocker):
-    response = "My description."
-    m = mock_client_call(mocker, "describe_algo", response)
-    output = client_execute(workdir, ["describe", "algo", "fakekey"])
-    m.assert_called()
-    assert response in output
-
-
-def test_command_download(workdir, mocker):
-    m = mock_client_call(mocker, "download_algo")
-    client_execute(workdir, ["download", "algo", "fakekey"])
-    m.assert_called()
-
-
-def test_command_download_model(workdir, mocker):
-    m = mock_client_call(mocker, "download_model")
-    client_execute(workdir, ["download", "model", "fakekey"])
-    m.assert_called()
-
-    m = mock_client_call(mocker, "download_model_from_traintuple")
-    client_execute(workdir, ["download", "model", "--from-traintuple", "fakekey"])
-    m.assert_called()
-
-    m = mock_client_call(mocker, "download_model_from_aggregatetuple")
-    client_execute(workdir, ["download", "model", "--from-aggregatetuple", "fakekey"])
-    m.assert_called()
-
-    m = mock_client_call(mocker, "download_head_model_from_composite_traintuple")
-    client_execute(workdir, ["download", "model", "--from-composite-head", "fakekey"])
-    m.assert_called()
-
-    m = mock_client_call(mocker, "download_trunk_model_from_composite_traintuple")
-    client_execute(workdir, ["download", "model", "--from-composite-trunk", "fakekey"])
-    m.assert_called()
-
-
-def test_command_logs(workdir, mocker):
-    m = mock_client_call(mocker, "get_logs")
-    client_execute(workdir, ["logs", "fakekey"])
-    m.assert_called()
-
-    m = mock_client_call(mocker, "download_logs")
-    client_execute(workdir, ["logs", "fakekey", "--output-dir", "."])
-    m.assert_called()
-
-
 def test_command_cancel_compute_plan(workdir, mocker):
     m = mock_client_call(mocker, "cancel_compute_plan", None)
     client_execute(workdir, ["cancel", "compute_plan", "fakekey"])
     m.assert_called()
-
-
-def test_command_link_dataset_with_data_samples(workdir, mocker):
-    data_samples = {
-        "keys": ["key1", "key2"],
-    }
-
-    json_file = workdir / "valid_json_file.json"
-    json_file.write_text(json.dumps(data_samples))
-
-    m = mock_client_call(mocker, "link_dataset_with_data_samples")
-    client_execute(workdir, ["update", "dataset_data_samples_link", str(json_file), "--dataset-key", "foo"])
-    m.assert_called()
-
-    invalid_json_file = workdir / "invalid_json_file.json"
-    invalid_json_file.write_text("test")
-
-    res = client_execute(
-        workdir, ["update", "dataset_data_samples_link", str(invalid_json_file), "--dataset-key", "foo"], exit_code=2
-    )
-    assert re.search(r"File '.*' is not a valid JSON file\.", res)
-
-    res = client_execute(
-        workdir, ["update", "dataset_data_samples_link", "non_existing_file.txt", "--dataset-key", "foo"], exit_code=2
-    )
-    assert re.search(r"File '.*' does not exist\.", res)
 
 
 @pytest.mark.parametrize(
