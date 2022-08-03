@@ -31,7 +31,6 @@ from substra.sdk.backends.local import dal
 from substra.sdk.backends.local.compute import spawner
 from substra.sdk.backends.local.compute.spawner import BaseSpawner
 
-# TODO: share those constants with connect-tools and substra
 TASK_IO_PREDICTIONS = "predictions"
 TASK_IO_OPENER = "opener"
 TASK_IO_LOCALFOLDER = "localfolder"
@@ -424,23 +423,23 @@ class Worker:
                     tuple_,
                     Filenames.OUT_HEAD_MODEL,
                     output_models_volume,
-                    permissions=tuple_.composite.head_permissions,
+                    permissions=tuple_.outputs[COMPOSITE_IO_LOCAL].permissions,
                 )
                 trunk_model = self._save_output_model(
                     tuple_,
                     Filenames.OUT_TRUNK_MODEL,
                     output_models_volume,
-                    permissions=tuple_.composite.trunk_permissions,
+                    permissions=tuple_.outputs[COMPOSITE_IO_SHARED].permissions,
                 )
                 tuple_.composite.models = [head_model, trunk_model]
             elif isinstance(tuple_, models.Traintuple):
                 out_model = self._save_output_model(
-                    tuple_, Filenames.OUT_MODEL, output_models_volume, tuple_.train.model_permissions
+                    tuple_, Filenames.OUT_MODEL, output_models_volume, tuple_.outputs[TRAIN_IO_MODEL].permissions
                 )
                 tuple_.train.models = [out_model]
             elif isinstance(tuple_, models.Aggregatetuple):
                 out_model = self._save_output_model(
-                    tuple_, Filenames.OUT_MODEL, output_models_volume, tuple_.aggregate.model_permissions
+                    tuple_, Filenames.OUT_MODEL, output_models_volume, tuple_.outputs[TRAIN_IO_MODEL].permissions
                 )
                 tuple_.aggregate.models = [out_model]
 
@@ -607,7 +606,7 @@ class Worker:
                 tuple_,
                 Filenames.PREDICTIONS,
                 predictions_volume,
-                permissions=tuple_.predict.prediction_permissions,
+                permissions=tuple_.outputs[TASK_IO_PREDICTIONS].permissions,
             )
             tuple_.predict.models = [prediction]
 

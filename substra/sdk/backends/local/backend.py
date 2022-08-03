@@ -44,6 +44,11 @@ _MAX_LEN_KEY_METADATA = 50
 _MAX_LEN_VALUE_METADATA = 100
 DEBUG_OWNER = "debug_owner"
 
+TRAIN_IO_MODEL = compute.worker.TRAIN_IO_MODEL
+TASK_IO_PREDICTIONS = compute.worker.TASK_IO_PREDICTIONS
+COMPOSITE_IO_SHARED = compute.worker.COMPOSITE_IO_SHARED
+COMPOSITE_IO_LOCAL = compute.worker.COMPOSITE_IO_LOCAL
+
 
 class Local(base.BaseBackend):
     def __init__(self, backend, *args, **kwargs):
@@ -483,30 +488,6 @@ class Local(base.BaseBackend):
             data_manager_key=spec.data_manager_key, data_sample_keys=spec.train_data_sample_keys, allow_test_only=False
         )
 
-        # permissions
-        with_permissions = [algo, dataset] + in_tuples
-
-        public = True
-        authorized_ids = None
-        for element in with_permissions:
-            permissions = None
-            if hasattr(element, "permissions"):
-                permissions = element.permissions
-            elif hasattr(element, "train"):
-                permissions = element.train.model_permissions
-            else:
-                permissions = element.aggregate.model_permissions
-            public = public and permissions.process.public
-            if not permissions.process.public:
-                if authorized_ids is None:
-                    authorized_ids = set(permissions.process.authorized_ids)
-                else:
-                    authorized_ids = set.intersection(authorized_ids, set(permissions.process.authorized_ids))
-        if public or authorized_ids is None:
-            authorized_ids = list()
-        else:
-            authorized_ids = list(authorized_ids)
-
         compute_plan_key, rank = self.__create_compute_plan_from_tuple(spec=spec, key=key, in_tuples=in_tuples)
 
         # create model
@@ -514,9 +495,6 @@ class Local(base.BaseBackend):
             train={
                 "data_manager_key": spec.data_manager_key,
                 "data_sample_keys": spec.train_data_sample_keys,
-                "model_permissions": {
-                    "process": {"public": public, "authorized_ids": authorized_ids},
-                },
                 "models": None,
             },
             key=key,
@@ -572,7 +550,6 @@ class Local(base.BaseBackend):
             predict=models._Predict(
                 data_manager_key=spec.data_manager_key,
                 data_sample_keys=spec.test_data_sample_keys,
-                prediction_permissions={"process": {"public": False, "authorized_ids": [owner]}},  # TODO to verify
             ),
             key=key,
             creation_date=self.__now(),
@@ -675,16 +652,6 @@ class Local(base.BaseBackend):
         # Compute plan
         compute_plan_key, rank = self.__create_compute_plan_from_tuple(spec, key, in_tuples)
 
-        # permissions
-        process_shared_model_permissions = schemas.Permissions(
-            public=False, authorized_ids=spec.outputs["shared"].permissions.authorized_ids
-        )
-        shared_model_permissions = {"process": self.__compute_permissions(process_shared_model_permissions)}
-        if spec.in_head_model_key:
-            head_model_permissions = in_head_tuple.composite.head_permissions
-        else:
-            head_model_permissions = {"process": {"public": False, "authorized_ids": [owner]}}
-
         parent_task_keys: List[str] = list()
         if spec.in_head_model_key is not None:
             parent_task_keys.append(spec.in_head_model_key)
@@ -695,8 +662,6 @@ class Local(base.BaseBackend):
             composite=models._Composite(
                 data_manager_key=spec.data_manager_key,
                 data_sample_keys=spec.train_data_sample_keys,
-                head_permissions=head_model_permissions,
-                trunk_permissions=shared_model_permissions,
                 models=list(),
             ),
             key=key,
@@ -736,11 +701,11 @@ class Local(base.BaseBackend):
             in_tuple = self._get_parent_task(in_tuple_key)
 
             if in_tuple.type_ == schemas.Type.Traintuple:
-                permissions = in_tuple.train.model_permissions
+                permissions = in_tuple.outputs[TRAIN_IO_MODEL].permissions
             elif in_tuple.type_ == schemas.Type.Aggregatetuple:
-                permissions = in_tuple.aggregate.model_permissions
+                permissions = in_tuple.outputs[TRAIN_IO_MODEL].permissions
             elif in_tuple.type_ == schemas.Type.CompositeTraintuple:
-                permissions = in_tuple.composite.trunk_permissions
+                permissions = in_tuple.outputs[COMPOSITE_IO_SHARED].permissions
 
             in_permissions.append(permissions)
             in_tuples.append(in_tuple)
@@ -751,17 +716,8 @@ class Local(base.BaseBackend):
         # Compute plan
         compute_plan_key, rank = self.__create_compute_plan_from_tuple(spec, key, in_tuples)
 
-        # Permissions
-        public = False
-        authorized_ids = set()
-        for in_permission in in_permissions:
-            if in_permission.process.public:
-                public = True
-            authorized_ids.update(in_permission.process.authorized_ids)
-
         aggregatetuple = models.Aggregatetuple(
             aggregate=models._Aggregate(
-                model_permissions={"process": {"authorized_ids": list(authorized_ids), "public": public}},
                 models=None,
             ),
             creation_date=self.__now(),
@@ -890,13 +846,9 @@ class Local(base.BaseBackend):
         return compute_plan
 
 
-def _output_from_spec(spec_outputs: Optional[Dict]) -> Dict:
-    """builds the outputs dict from the spec outputs"""
-    # TODO: Remove this when outputs will be a mandatory field
-    outputs = {}
-    if spec_outputs:
-        outputs = {
-            identifier: {"permissions": {"process": output.permissions, "download": output.permissions}}
-            for identifier, output in spec_outputs.items()
-        }
-    return outputs
+def _output_from_spec(outputs: List[schemas.ComputeTaskOutput]) -> List[models.ComputeTaskOutput]:
+    """Convert a list of schemas.ComputeTaskOuput to a list of models.ComputeTaskOutput"""
+    return {
+        identifier: models.ComputeTaskOutput(permissions=models.Permissions(process=output.permissions))
+        for identifier, output in outputs.items()
+    }

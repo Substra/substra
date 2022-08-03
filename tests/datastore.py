@@ -187,10 +187,6 @@ TRAINTUPLE = {
             "67512646-2464-4521-84de-419b1b307d30",
             "8c5e430b-cb6b-4f4e-95da-499b523d9f5b",
         ],
-        "model_permissions": {
-            "process": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
-            "download": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
-        },
         "models": [
             {
                 "key": "6f0ee20a328044fb89e70ee5d219fa0c",
@@ -255,10 +251,6 @@ AGGREGATETUPLE = {
         },
     },
     "aggregate": {
-        "model_permissions": {
-            "process": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
-            "download": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
-        },
         "models": [
             {
                 "key": "5f0ee20a328044fb89e70ee5d219fa0b",
@@ -334,14 +326,6 @@ COMPOSITE_TRAINTUPLE = {
     "composite": {
         "data_manager_key": "1ae64423-aa99-4b8a-8660-61a56e4ca42d",
         "data_sample_keys": ["1288d38c-dec2-4433-bc40-ec17f99f522a"],
-        "head_permissions": {
-            "process": {"public": False, "authorized_ids": ["MyOrg2MSP"]},
-            "download": {"public": False, "authorized_ids": ["MyOrg2MSP"]},
-        },
-        "trunk_permissions": {
-            "process": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
-            "download": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
-        },
         "models": [
             {
                 "key": "ac4a1a82ced4419b83f4bba78c024b94",
@@ -430,14 +414,6 @@ COMPOSITE_TRAINTUPLE_DOING = {
     "composite": {
         "data_manager_key": "1ae64423-aa99-4b8a-8660-61a56e4ca42d",
         "data_sample_keys": ["1288d38c-dec2-4433-bc40-ec17f99f522a"],
-        "head_permissions": {
-            "process": {"public": False, "authorized_ids": ["MyOrg2MSP"]},
-            "download": {"public": False, "authorized_ids": ["MyOrg2MSP"]},
-        },
-        "trunk_permissions": {
-            "process": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
-            "download": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
-        },
         "models": None,
     },
 }

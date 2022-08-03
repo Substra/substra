@@ -279,8 +279,6 @@ class _Composite(schemas._PydanticConfig):
     data_manager_key: str
     data_manager: Optional[Dataset] = None
     data_sample_keys: List[str]
-    head_permissions: Permissions
-    trunk_permissions: Permissions
     models: Optional[List[OutModel]]
 
     _check_data_manager_key = root_validator(allow_reuse=True)(check_data_manager_key)
@@ -290,14 +288,12 @@ class _Train(schemas._PydanticConfig):
     data_manager_key: str
     data_manager: Optional[Dataset] = None
     data_sample_keys: List[str]
-    model_permissions: Permissions
     models: Optional[List[OutModel]]
 
     _check_data_manager_key = root_validator(allow_reuse=True)(check_data_manager_key)
 
 
 class _Aggregate(schemas._PydanticConfig):
-    model_permissions: Permissions
     models: Optional[List[OutModel]]
 
 
@@ -305,7 +301,6 @@ class _Predict(schemas._PydanticConfig):
     data_manager_key: str
     data_manager: Optional[Dataset] = None
     data_sample_keys: List[str]
-    prediction_permissions: Permissions
     models: Optional[List[OutModel]]
 
     _check_data_manager_key = root_validator(allow_reuse=True)(check_data_manager_key)
