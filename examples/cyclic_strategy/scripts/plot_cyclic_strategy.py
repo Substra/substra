@@ -43,7 +43,7 @@
 #
 #
 # In order to run this example, you'll need to:
-# * use Python >= 3.7
+# * use Python >= 3.8
 # * have [Docker](https://www.docker.com/) installed
 # * install the `substra <../../README.md#install>`_ cli
 # * install the `connect-tools <https://github.com/owkin/connect-tools` library

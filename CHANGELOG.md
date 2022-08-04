@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- BREAKING CHANGE: drop Python 3.7 support (#246)
+
 ### Removed
 
 - CLI: keep only the cancel, profile, login and organization commands

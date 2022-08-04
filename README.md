@@ -124,7 +124,7 @@ pre-commit install
 ### Documentation
 
 To generate the command line interface documentation, sdk and schemas documentation, the `python` version
-must be 3.7. Run the following command:
+must be 3.8. Run the following command:
 
 ```sh
 make doc

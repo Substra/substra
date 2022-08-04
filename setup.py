@@ -46,7 +46,7 @@ setup(
         "Topic :: Utilities",
         "Natural Language :: English",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
     ],
     keywords=["cli", "substra"],
     packages=find_packages(exclude=["tests*"]),
@@ -60,7 +60,7 @@ setup(
         "six",
         "tqdm",
     ],
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     setup_requires=["pytest-runner"],
     extras_require={
         "dev": [
