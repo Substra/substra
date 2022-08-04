@@ -17,7 +17,7 @@
     - [ ] The substra examples have been updated
     - companion PRs have been opened on the following repositories:
         - [ ] [connect-tests](https://github.com/owkin/substra)
-        - [ ] [connectlib](https://github.com/owkin/connectlib)
+        - [ ] [substrafl](https://github.com/owkin/connectlib)
         - [ ] [connect-documentation](https://github.com/owkin/connect-documentation)
 
 See the the [documentation on contributions](https://github.com/owkin/tech-team/blob/main/CONTRIBUTING.md#contributing-to-owkins-software) for more information.
