@@ -348,6 +348,19 @@ class UpdateComputePlanSpec(_BaseComputePlanSpec):
     pass
 
 
+class AlgoInputSpec(_Spec):
+    identifier: str
+    multiple: bool
+    optional: bool
+    kind: str
+
+
+class AlgoOutputSpec(_Spec):
+    identifier: str
+    multiple: bool
+    kind: str
+
+
 class DatasetSpec(_Spec):
     """Specification for creating a dataset"""
 
@@ -377,6 +390,38 @@ class AlgoSpec(_Spec):
     permissions: Permissions
     metadata: Optional[Dict[str, str]]
     category: AlgoCategory
+
+    inputs: Optional[List[AlgoInputSpec]] = None
+    outputs: Optional[List[AlgoOutputSpec]] = None
+
+    @pydantic.validator("inputs", pre=True, always=True)
+    def validate_inputs(cls, inputs, values):  # noqa: N805
+        if inputs is None:
+            inputs = [
+                AlgoInputSpec(
+                    identifier=identifier,
+                    kind=algo_input["kind"],
+                    optional=algo_input["optional"],
+                    multiple=algo_input["multiple"],
+                )
+                for identifier, algo_input in ALGO_INPUTS_PER_CATEGORY[values["category"]].items()
+            ]
+
+        return inputs
+
+    @pydantic.validator("outputs", pre=True, always=True)
+    def validate_outputs(cls, outputs, values):  # noqa: N805
+        if outputs is None:
+            outputs = [
+                AlgoOutputSpec(
+                    identifier=identifier,
+                    kind=algo_input["kind"],
+                    multiple=algo_input["multiple"],
+                )
+                for identifier, algo_input in ALGO_OUTPUTS_PER_CATEGORY[values["category"]].items()
+            ]
+
+        return outputs
 
     type_: typing.ClassVar[Type] = Type.Algo
 

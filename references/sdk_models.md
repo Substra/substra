@@ -177,6 +177,8 @@ Asset creation specification base class.
 - metadata: Mapping[str, str]
 - category: AlgoCategory
 - creation_date: datetime
+- inputs: List[AlgoInput]
+- outputs: List[AlgoOutput]
 - description: _File
 - algorithm: _File
 ```

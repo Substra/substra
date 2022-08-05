@@ -328,7 +328,6 @@ class AssetsFactory:
         py_script=None,
         permissions=None,
         metadata=None,
-        algo_spec=substra.sdk.schemas.AlgoSpec,
         dockerfile_type=None,
     ):
         idx = self._algo_counter.inc()
@@ -361,7 +360,7 @@ class AssetsFactory:
             ),
         )
 
-        return algo_spec(
+        return substra.sdk.schemas.AlgoSpec(
             name=name,
             category=category,
             description=str(description_path),

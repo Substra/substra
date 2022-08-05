@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+
 METRIC = {
     "key": "d5002e1c-d50b-d5de-5341-df8a7b7d11b6",
     "name": "Skin Lesion Classification Challenge",
@@ -30,6 +32,12 @@ METRIC = {
         "checksum": "52eea19fccfde2b12e30f4d16fd7d48f035e03210ad5804616f71799c4bdc0de",
         "storage_address": "http://testserver/metric/7b75b728-9b9b-45fe-a867-4bb1525b7b5d/file/",
     },
+    "inputs": {
+        "datasamples": {"kind": "ASSET_DATA_SAMPLE", "optional": False, "multiple": True},
+        "opener": {"kind": "ASSET_DATA_MANAGER", "optional": False, "multiple": False},
+        "predictions": {"kind": "ASSET_MODEL", "optional": False, "multiple": False},
+    },
+    "outputs": {"performance": {"kind": "ASSET_PERFORMANCE", "multiple": False}},
 }
 
 DATASET = {
@@ -83,6 +91,12 @@ ALGO = {
         "checksum": "aa8d43bf6e3341b0034a2e396451ab731ccca95a4c1d4f65a4fcd30f9081ec7d",
         "storage_address": "http://testserver/algo/17f98afc-2b82-4ce9-b232-1a471633d020/file/",
     },
+    "inputs": {
+        "datasamples": {"kind": "ASSET_DATA_SAMPLE", "optional": False, "multiple": True},
+        "model": {"kind": "ASSET_MODEL", "optional": True, "multiple": True},
+        "opener": {"kind": "ASSET_DATA_MANAGER", "optional": False, "multiple": False},
+    },
+    "outputs": {"model": {"kind": "ASSET_MODEL", "multiple": False}},
 }
 
 
@@ -105,6 +119,13 @@ ALGO_PREDICT = {
         "checksum": "aa8d43bf6e3341b0034a2e396451ab731ccca95a4c1d4f65a4fcd30f9081ec7d",
         "storage_address": "http://testserver/algo/681eedb9-db00-4480-a66f-63c86cc20280/file/",
     },
+    "inputs": {
+        "datasamples": {"kind": "ASSET_DATA_SAMPLE", "optional": False, "multiple": True},
+        "model": {"kind": "ASSET_MODEL", "optional": False, "multiple": False},
+        "opener": {"kind": "ASSET_DATA_MANAGER", "optional": False, "multiple": False},
+        "shared": {"kind": "ASSET_MODEL", "optional": True, "multiple": False},
+    },
+    "outputs": {"predictions": {"kind": "ASSET_MODEL", "multiple": False}},
 }
 
 
@@ -127,6 +148,12 @@ ALGO_METRIC = {
         "checksum": "aa8d43bf6e3341b0034a2e396451ab731ccca95a4c1d4f65a4fcd30f9081ec7d",
         "storage_address": "http://testserver/algo/6a8ada2e-740f-46f4-af0f-11376763ed72/file/",
     },
+    "inputs": {
+        "datasamples": {"kind": "ASSET_DATA_SAMPLE", "optional": False, "multiple": True},
+        "opener": {"kind": "ASSET_DATA_MANAGER", "optional": False, "multiple": False},
+        "predictions": {"kind": "ASSET_MODEL", "optional": False, "multiple": False},
+    },
+    "outputs": {"performance": {"kind": "ASSET_PERFORMANCE", "multiple": False}},
 }
 
 
@@ -152,6 +179,12 @@ TRAINTUPLE = {
             "checksum": "aa8d43bf6e3341b0034a2e396451ab731ccca95a4c1d4f65a4fcd30f9081ec7d",
             "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/algo/17f98afc-2b82-4ce9-b232-1a471633d020/file/",  # noqa: E501
         },
+        "inputs": {
+            "datasamples": {"kind": "ASSET_DATA_SAMPLE", "optional": False, "multiple": True},
+            "model": {"kind": "ASSET_MODEL", "optional": True, "multiple": True},
+            "opener": {"kind": "ASSET_DATA_MANAGER", "optional": False, "multiple": False},
+        },
+        "outputs": {"model": {"kind": "ASSET_MODEL", "multiple": False}},
     },
     "owner": "MyOrg1MSP",
     "creation_date": "2021-08-24T13:36:07.393646367Z",
@@ -229,6 +262,8 @@ AGGREGATETUPLE = {
             "download": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
         },
         "metadata": {"foo": "bar"},
+        "inputs": {"model": {"kind": "ASSET_MODEL", "optional": False, "multiple": True}},
+        "outputs": {"model": {"kind": "ASSET_MODEL", "multiple": False}},
     },
     "owner": "MyOrg1MSP",
     "creation_date": "2021-08-24T13:36:07.393646367Z",
@@ -292,6 +327,16 @@ COMPOSITE_TRAINTUPLE = {
         "algorithm": {
             "checksum": "51bd5fe2e7f087b203d1b4a73f3b3276b9fde96a0fff9c1f5984de96e4675d59",
             "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/algo/c663b6e6-dd62-49fb-afe8-191fa7627a64/file/",  # noqa: E501
+        },
+        "inputs": {
+            "datasamples": {"kind": "ASSET_DATA_SAMPLE", "optional": False, "multiple": True},
+            "local": {"kind": "ASSET_MODEL", "optional": True, "multiple": False},
+            "opener": {"kind": "ASSET_DATA_MANAGER", "optional": False, "multiple": False},
+            "shared": {"kind": "ASSET_MODEL", "optional": True, "multiple": False},
+        },
+        "outputs": {
+            "local": {"kind": "ASSET_MODEL", "multiple": False},
+            "shared": {"kind": "ASSET_MODEL", "multiple": False},
         },
     },
     "owner": "MyOrg1MSP",
@@ -383,6 +428,16 @@ COMPOSITE_TRAINTUPLE_DOING = {
             "checksum": "51bd5fe2e7f087b203d1b4a73f3b3276b9fde96a0fff9c1f5984de96e4675d59",
             "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/algo/c663b6e6-dd62-49fb-afe8-191fa7627a64/file/",  # noqa: E501
         },
+        "inputs": {
+            "datasamples": {"kind": "ASSET_DATA_SAMPLE", "optional": False, "multiple": True},
+            "local": {"kind": "ASSET_MODEL", "optional": True, "multiple": False},
+            "opener": {"kind": "ASSET_DATA_MANAGER", "optional": False, "multiple": False},
+            "shared": {"kind": "ASSET_MODEL", "optional": True, "multiple": False},
+        },
+        "outputs": {
+            "local": {"kind": "ASSET_MODEL", "multiple": False},
+            "shared": {"kind": "ASSET_MODEL", "multiple": False},
+        },
     },
     "owner": "MyOrg1MSP",
     "creation_date": "2021-08-24T13:36:07.393646367Z",
@@ -440,6 +495,13 @@ PREDICTTUPLE = {
             "checksum": "aa8d43bf6e3341b0034a2e396451ab731ccca95a4c1d4f65a4fcd30f9081ec7d",
             "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/algo/681eedb9-db00-4480-a66f-63c86cc20280/file/",  # noqa: E501
         },
+        "inputs": {
+            "datasamples": {"kind": "ASSET_DATA_SAMPLE", "optional": False, "multiple": True},
+            "model": {"kind": "ASSET_MODEL", "optional": False, "multiple": False},
+            "opener": {"kind": "ASSET_DATA_MANAGER", "optional": False, "multiple": False},
+            "shared": {"kind": "ASSET_MODEL", "optional": True, "multiple": False},
+        },
+        "outputs": {"predictions": {"kind": "ASSET_MODEL", "multiple": False}},
     },
     "owner": "MyOrg1MSP",
     "creation_date": "2021-08-24T13:36:07.393646367Z",
@@ -456,7 +518,11 @@ PREDICTTUPLE = {
         {"identifier": "opener", "asset_key": "a67b9387-fd80-429a-bc2f-034fac430b0f"},
         {"identifier": "datasamples", "asset_key": "3180e12c-a821-434a-ad8a-a341076c7f98"},
         {"identifier": "datasamples", "asset_key": "21bb59ca-abd4-4154-b04a-44a92556a078"},
-        {"identifier": "model", "parent_task_key": "30c283be-d385-424e-94a6-4d8538275260", "parent_task_output_identifier": "model"},  # noqa: E501
+        {
+            "identifier": "model",
+            "parent_task_key": "30c283be-d385-424e-94a6-4d8538275260",
+            "parent_task_output_identifier": "model",
+        },
     ],
     "outputs": {
         "predictions": {
@@ -501,6 +567,12 @@ TESTTUPLE = {
             "checksum": "aa8d43bf6e3341b0034a2e396451ab731ccca95a4c1d4f65a4fcd30f9081ec7d",
             "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/algo/6a8ada2e-740f-46f4-af0f-11376763ed72/file/",  # noqa: E501
         },
+        "inputs": {
+            "datasamples": {"kind": "ASSET_DATA_SAMPLE", "optional": False, "multiple": True},
+            "opener": {"kind": "ASSET_DATA_MANAGER", "optional": False, "multiple": False},
+            "predictions": {"kind": "ASSET_MODEL", "optional": False, "multiple": False},
+        },
+        "outputs": {"performance": {"kind": "ASSET_PERFORMANCE", "multiple": False}},
     },
     "owner": "MyOrg1MSP",
     "creation_date": "2021-08-24T13:36:07.393646367Z",
@@ -517,7 +589,11 @@ TESTTUPLE = {
         {"identifier": "opener", "asset_key": "a67b9387-fd80-429a-bc2f-034fac430b0f"},
         {"identifier": "datasamples", "asset_key": "3180e12c-a821-434a-ad8a-a341076c7f98"},
         {"identifier": "datasamples", "asset_key": "21bb59ca-abd4-4154-b04a-44a92556a078"},
-        {"identifier": "predictions", "parent_task_key": "05cf2e58-5862-444b-82de-cdaaead97c53", "parent_task_output_identifier": "predictions"},  # noqa: E501
+        {
+            "identifier": "predictions",
+            "parent_task_key": "05cf2e58-5862-444b-82de-cdaaead97c53",
+            "parent_task_output_identifier": "predictions",
+        },
     ],
     "outputs": {
         "performance": {

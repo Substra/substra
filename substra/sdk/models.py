@@ -176,6 +176,19 @@ class Dataset(_Model):
         return ["key", "name", "owner", "permissions", "compute_plan_key", "algo_key", "data_sample_key"]
 
 
+class AlgoInput(_Model):
+    identifier: str
+    kind: str
+    optional: bool
+    multiple: bool
+
+
+class AlgoOutput(_Model):
+    identifier: str
+    kind: str
+    multiple: bool
+
+
 class Algo(_Model):
     key: str
     name: str
@@ -184,6 +197,8 @@ class Algo(_Model):
     metadata: Dict[str, str]
     category: schemas.AlgoCategory
     creation_date: datetime
+    inputs: List[AlgoInput]
+    outputs: List[AlgoOutput]
 
     description: _File
     algorithm: _File
@@ -193,6 +208,33 @@ class Algo(_Model):
     @staticmethod
     def allowed_filters() -> List[str]:
         return ["key", "name", "owner", "permissions", "compute_plan_key", "dataset_key", "data_sample_key"]
+
+    @pydantic.validator("inputs", pre=True)
+    def dict_input_to_list(cls, v):
+        if isinstance(v, dict):
+            # Transform the inputs dict to a list
+            return [
+                AlgoInput(
+                    identifier=identifier,
+                    kind=algo_input["kind"],
+                    optional=algo_input["optional"],
+                    multiple=algo_input["multiple"],
+                )
+                for identifier, algo_input in v.items()
+            ]
+        else:
+            return v
+
+    @pydantic.validator("outputs", pre=True)
+    def dict_output_to_list(cls, v):
+        if isinstance(v, dict):
+            # Transform the outputs dict to a list
+            return [
+                AlgoOutput(identifier=identifier, kind=algo_output["kind"], multiple=algo_output["multiple"])
+                for identifier, algo_output in v.items()
+            ]
+        else:
+            return v
 
 
 class InModel(schemas._PydanticConfig):

@@ -323,6 +323,7 @@ class Local(base.BaseBackend):
         permissions = self.__compute_permissions(spec.permissions, owner)
         algo_file_path = self._db.save_file(spec.file, key)
         algo_description_path = self._db.save_file(spec.description, key)
+
         algo = models.Algo(
             key=key,
             creation_date=self.__now(),
@@ -338,6 +339,8 @@ class Local(base.BaseBackend):
             algorithm={"checksum": fs.hash_file(algo_file_path), "storage_address": algo_file_path},
             description={"checksum": fs.hash_file(algo_description_path), "storage_address": algo_description_path},
             metadata=spec.metadata if spec.metadata else dict(),
+            inputs=spec.inputs,
+            outputs=spec.outputs,
         )
         return self._db.add(algo)
 

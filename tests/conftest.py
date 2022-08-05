@@ -15,6 +15,7 @@
 import pytest
 
 import substra
+from substra.sdk.schemas import AlgoSpec
 
 from . import data_factory
 
@@ -90,16 +91,16 @@ def algo_query(tmpdir):
     desc_path = tmpdir / "description.md"
     desc_path.write_text("#Hello world", encoding="utf-8")
 
-    return {
-        "name": "algo_name",
-        "category": substra.sdk.schemas.AlgoCategory.simple,
-        "description": str(desc_path),
-        "file": str(algo_file_path),
-        "permissions": {
+    return AlgoSpec(
+        name="algo_name",
+        category=substra.sdk.schemas.AlgoCategory.simple,
+        description=str(desc_path),
+        file=str(algo_file_path),
+        permissions={
             "public": True,
             "authorized_ids": [],
         },
-    }
+    )
 
 
 @pytest.fixture

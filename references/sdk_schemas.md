@@ -53,6 +53,8 @@ Specification for creating an algo
 - permissions: Permissions
 - metadata: Optional[Mapping[str, str]]
 - category: AlgoCategory
+- inputs: Optional[List[AlgoInputSpec]]
+- outputs: Optional[List[AlgoOutputSpec]]
 ```
 
 ## PredicttupleSpec
