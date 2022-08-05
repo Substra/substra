@@ -40,6 +40,7 @@ TRAIN_IO_MODELS = "models"
 TRAIN_IO_MODEL = "model"
 COMPOSITE_IO_SHARED = "shared"
 COMPOSITE_IO_LOCAL = "local"
+TEST_IO_PERFORMANCE = "performance"
 
 
 class TaskResource(dict):
@@ -432,16 +433,20 @@ class Worker:
                     permissions=tuple_.outputs[COMPOSITE_IO_SHARED].permissions,
                 )
                 tuple_.composite.models = [head_model, trunk_model]
+                tuple_.outputs[COMPOSITE_IO_LOCAL].value = head_model
+                tuple_.outputs[COMPOSITE_IO_SHARED].value = trunk_model
             elif isinstance(tuple_, models.Traintuple):
                 out_model = self._save_output_model(
                     tuple_, Filenames.OUT_MODEL, output_models_volume, tuple_.outputs[TRAIN_IO_MODEL].permissions
                 )
                 tuple_.train.models = [out_model]
+                tuple_.outputs[TRAIN_IO_MODEL].value = out_model
             elif isinstance(tuple_, models.Aggregatetuple):
                 out_model = self._save_output_model(
                     tuple_, Filenames.OUT_MODEL, output_models_volume, tuple_.outputs[TRAIN_IO_MODEL].permissions
                 )
                 tuple_.aggregate.models = [out_model]
+                tuple_.outputs[TRAIN_IO_MODEL].value = out_model
 
             # set status
             tuple_.status = models.Status.done
@@ -609,6 +614,7 @@ class Worker:
                 permissions=tuple_.outputs[TASK_IO_PREDICTIONS].permissions,
             )
             tuple_.predict.models = [prediction]
+            tuple_.outputs[TASK_IO_PREDICTIONS].value = prediction
 
             # set status
             tuple_.status = models.Status.done
@@ -707,7 +713,9 @@ class Worker:
             shutil.copy(tmp_path, perf_path)
 
             with open(perf_path, "r") as f:
-                tuple_.test.perfs[metric.key] = json.load(f).get("all")
+                perf: float = json.load(f).get("all")
+            tuple_.test.perfs[metric.key] = perf
+            tuple_.outputs[TEST_IO_PERFORMANCE] = perf
 
             # set status
             tuple_.status = models.Status.done

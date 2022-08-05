@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - "inputs" field to substra.sdk.schemas.\*tupleSpec (#215)
 - "inputs" field to \*tuple models (#239)
+- embed models/performances in output fields of tasks (#251)
 
 ## [0.30.1](https://github.com/owkin/substra/releases/tag/0.30.1) - 2022-07-26
 
@@ -45,8 +46,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- "outputs" field to substra.sdk.schemas.\*tupleSpec (#219)
-- feat: add "outputs" field to \*tuple models (#235)
+- "outputs" field to substra.sdk.schemas.*tupleSpec (#219)
+- feat: add "outputs" field to *tuple models (#235)
 
 ### Removed
 

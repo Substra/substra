@@ -271,6 +271,7 @@ class InputRef(schemas._PydanticConfig):
 
 class ComputeTaskOutput(schemas._PydanticConfig):
     permissions: Permissions
+    value: Optional[Union[float, OutModel, List[OutModel]]]  # performance or Model or multiple model
     # "is_transient" will be added here
     """Specification of a compute task input"""
 
