@@ -83,6 +83,8 @@ class Client:
             fn = requests.get
         elif request_name == "post":
             fn = requests.post
+        elif request_name == "put":
+            fn = requests.put
         else:
             raise NotImplementedError
 
@@ -165,7 +167,7 @@ class Client:
         Base request
 
         Args:
-            request_name (str): http rest method invoked. e.g. "get" or "post"
+            request_name (str): http rest method invoked. e.g. "get", "post" or "put"
             asset_type (str): asset type. e.g. "algo"
             path (str, optional): additional route e.g. "cp_key/perf" in /compute_plan/cp_key/perf. Defaults to None.
             json_response (bool, optional): whether the expected response is formatted in json. Defaults to True.
@@ -310,6 +312,31 @@ class Client:
             #     (and will be processed), retry on on the add request and ignore
             #     potential conflicts
             return retry(self._add)(name, **request_kwargs)
+
+    def _update(self, name, key, **request_kwargs):
+        """Update asset wrapper."""
+        return self.request("put", name, key, **request_kwargs)
+
+    def update(self, name, key, retry_timeout=False, **request_kwargs):
+        """Add asset.
+
+        In case of timeout, block till resource is created.
+        """
+        try:
+            return self._update(name, key, **request_kwargs)
+        except exceptions.RequestTimeout as e:
+            if not retry_timeout:
+                raise e
+
+            logger.warning(f"Request timeout, blocking till {name} is updated: key={key}")
+            retry = utils.retry_on_exception(
+                exceptions=(exceptions.RequestTimeout),
+                timeout=float(retry_timeout),
+            )
+            # XXX as there is no guarantee that the request has been sent to the ledger
+            #     (and will be processed), retry on the update request and ignore
+            #     potential conflicts
+            return retry(self._update)(name, key, **request_kwargs)
 
     def get_data(self, address, **request_kwargs):
         """Get asset data."""

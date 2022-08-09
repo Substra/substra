@@ -816,23 +816,29 @@ class Client(object):
         return self._backend.list(schemas.Type.Organization, paginated=False)
 
     @logit
+    def update_algo(self, key: str, name: str):
+        spec = self._get_spec(schemas.UpdateAlgoSpec, {"name": name})
+        self._backend.update(key, spec)
+        return
+
+    @logit
     def add_compute_plan_tuples(
         self,
         key: str,
-        data: Union[dict, schemas.UpdateComputePlanSpec],
+        tuples: Union[dict, schemas.UpdateComputePlanTuplesSpec],
         auto_batching: bool = True,
         batch_size: int = DEFAULT_BATCH_SIZE,
     ) -> models.ComputePlan:
         """Update compute plan.
 
-        As specified in the data dict structure, output trunk models of composite
+        As specified in the tuples dict structure, output trunk models of composite
         traintuples cannot be made public.
 
         Args:
             key (str): Compute plan key
-            data (Union[dict, schemas.UpdateComputePlanSpec]): If it is a dict,
+            tuples (Union[dict, schemas.UpdateComputePlanTuplesSpec]): If it is a dict,
                 it must have the same keys as specified in
-                [schemas.UpdateComputePlanSpec](sdk_schemas.md#UpdateComputePlanSpec).
+                [schemas.UpdateComputePlanTuplesSpec](sdk_schemas.md#UpdateComputePlanTuplesSpec).
             auto_batching (bool, optional): Set 'auto_batching' to False to upload all
                 the tuples of the compute plan at once. Defaults to True.
             batch_size (int, optional): If 'auto_batching' is True, change `batch_size`
@@ -842,14 +848,26 @@ class Client(object):
             models.ComputePlan: updated compute plan, as described in the
             [models.ComputePlan](sdk_models.md#ComputePlan) model
         """
-        if isinstance(data, dict):
-            data["key"] = key
-        spec = self._get_spec(schemas.UpdateComputePlanSpec, data)
+        if isinstance(tuples, dict):
+            tuples["key"] = key
+        spec = self._get_spec(schemas.UpdateComputePlanTuplesSpec, tuples)
         spec_options = {
             "auto_batching": auto_batching,
             "batch_size": batch_size,
         }
         return self._backend.add_compute_plan_tuples(spec, spec_options=spec_options)
+
+    @logit
+    def update_compute_plan(self, key: str, name: str):
+        spec = self._get_spec(schemas.UpdateComputePlanSpec, {"name": name})
+        self._backend.update(key, spec)
+        return
+
+    @logit
+    def update_dataset(self, key: str, name: str):
+        spec = self._get_spec(schemas.UpdateDatasetSpec, {"name": name})
+        self._backend.update(key, spec)
+        return
 
     @logit
     def link_dataset_with_data_samples(

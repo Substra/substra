@@ -116,18 +116,18 @@ the number of tuples uploaded in each batch (default 500).
  - `models.ComputePlan`: Created compute plan
 ## add_compute_plan_tuples
 ```text
-add_compute_plan_tuples(self, key: str, data: Union[dict, substra.sdk.schemas.UpdateComputePlanSpec], auto_batching: bool = True, batch_size: int = 500) -> substra.sdk.models.ComputePlan
+add_compute_plan_tuples(self, key: str, tuples: Union[dict, substra.sdk.schemas.UpdateComputePlanTuplesSpec], auto_batching: bool = True, batch_size: int = 500) -> substra.sdk.models.ComputePlan
 ```
 
 Update compute plan.
-As specified in the data dict structure, output trunk models of composite
+As specified in the tuples dict structure, output trunk models of composite
 traintuples cannot be made public.
 
 **Arguments:**
  - `key (str, required)`: Compute plan key
- - `data (Union[dict, schemas.UpdateComputePlanSpec], required)`: If it is a dict,
+ - `tuples (Union[dict, schemas.UpdateComputePlanTuplesSpec], required)`: If it is a dict,
 it must have the same keys as specified in
-[schemas.UpdateComputePlanSpec](sdk_schemas.md#UpdateComputePlanSpec).
+[schemas.UpdateComputePlanTuplesSpec](sdk_schemas.md#UpdateComputePlanTuplesSpec).
  - `auto_batching (bool, optional)`: Set 'auto_batching' to False to upload all
 the tuples of the compute plan at once. Defaults to True.
  - `batch_size (int, optional)`: If 'auto_batching' is True, change `batch_size`
@@ -627,6 +627,24 @@ organization_info(self) -> dict
 ```
 
 Get organization information.
+## update_algo
+```text
+update_algo(self, key: str, name: str)
+```
+
+None
+## update_compute_plan
+```text
+update_compute_plan(self, key: str, name: str)
+```
+
+None
+## update_dataset
+```text
+update_dataset(self, key: str, name: str)
+```
+
+None
 # retry_on_exception
 ```text
 retry_on_exception(exceptions, timeout=300)

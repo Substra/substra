@@ -282,10 +282,18 @@ class ComputePlanSpec(_BaseComputePlanSpec):
         yield data, None
 
 
-class UpdateComputePlanSpec(_BaseComputePlanSpec):
-    """Specification for updating a compute plan"""
+class UpdateComputePlanTuplesSpec(_BaseComputePlanSpec):
+    """Specification for updating a compute plan's tuples"""
 
     pass
+
+
+class UpdateComputePlanSpec(_Spec):
+    """Specification for updating a compute plan"""
+
+    name: str
+
+    type_: typing.ClassVar[Type] = Type.ComputePlan
 
 
 class DatasetSpec(_Spec):
@@ -306,6 +314,14 @@ class DatasetSpec(_Spec):
             "data_opener",
             "description",
         )
+
+
+class UpdateDatasetSpec(_Spec):
+    """Specification for updating a dataset"""
+
+    name: str
+
+    type_: typing.ClassVar[Type] = Type.Dataset
 
 
 class AlgoInputSpec(_Spec):
@@ -380,6 +396,14 @@ class AlgoSpec(_Spec):
             "file",
             "description",
         )
+
+
+class UpdateAlgoSpec(_Spec):
+    """Specification for updating an algo"""
+
+    name: str
+
+    type_: typing.ClassVar[Type] = Type.Algo
 
 
 class _TupleSpec(_Spec):

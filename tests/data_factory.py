@@ -387,3 +387,13 @@ class AssetsFactory:
             metadata=metadata,
             clean_models=clean_models,
         )
+
+    def add_compute_plan_tuples(self, compute_plan):
+        return substra.sdk.schemas.UpdateComputePlanTuplesSpec(
+            traintuples=[],
+            composite_traintuples=[],
+            aggregatetuples=[],
+            predicttuples=[],
+            testtuples=[],
+            key=compute_plan.key,
+        )

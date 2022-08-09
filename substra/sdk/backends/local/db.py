@@ -104,4 +104,4 @@ class InMemoryDb:
             raise exceptions.NotFound(f"Wrong pk {key}", 404)
 
         self._data[type_][key] = asset
-        return asset
+        return

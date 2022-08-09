@@ -804,7 +804,16 @@ class Local(base.BaseBackend):
         # function does not make sense.
         raise NotImplementedError
 
-    def add_compute_plan_tuples(self, spec: schemas.UpdateComputePlanSpec, spec_options: dict = None):
+    def update(self, key, spec, spec_options=None):
+        asset_type = spec.__class__.type_
+        asset = self.get(asset_type, key)
+        data = asset.dict()
+        data.update(spec.dict())
+        updated_asset = models.SCHEMA_TO_MODEL[asset_type](**data)
+        self._db.update(updated_asset)
+        return
+
+    def add_compute_plan_tuples(self, spec: schemas.UpdateComputePlanTuplesSpec, spec_options: dict = None):
         key = spec.key
         compute_plan = self._db.get(schemas.Type.ComputePlan, key)
         # Get all the new tuples and their dependencies

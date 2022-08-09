@@ -2,16 +2,19 @@
 
 - [DataSampleSpec](#DataSampleSpec)
 - [DatasetSpec](#DatasetSpec)
+- [UpdateDatasetSpec](#UpdateDatasetSpec)
 - [AlgoSpec](#AlgoSpec)
 - [AlgoInputSpec](#AlgoInputSpec)
 - [AlgoOutputSpec](#AlgoOutputSpec)
 - [PredicttupleSpec](#PredicttupleSpec)
+- [UpdateAlgoSpec](#UpdateAlgoSpec)
 - [TesttupleSpec](#TesttupleSpec)
 - [TraintupleSpec](#TraintupleSpec)
 - [AggregatetupleSpec](#AggregatetupleSpec)
 - [CompositeTraintupleSpec](#CompositeTraintupleSpec)
 - [ComputePlanSpec](#ComputePlanSpec)
 - [UpdateComputePlanSpec](#UpdateComputePlanSpec)
+- [UpdateComputePlanTuplesSpec](#UpdateComputePlanTuplesSpec)
 - [ComputePlanPredicttupleSpec](#ComputePlanPredicttupleSpec)
 - [ComputePlanTesttupleSpec](#ComputePlanTesttupleSpec)
 - [ComputePlanAggregatetupleSpec](#ComputePlanAggregatetupleSpec)
@@ -44,6 +47,12 @@ Specification for creating a dataset
 - permissions: Permissions
 - metadata: Optional[Mapping[str, str]]
 - logs_permission: Permissions
+```
+
+## UpdateDatasetSpec
+Specification for updating a dataset
+```text
+- name: str
 ```
 
 ## AlgoSpec
@@ -90,6 +99,12 @@ Specification for creating a predict tuple
 - data_manager_key: str
 - test_data_sample_keys: List[str]
 - category: TaskCategory
+```
+
+## UpdateAlgoSpec
+Specification for updating an algo
+```text
+- name: str
 ```
 
 ## TesttupleSpec
@@ -176,6 +191,12 @@ Specification for creating a compute plan
 
 ## UpdateComputePlanSpec
 Specification for updating a compute plan
+```text
+- name: str
+```
+
+## UpdateComputePlanTuplesSpec
+Specification for updating a compute plan's tuples
 ```text
 - key: str
 - traintuples: Optional[List[ComputePlanTraintupleSpec]]

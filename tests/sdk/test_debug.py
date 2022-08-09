@@ -190,7 +190,7 @@ class TestsDebug:
         assert path_cp_1.is_dir()
         assert path_cp_2.is_dir()
 
-    def test_compute_plan_add_update(self, asset_factory, spawner):
+    def test_compute_plan_add_update_tuples(self, asset_factory, spawner):
         client = substra.Client(debug=True)
         compute_plan = client.add_compute_plan(
             substra.sdk.schemas.ComputePlanSpec(
@@ -240,10 +240,35 @@ class TestsDebug:
 
         compute_plan = client.add_compute_plan_tuples(
             key=compute_plan.key,
-            data={
+            tuples={
                 "traintuples": [traintuple],
             },
         )
+
+    def test_compute_plan_update(self, asset_factory, spawner):
+        client = substra.Client(debug=True)
+        old_name = "My ultra cool compute plan"
+        new_name = "My even cooler compute plan"
+
+        compute_plan = client.add_compute_plan(
+            substra.sdk.schemas.ComputePlanSpec(
+                key=str(uuid.uuid4()),
+                tag="cool-tag",
+                name=old_name,
+                clean_models=False,
+                metadata=dict(),
+            )
+        )
+
+        client.update_compute_plan(
+            key=compute_plan.key,
+            name=new_name,
+        )
+
+        compute_plan.name = new_name
+        updated_compute_plan = client.get_compute_plan(compute_plan.key)
+
+        assert compute_plan == updated_compute_plan
 
     def test_client_multi_organizations_cp_train_test(self, asset_factory, spawner):
         """Assert that there is one CP local folder per organization"""

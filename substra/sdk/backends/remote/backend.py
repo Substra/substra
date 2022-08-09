@@ -220,6 +220,34 @@ class Remote(base.BaseBackend):
             json={"tasks": batch_data},
         )
 
+    def _update(self, asset, key, data, files=None):
+        data = deepcopy(data)  # make a deep copy for avoiding modification by reference
+        if files:
+            kwargs = {
+                "data": {
+                    "json": json.dumps(data),
+                },
+                "files": files,
+            }
+
+        else:
+            kwargs = {
+                "json": data,
+            }
+
+        return self._client.update(
+            asset.to_server(),
+            key,
+            retry_timeout=self._retry_timeout,
+            **kwargs,
+        )
+
+    def update(self, key, spec, spec_options=None):
+        spec_options = spec_options or {}
+        asset_type = spec.__class__.type_
+        with spec.build_request_kwargs(**spec_options) as (data, files):
+            return self._update(asset_type, key, data, files=files)
+
     def add_compute_plan_tuples(self, spec, spec_options):
         # Remove auto_batching and batch_size from spec_options
         auto_batching = spec_options.pop(AUTO_BATCHING, False)

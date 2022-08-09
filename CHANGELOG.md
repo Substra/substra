@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- New update_compute_plan, update_algo and update_dataset methods that allow editing names (#220)
+
 ## [0.32.0](https://github.com/owkin/substra/releases/tag/0.32.0) - 2022-08-09
 
 ### Added
@@ -72,7 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.28.0](https://github.com/owkin/substra/releases/tag/0.28.0) - 2022-07-05
 
-### Changes
+### Changed
 
 - BREAKING CHANGE: Client.update_compute_plan renamed Client.add_compute_plan_tuples (#223)
 

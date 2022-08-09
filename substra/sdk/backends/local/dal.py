@@ -187,7 +187,8 @@ class DataAccess:
         return tmp_file
 
     def update(self, asset):
-        return self._db.update(asset)
+        self._db.update(asset)
+        return
 
     # TODO: '_get_local_model' is too complex, consider refactoring
     def _get_local_model(self, key):  # noqa: C901
