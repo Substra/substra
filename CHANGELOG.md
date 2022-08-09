@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.32.0](https://github.com/owkin/substra/releases/tag/0.32.0) - 2022-08-09
+
 ### Added
 
 - BREAKING CHANGE: drop Python 3.7 support (#246)
@@ -14,11 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- CLI: keep only the cancel, profile, login and organization commands
+- BREAKING CHANGE CLI: keep only the cancel, profile, login and organization commands
 
 ### Changed
 
-- Stop using legacy `_permissions` fields (#242)
+- BREAKING CHANGE: Stop using legacy `_permissions` fields (#242)
 
 ## [0.31.0](https://github.com/owkin/substra/releases/tag/0.31.0) - 2022-08-01
 
