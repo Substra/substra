@@ -197,7 +197,7 @@ class Algo(_Model):
         return ["key", "name", "owner", "permissions", "compute_plan_key", "dataset_key", "data_sample_key"]
 
     @pydantic.validator("inputs", pre=True)
-    def dict_input_to_list(cls, v):
+    def dict_input_to_list(cls, v):  # noqa: N805
         if isinstance(v, dict):
             # Transform the inputs dict to a list
             return [
@@ -213,7 +213,7 @@ class Algo(_Model):
             return v
 
     @pydantic.validator("outputs", pre=True)
-    def dict_output_to_list(cls, v):
+    def dict_output_to_list(cls, v):  # noqa: N805
         if isinstance(v, dict):
             # Transform the outputs dict to a list
             return [

@@ -3,6 +3,8 @@
 - [DataSampleSpec](#DataSampleSpec)
 - [DatasetSpec](#DatasetSpec)
 - [AlgoSpec](#AlgoSpec)
+- [AlgoInputSpec](#AlgoInputSpec)
+- [AlgoOutputSpec](#AlgoOutputSpec)
 - [PredicttupleSpec](#PredicttupleSpec)
 - [TesttupleSpec](#TesttupleSpec)
 - [TraintupleSpec](#TraintupleSpec)
@@ -55,6 +57,23 @@ Specification for creating an algo
 - category: AlgoCategory
 - inputs: Optional[List[AlgoInputSpec]]
 - outputs: Optional[List[AlgoOutputSpec]]
+```
+
+## AlgoInputSpec
+Asset creation specification base class.
+```text
+- identifier: str
+- multiple: bool
+- optional: bool
+- kind: AssetKind
+```
+
+## AlgoOutputSpec
+Asset creation specification base class.
+```text
+- identifier: str
+- kind: AssetKind
+- multiple: bool
 ```
 
 ## PredicttupleSpec

@@ -463,7 +463,7 @@ PREDICTTUPLE = {
     "category": "TASK_PREDICT",
     "algo": {
         "key": "681eedb9-db00-4480-a66f-63c86cc20280",
-        "name": "def637b111f2495bb6b4771644d2409e_test_traintuple_data_samples_relative_order - Algo Predict681eedb9-db00-4480-a66f-63c86cc20280",
+        "name": "def637b111f2495bb6b4771644d2409e_test_traintuple_data_samples_relative_order - Algo Predict681eedb9-db00-4480-a66f-63c86cc20280",  # noqa: E501
         "owner": "MyOrg1MSP",
         "creation_date": "2021-08-24T13:36:07.428974249Z",
         "permissions": {

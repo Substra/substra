@@ -9,6 +9,9 @@ import zipfile
 import substra
 from substra.sdk.schemas import AlgoCategory
 
+from .fl_interface import FLAlgoInputs
+from .fl_interface import FLAlgoOutputs
+
 DEFAULT_DATA_SAMPLE_FILENAME = "data.csv"
 
 DEFAULT_SUBSTRATOOLS_VERSION = (
@@ -363,6 +366,8 @@ class AssetsFactory:
         return substra.sdk.schemas.AlgoSpec(
             name=name,
             category=category,
+            inputs=FLAlgoInputs[category],
+            outputs=FLAlgoOutputs[category],
             description=str(description_path),
             file=str(algo_zip),
             permissions=permissions or DEFAULT_PERMISSIONS,

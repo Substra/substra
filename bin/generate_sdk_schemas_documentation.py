@@ -15,6 +15,8 @@ schemas_list = [
     schemas.DataSampleSpec,
     schemas.DatasetSpec,
     schemas.AlgoSpec,
+    schemas.AlgoInputSpec,
+    schemas.AlgoOutputSpec,
     schemas.PredicttupleSpec,
     schemas.TesttupleSpec,
     schemas.TraintupleSpec,

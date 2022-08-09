@@ -13,64 +13,16 @@ import pydantic
 
 from substra.sdk import utils
 
-# TODO create a sub-package schemas:
-# types
-# inputs
-# outputs
-
-
 _SERVER_NAMES = {
     "dataset": "data_manager",
 }
 
 
-ALGO_INPUT_IDENTIFIER_OPENER = "opener"
-ALGO_INPUT_IDENTIFIER_DATASAMPLES = "datasamples"
-
-ALGO_INPUTS_PER_CATEGORY = {
-    "ALGO_SIMPLE": {
-        ALGO_INPUT_IDENTIFIER_DATASAMPLES: {"kind": "ASSET_DATA_SAMPLE", "multiple": True, "optional": False},
-        "model": {"kind": "ASSET_MODEL", "multiple": True, "optional": True},
-        ALGO_INPUT_IDENTIFIER_OPENER: {"kind": "ASSET_DATA_MANAGER", "multiple": False, "optional": False},
-    },
-    "ALGO_AGGREGATE": {
-        "model": {"kind": "ASSET_MODEL", "multiple": True, "optional": False},
-    },
-    "ALGO_COMPOSITE": {
-        ALGO_INPUT_IDENTIFIER_DATASAMPLES: {"kind": "ASSET_DATA_SAMPLE", "multiple": True, "optional": False},
-        "local": {"kind": "ASSET_MODEL", "multiple": False, "optional": True},
-        ALGO_INPUT_IDENTIFIER_OPENER: {"kind": "ASSET_DATA_MANAGER", "multiple": False, "optional": False},
-        "shared": {"kind": "ASSET_MODEL", "multiple": False, "optional": True},
-    },
-    "ALGO_METRIC": {
-        ALGO_INPUT_IDENTIFIER_DATASAMPLES: {"kind": "ASSET_DATA_SAMPLE", "multiple": True, "optional": False},
-        ALGO_INPUT_IDENTIFIER_OPENER: {"kind": "ASSET_DATA_MANAGER", "multiple": False, "optional": False},
-        "predictions": {"kind": "ASSET_MODEL", "multiple": False, "optional": False},
-    },
-    "ALGO_PREDICT": {
-        ALGO_INPUT_IDENTIFIER_DATASAMPLES: {"kind": "ASSET_DATA_SAMPLE", "multiple": True, "optional": False},
-        ALGO_INPUT_IDENTIFIER_OPENER: {"kind": "ASSET_DATA_MANAGER", "multiple": False, "optional": False},
-        "model": {"kind": "ASSET_MODEL", "multiple": False, "optional": False},
-        "shared": {"kind": "ASSET_MODEL", "multiple": False, "optional": True},
-    },
-}
-
-ALGO_OUTPUTS_PER_CATEGORY = {
-    "ALGO_SIMPLE": {
-        "model": {"kind": "ASSET_MODEL", "multiple": False},
-    },
-    "ALGO_AGGREGATE": {
-        "model": {"kind": "ASSET_MODEL", "multiple": False},
-    },
-    "ALGO_COMPOSITE": {
-        "local": {"kind": "ASSET_MODEL", "multiple": False},
-        "shared": {"kind": "ASSET_MODEL", "multiple": False},
-    },
-    "ALGO_METRIC": {
-        "performance": {"kind": "ASSET_PERFORMANCE", "multiple": False},
-    },
-    "ALGO_PREDICT": {"predictions": {"kind": "ASSET_MODEL", "multiple": False}},
-}
+class AssetKind(str, enum.Enum):
+    model = "ASSET_MODEL"
+    performance = "ASSET_PERFORMANCE"
+    data_manager = "ASSET_DATA_MANAGER"
+    data_sample = "ASSET_DATA_SAMPLE"
 
 
 class Type(enum.Enum):
@@ -236,6 +188,8 @@ class InputRef(_PydanticConfig):
 
 
 class ComputeTaskOutput(_PydanticConfig):
+    """Specification of a compute task output"""
+
     permissions: Permissions
     # "is_transient" will be added here
 
@@ -334,19 +288,6 @@ class UpdateComputePlanSpec(_BaseComputePlanSpec):
     pass
 
 
-class AlgoInputSpec(_Spec):
-    identifier: str
-    multiple: bool
-    optional: bool
-    kind: str
-
-
-class AlgoOutputSpec(_Spec):
-    identifier: str
-    multiple: bool
-    kind: str
-
-
 class DatasetSpec(_Spec):
     """Specification for creating a dataset"""
 
@@ -367,6 +308,38 @@ class DatasetSpec(_Spec):
         )
 
 
+class AlgoInputSpec(_Spec):
+    identifier: str
+    multiple: bool
+    optional: bool
+    kind: AssetKind
+
+    @pydantic.root_validator
+    def _check_data_manager(cls, values):  # noqa: N805
+        """Checks that the multiplicity and the optionality of a data manager is always set to False"""
+        if values.get("kind") == AssetKind.data_manager:
+            if values.get("multiple"):
+                raise ValueError("Data manager input can't be multiple.")
+            if values.get("optional"):
+                raise ValueError("Data manager input can't be optional.")
+
+        return values
+
+
+class AlgoOutputSpec(_Spec):
+    identifier: str
+    kind: AssetKind
+    multiple: bool
+
+    @pydantic.root_validator
+    def _check_performance(cls, values):  # noqa: N805
+        """Checks that the performance is always set to False"""
+        if values.get("kind") == AssetKind.performance and values.get("multiple"):
+            raise ValueError("Performance can't be multiple.")
+
+        return values
+
+
 class AlgoSpec(_Spec):
     """Specification for creating an algo"""
 
@@ -376,38 +349,8 @@ class AlgoSpec(_Spec):
     permissions: Permissions
     metadata: Optional[Dict[str, str]]
     category: AlgoCategory
-
     inputs: Optional[List[AlgoInputSpec]] = None
     outputs: Optional[List[AlgoOutputSpec]] = None
-
-    @pydantic.validator("inputs", pre=True, always=True)
-    def validate_inputs(cls, inputs, values):  # noqa: N805
-        if inputs is None:
-            inputs = [
-                AlgoInputSpec(
-                    identifier=identifier,
-                    kind=algo_input["kind"],
-                    optional=algo_input["optional"],
-                    multiple=algo_input["multiple"],
-                )
-                for identifier, algo_input in ALGO_INPUTS_PER_CATEGORY[values["category"]].items()
-            ]
-
-        return inputs
-
-    @pydantic.validator("outputs", pre=True, always=True)
-    def validate_outputs(cls, outputs, values):  # noqa: N805
-        if outputs is None:
-            outputs = [
-                AlgoOutputSpec(
-                    identifier=identifier,
-                    kind=algo_input["kind"],
-                    multiple=algo_input["multiple"],
-                )
-                for identifier, algo_input in ALGO_OUTPUTS_PER_CATEGORY[values["category"]].items()
-            ]
-
-        return outputs
 
     type_: typing.ClassVar[Type] = Type.Algo
 
@@ -417,12 +360,14 @@ class AlgoSpec(_Spec):
         # Serialize and deserialize to prevent errors eg with pathlib.Path
         data = json.loads(self.json(exclude_unset=True))
 
-        # Waiting for algo inputs/outputs to be added by the public API,
-        # these data are added on the fly to the request, without being exposed to the user.
         # Computed fields using `@property` are not dumped when `exclude_unset` flag is enabled,
         # this is why we need to reimplement this custom function.
-        data["inputs"] = ALGO_INPUTS_PER_CATEGORY[self.category]
-        data["outputs"] = ALGO_OUTPUTS_PER_CATEGORY[self.category]
+        data["inputs"] = (
+            {input.identifier: input.dict(exclude={"identifier"}) for input in self.inputs} if self.inputs else {}
+        )
+        data["outputs"] = (
+            {output.identifier: output.dict(exclude={"identifier"}) for output in self.outputs} if self.outputs else {}
+        )
 
         if self.Meta.file_attributes:
             with utils.extract_files(data, self.Meta.file_attributes) as (data, files):

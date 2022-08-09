@@ -326,8 +326,8 @@ class Local(base.BaseBackend):
             algorithm={"checksum": fs.hash_file(algo_file_path), "storage_address": algo_file_path},
             description={"checksum": fs.hash_file(algo_description_path), "storage_address": algo_description_path},
             metadata=spec.metadata if spec.metadata else dict(),
-            inputs=spec.inputs,
-            outputs=spec.outputs,
+            inputs=spec.inputs or list(),
+            outputs=spec.outputs or list(),
         )
         return self._db.add(algo)
 

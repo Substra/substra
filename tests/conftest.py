@@ -4,6 +4,8 @@ import substra
 from substra.sdk.schemas import AlgoSpec
 
 from . import data_factory
+from .fl_interface import FLAlgoInputs
+from .fl_interface import FLAlgoOutputs
 
 
 def pytest_configure(config):
@@ -77,9 +79,13 @@ def algo_query(tmpdir):
     desc_path = tmpdir / "description.md"
     desc_path.write_text("#Hello world", encoding="utf-8")
 
+    algo_category = substra.sdk.schemas.AlgoCategory.simple
+
     return AlgoSpec(
         name="algo_name",
-        category=substra.sdk.schemas.AlgoCategory.simple,
+        category=algo_category,
+        inputs=FLAlgoInputs[algo_category],
+        outputs=FLAlgoOutputs[algo_category],
         description=str(desc_path),
         file=str(algo_file_path),
         permissions={
