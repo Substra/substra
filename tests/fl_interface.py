@@ -9,6 +9,8 @@ from substra.sdk.schemas import Permissions
 
 PUBLIC_PERMISSIONS = Permissions(public=True, authorized_ids=[])
 
+FL_ALGO_PREDICT_COMPOSITE = "ALGO_PREDICT_COMPOSITE"
+
 
 class InputIdentifiers(str, Enum):
     local = "local"
@@ -70,8 +72,20 @@ class FLAlgoInputs(list, Enum):
         AlgoInputSpec(
             identifier=InputIdentifiers.opener, kind=AssetKind.data_manager.value, optional=False, multiple=False
         ),
-        AlgoInputSpec(identifier=InputIdentifiers.model, kind=AssetKind.model.value, optional=False, multiple=False),
-        AlgoInputSpec(identifier=InputIdentifiers.shared, kind=AssetKind.model.value, optional=True, multiple=False),
+        AlgoInputSpec(identifier=InputIdentifiers.models, kind=AssetKind.model.value, optional=False, multiple=False),
+    ]
+    ALGO_PREDICT_COMPOSITE = [
+        AlgoInputSpec(
+            identifier=InputIdentifiers.datasamples,
+            kind=AssetKind.data_sample.value,
+            optional=False,
+            multiple=True,
+        ),
+        AlgoInputSpec(
+            identifier=InputIdentifiers.opener, kind=AssetKind.data_manager.value, optional=False, multiple=False
+        ),
+        AlgoInputSpec(identifier=InputIdentifiers.local, kind=AssetKind.model.value, optional=False, multiple=False),
+        AlgoInputSpec(identifier=InputIdentifiers.shared, kind=AssetKind.model.value, optional=False, multiple=False),
     ]
     ALGO_METRIC = [
         AlgoInputSpec(
@@ -99,6 +113,9 @@ class FLAlgoOutputs(list, Enum):
         AlgoOutputSpec(identifier=OutputIdentifiers.shared, kind=AssetKind.model.value, multiple=False),
     ]
     ALGO_PREDICT = [
+        AlgoOutputSpec(identifier=OutputIdentifiers.predictions, kind=AssetKind.model.value, multiple=False)
+    ]
+    ALGO_PREDICT_COMPOSITE = [
         AlgoOutputSpec(identifier=OutputIdentifiers.predictions, kind=AssetKind.model.value, multiple=False)
     ]
     ALGO_METRIC = [
@@ -151,7 +168,7 @@ class FLTaskInputGenerator:
     def train_to_predict(model_key):
         return [
             InputRef(
-                identifier=InputIdentifiers.model,
+                identifier=InputIdentifiers.models,
                 parent_task_key=model_key,
                 parent_task_output_identifier=OutputIdentifiers.model,
             )
@@ -171,7 +188,7 @@ class FLTaskInputGenerator:
     def composite_to_predict(model_key):
         return [
             InputRef(
-                identifier=InputIdentifiers.model,
+                identifier=InputIdentifiers.local,
                 parent_task_key=model_key,
                 parent_task_output_identifier=OutputIdentifiers.local,
             ),
@@ -232,7 +249,7 @@ class FLTaskInputGenerator:
     def aggregate_to_predict(model_key):
         return [
             InputRef(
-                identifier=InputIdentifiers.model,
+                identifier=InputIdentifiers.models,
                 parent_task_key=model_key,
                 parent_task_output_identifier=OutputIdentifiers.model,
             )

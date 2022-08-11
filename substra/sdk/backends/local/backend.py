@@ -31,11 +31,6 @@ _MAX_LEN_KEY_METADATA = 50
 _MAX_LEN_VALUE_METADATA = 100
 DEBUG_OWNER = "debug_owner"
 
-TRAIN_IO_MODEL = compute.worker.TRAIN_IO_MODEL
-TASK_IO_PREDICTIONS = compute.worker.TASK_IO_PREDICTIONS
-COMPOSITE_IO_SHARED = compute.worker.COMPOSITE_IO_SHARED
-COMPOSITE_IO_LOCAL = compute.worker.COMPOSITE_IO_LOCAL
-
 
 class Local(base.BaseBackend):
     def __init__(self, backend, *args, **kwargs):
@@ -197,14 +192,7 @@ class Local(base.BaseBackend):
 
     def __create_compute_plan_from_tuple(self, spec, key, in_tuples):
         # compute plan and rank
-        if not spec.compute_plan_key and spec.rank == 0:
-            #  Create a compute plan
-            compute_plan = self.__add_compute_plan(task_count=1)
-            rank = 0
-            compute_plan_key = compute_plan.key
-        elif not spec.compute_plan_key and spec.rank is not None:
-            raise substra.sdk.exceptions.InvalidRequest("invalid inputs, a new ComputePlan should have a rank 0", 400)
-        elif spec.compute_plan_key:
+        if spec.compute_plan_key is not None:
             compute_plan = self._db.get(schemas.Type.ComputePlan, spec.compute_plan_key)
             compute_plan_key = compute_plan.key
             if spec.rank is not None:
@@ -223,9 +211,13 @@ class Local(base.BaseBackend):
             compute_plan.todo_count += 1
             compute_plan.status = models.Status.waiting
 
-        else:
-            compute_plan_key = ""
+        elif not spec.compute_plan_key and (spec.rank == 0 or spec.rank is None):
+            #  Create a compute plan
+            compute_plan = self.__add_compute_plan(task_count=1)
             rank = 0
+            compute_plan_key = compute_plan.key
+        else:
+            raise substra.sdk.exceptions.InvalidRequest("invalid inputs, a new ComputePlan should have a rank 0", 400)
 
         return compute_plan_key, rank
 
@@ -504,7 +496,7 @@ class Local(base.BaseBackend):
         )
 
         traintuple = self._db.add(traintuple)
-        self._worker.schedule_traintuple(traintuple)
+        self._worker.schedule_task(traintuple)
         return traintuple
 
     def _add_predicttuple(self, key, spec, spec_options=None):
@@ -557,7 +549,7 @@ class Local(base.BaseBackend):
             parent_task_keys=[traintuple.key],
         )
         predicttuple = self._db.add(predicttuple)
-        self._worker.schedule_predicttuple(predicttuple)
+        self._worker.schedule_task(predicttuple)
         return predicttuple
 
     def _add_testtuple(self, key, spec, spec_options=None):
@@ -613,7 +605,7 @@ class Local(base.BaseBackend):
             parent_task_keys=[predicttuple.key],
         )
         testtuple = self._db.add(testtuple)
-        self._worker.schedule_testtuple(testtuple)
+        self._worker.schedule_task(testtuple)
         return testtuple
 
     def _add_composite_traintuple(self, key: str, spec: schemas.CompositeTraintupleSpec, spec_options=None):
@@ -671,7 +663,7 @@ class Local(base.BaseBackend):
         )
         composite_traintuple = self._db.add(composite_traintuple)
         if composite_traintuple.status == models.Status.waiting:
-            self._worker.schedule_traintuple(composite_traintuple)
+            self._worker.schedule_task(composite_traintuple)
         return composite_traintuple
 
     def _add_aggregatetuple(
@@ -686,18 +678,8 @@ class Local(base.BaseBackend):
         assert algo.category == schemas.AlgoCategory.aggregate
 
         in_tuples = list()
-        in_permissions = list()
         for in_tuple_key in spec.in_models_keys:
             in_tuple = self._get_parent_task(in_tuple_key)
-
-            if in_tuple.type_ == schemas.Type.Traintuple:
-                permissions = in_tuple.outputs[TRAIN_IO_MODEL].permissions
-            elif in_tuple.type_ == schemas.Type.Aggregatetuple:
-                permissions = in_tuple.outputs[TRAIN_IO_MODEL].permissions
-            elif in_tuple.type_ == schemas.Type.CompositeTraintuple:
-                permissions = in_tuple.outputs[COMPOSITE_IO_SHARED].permissions
-
-            in_permissions.append(permissions)
             in_tuples.append(in_tuple)
 
         if len(in_tuples) == 0:
@@ -727,10 +709,40 @@ class Local(base.BaseBackend):
         )
         aggregatetuple = self._db.add(aggregatetuple)
         if aggregatetuple.status == models.Status.waiting:
-            self._worker.schedule_traintuple(aggregatetuple)
+            self._worker.schedule_task(aggregatetuple)
         return aggregatetuple
 
+    def _check_inputs_outputs(self, spec, algo_key):
+        algo = self._db.get(schemas.Type.Algo, algo_key)
+        spec_inputs = spec.inputs or list()
+        spec_outputs = spec.outputs or dict()
+
+        error_msg = ""
+        for algo_input in algo.inputs:
+            spec_values = [x for x in spec_inputs if x.identifier == algo_input.identifier]
+            if len(spec_values) == 0 and not algo_input.optional:
+                error_msg += f"  - The input {algo_input.identifier} is not optional according to the algo.\n"
+            if len(spec_values) > 1 and not algo_input.multiple:
+                error_msg += f"  - The input {algo_input.identifier} is not multiple according to the algo.\n"
+
+        if not set([x.identifier for x in spec_inputs]).issubset(set([x.identifier for x in algo.inputs])):
+            error_msg += "  - There are keys in the spec inputs that have not been declared in the algo inputs.\n"
+
+        if not set([x for x in spec_outputs]) == set([x.identifier for x in algo.outputs]):
+            error_msg += (
+                "  - The identifiers in the spec outputs and the algo outputs must match:"
+                f"{spec_outputs.symmetric_difference(algo.outputs)}.\n"
+            )
+
+        if len(error_msg) > 0:
+            raise exceptions.InvalidRequest(f"There are errors in the inputs / outputs fields:\n{error_msg}", "OE0101")
+
     def add(self, spec, spec_options=None, key=None):
+
+        algo_key = getattr(spec, "algo_key", None)
+        if algo_key is not None:
+            self._check_inputs_outputs(spec=spec, algo_key=algo_key)
+
         # find dynamically the method to call to create the asset
         method_name = f"_add_{spec.__class__.type_.value}"
         if spec.is_many():

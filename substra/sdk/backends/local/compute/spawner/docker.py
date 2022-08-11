@@ -14,16 +14,10 @@ from substra.sdk.backends.local.compute.spawner.base import ExecutionError
 logger = logging.getLogger(__name__)
 
 ROOT_DIR = "/substra_internal"
-
 DOCKER_VOLUMES = {
-    "_VOLUME_INPUT_DATASAMPLES": {"bind": f"{ROOT_DIR}/data_samples", "mode": "ro"},
-    "_VOLUME_INPUT_MODELS": {"bind": f"{ROOT_DIR}/in_models", "mode": "ro"},
-    "_VOLUME_OUTPUT_MODELS": {"bind": f"{ROOT_DIR}/out_models", "mode": "rw"},
-    "_VOLUME_OPENER": {"bind": f"{ROOT_DIR}/opener/__init__.py", "mode": "ro"},
-    "_VOLUME_OUTPUT_PRED": {"bind": f"{ROOT_DIR}/pred", "mode": "rw"},
-    "_VOLUME_OUTPUT_PERF": {"bind": f"{ROOT_DIR}/perf", "mode": "rw"},
+    "_VOLUME_INPUTS": {"bind": f"{ROOT_DIR}/inputs", "mode": "ro"},
+    "_VOLUME_OUTPUTS": {"bind": f"{ROOT_DIR}/outputs", "mode": "rw"},
     "_VOLUME_LOCAL": {"bind": f"{ROOT_DIR}/local", "mode": "rw"},
-    "_VOLUME_CHAINKEYS": {"bind": f"{ROOT_DIR}/chainkeys", "mode": "rw"},
 }
 
 
@@ -103,11 +97,8 @@ class Docker(BaseSpawner):
         # by its "bind" value
         volumes_format = {volume_name: volume_path["bind"] for volume_name, volume_path in DOCKER_VOLUMES.items()}
         command = command_template.substitute(**volumes_format)
-        if data_sample_paths is not None:
-            assert "_VOLUME_INPUT_DATASAMPLES" in local_volumes, (
-                "if there are data samples" + "then there must be a Docker volume"
-            )
-            _copy_data_samples(data_sample_paths, local_volumes["_VOLUME_INPUT_DATASAMPLES"])
+        if data_sample_paths is not None and len(data_sample_paths) > 0:
+            _copy_data_samples(data_sample_paths, local_volumes["_VOLUME_INPUTS"])
 
         # create the volumes dict for docker by binding the local_volumes and the DOCKER_VOLUME
         volumes_docker = {

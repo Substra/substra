@@ -165,14 +165,14 @@ class Dataset(_Model):
 
 class AlgoInput(_Model):
     identifier: str
-    kind: str
+    kind: schemas.AssetKind
     optional: bool
     multiple: bool
 
 
 class AlgoOutput(_Model):
     identifier: str
-    kind: str
+    kind: schemas.AssetKind
     multiple: bool
 
 
@@ -236,7 +236,7 @@ class OutModel(schemas._PydanticConfig):
     model of a composite traintuple"""
 
     key: str
-    category: ModelType
+    category: ModelType  # TODO: delete this field
     compute_task_key: str
     address: Optional[InModel]
     permissions: Permissions

@@ -13,6 +13,7 @@ from substra.sdk.exceptions import InvalidRequest
 from substra.sdk.exceptions import KeyAlreadyExistsError
 from substra.sdk.schemas import AlgoCategory
 
+from ..fl_interface import FL_ALGO_PREDICT_COMPOSITE
 from ..fl_interface import FLTaskInputGenerator
 from ..fl_interface import FLTaskOutputGenerator
 
@@ -292,9 +293,6 @@ class TestsDebug:
         data_sample = asset_factory.create_data_sample(datasets=[dataset_2_key], test_only=True)
         sample_2_test_key = client.add_data_sample(data_sample)
 
-        # client.link_dataset_with_data_samples(dataset_1_key, [sample_1_test_key])
-        # client.link_dataset_with_data_samples(dataset_2_key, [sample_2_test_key])
-
         metric = asset_factory.create_algo(category=AlgoCategory.metric)
         metric_1_key = client.add_algo(metric)
 
@@ -303,6 +301,9 @@ class TestsDebug:
 
         algo_query = asset_factory.create_algo(AlgoCategory.simple)
         algo_key = client.add_algo(algo_query)
+
+        predict_algo_spec = asset_factory.create_algo(category=AlgoCategory.predict)
+        predict_algo_key = client.add_algo(predict_algo_spec)
 
         traintuple_id_1 = str(uuid.uuid4())
         traintuple_id_2 = str(uuid.uuid4())
@@ -331,7 +332,7 @@ class TestsDebug:
         cp.predicttuples = [
             substra.sdk.schemas.ComputePlanPredicttupleSpec(
                 predicttuple_id=predicttuple_id_1,
-                algo_key=algo_key,
+                algo_key=predict_algo_key,
                 traintuple_id=traintuple_id_1,
                 data_manager_key=dataset_1_key,
                 test_data_sample_keys=[sample_1_test_key],
@@ -341,7 +342,7 @@ class TestsDebug:
             ),
             substra.sdk.schemas.ComputePlanPredicttupleSpec(
                 predicttuple_id=predicttuple_id_2,
-                algo_key=algo_key,
+                algo_key=predict_algo_key,
                 traintuple_id=traintuple_id_2,
                 data_manager_key=dataset_2_key,
                 test_data_sample_keys=[sample_2_test_key],
@@ -358,7 +359,7 @@ class TestsDebug:
                 data_manager_key=dataset_1_key,
                 test_data_sample_keys=[sample_1_test_key],
                 inputs=FLTaskInputGenerator.tuple(opener_key=dataset_1_key, data_sample_keys=[sample_1_key])
-                + FLTaskInputGenerator.predict_to_test(traintuple_id_1),
+                + FLTaskInputGenerator.predict_to_test(predicttuple_id_1),
                 outputs=FLTaskOutputGenerator.testtuple(),
             ),
             substra.sdk.schemas.ComputePlanTesttupleSpec(
@@ -367,7 +368,7 @@ class TestsDebug:
                 data_manager_key=dataset_2_key,
                 test_data_sample_keys=[sample_2_test_key],
                 inputs=FLTaskInputGenerator.tuple(opener_key=dataset_2_key, data_sample_keys=[sample_2_key])
-                + FLTaskInputGenerator.predict_to_test(traintuple_id_2),
+                + FLTaskInputGenerator.predict_to_test(predicttuple_id_2),
                 outputs=FLTaskOutputGenerator.testtuple(),
             ),
         ]
@@ -467,6 +468,9 @@ class TestsDebug:
         algo_query = asset_factory.create_algo(AlgoCategory.simple)
         algo_key = client.add_algo(algo_query)
 
+        predict_algo_spec = asset_factory.create_algo(category=AlgoCategory.predict)
+        predict_algo_key = client.add_algo(predict_algo_spec)
+
         composite_algo_query = asset_factory.create_algo(AlgoCategory.composite)
         composite_algo_key = client.add_algo(composite_algo_query)
 
@@ -494,10 +498,11 @@ class TestsDebug:
         predicttuple_key = client.add_predicttuple(
             substra.sdk.schemas.PredicttupleSpec(
                 traintuple_key=traintuple_key,
-                algo_key=algo_key,
+                algo_key=predict_algo_key,
                 data_manager_key=dataset_key,
                 test_data_sample_keys=[data_sample_key],
-                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[data_sample_key]),
+                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[data_sample_key])
+                + FLTaskInputGenerator.train_to_predict(traintuple_key),
                 outputs=FLTaskOutputGenerator.predicttuple(),
             )
         )
@@ -515,7 +520,8 @@ class TestsDebug:
                 data_manager_key=dataset_key,
                 test_data_sample_keys=[data_sample_key],
                 algo_key=metric_key,
-                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[data_sample_key]),
+                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[data_sample_key])
+                + FLTaskInputGenerator.predict_to_test(predicttuple_key),
                 outputs=FLTaskOutputGenerator.testtuple(),
             )
         )
@@ -638,6 +644,9 @@ class TestsDebug:
         algo_query = asset_factory.create_algo(AlgoCategory.simple)
         algo_key = client.add_algo(algo_query)
 
+        predict_algo_spec = asset_factory.create_algo(category=AlgoCategory.predict)
+        predict_algo_key = client.add_algo(predict_algo_spec)
+
         metric = asset_factory.create_algo(category=AlgoCategory.metric)
         metric_key = client.add_algo(metric)
 
@@ -653,7 +662,7 @@ class TestsDebug:
         )
 
         predicttuple = substra.sdk.schemas.ComputePlanPredicttupleSpec(
-            algo_key=algo_key,
+            algo_key=predict_algo_key,
             data_manager_key=dataset_key,
             predicttuple_id=str(uuid.uuid4()),
             traintuple_id=traintuple.traintuple_id,
@@ -789,6 +798,9 @@ def test_execute_compute_plan_several_testtuples_per_train(asset_factory, monkey
     algo_query = asset_factory.create_algo(AlgoCategory.simple)
     algo_key = client.add_algo(algo_query)
 
+    predict_algo_spec = asset_factory.create_algo(category=AlgoCategory.predict)
+    predict_algo_key = client.add_algo(predict_algo_spec)
+
     metric = asset_factory.create_algo(category=AlgoCategory.metric)
     metric_key = client.add_algo(metric)
 
@@ -804,7 +816,7 @@ def test_execute_compute_plan_several_testtuples_per_train(asset_factory, monkey
     )
 
     predicttuple = substra.sdk.schemas.ComputePlanPredicttupleSpec(
-        algo_key=algo_key,
+        algo_key=predict_algo_key,
         data_manager_key=dataset_key,
         traintuple_id=traintuple.traintuple_id,
         predicttuple_id=str(uuid.uuid4()),
@@ -848,6 +860,9 @@ def test_two_composite_to_composite(asset_factory, monkeypatch):
 
     algo_query = asset_factory.create_algo(AlgoCategory.composite)
     algo_key = client.add_algo(algo_query)
+
+    predict_algo_spec = asset_factory.create_algo(category=FL_ALGO_PREDICT_COMPOSITE)
+    predict_algo_key = client.add_algo(predict_algo_spec)
 
     metric = asset_factory.create_algo(category=AlgoCategory.metric)
     metric_key = client.add_algo(metric)
@@ -896,7 +911,7 @@ def test_two_composite_to_composite(asset_factory, monkeypatch):
 
     predicttuple_key = str(uuid.uuid4())
     predicttuple = substra.sdk.schemas.ComputePlanPredicttupleSpec(
-        algo_key=algo_key,
+        algo_key=predict_algo_key,
         data_manager_key=dataset_key,
         traintuple_id=composite_3_key,
         predicttuple_id=predicttuple_key,

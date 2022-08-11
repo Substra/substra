@@ -113,11 +113,8 @@ class Subprocess(BaseSpawner):
             # get py_command for subprocess
             py_command = _get_py_command(script_name, tmpdir, command_template, local_volumes)
 
-            if data_sample_paths is not None:
-                assert "_VOLUME_INPUT_DATASAMPLES" in local_volumes, (
-                    "if there are data samples" + "then there must be a Docker volume"
-                )
-                _symlink_data_samples(data_sample_paths, local_volumes["_VOLUME_INPUT_DATASAMPLES"])
+            if data_sample_paths is not None and len(data_sample_paths) > 0:
+                _symlink_data_samples(data_sample_paths, local_volumes["_VOLUME_INPUTS"])
 
             # Catching error and raising to be ISO to the docker local backend
             # Don't capture the output to be able to use pdb

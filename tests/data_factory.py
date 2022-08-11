@@ -9,6 +9,7 @@ import zipfile
 import substra
 from substra.sdk.schemas import AlgoCategory
 
+from .fl_interface import FL_ALGO_PREDICT_COMPOSITE
 from .fl_interface import FLAlgoInputs
 from .fl_interface import FLAlgoOutputs
 
@@ -203,6 +204,7 @@ DEFAULT_ALGO_SCRIPTS = {
     AlgoCategory.aggregate: DEFAULT_AGGREGATE_ALGO_SCRIPT,
     AlgoCategory.predict: DEFAULT_ALGO_SCRIPT,
     AlgoCategory.metric: DEFAULT_METRIC_ALGO_SCRIPT,
+    FL_ALGO_PREDICT_COMPOSITE: DEFAULT_COMPOSITE_ALGO_SCRIPT,
 }
 
 DEFAULT_ALGO_DOCKERFILE = f"""
@@ -363,9 +365,12 @@ class AssetsFactory:
             ),
         )
 
+        spec_category = category
+        if category == FL_ALGO_PREDICT_COMPOSITE:
+            spec_category = substra.schemas.AlgoCategory.predict
         return substra.sdk.schemas.AlgoSpec(
             name=name,
-            category=category,
+            category=spec_category,
             inputs=FLAlgoInputs[category],
             outputs=FLAlgoOutputs[category],
             description=str(description_path),

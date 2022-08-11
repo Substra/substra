@@ -5,10 +5,16 @@ import os
 import pathlib
 import shutil
 import string
-import typing
 import uuid
 from enum import Enum
 from pathlib import Path
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Type
+from typing import Union
 
 from substra.sdk import exceptions
 from substra.sdk import fs
@@ -18,16 +24,7 @@ from substra.sdk.backends.local import dal
 from substra.sdk.backends.local.compute import spawner
 from substra.sdk.backends.local.compute.spawner import BaseSpawner
 
-TASK_IO_PREDICTIONS = "predictions"
-TASK_IO_OPENER = "opener"
 TASK_IO_LOCALFOLDER = "localfolder"
-TASK_IO_CHAINKEYS = "chainkeys"
-TASK_IO_DATASAMPLES = "datasamples"
-TRAIN_IO_MODELS = "models"
-TRAIN_IO_MODEL = "model"
-COMPOSITE_IO_SHARED = "shared"
-COMPOSITE_IO_LOCAL = "local"
-TEST_IO_PERFORMANCE = "performance"
 
 
 class TaskResource(dict):
@@ -36,25 +33,22 @@ class TaskResource(dict):
 
 
 class Filenames(str, Enum):
-    OUT_MODEL = "out-model"
-    OUT_HEAD_MODEL = "out-head-model"
-    OUT_TRUNK_MODEL = "out-trunk-model"
-    PREDICTIONS = "predictions"
-    PERFORMANCE = "perf.json"
+    OPENER = "opener.py"  # The name must end in .py for connect-tools module loading
 
 
 def _mkdir(path, delete_if_exists=False):
     """Make directory (recursive)."""
-    if os.path.exists(path):
+    path = Path(path)
+    if path.exists():
         if not delete_if_exists:
             return path
         shutil.rmtree(path)
-    os.makedirs(path)
+    path.mkdir(parents=True)
     return path
 
 
-def _get_address_in_container(model_key, volume, container_volume):
-    return pathlib.Path(os.path.join(volume, model_key).replace(volume, container_volume))
+def _generate_filename():
+    return str(uuid.uuid4())
 
 
 class Worker:
@@ -65,7 +59,7 @@ class Worker:
         db: dal.DataAccess,
         local_worker_dir: pathlib.Path,
         support_chainkeys: bool,
-        debug_spawner: typing.Type[BaseSpawner],
+        debug_spawner: Type[BaseSpawner],
         chainkey_dir=None,
     ):
         self._local_worker_dir = local_worker_dir
@@ -74,80 +68,13 @@ class Worker:
         self._support_chainkeys = support_chainkeys
         self._chainkey_dir = chainkey_dir
 
-    def _has_chainkey(self):
-        # checks if chainkey exists in the chainkey_dir
-        return os.path.exists(self._chainkey_dir / "organization_name_id.json")
-
-    def _get_chainkey_volume(self, tuple_):
-        compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_key)
-        tuple_chainkey_volume = self._chainkey_dir / tuple_.worker / "computeplan" / compute_plan.tag / "chainkeys"
-        if not tuple_chainkey_volume.is_dir():
-            return None
-        return tuple_chainkey_volume
-
-    def _get_chainkey_env(self, tuple_):
-        organization_name_id = json.loads((self._chainkey_dir / "organization_name_id.json").read_text())
-        return {
-            "ORGANIZATION_INDEX": str(organization_name_id.get(tuple_.worker, None)),
-        }
-
-    def _get_data_sample_paths_arg(self, data_sample_keys: typing.List[str], data_volume: str) -> typing.List[str]:
-        """Get the path to the data samples in the container or temp folder"""
-        data_sample_paths = [os.path.join(data_volume, key) for key in data_sample_keys]
-        return data_sample_paths
-
-    def _get_data_sample_paths(
-        self, tuple_: typing.Union[models.Traintuple, models.CompositeTraintuple, models.Testtuple]
-    ) -> typing.Dict[str, pathlib.Path]:
-        """Get the data sample key / original path matching"""
-        if isinstance(tuple_, models.Traintuple):
-            data_sample_keys = tuple_.train.data_sample_keys
-        elif isinstance(tuple_, models.CompositeTraintuple):
-            data_sample_keys = tuple_.composite.data_sample_keys
-        elif isinstance(tuple_, models.Testtuple):
-            data_sample_keys = tuple_.test.data_sample_keys
-        elif isinstance(tuple_, models.Predicttuple):
-            data_sample_keys = tuple_.predict.data_sample_keys
-        samples = [self._db.get(schemas.Type.DataSample, key) for key in data_sample_keys]
-        return {sample.key: sample.path for sample in samples}
-
-    def _save_output_model(self, tuple_, model_name, models_volume, permissions) -> models.OutModel:
-        if model_name == Filenames.OUT_HEAD_MODEL:
-            category = models.ModelType.head
-        elif model_name == Filenames.OUT_TRUNK_MODEL:
-            category = models.ModelType.simple
-        elif model_name == Filenames.OUT_MODEL:
-            category = models.ModelType.simple
-        elif model_name == Filenames.PREDICTIONS:
-            category = models.ModelType.simple
-        else:
-            raise Exception(f"TODO write - Unknown model name {model_name}")
-
-        tmp_path = os.path.join(models_volume, model_name)
-        model_dir = _mkdir(os.path.join(self._local_worker_dir, "models", tuple_.key))
-        model_path = os.path.join(model_dir, model_name)
-        shutil.copy(tmp_path, model_path)
-
-        return models.OutModel(
-            key=str(uuid.uuid4()),
-            category=category,
-            compute_task_key=tuple_.key,
-            address=models.InModel(
-                checksum=fs.hash_file(model_path),
-                storage_address=model_path,
-            ),
-            creation_date=datetime.datetime.now(),
-            owner=tuple_.worker,  # TODO: check this
-            permissions=permissions,  # TODO: check this
-        )
-
     @contextlib.contextmanager
     def _context(self, key):
         try:
             tmp_dir = _mkdir(os.path.join(self._local_worker_dir, key))
-            yield tmp_dir
+            yield Path(tmp_dir)
         finally:
-            # delete tuple working directory
+            # delete task working directory
             shutil.rmtree(tmp_dir, ignore_errors=True)
 
     def _save_cp_performances_as_json(self, compute_plan_key: str, path: Path):
@@ -158,578 +85,316 @@ class Worker:
         with (path).open("w", encoding="UTF-8") as json_file:
             json.dump(performances.dict(), json_file, default=str)
 
-    def _composite_trunk_to_trunk(self, in_tuple, input_models_volume):
-        # get the trunk from composite in_tuple and return the TaskRessource to set it as model trunk
-        input_models = [m for m in in_tuple.composite.models if m.category == models.ModelType.simple]
-        assert len(input_models) == 1, f"Unavailable input model {input_models}"
-        input_model = input_models[0]
-        os.link(
-            input_model.address.storage_address,
-            os.path.join(input_models_volume, "input_trunk_model"),
-        )
-        trunk_model_container_address = _get_address_in_container(
-            "input_trunk_model",
-            input_models_volume,
-            "${_VOLUME_INPUT_MODELS}",
-        )
+    def _get_asset_unknown_type(self, asset_key, possible_types: List[schemas.Type]) -> Tuple[Any, schemas.Type]:
+        for asset_type in possible_types:
+            try:
+                asset = self._db.get(asset_type, asset_key)
+                break
+            except exceptions.NotFound:
+                pass
+        if asset is None:
+            raise exceptions.NotFound(f"Wrong pk {asset_key}", 404)
+        return asset, asset_type
 
-        return TaskResource(id=COMPOSITE_IO_SHARED, value=str(trunk_model_container_address))
+    def _update_cp(self, compute_plan: models.ComputePlan, update_live_performances: bool):
+        compute_plan.done_count += 1
+        compute_plan.todo_count -= 1
+        if compute_plan.done_count == compute_plan.task_count:
+            compute_plan.status = models.ComputePlanStatus.done
+            compute_plan.end_date = datetime.datetime.now()
+            compute_plan.estimated_end_date = compute_plan.end_date
 
-    def _composite_head_to_head(self, in_tuple, input_models_volume):
-        input_models = [m for m in in_tuple.composite.models if m.category == models.ModelType.head]
-        assert len(input_models) == 1, f"Unavailable input model {input_models}"
-        input_model = input_models[0]
+            compute_plan.duration = int((compute_plan.end_date - compute_plan.start_date).total_seconds())
 
-        os.link(
-            input_model.address.storage_address,
-            os.path.join(input_models_volume, "input_head_model"),
-        )
-        head_model_container_address = _get_address_in_container(
-            "input_head_model",
-            input_models_volume,
-            "${_VOLUME_INPUT_MODELS}",
-        )
+        # save live performances
+        if update_live_performances:
+            live_perf_path = Path(self._local_worker_dir / "live_performances" / compute_plan.key / "performances.json")
+            _mkdir(live_perf_path.parent)
+            self._save_cp_performances_as_json(compute_plan.key, live_perf_path)
 
-        return TaskResource(id=COMPOSITE_IO_LOCAL, value=str(head_model_container_address))
+    def _get_command_template_cmd(self, task):
+        # Type of task being executed
+        if isinstance(task, models.Aggregatetuple):
+            return "aggregate"
+        elif isinstance(task, (models.CompositeTraintuple, models.Traintuple)):
+            return "train"
+        elif isinstance(task, models.Predicttuple):
+            return "predict"
+        elif isinstance(task, models.Testtuple):
+            return ""
+        else:
+            raise ValueError(f"Unsupported type of task {type(task)}")
 
-    def _aggregate_to_trunk(self, in_tuple, input_models_volume):
-        assert in_tuple.aggregate.models is not None and len(in_tuple.aggregate.models) == 1
-        input_model = in_tuple.aggregate.models[0]
-
-        os.link(input_model.address.storage_address, os.path.join(input_models_volume, "input_trunk_model"))
-        trunk_model_container_address = _get_address_in_container(
-            "input_trunk_model",
-            input_models_volume,
-            "${_VOLUME_INPUT_MODELS}",
-        )
-        return TaskResource(id=COMPOSITE_IO_SHARED, value=str(trunk_model_container_address))
-
-    # TODO: 'schedule_traintuple' is too complex, consider refactoring
-    def schedule_traintuple(  # noqa: C901
-        self, tuple_: typing.Union[models.Traintuple, models.Aggregatetuple, models.CompositeTraintuple]
+    def _get_cmd_template_inputs_outputs(
+        self,
+        task,
+        cmd_line_inputs,
+        output_id_filename,
     ):
-        """Schedules a ML task (blocking)."""
-        with self._context(tuple_.key) as tuple_dir:
-            tuple_.status = models.Status.doing
-            tuple_.start_date = datetime.datetime.now()
+        command_template = ""
 
-            # If we are using fake data samples or an aggregate task, is None
-            data_sample_paths = None
-            inputs: typing.List[TaskResource] = []
-            outputs: typing.List[TaskResource] = []
-
-            # fetch dependencies
-            algo = self._db.get_with_files(schemas.Type.Algo, tuple_.algo.key)
-
-            compute_plan = None
-            if tuple_.compute_plan_key:
-                compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_key)
-
-            volumes = dict()
-
-            if isinstance(tuple_, models.Aggregatetuple):
-                command_template = "aggregate"
-            else:
-                command_template = "train"
-                inputs.append(TaskResource(id=TASK_IO_OPENER, value="${_VOLUME_OPENER}"))
-
-            # Prepare input models
-            in_tuples = list()
-            if tuple_.parent_task_keys is not None and len(tuple_.parent_task_keys) > 0:
-                for in_tuple_key in tuple_.parent_task_keys:
-                    in_tuple = None
-                    for tuple_type in [
-                        schemas.Type.Traintuple,
-                        schemas.Type.CompositeTraintuple,
-                        schemas.Type.Aggregatetuple,
-                    ]:
-                        try:
-                            in_tuple = self._db.get(tuple_type, in_tuple_key)
-                            break
-                        except exceptions.NotFound:
-                            pass
-                    if in_tuple is None:
-                        raise exceptions.NotFound(f"Wrong pk {in_tuple_key}", 404)
-
-                    if in_tuple not in in_tuples:
-                        in_tuples.append(in_tuple)
-
-            input_models_volume = _mkdir(os.path.join(tuple_dir, "input_models"))
-            volumes["_VOLUME_INPUT_MODELS"] = input_models_volume
-
-            if isinstance(tuple_, models.CompositeTraintuple):
-                # the order of the task is defined here: substra.sdk.compute_plan.get_dependency_graph
-                assert len(in_tuples) <= 2
-
-                for k, in_tuple in enumerate(in_tuples):
-                    if isinstance(in_tuple, models.CompositeTraintuple):
-                        if k == 0:
-
-                            head_task = self._composite_head_to_head(
-                                in_tuple=in_tuple, input_models_volume=input_models_volume
-                            )
-                            inputs.append(head_task)
-
-                            if len(in_tuples) == 1:  # No other trunk
-                                trunk_task = self._composite_trunk_to_trunk(
-                                    in_tuple=in_tuple, input_models_volume=input_models_volume
-                                )
-                                inputs.append(trunk_task)
-
-                        # Second composite is passed as trunk
-                        if k == 1:
-                            trunk_task = self._composite_trunk_to_trunk(
-                                in_tuple=in_tuple, input_models_volume=input_models_volume
-                            )
-                            inputs.append(trunk_task)
-
-                    elif isinstance(in_tuple, models.Aggregatetuple):
-                        trunk_task = self._aggregate_to_trunk(
-                            in_tuple=in_tuple, input_models_volume=input_models_volume
-                        )
-                        inputs.append(trunk_task)
-
-                    else:
-                        raise Exception("TODO write this - cannot link traintuple to composite")
-
-            else:
-                # The tuple is a traintuple or an aggregate traintuple
-                for idx, in_tuple in enumerate(in_tuples):
-                    if isinstance(in_tuple, models.CompositeTraintuple):
-                        input_models = [m for m in in_tuple.composite.models if m.category == models.ModelType.simple]
-                        assert len(input_models) == 1, f"Unavailable input model {input_models}"
-                        input_model = input_models[0]
-                    elif isinstance(in_tuple, models.Traintuple):
-                        assert in_tuple.train.models is not None and len(in_tuple.train.models) == 1
-                        input_model = in_tuple.train.models[0]
-                    elif isinstance(in_tuple, models.Aggregatetuple):
-                        assert in_tuple.aggregate.models is not None and len(in_tuple.aggregate.models) == 1
-                        input_model = in_tuple.aggregate.models[0]
-                    else:
-                        raise Exception(f"TODO write this - unknown input model type {in_tuple}")
-
-                    model_filename = f"{idx}_{input_model.key}"
-                    os.link(input_model.address.storage_address, os.path.join(input_models_volume, model_filename))
-
-                    inputs.append(
-                        TaskResource(id=TRAIN_IO_MODELS, value="${_VOLUME_INPUT_MODELS}/" f"{model_filename}")
-                    )
-
-            # Prepare the out model command
-            output_models_volume = _mkdir(os.path.join(tuple_dir, "output_models"))
-            volumes["_VOLUME_OUTPUT_MODELS"] = output_models_volume
-
-            if isinstance(tuple_, models.CompositeTraintuple):
-                outputs.append(
-                    TaskResource(
-                        id=COMPOSITE_IO_SHARED, value="${_VOLUME_OUTPUT_MODELS}/" f"{Filenames.OUT_TRUNK_MODEL}"
-                    )
-                )
-                outputs.append(
-                    TaskResource(id=COMPOSITE_IO_LOCAL, value="${_VOLUME_OUTPUT_MODELS}/" f"{Filenames.OUT_HEAD_MODEL}")
-                )
-            else:
-                outputs.append(
-                    TaskResource(id=TRAIN_IO_MODEL, value="${_VOLUME_OUTPUT_MODELS}/" f"{Filenames.OUT_MODEL}")
-                )
-
-            # Prepare the data
-            if not isinstance(tuple_, models.Aggregatetuple):
-                # if this is a traintuple or composite traintuple, prepare the data
-                if isinstance(tuple_, models.Traintuple):
-                    dataset_key = tuple_.train.data_manager_key
-                    train_data_sample_keys = tuple_.train.data_sample_keys
-                if isinstance(tuple_, models.CompositeTraintuple):
-                    dataset_key = tuple_.composite.data_manager_key
-                    train_data_sample_keys = tuple_.composite.data_sample_keys
-
-                dataset = self._db.get_with_files(schemas.Type.Dataset, dataset_key)
-                volumes["_VOLUME_OPENER"] = dataset.opener.storage_address
-                if self._db.is_local(dataset_key, schemas.Type.Dataset):
-                    volumes["_VOLUME_INPUT_DATASAMPLES"] = _mkdir(os.path.join(tuple_dir, "data"))
-                    data_sample_paths = self._get_data_sample_paths(tuple_)
-                    data_sample_paths_arg_str = self._get_data_sample_paths_arg(
-                        train_data_sample_keys,
-                        data_volume="${_VOLUME_INPUT_DATASAMPLES}",
-                    )
-                    inputs.extend(
-                        [
-                            TaskResource(id=TASK_IO_DATASAMPLES, value=data_sample_path_arg)
-                            for data_sample_path_arg in data_sample_paths_arg_str
-                        ]
-                    )
-
-                else:
-                    command_template += " --fake-data"
-                    command_template += f" --n-fake-samples {len(dataset.train_data_sample_keys)}"
-
-            # Prepare the shared compute plan volume
-            if tuple_.compute_plan_key:
-                local_volume = _mkdir(
-                    os.path.join(self._local_worker_dir, "compute_plans", tuple_.worker, tuple_.compute_plan_key)
-                )
-                volumes["_VOLUME_LOCAL"] = local_volume
-                inputs.append(TaskResource(id=TASK_IO_LOCALFOLDER, value="${_VOLUME_LOCAL}"))
-
-                if self._support_chainkeys and self._has_chainkey():
-                    chainkey_volume = self._get_chainkey_volume(tuple_)
-                    if chainkey_volume is not None:
-                        volumes["_VOLUME_CHAINKEYS"] = chainkey_volume
-                        inputs.append(TaskResource(id=TASK_IO_CHAINKEYS, value="${_VOLUME_CHAINKEYS}"))
-
-            command_template += f" --rank {tuple_.rank}"
-
-            # Get the environment variables
-            envs = dict()
-            if tuple_.compute_plan_key:
-                if self._support_chainkeys and self._has_chainkey():
-                    envs.update(self._get_chainkey_env(tuple_))
-
-            command_template = (
-                command_template
-                + " --inputs '"
-                + json.dumps(inputs)
-                + "' --outputs '"
-                + json.dumps(outputs)
-                + "' --log-level "
-                + "warning"
+        cmd_line_outputs: List[TaskResource] = [
+            TaskResource(
+                id=output_id,
+                value="${_VOLUME_OUTPUTS}/" f"{filename}",
             )
-            # Execute the tuple
+            for output_id, filename in output_id_filename.items()
+        ]
+
+        if isinstance(task, models.Testtuple):
+            command_template += " --opener-path ${_VOLUME_INPUTS}" f"/{Filenames.OPENER}"
+            command_template += " --output-perf-path " f"/{cmd_line_outputs[0]['value']}"
+        else:
+            if not isinstance(task, models.Predicttuple):
+                command_template += f" --rank {task.rank}"
+            command_template += (
+                " --inputs "
+                + "'"
+                + json.dumps(cmd_line_inputs, default=str)
+                + "'"
+                + " --outputs "
+                + "'"
+                + json.dumps(cmd_line_outputs, default=str)
+                + "'"
+            )
+        return command_template
+
+    def _prepare_artifact_input(self, task_input, input_volume):
+        in_task, _ = self._get_asset_unknown_type(
+            asset_key=task_input.parent_task_key,
+            possible_types=[
+                schemas.Type.Aggregatetuple,
+                schemas.Type.CompositeTraintuple,
+                schemas.Type.Predicttuple,
+                schemas.Type.Testtuple,
+                schemas.Type.Traintuple,
+            ],
+        )
+        input_artifact = in_task.outputs[task_input.parent_task_output_identifier].value
+        assert isinstance(
+            input_artifact, models.OutModel
+        ), "The task_input value must be an artifact, not a performance"
+        filename = _generate_filename()
+        path_to_input = input_volume / filename
+        Path(input_artifact.address.storage_address).link_to(path_to_input)
+
+        return TaskResource(id=task_input.identifier, value=str(Path("${_VOLUME_INPUTS}") / filename))
+
+    def _prepare_dataset_input(self, dataset: models.Dataset, task_input: models.InputRef, input_volume: str):
+        path_to_opener = input_volume / Filenames.OPENER.value
+        Path(dataset.opener.storage_address).link_to(path_to_opener)
+        return TaskResource(id=task_input.identifier, value=str(Path("${_VOLUME_INPUTS}") / Filenames.OPENER.value))
+
+    def _prepare_datasample_input(
+        self, datasample_input_refs: List[models.InputRef], datasamples: List[models.DataSample]
+    ) -> Tuple[List[TaskResource], Dict[str, str]]:
+        task_resources = list()
+        data_sample_paths = dict()
+        for datasample_input, datasample in zip(datasample_input_refs, datasamples):
+            datasample_path_arg = str(Path("${_VOLUME_INPUTS}") / datasample_input.asset_key)
+            task_resources.append(TaskResource(id=datasample_input.identifier, value=str(datasample_path_arg)))
+            data_sample_paths[datasample.key] = datasample.path
+        return task_resources, data_sample_paths
+
+    def _prepare_datasamples_inputs_and_paths(
+        self,
+        task,
+        dataset: models.Dataset,
+        datasamples: List[models.DataSample],
+        datasample_input_refs: List[models.InputRef],
+    ) -> Tuple[str, List[TaskResource], Optional[Dict[str, str]]]:
+        command_template = ""
+        datasample_task_resources = list()
+        data_sample_paths = None
+
+        if len(datasamples) == 0:
+            pass
+        elif dataset is not None and not self._db.is_local(dataset.key, schemas.Type.Dataset):
+            # Hybrid mode
+            if isinstance(task, models.Testtuple):
+                command_template += " --fake-data-mode FAKE_Y"
+            else:
+                command_template += " --fake-data"
+            command_template += f" --n-fake-samples {len(datasample_input_refs)}"
+        else:
+            datasample_task_resources, data_sample_paths = self._prepare_datasample_input(
+                datasample_input_refs=datasample_input_refs, datasamples=datasamples
+            )
+            if isinstance(task, models.Testtuple):
+                data_sample_paths_arg_str = " ".join([task_res["value"] for task_res in datasample_task_resources])
+                command_template += " --fake-data-mode DISABLED"
+                command_template += f" --data-sample-paths {data_sample_paths_arg_str}"
+
+        return command_template, datasample_task_resources, data_sample_paths
+
+    def _update_deprecated_fields(self, task, value: Union[float, models.OutModel], algo_key: str):
+        if isinstance(task, models.Aggregatetuple):
+            task.aggregate.models = [value]
+        elif isinstance(task, models.CompositeTraintuple):
+            if task.composite.models is None:
+                task.composite.models = list()
+            task.composite.models.append(value)
+        elif isinstance(task, models.Predicttuple):
+            task.predict.models = [value]
+        elif isinstance(task, models.Testtuple):
+            task.test.perfs[algo_key] = value
+        elif isinstance(task, models.Traintuple):
+            task.train.models = [value]
+        else:
+            raise ValueError(f"Unsupported type of task {type(task)}")
+
+    def _save_output(
+        self,
+        task,
+        algo_output: models.AlgoOutput,
+        output_id_filename: Dict[str, str],
+        output_volume: str,
+        algo_key: str,
+    ) -> bool:
+        update_live_performances = False
+        if algo_output.multiple:
+            raise NotImplementedError("Multiple output value is not supported yet.")
+        filename = output_id_filename[algo_output.identifier]
+        tmp_path = output_volume / filename
+        output_dir = _mkdir(self._local_worker_dir / "outputs" / task.key)
+        output_path = output_dir / filename
+        shutil.copy(tmp_path, output_path)
+
+        if algo_output.kind == schemas.AssetKind.performance:
+            update_live_performances = True
+            perf = json.loads(output_path.read_text())["all"]
+            task.outputs[algo_output.identifier].value = perf
+            value = perf
+        elif algo_output.kind == schemas.AssetKind.model:
+            category = models.ModelType.simple
+            if algo_output.identifier == "local":
+                category = models.ModelType.head
+
+            value = models.OutModel(
+                key=str(uuid.uuid4()),
+                category=category,
+                compute_task_key=task.key,
+                address=models.InModel(
+                    checksum=fs.hash_file(output_path),
+                    storage_address=output_path,
+                ),
+                creation_date=datetime.datetime.now(),
+                owner=task.owner,
+                permissions=task.outputs[algo_output.identifier].permissions,
+            )
+            task.outputs[algo_output.identifier].value = value
+
+        else:
+            raise ValueError(f"This asset kind is not supported for algo output: {algo_output.kind}")
+
+        self._update_deprecated_fields(task=task, value=value, algo_key=algo_key)
+        return update_live_performances
+
+    def schedule_task(self, task: models._GenericTraintuple):
+        """Execute the task
+
+        Args:
+            task: Task to execute
+        """
+        with self._context(task.key) as task_dir:
+
+            task.status = models.Status.doing
+            task.start_date = datetime.datetime.now()
+
+            algo = self._db.get_with_files(schemas.Type.Algo, task.algo.key)
+            compute_plan = self._db.get(schemas.Type.ComputePlan, task.compute_plan_key)
+
+            command_template: str = self._get_command_template_cmd(task=task)
+
+            volumes = {
+                "_VOLUME_INPUTS": _mkdir(task_dir / "inputs"),
+                "_VOLUME_OUTPUTS": _mkdir(task_dir / "outputs"),
+                "_VOLUME_LOCAL": _mkdir(self._local_worker_dir / "compute_plans" / task.worker / task.compute_plan_key),
+            }
+
+            cmd_line_inputs: List[TaskResource] = [TaskResource(id=TASK_IO_LOCALFOLDER, value="${_VOLUME_LOCAL}")]
+
+            dataset: Optional[models.Dataset] = None
+            data_sample_paths: Optional[Dict[str, str]] = None
+
+            datasample_input_refs: List[models.InputRef] = list()
+            datasamples: List[models.DataSample] = list()
+
+            # Prepare inputs
+            for task_input in task.inputs:
+                if task_input.parent_task_key is not None:
+                    task_resource = self._prepare_artifact_input(
+                        task_input=task_input, input_volume=volumes["_VOLUME_INPUTS"]
+                    )
+                    cmd_line_inputs.append(task_resource)
+                    if isinstance(task, models.Testtuple):
+                        command_template += " --input-predictions-path " f"{task_resource['value']}"
+                else:
+                    asset, asset_type = self._get_asset_unknown_type(
+                        asset_key=task_input.asset_key, possible_types=[schemas.Type.DataSample, schemas.Type.Dataset]
+                    )
+                    if asset_type == schemas.Type.DataSample:
+                        # This is necessary because of the hybrid mode
+                        # Otherwise could process the task_input here
+                        datasample_input_refs.append(task_input)
+                        datasamples.append(asset)
+                    elif asset_type == schemas.Type.Dataset:
+                        dataset = self._db.get_with_files(schemas.Type.Dataset, task_input.asset_key)
+                        cmd_line_inputs.append(
+                            self._prepare_dataset_input(
+                                dataset=dataset,
+                                task_input=task_input,
+                                input_volume=volumes["_VOLUME_INPUTS"],
+                            )
+                        )
+
+            (
+                datasample_cmd_template,
+                datasample_task_resources,
+                data_sample_paths,
+            ) = self._prepare_datasamples_inputs_and_paths(
+                task=task,
+                dataset=dataset,
+                datasamples=datasamples,
+                datasample_input_refs=datasample_input_refs,
+            )
+            command_template += datasample_cmd_template
+            cmd_line_inputs.extend(datasample_task_resources)
+
+            # Prepare the outputs
+            output_id_filename: Dict[str, str] = {output_id: _generate_filename() for output_id in task.outputs}
+
+            command_template += self._get_cmd_template_inputs_outputs(
+                task=task,
+                cmd_line_inputs=cmd_line_inputs,
+                output_id_filename=output_id_filename,
+            )
+            command_template += " --log-level warning"
+
+            # Task execution
             container_name = f"algo-{algo.algorithm.checksum}"
             self._spawner.spawn(
                 container_name,
                 str(algo.algorithm.storage_address),
                 command_template=string.Template(command_template),
                 local_volumes=volumes,
-                envs=envs,
-                data_sample_paths=data_sample_paths,
-            )
-
-            # save move output models
-            if isinstance(tuple_, models.CompositeTraintuple):
-                head_model = self._save_output_model(
-                    tuple_,
-                    Filenames.OUT_HEAD_MODEL,
-                    output_models_volume,
-                    permissions=tuple_.outputs[COMPOSITE_IO_LOCAL].permissions,
-                )
-                trunk_model = self._save_output_model(
-                    tuple_,
-                    Filenames.OUT_TRUNK_MODEL,
-                    output_models_volume,
-                    permissions=tuple_.outputs[COMPOSITE_IO_SHARED].permissions,
-                )
-                tuple_.composite.models = [head_model, trunk_model]
-                tuple_.outputs[COMPOSITE_IO_LOCAL].value = head_model
-                tuple_.outputs[COMPOSITE_IO_SHARED].value = trunk_model
-            elif isinstance(tuple_, models.Traintuple):
-                out_model = self._save_output_model(
-                    tuple_, Filenames.OUT_MODEL, output_models_volume, tuple_.outputs[TRAIN_IO_MODEL].permissions
-                )
-                tuple_.train.models = [out_model]
-                tuple_.outputs[TRAIN_IO_MODEL].value = out_model
-            elif isinstance(tuple_, models.Aggregatetuple):
-                out_model = self._save_output_model(
-                    tuple_, Filenames.OUT_MODEL, output_models_volume, tuple_.outputs[TRAIN_IO_MODEL].permissions
-                )
-                tuple_.aggregate.models = [out_model]
-                tuple_.outputs[TRAIN_IO_MODEL].value = out_model
-
-            # set status
-            tuple_.status = models.Status.done
-            tuple_.end_date = datetime.datetime.now()
-
-            if tuple_.compute_plan_key:
-                compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_key)
-                compute_plan.done_count += 1
-                compute_plan.todo_count -= 1
-                if compute_plan.done_count == compute_plan.task_count:
-                    compute_plan.status = models.ComputePlanStatus.done
-                    compute_plan.end_date = datetime.datetime.now()
-                    compute_plan.estimated_end_date = compute_plan.end_date
-
-                    compute_plan.duration = int((compute_plan.end_date - compute_plan.start_date).total_seconds())
-
-    # TODO: 'schedule_predicttuple' is too complex, consider refactoring
-    def schedule_predicttuple(self, tuple_: models.Testtuple):  # noqa: C901
-        """Schedules a ML task (blocking)."""
-        with self._context(tuple_.key) as tuple_dir:
-            tuple_.status = models.Status.doing
-            tuple_.start_date = datetime.datetime.now()
-
-            # If we are using fake data samples or an aggregate task, is None
-            data_sample_paths = None
-
-            # fetch dependencies
-            assert len(tuple_.parent_task_keys) == 1
-            traintuple = None
-            for traintuple_type in [
-                schemas.Type.Traintuple,
-                schemas.Type.CompositeTraintuple,
-                schemas.Type.Aggregatetuple,
-            ]:
-                try:
-                    traintuple = self._db.get(traintuple_type, tuple_.parent_task_keys[0])
-                    break
-                except exceptions.NotFound:
-                    pass
-            if traintuple is None:
-                raise exceptions.NotFound(f"Wrong pk {tuple_.parent_task_keys[0]}", 404)
-
-            algo = self._db.get_with_files(schemas.Type.Algo, tuple_.algo.key)
-            dataset = self._db.get_with_files(schemas.Type.Dataset, tuple_.predict.data_manager_key)
-
-            compute_plan = None
-            if tuple_.compute_plan_key:
-                compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_key)
-
-            # prepare model and datasamples
-            predictions_volume = _mkdir(os.path.join(tuple_dir, "pred"))
-            models_volume = _mkdir(os.path.join(tuple_dir, "models"))
-
-            volumes = {
-                "_VOLUME_OPENER": dataset.opener.storage_address,
-                "_VOLUME_INPUT_MODELS": models_volume,
-                "_VOLUME_OUTPUT_PRED": predictions_volume,
-            }
-
-            # compute testtuple command_template
-            command_template = "predict"
-            inputs = []
-            outputs = []
-
-            if tuple_.compute_plan_key:
-                local_volume = _mkdir(
-                    os.path.join(self._local_worker_dir, "compute_plans", tuple_.worker, tuple_.compute_plan_key)
-                )
-                volumes["_VOLUME_LOCAL"] = local_volume
-                inputs.append(TaskResource(id=TASK_IO_LOCALFOLDER, value="${_VOLUME_LOCAL}"))
-                if self._support_chainkeys and self._has_chainkey():
-                    chainkey_volume = self._get_chainkey_volume(tuple_)
-                    volumes["_VOLUME_CHAINKEYS"] = chainkey_volume
-                    inputs.append(TaskResource(id=TASK_IO_CHAINKEYS, value="${_VOLUME_CHAINKEYS}"))
-
-            if isinstance(traintuple, models.Traintuple):
-                assert traintuple.train.models is not None and len(traintuple.train.models) == 1
-                in_testtuple_model = traintuple.train.models[0]
-                os.link(
-                    in_testtuple_model.address.storage_address,
-                    os.path.join(models_volume, in_testtuple_model.key),
-                )
-                model_container_address = _get_address_in_container(
-                    in_testtuple_model.key, models_volume, "${_VOLUME_INPUT_MODELS}"
-                )
-                inputs.append(TaskResource(id=TRAIN_IO_MODELS, value=str(model_container_address)))
-
-            elif isinstance(traintuple, models.Aggregatetuple):
-                assert traintuple.aggregate.models is not None and len(traintuple.aggregate.models) == 1
-                in_testtuple_model = traintuple.aggregate.models[0]
-                os.link(
-                    in_testtuple_model.address.storage_address,
-                    os.path.join(models_volume, in_testtuple_model.key),
-                )
-                model_container_address = _get_address_in_container(
-                    in_testtuple_model.key, models_volume, "${_VOLUME_INPUT_MODELS}"
-                )
-                inputs.append(TaskResource(id=TRAIN_IO_MODELS, value=str(model_container_address)))
-
-            elif isinstance(traintuple, models.CompositeTraintuple):
-                assert traintuple.composite.models is not None and len(traintuple.composite.models) == 2
-                for in_testtuple_model in traintuple.composite.models:
-                    os.link(
-                        in_testtuple_model.address.storage_address,
-                        os.path.join(models_volume, in_testtuple_model.key),
-                    )
-                    address_in_container = _get_address_in_container(
-                        in_testtuple_model.key,
-                        models_volume,
-                        "${_VOLUME_INPUT_MODELS}",
-                    )
-                    if in_testtuple_model.category == models.ModelType.head:
-                        id_ = COMPOSITE_IO_LOCAL
-                    elif in_testtuple_model.category == models.ModelType.simple:
-                        id_ = COMPOSITE_IO_SHARED
-
-                    inputs.append(TaskResource(id=id_, value=str(address_in_container)))
-
-            if self._db.is_local(dataset.key, schemas.Type.Dataset):
-                volumes["_VOLUME_INPUT_DATASAMPLES"] = _mkdir(os.path.join(tuple_dir, "data"))
-                data_sample_paths = self._get_data_sample_paths(tuple_)
-                data_sample_paths_arg_str = self._get_data_sample_paths_arg(
-                    tuple_.predict.data_sample_keys,
-                    data_volume="${_VOLUME_INPUT_DATASAMPLES}",
-                )
-
-                inputs.extend(
-                    [
-                        TaskResource(id=TASK_IO_DATASAMPLES, value=data_sample_path_arg)
-                        for data_sample_path_arg in data_sample_paths_arg_str
-                    ]
-                )
-            else:
-                command_template += " --fake-data"
-                command_template += f" --n-fake-samples {len(tuple_.predict.data_sample_keys)}"
-
-            inputs.append(TaskResource(id=TASK_IO_OPENER, value="${_VOLUME_OPENER}"))
-            outputs.append(
-                TaskResource(id=TASK_IO_PREDICTIONS, value="${_VOLUME_OUTPUT_PRED}" + f"/{Filenames.PREDICTIONS}")
-            )
-            command_template = (
-                command_template
-                + " --inputs '"
-                + json.dumps(inputs)
-                + "' --outputs '"
-                + json.dumps(outputs)
-                + "' --log-level "
-                + "warning"
-            )
-            container_name = f"algo-{algo.algorithm.checksum}"
-            self._spawner.spawn(
-                name=container_name,
-                archive_path=str(algo.algorithm.storage_address),
-                command_template=string.Template(command_template),
-                local_volumes=volumes,
                 data_sample_paths=data_sample_paths,
                 envs=None,
             )
 
-            # save move output models
-            prediction = self._save_output_model(
-                tuple_,
-                Filenames.PREDICTIONS,
-                predictions_volume,
-                permissions=tuple_.outputs[TASK_IO_PREDICTIONS].permissions,
-            )
-            tuple_.predict.models = [prediction]
-            tuple_.outputs[TASK_IO_PREDICTIONS].value = prediction
-
-            # set status
-            tuple_.status = models.Status.done
-            tuple_.end_date = datetime.datetime.now()
-
-            if compute_plan:
-                compute_plan.done_count += 1
-                compute_plan.todo_count -= 1
-                if compute_plan.done_count == compute_plan.task_count:
-                    compute_plan.status = models.ComputePlanStatus.done
-                    compute_plan.end_date = datetime.datetime.now()
-                    compute_plan.estimated_end_date = compute_plan.end_date
-                    compute_plan.duration = int((compute_plan.end_date - compute_plan.start_date).total_seconds())
-
-    def schedule_testtuple(self, tuple_: models.Testtuple):  # noqa: C901
-
-        with self._context(tuple_.key) as tuple_dir:
-            tuple_.status = models.Status.doing
-            tuple_.start_date = datetime.datetime.now()
-
-            # If we are using fake data samples or an aggregate task, is None
-            data_sample_paths = None
-
-            # fetch dependencies
-            assert len(tuple_.parent_task_keys) == 1
-            predicttuple = self._db.get(schemas.Type.Predicttuple, tuple_.parent_task_keys[0])
-
-            metric = self._db.get_with_files(schemas.Type.Algo, tuple_.algo.key)
-            dataset = self._db.get_with_files(schemas.Type.Dataset, tuple_.test.data_manager_key)
-
-            compute_plan = None
-            if tuple_.compute_plan_key:
-                compute_plan = self._db.get(schemas.Type.ComputePlan, tuple_.compute_plan_key)
-
-            # prepare model and datasamples
-            predictions_volume = _mkdir(os.path.join(tuple_dir, "pred"))
-            performance_volume = _mkdir(os.path.join(tuple_dir, "perf"))
-
-            os.link(
-                predicttuple.predict.models[0].address.storage_address,
-                os.path.join(predictions_volume, Filenames.PREDICTIONS),
-            )
-
-            # compute testtuple command_template
-            command_template = ""
-
-            volumes = {
-                "_VOLUME_OUTPUT_PRED": predictions_volume,
-                "_VOLUME_OPENER": dataset.opener.storage_address,
-                "_VOLUME_OUTPUT_PERF": performance_volume,
-                "_VOLUME_INPUT_DATASAMPLES": os.path.join(tuple_dir, "data"),
-            }
-
-            if tuple_.compute_plan_key:
-                local_volume = _mkdir(
-                    os.path.join(self._local_worker_dir, "compute_plans", tuple_.worker, tuple_.compute_plan_key)
+            # Save the outputs
+            update_live_performances = False
+            for algo_output in algo.outputs:
+                update_live_performances = self._save_output(
+                    task=task,
+                    algo_output=algo_output,
+                    output_id_filename=output_id_filename,
+                    output_volume=volumes["_VOLUME_OUTPUTS"],
+                    algo_key=algo.key,
                 )
-                volumes["_VOLUME_LOCAL"] = local_volume
-                if self._support_chainkeys and self._has_chainkey():
-                    chainkey_volume = self._get_chainkey_volume(tuple_)
-                    volumes["_VOLUME_CHAINKEYS"] = chainkey_volume
 
-            if self._db.is_local(dataset.key, schemas.Type.Dataset):
-                volumes["_VOLUME_INPUT_DATASAMPLES"] = _mkdir(os.path.join(tuple_dir, "data"))
-                data_sample_paths = self._get_data_sample_paths(tuple_)
-                data_sample_paths_arg_str = self._get_data_sample_paths_arg(
-                    tuple_.test.data_sample_keys,
-                    data_volume="${_VOLUME_INPUT_DATASAMPLES}",
-                )
-                data_sample_paths_arg = " ".join(data_sample_paths_arg_str)
-                command_template += " --fake-data-mode DISABLED"
-                command_template += f" --data-sample-paths {data_sample_paths_arg}"
-            else:
-                command_template += " --fake-data-mode FAKE_Y"
-                command_template += f" --n-fake-samples {len(tuple_.test.data_sample_keys)}"
+            # Set status
+            task.status = models.Status.done
+            task.end_date = datetime.datetime.now()
 
-            command_template += " --opener-path ${_VOLUME_OPENER}"
-            command_template += " --input-predictions-path ${_VOLUME_OUTPUT_PRED}" f"/{Filenames.PREDICTIONS}"
-            command_template += " --output-perf-path ${_VOLUME_OUTPUT_PERF}" f"/{Filenames.PERFORMANCE}"
-            command_template += " --log-level warning"
-
-            container_name = f"metrics-{metric.algorithm.checksum}"
-            self._spawner.spawn(
-                container_name,
-                str(metric.algorithm.storage_address),
-                command_template=string.Template(command_template),
-                local_volumes=volumes,
-                data_sample_paths=data_sample_paths,
-                envs=None,
-            )
-
-            # save move performance
-            tmp_path = os.path.join(performance_volume, Filenames.PERFORMANCE)
-            perf_dir = _mkdir(os.path.join(self._local_worker_dir, "performances", tuple_.key))
-            perf_path = os.path.join(perf_dir, f"performance_{metric.key}.json")
-            shutil.copy(tmp_path, perf_path)
-
-            with open(perf_path, "r") as f:
-                perf: float = json.load(f).get("all")
-            tuple_.test.perfs[metric.key] = perf
-            tuple_.outputs[TEST_IO_PERFORMANCE] = perf
-
-            # set status
-            tuple_.status = models.Status.done
-            tuple_.end_date = datetime.datetime.now()
-
-            container_name = f"algo-{metric.algorithm.checksum}"
-            self._spawner.spawn(
-                name=container_name,
-                archive_path=str(metric.algorithm.storage_address),
-                command_template=string.Template(command_template),
-                local_volumes=volumes,
-                data_sample_paths=data_sample_paths,
-                envs=None,
-            )
-
-            if compute_plan:
-                # save live performances
-                live_perf_path = Path(
-                    self._local_worker_dir / "live_performances" / compute_plan.key / "performances.json"
-                )
-                _mkdir(live_perf_path.parent)
-                self._save_cp_performances_as_json(compute_plan.key, live_perf_path)
-
-                compute_plan.done_count += 1
-                compute_plan.todo_count -= 1
-                if compute_plan.done_count == compute_plan.task_count:
-                    compute_plan.status = models.ComputePlanStatus.done
-                    compute_plan.end_date = datetime.datetime.now()
-                    compute_plan.estimated_end_date = compute_plan.end_date
-                    compute_plan.duration = int((compute_plan.end_date - compute_plan.start_date).total_seconds())
+            self._update_cp(compute_plan=compute_plan, update_live_performances=update_live_performances)
