@@ -5,17 +5,15 @@ on:
     branches:
       - "main"
   pull_request:
-    branches:
-      - "main"
 
 jobs:
   lint:
     name: Lint and documentation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
       - name: Install tools
@@ -54,9 +52,8 @@ jobs:
         python-version: [ '3.8', '3.9' ]
     name: Tests on Python ${{ matrix.python-version }}
     steps:
-      - uses: actions/checkout@v2
       - name: Set up python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -75,8 +72,12 @@ jobs:
           gcloud auth configure-docker
           export PATH=/home/runner/bin:$PATH
           /home/runner/bin/dockerd-rootless.sh &  # Start Docker rootless in the background
+      - name: Cloning substra
+        uses: actions/checkout@v3
+        with:
+          path: substra
       - name: Cloning substratools
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: owkin/connect-tools
           token: ${{ secrets.ACCESS_TOKEN }}
@@ -85,9 +86,9 @@ jobs:
       - name: Install substra and substratools
         run: |
           pip install --no-cache-dir -e substratools
-          pip install --no-cache-dir -e .[dev]
+          pip install --no-cache-dir -e 'substra[dev]'
 
       - name: Test
         run: |
           export PATH=/home/runner/bin:$PATH
-          python setup.py test
+          cd substra && python setup.py test
