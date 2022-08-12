@@ -13,6 +13,7 @@ from pydantic import AnyUrl
 from pydantic import DirectoryPath
 from pydantic import FilePath
 from pydantic import root_validator
+from pydantic.fields import Field
 
 from substra.sdk import schemas
 
@@ -257,10 +258,14 @@ class InputRef(schemas._PydanticConfig):
 
 
 class ComputeTaskOutput(schemas._PydanticConfig):
+    """Specification of a compute task input"""
+
     permissions: Permissions
     value: Optional[Union[float, OutModel, List[OutModel]]]  # performance or Model or multiple model
-    # "is_transient" will be added here
-    """Specification of a compute task input"""
+    is_transient: bool = Field(False, alias="transient")
+
+    class Config:
+        allow_population_by_field_name = True
 
 
 class _GenericTraintuple(_Model):

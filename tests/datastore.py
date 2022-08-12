@@ -195,6 +195,7 @@ TRAINTUPLE = {
                 "process": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
                 "download": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
             },
+            "transient": False,
         },
     },
     "train": {
@@ -268,6 +269,7 @@ AGGREGATETUPLE = {
                 "process": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
                 "download": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
             },
+            "transient": False,
         },
     },
     "aggregate": {
@@ -345,12 +347,14 @@ COMPOSITE_TRAINTUPLE = {
                 "process": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
                 "download": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
             },
+            "transient": False,
         },
         "local": {
             "permissions": {
                 "process": {"public": False, "authorized_ids": ["MyOrg2MSP"]},
                 "download": {"public": False, "authorized_ids": ["MyOrg2MSP"]},
             },
+            "transient": False,
         },
     },
     "composite": {
@@ -443,12 +447,14 @@ COMPOSITE_TRAINTUPLE_DOING = {
                 "process": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
                 "download": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
             },
+            "transient": True,
         },
         "local": {
             "permissions": {
                 "process": {"public": False, "authorized_ids": ["MyOrg2MSP"]},
                 "download": {"public": False, "authorized_ids": ["MyOrg2MSP"]},
             },
+            "transient": False,
         },
     },
     "composite": {
@@ -515,6 +521,7 @@ PREDICTTUPLE = {
                 "process": {"public": True, "authorized_ids": []},
                 "download": {"public": True, "authorized_ids": []},
             },
+            "transient": False,
         },
     },
     "predict": {
@@ -586,6 +593,7 @@ TESTTUPLE = {
                 "process": {"public": True, "authorized_ids": []},
                 "download": {"public": True, "authorized_ids": []},
             },
+            "transient": False,
         },
     },
     "test": {

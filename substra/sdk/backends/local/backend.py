@@ -857,11 +857,12 @@ class Local(base.BaseBackend):
         return compute_plan
 
 
-def _output_from_spec(outputs: List[schemas.ComputeTaskOutput]) -> List[models.ComputeTaskOutput]:
+def _output_from_spec(outputs: Dict[str, schemas.ComputeTaskOutput]) -> Dict[str, models.ComputeTaskOutput]:
     """Convert a list of schemas.ComputeTaskOuput to a list of models.ComputeTaskOutput"""
     return {
         identifier: models.ComputeTaskOutput(
-            permissions=models.Permissions(process=output.permissions), value=None
-        )  # default isNone (= outputs are not computed yet)
+            permissions=models.Permissions(process=output.permissions), transient=output.is_transient, value=None
+        )
+        # default isNone (= outputs are not computed yet)
         for identifier, output in outputs.items()
     }

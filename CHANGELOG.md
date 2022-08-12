@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - New update_compute_plan, update_algo and update_dataset methods that allow editing names
 - The local mode now uses the inputs/outputs fields to execute the tasks. The other fields are still kept up-to-date
+- Support for the `transient` flag on tasks outputs (#253)
 
 ## [0.32.0](https://github.com/owkin/substra/releases/tag/0.32.0) - 2022-08-09
 

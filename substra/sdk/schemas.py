@@ -10,6 +10,7 @@ from typing import List
 from typing import Optional
 
 import pydantic
+from pydantic.fields import Field
 
 from substra.sdk import utils
 
@@ -191,7 +192,10 @@ class ComputeTaskOutput(_PydanticConfig):
     """Specification of a compute task output"""
 
     permissions: Permissions
-    # "is_transient" will be added here
+    is_transient: Optional[bool] = Field(False, alias="transient")
+
+    class Config:
+        allow_population_by_field_name = True
 
 
 class _ComputePlanComputeTaskSpec(_Spec):
@@ -423,7 +427,7 @@ class _TupleSpec(_Spec):
         data["key"] = self.key
         data["category"] = self.category
         data["inputs"] = [input.dict() for input in self.inputs] if self.inputs else []
-        data["outputs"] = {k: v.dict() for k, v in self.outputs.items()} if self.outputs else {}
+        data["outputs"] = {k: v.dict(by_alias=True) for k, v in self.outputs.items()} if self.outputs else {}
         yield data, None
 
 
