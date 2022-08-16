@@ -857,7 +857,7 @@ class Local(base.BaseBackend):
         return compute_plan
 
 
-def _output_from_spec(outputs: Dict[str, schemas.ComputeTaskOutput]) -> Dict[str, models.ComputeTaskOutput]:
+def _output_from_spec(outputs: Dict[str, schemas.ComputeTaskOutputSpec]) -> Dict[str, models.ComputeTaskOutput]:
     """Convert a list of schemas.ComputeTaskOuput to a list of models.ComputeTaskOutput"""
     return {
         identifier: models.ComputeTaskOutput(

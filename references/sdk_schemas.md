@@ -94,7 +94,7 @@ Specification for creating a predict tuple
 - metadata: Optional[Mapping[str, str]]
 - algo_key: str
 - inputs: Optional[List[InputRef]]
-- outputs: Optional[Mapping[str, ComputeTaskOutput]]
+- outputs: Optional[Mapping[str, ComputeTaskOutputSpec]]
 - traintuple_key: str
 - data_manager_key: str
 - test_data_sample_keys: List[str]
@@ -116,7 +116,7 @@ Specification for creating a testtuple
 - metadata: Optional[Mapping[str, str]]
 - algo_key: str
 - inputs: Optional[List[InputRef]]
-- outputs: Optional[Mapping[str, ComputeTaskOutput]]
+- outputs: Optional[Mapping[str, ComputeTaskOutputSpec]]
 - predicttuple_key: str
 - data_manager_key: str
 - test_data_sample_keys: List[str]
@@ -132,7 +132,7 @@ Specification for creating a traintuple
 - metadata: Optional[Mapping[str, str]]
 - algo_key: str
 - inputs: Optional[List[InputRef]]
-- outputs: Optional[Mapping[str, ComputeTaskOutput]]
+- outputs: Optional[Mapping[str, ComputeTaskOutputSpec]]
 - data_manager_key: str
 - train_data_sample_keys: List[str]
 - in_models_keys: Optional[List[str]]
@@ -149,7 +149,7 @@ Specification for creating an aggregate tuple
 - metadata: Optional[Mapping[str, str]]
 - algo_key: str
 - inputs: Optional[List[InputRef]]
-- outputs: Optional[Mapping[str, ComputeTaskOutput]]
+- outputs: Optional[Mapping[str, ComputeTaskOutputSpec]]
 - worker: str
 - in_models_keys: List[str]
 - rank: Optional[int]
@@ -165,7 +165,7 @@ Specification for creating a composite traintuple
 - metadata: Optional[Mapping[str, str]]
 - algo_key: str
 - inputs: Optional[List[InputRef]]
-- outputs: Optional[Mapping[str, ComputeTaskOutput]]
+- outputs: Optional[Mapping[str, ComputeTaskOutputSpec]]
 - data_manager_key: str
 - train_data_sample_keys: List[str]
 - in_head_model_key: Optional[str]
@@ -214,7 +214,7 @@ plan specification
 - tag: Optional[str]
 - metadata: Optional[Mapping[str, str]]
 - inputs: Optional[List[InputRef]]
-- outputs: Optional[Mapping[str, ComputeTaskOutput]]
+- outputs: Optional[Mapping[str, ComputeTaskOutputSpec]]
 - predicttuple_id: str
 - traintuple_id: str
 - data_manager_key: str
@@ -229,7 +229,7 @@ plan specification
 - tag: Optional[str]
 - metadata: Optional[Mapping[str, str]]
 - inputs: Optional[List[InputRef]]
-- outputs: Optional[Mapping[str, ComputeTaskOutput]]
+- outputs: Optional[Mapping[str, ComputeTaskOutputSpec]]
 - predicttuple_id: str
 - data_manager_key: str
 - test_data_sample_keys: List[str]
@@ -243,7 +243,7 @@ plan specification
 - tag: Optional[str]
 - metadata: Optional[Mapping[str, str]]
 - inputs: Optional[List[InputRef]]
-- outputs: Optional[Mapping[str, ComputeTaskOutput]]
+- outputs: Optional[Mapping[str, ComputeTaskOutputSpec]]
 - aggregatetuple_id: str
 - worker: str
 - in_models_ids: Optional[List[str]]
@@ -257,7 +257,7 @@ plan specification
 - tag: Optional[str]
 - metadata: Optional[Mapping[str, str]]
 - inputs: Optional[List[InputRef]]
-- outputs: Optional[Mapping[str, ComputeTaskOutput]]
+- outputs: Optional[Mapping[str, ComputeTaskOutputSpec]]
 - composite_traintuple_id: str
 - data_manager_key: str
 - train_data_sample_keys: List[str]
@@ -273,7 +273,7 @@ plan specification
 - tag: Optional[str]
 - metadata: Optional[Mapping[str, str]]
 - inputs: Optional[List[InputRef]]
-- outputs: Optional[Mapping[str, ComputeTaskOutput]]
+- outputs: Optional[Mapping[str, ComputeTaskOutputSpec]]
 - data_manager_key: str
 - train_data_sample_keys: List[str]
 - traintuple_id: str

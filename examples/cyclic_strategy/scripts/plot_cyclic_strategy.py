@@ -452,7 +452,7 @@ from substra.sdk.schemas import ComputePlanPredicttupleSpec
 from substra.sdk.schemas import ComputePlanSpec
 from substra.sdk.schemas import ComputePlanTesttupleSpec
 from substra.sdk.schemas import ComputePlanTraintupleSpec
-from substra.sdk.schemas import ComputeTaskOutput
+from substra.sdk.schemas import ComputeTaskOutputSpec
 from substra.sdk.schemas import Permissions
 
 N_ROUNDS = 7
@@ -511,7 +511,7 @@ for _ in range(N_ROUNDS):
                 "model",
             ),
             outputs={
-                "model": ComputeTaskOutput(permissions=Permissions(public=False, authorized_ids=[PROFILE_NAMES])),
+                "model": ComputeTaskOutputSpec(permissions=Permissions(public=False, authorized_ids=[PROFILE_NAMES])),
             },
         )
         traintuples.append(traintuple)
@@ -530,7 +530,9 @@ for _ in range(N_ROUNDS):
                 "model",
             ),
             outputs={
-                "predictions": ComputeTaskOutput(permissions=Permissions(public=False, authorized_ids=[organization])),
+                "predictions": ComputeTaskOutputSpec(
+                    permissions=Permissions(public=False, authorized_ids=[organization])
+                ),
             },
         )
 
@@ -551,7 +553,7 @@ for _ in range(N_ROUNDS):
                     "predictions",
                 ),
                 outputs={
-                    "performance": ComputeTaskOutput(permissions=PUBLIC_PERMISSIONS),
+                    "performance": ComputeTaskOutputSpec(permissions=PUBLIC_PERMISSIONS),
                 },
             )
             for metric_key in metric_keys

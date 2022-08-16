@@ -3,7 +3,7 @@ from enum import Enum
 from substra.sdk.schemas import AlgoInputSpec
 from substra.sdk.schemas import AlgoOutputSpec
 from substra.sdk.schemas import AssetKind
-from substra.sdk.schemas import ComputeTaskOutput
+from substra.sdk.schemas import ComputeTaskOutputSpec
 from substra.sdk.schemas import InputRef
 from substra.sdk.schemas import Permissions
 
@@ -288,23 +288,23 @@ class FLTaskOutputGenerator:
 
     @staticmethod
     def traintuple(authorized_ids=None):
-        return {OutputIdentifiers.model: ComputeTaskOutput(permissions=_permission_from_ids(authorized_ids))}
+        return {OutputIdentifiers.model: ComputeTaskOutputSpec(permissions=_permission_from_ids(authorized_ids))}
 
     @staticmethod
     def aggregatetuple(authorized_ids=None):
-        return {OutputIdentifiers.model: ComputeTaskOutput(permissions=_permission_from_ids(authorized_ids))}
+        return {OutputIdentifiers.model: ComputeTaskOutputSpec(permissions=_permission_from_ids(authorized_ids))}
 
     @staticmethod
     def predicttuple(authorized_ids=None):
-        return {OutputIdentifiers.predictions: ComputeTaskOutput(permissions=_permission_from_ids(authorized_ids))}
+        return {OutputIdentifiers.predictions: ComputeTaskOutputSpec(permissions=_permission_from_ids(authorized_ids))}
 
     @staticmethod
     def testtuple(authorized_ids=None):
-        return {OutputIdentifiers.performance: ComputeTaskOutput(permissions=_permission_from_ids(authorized_ids))}
+        return {OutputIdentifiers.performance: ComputeTaskOutputSpec(permissions=_permission_from_ids(authorized_ids))}
 
     @staticmethod
     def composite_traintuple(shared_authorized_ids=None, local_authorized_ids=None):
         return {
-            OutputIdentifiers.shared: ComputeTaskOutput(permissions=_permission_from_ids(shared_authorized_ids)),
-            OutputIdentifiers.local: ComputeTaskOutput(permissions=_permission_from_ids(local_authorized_ids)),
+            OutputIdentifiers.shared: ComputeTaskOutputSpec(permissions=_permission_from_ids(shared_authorized_ids)),
+            OutputIdentifiers.local: ComputeTaskOutputSpec(permissions=_permission_from_ids(local_authorized_ids)),
         }

@@ -188,7 +188,7 @@ class InputRef(_PydanticConfig):
     _check_asset_key_or_parent_ref = pydantic.root_validator(allow_reuse=True)(check_asset_key_or_parent_ref)
 
 
-class ComputeTaskOutput(_PydanticConfig):
+class ComputeTaskOutputSpec(_PydanticConfig):
     """Specification of a compute task output"""
 
     permissions: Permissions
@@ -205,7 +205,7 @@ class _ComputePlanComputeTaskSpec(_Spec):
     tag: Optional[str]
     metadata: Optional[Dict[str, str]]
     inputs: Optional[List[InputRef]]
-    outputs: Optional[Dict[str, ComputeTaskOutput]]
+    outputs: Optional[Dict[str, ComputeTaskOutputSpec]]
 
 
 class ComputePlanTraintupleSpec(_ComputePlanComputeTaskSpec):
@@ -417,7 +417,7 @@ class _TupleSpec(_Spec):
     metadata: Optional[Dict[str, str]]
     algo_key: str
     inputs: Optional[List[InputRef]]
-    outputs: Optional[Dict[str, ComputeTaskOutput]]
+    outputs: Optional[Dict[str, ComputeTaskOutputSpec]]
 
     @contextlib.contextmanager
     def build_request_kwargs(self):
