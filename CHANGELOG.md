@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.33.0](https://github.com/owkin/substra/releases/tag/0.33.0) - 2022-08-17
+
 ### Added
 
 - New update_compute_plan, update_algo and update_dataset methods that allow editing names
