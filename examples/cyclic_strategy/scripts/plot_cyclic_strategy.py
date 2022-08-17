@@ -143,8 +143,7 @@ ALGO_ORGANIZATION_PROFILE = "organization-2"
 # client for each of our profiles.
 
 if DEBUG:
-    client = substra.Client(debug=True)
-    clients = {profile_name: client for profile_name in PROFILE_NAMES}
+    clients = {profile_name: substra.Client(debug=True) for profile_name in PROFILE_NAMES}
 else:
     clients = {profile_name: substra.Client.from_config_file(profile_name) for profile_name in PROFILE_NAMES}
 
@@ -198,12 +197,7 @@ organizations_assets_keys: dict = {profile_name: {} for profile_name in PROFILE_
 #
 # As we said earlier, there is only one organization in debug mode. But, we'll see later that our
 # algorithm will save and update a file on each of our organizations at each step of our strategy.
-# Adding a **DEBUG_OWNER** to our dataset metadata specifies to the algorithm working on
-# this dataset that it can only access to the stored information when it works on this dataset.
-# Otherwise the file is shared accross all task, which is not the case when working on a
-# connect platform.
 
-from substra.sdk import DEBUG_OWNER
 from substra.sdk.schemas import DataSampleSpec
 from substra.sdk.schemas import DatasetSpec
 from substra.sdk.schemas import InputRef
@@ -219,7 +213,6 @@ dataset = DatasetSpec(
 )
 
 for profile_name in PROFILE_NAMES:
-    dataset.metadata = {DEBUG_OWNER: profile_name}
     dataset.permissions = Permissions(public=False, authorized_ids=ORGANIZATIONS_IDS)
     client = clients[profile_name]
 
@@ -478,10 +471,10 @@ def _build_task_inputs(
     ]
 
     for key in data_sample_keys:
-        res.add(InputRef(identifier="datasamples", asset_key=key))
+        res.append(InputRef(identifier="datasamples", asset_key=key))
 
     if parent_task_key:
-        res.add(
+        res.append(
             InputRef(
                 identifier="model",
                 parent_task_key=parent_task_key,
@@ -511,7 +504,7 @@ for _ in range(N_ROUNDS):
                 "model",
             ),
             outputs={
-                "model": ComputeTaskOutputSpec(permissions=Permissions(public=False, authorized_ids=[PROFILE_NAMES])),
+                "model": ComputeTaskOutputSpec(permissions=Permissions(public=False, authorized_ids=PROFILE_NAMES)),
             },
         )
         traintuples.append(traintuple)
@@ -540,6 +533,7 @@ for _ in range(N_ROUNDS):
 
         testtuples += [
             ComputePlanTesttupleSpec(
+                algo_key=algo_key,
                 metric_keys=metric_key,
                 test_data_sample_keys=organizations_assets_keys[ALGO_ORGANIZATION_PROFILE]["test"][
                     "test_data_sample_keys"

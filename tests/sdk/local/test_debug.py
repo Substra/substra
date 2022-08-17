@@ -12,9 +12,9 @@ from substra.sdk.exceptions import InvalidRequest
 from substra.sdk.exceptions import KeyAlreadyExistsError
 from substra.sdk.schemas import AlgoCategory
 
-from ..fl_interface import FL_ALGO_PREDICT_COMPOSITE
-from ..fl_interface import FLTaskInputGenerator
-from ..fl_interface import FLTaskOutputGenerator
+from ...fl_interface import FL_ALGO_PREDICT_COMPOSITE
+from ...fl_interface import FLTaskInputGenerator
+from ...fl_interface import FLTaskOutputGenerator
 
 
 def test_wrong_debug_spawner(monkeypatch):
@@ -24,16 +24,12 @@ def test_wrong_debug_spawner(monkeypatch):
     assert str(err.value) == "'test' is not a valid BackendType"
 
 
-def test_get_backend_type_docker(monkeypatch):
-    monkeypatch.setenv("DEBUG_SPAWNER", str(substra.BackendType.LOCAL_DOCKER.value))
-    client = substra.Client(debug=True)
-    assert client.backend_mode == substra.BackendType.LOCAL_DOCKER
+def test_get_backend_type_docker(docker_clients):
+    assert docker_clients[0].backend_mode == substra.BackendType.LOCAL_DOCKER
 
 
-def test_get_backend_type_subprocess(monkeypatch):
-    monkeypatch.setenv("DEBUG_SPAWNER", str(substra.BackendType.LOCAL_SUBPROCESS.value))
-    client = substra.Client(debug=True)
-    assert client.backend_mode == substra.BackendType.LOCAL_SUBPROCESS
+def test_get_backend_type_subprocess(subprocess_clients):
+    assert subprocess_clients[0].backend_mode == substra.BackendType.LOCAL_SUBPROCESS
 
 
 def test_get_backend_type_deployed():
@@ -61,32 +57,16 @@ def test_regex_script_name_invalid():
 
 
 class TestsDebug:
-    # run tests twice with and without docker
-    @pytest.fixture(
-        params=[str(substra.BackendType.LOCAL_DOCKER.value), str(substra.BackendType.LOCAL_SUBPROCESS.value)]
-    )
-    def spawner(self, monkeypatch, request):
-        monkeypatch.setenv("DEBUG_SPAWNER", request.param)
-
-    def test_client_tmp_dir(self):
+    def test_client_tmp_dir(self, clients):
         """Test the creation of a temp directory for the debug client"""
-        client = substra.Client(debug=True)
-        assert client.temp_directory
-
-    def test_client_multi_organizations_dataset(self, dataset_query):
-        """Assert that the owner is gotten from the metadata in debug mode"""
-        client = substra.Client(debug=True)
-        dataset_query["metadata"] = {substra.DEBUG_OWNER: "owner_1"}
-
-        key = client.add_dataset(dataset_query)
-        asset = client.get_dataset(key)
-        assert asset.owner == "owner_1"
+        assert clients[0].temp_directory
 
     @pytest.mark.parametrize("dockerfile_type", ("BAD_ENTRYPOINT", "NO_ENTRYPOINT"))
-    def test_client_bad_dockerfile(self, asset_factory, dockerfile_type, spawner):
-        client = substra.Client(debug=True)
+    def test_client_bad_dockerfile(self, asset_factory, dockerfile_type, clients):
 
-        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
+        client = clients[0]
+
+        dataset_query = asset_factory.create_dataset()
         dataset_1_key = client.add_dataset(dataset_query)
 
         data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=False)
@@ -109,54 +89,8 @@ class TestsDebug:
         with pytest.raises((substra.sdk.backends.local.compute.spawner.base.ExecutionError, docker.errors.APIError)):
             client.add_compute_plan(cp)
 
-    def test_client_multi_organizations_cp(self, asset_factory, spawner):
-        """Assert that there is one CP local folder per organization"""
-        client = substra.Client(debug=True)
-
-        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
-        dataset_1_key = client.add_dataset(dataset_query)
-
-        dataset_2_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_2"})
-        dataset_2_key = client.add_dataset(dataset_2_query)
-
-        data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=False)
-        sample_1_key = client.add_data_sample(data_sample)
-
-        data_sample = asset_factory.create_data_sample(datasets=[dataset_2_key], test_only=False)
-        sample_2_key = client.add_data_sample(data_sample)
-
-        algo_query = asset_factory.create_algo(AlgoCategory.simple)
-        algo_key = client.add_algo(algo_query)
-
-        cp = asset_factory.create_compute_plan()
-        cp.traintuples = [
-            substra.sdk.schemas.ComputePlanTraintupleSpec(
-                algo_key=algo_key,
-                data_manager_key=dataset_1_key,
-                traintuple_id=str(uuid.uuid4()),
-                train_data_sample_keys=[sample_1_key],
-                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_1_key, data_sample_keys=[sample_1_key]),
-                outputs=FLTaskOutputGenerator.traintuple(),
-            ),
-            substra.sdk.schemas.ComputePlanTraintupleSpec(
-                algo_key=algo_key,
-                data_manager_key=dataset_2_key,
-                traintuple_id=str(uuid.uuid4()),
-                train_data_sample_keys=[sample_2_key],
-                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_2_key, data_sample_keys=[sample_2_key]),
-                outputs=FLTaskOutputGenerator.traintuple(),
-            ),
-        ]
-
-        client.add_compute_plan(cp)
-
-        path_cp_1 = Path.cwd() / "local-worker" / "compute_plans" / "owner_1"
-        path_cp_2 = Path.cwd() / "local-worker" / "compute_plans" / "owner_2"
-
-        assert path_cp_1.is_dir()
-        assert path_cp_2.is_dir()
-
-    def test_compute_plan_add_update_tuples(self, asset_factory, spawner):
+    def test_compute_plan_add_update_tuples(self, asset_factory, clients):
+        client = clients[0]
         client = substra.Client(debug=True)
         compute_plan = client.add_compute_plan(
             substra.sdk.schemas.ComputePlanSpec(
@@ -211,8 +145,8 @@ class TestsDebug:
             },
         )
 
-    def test_compute_plan_update(self, asset_factory, spawner):
-        client = substra.Client(debug=True)
+    def test_compute_plan_update(self, clients):
+        client = clients[0]
         old_name = "My ultra cool compute plan"
         new_name = "My even cooler compute plan"
 
@@ -236,192 +170,8 @@ class TestsDebug:
 
         assert compute_plan == updated_compute_plan
 
-    def test_client_multi_organizations_cp_train_test(self, asset_factory, spawner):
-        """Assert that there is one CP local folder per organization"""
-        client = substra.Client(debug=True)
-
-        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
-        dataset_1_key = client.add_dataset(dataset_query)
-
-        dataset_2_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_2"})
-        dataset_2_key = client.add_dataset(dataset_2_query)
-
-        data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=False)
-        sample_1_key = client.add_data_sample(data_sample)
-
-        data_sample = asset_factory.create_data_sample(datasets=[dataset_2_key], test_only=False)
-        sample_2_key = client.add_data_sample(data_sample)
-
-        data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=True)
-        sample_1_test_key = client.add_data_sample(data_sample)
-
-        data_sample = asset_factory.create_data_sample(datasets=[dataset_2_key], test_only=True)
-        sample_2_test_key = client.add_data_sample(data_sample)
-
-        metric = asset_factory.create_algo(category=AlgoCategory.metric)
-        metric_1_key = client.add_algo(metric)
-
-        metric = asset_factory.create_algo(category=AlgoCategory.metric)
-        metric_2_key = client.add_algo(metric)
-
-        algo_query = asset_factory.create_algo(AlgoCategory.simple)
-        algo_key = client.add_algo(algo_query)
-
-        predict_algo_spec = asset_factory.create_algo(category=AlgoCategory.predict)
-        predict_algo_key = client.add_algo(predict_algo_spec)
-
-        traintuple_id_1 = str(uuid.uuid4())
-        traintuple_id_2 = str(uuid.uuid4())
-        cp = asset_factory.create_compute_plan()
-        cp.traintuples = [
-            substra.sdk.schemas.ComputePlanTraintupleSpec(
-                algo_key=algo_key,
-                data_manager_key=dataset_1_key,
-                traintuple_id=traintuple_id_1,
-                train_data_sample_keys=[sample_1_key],
-                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_1_key, data_sample_keys=[sample_1_key]),
-                outputs=FLTaskOutputGenerator.traintuple(),
-            ),
-            substra.sdk.schemas.ComputePlanTraintupleSpec(
-                algo_key=algo_key,
-                data_manager_key=dataset_2_key,
-                traintuple_id=traintuple_id_2,
-                train_data_sample_keys=[sample_2_key],
-                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_2_key, data_sample_keys=[sample_2_key]),
-                outputs=FLTaskOutputGenerator.traintuple(),
-            ),
-        ]
-
-        predicttuple_id_1 = str(uuid.uuid4())
-        predicttuple_id_2 = str(uuid.uuid4())
-        cp.predicttuples = [
-            substra.sdk.schemas.ComputePlanPredicttupleSpec(
-                predicttuple_id=predicttuple_id_1,
-                algo_key=predict_algo_key,
-                traintuple_id=traintuple_id_1,
-                data_manager_key=dataset_1_key,
-                test_data_sample_keys=[sample_1_test_key],
-                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_1_key, data_sample_keys=[sample_1_key])
-                + FLTaskInputGenerator.train_to_predict(traintuple_id_1),
-                outputs=FLTaskOutputGenerator.predicttuple(),
-            ),
-            substra.sdk.schemas.ComputePlanPredicttupleSpec(
-                predicttuple_id=predicttuple_id_2,
-                algo_key=predict_algo_key,
-                traintuple_id=traintuple_id_2,
-                data_manager_key=dataset_2_key,
-                test_data_sample_keys=[sample_2_test_key],
-                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_2_key, data_sample_keys=[sample_2_key])
-                + FLTaskInputGenerator.train_to_predict(traintuple_id_2),
-                outputs=FLTaskOutputGenerator.predicttuple(),
-            ),
-        ]
-
-        cp.testtuples = [
-            substra.sdk.schemas.ComputePlanTesttupleSpec(
-                algo_key=metric_1_key,
-                predicttuple_id=predicttuple_id_1,
-                data_manager_key=dataset_1_key,
-                test_data_sample_keys=[sample_1_test_key],
-                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_1_key, data_sample_keys=[sample_1_key])
-                + FLTaskInputGenerator.predict_to_test(predicttuple_id_1),
-                outputs=FLTaskOutputGenerator.testtuple(),
-            ),
-            substra.sdk.schemas.ComputePlanTesttupleSpec(
-                algo_key=metric_2_key,
-                predicttuple_id=predicttuple_id_2,
-                data_manager_key=dataset_2_key,
-                test_data_sample_keys=[sample_2_test_key],
-                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_2_key, data_sample_keys=[sample_2_key])
-                + FLTaskInputGenerator.predict_to_test(predicttuple_id_2),
-                outputs=FLTaskOutputGenerator.testtuple(),
-            ),
-        ]
-
-        compute_plan = client.add_compute_plan(cp)
-
-        path_cp_1 = Path.cwd() / "local-worker" / "compute_plans" / "owner_1"
-        path_cp_2 = Path.cwd() / "local-worker" / "compute_plans" / "owner_2"
-
-        assert path_cp_1.is_dir()
-        assert path_cp_2.is_dir()
-
-        testtuples = client.list_testtuple()
-        aucs = [
-            list(testtuple.test.perfs.values())[0]
-            for testtuple in testtuples
-            if testtuple.compute_plan_key == compute_plan.key
-        ]
-        assert all(auc == 2 for auc in aucs)
-
-    def test_client_multi_organizations_cp_composite_aggregate(self, asset_factory, spawner):
-        """Assert that there is one CP local folder per organization"""
-        client = substra.Client(debug=True)
-
-        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
-        dataset_1_key = client.add_dataset(dataset_query)
-
-        dataset_2_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_2"})
-        dataset_2_key = client.add_dataset(dataset_2_query)
-
-        data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=False)
-        sample_1_key = client.add_data_sample(data_sample)
-
-        data_sample = asset_factory.create_data_sample(datasets=[dataset_2_key], test_only=False)
-        sample_2_key = client.add_data_sample(data_sample)
-
-        algo_query = asset_factory.create_algo(AlgoCategory.composite)
-        algo_key = client.add_algo(algo_query)
-
-        algo_query = asset_factory.create_algo(AlgoCategory.aggregate)
-        aggregate_algo_key = client.add_algo(algo_query)
-
-        cp = asset_factory.create_compute_plan()
-        composite_1_key = str(uuid.uuid4())
-        composite_2_key = str(uuid.uuid4())
-        cp.composite_traintuples = [
-            substra.sdk.schemas.ComputePlanCompositeTraintupleSpec(
-                algo_key=algo_key,
-                data_manager_key=dataset_1_key,
-                composite_traintuple_id=composite_1_key,
-                train_data_sample_keys=[sample_1_key],
-                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_1_key, data_sample_keys=[sample_1_key]),
-                outputs=FLTaskOutputGenerator.composite_traintuple(),
-            ),
-            substra.sdk.schemas.ComputePlanCompositeTraintupleSpec(
-                algo_key=algo_key,
-                data_manager_key=dataset_2_key,
-                composite_traintuple_id=composite_2_key,
-                train_data_sample_keys=[sample_2_key],
-                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_2_key, data_sample_keys=[sample_2_key]),
-                outputs=FLTaskOutputGenerator.composite_traintuple(),
-            ),
-        ]
-
-        cp.aggregatetuples = [
-            substra.sdk.schemas.ComputePlanAggregatetupleSpec(
-                aggregatetuple_id=str(uuid.uuid4()),
-                worker=dataset_1_key,
-                algo_key=aggregate_algo_key,
-                in_models_ids=[composite_1_key, composite_2_key],
-                inputs=FLTaskInputGenerator.local_to_aggregate(composite_1_key)
-                + FLTaskInputGenerator.shared_to_aggregate(composite_2_key),
-                outputs=FLTaskOutputGenerator.aggregatetuple(),
-            )
-        ]
-
-        compute_plan = client.add_compute_plan(cp)
-
-        path_cp_1 = Path.cwd() / "local-worker" / "compute_plans" / "owner_1"
-        path_cp_2 = Path.cwd() / "local-worker" / "compute_plans" / "owner_2"
-
-        assert path_cp_1.is_dir()
-        assert path_cp_2.is_dir()
-
-        assert compute_plan.status == models.ComputePlanStatus.done
-
-    def test_tasks_extra_fields(self, asset_factory):
-        client = substra.Client(debug=True)
+    def test_tasks_extra_fields(self, asset_factory, clients):
+        client = clients[0]
 
         # set dataset, metric and algo
         dataset_query = asset_factory.create_dataset()
@@ -514,11 +264,11 @@ class TestsDebug:
         assert composite_traintuple.composite.data_manager.key == dataset_key
         assert composite_traintuple.parent_tasks == []
 
-    def test_traintuple_with_test_data_sample(self, asset_factory, spawner):
+    def test_traintuple_with_test_data_sample(self, asset_factory, clients):
         """Check that we can't use test data samples for traintuples"""
-        client = substra.Client(debug=True)
+        client = clients[0]
 
-        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
+        dataset_query = asset_factory.create_dataset()
         dataset_1_key = client.add_dataset(dataset_query)
 
         data_sample_1 = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=False)
@@ -546,11 +296,11 @@ class TestsDebug:
 
         assert "Cannot create train task with test data" in str(e.value)
 
-    def test_composite_traintuple_with_test_data_sample(self, asset_factory, spawner):
+    def test_composite_traintuple_with_test_data_sample(self, asset_factory, clients):
         """Check that we can't use test data samples for composite_traintuples"""
-        client = substra.Client(debug=True)
+        client = clients[0]
 
-        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
+        dataset_query = asset_factory.create_dataset()
         dataset_1_key = client.add_dataset(dataset_query)
 
         data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=True)
@@ -573,8 +323,8 @@ class TestsDebug:
 
         assert "Cannot create train task with test data" in str(e.value)
 
-    def test_add_two_compute_plan_with_same_cp_key(self, spawner):
-        client = substra.Client(debug=True)
+    def test_add_two_compute_plan_with_same_cp_key(self, clients):
+        client = clients[0]
         common_cp_key = str(uuid.uuid4())
         client.add_compute_plan(
             substra.sdk.schemas.ComputePlanSpec(
@@ -596,11 +346,11 @@ class TestsDebug:
                 )
             )
 
-    def test_live_performances_json_file_exist(self, asset_factory, spawner):
+    def test_live_performances_json_file_exist(self, asset_factory, clients):
         """Assert the performances file is well created."""
-        client = substra.Client(debug=True)
+        client = clients[0]
 
-        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner"})
+        dataset_query = asset_factory.create_dataset()
         dataset_key = client.add_dataset(dataset_query)
 
         data_sample = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
@@ -661,21 +411,11 @@ class TestsDebug:
 class TestsList:
     "Test client.list... functions"
 
-    @pytest.mark.parametrize("asset_name", ["dataset", "algo"])
-    def test_list_assets(self, asset_name, asset_factory):
-        client = substra.Client(debug=True)
-        query = getattr(asset_factory, f"create_{asset_name}")(metadata={substra.DEBUG_OWNER: "owner_1"})
-        key = getattr(client, f"add_{asset_name}")(query)
-
-        assets = getattr(client, f"list_{asset_name}")()
-
-        assert assets[0].key == key
-
-    @pytest.fixture
-    def _init_data_samples(self, asset_factory):
-        client = substra.Client(debug=True)
+    @pytest.fixture()
+    def _init_data_samples(self, asset_factory, docker_clients):
+        client = docker_clients[0]
         data_sample_keys = []
-        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
+        dataset_query = asset_factory.create_dataset()
         dataset_key = client.add_dataset(dataset_query)
 
         data_sample_1 = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
@@ -688,11 +428,21 @@ class TestsList:
         data_sample_keys.append(client.add_data_sample(data_sample_3))
         return client, data_sample_keys
 
+    @pytest.mark.parametrize("asset_name", ["dataset", "algo"])
+    def test_list_assets(self, asset_name, asset_factory, docker_clients):
+        client = docker_clients[0]
+        query = getattr(asset_factory, f"create_{asset_name}")()
+        key = getattr(client, f"add_{asset_name}")(query)
+
+        assets = getattr(client, f"list_{asset_name}")()
+
+        assert assets[0].key == key
+
     def test_list_datasamples_all(self, _init_data_samples):
         # get all datasamples
         client, _ = _init_data_samples
         data_samples = client.list_data_sample(ascending=False)
-        assert len(data_samples) == 3
+        assert len(data_samples) >= 3
         # assert dates in descending order
         assert all(
             data_samples[i].creation_date >= data_samples[i + 1].creation_date for i in range(len(data_samples) - 1)
@@ -702,7 +452,7 @@ class TestsList:
         # get all datasamples
         client, _ = _init_data_samples
         data_samples = client.list_data_sample(ascending=True)
-        assert len(data_samples) == 3
+        assert len(data_samples) >= 3
         # assert dates in ascending order
         assert all(
             data_samples[i].creation_date <= data_samples[i + 1].creation_date for i in range(len(data_samples) - 1)
@@ -715,15 +465,6 @@ class TestsList:
         data_samples = client.list_data_sample(filters=filters)
         assert len(data_samples) == 1
         assert data_samples[0].key == data_sample_keys[0]
-
-    def test_list_datasamples_test_only(self, _init_data_samples):
-        # Get all samples with test_only
-        client, data_sample_keys = _init_data_samples
-        filters = {"test_only": ["False"]}
-        data_samples = client.list_data_sample(filters=filters)
-        assert len(data_samples) == 2
-        assert data_samples[0].key == data_sample_keys[2]
-        assert data_samples[1].key == data_sample_keys[0]
 
     def test_list_datasamples_OR(self, _init_data_samples):
         # Get sample 1 and 2 by key
@@ -749,12 +490,28 @@ class TestsList:
         data_samples = client.list_data_sample(filters=filters)
         assert len(data_samples) == 0
 
+    def test_list_filter_on_field(self, docker_clients, asset_factory):
+        client = docker_clients[0]
+        dataset_keys = set()
 
-def test_execute_compute_plan_several_testtuples_per_train(asset_factory, monkeypatch):
-    monkeypatch.setenv("DEBUG_SPAWNER", str(substra.BackendType.LOCAL_SUBPROCESS.value))
-    client = substra.Client(debug=True)
+        n_datasets = 2
 
-    dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
+        for _ in range(n_datasets):
+            dataset_query = asset_factory.create_dataset(name="dataset_dummy_")
+            dataset_key = client.add_dataset(dataset_query)
+            dataset_keys.add(dataset_key)
+
+        # Get all samples with test_only
+        filters = {"name": "dataset_dummy_"}
+        datasets = client.list_dataset(filters=filters)
+        assert len(datasets) == n_datasets
+        assert set([d.key for d in datasets]) == dataset_keys
+
+
+def test_execute_compute_plan_several_testtuples_per_train(asset_factory, subprocess_clients):
+    client = subprocess_clients[0]
+
+    dataset_query = asset_factory.create_dataset()
     dataset_key = client.add_dataset(dataset_query)
 
     data_sample_1 = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
@@ -813,9 +570,8 @@ def test_execute_compute_plan_several_testtuples_per_train(asset_factory, monkey
     assert len(testtuples) == 2
 
 
-def test_two_composite_to_composite(asset_factory, monkeypatch):
-    monkeypatch.setenv("DEBUG_SPAWNER", str(substra.BackendType.LOCAL_SUBPROCESS.value))
-    client = substra.Client(debug=True)
+def test_two_composite_to_composite(asset_factory, subprocess_clients):
+    client = subprocess_clients[0]
 
     dataset_query = asset_factory.create_dataset()
     dataset_key = client.add_dataset(dataset_query)
@@ -903,3 +659,274 @@ def test_two_composite_to_composite(asset_factory, monkeypatch):
     compute_plan = client.add_compute_plan(cp)
     assert compute_plan.done_count == 5
     assert client.get_performances(compute_plan.key).performance[0] == 32
+
+
+class TestMultipleOrgLocalClient:
+    def test_local_org_info(self, docker_clients):
+
+        org1info = docker_clients[0].organization_info()
+        org2info = docker_clients[1].organization_info()
+
+        assert org1info.organization_id != org2info.organization_id
+
+    def test_list_org(self, docker_clients):
+
+        org1_id = docker_clients[0].organization_info().organization_id
+        org2_id = docker_clients[1].organization_info().organization_id
+
+        orgs = docker_clients[0].list_organization()
+
+        org1 = [x for x in orgs if x.id == org1_id]
+        assert len(org1) == 1
+        assert org1[0].is_current
+
+        org2 = [x for x in orgs if x.id == org2_id]
+        assert len(org2) == 1
+        assert not org2[0].is_current
+
+    def test_local_org_owner(self, asset_factory, docker_clients):
+
+        client = docker_clients[0]
+        dataset_query = asset_factory.create_dataset()
+        dataset_key = client.add_dataset(dataset_query)
+
+        dataset = client.get_dataset(dataset_key)
+        assert dataset.owner == client.organization_info().organization_id
+
+    def test_local_org_shared_db(self, asset_factory, docker_clients):
+
+        dataset_query = asset_factory.create_dataset()
+        dataset_key = docker_clients[0].add_dataset(dataset_query)
+
+        docker_clients[1].get_dataset(dataset_key)
+
+    def test_client_multi_organizations_cp_local_dir(self, asset_factory, clients):
+        """Assert that there is one CP local folder per organization"""
+        [client1, client2] = clients
+
+        dataset_query = asset_factory.create_dataset()
+        dataset_1_key = client1.add_dataset(dataset_query)
+
+        dataset_2_query = asset_factory.create_dataset()
+        dataset_2_key = client2.add_dataset(dataset_2_query)
+
+        data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=False)
+        sample_1_key = client1.add_data_sample(data_sample)
+
+        data_sample = asset_factory.create_data_sample(datasets=[dataset_2_key], test_only=False)
+        sample_2_key = client2.add_data_sample(data_sample)
+
+        algo_query = asset_factory.create_algo(AlgoCategory.simple)
+        algo_key = client1.add_algo(algo_query)
+
+        cp = asset_factory.create_compute_plan()
+        cp.traintuples = [
+            substra.sdk.schemas.ComputePlanTraintupleSpec(
+                algo_key=algo_key,
+                data_manager_key=dataset_1_key,
+                traintuple_id=str(uuid.uuid4()),
+                train_data_sample_keys=[sample_1_key],
+                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_1_key, data_sample_keys=[sample_1_key]),
+                outputs=FLTaskOutputGenerator.traintuple(),
+            ),
+            substra.sdk.schemas.ComputePlanTraintupleSpec(
+                algo_key=algo_key,
+                data_manager_key=dataset_2_key,
+                traintuple_id=str(uuid.uuid4()),
+                train_data_sample_keys=[sample_2_key],
+                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_2_key, data_sample_keys=[sample_2_key]),
+                outputs=FLTaskOutputGenerator.traintuple(),
+            ),
+        ]
+
+        client1.add_compute_plan(cp)
+
+        path_cp_1 = Path.cwd() / "local-worker" / "compute_plans" / client1.organization_info().organization_id
+        path_cp_2 = Path.cwd() / "local-worker" / "compute_plans" / client2.organization_info().organization_id
+
+        assert path_cp_1.is_dir()
+        assert path_cp_2.is_dir()
+
+    def test_client_multi_organizations_cp_train_test(self, asset_factory, clients):
+        """Assert that there is one CP local folder per organization"""
+        [client1, client2] = clients
+
+        dataset_query = asset_factory.create_dataset()
+        dataset_1_key = client1.add_dataset(dataset_query)
+
+        dataset_2_query = asset_factory.create_dataset()
+        dataset_2_key = client2.add_dataset(dataset_2_query)
+
+        data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=False)
+        sample_1_key = client1.add_data_sample(data_sample)
+
+        data_sample = asset_factory.create_data_sample(datasets=[dataset_2_key], test_only=False)
+        sample_2_key = client2.add_data_sample(data_sample)
+
+        data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=True)
+        sample_1_test_key = client1.add_data_sample(data_sample)
+
+        data_sample = asset_factory.create_data_sample(datasets=[dataset_2_key], test_only=True)
+        sample_2_test_key = client2.add_data_sample(data_sample)
+
+        metric = asset_factory.create_algo(category=AlgoCategory.metric)
+        metric_1_key = client1.add_algo(metric)
+
+        metric = asset_factory.create_algo(category=AlgoCategory.metric)
+        metric_2_key = client2.add_algo(metric)
+
+        algo_query = asset_factory.create_algo(AlgoCategory.simple)
+        algo_key = client1.add_algo(algo_query)
+
+        predict_algo_spec = asset_factory.create_algo(category=AlgoCategory.predict)
+        predict_algo_key = client1.add_algo(predict_algo_spec)
+
+        traintuple_id_1 = str(uuid.uuid4())
+        traintuple_id_2 = str(uuid.uuid4())
+        cp = asset_factory.create_compute_plan()
+        cp.traintuples = [
+            substra.sdk.schemas.ComputePlanTraintupleSpec(
+                algo_key=algo_key,
+                data_manager_key=dataset_1_key,
+                traintuple_id=traintuple_id_1,
+                train_data_sample_keys=[sample_1_key],
+                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_1_key, data_sample_keys=[sample_1_key]),
+                outputs=FLTaskOutputGenerator.traintuple(),
+            ),
+            substra.sdk.schemas.ComputePlanTraintupleSpec(
+                algo_key=algo_key,
+                data_manager_key=dataset_2_key,
+                traintuple_id=traintuple_id_2,
+                train_data_sample_keys=[sample_2_key],
+                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_2_key, data_sample_keys=[sample_2_key]),
+                outputs=FLTaskOutputGenerator.traintuple(),
+            ),
+        ]
+
+        predicttuple_id_1 = str(uuid.uuid4())
+        predicttuple_id_2 = str(uuid.uuid4())
+        cp.predicttuples = [
+            substra.sdk.schemas.ComputePlanPredicttupleSpec(
+                predicttuple_id=predicttuple_id_1,
+                algo_key=predict_algo_key,
+                traintuple_id=traintuple_id_1,
+                data_manager_key=dataset_1_key,
+                test_data_sample_keys=[sample_1_test_key],
+                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_1_key, data_sample_keys=[sample_1_key])
+                + FLTaskInputGenerator.train_to_predict(traintuple_id_1),
+                outputs=FLTaskOutputGenerator.predicttuple(),
+            ),
+            substra.sdk.schemas.ComputePlanPredicttupleSpec(
+                predicttuple_id=predicttuple_id_2,
+                algo_key=predict_algo_key,
+                traintuple_id=traintuple_id_2,
+                data_manager_key=dataset_2_key,
+                test_data_sample_keys=[sample_2_test_key],
+                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_2_key, data_sample_keys=[sample_2_key])
+                + FLTaskInputGenerator.train_to_predict(traintuple_id_2),
+                outputs=FLTaskOutputGenerator.predicttuple(),
+            ),
+        ]
+
+        cp.testtuples = [
+            substra.sdk.schemas.ComputePlanTesttupleSpec(
+                algo_key=metric_1_key,
+                predicttuple_id=predicttuple_id_1,
+                data_manager_key=dataset_1_key,
+                test_data_sample_keys=[sample_1_test_key],
+                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_1_key, data_sample_keys=[sample_1_key])
+                + FLTaskInputGenerator.predict_to_test(predicttuple_id_1),
+                outputs=FLTaskOutputGenerator.testtuple(),
+            ),
+            substra.sdk.schemas.ComputePlanTesttupleSpec(
+                algo_key=metric_2_key,
+                predicttuple_id=predicttuple_id_2,
+                data_manager_key=dataset_2_key,
+                test_data_sample_keys=[sample_2_test_key],
+                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_2_key, data_sample_keys=[sample_2_key])
+                + FLTaskInputGenerator.predict_to_test(predicttuple_id_2),
+                outputs=FLTaskOutputGenerator.testtuple(),
+            ),
+        ]
+
+        compute_plan = client1.add_compute_plan(cp)
+
+        path_cp_1 = Path.cwd() / "local-worker" / "compute_plans" / client1.organization_info().organization_id
+        path_cp_2 = Path.cwd() / "local-worker" / "compute_plans" / client2.organization_info().organization_id
+
+        assert path_cp_1.is_dir()
+        assert path_cp_2.is_dir()
+
+        testtuples = client1.list_testtuple()
+        aucs = [
+            list(testtuple.test.perfs.values())[0]
+            for testtuple in testtuples
+            if testtuple.compute_plan_key == compute_plan.key
+        ]
+        assert all(auc == 2 for auc in aucs)
+
+    def test_client_multi_organizations_cp_composite_aggregate(self, asset_factory, clients):
+        """Assert that there is one CP local folder per organization"""
+        [client1, client2] = clients
+
+        dataset_query = asset_factory.create_dataset()
+        dataset_1_key = client1.add_dataset(dataset_query)
+
+        dataset_2_query = asset_factory.create_dataset()
+        dataset_2_key = client2.add_dataset(dataset_2_query)
+
+        data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=False)
+        sample_1_key = client1.add_data_sample(data_sample)
+
+        data_sample = asset_factory.create_data_sample(datasets=[dataset_2_key], test_only=False)
+        sample_2_key = client2.add_data_sample(data_sample)
+
+        algo_query = asset_factory.create_algo(AlgoCategory.composite)
+        algo_key = client1.add_algo(algo_query)
+
+        algo_query = asset_factory.create_algo(AlgoCategory.aggregate)
+        aggregate_algo_key = client1.add_algo(algo_query)
+
+        cp = asset_factory.create_compute_plan()
+        composite_1_key = str(uuid.uuid4())
+        composite_2_key = str(uuid.uuid4())
+        cp.composite_traintuples = [
+            substra.sdk.schemas.ComputePlanCompositeTraintupleSpec(
+                algo_key=algo_key,
+                data_manager_key=dataset_1_key,
+                composite_traintuple_id=composite_1_key,
+                train_data_sample_keys=[sample_1_key],
+                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_1_key, data_sample_keys=[sample_1_key]),
+                outputs=FLTaskOutputGenerator.composite_traintuple(),
+            ),
+            substra.sdk.schemas.ComputePlanCompositeTraintupleSpec(
+                algo_key=algo_key,
+                data_manager_key=dataset_2_key,
+                composite_traintuple_id=composite_2_key,
+                train_data_sample_keys=[sample_2_key],
+                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_2_key, data_sample_keys=[sample_2_key]),
+                outputs=FLTaskOutputGenerator.composite_traintuple(),
+            ),
+        ]
+
+        cp.aggregatetuples = [
+            substra.sdk.schemas.ComputePlanAggregatetupleSpec(
+                aggregatetuple_id=str(uuid.uuid4()),
+                worker=dataset_1_key,
+                algo_key=aggregate_algo_key,
+                in_models_ids=[composite_1_key, composite_2_key],
+                inputs=FLTaskInputGenerator.local_to_aggregate(composite_1_key)
+                + FLTaskInputGenerator.shared_to_aggregate(composite_2_key),
+                outputs=FLTaskOutputGenerator.aggregatetuple(),
+            )
+        ]
+
+        compute_plan = client1.add_compute_plan(cp)
+
+        path_cp_1 = Path.cwd() / "local-worker" / "compute_plans" / client1.organization_info().organization_id
+        path_cp_2 = Path.cwd() / "local-worker" / "compute_plans" / client2.organization_info().organization_id
+
+        assert path_cp_1.is_dir()
+        assert path_cp_2.is_dir()
+
+        assert compute_plan.status == models.ComputePlanStatus.done

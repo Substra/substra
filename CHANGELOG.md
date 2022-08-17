@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- BREAKING CHANGE:in local mode, each client has its own `organization_id`. Removed the `DEBUG_OWNER` mechanism.
+
+Instead of:
+
+```python
+client = substra.Client(debug=True)
+clients = [client] * 2
+```
+
+do:
+
+```python
+clients = [substra.Client(debug=True) for _ in range(2)]
+client1_org_id = clients[0].organization_info().organization_id
+```
+
+- The `Client.organization_info` function now returns a model `OrganizationInfo` instead of a dict
+
 ## [0.33.0](https://github.com/owkin/substra/releases/tag/0.33.0) - 2022-08-17
 
 ### Added

@@ -60,7 +60,18 @@ def get_dependency_graph(spec: schemas._BaseComputePlanSpec):
                 rank=None,
                 spec=compositetuple,
             )
-
+    if spec.predicttuples:
+        for predicttuple in spec.predicttuples:
+            _insert_into_graph(
+                tuple_graph=tuple_graph,
+                tuple_id=predicttuple.predicttuple_id,
+                in_model_ids=[predicttuple.traintuple_id],
+            )
+            tuples[predicttuple.predicttuple_id] = schemas.PredicttupleSpec.from_compute_plan(
+                compute_plan_key=spec.key,
+                rank=None,
+                spec=predicttuple,
+            )
     return tuple_graph, tuples
 
 
@@ -80,16 +91,6 @@ def get_tuples(spec):
     # Compute the relative ranks of the new tuples (relatively to each other, these
     # are not their actual ranks in the compute plan)
     id_ranks = graph.compute_ranks(node_graph=tuple_graph, node_to_ignore=already_created_ids)
-
-    # Add the predicttuples to 'visited' to take them into account in the batches
-    if spec.predicttuples:
-        for predicttuple in spec.predicttuples:
-            tuple_spec = schemas.PredicttupleSpec.from_compute_plan(
-                compute_plan_key=spec.key,
-                spec=predicttuple,
-            )
-            id_ranks[tuple_spec.key] = id_ranks.get(predicttuple.traintuple_id, -1) + 1
-            tuples[tuple_spec.key] = tuple_spec
 
     # Add the testtuples to 'visited' to take them into account in the batches
     if spec.testtuples:

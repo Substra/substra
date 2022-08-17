@@ -454,6 +454,22 @@ class Organization(schemas._PydanticConfig):
     is_current: bool
     creation_date: datetime
 
+    type_: ClassVar[str] = schemas.Type.Organization
+
+
+class OrganizationInfoConfig(schemas._PydanticConfig):
+    model_export_enabled: bool
+
+
+class OrganizationInfo(schemas._PydanticConfig):
+    host: AnyUrl
+    organization_id: str
+    organization_name: str
+    config: OrganizationInfoConfig
+    channel: str
+    version: str
+    orchestrator_version: str
+
 
 SCHEMA_TO_MODEL = {
     schemas.Type.Aggregatetuple: Aggregatetuple,

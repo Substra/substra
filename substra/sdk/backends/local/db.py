@@ -18,7 +18,9 @@ class InMemoryDb:
     def add(self, asset):
         """Add an asset."""
         type_ = asset.__class__.type_
-        key = asset.key
+        key = getattr(asset, "key", None)
+        if not key:
+            key = asset.id
         if key in self._data[type_]:
             raise exceptions.KeyAlreadyExistsError(f"The asset key {key} of type {type_} has already been used.")
         self._data[type_][key] = asset
@@ -105,3 +107,10 @@ class InMemoryDb:
 
         self._data[type_][key] = asset
         return
+
+
+db = InMemoryDb()
+
+
+def get_db():
+    return db

@@ -261,11 +261,6 @@ class Client(object):
     def add_dataset(self, data: Union[dict, schemas.DatasetSpec]):
         """Create new dataset asset and return its key.
 
-        In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-        the value becomes the organization owner of the data, and all tuples using this data
-        have their worker set to this organization. This has no impact on how the tuples are
-        executed.
-
         Args:
             data (Union[dict, schemas.DatasetSpec]): If it is a dict, it must have the same
                 keys as specified in [schemas.DatasetSpec](sdk_schemas.md#DatasetSpec).
@@ -279,9 +274,6 @@ class Client(object):
     @logit
     def add_algo(self, data: Union[dict, schemas.AlgoSpec]) -> str:
         """Create new algo asset.
-
-        In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-        the value becomes the 'creator' of the algo.
 
         Args:
             data (Union[dict, schemas.AlgoSpec]): If it is a dict, it must have the same keys
@@ -297,9 +289,6 @@ class Client(object):
     def add_traintuple(self, data: Union[dict, schemas.TraintupleSpec]) -> str:
         """Create new traintuple asset.
 
-        In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-        the value becomes the 'creator' of the traintuple.
-
         Args:
             data (Union[dict, schemas.TraintupleSpec]): If it is a dict, it must have the same
                 keys as specified in [schemas.TraintupleSpec](sdk_schemas.md#TraintupleSpec).
@@ -313,9 +302,6 @@ class Client(object):
     @logit
     def add_aggregatetuple(self, data: Union[dict, schemas.AggregatetupleSpec]) -> str:
         """Create a new aggregate tuple asset.
-
-        In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-        the value becomes the 'creator' of the aggregate tuple.
 
         Args:
             data (Union[dict, schemas.AggregatetupleSpec]): If it is a dict, it must have the same
@@ -335,9 +321,6 @@ class Client(object):
         As specified in the data structure, output trunk models cannot be made
         public.
 
-        In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-        the value becomes the 'creator' of the composite traintuple.
-
         Args:
             data (Union[dict, schemas.CompositeTraintupleSpec]): If it is a dict, it must have the
                 same keys as specified in
@@ -353,9 +336,6 @@ class Client(object):
     def add_predicttuple(self, data: Union[dict, schemas.PredicttupleSpec]) -> str:
         """Create new predicttuple asset.
 
-        In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-        the value becomes the 'creator' of the predicttuple.
-
         Args:
             data (Union[dict, schemas.PredicttupleSpec]): If it is a dict, it must have the same
                 keys as specified in [schemas.PredicttupleSpec](sdk_schemas.md#PredicttupleSpec).
@@ -369,9 +349,6 @@ class Client(object):
     @logit
     def add_testtuple(self, data: Union[dict, schemas.TesttupleSpec]) -> str:
         """Create new testtuple asset.
-
-        In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
-        the value becomes the 'creator' of the testtuple.
 
         Args:
             data (Union[dict, schemas.TesttupleSpec]): If it is a dict, it must have the same
@@ -1008,7 +985,7 @@ class Client(object):
         return self._backend.describe(schemas.Type.Dataset, key)
 
     @logit
-    def organization_info(self) -> dict:
+    def organization_info(self) -> models.OrganizationInfo:
         """Get organization information."""
         return self._backend.organization_info()
 

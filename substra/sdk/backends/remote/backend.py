@@ -308,7 +308,7 @@ class Remote(base.BaseBackend):
 
     def organization_info(self):
         response = self._client.get_data(f"{self._client.base_url}/info/")
-        return response.json()
+        return models.OrganizationInfo(**response.json())
 
     def cancel_compute_plan(self, key: str) -> None:
         self._client.request(

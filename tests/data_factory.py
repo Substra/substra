@@ -302,11 +302,12 @@ class AssetsFactory:
             data_manager_keys=datasets,
         )
 
-    def create_dataset(self, permissions=None, metadata=None, py_script=None, logs_permission=None):
+    def create_dataset(self, permissions=None, metadata=None, py_script=None, logs_permission=None, name=None):
         idx = self._dataset_counter.inc()
         tmpdir = self._workdir / f"dataset-{idx}"
         tmpdir.mkdir()
-        name = _shorten_name(f"{self._uuid} - Dataset {idx}")
+        if name is None:
+            name = _shorten_name(f"{self._uuid} - Dataset {idx}")
 
         description_path = tmpdir / "description.md"
         description_content = name

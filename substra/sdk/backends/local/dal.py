@@ -10,7 +10,6 @@ from substra.sdk import schemas
 from substra.sdk.backends.local import db
 from substra.sdk.backends.remote import backend
 
-_LOCAL_KEY = "local_"
 logger = logging.getLogger(__name__)
 
 
@@ -21,7 +20,7 @@ class DataAccess:
     """
 
     def __init__(self, remote_backend: typing.Optional[backend.Remote], local_worker_dir: pathlib.Path):
-        self._db = db.InMemoryDb()
+        self._db = db.get_db()
         self._remote = remote_backend
         self._tmp_dir = tempfile.TemporaryDirectory(prefix=str(local_worker_dir) + "/")
 

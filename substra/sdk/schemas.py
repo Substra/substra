@@ -534,7 +534,9 @@ class PredicttupleSpec(_TupleSpec):
     type_: typing.ClassVar[Type] = Type.Predicttuple
 
     @classmethod
-    def from_compute_plan(cls, compute_plan_key: str, spec: ComputePlanPredicttupleSpec) -> "PredicttupleSpec":
+    def from_compute_plan(
+        cls, compute_plan_key: str, rank: int, spec: ComputePlanPredicttupleSpec
+    ) -> "PredicttupleSpec":
         return PredicttupleSpec(
             key=spec.predicttuple_id,
             algo_key=spec.algo_key,
@@ -546,6 +548,7 @@ class PredicttupleSpec(_TupleSpec):
             test_data_sample_keys=spec.test_data_sample_keys,
             compute_plan_key=compute_plan_key,
             metadata=spec.metadata,
+            rank=rank,
         )
 
 

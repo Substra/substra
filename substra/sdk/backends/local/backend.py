@@ -1,3 +1,4 @@
+import copy
 import logging
 import os
 import shutil
@@ -25,13 +26,14 @@ from substra.sdk.config import BackendType
 
 logger = logging.getLogger(__name__)
 
-_BACKEND_ID = "local-backend"
 _MAX_LEN_KEY_METADATA = 50
 _MAX_LEN_VALUE_METADATA = 100
-DEBUG_OWNER = "debug_owner"
 
 
 class Local(base.BaseBackend):
+
+    org_counter = 1
+
     def __init__(self, backend, *args, **kwargs):
         self._local_worker_dir = Path.cwd() / "local-worker"
         self._local_worker_dir.mkdir(exist_ok=True)
@@ -49,6 +51,17 @@ class Local(base.BaseBackend):
             self._db,
             local_worker_dir=self._local_worker_dir,
             debug_spawner=self._debug_spawner,
+        )
+
+        self._org_id = f"MyOrg{Local.org_counter}MSP"
+        self._org_name = f"MyOrg{Local.org_counter}MSP"
+        Local.org_counter += 1
+        self._db.add(
+            models.Organization(
+                id=self._org_id,
+                is_current=False,  # all orgs share the same db, catch and change this value at the "get"
+                creation_date=self.__now(),
+            )
         )
 
     def __now(self):
@@ -131,7 +144,14 @@ class Local(base.BaseBackend):
         Returns:
             List[models._Model]: List of results
         """
-        return self._db.list(type_=asset_type, filters=filters, order_by=order_by, ascending=ascending)
+        results = self._db.list(type_=asset_type, filters=filters, order_by=order_by, ascending=ascending)
+        if asset_type == schemas.Type.Organization:
+            for i, item in enumerate(results):
+                if item.id == self._org_id:
+                    my_org = copy.copy(item)  # do not change the value in the db
+                    my_org.is_current = True
+                    results[i] = my_org
+        return results
 
     @staticmethod
     def _check_metadata(metadata: Optional[Dict[str, str]]):
@@ -141,20 +161,13 @@ class Local(base.BaseBackend):
             if any([len(value) > _MAX_LEN_VALUE_METADATA or len(value) == 0 for value in metadata.values()]):
                 raise exceptions.InvalidRequest("Values in metadata cannot be empty or more than 100 characters", 400)
 
-        # In debug mode, the user can define the owner of the data
-        if metadata is not None and DEBUG_OWNER in metadata:
-            owner = metadata[DEBUG_OWNER]
-        else:
-            owner = _BACKEND_ID
-        return owner
-
-    @staticmethod
-    def __compute_permissions(permissions, owner=_BACKEND_ID):
+    def __compute_permissions(self, permissions):
         """Compute the permissions
 
         If the permissions are private, the active organization is
         in the authorized ids.
         """
+        owner = self._org_id
         if permissions.public:
             permissions.authorized_ids = list()
         elif not permissions.public and owner not in permissions.authorized_ids:
@@ -214,15 +227,6 @@ class Local(base.BaseBackend):
         return compute_plan_key, rank
 
     def __execute_compute_plan(self, spec, compute_plan, visited, tuples, spec_options):
-        if spec.predicttuples:
-            for predicttuple in spec.predicttuples:
-                tuple_spec = schemas.PredicttupleSpec.from_compute_plan(
-                    compute_plan_key=spec.key,
-                    spec=predicttuple,
-                )
-                visited[tuple_spec.key] = visited.get(predicttuple.traintuple_id, -1) + 1
-                tuples[tuple_spec.key] = tuple_spec
-
         if spec.testtuples:
             for testtuple in spec.testtuples:
                 tuple_spec = schemas.TesttupleSpec.from_compute_plan(
@@ -250,10 +254,6 @@ class Local(base.BaseBackend):
                 )
 
                 progress_bar.update()
-
-        compute_plan.end_date = datetime.now()
-        compute_plan.estimated_end_date = compute_plan.end_date
-        compute_plan.duration = int((compute_plan.end_date - compute_plan.start_date).total_seconds())
 
         return compute_plan
 
@@ -289,9 +289,9 @@ class Local(base.BaseBackend):
             if data_sample.test_only:
                 raise substra.exceptions.InvalidRequest("Cannot create train task with test data", 400)
 
-    def __add_algo(self, key, spec, owner, spec_options=None):
+    def __add_algo(self, key, spec, spec_options=None):
 
-        permissions = self.__compute_permissions(spec.permissions, owner)
+        permissions = self.__compute_permissions(spec.permissions)
         algo_file_path = self._db.save_file(spec.file, key)
         algo_description_path = self._db.save_file(spec.description, key)
 
@@ -299,7 +299,7 @@ class Local(base.BaseBackend):
             key=key,
             creation_date=self.__now(),
             name=spec.name,
-            owner=owner,
+            owner=self._org_id,
             category=spec.category,
             permissions={
                 "process": {
@@ -316,22 +316,22 @@ class Local(base.BaseBackend):
         return self._db.add(algo)
 
     def _add_algo(self, key, spec, spec_options=None):
-        owner = self._check_metadata(spec.metadata)
-        return self.__add_algo(key, spec, owner, spec_options=spec_options)
+        self._check_metadata(spec.metadata)
+        return self.__add_algo(key, spec, spec_options=spec_options)
 
     def _add_dataset(self, key, spec, spec_options=None):
 
-        owner = self._check_metadata(spec.metadata)
+        self._check_metadata(spec.metadata)
 
-        permissions = self.__compute_permissions(spec.permissions, owner)
-        logs_permission = self.__compute_permissions(spec.logs_permission, owner)
+        permissions = self.__compute_permissions(spec.permissions)
+        logs_permission = self.__compute_permissions(spec.logs_permission)
 
         dataset_file_path = self._db.save_file(spec.data_opener, key)
         dataset_description_path = self._db.save_file(spec.description, key)
         asset = models.Dataset(
             key=key,
             creation_date=self.__now(),
-            owner=owner,
+            owner=self._org_id,
             name=spec.name,
             permissions={
                 "process": {
@@ -360,7 +360,7 @@ class Local(base.BaseBackend):
         data_sample = models.DataSample(
             key=key,
             creation_date=self.__now(),
-            owner=_BACKEND_ID,
+            owner=self._org_id,
             path=spec.path,
             data_manager_keys=spec.data_manager_keys,
             test_only=spec.test_only,
@@ -420,7 +420,7 @@ class Local(base.BaseBackend):
             canceled_count=0,
             failed_count=0,
             done_count=0,
-            owner="local",
+            owner=self._org_id,
             delete_intermediary_models=spec.clean_models if spec.clean_models is not None else False,
         )
         compute_plan = self._db.add(compute_plan)
@@ -432,7 +432,7 @@ class Local(base.BaseBackend):
     # TODO: '_add_traintuple' is too complex, consider refactoring
     def _add_traintuple(self, key, spec, spec_options=None):  # noqa: C901
         # validation
-        owner = self._check_metadata(spec.metadata)
+        self._check_metadata(spec.metadata)
 
         algo = self._db.get(schemas.Type.Algo, spec.algo_key)
         assert algo.category == schemas.AlgoCategory.simple
@@ -471,7 +471,7 @@ class Local(base.BaseBackend):
             creation_date=self.__now(),
             category=schemas.TaskCategory.train,
             algo=algo,
-            owner=owner,
+            owner=self._org_id,
             worker=dataset.owner,
             compute_plan_key=compute_plan_key,
             rank=rank,
@@ -490,7 +490,7 @@ class Local(base.BaseBackend):
     def _add_predicttuple(self, key, spec, spec_options=None):
 
         # validation
-        owner = self._check_metadata(spec.metadata)
+        self._check_metadata(spec.metadata)
         algo = self._db.get(schemas.Type.Algo, spec.algo_key)
 
         traintuple = self._get_parent_task(spec.traintuple_key)
@@ -525,10 +525,10 @@ class Local(base.BaseBackend):
             creation_date=self.__now(),
             category=schemas.TaskCategory.predict,
             algo=algo,
-            owner=owner,
+            owner=self._org_id,
             worker=worker,
             compute_plan_key=traintuple.compute_plan_key,
-            rank=traintuple.rank,
+            rank=traintuple.rank + 1,
             inputs=spec.inputs or [],
             outputs=_output_from_spec(spec.outputs),
             tag=spec.tag or "",
@@ -543,7 +543,7 @@ class Local(base.BaseBackend):
     def _add_testtuple(self, key, spec, spec_options=None):
 
         # validation
-        owner = self._check_metadata(spec.metadata)
+        self._check_metadata(spec.metadata)
         algo = self._db.get(schemas.Type.Algo, spec.algo_key)
 
         predicttuple = self._get_parent_task(spec.predicttuple_key)
@@ -581,7 +581,7 @@ class Local(base.BaseBackend):
             creation_date=self.__now(),
             category=schemas.TaskCategory.test,
             algo=algo,
-            owner=owner,
+            owner=self._org_id,
             worker=worker,
             compute_plan_key=predicttuple.compute_plan_key,
             rank=predicttuple.rank,
@@ -598,7 +598,7 @@ class Local(base.BaseBackend):
 
     def _add_composite_traintuple(self, key: str, spec: schemas.CompositeTraintupleSpec, spec_options=None):
         # validation
-        owner = self._check_metadata(spec.metadata)
+        self._check_metadata(spec.metadata)
         algo = self._db.get(schemas.Type.Algo, spec.algo_key)
         assert algo.category == schemas.AlgoCategory.composite
         dataset = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
@@ -638,7 +638,7 @@ class Local(base.BaseBackend):
             creation_date=self.__now(),
             category=schemas.TaskCategory.composite,
             algo=algo,
-            owner=owner,
+            owner=self._org_id,
             worker=dataset.owner,
             compute_plan_key=compute_plan_key,
             rank=rank,
@@ -661,7 +661,7 @@ class Local(base.BaseBackend):
         spec_options: dict = None,
     ):
         # validation
-        owner = self._check_metadata(spec.metadata)
+        self._check_metadata(spec.metadata)
         algo = self._db.get(schemas.Type.Algo, spec.algo_key)
         assert algo.category == schemas.AlgoCategory.aggregate
 
@@ -684,8 +684,8 @@ class Local(base.BaseBackend):
             key=key,
             category=schemas.TaskCategory.aggregate,
             algo=algo,
-            owner=owner,
-            worker=owner,
+            owner=self._org_id,
+            worker=spec.worker,
             compute_plan_key=compute_plan_key,
             rank=rank,
             inputs=spec.inputs or [],
@@ -716,10 +716,12 @@ class Local(base.BaseBackend):
         if not set([x.identifier for x in spec_inputs]).issubset(set([x.identifier for x in algo.inputs])):
             error_msg += "  - There are keys in the spec inputs that have not been declared in the algo inputs.\n"
 
-        if not set([x for x in spec_outputs]) == set([x.identifier for x in algo.outputs]):
+        spec_output_keys = set([x for x in spec_outputs])
+        algo_output_keys = set([x.identifier for x in algo.outputs])
+        if not spec_output_keys == algo_output_keys:
             error_msg += (
                 "  - The identifiers in the spec outputs and the algo outputs must match:"
-                f"{spec_outputs.symmetric_difference(algo.outputs)}.\n"
+                f"{spec_output_keys.symmetric_difference(algo_output_keys)}.\n"
             )
 
         if len(error_msg) > 0:
@@ -797,7 +799,17 @@ class Local(base.BaseBackend):
             return self._db.get_remote_description(asset_type, key)
 
     def organization_info(self):
-        return {"type": "local backend"}
+        return models.OrganizationInfo(
+            host="http://fakeurl.fake",
+            organization_id=self._org_id,
+            organization_name=self._org_name,
+            config=models.OrganizationInfoConfig(
+                model_export_enabled=True,
+            ),
+            channel="channel1",
+            version=substra.__version__,
+            orchestrator_version="fake",
+        )
 
     def cancel_compute_plan(self, key):
         # Execution is synchronous in the local backend so this
@@ -833,8 +845,12 @@ class Local(base.BaseBackend):
             asset_type=schemas.Type.CompositeTraintuple,
             filters=filters,
         )
+        cp_predicttuple = self.list(
+            asset_type=schemas.Type.Predicttuple,
+            filters=filters,
+        )
         visited = dict()
-        for tuple_ in cp_traintuples + cp_aggregatetuples + cp_composite_traintuples:
+        for tuple_ in cp_traintuples + cp_aggregatetuples + cp_composite_traintuples + cp_predicttuple:
             visited[tuple_.key] = tuple_.rank
 
         # Update the tuple graph with the tuples already in the CP
