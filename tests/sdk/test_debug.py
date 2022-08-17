@@ -1,4 +1,3 @@
-import os
 import re
 import uuid
 from pathlib import Path
@@ -109,40 +108,6 @@ class TestsDebug:
         ]
         with pytest.raises((substra.sdk.backends.local.compute.spawner.base.ExecutionError, docker.errors.APIError)):
             client.add_compute_plan(cp)
-
-    def test_chainkey_exists(self, asset_factory, spawner, caplog):
-        """Test that if chainkey is supported but it was not generated warning is
-        logged and adding the compute plan passes through nevertheless"""
-        os.environ["CHAINKEYS_ENABLED"] = "True"
-        # setting wrong directory, chainkeys should not be found
-        os.environ["CHAINKEYS_DIR"] = str("/")
-
-        client = substra.Client(debug=True)
-        assert len(caplog.text) == 0
-
-        dataset_query = asset_factory.create_dataset(metadata={substra.DEBUG_OWNER: "owner_1"})
-        dataset_1_key = client.add_dataset(dataset_query)
-
-        data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=False)
-        sample_1_key = client.add_data_sample(data_sample)
-
-        algo_query = asset_factory.create_algo(AlgoCategory.simple)
-        algo_key = client.add_algo(algo_query)
-
-        cp = asset_factory.create_compute_plan()
-        cp.traintuples = [
-            substra.sdk.schemas.ComputePlanTraintupleSpec(
-                algo_key=algo_key,
-                data_manager_key=dataset_1_key,
-                traintuple_id=str(uuid.uuid4()),
-                train_data_sample_keys=[sample_1_key],
-                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_1_key, data_sample_keys=[sample_1_key]),
-                outputs=FLTaskOutputGenerator.traintuple(),
-            )
-        ]
-
-        client.add_compute_plan(cp)
-        assert "No chainkeys found" in caplog.text
 
     def test_client_multi_organizations_cp(self, asset_factory, spawner):
         """Assert that there is one CP local folder per organization"""

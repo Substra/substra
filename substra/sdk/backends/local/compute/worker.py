@@ -58,15 +58,11 @@ class Worker:
         self,
         db: dal.DataAccess,
         local_worker_dir: pathlib.Path,
-        support_chainkeys: bool,
         debug_spawner: Type[BaseSpawner],
-        chainkey_dir=None,
     ):
         self._local_worker_dir = local_worker_dir
         self._db = db
         self._spawner = spawner.get(name=debug_spawner, local_worker_dir=self._local_worker_dir)
-        self._support_chainkeys = support_chainkeys
-        self._chainkey_dir = chainkey_dir
 
     @contextlib.contextmanager
     def _context(self, key):

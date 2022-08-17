@@ -190,7 +190,7 @@ Create new dataset asset and return its key.
 In debug mode, add the following key: `substra.DEBUG_OWNER` to the metadata,
 the value becomes the organization owner of the data, and all tuples using this data
 have their worker set to this organization. This has no impact on how the tuples are
-executed except if chainkey support is enabled.
+executed.
 
 **Arguments:**
  - `data (Union[dict, schemas.DatasetSpec], required)`: If it is a dict, it must have the same

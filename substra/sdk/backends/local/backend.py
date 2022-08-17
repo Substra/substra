@@ -3,7 +3,6 @@ import os
 import shutil
 import warnings
 from datetime import datetime
-from distutils import util
 from pathlib import Path
 from typing import Dict
 from typing import List
@@ -37,11 +36,6 @@ class Local(base.BaseBackend):
         self._local_worker_dir = Path.cwd() / "local-worker"
         self._local_worker_dir.mkdir(exist_ok=True)
 
-        self._support_chainkeys = bool(util.strtobool(os.getenv("CHAINKEYS_ENABLED", "False")))
-        self._chainkey_dir = self._local_worker_dir / "chainkeys"
-        if self._support_chainkeys:
-            logger.info(f"Chainkeys support is on, the directory is {self._chainkey_dir}")
-
         self._debug_spawner = BackendType(os.getenv("DEBUG_SPAWNER", BackendType.LOCAL_DOCKER))
         if self._debug_spawner == BackendType.LOCAL_SUBPROCESS:
             logger.info(
@@ -54,9 +48,7 @@ class Local(base.BaseBackend):
         self._worker = compute.Worker(
             self._db,
             local_worker_dir=self._local_worker_dir,
-            support_chainkeys=self._support_chainkeys,
             debug_spawner=self._debug_spawner,
-            chainkey_dir=self._chainkey_dir,
         )
 
     def __now(self):
@@ -409,10 +401,6 @@ class Local(base.BaseBackend):
         self._check_metadata(spec.metadata)
         # Get all the tuples and their dependencies
         tuple_graph, tuples = compute_plan_module.get_dependency_graph(spec)
-
-        # If chainkey is supported make sure it exists, else set support to False
-        if self._support_chainkeys and not (self._chainkey_dir / "organization_name_id.json").is_file():
-            logger.warning(f"No chainkeys found in {self._chainkey_dir}.")
 
         # Define the rank of each traintuple, aggregate tuple and composite tuple
         visited = graph.compute_ranks(node_graph=tuple_graph)
