@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.34.0](https://github.com/owkin/substra/releases/tag/0.34.0) - 2022-08-22
+
 ### Changed
 
 - BREAKING CHANGE:in local mode, each client has its own `organization_id`. Removed the `DEBUG_OWNER` mechanism.
