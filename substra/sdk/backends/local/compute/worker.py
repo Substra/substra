@@ -207,10 +207,7 @@ class Worker:
             pass
         elif dataset is not None and not self._db.is_local(dataset.key, schemas.Type.Dataset):
             # Hybrid mode
-            if isinstance(task, models.Testtuple):
-                command_template += " --fake-data-mode FAKE_Y"
-            else:
-                command_template += " --fake-data"
+            command_template += " --fake-data"
             command_template += f" --n-fake-samples {len(datasample_input_refs)}"
         else:
             datasample_task_resources, data_sample_paths = self._prepare_datasample_input(
@@ -218,7 +215,6 @@ class Worker:
             )
             if isinstance(task, models.Testtuple):
                 data_sample_paths_arg_str = " ".join([task_res["value"] for task_res in datasample_task_resources])
-                command_template += " --fake-data-mode DISABLED"
                 command_template += f" --data-sample-paths {data_sample_paths_arg_str}"
 
         return command_template, datasample_task_resources, data_sample_paths

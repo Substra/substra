@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- chore: change the `metrics` and `algo` definition relying on substra tools. All the methods of those objects now takes `inputs` and `outputs` as arguments; which are `TypedDict`. (#256)
+
 ## [0.34.0](https://github.com/owkin/substra/releases/tag/0.34.0) - 2022-08-22
 
 ### Changed
@@ -86,8 +90,8 @@ client1_org_id = clients[0].organization_info().organization_id
 
 ### Added
 
-- "outputs" field to substra.sdk.schemas.*tupleSpec (#219)
-- feat: add "outputs" field to *tuple models (#235)
+- "outputs" field to substra.sdk.schemas.\*tupleSpec (#219)
+- feat: add "outputs" field to \*tuple models (#235)
 
 ### Removed
 

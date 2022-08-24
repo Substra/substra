@@ -121,4 +121,5 @@ class Subprocess(BaseSpawner):
             try:
                 subprocess.run(py_command, capture_output=False, check=True, cwd=tmpdir, env=envs)
             except subprocess.CalledProcessError as e:
+
                 raise ExecutionError(e)
