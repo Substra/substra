@@ -584,7 +584,7 @@ class Local(base.BaseBackend):
             owner=self._org_id,
             worker=worker,
             compute_plan_key=predicttuple.compute_plan_key,
-            rank=predicttuple.rank,
+            rank=predicttuple.rank + 1,
             inputs=spec.inputs or [],
             outputs=_output_from_spec(spec.outputs),
             tag=spec.tag or "",
