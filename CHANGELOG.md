@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.34.0](https://github.com/owkin/substra/releases/tag/0.35.0) - 2022-08-29
+
 ### Changed
 
 - chore: change the `metrics` and `algo` definition relying on substra tools. All the methods of those objects now takes `inputs` and `outputs` as arguments; which are `TypedDict`. (#256)
