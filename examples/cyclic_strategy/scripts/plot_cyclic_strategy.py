@@ -46,9 +46,9 @@
 # * use Python >= 3.8
 # * have [Docker](https://www.docker.com/) installed
 # * install the `substra <../../README.md#install>`_ cli
-# * install the `connect-tools <https://github.com/Substra/connect-tools` library
-# * pull the `connect-tools
-# <https://github.com/Substra/connect-tools#pull-from-public-docker-registry>`
+# * install the `substra-tools <https://github.com/Substra/substra-tools` library
+# * pull the `substra-tools
+# <https://github.com/Substra/substra-tools#pull-from-public-docker-registry>`
 # docker images
 # * install this example dependencies :
 # `pip install -r substra/examples/cyclic_strategy/requirements.txt`
