@@ -7,7 +7,6 @@ For more information on what is substra and how to use is, please refer to the [
 
 To discuss on Slack, please join the [substra-general](https://lfaifoundation.slack.com/#substra-general) channel and the [substra-help](https://lfaifoundation.slack.com/#substra-help) channel.
 
-
 ## Contributing
 
 ### Setup

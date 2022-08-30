@@ -46,20 +46,18 @@
 # * use Python >= 3.8
 # * have [Docker](https://www.docker.com/) installed
 # * install the `substra <../../README.md#install>`_ cli
-# * install the `connect-tools <https://github.com/owkin/connect-tools` library
+# * install the `connect-tools <https://github.com/Substra/connect-tools` library
 # * pull the `connect-tools
-# <https://github.com/owkin/connect-tools#pull-from-public-docker-registry>`
+# <https://github.com/Substra/connect-tools#pull-from-public-docker-registry>`
 # docker images
 # * install this example dependencies :
 # `pip install -r substra/examples/cyclic_strategy/requirements.txt`
 #
 # You can either:
-# * run this example in debug mode (no connection to a connect platform)
-# * follow `this tutorial <https://github.com/owkin/tech-team/wiki/Deploy-Connect-locally-with-k3s>`
-# to deploy a local connect platform
-# * have access to a connect platform of your own
+# * run this example in debug mode (no connection to a substra platform)
+# * have access to a substra platform of your own
 #
-# If you have access to a connect platform, be sure to log your substra client to the organizations you
+# If you have access to a substra platform, be sure to log your substra client to the organizations you
 # will use.
 # If you followed the previous tutorial, this bash command will do the trick:
 #
@@ -111,17 +109,17 @@ compute_plan_info_path = current_directory / ".." / "compute_plan_info.json"
 
 
 # %%
-# Configuration of our connect platform
+# Configuration of our substra platform
 # --------------------------------------
 #
 # For this example, we decided to use two organizations, you will find a way to use three organizations at
 # the end of the notebook.
 # The default mode is `Debug` so everything runs locally.
-# If you have access to a connect platform, be sure to configure your substra client and
+# If you have access to a substra platform, be sure to configure your substra client and
 # to login to the different organizations before executing the script and to set DEBUG to False in
 # the cell bellow.
 #
-# If you deployed your own connect platform with the tutorial, you are all set. Otherwise be
+# If you deployed your own substra platform with the tutorial, you are all set. Otherwise be
 # sure to change the **PROFILE_NAMES, ORGANIZATIONS_IDS, ALGO_ORGANIZATION_ID, ALGO_ORGANIZATION_PROFILE**
 # below:
 
@@ -588,7 +586,7 @@ client.get_compute_plan(compute_plan.key)
 # Displaying Scores
 # -----------------
 #
-# When you are connected to a remote connect instance, you can access your organization to follow
+# When you are connected to a remote substra instance, you can access your organization to follow
 # the evolution of your compute plan. For example:
 import time
 
@@ -658,19 +656,15 @@ for submitted_testtuple in tqdm(submitted_testtuples):
 #
 # Then, delete the organization_1, organization_2 and algo_organization folder.
 #
-# If you are using your own connect platform
+# If you are using your own substra platform
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # * configure and connect your substra client to the third organization
 # * add the profile name and the organization id to PROFILE_NAMES and ORGANIZATIONS_IDS in this file.
 #
 #
-# If you deployed a local connect platform
+# If you deployed a local substra platform
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-#
-# * follow `this tutorial
-# <https://github.com/owkin/tech-team/wiki/Add-a-organization-to-a-local-connect-platform>`
-# to add a third organization to your k3s cluster.
 #
 # * connect to you three organizations thanks to :
 # ``substra config --profile organization-3 http://substra-backend.org-3.com``
