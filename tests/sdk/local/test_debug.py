@@ -13,6 +13,7 @@ from substra.sdk.schemas import AlgoCategory
 from ...fl_interface import FL_ALGO_PREDICT_COMPOSITE
 from ...fl_interface import FLTaskInputGenerator
 from ...fl_interface import FLTaskOutputGenerator
+from ...fl_interface import InputIdentifiers
 
 
 def test_wrong_debug_spawner(monkeypatch):
@@ -412,6 +413,68 @@ class TestsList:
         assets = getattr(client, f"list_{asset_name}")()
 
         assert assets[0].key == key
+
+    def test_list_tuples_with_inputs(self, _init_data_samples, asset_factory, subprocess_clients):
+        client = subprocess_clients[0]
+
+        dataset_query = asset_factory.create_dataset()
+        dataset_key = client.add_dataset(dataset_query)
+
+        data_sample_1 = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
+        data_sample_key = client.add_data_sample(data_sample_1)
+        cp = asset_factory.create_compute_plan()
+
+        algo_query = asset_factory.create_algo(AlgoCategory.simple)
+        algo_key = client.add_algo(algo_query)
+
+        predict_algo_spec = asset_factory.create_algo(category=AlgoCategory.predict)
+        predict_algo_key = client.add_algo(predict_algo_spec)
+
+        metric = asset_factory.create_algo(category=AlgoCategory.metric)
+        metric_key = client.add_algo(metric)
+
+        traintuple = substra.sdk.schemas.ComputePlanTraintupleSpec(
+            algo_key=algo_key,
+            traintuple_id=str(uuid.uuid4()),
+            data_manager_key=dataset_key,
+            train_data_sample_keys=[data_sample_key],
+            inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[data_sample_key]),
+            outputs=FLTaskOutputGenerator.traintuple(),
+        )
+
+        predicttuple = substra.sdk.schemas.ComputePlanPredicttupleSpec(
+            algo_key=predict_algo_key,
+            data_manager_key=dataset_key,
+            traintuple_id=traintuple.traintuple_id,
+            predicttuple_id=str(uuid.uuid4()),
+            test_data_sample_keys=[data_sample_key],
+            inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[data_sample_key])
+            + FLTaskInputGenerator.train_to_predict(traintuple.traintuple_id),
+            outputs=FLTaskOutputGenerator.predicttuple(),
+        )
+
+        cp.testtuples = [
+            substra.sdk.schemas.ComputePlanTesttupleSpec(
+                algo_key=metric_key,
+                predicttuple_id=predicttuple.predicttuple_id,
+                data_manager_key=dataset_key,
+                test_data_sample_keys=[data_sample_key],
+                inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[data_sample_key])
+                + FLTaskInputGenerator.predict_to_test(predicttuple.predicttuple_id),
+                outputs=FLTaskOutputGenerator.testtuple(),
+            )
+            for _ in range(2)
+        ]
+        cp.traintuples = [traintuple]
+        cp.predicttuples = [predicttuple]
+        compute_plan = client.add_compute_plan(cp)
+
+        testtuples = client.list_testtuple(filters={"compute_plan_key": [compute_plan.key]})
+        for tuple in testtuples:
+            for input in tuple.inputs:
+                if input.identifier == InputIdentifiers.opener or input.identifier == InputIdentifiers.model:
+                    assert input.addressable is not None
+                    assert input.permissions is not None
 
     def test_list_datasamples_all(self, _init_data_samples):
         # get all datasamples

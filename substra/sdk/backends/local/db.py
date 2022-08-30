@@ -4,8 +4,17 @@ import typing
 
 from substra.sdk import exceptions
 from substra.sdk import models
+from substra.sdk import schemas
 
 logger = logging.getLogger(__name__)
+
+task_types = [
+    schemas.Type.Aggregatetuple,
+    schemas.Type.CompositeTraintuple,
+    schemas.Type.Predicttuple,
+    schemas.Type.Testtuple,
+    schemas.Type.Traintuple,
+]
 
 
 class InMemoryDb:
@@ -31,9 +40,13 @@ class InMemoryDb:
     def get(self, type_, key: str):
         """Return asset."""
         try:
-            return self._data[type_][key]
+            asset = self._data[type_][key]
         except KeyError:
             raise exceptions.NotFound(f"Wrong pk {key}", 404)
+
+        if type_ in task_types:
+            self._link_inputs_addressable(asset)
+        return asset
 
     def _match_asset(self, asset: models._Model, attribute: str, values: typing.Union[typing.Dict, typing.List]):
         """Checks if an asset attributes matches the given values.
@@ -78,7 +91,7 @@ class InMemoryDb:
         """List assets by filters.
 
         Args:
-            asset_type (str): asset type. e.g. "algo"
+            type_ (str): asset type. e.g. "algo"
             filters (dict, optional): keys = attributes, values = list of values for this attribute.
                 e.g. {"name": ["name1", "name2"]}. "," corresponds to an "OR". Defaults to None.
             order_by (str, optional): attribute name to order the results on. Defaults to None.
@@ -96,7 +109,36 @@ class InMemoryDb:
         if order_by:
             assets.sort(key=lambda x: getattr(x, order_by), reverse=(not ascending))
 
+        if type_ in task_types:
+            for item in assets:
+                self._link_inputs_addressable(item)
+
         return assets
+
+    def _get_input_kind(self, asset, input):
+        for algo_input in asset.algo.inputs:
+            if algo_input.identifier == input.identifier:
+                return algo_input.kind
+
+    def _link_inputs_addressable(self, asset):
+        for input in asset.inputs:
+            input_kind = self._get_input_kind(asset, input)
+            if input_kind == schemas.AssetKind.data_manager:
+                if not input.asset_key:
+                    return
+                input_data_manager = self.get(schemas.Type.Dataset, input.asset_key)
+                input.permissions = input_data_manager.permissions
+                input.addressable = input_data_manager.opener
+            if input_kind == schemas.AssetKind.model:
+                if input.parent_task_key and input.parent_task_output_identifier:
+                    parent_task = None
+                    for type_ in enumerate(task_types):
+                        if input.parent_task_key not in self._data[type_]:
+                            continue
+                        parent_task = self._data[type_][input.parent_task_key]
+                if parent_task:
+                    input.permissions = parent_task.outputs[input.parent_task_output_identifier].permissions
+                    input.addressable = parent_task.outputs[input.parent_task_output_identifier].value.address
 
     def update(self, asset):
         type_ = asset.__class__.type_

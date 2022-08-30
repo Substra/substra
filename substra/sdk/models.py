@@ -256,6 +256,8 @@ class InputRef(schemas._PydanticConfig):
     asset_key: Optional[str]
     parent_task_key: Optional[str]
     parent_task_output_identifier: Optional[str]
+    permissions: Optional[Permissions]
+    addressable: Optional[InModel]
 
     # either (asset_key) or (parent_task_key, parent_task_output_identifier) must be specified
     _check_asset_key_or_parent_ref = pydantic.root_validator(allow_reuse=True)(schemas.check_asset_key_or_parent_ref)
