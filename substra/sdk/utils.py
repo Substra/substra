@@ -21,7 +21,6 @@ import ntpath
 import os
 import re
 import time
-import typing
 import uuid
 import zipfile
 
@@ -164,16 +163,6 @@ def check_and_format_search_filters(asset_type, filters):  # noqa: C901
             raise exceptions.NotAllowedFilterError(
                 f"Cannot filter on {key}. Please review the documentation, filtering allowed only on {allowed_filters}"
             )
-        # check/format special cases (not Lists)
-        elif key == "status":
-            if not isinstance(filters[key], str):
-                raise exceptions.FilterFormatError(
-                    """Cannot load filters. Please review the documentation, 'status' must be a str and be one of the
-                    following values: 'waiting', 'todo', 'doing', 'done', 'canceled', 'failed'"""
-                )
-            # map status with right enum entry
-            status_enum = typing.get_type_hints(models.SCHEMA_TO_MODEL[asset_type])["status"]
-            filters[key] = status_enum[filters[key]]
         elif key == "name":
             if not isinstance(filters[key], str):
                 raise exceptions.FilterFormatError(

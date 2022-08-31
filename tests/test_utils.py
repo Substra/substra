@@ -17,6 +17,7 @@ import zipfile
 
 import pytest
 
+import substra
 from substra.sdk import exceptions
 from substra.sdk import schemas
 from substra.sdk import utils
@@ -86,8 +87,18 @@ def test_check_metadata_search_filter(filters, expected, exception):
 @pytest.mark.parametrize(
     "asset_type,filters,expected,exception",
     [
-        (schemas.Type.ComputePlan, {"status": "doing"}, {"status": "PLAN_STATUS_DOING"}, None),
-        (schemas.Type.Traintuple, {"status": "done"}, {"status": "STATUS_DONE"}, None),
+        (
+            schemas.Type.ComputePlan,
+            {"status": [substra.models.ComputePlanStatus.doing.value]},
+            {"status": [substra.models.ComputePlanStatus.doing.value]},
+            None,
+        ),
+        (
+            schemas.Type.Traintuple,
+            {"status": [substra.models.Status.done.value]},
+            {"status": [substra.models.Status.done.value]},
+            None,
+        ),
         (schemas.Type.Traintuple, {"rank": [1]}, {"rank": ["1"]}, None),
         (schemas.Type.DataSample, ["wrong filter type"], None, exceptions.FilterFormatError),
         (schemas.Type.ComputePlan, {"name": ["list"]}, None, exceptions.FilterFormatError),

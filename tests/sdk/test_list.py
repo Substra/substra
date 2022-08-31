@@ -59,7 +59,7 @@ def test_list_asset(asset_type, client, mocker):
         ("aggregatetuple", {"worker": ["foo", "bar"]}),
         ("composite_traintuple", {"owner": ["foo", "bar"]}),
         ("compute_plan", {"name": "foo"}),
-        ("compute_plan", {"status": "done"}),
+        ("compute_plan", {"status": [models.ComputePlanStatus.done.value]}),
     ],
 )
 def test_list_asset_with_filters(asset_type, filters, client, mocker):
