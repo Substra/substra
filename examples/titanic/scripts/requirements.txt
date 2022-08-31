@@ -1,4 +1,0 @@
-tqdm
-scikit-learn
-pandas
-substratools>=0.13.0

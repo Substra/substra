@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- chore: remove the `examples` section, and references to them
+
 ### Changed
 
 - test tasks now have an higher rank than their parent train task
