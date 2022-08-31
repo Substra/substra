@@ -724,6 +724,11 @@ class Local(base.BaseBackend):
                 f"{spec_output_keys.symmetric_difference(algo_output_keys)}.\n"
             )
 
+        for output_performance in (x for x in algo.outputs if x.kind == schemas.AssetKind.performance):
+            if not spec_outputs[output_performance.identifier].permissions.public:
+                error_msg += '  - invalid task output "performance": a PERFORMANCE output should be public.'
+                break
+
         if len(error_msg) > 0:
             raise exceptions.InvalidRequest(f"There are errors in the inputs / outputs fields:\n{error_msg}", "OE0101")
 

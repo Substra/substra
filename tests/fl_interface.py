@@ -302,7 +302,11 @@ class FLTaskOutputGenerator:
 
     @staticmethod
     def testtuple(authorized_ids=None):
-        return {OutputIdentifiers.performance: ComputeTaskOutputSpec(permissions=_permission_from_ids(authorized_ids))}
+        return {
+            OutputIdentifiers.performance: ComputeTaskOutputSpec(
+                permissions=Permissions(public=True, authorized_ids=[])
+            )
+        }
 
     @staticmethod
     def composite_traintuple(shared_authorized_ids=None, local_authorized_ids=None):
