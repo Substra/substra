@@ -239,10 +239,19 @@ DEFAULT_ALGO_SCRIPTS = {
     FL_ALGO_PREDICT_COMPOSITE: DEFAULT_COMPOSITE_ALGO_SCRIPT,
 }
 
+DEFAULT_ALGO_METHOD_NAME = {
+    AlgoCategory.simple: "train",
+    AlgoCategory.composite: "train",
+    AlgoCategory.aggregate: "aggregate",
+    AlgoCategory.predict: "predict",
+    AlgoCategory.metric: "score",
+    FL_ALGO_PREDICT_COMPOSITE: "predict",
+}
+
 DEFAULT_ALGO_DOCKERFILE = f"""
 FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
 COPY algo.py .
-ENTRYPOINT ["python3", "algo.py"]
+ENTRYPOINT ["python3", "algo.py", "--method-name", "{{method_name}}"]
 """
 
 BAD_ENTRYPOINT_DOCKERFILE = f"""
@@ -254,6 +263,12 @@ ENTRYPOINT ["python3", "algo.txt"]
 NO_ENTRYPOINT_DOCKERFILE = f"""
 FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
 COPY algo.py .
+"""
+
+NO_METHOD_NAME_DOCKERFILE = f"""
+FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
+COPY algo.py .
+ENTRYPOINT ["python3", "algo.txt", "train"]
 """
 
 DEFAULT_PERMISSIONS = substra.sdk.schemas.Permissions(public=True, authorized_ids=[])
@@ -393,7 +408,9 @@ class AssetsFactory:
                     if dockerfile_type == "BAD_ENTRYPOINT"
                     else NO_ENTRYPOINT_DOCKERFILE
                     if dockerfile_type == "NO_ENTRYPOINT"
-                    else DEFAULT_ALGO_DOCKERFILE
+                    else NO_METHOD_NAME_DOCKERFILE
+                    if dockerfile_type == "NO_METHOD_NAME"
+                    else DEFAULT_ALGO_DOCKERFILE.format(method_name=DEFAULT_ALGO_METHOD_NAME[category])
                 ),
             ),
         )

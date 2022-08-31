@@ -108,19 +108,6 @@ class Worker:
             _mkdir(live_perf_path.parent)
             self._save_cp_performances_as_json(compute_plan.key, live_perf_path)
 
-    def _get_command_template_cmd(self, task):
-        # Type of task being executed
-        if isinstance(task, models.Aggregatetuple):
-            return "aggregate"
-        elif isinstance(task, (models.CompositeTraintuple, models.Traintuple)):
-            return "train"
-        elif isinstance(task, models.Predicttuple):
-            return "predict"
-        elif isinstance(task, models.Testtuple):
-            return ""
-        else:
-            raise ValueError(f"Unsupported type of task {type(task)}")
-
     def _get_cmd_template_inputs_outputs(
         self,
         task,
@@ -296,7 +283,7 @@ class Worker:
             algo = self._db.get_with_files(schemas.Type.Algo, task.algo.key)
             compute_plan = self._db.get(schemas.Type.ComputePlan, task.compute_plan_key)
 
-            command_template: str = self._get_command_template_cmd(task=task)
+            command_template: str = ""
 
             volumes = {
                 "_VOLUME_INPUTS": _mkdir(task_dir / "inputs"),

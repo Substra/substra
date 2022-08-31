@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- BREAKING CHANGE: pass the algo method to execute under the `--method-name` argument within the CLI.
+  If the interface between substra and the backend is handled via substratools, there are no changes to apply
+  within the the `substra` code but algo and metric Dockerfiles should expose a `--method-name` argument in
+  the `ENTRYPOINT` (#266)
 - test tasks now have an higher rank than their parent train task
 - chore: remove close source for CHANGELOG, README and cyclic-example
 - chore: rename connect-tools to substra-tools.

@@ -1,4 +1,3 @@
-import re
 import uuid
 from pathlib import Path
 
@@ -7,7 +6,6 @@ import pytest
 
 import substra
 from substra.sdk import models
-from substra.sdk.backends.local.compute.spawner.subprocess import PYTHON_SCRIPT_NAME
 from substra.sdk.exceptions import InvalidRequest
 from substra.sdk.exceptions import KeyAlreadyExistsError
 from substra.sdk.schemas import AlgoCategory
@@ -37,31 +35,12 @@ def test_get_backend_type_deployed():
     assert client.backend_mode == substra.BackendType.DEPLOYED
 
 
-def test_regex_script_name_valid():
-    line = 'ENTRYPOINT ["python3", "metrics-_1.py"]'
-    result = re.findall(PYTHON_SCRIPT_NAME, line)
-    assert len(result) == 1, "Did not find the script name metrics-_1.py"
-    assert result[0] == "metrics-_1.py"
-
-
-def test_regex_script_name_empty():
-    line = 'ENTRYPOINT ["python3", ""]'
-    result = re.findall(PYTHON_SCRIPT_NAME, line)
-    assert len(result) == 0
-
-
-def test_regex_script_name_invalid():
-    line = 'ENTRYPOINT ["echo", "BLA"]'
-    result = re.findall(PYTHON_SCRIPT_NAME, line)
-    assert len(result) == 0
-
-
 class TestsDebug:
     def test_client_tmp_dir(self, clients):
         """Test the creation of a temp directory for the debug client"""
         assert clients[0].temp_directory
 
-    @pytest.mark.parametrize("dockerfile_type", ("BAD_ENTRYPOINT", "NO_ENTRYPOINT"))
+    @pytest.mark.parametrize("dockerfile_type", ("BAD_ENTRYPOINT", "NO_ENTRYPOINT", "NO_METHOD_NAME"))
     def test_client_bad_dockerfile(self, asset_factory, dockerfile_type, clients):
 
         client = clients[0]

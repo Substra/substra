@@ -16,31 +16,43 @@ from substra.sdk.backends.local.compute.spawner.base import ExecutionError
 
 logger = logging.getLogger(__name__)
 
-# Find a name between quotes ending by '.py'
-PYTHON_SCRIPT_NAME = r"(?<=\")([^\"]*\.py)(?=\")"
+PYTHON_SCRIPT_REGEX = r"(?<=\")([^\"]*\.py)(?=\")"
+METHOD_REGEX = r"\"\-\-method-name\"\,\s*\"([^\"]*)\""
 
 
-def _get_script_name_from_dockerfile(tmpdir):
+def _get_entrypoint_from_dockerfile(tmpdir):
     """
-    Extracts the .py script in an ENTRYPOINT line of a Dockerfile, located in tmpdir.
-    For instance if the line `ENTRYPOINT ["python3", "algo.py"]` is in the Dockerfile,
-     `algo.py` is extracted.
+    Extracts the .py script and the function name to execute in
+    an ENTRYPOINT line of a Dockerfile, located in tmpdir.
+    For instance if the line `ENTRYPOINT ["python3", "algo.py", "--method-name", "train"]` is in the Dockerfile,
+     `algo.py`, `train` is extracted.
     """
+    valid_example = (
+        """The entry point should be specified as follow: """
+        """``ENTRYPOINT ["<executor>", "<algo_file.py>", "--method-name", "<method name>"]"""
+    )
     with open(tmpdir / "Dockerfile") as f:
         for line in f:
             if "ENTRYPOINT" not in line:
                 continue
 
-            script_name = re.findall(PYTHON_SCRIPT_NAME, line)
-            if not script_name:
-                raise ExecutionError(f"Couldn't get Python script in Dockerfile's entrypoint : {line}")
+            script_name = re.findall(PYTHON_SCRIPT_REGEX, line)
+            if len(script_name) != 1:
+                raise ExecutionError("Couldn't extract script from ENTRYPOINT line in Dockerfile", valid_example)
 
-            return script_name[0]
+            method_name = re.findall(METHOD_REGEX, line)
+            if len(method_name) != 1:
+                raise ExecutionError("Couldn't extract method name from ENTRYPOINT line in Dockerfile", valid_example)
 
-    raise ExecutionError("Couldn't get entrypoint in Dockerfile")
+            return script_name[0], method_name[0]
+
+    raise ExecutionError("Couldn't get entrypoint in Dockerfile", valid_example)
 
 
-def _get_py_command(script_name, tmpdir, command_template, local_volumes):
+# TODO: _get_py_command should only return the command_args, and the py_command should be defined in the spawn function
+# in the current state, the only args needed to get the command args are command_template, local_volumes, the rest is
+# only to build the command
+def _get_py_command(script_name, method_name, tmpdir, command_template, local_volumes):
     """
     Substitute the local_volumes in the command_template and split it to have the
     py_command
@@ -65,7 +77,7 @@ def _get_py_command(script_name, tmpdir, command_template, local_volumes):
     # '\\\\'
     command_args = [command_arg.replace("\\\\", " ") for command_arg in command_args]
     # put current python interpreter and script to launch before script command
-    py_command = [sys.executable, str(tmpdir / script_name)]
+    py_command = [sys.executable, str(tmpdir / script_name), "--method-name", str(method_name)]
     py_command.extend(command_args)
 
     return py_command
@@ -109,9 +121,9 @@ class Subprocess(BaseSpawner):
             tmpdir = pathlib.Path(tmpdir)
             uncompress(archive_path, tmpdir)
             # TODO: use new generated venv from dockerfile (pip install substratools,...)
-            script_name = _get_script_name_from_dockerfile(tmpdir)
+            script_name, method_name = _get_entrypoint_from_dockerfile(tmpdir)
             # get py_command for subprocess
-            py_command = _get_py_command(script_name, tmpdir, command_template, local_volumes)
+            py_command = _get_py_command(script_name, method_name, tmpdir, command_template, local_volumes)
 
             if data_sample_paths is not None and len(data_sample_paths) > 0:
                 _symlink_data_samples(data_sample_paths, local_volumes["_VOLUME_INPUTS"])
