@@ -771,17 +771,19 @@ class Local(base.BaseBackend):
             data_samples.append(data_sample)
         return data_sample_keys
 
-    def download(self, asset_type, url_field_path, key, destination):
+    def download(self, asset_type, url_field_path, key, destination_file):
         if self._db.is_local(key, asset_type):
             asset = self._db.get(type_=asset_type, key=key)
             # Get the field containing the path to the file.
             file_path = asset
             for field in url_field_path.split("."):
                 file_path = getattr(file_path, field, None)
-            # Copy the file to the destination folder
-            shutil.copyfile(file_path, destination)
+            # Copy the file to the destination file
+            shutil.copyfile(file_path, destination_file)
         else:
-            self._db.remote_download(asset_type, url_field_path, key, destination)
+            self._db.remote_download(asset_type, url_field_path, key, destination_file)
+
+        return destination_file
 
     def download_model(self, key, destination_file):
         if self._db.is_local(key, schemas.Type.Model):
@@ -789,6 +791,8 @@ class Local(base.BaseBackend):
             shutil.copyfile(asset.address.storage_address, destination_file)
         else:
             self._db.remote_download_model(key, destination_file)
+
+        return destination_file
 
     def download_logs(self, tuple_key: str, destination_file: str = None) -> NoReturn:
         raise NotImplementedError("Logs of tuples ran in local mode are not accessible")

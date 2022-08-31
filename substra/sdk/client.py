@@ -858,38 +858,63 @@ class Client(object):
     @logit
     def download_dataset(self, key: str, destination_folder: str) -> None:
         """Download data manager resource.
-
         Download opener script in destination folder.
+
+        Args:
+            key (str): Dataset key to download
+            destination_folder (str): Destination folder
+
+        Returns:
+            pathlib.Path: Path of the downloaded dataset
         """
-        self._backend.download(
-            schemas.Type.Dataset,
-            "opener.storage_address",
-            key,
-            os.path.join(destination_folder, "opener.py"),
+        return pathlib.Path(
+            self._backend.download(
+                schemas.Type.Dataset,
+                "opener.storage_address",
+                key,
+                os.path.join(destination_folder, "opener.py"),
+            )
         )
 
     @logit
     def download_algo(self, key: str, destination_folder: str) -> None:
         """Download algo resource.
-
         Download algo package in destination folder.
+
+        Args:
+            key (str): Algo key to download
+            destination_folder (str): Destination folder
+
+        Returns:
+            pathlib.Path: Path of the downloaded algo
         """
-        self._backend.download(
-            schemas.Type.Algo,
-            "algorithm.storage_address",
-            key,
-            os.path.join(destination_folder, "algo.tar.gz"),
+
+        return pathlib.Path(
+            self._backend.download(
+                schemas.Type.Algo,
+                "algorithm.storage_address",
+                key,
+                os.path.join(destination_folder, "algo.tar.gz"),
+            )
         )
 
     @logit
-    def download_model(self, key: str, folder) -> None:
+    def download_model(self, key: str, destination_folder) -> None:
         """Download model to destination file.
 
         This model was saved using the 'save_model' function of the algorithm.
         To load and use the model, please refer to the 'load_model' and 'predict' functions of the
         algorithm.
+
+        Args:
+            key (str): Model key to download
+            destination_folder (str): Destination folder
+
+        Returns:
+            pathlib.Path: Path of the downloaded model
         """
-        self._backend.download_model(key, os.path.join(folder, f"model_{key}"))
+
+        return pathlib.Path(self._backend.download_model(key, os.path.join(destination_folder, f"model_{key}")))
 
     @logit
     def download_model_from_traintuple(self, tuple_key: str, folder) -> None:
@@ -898,8 +923,16 @@ class Client(object):
         This model was saved using the 'save_model' function of the algorithm.
         To load and use the model, please refer to the 'load_model' and 'predict' functions of the
         algorithm.
+
+        Args:
+            tuple_key (str): Tuple key to download
+            folder (_type_): Destination folder
+
+        Returns:
+            pathlib.Path: Path of the downloaded model
         """
-        self._download_model_from_tuple(schemas.Type.Traintuple, tuple_key, folder)
+
+        return pathlib.Path(self._download_model_from_tuple(schemas.Type.Traintuple, tuple_key, folder))
 
     @logit
     def download_model_from_aggregatetuple(self, tuple_key: str, folder) -> None:
@@ -908,8 +941,15 @@ class Client(object):
         This model was saved using the 'save_model' function of the algorithm.
         To load and use the model, please refer to the 'load_model' and 'predict' functions of the
         algorithm.
+
+        Args:
+            tuple_key (str): Tuple key to download
+            folder (_type_): Destination folder
+
+        Returns:
+            pathlib.Path: Path of the downloaded model
         """
-        self._download_model_from_tuple(schemas.Type.Aggregatetuple, tuple_key, folder)
+        return pathlib.Path(self._download_model_from_tuple(schemas.Type.Aggregatetuple, tuple_key, folder))
 
     @logit
     def download_head_model_from_composite_traintuple(self, tuple_key: str, folder) -> None:
@@ -918,8 +958,17 @@ class Client(object):
         This model was saved using the 'save_model' function of the algorithm.
         To load and use the model, please refer to the 'load_model' and 'predict' functions of the
         algorithm.
+
+        Args:
+            tuple_key (str): Tuple key to download
+            folder (_type_): Destination folder
+
+        Returns:
+            pathlib.Path: Path of the downloaded model
         """
-        self._download_model_from_tuple(schemas.Type.CompositeTraintuple, tuple_key, folder, "head")
+        return pathlib.Path(
+            self._download_model_from_tuple(schemas.Type.CompositeTraintuple, tuple_key, folder, "head")
+        )
 
     @logit
     def download_trunk_model_from_composite_traintuple(self, tuple_key: str, folder) -> None:
@@ -928,8 +977,17 @@ class Client(object):
         This model was saved using the 'save_model' function of the algorithm.
         To load and use the model, please refer to the 'load_model' and 'predict' functions of the
         algorithm.
+
+        Args:
+            tuple_key (str): Tuple key to download
+            folder (_type_): Destination folder
+
+        Returns:
+            pathlib.Path: Path of the downloaded model
         """
-        self._download_model_from_tuple(schemas.Type.CompositeTraintuple, tuple_key, folder, "trunk")
+        return pathlib.Path(
+            self._download_model_from_tuple(schemas.Type.CompositeTraintuple, tuple_key, folder, "trunk")
+        )
 
     def _download_model_from_tuple(self, tuple_type, tuple_key, folder, head_trunk=None) -> None:
         """Download model to a destination file."""
@@ -953,7 +1011,7 @@ class Client(object):
             msg = f'{tuple_type} {tuple_key}, status "{tuple.status}" has no {desc}out-model'
             raise exceptions.NotFound(msg, 404)
 
-        self.download_model(model.key, folder)
+        return self.download_model(model.key, folder)
 
     @logit
     def download_logs(self, tuple_key: str, folder: str) -> str:
@@ -970,7 +1028,7 @@ class Client(object):
             folder: the destination directory
 
         Returns:
-            The path of the output file.
+            str: The logs as a str
         """
         return self._backend.download_logs(tuple_key, os.path.join(folder, f"tuple_logs_{tuple_key}.txt"))
 

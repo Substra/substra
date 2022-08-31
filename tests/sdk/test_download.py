@@ -13,14 +13,14 @@ from ..utils import mock_response
 
 
 @pytest.mark.parametrize(
-    "asset_type, filename",
+    "asset_type",
     [
-        ("dataset", "opener.py"),
-        ("algo", "algo.tar.gz"),
-        ("model", "model_foo"),
+        ("dataset"),
+        ("algo"),
+        ("model"),
     ],
 )
-def test_download_asset(asset_type, filename, tmp_path, client, mocker):
+def test_download_asset(asset_type, tmp_path, client, mocker):
     item = getattr(datastore, asset_type.upper())
     responses = [
         mock_response(item),  # metadata
@@ -29,9 +29,8 @@ def test_download_asset(asset_type, filename, tmp_path, client, mocker):
     m = mock_requests_responses(mocker, "get", responses)
 
     method = getattr(client, f"download_{asset_type}")
-    method("foo", tmp_path)
+    temp_file = method("foo", tmp_path)
 
-    temp_file = str(tmp_path) + "/" + filename
     assert os.path.exists(temp_file)
     m.assert_called()
 
