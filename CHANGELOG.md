@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - chore: remove close source for CHANGELOG, README and cyclic-example
 - chore: rename connect-tools to substra-tools.
 
-## [0.34.0](https://github.com/Substra/substra/releases/tag/0.35.0) - 2022-08-29
+## [0.35.0](https://github.com/Substra/substra/releases/tag/0.35.0) - 2022-08-29
 
 ### Changed
 
