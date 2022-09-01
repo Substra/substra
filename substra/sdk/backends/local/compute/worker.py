@@ -24,8 +24,6 @@ from substra.sdk.backends.local import dal
 from substra.sdk.backends.local.compute import spawner
 from substra.sdk.backends.local.compute.spawner import BaseSpawner
 
-TASK_IO_LOCALFOLDER = "localfolder"
-
 
 class TaskResource(dict):
     def __init__(self, id: str, value: str):
@@ -288,10 +286,9 @@ class Worker:
             volumes = {
                 "_VOLUME_INPUTS": _mkdir(task_dir / "inputs"),
                 "_VOLUME_OUTPUTS": _mkdir(task_dir / "outputs"),
-                "_VOLUME_LOCAL": _mkdir(self._local_worker_dir / "compute_plans" / task.worker / task.compute_plan_key),
             }
 
-            cmd_line_inputs: List[TaskResource] = [TaskResource(id=TASK_IO_LOCALFOLDER, value="${_VOLUME_LOCAL}")]
+            cmd_line_inputs: List[TaskResource] = []
 
             dataset: Optional[models.Dataset] = None
             data_sample_paths: Optional[Dict[str, str]] = None

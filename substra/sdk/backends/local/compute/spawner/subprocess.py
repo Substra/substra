@@ -120,7 +120,6 @@ class Subprocess(BaseSpawner):
         with tempfile.TemporaryDirectory(dir=self._local_worker_dir) as tmpdir:
             tmpdir = pathlib.Path(tmpdir)
             uncompress(archive_path, tmpdir)
-            # TODO: use new generated venv from dockerfile (pip install substratools,...)
             script_name, method_name = _get_entrypoint_from_dockerfile(tmpdir)
             # get py_command for subprocess
             py_command = _get_py_command(script_name, method_name, tmpdir, command_template, local_volumes)

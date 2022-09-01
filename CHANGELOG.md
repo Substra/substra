@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - test tasks now have an higher rank than their parent train task
 - chore: remove close source for CHANGELOG, README and cyclic-example
 - chore: rename connect-tools to substra-tools.
+- BREAKING CHANGE: remove the shared local folder of the compute plan
 - feat: download function of the client return the path of downloaded file.
 
 ### Feature

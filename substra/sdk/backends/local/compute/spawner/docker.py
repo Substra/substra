@@ -17,7 +17,6 @@ ROOT_DIR = "/substra_internal"
 DOCKER_VOLUMES = {
     "_VOLUME_INPUTS": {"bind": f"{ROOT_DIR}/inputs", "mode": "ro"},
     "_VOLUME_OUTPUTS": {"bind": f"{ROOT_DIR}/outputs", "mode": "rw"},
-    "_VOLUME_LOCAL": {"bind": f"{ROOT_DIR}/local", "mode": "rw"},
 }
 
 
