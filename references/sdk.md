@@ -2,7 +2,7 @@
 
 # Client
 ```text
-Client(url: Optional[str] = None, token: Optional[str] = None, retry_timeout: int = 300, insecure: bool = False, debug: bool = False)
+Client(url: Union[str, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300, insecure: bool = False, debug: bool = False)
 ```
 
 Create a client
@@ -255,6 +255,14 @@ download_algo(self, key: str, destination_folder: str) -> None
 
 Download algo resource.
 Download algo package in destination folder.
+
+**Arguments:**
+ - `key (str, required)`: Algo key to download
+ - `destination_folder (str, required)`: Destination folder
+
+**Returns:**
+
+ - `pathlib.Path`: Path of the downloaded algo
 ## download_dataset
 ```text
 download_dataset(self, key: str, destination_folder: str) -> None
@@ -262,6 +270,14 @@ download_dataset(self, key: str, destination_folder: str) -> None
 
 Download data manager resource.
 Download opener script in destination folder.
+
+**Arguments:**
+ - `key (str, required)`: Dataset key to download
+ - `destination_folder (str, required)`: Destination folder
+
+**Returns:**
+
+ - `pathlib.Path`: Path of the downloaded dataset
 ## download_head_model_from_composite_traintuple
 ```text
 download_head_model_from_composite_traintuple(self, tuple_key: str, folder) -> None
@@ -271,6 +287,14 @@ Download composite traintuple head model to destination file.
 This model was saved using the 'save_model' function of the algorithm.
 To load and use the model, please refer to the 'load_model' and 'predict' functions of the
 algorithm.
+
+**Arguments:**
+ - `tuple_key (str, required)`: Tuple key to download
+ - `folder (_type_, required)`: Destination folder
+
+**Returns:**
+
+ - `pathlib.Path`: Path of the downloaded model
 ## download_logs
 ```text
 download_logs(self, tuple_key: str, folder: str) -> str
@@ -288,16 +312,25 @@ tuples will result in a NotFound error.
  - `folder `: the destination directory
 
 **Returns:**
-The path of the output file.
+
+ - `str`: The logs as a str
 ## download_model
 ```text
-download_model(self, key: str, folder) -> None
+download_model(self, key: str, destination_folder) -> None
 ```
 
 Download model to destination file.
 This model was saved using the 'save_model' function of the algorithm.
 To load and use the model, please refer to the 'load_model' and 'predict' functions of the
 algorithm.
+
+**Arguments:**
+ - `key (str, required)`: Model key to download
+ - `destination_folder (str, required)`: Destination folder
+
+**Returns:**
+
+ - `pathlib.Path`: Path of the downloaded model
 ## download_model_from_aggregatetuple
 ```text
 download_model_from_aggregatetuple(self, tuple_key: str, folder) -> None
@@ -307,6 +340,14 @@ Download aggregatetuple model to destination file.
 This model was saved using the 'save_model' function of the algorithm.
 To load and use the model, please refer to the 'load_model' and 'predict' functions of the
 algorithm.
+
+**Arguments:**
+ - `tuple_key (str, required)`: Tuple key to download
+ - `folder (_type_, required)`: Destination folder
+
+**Returns:**
+
+ - `pathlib.Path`: Path of the downloaded model
 ## download_model_from_traintuple
 ```text
 download_model_from_traintuple(self, tuple_key: str, folder) -> None
@@ -316,6 +357,14 @@ Download traintuple model to destination file.
 This model was saved using the 'save_model' function of the algorithm.
 To load and use the model, please refer to the 'load_model' and 'predict' functions of the
 algorithm.
+
+**Arguments:**
+ - `tuple_key (str, required)`: Tuple key to download
+ - `folder (_type_, required)`: Destination folder
+
+**Returns:**
+
+ - `pathlib.Path`: Path of the downloaded model
 ## download_trunk_model_from_composite_traintuple
 ```text
 download_trunk_model_from_composite_traintuple(self, tuple_key: str, folder) -> None
@@ -325,9 +374,17 @@ Download composite traintuple trunk model to destination file.
 This model was saved using the 'save_model' function of the algorithm.
 To load and use the model, please refer to the 'load_model' and 'predict' functions of the
 algorithm.
+
+**Arguments:**
+ - `tuple_key (str, required)`: Tuple key to download
+ - `folder (_type_, required)`: Destination folder
+
+**Returns:**
+
+ - `pathlib.Path`: Path of the downloaded model
 ## from_config_file
 ```text
-from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Optional[str] = None, retry_timeout: int = 300, debug: bool = False)
+from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Union[str, NoneType] = None, retry_timeout: int = 300, debug: bool = False)
 ```
 
 Returns a new Client configured with profile data from configuration files.
@@ -459,6 +516,28 @@ list_aggregatetuple(self, filters: dict = None, order_by: str = 'creation_date',
 ```
 
 List aggregatetuples.
+The ``filters`` argument is a dictionary, with those possible keys:
+
+    key (List[str]): list aggregatetuples with listed keys.
+
+    owner (List[str]): list aggregatetuples with listed owners.
+
+    worker (List[str]): list aggregatetuples which ran on listed workers. Remote mode only.
+
+    rank (List[int]): list aggregatetuples which are at given ranks.
+
+    status (List[str]): list aggregatetuples with given status.
+        The possible values are the values of `substra.models.Status`
+    metadata (dict)
+        {
+            "key": str # the key of the metadata to filter on
+            "type": "is", "contains" or "exists" # the type of query that will be used
+            "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+        }: list aggregatetuples matching provided conditions in metadata. Remote mode only.
+    compute_plan_key (str): list aggregatetuples that are in the given compute plan. Remote mode only.
+    algo_key (str): list aggregatetuples that used the given algo. Remote mode only.
+    dataset_key (str): list aggregatetuples linked or using this dataset. Remote mode only.
+    data_sample_key (List[str]): list aggregatetuples linked or that used this data sample(s). Remote mode only.
 
 **Arguments:**
  - `filters (dict, optional)`: List of key values pair to filter on. Default None.
@@ -475,6 +554,25 @@ list_algo(self, filters: dict = None, ascending: bool = False) -> List[substra.s
 ```
 
 List algos.
+The ``filters`` argument is a dictionary, with those possible keys:
+
+    key (List[str]): list algo with given keys.
+
+    name (str): list algo with name partially matching given string. Remote mode only.
+
+    owner (List[str]): list algo with given owners.
+
+    metadata (dict)
+        {
+            "key": str # the key of the metadata to filter on
+            "type": "is", "contains" or "exists" # the type of query that will be used
+            "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+        }: list algo matching provided conditions in metadata.
+
+    permissions (List[str]): list algo which can be used by any of the listed nodes. Remote mode only.
+    compute_plan_key (str): list algo that are in the given compute plan. Remote mode only.
+    dataset_key (str): list algo linked or using this dataset. Remote mode only.
+    data_sample_key (List[str]): list algo linked or that used this data sample(s). Remote mode only.
 
 **Arguments:**
  - `filters (dict, optional)`: List of key values pair to filter on. Default None.
@@ -489,6 +587,29 @@ list_composite_traintuple(self, filters: dict = None, order_by: str = 'creation_
 ```
 
 List composite traintuples.
+The ``filters`` argument is a dictionary, with those possible keys:
+
+    key (List[str]): list composite traintuples with listed keys.
+
+    owner (List[str]): list composite traintuples with listed owners.
+
+    worker (List[str]): list composite traintuples which ran on listed workers. Remote mode only.
+
+    rank (List[int]): list composite traintuples which are at given ranks.
+
+    status (List[str]): list composite traintuples with given status.
+        The possible values are the values of `substra.models.Status`
+    metadata (dict)
+        {
+            "key": str # the key of the metadata to filter on
+            "type": "is", "contains" or "exists" # the type of query that will be used
+            "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+        }: list composite traintuples matching provided conditions in metadata. Remote mode only.
+    compute_plan_key (str): list composite traintuples that are in the given compute plan. Remote mode only.
+    algo_key (str): list composite traintuples that used the given algo. Remote mode only.
+    dataset_key (str): list composite traintuples linked or using this dataset. Remote mode only.
+    data_sample_key (List[str]): list composite traintuples linked or that used this data sample(s).
+        Remote mode only.
 
 **Arguments:**
  - `filters (dict, optional)`: List of key values pair to filter on. Default None.
@@ -505,6 +626,27 @@ list_compute_plan(self, filters: dict = None, order_by: str = 'creation_date', a
 ```
 
 List compute plans.
+The ``filters`` argument is a dictionary, with those possible keys:
+
+    key (List[str]): list compute plans with listed keys.
+
+    name (str): list compute plans with name partially matching given string. Remote mode only.
+
+    owner (List[str]): list compute plans with listed owners.
+
+    worker (List[str]): list compute plans which ran on listed workers. Remote mode only.
+
+    status (List[str]): list compute plans with given status.
+        The possible values are the values of `substra.models.ComputePlanStatus`
+    metadata (dict)
+        {
+            "key": str # the key of the metadata to filter on
+            "type": "is", "contains" or "exists" # the type of query that will be used
+            "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+        }: list compute plans matching provided conditions in metadata. Remote mode only.
+    algo_key (str): list compute plans that used the given algo. Remote mode only.
+    dataset_key (str): list compute plans linked or using this dataset. Remote mode only.
+    data_sample_key (List[str]): list compute plans linked or that used this data sample(s). Remote mode only.
 
 **Arguments:**
  - `filters (dict, optional)`: List of key values pair to filter on. Default None.
@@ -521,6 +663,13 @@ list_data_sample(self, filters: dict = None, ascending: bool = False) -> List[su
 ```
 
 List data samples.
+The ``filters`` argument is a dictionary, with those possible keys:
+
+        key (List[str]): list data samples with listed keys.
+        owner (List[str]): list data samples with listed owners.
+        compute_plan_key (str): list data samples that are in the given compute plan. Remote mode only.
+        algo_key (str): list data samples that used the given algo. Remote mode only.
+        dataset_key (str): list data samples linked or using this dataset. Remote mode only.
 
 **Arguments:**
  - `filters (dict, optional)`: List of key values pair to filter on. Default None.
@@ -528,13 +677,33 @@ List data samples.
 
 **Returns:**
 
- - `models.DataSample`: the returned object is described
+ - `models.DataSample`: the returned object is described in the
+[models.DataSample](sdk_models.md#DataSample) model
 ## list_dataset
 ```text
 list_dataset(self, filters: dict = None, ascending: bool = False) -> List[substra.sdk.models.Dataset]
 ```
 
 List datasets.
+The ``filters`` argument is a dictionary, with those possible keys:
+
+    key (List[str]): list dataset with given keys.
+
+    name (str): list dataset with name partially matching given string. Remote mode only.
+
+    owner (List[str]): list dataset with given owners.
+
+    metadata (dict)
+        {
+            "key": str # the key of the metadata to filter on
+            "type": "is", "contains" or "exists" # the type of query that will be used
+            "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+        }: list dataset matching provided conditions in metadata.
+
+    permissions (List[str]) : list dataset which can be used by any of the listed nodes. Remote mode only.
+    compute_plan_key (str): list dataset that are in the given compute plan. Remote mode only.
+    algo_key (str): list dataset that used the given algo. Remote mode only.
+    data_sample_key (List[str]): list dataset linked or that used this data sample(s). Remote mode only.
 
 **Arguments:**
  - `filters (dict, optional)`: List of key values pair to filter on. Default None.
@@ -556,6 +725,28 @@ list_predicttuple(self, filters: dict = None, order_by: str = 'creation_date', a
 ```
 
 List predicttuples.
+The ``filters`` argument is a dictionary, with those possible keys:
+
+    key (List[str]): list predicttuples with listed keys.
+
+    owner (List[str]): list predicttuples with listed owners.
+
+    worker (List[str]): list predicttuples which ran on listed workers. Remote mode only.
+
+    rank (List[int]): list predicttuples which are at given ranks.
+
+    status (List[str]): list predicttuples with given status.
+        The possible values are the values of `substra.models.Status`
+    metadata (dict)
+        {
+            "key": str # the key of the metadata to filter on
+            "type": "is", "contains" or "exists" # the type of query that will be used
+            "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+        }: list predicttuples matching provided conditions in metadata. Remote mode only.
+    compute_plan_key (str): list predicttuples that are in the given compute plan. Remote mode only.
+    algo_key (str): list predicttuples that used the given algo. Remote mode only.
+    dataset_key (str): list predicttuples linked or using this dataset. Remote mode only.
+    data_sample_key (List[str]): list predicttuples linked or that used this data sample(s). Remote mode only.
 
 **Arguments:**
  - `filters (dict, optional)`: List of key values pair to filter on. Default None.
@@ -565,13 +756,36 @@ Possible values: `creation_date`, `start_date`, `end_date`. Default creation_dat
 
 **Returns:**
 
- - `models.Predicttuple`: the returned object is described
+ - `models.Predicttuple`: the returned object is described in the
+[models.Predicttuple](sdk_models.md#Predicttuple) model
 ## list_testtuple
 ```text
 list_testtuple(self, filters: dict = None, order_by: str = 'creation_date', ascending: bool = False) -> List[substra.sdk.models.Testtuple]
 ```
 
 List testtuples.
+The ``filters`` argument is a dictionary, with those possible keys:
+
+    key (List[str]): list testtuples with listed keys.
+
+    owner (List[str]): list testtuples with listed owners.
+
+    worker (List[str]): list testtuples which ran on listed workers. Remote mode only.
+
+    rank (List[int]): list testtuples which are at given ranks.
+
+    status (List[str]): list testtuples with given status.
+        The possible values are the values of `substra.models.Status`
+    metadata (dict)
+        {
+            "key": str # the key of the metadata to filter on
+            "type": "is", "contains" or "exists" # the type of query that will be used
+            "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+        }: list testtuples matching provided conditions in metadata. Remote mode only.
+    compute_plan_key (str): list testtuples that are in the given compute plan. Remote mode only.
+    algo_key (str): list testtuples that used the given algo. Remote mode only.
+    dataset_key (str): list testtuples linked or using this dataset. Remote mode only.
+    data_sample_key (List[str]): list testtuples linked or that used this data sample(s). Remote mode only.
 
 **Arguments:**
  - `filters (dict, optional)`: List of key values pair to filter on. Default None.
@@ -588,6 +802,28 @@ list_traintuple(self, filters: dict = None, order_by: str = 'creation_date', asc
 ```
 
 List traintuples.
+The ``filters`` argument is a dictionary, with those possible keys:
+
+    key (List[str]): list traintuples with listed keys.
+
+    owner (List[str]): list traintuples with listed owners.
+
+    worker (List[str]): list traintuples which ran on listed workers. Remote mode only.
+
+    rank (List[int]): list traintuples which are at given ranks.
+
+    status (List[str]): list traintuples with given status.
+        The possible values are the values of `substra.models.Status`
+    metadata (dict)
+        {
+            "key": str # the key of the metadata to filter on
+            "type": "is", "contains" or "exists" # the type of query that will be used
+            "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+        }: list traintuples matching provided conditions in metadata. Remote mode only.
+    compute_plan_key (str): list traintuples that are in the given compute plan. Remote mode only.
+    algo_key (str): list traintuples that used the given algo. Remote mode only.
+    dataset_key (str): list traintuples linked or using this dataset. Remote mode only.
+    data_sample_key (List[str]): list traintuples linked or that used this data sample(s). Remote mode only.
 
 **Arguments:**
  - `filters (dict, optional)`: List of key values pair to filter on. Default None.

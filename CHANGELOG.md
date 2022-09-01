@@ -26,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Local mode: add a check, a task output of type performance must have public permissions
 
+### Documentation
+
+- Add the filters documentation to the references
+
 ## [0.35.0](https://github.com/Substra/substra/releases/tag/0.35.0) - 2022-08-29
 
 ### Changed

@@ -495,16 +495,9 @@ class Client(object):
     def list_algo(self, filters: dict = None, ascending: bool = False) -> List[models.Algo]:
         """List algos.
 
-        Args:
-            filters (dict, optional): List of key values pair to filter on. Default None.
-            ascending (bool, optional): Sorts results by oldest creation_date first. Default False (descending order).
-
-        Returns:
-            models.Algo: the returned object is described in the [models.Algo](sdk_models.md#Algo) model
-
-        ``Filters allowed keys:``\n
+        The ``filters`` argument is a dictionary, with those possible keys:\n
             key (List[str]): list algo with given keys.\n
-            name (str): list algo with name partially matching given string. Remote only.\n
+            name (str): list algo with name partially matching given string. Remote mode only.\n
             owner (List[str]): list algo with given owners.\n
             metadata (dict)
                 {
@@ -512,10 +505,19 @@ class Client(object):
                     "type": "is", "contains" or "exists" # the type of query that will be used
                     "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
                 }: list algo matching provided conditions in metadata.\n
-            permissions (List[str]): list algo which can be used by any of the listed nodes. Remote only.
-            compute_plan_key (str): list algo that are in the given compute plan. Remote only.
-            dataset_key (str): list algo linked or using this dataset. Remote only.
-            data_sample_key (List[str]): list algo linked or that used this data sample(s). Remote only."""
+            permissions (List[str]): list algo which can be used by any of the listed nodes. Remote mode only.
+            compute_plan_key (str): list algo that are in the given compute plan. Remote mode only.
+            dataset_key (str): list algo linked or using this dataset. Remote mode only.
+            data_sample_key (List[str]): list algo linked or that used this data sample(s). Remote mode only.
+
+        Args:
+            filters (dict, optional): List of key values pair to filter on. Default None.
+            ascending (bool, optional): Sorts results by oldest creation_date first. Default False (descending order).
+
+        Returns:
+            models.Algo: the returned object is described in the [models.Algo](sdk_models.md#Algo) model
+
+        """
 
         return self._list(schemas.Type.Algo, filters, "creation_date", ascending)
 
@@ -524,6 +526,23 @@ class Client(object):
         self, filters: dict = None, order_by: str = "creation_date", ascending: bool = False
     ) -> List[models.ComputePlan]:
         """List compute plans.
+
+         The ``filters`` argument is a dictionary, with those possible keys:\n
+            key (List[str]): list compute plans with listed keys.\n
+            name (str): list compute plans with name partially matching given string. Remote mode only.\n
+            owner (List[str]): list compute plans with listed owners.\n
+            worker (List[str]): list compute plans which ran on listed workers. Remote mode only.\n
+            status (List[str]): list compute plans with given status.
+                The possible values are the values of `substra.models.ComputePlanStatus`
+            metadata (dict)
+                {
+                    "key": str # the key of the metadata to filter on
+                    "type": "is", "contains" or "exists" # the type of query that will be used
+                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+                }: list compute plans matching provided conditions in metadata. Remote mode only.
+            algo_key (str): list compute plans that used the given algo. Remote mode only.
+            dataset_key (str): list compute plans linked or using this dataset. Remote mode only.
+            data_sample_key (List[str]): list compute plans linked or that used this data sample(s). Remote mode only.
 
         Args:
             filters (dict, optional): List of key values pair to filter on. Default None.
@@ -534,23 +553,7 @@ class Client(object):
         Returns:
             models.ComputePlan: the returned object is described
         in the [models.ComputePlan](sdk_models.md#ComputePlan) model
-
-        ``Filters allowed keys:``\n
-            key (List[str]): list compute plans with listed keys.\n
-            name (str): list compute plans with name partially matching given string. Remote only.\n
-            owner (List[str]): list compute plans with listed owners.\n
-            worker (List[str]): list compute plans which ran on listed workers. Remote only.\n
-            status (str): list compute plans with given status.
-                            Possible values: 'waiting', 'todo', 'doing', 'done', 'canceled', 'failed'\n
-            metadata (dict)
-                {
-                    "key": str # the key of the metadata to filter on
-                    "type": "is", "contains" or "exists" # the type of query that will be used
-                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-                }: list compute plans matching provided conditions in metadata. Remote only.
-            algo_key (str): list compute plans that used the given algo. Remote only.
-            dataset_key (str): list compute plans linked or using this dataset. Remote only.
-            data_sample_key (List[str]): list compute plans linked or that used this data sample(s). Remote only."""
+        """
 
         return self._list(schemas.Type.ComputePlan, filters, order_by, ascending)
 
@@ -558,26 +561,41 @@ class Client(object):
     def list_data_sample(self, filters: dict = None, ascending: bool = False) -> List[models.DataSample]:
         """List data samples.
 
+            The ``filters`` argument is a dictionary, with those possible keys:\n
+                key (List[str]): list data samples with listed keys.
+                owner (List[str]): list data samples with listed owners.
+                compute_plan_key (str): list data samples that are in the given compute plan. Remote mode only.
+                algo_key (str): list data samples that used the given algo. Remote mode only.
+                dataset_key (str): list data samples linked or using this dataset. Remote mode only.
+
         Args:
             filters (dict, optional): List of key values pair to filter on. Default None.
             ascending (bool, optional): Sorts results on order_by by ascending order. Default False (descending order).
 
         Returns:
-            models.DataSample: the returned object is described
-        in the [models.DataSample](sdk_models.md#DataSample) model
-
-        ``Filters allowed keys:``\n
-            key (List[str]): list data samples with listed keys.\n
-            owner (List[str]): list data samples with listed owners.
-            compute_plan_key (str): list data samples that are in the given compute plan. Remote only.
-            algo_key (str): list data samples that used the given algo. Remote only.
-            dataset_key (str): list data samples linked or using this dataset. Remote only."""
-
+            models.DataSample: the returned object is described in the
+                [models.DataSample](sdk_models.md#DataSample) model
+        """
         return self._list(schemas.Type.DataSample, filters, "creation_date", ascending)
 
     @logit
     def list_dataset(self, filters: dict = None, ascending: bool = False) -> List[models.Dataset]:
         """List datasets.
+
+         The ``filters`` argument is a dictionary, with those possible keys:\n
+            key (List[str]): list dataset with given keys.\n
+            name (str): list dataset with name partially matching given string. Remote mode only.\n
+            owner (List[str]): list dataset with given owners.\n
+            metadata (dict)
+                {
+                    "key": str # the key of the metadata to filter on
+                    "type": "is", "contains" or "exists" # the type of query that will be used
+                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+                }: list dataset matching provided conditions in metadata.\n
+            permissions (List[str]) : list dataset which can be used by any of the listed nodes. Remote mode only.
+            compute_plan_key (str): list dataset that are in the given compute plan. Remote mode only.
+            algo_key (str): list dataset that used the given algo. Remote mode only.
+            data_sample_key (List[str]): list dataset linked or that used this data sample(s). Remote mode only.
 
         Args:
             filters (dict, optional): List of key values pair to filter on. Default None.
@@ -587,20 +605,8 @@ class Client(object):
             models.Dataset: the returned object is described
         in the [models.Dataset](sdk_models.md#Dataset) model
 
-        ``Filters allowed keys:``\n
-            key (List[str]): list dataset with given keys.\n
-            name (str): list dataset with name partially matching given string. Remote only.\n
-            owner (List[str]): list dataset with given owners.\n
-            metadata (dict)
-                {
-                    "key": str # the key of the metadata to filter on
-                    "type": "is", "contains" or "exists" # the type of query that will be used
-                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-                }: list dataset matching provided conditions in metadata.\n
-            permissions (List[str]) : list dataset which can be used by any of the listed nodes. Remote only.
-            compute_plan_key (str): list dataset that are in the given compute plan. Remote only.
-            algo_key (str): list dataset that used the given algo. Remote only.
-            data_sample_key (List[str]): list dataset linked or that used this data sample(s). Remote only."""
+
+        """
 
         return self._list(schemas.Type.Dataset, filters, "creation_date", ascending)
 
@@ -610,6 +616,24 @@ class Client(object):
     ) -> List[models.Predicttuple]:
         """List predicttuples.
 
+        The ``filters`` argument is a dictionary, with those possible keys:\n
+            key (List[str]): list predicttuples with listed keys.\n
+            owner (List[str]): list predicttuples with listed owners.\n
+            worker (List[str]): list predicttuples which ran on listed workers. Remote mode only.\n
+            rank (List[int]): list predicttuples which are at given ranks.\n
+            status (List[str]): list predicttuples with given status.
+                The possible values are the values of `substra.models.Status`
+            metadata (dict)
+                {
+                    "key": str # the key of the metadata to filter on
+                    "type": "is", "contains" or "exists" # the type of query that will be used
+                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+                }: list predicttuples matching provided conditions in metadata. Remote mode only.
+            compute_plan_key (str): list predicttuples that are in the given compute plan. Remote mode only.
+            algo_key (str): list predicttuples that used the given algo. Remote mode only.
+            dataset_key (str): list predicttuples linked or using this dataset. Remote mode only.
+            data_sample_key (List[str]): list predicttuples linked or that used this data sample(s). Remote mode only.
+
         Args:
             filters (dict, optional): List of key values pair to filter on. Default None.
             order_by (str, optional): Field to sort results by.
@@ -617,26 +641,11 @@ class Client(object):
             ascending (bool, optional): Sorts results on order_by by ascending order. Default False (descending order).
 
         Returns:
-            models.Predicttuple: the returned object is described
-        in the [models.Predicttuple](sdk_models.md#Predicttuple) model
+            models.Predicttuple: the returned object is described in the
+                [models.Predicttuple](sdk_models.md#Predicttuple) model
 
-        ``Filters allowed keys:``\n
-            key (List[str]): list predicttuples with listed keys.\n
-            owner (List[str]): list predicttuples with listed owners.\n
-            worker (List[str]): list predicttuples which ran on listed workers. Remote only.\n
-            rank (List[int]): list predicttuples which are at given ranks.\n
-            status (str): list predicttuples with given status.
-                            Possible values: 'waiting', 'todo', 'doing', 'done', 'canceled', 'failed'\n
-            metadata (dict)
-                {
-                    "key": str # the key of the metadata to filter on
-                    "type": "is", "contains" or "exists" # the type of query that will be used
-                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-                }: list predicttuples matching provided conditions in metadata. Remote only.
-            compute_plan_key (str): list predicttuples that are in the given compute plan. Remote only.
-            algo_key (str): list predicttuples that used the given algo. Remote only.
-            dataset_key (str): list predicttuples linked or using this dataset. Remote only.
-            data_sample_key (List[str]): list predicttuples linked or that used this data sample(s). Remote only."""
+
+        """
 
         return self._list(schemas.Type.Predicttuple, filters, order_by, ascending)
 
@@ -645,6 +654,24 @@ class Client(object):
         self, filters: dict = None, order_by: str = "creation_date", ascending: bool = False
     ) -> List[models.Testtuple]:
         """List testtuples.
+
+        The ``filters`` argument is a dictionary, with those possible keys:\n
+            key (List[str]): list testtuples with listed keys.\n
+            owner (List[str]): list testtuples with listed owners.\n
+            worker (List[str]): list testtuples which ran on listed workers. Remote mode only.\n
+            rank (List[int]): list testtuples which are at given ranks.\n
+            status (List[str]): list testtuples with given status.
+                The possible values are the values of `substra.models.Status`
+            metadata (dict)
+                {
+                    "key": str # the key of the metadata to filter on
+                    "type": "is", "contains" or "exists" # the type of query that will be used
+                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+                }: list testtuples matching provided conditions in metadata. Remote mode only.
+            compute_plan_key (str): list testtuples that are in the given compute plan. Remote mode only.
+            algo_key (str): list testtuples that used the given algo. Remote mode only.
+            dataset_key (str): list testtuples linked or using this dataset. Remote mode only.
+            data_sample_key (List[str]): list testtuples linked or that used this data sample(s). Remote mode only.
 
         Args:
             filters (dict, optional): List of key values pair to filter on. Default None.
@@ -655,24 +682,7 @@ class Client(object):
         Returns:
             models.Testtuple: the returned object is described
         in the [models.Testtuple](sdk_models.md#Testtuple) model
-
-        ``Filters allowed keys:``\n
-            key (List[str]): list testtuples with listed keys.\n
-            owner (List[str]): list testtuples with listed owners.\n
-            worker (List[str]): list testtuples which ran on listed workers. Remote only.\n
-            rank (List[int]): list testtuples which are at given ranks.\n
-            status (str): list testtuples with given status.
-                            Possible values: 'waiting', 'todo', 'doing', 'done', 'canceled', 'failed'\n
-            metadata (dict)
-                {
-                    "key": str # the key of the metadata to filter on
-                    "type": "is", "contains" or "exists" # the type of query that will be used
-                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-                }: list testtuples matching provided conditions in metadata. Remote only.
-            compute_plan_key (str): list testtuples that are in the given compute plan. Remote only.
-            algo_key (str): list testtuples that used the given algo. Remote only.
-            dataset_key (str): list testtuples linked or using this dataset. Remote only.
-            data_sample_key (List[str]): list testtuples linked or that used this data sample(s). Remote only."""
+        """
 
         return self._list(schemas.Type.Testtuple, filters, order_by, ascending)
 
@@ -681,6 +691,24 @@ class Client(object):
         self, filters: dict = None, order_by: str = "creation_date", ascending: bool = False
     ) -> List[models.Traintuple]:
         """List traintuples.
+
+        The ``filters`` argument is a dictionary, with those possible keys:\n
+            key (List[str]): list traintuples with listed keys.\n
+            owner (List[str]): list traintuples with listed owners.\n
+            worker (List[str]): list traintuples which ran on listed workers. Remote mode only.\n
+            rank (List[int]): list traintuples which are at given ranks.\n
+            status (List[str]): list traintuples with given status.
+                The possible values are the values of `substra.models.Status`
+            metadata (dict)
+                {
+                    "key": str # the key of the metadata to filter on
+                    "type": "is", "contains" or "exists" # the type of query that will be used
+                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+                }: list traintuples matching provided conditions in metadata. Remote mode only.
+            compute_plan_key (str): list traintuples that are in the given compute plan. Remote mode only.
+            algo_key (str): list traintuples that used the given algo. Remote mode only.
+            dataset_key (str): list traintuples linked or using this dataset. Remote mode only.
+            data_sample_key (List[str]): list traintuples linked or that used this data sample(s). Remote mode only.
 
         Args:
             filters (dict, optional): List of key values pair to filter on. Default None.
@@ -692,23 +720,8 @@ class Client(object):
             models.Traintuple: the returned object is described
         in the [models.Traintuple](sdk_models.md#Traintuple) model
 
-        ``Filters allowed keys:``\n
-            key (List[str]): list traintuples with listed keys.\n
-            owner (List[str]): list traintuples with listed owners.\n
-            worker (List[str]): list traintuples which ran on listed workers. Remote only.\n
-            rank (List[int]): list traintuples which are at given ranks.\n
-            status (str): list traintuples with given status.
-                            Possible values: 'waiting', 'todo', 'doing', 'done', 'canceled', 'failed'\n
-            metadata (dict)
-                {
-                    "key": str # the key of the metadata to filter on
-                    "type": "is", "contains" or "exists" # the type of query that will be used
-                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-                }: list traintuples matching provided conditions in metadata. Remote only.
-            compute_plan_key (str): list traintuples that are in the given compute plan. Remote only.
-            algo_key (str): list traintuples that used the given algo. Remote only.
-            dataset_key (str): list traintuples linked or using this dataset. Remote only.
-            data_sample_key (List[str]): list traintuples linked or that used this data sample(s). Remote only."""
+
+        """
 
         return self._list(schemas.Type.Traintuple, filters, order_by, ascending)
 
@@ -717,6 +730,25 @@ class Client(object):
         self, filters: dict = None, order_by: str = "creation_date", ascending: bool = False
     ) -> List[models.Aggregatetuple]:
         """List aggregatetuples.
+
+        The ``filters`` argument is a dictionary, with those possible keys:\n
+            key (List[str]): list aggregatetuples with listed keys.\n
+            owner (List[str]): list aggregatetuples with listed owners.\n
+            worker (List[str]): list aggregatetuples which ran on listed workers. Remote mode only.\n
+            rank (List[int]): list aggregatetuples which are at given ranks.\n
+            status (List[str]): list aggregatetuples with given status.
+                The possible values are the values of `substra.models.Status`
+            metadata (dict)
+                {
+                    "key": str # the key of the metadata to filter on
+                    "type": "is", "contains" or "exists" # the type of query that will be used
+                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+                }: list aggregatetuples matching provided conditions in metadata. Remote mode only.
+            compute_plan_key (str): list aggregatetuples that are in the given compute plan. Remote mode only.
+            algo_key (str): list aggregatetuples that used the given algo. Remote mode only.
+            dataset_key (str): list aggregatetuples linked or using this dataset. Remote mode only.
+            data_sample_key (List[str]): list aggregatetuples linked or that used this data sample(s). Remote mode only.
+
 
         Args:
             filters (dict, optional): List of key values pair to filter on. Default None.
@@ -727,24 +759,7 @@ class Client(object):
         Returns:
             models.Aggregatetuple: the returned object is described
         in the [models.Aggregatetuple](sdk_models.md#Aggregatetuple) model
-
-        ``Filters allowed keys:``\n
-            key (List[str]): list aggregatetuples with listed keys.\n
-            owner (List[str]): list aggregatetuples with listed owners.\n
-            worker (List[str]): list aggregatetuples which ran on listed workers. Remote only.\n
-            rank (List[int]): list aggregatetuples which are at given ranks.\n
-            status (str): list aggregatetuples with given status.
-                            Possible values: 'waiting', 'todo', 'doing', 'done', 'canceled', 'failed'\n
-            metadata (dict)
-                {
-                    "key": str # the key of the metadata to filter on
-                    "type": "is", "contains" or "exists" # the type of query that will be used
-                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-                }: list aggregatetuples matching provided conditions in metadata. Remote only.
-            compute_plan_key (str): list aggregatetuples that are in the given compute plan. Remote only.
-            algo_key (str): list aggregatetuples that used the given algo. Remote only.
-            dataset_key (str): list aggregatetuples linked or using this dataset. Remote only.
-            data_sample_key (List[str]): list aggregatetuples linked or that used this data sample(s). Remote only."""
+        """
 
         return self._list(schemas.Type.Aggregatetuple, filters, order_by, ascending)
 
@@ -753,6 +768,25 @@ class Client(object):
         self, filters: dict = None, order_by: str = "creation_date", ascending: bool = False
     ) -> List[models.CompositeTraintuple]:
         """List composite traintuples.
+
+        The ``filters`` argument is a dictionary, with those possible keys:\n
+            key (List[str]): list composite traintuples with listed keys.\n
+            owner (List[str]): list composite traintuples with listed owners.\n
+            worker (List[str]): list composite traintuples which ran on listed workers. Remote mode only.\n
+            rank (List[int]): list composite traintuples which are at given ranks.\n
+            status (List[str]): list composite traintuples with given status.
+                The possible values are the values of `substra.models.Status`
+            metadata (dict)
+                {
+                    "key": str # the key of the metadata to filter on
+                    "type": "is", "contains" or "exists" # the type of query that will be used
+                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+                }: list composite traintuples matching provided conditions in metadata. Remote mode only.
+            compute_plan_key (str): list composite traintuples that are in the given compute plan. Remote mode only.
+            algo_key (str): list composite traintuples that used the given algo. Remote mode only.
+            dataset_key (str): list composite traintuples linked or using this dataset. Remote mode only.
+            data_sample_key (List[str]): list composite traintuples linked or that used this data sample(s).
+                Remote mode only.
 
         Args:
             filters (dict, optional): List of key values pair to filter on. Default None.
@@ -764,24 +798,8 @@ class Client(object):
             models.CompositeTraintuple: the returned object is described
         in the [models.CompositeTraintuple](sdk_models.md#CompositeTraintuple) model.
 
-        ``Filters allowed keys:``\n
-            key (List[str]): list composite traintuples with listed keys.\n
-            owner (List[str]): list composite traintuples with listed owners.\n
-            worker (List[str]): list composite traintuples which ran on listed workers. Remote only.\n
-            rank (List[int]): list composite traintuples which are at given ranks.\n
-            status (str): list composite traintuples with given status.
-                            Possible values: 'waiting', 'todo', 'doing', 'done', 'canceled', 'failed'\n
-            metadata (dict)
-                {
-                    "key": str # the key of the metadata to filter on
-                    "type": "is", "contains" or "exists" # the type of query that will be used
-                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-                }: list composite traintuples matching provided conditions in metadata. Remote only.
-            compute_plan_key (str): list composite traintuples that are in the given compute plan. Remote only.
-            algo_key (str): list composite traintuples that used the given algo. Remote only.
-            dataset_key (str): list composite traintuples linked or using this dataset. Remote only.
-            data_sample_key (List[str]): list composite traintuples linked or that used this data sample(s).
-                Remote only."""
+
+        """
 
         return self._list(schemas.Type.CompositeTraintuple, filters, order_by, ascending)
 
