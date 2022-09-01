@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- BREAKING CHANGE: opener input identifier must be `opener`
+- BREAKING CHANGE: datasample input identifier must be `datasamples`
+- BREAKING CHANGE: `chainkeys`, `opener` and `datasamples` are forbidden identifier for inputs and outputs
+  of kind `artifact` and `performance`
 - BREAKING CHANGE: pass the algo method to execute under the `--method-name` argument within the CLI.
   If the interface between substra and the backend is handled via substratools, there are no changes to apply
   within the the `substra` code but algo and metric Dockerfiles should expose a `--method-name` argument in

@@ -1,4 +1,3 @@
-import abc
 import contextlib
 import enum
 import json
@@ -17,6 +16,20 @@ from substra.sdk import utils
 _SERVER_NAMES = {
     "dataset": "data_manager",
 }
+
+
+class StaticInputIdentifier(str, enum.Enum):
+    chainkeys = "chainkeys"
+    datasamples = "datasamples"
+    opener = "opener"
+
+    @classmethod
+    def values(cls):
+        return set(item.value for item in cls)
+
+    @classmethod
+    def has_value(cls, value):
+        return value in cls.values()
 
 
 class AssetKind(str, enum.Enum):
@@ -78,7 +91,7 @@ class _PydanticConfig(pydantic.BaseModel):
         extra = "ignore"
 
 
-class _Spec(_PydanticConfig, abc.ABC):
+class _Spec(_PydanticConfig):
     """Asset creation specification base class."""
 
     # pretty print
@@ -257,7 +270,7 @@ class ComputePlanTesttupleSpec(_ComputePlanComputeTaskSpec):
     test_data_sample_keys: List[str]
 
 
-class _BaseComputePlanSpec(_Spec, abc.ABC):
+class _BaseComputePlanSpec(_Spec):
     key: str
     traintuples: Optional[List[ComputePlanTraintupleSpec]]
     composite_traintuples: Optional[List[ComputePlanCompositeTraintupleSpec]]
@@ -335,13 +348,31 @@ class AlgoInputSpec(_Spec):
     kind: AssetKind
 
     @pydantic.root_validator
-    def _check_data_manager(cls, values):  # noqa: N805
+    def _check_identifiers(cls, values):  # noqa: N805
         """Checks that the multiplicity and the optionality of a data manager is always set to False"""
         if values.get("kind") == AssetKind.data_manager:
             if values.get("multiple"):
                 raise ValueError("Data manager input can't be multiple.")
             if values.get("optional"):
                 raise ValueError("Data manager input can't be optional.")
+            if values.get("identifier") != StaticInputIdentifier.opener:
+                raise ValueError(
+                    f"Data manager input identifier must be `{StaticInputIdentifier.opener}` "
+                    f"but was set to {values['identifier']}"
+                )
+        elif values.get("kind") == AssetKind.data_sample:
+            if values.get("identifier") != StaticInputIdentifier.datasamples:
+                raise ValueError(
+                    f"Data sample input identifier must be `{StaticInputIdentifier.datasamples}` "
+                    f"but was set to {values['identifier']}"
+                )
+
+        else:
+            if StaticInputIdentifier.has_value(values.get("identifier")):
+                raise ValueError(
+                    f"Inputs of kind {values.get('kind')} cannot have an identifier among the flowing: "
+                    f"{StaticInputIdentifier.values()}"
+                )
 
         return values
 
