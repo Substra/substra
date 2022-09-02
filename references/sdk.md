@@ -2,7 +2,7 @@
 
 # Client
 ```text
-Client(url: Union[str, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300, insecure: bool = False, debug: bool = False)
+Client(url: Optional[str] = None, token: Optional[str] = None, retry_timeout: int = 300, insecure: bool = False, debug: bool = False)
 ```
 
 Create a client
@@ -384,7 +384,7 @@ algorithm.
  - `pathlib.Path`: Path of the downloaded model
 ## from_config_file
 ```text
-from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Union[str, NoneType] = None, retry_timeout: int = 300, debug: bool = False)
+from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Optional[str] = None, retry_timeout: int = 300, debug: bool = False)
 ```
 
 Returns a new Client configured with profile data from configuration files.
@@ -712,6 +712,12 @@ The ``filters`` argument is a dictionary, with those possible keys:
 **Returns:**
 
  - `models.Dataset`: the returned object is described
+## list_model
+```text
+list_model(self, filters: dict = None, ascending: bool = False) -> List[substra.sdk.models.OutModel]
+```
+
+List models.
 ## list_organization
 ```text
 list_organization(self, *args, **kwargs) -> List[substra.sdk.models.Organization]
