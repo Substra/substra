@@ -480,8 +480,7 @@ class Client(object):
 
     @logit
     def list_model(self, filters: dict = None, ascending: bool = False) -> List[models.OutModel]:
-        """List models.
-        """
+        """List models."""
         return self._list(schemas.Type.Model, filters, "creation_date", ascending)
 
     @logit
