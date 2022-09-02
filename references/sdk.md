@@ -718,6 +718,22 @@ list_model(self, filters: dict = None, ascending: bool = False) -> List[substra.
 ```
 
 List models.
+The ``filters`` argument is a dictionnary, with those possible keys:
+
+    key (list[str]): list model with given keys.
+
+    compute_task_key (list[str]): list model produced by this compute task.
+
+    owner (list[str]): list model with given owners.
+
+    permissions (list[str]): list models which can be used by any of the listed nodes. Remote mode only.
+
+**Arguments:**
+ - `filters (dict, optional)`: List of key values pair to filter on. Default None.
+ - `ascending (bool, optional)`: Sorts results by oldest creation_date first. Default False (descending order).
+
+**Returns:**
+models.OutModel the returned object is described in the [models.OutModel](sdk_models.md#OutModel) model
 ## list_organization
 ```text
 list_organization(self, *args, **kwargs) -> List[substra.sdk.models.Organization]

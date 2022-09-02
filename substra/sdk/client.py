@@ -480,7 +480,20 @@ class Client(object):
 
     @logit
     def list_model(self, filters: dict = None, ascending: bool = False) -> List[models.OutModel]:
-        """List models."""
+        """List models.
+
+        The ``filters`` argument is a dictionnary, with those possible keys:\n
+            key (list[str]): list model with given keys.\n
+            compute_task_key (list[str]): list model produced by this compute task.\n
+            owner (list[str]): list model with given owners.\n
+            permissions (list[str]): list models which can be used by any of the listed nodes. Remote mode only.\n
+
+        Args:
+            filters (dict, optional): List of key values pair to filter on. Default None.
+            ascending (bool, optional): Sorts results by oldest creation_date first. Default False (descending order).
+
+        Returns:
+            models.OutModel the returned object is described in the [models.OutModel](sdk_models.md#OutModel) model"""
         return self._list(schemas.Type.Model, filters, "creation_date", ascending)
 
     @logit
