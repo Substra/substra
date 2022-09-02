@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- input multiplicity within the cli in debug mode
+
 ### Removed
 
 - chore: remove the `examples` section, and references to them

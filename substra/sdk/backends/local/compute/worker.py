@@ -26,8 +26,8 @@ from substra.sdk.backends.local.compute.spawner import BaseSpawner
 
 
 class TaskResource(dict):
-    def __init__(self, id: str, value: str):
-        super().__init__(self, id=id, value=value)
+    def __init__(self, id: str, value: str, multiple: bool):
+        super().__init__(self, id=id, value=value, multiple=multiple)
 
 
 class Filenames(str, Enum):
@@ -115,10 +115,7 @@ class Worker:
         command_template = ""
 
         cmd_line_outputs: List[TaskResource] = [
-            TaskResource(
-                id=output_id,
-                value="${_VOLUME_OUTPUTS}/" f"{filename}",
-            )
+            TaskResource(id=output_id, value="${_VOLUME_OUTPUTS}/" f"{filename}", multiple=False)
             for output_id, filename in output_id_filename.items()
         ]
 
@@ -140,7 +137,7 @@ class Worker:
             )
         return command_template
 
-    def _prepare_artifact_input(self, task_input, input_volume):
+    def _prepare_artifact_input(self, task_input, input_volume, multiple):
         in_task, _ = self._get_asset_unknown_type(
             asset_key=task_input.parent_task_key,
             possible_types=[
@@ -159,21 +156,29 @@ class Worker:
         path_to_input = input_volume / filename
         Path(input_artifact.address.storage_address).link_to(path_to_input)
 
-        return TaskResource(id=task_input.identifier, value=str(Path("${_VOLUME_INPUTS}") / filename))
+        return TaskResource(
+            id=task_input.identifier, value=str(Path("${_VOLUME_INPUTS}") / filename), multiple=multiple
+        )
 
-    def _prepare_dataset_input(self, dataset: models.Dataset, task_input: models.InputRef, input_volume: str):
+    def _prepare_dataset_input(
+        self, dataset: models.Dataset, task_input: models.InputRef, input_volume: str, multiple: bool
+    ):
         path_to_opener = input_volume / Filenames.OPENER.value
         Path(dataset.opener.storage_address).link_to(path_to_opener)
-        return TaskResource(id=task_input.identifier, value=str(Path("${_VOLUME_INPUTS}") / Filenames.OPENER.value))
+        return TaskResource(
+            id=task_input.identifier, value=str(Path("${_VOLUME_INPUTS}") / Filenames.OPENER.value), multiple=multiple
+        )
 
     def _prepare_datasample_input(
-        self, datasample_input_refs: List[models.InputRef], datasamples: List[models.DataSample]
+        self, datasample_input_refs: List[models.InputRef], datasamples: List[models.DataSample], multiple: bool
     ) -> Tuple[List[TaskResource], Dict[str, str]]:
         task_resources = list()
         data_sample_paths = dict()
         for datasample_input, datasample in zip(datasample_input_refs, datasamples):
             datasample_path_arg = str(Path("${_VOLUME_INPUTS}") / datasample_input.asset_key)
-            task_resources.append(TaskResource(id=datasample_input.identifier, value=str(datasample_path_arg)))
+            task_resources.append(
+                TaskResource(id=datasample_input.identifier, value=str(datasample_path_arg), multiple=multiple)
+            )
             data_sample_paths[datasample.key] = datasample.path
         return task_resources, data_sample_paths
 
@@ -183,6 +188,7 @@ class Worker:
         dataset: models.Dataset,
         datasamples: List[models.DataSample],
         datasample_input_refs: List[models.InputRef],
+        multiple: bool,
     ) -> Tuple[str, List[TaskResource], Optional[Dict[str, str]]]:
         command_template = ""
         datasample_task_resources = list()
@@ -196,7 +202,7 @@ class Worker:
             command_template += f" --n-fake-samples {len(datasample_input_refs)}"
         else:
             datasample_task_resources, data_sample_paths = self._prepare_datasample_input(
-                datasample_input_refs=datasample_input_refs, datasamples=datasamples
+                datasample_input_refs=datasample_input_refs, datasamples=datasamples, multiple=multiple
             )
             if isinstance(task, models.Testtuple):
                 data_sample_paths_arg_str = " ".join([task_res["value"] for task_res in datasample_task_resources])
@@ -279,6 +285,7 @@ class Worker:
             task.start_date = datetime.datetime.now()
 
             algo = self._db.get_with_files(schemas.Type.Algo, task.algo.key)
+            input_multiplicity = {i.identifier: i.multiple for i in algo.inputs}
             compute_plan = self._db.get(schemas.Type.ComputePlan, task.compute_plan_key)
 
             command_template: str = ""
@@ -298,9 +305,13 @@ class Worker:
 
             # Prepare inputs
             for task_input in task.inputs:
+                multiple = input_multiplicity[task_input.identifier]
+
                 if task_input.parent_task_key is not None:
                     task_resource = self._prepare_artifact_input(
-                        task_input=task_input, input_volume=volumes["_VOLUME_INPUTS"]
+                        task_input=task_input,
+                        input_volume=volumes["_VOLUME_INPUTS"],
+                        multiple=multiple,
                     )
                     cmd_line_inputs.append(task_resource)
                     if isinstance(task, models.Testtuple):
@@ -321,6 +332,7 @@ class Worker:
                                 dataset=dataset,
                                 task_input=task_input,
                                 input_volume=volumes["_VOLUME_INPUTS"],
+                                multiple=multiple,
                             )
                         )
 
@@ -333,6 +345,7 @@ class Worker:
                 dataset=dataset,
                 datasamples=datasamples,
                 datasample_input_refs=datasample_input_refs,
+                multiple=input_multiplicity.get(schemas.StaticInputIdentifier.datasamples),
             )
             command_template += datasample_cmd_template
             cmd_line_inputs.extend(datasample_task_resources)
