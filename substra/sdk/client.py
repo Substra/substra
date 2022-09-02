@@ -479,6 +479,12 @@ class Client(object):
         return self._backend.get(schemas.Type.Model, key)
 
     @logit
+    def list_model(self, filters: dict = None, ascending: bool = False) -> List[models.OutModel]:
+        """List models.
+        """
+        return self._list(schemas.Type.Model, filters, "creation_date", ascending)
+
+    @logit
     def get_data_sample(self, key: str) -> models.DataSample:
         """Get data sample by key, the returned object is described
         in the [models.Datasample](sdk_models.md#DataSample) model"""
