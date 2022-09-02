@@ -35,9 +35,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Local mode: add a check, a task output of type performance must have public permissions
 
+### Fixes
+
+- Filters: Fix the filters on status for compute plans and tasks
+
+This fix also introduces some changes: the value for the filters on status must now be a list (like for other filters, there is a OR condition between elements of the list) and its value must be
+`substra.models.ComputePlanStatus.{name of the status}.value` for compute plans and `substra.models.Status.{name of the status}.value` for tasks.
+
+Example:
+
+```python
+# Return all the compute plans that are not finished
+client.list_compute_plan(filters={'status':[substra.models.ComputePlanStatus.todo.value, substra.models.ComputePlanStatus.waiting.value, substra.models.ComputePlanStatus.doing.value]})
+
+# Return all the composite traintuples with the status "doing"
+client.list_composite_traintuple(filters={"status": [substra.models.Status.doing.value]})
+```
+
 ### Documentation
 
 - Add the filters documentation to the references
+
 
 ## [0.35.0](https://github.com/Substra/substra/releases/tag/0.35.0) - 2022-08-29
 
