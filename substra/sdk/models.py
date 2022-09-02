@@ -246,6 +246,10 @@ class OutModel(schemas._PydanticConfig):
 
     type_: ClassVar[str] = schemas.Type.Model
 
+    @staticmethod
+    def allowed_filters() -> List[str]:
+        return ["key", "compute_task_key", "owner", "permissions"]
+
 
 class InputRef(schemas._PydanticConfig):
     identifier: str
