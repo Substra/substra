@@ -266,6 +266,7 @@ class Worker:
                 permissions=task.outputs[algo_output.identifier].permissions,
             )
             task.outputs[algo_output.identifier].value = value
+            self._db.add(value)
 
         else:
             raise ValueError(f"This asset kind is not supported for algo output: {algo_output.kind}")

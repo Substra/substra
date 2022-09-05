@@ -21,6 +21,7 @@ from ..utils import mock_requests
         "composite_traintuple",
         "compute_plan",
         "data_sample",
+        "model",
     ],
 )
 def test_list_asset(asset_type, client, mocker):
@@ -48,6 +49,7 @@ def test_list_asset(asset_type, client, mocker):
         ("composite_traintuple", {"owner": ["foo", "bar"]}),
         ("compute_plan", {"name": "foo"}),
         ("compute_plan", {"status": [models.ComputePlanStatus.done.value]}),
+        ("model", {"owner": ["MyOrg1MSP"]}),
     ],
 )
 def test_list_asset_with_filters(asset_type, filters, client, mocker):
