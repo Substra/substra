@@ -79,4 +79,5 @@ jobs:
 
       - name: Test
         run: |
+          export PATH=/home/runner/bin:$PATH
           cd substra && python setup.py test
