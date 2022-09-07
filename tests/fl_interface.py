@@ -74,7 +74,7 @@ class FLAlgoInputs(list, Enum):
         AlgoInputSpec(
             identifier=InputIdentifiers.opener, kind=AssetKind.data_manager.value, optional=False, multiple=False
         ),
-        AlgoInputSpec(identifier=InputIdentifiers.models, kind=AssetKind.model.value, optional=False, multiple=False),
+        AlgoInputSpec(identifier=InputIdentifiers.model, kind=AssetKind.model.value, optional=False, multiple=False),
     ]
     ALGO_PREDICT_COMPOSITE = [
         AlgoInputSpec(
@@ -170,7 +170,7 @@ class FLTaskInputGenerator:
     def train_to_predict(model_key):
         return [
             InputRef(
-                identifier=InputIdentifiers.models,
+                identifier=InputIdentifiers.model,
                 parent_task_key=model_key,
                 parent_task_output_identifier=OutputIdentifiers.model,
             )

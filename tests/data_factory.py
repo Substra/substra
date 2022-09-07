@@ -17,9 +17,11 @@ from .fl_interface import OutputIdentifiers
 
 DEFAULT_DATA_SAMPLE_FILENAME = "data.csv"
 
-DEFAULT_SUBSTRATOOLS_VERSION = (
-    f"latest-nvidiacuda11.6.0-base-ubuntu20.04-python{sys.version_info.major}.{sys.version_info.minor}-minimal"
-)
+# TODO: change before merge
+DEFAULT_SUBSTRATOOLS_VERSION = "test_gt_amd64-minimal"
+# DEFAULT_SUBSTRATOOLS_VERSION = (
+#     f"latest-nvidiacuda11.6.0-base-ubuntu20.04-python{sys.version_info.major}.{sys.version_info.minor}-minimal"
+# )
 
 DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE = f"ghcr.io/substra/substra-tools:{DEFAULT_SUBSTRATOOLS_VERSION}"
 
