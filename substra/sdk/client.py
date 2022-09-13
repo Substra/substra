@@ -33,7 +33,7 @@ from substra.sdk.utils import is_valid_uuid
 logger = logging.getLogger(__name__)
 
 DEFAULT_RETRY_TIMEOUT = 5 * 60
-DEFAULT_BATCH_SIZE = 500
+DEFAULT_BATCH_SIZE = 400
 
 
 def logit(f):
