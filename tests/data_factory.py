@@ -29,24 +29,17 @@ import json
 import os
 import substratools as tools
 class TestOpener(tools.Opener):
-    def get_X(self, folders):
-        res = []
+    def get_data(self, folders):
+        X, y = [], []
         for folder in folders:
             with open(os.path.join(folder, '{DEFAULT_DATA_SAMPLE_FILENAME}'), 'r') as f:
                 reader = csv.reader(f)
                 for row in reader:
-                    res.append(int(row[0]))
-        print(f'get_X: {{res}}')
-        return res  # returns a list of 1's
-    def get_y(self, folders):
-        res = []
-        for folder in folders:
-            with open(os.path.join(folder, '{DEFAULT_DATA_SAMPLE_FILENAME}'), 'r') as f:
-                reader = csv.reader(f)
-                for row in reader:
-                    res.append(int(row[1]))
-        print(f'get_y: {{res}}')
-        return res  # returns a list of 2's
+                    X.append(int(row[0]))
+                    y.append(int(row[1]))
+        print(f'X: {{X}}') # a list of 1's
+        print(f'y: {{y}}') # a list of 2's
+        return X, y
     def fake_X(self, n_samples=None):
         if n_samples is None:
             n_samples = 1
@@ -67,7 +60,7 @@ import json
 import substratools as tools
 class TestMetrics(tools.Metrics):
     def score(self, inputs, outputs):
-        y_true = inputs['{InputIdentifiers.y}']
+        y_true = inputs['{InputIdentifiers.datasamples}'][1]
         y_pred = self._get_predictions(inputs['{InputIdentifiers.predictions}'])
         res = sum(y_pred) - sum(y_true)
         print(f'metrics, y_true: {{y_true}}, y_pred: {{y_pred}}, result: {{res}}')
@@ -87,8 +80,8 @@ import json
 import substratools as tools
 class TestAlgo(tools.Algo):
     def train(self, inputs, outputs):
-        X = inputs['{InputIdentifiers.X}']
-        y = inputs['{InputIdentifiers.y}']
+        X = inputs['{InputIdentifiers.datasamples}'][0]
+        y = inputs['{InputIdentifiers.datasamples}'][1]
         models_path = inputs.get('{InputIdentifiers.models}', [])
         models = [self._load_model(model_path) for model_path in models_path]
 
@@ -108,7 +101,7 @@ class TestAlgo(tools.Algo):
         self._save_model(res, outputs['{OutputIdentifiers.model}'])
 
     def predict(self, inputs, outputs):
-        X = inputs['{InputIdentifiers.X}']
+        X = inputs['{InputIdentifiers.datasamples}'][0]
         model = self._load_model(inputs['{InputIdentifiers.model}'])
 
         res = [x * model['value'] for x in X]
@@ -171,8 +164,8 @@ import json
 import substratools as tools
 class TestCompositeAlgo(tools.CompositeAlgo):
     def train(self, inputs, outputs):
-        X = inputs['{InputIdentifiers.X}']
-        y = inputs['{InputIdentifiers.y}']
+        X = inputs['{InputIdentifiers.datasamples}'][0]
+        y = inputs['{InputIdentifiers.datasamples}'][1]
         head_model_path = inputs.get('{InputIdentifiers.local}')
         head_model = self._load_model(head_model_path) if head_model_path else None
 
@@ -202,7 +195,7 @@ class TestCompositeAlgo(tools.CompositeAlgo):
         self._save_model(res[1], outputs['{OutputIdentifiers.shared}'])
 
     def predict(self, inputs, outputs):
-        X = inputs['{InputIdentifiers.X}']
+        X = inputs['{InputIdentifiers.datasamples}'][0]
         head_model = self._load_model(inputs['{InputIdentifiers.local}'])
         trunk_model = self._load_model(inputs['{InputIdentifiers.shared}'])
 
