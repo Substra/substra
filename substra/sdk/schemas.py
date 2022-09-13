@@ -4,10 +4,10 @@ import json
 import pathlib
 import typing
 import uuid
+import warnings
 from typing import Dict
 from typing import List
 from typing import Optional
-import warnings
 
 import pydantic
 from pydantic.class_validators import validator
@@ -302,9 +302,10 @@ class ComputePlanSpec(_BaseComputePlanSpec):
 
     @validator("clean_models")
     def deprecation_validator(cls, v):
-       warnings.warn("clean_models field is deprecated, use task outputs transient property instead", DeprecationWarning) 
-       return v
-        
+        warnings.warn(
+            "clean_models field is deprecated, use task outputs transient property instead", DeprecationWarning
+        )
+        return v
 
 
 class UpdateComputePlanTuplesSpec(_BaseComputePlanSpec):
