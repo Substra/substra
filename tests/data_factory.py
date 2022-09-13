@@ -40,18 +40,14 @@ class TestOpener(tools.Opener):
         print(f'X: {{X}}') # a list of 1's
         print(f'y: {{y}}') # a list of 2's
         return X, y
-    def fake_X(self, n_samples=None):
+    def fake_data(self, n_samples=None):
         if n_samples is None:
             n_samples = 1
-        res = [10] * n_samples
-        print(f'fake_X: {{res}}')
-        return res
-    def fake_y(self, n_samples=None):
-        if n_samples is None:
-            n_samples = 1
-        res = [30] * n_samples
-        print(f'fake_y: {{res}}')
-        return res
+        X = [10] * n_samples
+        y = [30] * n_samples
+        print(f'fake X: {{X}}')
+        print(f'fake y: {{y}}')
+        return X, y
 """
 
 
