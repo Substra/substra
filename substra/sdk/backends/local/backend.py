@@ -2,7 +2,6 @@ import copy
 import logging
 import os
 import shutil
-import warnings
 from datetime import datetime
 from pathlib import Path
 from typing import Dict
@@ -396,8 +395,6 @@ class Local(base.BaseBackend):
         return data_samples
 
     def _add_compute_plan(self, spec: schemas.ComputePlanSpec, spec_options: dict = None):
-        if spec.clean_models:
-            warnings.warn("'clean_models=True' is ignored on the local backend.")
         self._check_metadata(spec.metadata)
         # Get all the tuples and their dependencies
         tuple_graph, tuples = compute_plan_module.get_dependency_graph(spec)
@@ -421,7 +418,6 @@ class Local(base.BaseBackend):
             failed_count=0,
             done_count=0,
             owner=self._org_id,
-            delete_intermediary_models=spec.clean_models if spec.clean_models is not None else False,
         )
         compute_plan = self._db.add(compute_plan)
 
