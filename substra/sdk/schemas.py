@@ -7,8 +7,10 @@ import uuid
 from typing import Dict
 from typing import List
 from typing import Optional
+import warnings
 
 import pydantic
+from pydantic.class_validators import validator
 from pydantic.fields import Field
 
 from substra.sdk import utils
@@ -297,6 +299,12 @@ class ComputePlanSpec(_BaseComputePlanSpec):
         data = json.loads(self.json(exclude_unset=True))
         data["key"] = self.key
         yield data, None
+
+    @validator("clean_models")
+    def deprecation_validator(cls, v):
+       warnings.warn("clean_models field is deprecated, use task outputs transient property instead", DeprecationWarning) 
+       return v
+        
 
 
 class UpdateComputePlanTuplesSpec(_BaseComputePlanSpec):

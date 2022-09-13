@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- `schemas.ComputePlanSpec` `clean_models` property is now deprecated, the transient property on tasks outputs should be used instead.
+
 ## [0.36.0](https://github.com/Substra/substra/releases/tag/0.36.0) - 2022-09-12
 
 ### Added
