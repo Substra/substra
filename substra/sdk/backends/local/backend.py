@@ -433,7 +433,6 @@ class Local(base.BaseBackend):
         self._check_metadata(spec.metadata)
 
         algo = self._db.get(schemas.Type.Algo, spec.algo_key)
-        assert algo.category == schemas.AlgoCategory.simple
 
         dataset = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
         in_tuples = []
@@ -604,7 +603,6 @@ class Local(base.BaseBackend):
         # validation
         self._check_metadata(spec.metadata)
         algo = self._db.get(schemas.Type.Algo, spec.algo_key)
-        assert algo.category == schemas.AlgoCategory.composite
         dataset = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
         self.__check_data_samples(
             data_manager_key=spec.data_manager_key, data_sample_keys=spec.train_data_sample_keys, allow_test_only=False
@@ -669,7 +667,6 @@ class Local(base.BaseBackend):
         # validation
         self._check_metadata(spec.metadata)
         algo = self._db.get(schemas.Type.Algo, spec.algo_key)
-        assert algo.category == schemas.AlgoCategory.aggregate
 
         in_tuples = list()
         for in_tuple_key in spec.in_models_keys:
