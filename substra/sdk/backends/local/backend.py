@@ -2,6 +2,8 @@ import copy
 import logging
 import os
 import shutil
+import typing
+import warnings
 from datetime import datetime
 from pathlib import Path
 from typing import Dict
@@ -456,6 +458,8 @@ class Local(base.BaseBackend):
 
         compute_plan_key, rank = self.__create_compute_plan_from_tuple(spec=spec, key=key, in_tuples=in_tuples)
 
+        _warn_on_transient_outputs(spec.outputs)
+
         # create model
         traintuple = models.Traintuple(
             train={
@@ -505,6 +509,8 @@ class Local(base.BaseBackend):
 
         assert len(spec.test_data_sample_keys) > 0
         worker = dataset.owner
+
+        _warn_on_transient_outputs(spec.outputs)
 
         if traintuple.compute_plan_key:
             compute_plan = self._db.get(schemas.Type.ComputePlan, traintuple.compute_plan_key)
@@ -567,6 +573,8 @@ class Local(base.BaseBackend):
             compute_plan.todo_count += 1
             compute_plan.status = models.Status.waiting
 
+        _warn_on_transient_outputs(spec.outputs)
+
         testtuple = models.Testtuple(
             test=models._Test(
                 data_manager_key=dataset_key,
@@ -623,6 +631,8 @@ class Local(base.BaseBackend):
             parent_task_keys.append(spec.in_head_model_key)
         if spec.in_trunk_model_key is not None:
             parent_task_keys.append(spec.in_trunk_model_key)
+
+        _warn_on_transient_outputs(spec.outputs)
 
         composite_traintuple = models.CompositeTraintuple(
             composite=models._Composite(
@@ -875,3 +885,9 @@ def _output_from_spec(outputs: Dict[str, schemas.ComputeTaskOutputSpec]) -> Dict
         # default isNone (= outputs are not computed yet)
         for identifier, output in outputs.items()
     }
+
+
+def _warn_on_transient_outputs(outputs: typing.Dict[str, schemas.ComputeTaskOutputSpec]):
+    for _, output in outputs.items():
+        if output.is_transient:
+            warnings.warn("`transient=True` is ignored in local mode")
