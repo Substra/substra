@@ -285,7 +285,6 @@ class ComputePlanSpec(_BaseComputePlanSpec):
     key: str = pydantic.Field(default_factory=lambda: str(uuid.uuid4()))
     tag: Optional[str]
     name: str
-    clean_models: Optional[bool]
     metadata: Optional[Dict[str, str]]
 
     type_: typing.ClassVar[Type] = Type.ComputePlan

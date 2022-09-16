@@ -419,7 +419,6 @@ class ComputePlan(_Model):
     failed_count: int = 0
     done_count: int = 0
     failed_task: Optional[FailedTuple]
-    delete_intermediary_models: bool = False
     status: ComputePlanStatus
     creation_date: datetime
     start_date: Optional[datetime]
