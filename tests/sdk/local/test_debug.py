@@ -16,12 +16,12 @@ from ...fl_interface import FLTaskOutputGenerator
 
 
 def test_wrong_debug_spawner():
-    with pytest.raises(ValueError) as err:
+    with pytest.raises(substra.sdk.exceptions.SDKException) as err:
         substra.Client(backend_type="test")
     assert (
-        str(err.value) == "Unknown value for the execution mode: test,"
-        "valid values are: dict_values([<BackendType.DEPLOYED: 'deployed'>, <BackendType.LOCAL_DOCKER: 'docker'>,"
-        "<BackendType.LOCAL_SUBPROCESS: 'subprocess'>])"
+        str(err.value) == "Unknown value for the execution mode: test, valid values are: dict_values"
+        "([<BackendType.DEPLOYED: 'deployed'>, <BackendType.LOCAL_DOCKER: 'docker'>, <BackendType.LOCAL_SUBPROCESS: "
+        "'subprocess'>])"
     )
 
 
