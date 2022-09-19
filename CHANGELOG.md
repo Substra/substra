@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Algo categories are not checked anymore in local mode. Validations based on inputs and outputs are sufficient.
+
 ## [0.37.0](https://github.com/Substra/substra/releases/tag/0.37.0) - 2022-09-19
 
 ### Fixed
@@ -16,7 +20,6 @@ tests: fix algo inputs and task code consistency
 ### Changed
 
 - BREAKING CHANGE: `schemas.ComputePlanSpec` `clean_models` property is now removed, the transient property on tasks outputs should be used instead.
-- Algo categories are not checked anymore in local mode. Validations based on inputs and outputs are sufficient.
 
 ## [0.36.0](https://github.com/Substra/substra/releases/tag/0.36.0) - 2022-09-12
 
