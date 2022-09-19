@@ -1,6 +1,5 @@
 import copy
 import logging
-import os
 import shutil
 import typing
 import warnings
@@ -23,7 +22,6 @@ from substra.sdk import schemas
 from substra.sdk.backends import base
 from substra.sdk.backends.local import compute
 from substra.sdk.backends.local import dal
-from substra.sdk.config import BackendType
 
 logger = logging.getLogger(__name__)
 
@@ -35,23 +33,17 @@ class Local(base.BaseBackend):
 
     org_counter = 1
 
-    def __init__(self, backend, *args, **kwargs):
+    def __init__(self, backend, backend_type, *args, **kwargs):
         self._local_worker_dir = Path.cwd() / "local-worker"
         self._local_worker_dir.mkdir(exist_ok=True)
 
-        self._debug_spawner = BackendType(os.getenv("DEBUG_SPAWNER", BackendType.LOCAL_DOCKER))
-        if self._debug_spawner == BackendType.LOCAL_SUBPROCESS:
-            logger.info(
-                "Environment variable DEBUG_SPAWNER is set to subprocess: "
-                "running Substra tasks with Python subprocess"
-            )
-
+        self._execution_mode = backend_type
         # create a store to abstract the db
         self._db = dal.DataAccess(backend, local_worker_dir=self._local_worker_dir)
         self._worker = compute.Worker(
             self._db,
             local_worker_dir=self._local_worker_dir,
-            debug_spawner=self._debug_spawner,
+            debug_spawner=self._execution_mode,
         )
 
         self._org_id = f"MyOrg{Local.org_counter}MSP"
@@ -76,9 +68,9 @@ class Local(base.BaseBackend):
         return self._db.tmp_dir
 
     @property
-    def backend_mode(self) -> BackendType:
+    def backend_mode(self) -> schemas.BackendType:
         """Get the backend mode"""
-        return self._debug_spawner
+        return self._execution_mode
 
     def login(self, username, password):
         self._db.login(username, password)

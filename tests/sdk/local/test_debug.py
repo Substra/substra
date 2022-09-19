@@ -15,11 +15,14 @@ from ...fl_interface import FLTaskInputGenerator
 from ...fl_interface import FLTaskOutputGenerator
 
 
-def test_wrong_debug_spawner(monkeypatch):
-    monkeypatch.setenv("DEBUG_SPAWNER", "test")
+def test_wrong_debug_spawner():
     with pytest.raises(ValueError) as err:
-        substra.Client(debug=True)
-    assert str(err.value) == "'test' is not a valid BackendType"
+        substra.Client(backend_type="test")
+    assert (
+        str(err.value) == "Unknown value for the execution mode: test,"
+        "valid values are: dict_values([<BackendType.DEPLOYED: 'deployed'>, <BackendType.LOCAL_DOCKER: 'docker'>,"
+        "<BackendType.LOCAL_SUBPROCESS: 'subprocess'>])"
+    )
 
 
 def test_get_backend_type_docker(docker_clients):
@@ -70,7 +73,7 @@ class TestsDebug:
 
     def test_compute_plan_add_update_tuples(self, asset_factory, clients):
         client = clients[0]
-        client = substra.Client(debug=True)
+        client = substra.Client(backend_type=substra.BackendType.LOCAL_SUBPROCESS)
         compute_plan = client.add_compute_plan(
             substra.sdk.schemas.ComputePlanSpec(
                 key=str(uuid.uuid4()),
