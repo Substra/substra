@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- address and permissions for `inputs` of kind datamanager and model in compute_task api response in local mode
+
 ### Changed
 
 - Algo categories are not checked anymore in local mode. Validations based on inputs and outputs are sufficient.
@@ -27,7 +31,6 @@ tests: fix algo inputs and task code consistency
 
 - input multiplicity within the cli in debug mode
 - `list_model` to the SDK client
-- address and permissions for `inputs` of kind datamanager and model in compute_task api response in local mode
 
 ### Removed
 

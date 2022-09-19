@@ -123,22 +123,25 @@ class InMemoryDb:
     def _link_inputs_addressable(self, asset):
         for input in asset.inputs:
             input_kind = self._get_input_kind(asset, input)
+
             if input_kind == schemas.AssetKind.data_manager:
-                if not input.asset_key:
+                try:
+                    input_data_manager = self.get(schemas.Type.Dataset, input.asset_key)
+                except exceptions.NotFound:
                     return
-                input_data_manager = self.get(schemas.Type.Dataset, input.asset_key)
                 input.permissions = input_data_manager.permissions
                 input.addressable = input_data_manager.opener
+
             if input_kind == schemas.AssetKind.model:
+                # get parent task
+                parent_task = None
                 if input.parent_task_key and input.parent_task_output_identifier:
-                    parent_task = None
                     for type_ in enumerate(task_types):
-                        if input.parent_task_key not in self._data[type_]:
-                            continue
-                        parent_task = self._data[type_][input.parent_task_key]
+                        if input.parent_task_key in self._data[type_]:
+                            parent_task = self._data[type_][input.parent_task_key]
                 if parent_task:
                     input.permissions = parent_task.outputs[input.parent_task_output_identifier].permissions
-                    input.addressable = parent_task.outputs[input.parent_task_output_identifier].value.address
+                    input.addressable = parent_task.outputs[input.parent_task_output_identifier].value.address.path
 
     def update(self, asset):
         type_ = asset.__class__.type_
