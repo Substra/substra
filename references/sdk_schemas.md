@@ -185,7 +185,6 @@ Specification for creating a compute plan
 - testtuples: Optional[List[ComputePlanTesttupleSpec]]
 - tag: Optional[str]
 - name: str
-- clean_models: Optional[bool]
 - metadata: Optional[Mapping[str, str]]
 ```
 
