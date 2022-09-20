@@ -20,7 +20,7 @@ def test_wrong_debug_spawner():
         substra.Client(backend_type="test")
     assert (
         str(err.value) == "Unknown value for the execution mode: test, valid values are: dict_values"
-        "([<BackendType.DEPLOYED: 'deployed'>, <BackendType.LOCAL_DOCKER: 'docker'>, <BackendType.LOCAL_SUBPROCESS: "
+        "([<BackendType.REMOTE: 'deployed'>, <BackendType.LOCAL_DOCKER: 'docker'>, <BackendType.LOCAL_SUBPROCESS: "
         "'subprocess'>])"
     )
 
@@ -35,7 +35,7 @@ def test_get_backend_type_subprocess(subprocess_clients):
 
 def test_get_backend_type_deployed():
     client = substra.Client(url="foo.com")
-    assert client.backend_mode == substra.BackendType.DEPLOYED
+    assert client.backend_mode == substra.BackendType.REMOTE
 
 
 class TestsDebug:

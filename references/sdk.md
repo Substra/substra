@@ -2,7 +2,7 @@
 
 # Client
 ```text
-Client(url: Union[str, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300, insecure: bool = False, backend_type: substra.sdk.schemas.BackendType = <BackendType.DEPLOYED: 'deployed'>)
+Client(url: Union[str, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300, insecure: bool = False, backend_type: substra.sdk.schemas.BackendType = <BackendType.REMOTE: 'deployed'>)
 ```
 
 Create a client
@@ -387,7 +387,7 @@ algorithm.
  - `pathlib.Path`: Path of the downloaded model
 ## from_config_file
 ```text
-from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Union[str, NoneType] = None, retry_timeout: int = 300, backend_type: substra.sdk.schemas.BackendType = <BackendType.DEPLOYED: 'deployed'>)
+from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Union[str, NoneType] = None, retry_timeout: int = 300, backend_type: substra.sdk.schemas.BackendType = <BackendType.REMOTE: 'deployed'>)
 ```
 
 Returns a new Client configured with profile data from configuration files.

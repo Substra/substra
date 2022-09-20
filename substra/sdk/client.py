@@ -79,7 +79,7 @@ class Client:
         token: Optional[str] = None,
         retry_timeout: int = DEFAULT_RETRY_TIMEOUT,
         insecure: bool = False,
-        backend_type: schemas.BackendType = schemas.BackendType.DEPLOYED,
+        backend_type: schemas.BackendType = schemas.BackendType.REMOTE,
     ):
         self._retry_timeout = retry_timeout
         self._token = token
@@ -95,9 +95,9 @@ class Client:
         # - subprocess/docker and no url is defined: fully local backend
         # - subprocess/docker and url is defined: local backend that connects to
         #                           a deployed backend (read-only)
-        if backend_type == schemas.BackendType.DEPLOYED:
+        if backend_type == schemas.BackendType.REMOTE:
             return backends.get(
-                schemas.BackendType.DEPLOYED,
+                schemas.BackendType.REMOTE,
                 url=self._url,
                 insecure=self._insecure,
                 token=self._token,
@@ -107,7 +107,7 @@ class Client:
             backend = None
             if self._url is not None:
                 backend = backends.get(
-                    schemas.BackendType.DEPLOYED,
+                    schemas.BackendType.REMOTE,
                     url=self._url,
                     insecure=self._insecure,
                     token=self._token,
@@ -162,7 +162,7 @@ class Client:
         tokens_path: Union[str, pathlib.Path] = cfg.DEFAULT_TOKENS_PATH,
         token: Optional[str] = None,
         retry_timeout: int = DEFAULT_RETRY_TIMEOUT,
-        backend_type: schemas.BackendType = schemas.BackendType.DEPLOYED,
+        backend_type: schemas.BackendType = schemas.BackendType.REMOTE,
     ):
         """Returns a new Client configured with profile data from configuration files.
 

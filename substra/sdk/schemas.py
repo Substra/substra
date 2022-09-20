@@ -19,7 +19,7 @@ _SERVER_NAMES = {
 
 
 class BackendType(str, enum.Enum):
-    DEPLOYED = "deployed"
+    REMOTE = "remote"
     LOCAL_DOCKER = "docker"
     LOCAL_SUBPROCESS = "subprocess"
 

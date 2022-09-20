@@ -3,7 +3,7 @@ from substra.sdk.backends.local.backend import Local
 from substra.sdk.backends.remote.backend import Remote
 
 _BACKEND_CHOICES = {
-    schemas.BackendType.DEPLOYED: Remote,
+    schemas.BackendType.REMOTE: Remote,
     schemas.BackendType.LOCAL_DOCKER: Local,
     schemas.BackendType.LOCAL_SUBPROCESS: Local,
 }
