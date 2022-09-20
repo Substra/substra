@@ -20,7 +20,7 @@ def test_wrong_debug_spawner():
         substra.Client(backend_type="test")
     assert (
         str(err.value) == "Unknown value for the execution mode: test, valid values are: dict_values"
-        "([<BackendType.REMOTE: 'deployed'>, <BackendType.LOCAL_DOCKER: 'docker'>, <BackendType.LOCAL_SUBPROCESS: "
+        "([<BackendType.REMOTE: 'remote'>, <BackendType.LOCAL_DOCKER: 'docker'>, <BackendType.LOCAL_SUBPROCESS: "
         "'subprocess'>])"
     )
 
