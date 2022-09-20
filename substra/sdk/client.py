@@ -105,7 +105,7 @@ class Client:
             )
         if backend_type in [schemas.BackendType.LOCAL_DOCKER, schemas.BackendType.LOCAL_SUBPROCESS]:
             backend = None
-            if self._url is not None:
+            if self._url:
                 backend = backends.get(
                     schemas.BackendType.REMOTE,
                     url=self._url,
