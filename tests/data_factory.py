@@ -23,7 +23,7 @@ DEFAULT_SUBSTRATOOLS_VERSION = (
 
 # TODO: change before merge
 # DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE = f"ghcr.io/substra/substra-tools:{DEFAULT_SUBSTRATOOLS_VERSION}"
-DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE = "ghcr.io/substra/substra-tools:test_gt_arm64-minimal"
+DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE = "ghcr.io/substra/substra-tools:test_gt_amd64-minimal"
 
 DEFAULT_OPENER_SCRIPT = f"""
 import csv
