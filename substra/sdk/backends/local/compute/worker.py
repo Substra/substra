@@ -249,13 +249,8 @@ class Worker:
             task.outputs[algo_output.identifier].value = perf
             value = perf
         elif algo_output.kind == schemas.AssetKind.model:
-            category = models.ModelType.simple
-            if algo_output.identifier == "local":
-                category = models.ModelType.head
-
             value = models.OutModel(
                 key=str(uuid.uuid4()),
-                category=category,
                 compute_task_key=task.key,
                 address=models.InModel(
                     checksum=fs.hash_file(output_path),
