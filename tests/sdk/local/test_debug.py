@@ -324,6 +324,19 @@ class TestsDebug:
                 )
             )
 
+    def test_add_compute_plan_with_wrong_metadata(self, clients):
+        client = clients[0]
+        cp_key = str(uuid.uuid4())
+        with pytest.raises(InvalidRequest):
+            client.add_compute_plan(
+                substra.sdk.schemas.ComputePlanSpec(
+                    key=cp_key,
+                    tag=None,
+                    name="My compute plan",
+                    metadata={"wrong__key": "value"},
+                )
+            )
+
     def test_live_performances_json_file_exist(self, asset_factory, clients):
         """Assert the performances file is well created."""
         client = clients[0]
