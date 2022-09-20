@@ -139,6 +139,7 @@ class InMemoryDb:
                     for type_ in enumerate(task_types):
                         if input.parent_task_key in self._data[type_]:
                             parent_task = self._data[type_][input.parent_task_key]
+                            break
                 if parent_task:
                     input.permissions = parent_task.outputs[input.parent_task_output_identifier].permissions
                     input.addressable = parent_task.outputs[input.parent_task_output_identifier].value.address.path
