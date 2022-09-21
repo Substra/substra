@@ -1,28 +1,16 @@
 import pytest
-from _pytest.monkeypatch import MonkeyPatch
 
 import substra
 
 
 @pytest.fixture(scope="session")
-def monkeysession():
-    # monkeypatch is function-scoped so cannot use it here
-    # https://github.com/pytest-dev/pytest/issues/363#issuecomment-406536200
-    mpatch = MonkeyPatch()
-    yield mpatch
-    mpatch.undo()
+def docker_clients():
+    return [substra.Client(backend_type=substra.BackendType.LOCAL_DOCKER) for _ in range(2)]
 
 
 @pytest.fixture(scope="session")
-def docker_clients(monkeysession):
-    monkeysession.setenv("DEBUG_SPAWNER", substra.BackendType.LOCAL_DOCKER.value)
-    return [substra.Client(debug=True) for _ in range(2)]
-
-
-@pytest.fixture(scope="session")
-def subprocess_clients(monkeysession):
-    monkeysession.setenv("DEBUG_SPAWNER", substra.BackendType.LOCAL_SUBPROCESS.value)
-    return [substra.Client(debug=True) for _ in range(2)]
+def subprocess_clients():
+    return [substra.Client(backend_type=substra.BackendType.LOCAL_SUBPROCESS) for _ in range(2)]
 
 
 @pytest.fixture(scope="session", params=["docker", "subprocess"])

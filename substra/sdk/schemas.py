@@ -18,6 +18,12 @@ _SERVER_NAMES = {
 }
 
 
+class BackendType(str, enum.Enum):
+    REMOTE = "remote"
+    LOCAL_DOCKER = "docker"
+    LOCAL_SUBPROCESS = "subprocess"
+
+
 class StaticInputIdentifier(str, enum.Enum):
     chainkeys = "chainkeys"
     datasamples = "datasamples"

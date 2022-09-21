@@ -2,7 +2,7 @@
 
 # Client
 ```text
-Client(url: Optional[str] = None, token: Optional[str] = None, retry_timeout: int = 300, insecure: bool = False, debug: bool = False)
+Client(url: Union[str, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300, insecure: bool = False, backend_type: substra.sdk.schemas.BackendType = <BackendType.REMOTE: 'deployed'>)
 ```
 
 Create a client
@@ -21,11 +21,14 @@ Defaults to 5 minutes.
  - `insecure (bool, optional)`: If True, the client can call a not-certified backend. This is
 for development purposes.
 Defaults to False.
- - `debug (bool, optional)`: Whether to use the default or debug mode.
-In debug mode, new assets are created locally but can access assets from
-the deployed Substra platform. The platform is in read-only mode.
-Defaults to False.
-Additionally, you can set the environment variable `DEBUG_SPAWNER` to `docker` if you want the tasks to
+ - `backend_type (schemas.BackendType, optional)`: Which mode to use. Defaults to deployed.
+In deployed mode, assets are registered on a deployed platform which also executes the tasks.
+In local mode (subprocess or docker), if no URL is given then all assets are created locally and tasks are
+executed locally.
+In local mode (subprocess or docker), if a URL is given then the mode is a hybrid one: new assets are
+created locally but can access assets from the deployed Substra platform. The platform is in read-only mode
+and tasks are executed locally.
+The local mode is either docker or subprocess mode: `docker` if you want the tasks to
 be executed in containers (default) or `subprocess` to execute them in Python subprocesses (faster,
 experimental: The `Dockerfile` commands are not executed, requires dependencies to be installed locally).
 ## backend_mode
@@ -384,7 +387,7 @@ algorithm.
  - `pathlib.Path`: Path of the downloaded model
 ## from_config_file
 ```text
-from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Optional[str] = None, retry_timeout: int = 300, debug: bool = False)
+from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Union[str, NoneType] = None, retry_timeout: int = 300, backend_type: substra.sdk.schemas.BackendType = <BackendType.REMOTE: 'deployed'>)
 ```
 
 Returns a new Client configured with profile data from configuration files.
@@ -401,10 +404,17 @@ Defaults to '~/.substra-tokens'.
 instead of any token found at tokens_path). Defaults to None.
  - `retry_timeout (int, optional)`: Number of seconds before attempting a retry call in case
 of timeout. Defaults to 5 minutes.
- - `debug (bool, required)`: Whether to use the default or debug mode. In debug mode, new assets are
-created locally but can get remote assets. The deployed platform is in
-read-only mode.
-Defaults to False.
+ - `backend_type (schemas.BackendType, optional)`: Which mode to use. Defaults to deployed.
+In deployed mode, assets are registered on a deployed platform which also executes the tasks.
+In local mode (subprocess or docker), if no URL is given then all assets are created locally and tasks
+are executed locally.
+In local mode (subprocess or docker), if a URL is given then the mode is a hybrid one: new assets are
+created locally but can access assets from the deployed Substra platform. The platform is in read-only
+mode and tasks are executed locally.
+The local mode is either docker or subprocess mode: `docker` if you want the tasks to
+be executed in containers (default) or `subprocess` to execute them in Python subprocesses (faster,
+experimental: The `Dockerfile` commands are not executed, requires dependencies to be installed
+locally).
 
 **Returns:**
 

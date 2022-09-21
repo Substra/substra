@@ -49,7 +49,7 @@ def logit(f):
     return wrapper
 
 
-class Client(object):
+class Client:
     """Create a client
 
     Args:
@@ -66,11 +66,14 @@ class Client(object):
         insecure (bool, optional): If True, the client can call a not-certified backend. This is
             for development purposes.
             Defaults to False.
-        debug (bool, optional): Whether to use the default or debug mode.
-            In debug mode, new assets are created locally but can access assets from
-            the deployed Substra platform. The platform is in read-only mode.
-            Defaults to False.
-            Additionally, you can set the environment variable `DEBUG_SPAWNER` to `docker` if you want the tasks to
+        backend_type (schemas.BackendType, optional): Which mode to use. Defaults to deployed.
+            In deployed mode, assets are registered on a deployed platform which also executes the tasks.
+            In local mode (subprocess or docker), if no URL is given then all assets are created locally and tasks are
+            executed locally.
+            In local mode (subprocess or docker), if a URL is given then the mode is a hybrid one: new assets are
+            created locally but can access assets from the deployed Substra platform. The platform is in read-only mode
+            and tasks are executed locally.
+            The local mode is either docker or subprocess mode: `docker` if you want the tasks to
             be executed in containers (default) or `subprocess` to execute them in Python subprocesses (faster,
             experimental: The `Dockerfile` commands are not executed, requires dependencies to be installed locally).
     """
@@ -81,7 +84,7 @@ class Client(object):
         token: Optional[str] = None,
         retry_timeout: int = DEFAULT_RETRY_TIMEOUT,
         insecure: bool = False,
-        debug: bool = False,
+        backend_type: schemas.BackendType = schemas.BackendType.REMOTE,
     ):
         self._retry_timeout = retry_timeout
         self._token = token
@@ -89,31 +92,40 @@ class Client(object):
         self._insecure = insecure
         self._url = url
 
-        self._backend = self._get_backend(debug)
+        self._backend = self._get_backend(backend_type)
 
-    def _get_backend(self, debug: bool):
+    def _get_backend(self, backend_type: schemas.BackendType):
         # Three possibilities:
-        # - debug is False: get a remote backend
-        # - debug is True and no url is defined: fully local backend
-        # - debug is True and url is defined: local backend that connects to
-        #                           a remote backend (read-only)
-        backend = None
-        if (debug and self._url) or not debug:
-            backend = backends.get(
-                "remote",
+        # - deployed: get a deployed backend
+        # - subprocess/docker and no url is defined: fully local backend
+        # - subprocess/docker and url is defined: local backend that connects to
+        #                           a deployed backend (read-only)
+        if backend_type == schemas.BackendType.REMOTE:
+            return backends.get(
+                schemas.BackendType.REMOTE,
                 url=self._url,
                 insecure=self._insecure,
                 token=self._token,
                 retry_timeout=self._retry_timeout,
             )
-        if debug:
-            # Hybrid mode: the local backend also connects to
-            # a remote backend in read-only mode.
+        if backend_type in [schemas.BackendType.LOCAL_DOCKER, schemas.BackendType.LOCAL_SUBPROCESS]:
+            backend = None
+            if self._url:
+                backend = backends.get(
+                    schemas.BackendType.REMOTE,
+                    url=self._url,
+                    insecure=self._insecure,
+                    token=self._token,
+                    retry_timeout=self._retry_timeout,
+                )
             return backends.get(
-                "local",
+                backend_type,
                 backend,
             )
-        return backend
+        raise exceptions.SDKException(
+            f"Unknown value for the execution mode: {backend_type}, "
+            f"valid values are: {schemas.BackendType.__members__.values()}"
+        )
 
     @property
     def temp_directory(self):
@@ -124,7 +136,7 @@ class Client(object):
             return self._backend.temp_directory
 
     @property
-    def backend_mode(self) -> cfg.BackendType:
+    def backend_mode(self) -> schemas.BackendType:
         """Get the backend mode: deployed,
         local and which type of local mode
 
@@ -155,7 +167,7 @@ class Client(object):
         tokens_path: Union[str, pathlib.Path] = cfg.DEFAULT_TOKENS_PATH,
         token: Optional[str] = None,
         retry_timeout: int = DEFAULT_RETRY_TIMEOUT,
-        debug: bool = False,
+        backend_type: schemas.BackendType = schemas.BackendType.REMOTE,
     ):
         """Returns a new Client configured with profile data from configuration files.
 
@@ -171,10 +183,17 @@ class Client(object):
                 instead of any token found at tokens_path). Defaults to None.
             retry_timeout (int, optional): Number of seconds before attempting a retry call in case
                 of timeout. Defaults to 5 minutes.
-            debug (bool): Whether to use the default or debug mode. In debug mode, new assets are
-                created locally but can get remote assets. The deployed platform is in
-                read-only mode.
-                Defaults to False.
+            backend_type (schemas.BackendType, optional): Which mode to use. Defaults to deployed.
+                In deployed mode, assets are registered on a deployed platform which also executes the tasks.
+                In local mode (subprocess or docker), if no URL is given then all assets are created locally and tasks
+                are executed locally.
+                In local mode (subprocess or docker), if a URL is given then the mode is a hybrid one: new assets are
+                created locally but can access assets from the deployed Substra platform. The platform is in read-only
+                mode and tasks are executed locally.
+                The local mode is either docker or subprocess mode: `docker` if you want the tasks to
+                be executed in containers (default) or `subprocess` to execute them in Python subprocesses (faster,
+                experimental: The `Dockerfile` commands are not executed, requires dependencies to be installed
+                locally).
 
         Returns:
             Client: The new client.
@@ -193,7 +212,7 @@ class Client(object):
             retry_timeout=retry_timeout,
             url=profile["url"],
             insecure=profile["insecure"],
-            debug=debug,
+            backend_type=backend_type,
         )
 
     @logit

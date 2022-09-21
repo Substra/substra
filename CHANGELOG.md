@@ -10,6 +10,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Algo categories are not checked anymore in local mode. Validations based on inputs and outputs are sufficient.
+- BREAKING CHANGE: the backend type is now set in the Client, the env variable `DEBUG_SPAWNER` is not used anymore. Default value is deployed (#287)
+
+API before
+
+```sh
+export DEBUG_SPAWNER=subprocess
+```
+
+```python
+client = substra.Client(debug=True)
+```
+
+API after
+
+```python
+client = substra.Client(backend_type=substra.BackendType.LOCAL_SUBPROCESS)
+```
 
 ### Removed
 

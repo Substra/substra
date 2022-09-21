@@ -1,6 +1,6 @@
 import abc
 
-from substra.sdk.config import BackendType
+from substra.sdk.schemas import BackendType
 
 
 class BaseBackend(abc.ABC):

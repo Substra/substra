@@ -12,7 +12,6 @@ from substra.sdk import models
 from substra.sdk import schemas
 from substra.sdk.backends import base
 from substra.sdk.backends.remote import rest_client
-from substra.sdk.config import BackendType
 
 logger = logging.getLogger(__name__)
 
@@ -30,14 +29,15 @@ def _find_asset_field(data, field):
 
 
 class Remote(base.BaseBackend):
-    def __init__(self, url, insecure, token, retry_timeout):
+    def __init__(self, url, insecure, token, retry_timeout, backend_type):
         self._client = rest_client.Client(url, insecure, token)
         self._retry_timeout = retry_timeout or DEFAULT_RETRY_TIMEOUT
+        assert backend_type == self.backend_mode
 
     @property
-    def backend_mode(self) -> BackendType:
+    def backend_mode(self) -> schemas.BackendType:
         """Get the backend mode: deployed"""
-        return BackendType.DEPLOYED
+        return schemas.BackendType.REMOTE
 
     def login(self, username, password):
         return self._client.login(username, password)

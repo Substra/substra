@@ -1,7 +1,7 @@
 from substra.sdk.backends.local.compute.spawner.base import BaseSpawner
 from substra.sdk.backends.local.compute.spawner.docker import Docker
 from substra.sdk.backends.local.compute.spawner.subprocess import Subprocess
-from substra.sdk.config import BackendType
+from substra.sdk.schemas import BackendType
 
 __all__ = ["BaseSpawner", "Docker", "Subprocess"]
 
