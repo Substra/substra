@@ -112,7 +112,7 @@ class Worker:
         cmd_line_inputs,
         output_id_filename,
     ):
-        command_template = ""
+        command_template = []
 
         cmd_line_outputs: List[TaskResource] = [
             TaskResource(id=output_id, value="${_VOLUME_OUTPUTS}/" f"{filename}", multiple=False)
@@ -120,21 +120,17 @@ class Worker:
         ]
 
         if isinstance(task, models.Testtuple):
-            command_template += " --opener-path ${_VOLUME_INPUTS}" f"/{Filenames.OPENER}"
-            command_template += " --output-perf-path " f"/{cmd_line_outputs[0]['value']}"
+            command_template += ["--opener-path", "${_VOLUME_INPUTS}/" + Filenames.OPENER]
+            command_template += ["--output-perf-path", f"/{cmd_line_outputs[0]['value']}"]
         else:
             if not isinstance(task, models.Predicttuple):
-                command_template += f" --rank {task.rank}"
-            command_template += (
-                " --inputs "
-                + "'"
-                + json.dumps(cmd_line_inputs, default=str)
-                + "'"
-                + " --outputs "
-                + "'"
-                + json.dumps(cmd_line_outputs, default=str)
-                + "'"
-            )
+                command_template += ["--rank", task.rank]
+            command_template += [
+                "--inputs",
+                json.dumps(cmd_line_inputs, default=str),
+                "--outputs",
+                json.dumps(cmd_line_outputs, default=str),
+            ]
         return command_template
 
     def _prepare_artifact_input(self, task_input, input_volume, multiple):
@@ -190,23 +186,23 @@ class Worker:
         datasample_input_refs: List[models.InputRef],
         multiple: bool,
     ) -> Tuple[str, List[TaskResource], Optional[Dict[str, str]]]:
-        command_template = ""
-        datasample_task_resources = list()
+        command_template = []
+        datasample_task_resources = []
         data_sample_paths = None
 
         if len(datasamples) == 0:
             pass
         elif dataset is not None and not self._db.is_local(dataset.key, schemas.Type.Dataset):
             # Hybrid mode
-            command_template += " --fake-data"
-            command_template += f" --n-fake-samples {len(datasample_input_refs)}"
+            command_template += ["--fake-data"]
+            command_template += ["--n-fake-samples", len(datasample_input_refs)]
         else:
             datasample_task_resources, data_sample_paths = self._prepare_datasample_input(
                 datasample_input_refs=datasample_input_refs, datasamples=datasamples, multiple=multiple
             )
             if isinstance(task, models.Testtuple):
                 data_sample_paths_arg_str = " ".join([task_res["value"] for task_res in datasample_task_resources])
-                command_template += f" --data-sample-paths {data_sample_paths_arg_str}"
+                command_template += ["--data-sample-paths", data_sample_paths_arg_str]
 
         return command_template, datasample_task_resources, data_sample_paths
 
@@ -284,7 +280,7 @@ class Worker:
             input_multiplicity = {i.identifier: i.multiple for i in algo.inputs}
             compute_plan = self._db.get(schemas.Type.ComputePlan, task.compute_plan_key)
 
-            command_template: str = ""
+            command_template = []
 
             volumes = {
                 "_VOLUME_INPUTS": _mkdir(task_dir / "inputs"),
@@ -311,7 +307,7 @@ class Worker:
                     )
                     cmd_line_inputs.append(task_resource)
                     if isinstance(task, models.Testtuple):
-                        command_template += " --input-predictions-path " f"{task_resource['value']}"
+                        command_template += ["--input-predictions-path", task_resource["value"]]
                 else:
                     asset, asset_type = self._get_asset_unknown_type(
                         asset_key=task_input.asset_key, possible_types=[schemas.Type.DataSample, schemas.Type.Dataset]
@@ -354,14 +350,14 @@ class Worker:
                 cmd_line_inputs=cmd_line_inputs,
                 output_id_filename=output_id_filename,
             )
-            command_template += " --log-level warning"
+            command_template += ["--log-level", "warning"]
 
             # Task execution
             container_name = f"algo-{algo.algorithm.checksum}"
             self._spawner.spawn(
                 container_name,
                 str(algo.algorithm.storage_address),
-                command_template=string.Template(command_template),
+                command_template=[string.Template(str(part)) for part in command_template],
                 local_volumes=volumes,
                 data_sample_paths=data_sample_paths,
                 envs=None,

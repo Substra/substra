@@ -2,7 +2,6 @@ import logging
 import os
 import pathlib
 import re
-import shlex
 import shutil
 import string
 import subprocess
@@ -49,38 +48,19 @@ def _get_entrypoint_from_dockerfile(tmpdir):
     raise ExecutionError("Couldn't get entrypoint in Dockerfile", valid_example)
 
 
-# TODO: _get_py_command should only return the command_args, and the py_command should be defined in the spawn function
-# in the current state, the only args needed to get the command args are command_template, local_volumes, the rest is
-# only to build the command
-def _get_py_command(script_name, method_name, tmpdir, command_template, local_volumes):
-    """
-    Substitute the local_volumes in the command_template and split it to have the
-    py_command
+def _get_command_args(
+    method_name: str, command_template: typing.List[string.Template], local_volumes: dict[str, str]
+) -> typing.List[str]:
+    command_args = ["--method-name", str(method_name)]
+    command_args += [tpl.substitute(**local_volumes) for tpl in command_template]
+    return command_args
 
-    Args:
-        script_name (str): the name of the script
-        tmpdir (pathlib.Path): the tmpdir in which the subprocess mode is running
-        command_template (string.Template): template containing all arguments for the subprocess
-        local_volumes (dict[str, str]): paths to substitute in command_template
 
-    Returns:
-        py_command (list[str]): the list with all commands for the subprocess
-    """
-    # modify local_volumes not to split paths with spaces
-    local_volumes = {k: str(v).replace(" ", r"\\\\") for k, v in local_volumes.items()}
-    # replace volumes variables by local volumes
-    command = command_template.substitute(**local_volumes)
-    # split command to run into subprocess
-    command_args = shlex.split(command)
-    # replace paths with spaces that were modified
-    # Not using regex as shlex replaced '\' with '\\' automatically. Hence '\\\\' which was represented as '\\' is now
-    # '\\\\'
-    command_args = [command_arg.replace("\\\\", " ") for command_arg in command_args]
-    # put current python interpreter and script to launch before script command
-    py_command = [sys.executable, str(tmpdir / script_name), "--method-name", str(method_name)]
-    py_command.extend(command_args)
-
-    return py_command
+def _write_args_file(args_file: pathlib.Path, command_args: typing.List[str]) -> None:
+    with open(args_file, "w") as f:
+        for item in command_args:
+            # one line per argument, see https://docs.python.org/3/library/argparse.html#fromfile-prefix-chars
+            f.write(item + "\n")
 
 
 def _symlink_data_samples(data_sample_paths: typing.Dict[str, pathlib.Path], dest_dir: str):
@@ -119,10 +99,14 @@ class Subprocess(BaseSpawner):
         """Spawn a python process (blocking)."""
         with tempfile.TemporaryDirectory(dir=self._local_worker_dir) as tmpdir:
             tmpdir = pathlib.Path(tmpdir)
+            args_file = tmpdir / "arguments.txt"
             uncompress(archive_path, tmpdir)
             script_name, method_name = _get_entrypoint_from_dockerfile(tmpdir)
-            # get py_command for subprocess
-            py_command = _get_py_command(script_name, method_name, tmpdir, command_template, local_volumes)
+
+            # For the @arguments.txt syntax, see https://docs.python.org/3/library/argparse.html#fromfile-prefix-chars
+            py_command = [sys.executable, str(tmpdir / script_name), f"@{args_file}"]
+            py_command_args = _get_command_args(method_name, command_template, local_volumes)
+            _write_args_file(args_file, py_command_args)
 
             if data_sample_paths is not None and len(data_sample_paths) > 0:
                 _symlink_data_samples(data_sample_paths, local_volumes["_VOLUME_INPUTS"])

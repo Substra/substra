@@ -82,7 +82,7 @@ class Docker(BaseSpawner):
         self,
         name: str,
         archive_path: pathlib.Path,
-        command_template: string.Template,
+        command_template: typing.List[string.Template],
         data_sample_paths: typing.Optional[typing.Dict[str, pathlib.Path]],
         local_volumes: typing.Optional[dict],
         envs: typing.Optional[typing.List[str]],
@@ -95,7 +95,7 @@ class Docker(BaseSpawner):
         # format the command to replace each occurrence of a DOCKER_VOLUMES's key
         # by its "bind" value
         volumes_format = {volume_name: volume_path["bind"] for volume_name, volume_path in DOCKER_VOLUMES.items()}
-        command = command_template.substitute(**volumes_format)
+        command = [tpl.substitute(**volumes_format) for tpl in command_template]
         if data_sample_paths is not None and len(data_sample_paths) > 0:
             _copy_data_samples(data_sample_paths, local_volumes["_VOLUME_INPUTS"])
 
