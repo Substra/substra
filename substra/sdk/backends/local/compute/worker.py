@@ -118,25 +118,23 @@ class Worker:
         cmd_line_inputs,
         output_id_filename,
     ):
-        command_template = []
+        command_template = [f" --rank {task.rank}"]
 
         cmd_line_outputs: List[TaskResource] = [
             TaskResource(id=output_id, value=f"{TPL_VOLUME_OUTPUTS}/{filename}", multiple=False)
             for output_id, filename in output_id_filename.items()
         ]
 
-        if isinstance(task, models.Testtuple):
-            command_template += ["--opener-path", f"{TPL_VOLUME_INPUTS}/{Filenames.OPENER}"]
-            command_template += ["--output-perf-path", f"/{cmd_line_outputs[0]['value']}"]
-        else:
-            if not isinstance(task, models.Predicttuple):
-                command_template += ["--rank", task.rank]
-            command_template += [
-                "--inputs",
-                json.dumps(cmd_line_inputs, default=str),
-                "--outputs",
-                json.dumps(cmd_line_outputs, default=str),
-            ]
+        command_template += [(
+            " --inputs "
+            + "'"
+            + json.dumps(cmd_line_inputs, default=str)
+            + "'"
+            + " --outputs "
+            + "'"
+            + json.dumps(cmd_line_outputs, default=str)
+            + "'"
+        )]
         return command_template
 
     def _prepare_artifact_input(self, task_input, input_volume, multiple):
@@ -206,9 +204,6 @@ class Worker:
             datasample_task_resources, data_sample_paths = self._prepare_datasample_input(
                 datasample_input_refs=datasample_input_refs, datasamples=datasamples, multiple=multiple
             )
-            if isinstance(task, models.Testtuple):
-                data_sample_paths_arg_str = " ".join([task_res["value"] for task_res in datasample_task_resources])
-                command_template += ["--data-sample-paths", data_sample_paths_arg_str]
 
         return command_template, datasample_task_resources, data_sample_paths
 
@@ -313,8 +308,6 @@ class Worker:
                         multiple=multiple,
                     )
                     cmd_line_inputs.append(task_resource)
-                    if isinstance(task, models.Testtuple):
-                        command_template += ["--input-predictions-path", task_resource["value"]]
                 else:
                     asset, asset_type = self._get_asset_unknown_type(
                         asset_key=task_input.asset_key, possible_types=[schemas.Type.DataSample, schemas.Type.Dataset]
