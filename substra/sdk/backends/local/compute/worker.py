@@ -23,6 +23,9 @@ from substra.sdk import schemas
 from substra.sdk.backends.local import dal
 from substra.sdk.backends.local.compute import spawner
 from substra.sdk.backends.local.compute.spawner import BaseSpawner
+from substra.sdk.backends.local.compute.spawner.base import VOLUME_CLI_ARGS
+from substra.sdk.backends.local.compute.spawner.base import VOLUME_INPUTS
+from substra.sdk.backends.local.compute.spawner.base import VOLUME_OUTPUTS
 
 
 class TaskResource(dict):
@@ -115,12 +118,12 @@ class Worker:
         command_template = []
 
         cmd_line_outputs: List[TaskResource] = [
-            TaskResource(id=output_id, value="${_VOLUME_OUTPUTS}/" f"{filename}", multiple=False)
+            TaskResource(id=output_id, value=f"${{{VOLUME_OUTPUTS}}}/" f"{filename}", multiple=False)
             for output_id, filename in output_id_filename.items()
         ]
 
         if isinstance(task, models.Testtuple):
-            command_template += ["--opener-path", "${_VOLUME_INPUTS}/" + Filenames.OPENER]
+            command_template += ["--opener-path", f"${{{VOLUME_INPUTS}}}/" + Filenames.OPENER]
             command_template += ["--output-perf-path", f"/{cmd_line_outputs[0]['value']}"]
         else:
             if not isinstance(task, models.Predicttuple):
@@ -153,7 +156,7 @@ class Worker:
         Path(input_artifact.address.storage_address).link_to(path_to_input)
 
         return TaskResource(
-            id=task_input.identifier, value=str(Path("${_VOLUME_INPUTS}") / filename), multiple=multiple
+            id=task_input.identifier, value=str(Path(f"${{{VOLUME_INPUTS}}}/") / filename), multiple=multiple
         )
 
     def _prepare_dataset_input(
@@ -162,7 +165,9 @@ class Worker:
         path_to_opener = input_volume / Filenames.OPENER.value
         Path(dataset.opener.storage_address).link_to(path_to_opener)
         return TaskResource(
-            id=task_input.identifier, value=str(Path("${_VOLUME_INPUTS}") / Filenames.OPENER.value), multiple=multiple
+            id=task_input.identifier,
+            value=str(Path(f"${{{VOLUME_INPUTS}}}/") / Filenames.OPENER.value),
+            multiple=multiple,
         )
 
     def _prepare_datasample_input(
@@ -171,7 +176,7 @@ class Worker:
         task_resources = list()
         data_sample_paths = dict()
         for datasample_input, datasample in zip(datasample_input_refs, datasamples):
-            datasample_path_arg = str(Path("${_VOLUME_INPUTS}") / datasample_input.asset_key)
+            datasample_path_arg = str(Path(f"${{{VOLUME_INPUTS}}}/") / datasample_input.asset_key)
             task_resources.append(
                 TaskResource(id=datasample_input.identifier, value=str(datasample_path_arg), multiple=multiple)
             )
@@ -283,8 +288,9 @@ class Worker:
             command_template = []
 
             volumes = {
-                "_VOLUME_INPUTS": _mkdir(task_dir / "inputs"),
-                "_VOLUME_OUTPUTS": _mkdir(task_dir / "outputs"),
+                VOLUME_INPUTS: _mkdir(task_dir / "inputs"),
+                VOLUME_OUTPUTS: _mkdir(task_dir / "outputs"),
+                VOLUME_CLI_ARGS: _mkdir(task_dir / "cli-args"),
             }
 
             cmd_line_inputs: List[TaskResource] = []
@@ -302,7 +308,7 @@ class Worker:
                 if task_input.parent_task_key is not None:
                     task_resource = self._prepare_artifact_input(
                         task_input=task_input,
-                        input_volume=volumes["_VOLUME_INPUTS"],
+                        input_volume=volumes[VOLUME_INPUTS],
                         multiple=multiple,
                     )
                     cmd_line_inputs.append(task_resource)
@@ -323,7 +329,7 @@ class Worker:
                             self._prepare_dataset_input(
                                 dataset=dataset,
                                 task_input=task_input,
-                                input_volume=volumes["_VOLUME_INPUTS"],
+                                input_volume=volumes[VOLUME_INPUTS],
                                 multiple=multiple,
                             )
                         )
@@ -370,7 +376,7 @@ class Worker:
                     task=task,
                     algo_output=algo_output,
                     output_id_filename=output_id_filename,
-                    output_volume=volumes["_VOLUME_OUTPUTS"],
+                    output_volume=volumes[VOLUME_OUTPUTS],
                     algo_key=algo.key,
                 )
 

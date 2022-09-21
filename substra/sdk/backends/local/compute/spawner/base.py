@@ -3,6 +3,10 @@ import pathlib
 import string
 import typing
 
+VOLUME_CLI_ARGS = "_VOLUME_CLI_ARGS"
+VOLUME_INPUTS = "_VOLUME_INPUTS"
+VOLUME_OUTPUTS = "_VOLUME_OUTPUTS"
+
 
 class ExecutionError(Exception):
     pass
@@ -26,3 +30,14 @@ class BaseSpawner(abc.ABC):
     ):
         """Execute archive in a contained environment."""
         raise NotImplementedError
+
+
+def write_arguments_file(args_file: pathlib.Path, command_args: typing.List[str]) -> None:
+    """Write the CLI arguments to a file, using a format understood by substra-tools
+
+    The format uses one line per argument.
+    See https://docs.python.org/3/library/argparse.html#fromfile-prefix-chars
+    """
+    with open(args_file, "w") as f:
+        for item in command_args:
+            f.write(item + "\n")

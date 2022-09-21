@@ -10,8 +10,10 @@ import tempfile
 import typing
 
 from substra.sdk.archive import uncompress
+from substra.sdk.backends.local.compute.spawner.base import VOLUME_INPUTS
 from substra.sdk.backends.local.compute.spawner.base import BaseSpawner
 from substra.sdk.backends.local.compute.spawner.base import ExecutionError
+from substra.sdk.backends.local.compute.spawner.base import write_arguments_file
 
 logger = logging.getLogger(__name__)
 
@@ -56,13 +58,6 @@ def _get_command_args(
     return command_args
 
 
-def _write_args_file(args_file: pathlib.Path, command_args: typing.List[str]) -> None:
-    with open(args_file, "w") as f:
-        for item in command_args:
-            # one line per argument, see https://docs.python.org/3/library/argparse.html#fromfile-prefix-chars
-            f.write(item + "\n")
-
-
 def _symlink_data_samples(data_sample_paths: typing.Dict[str, pathlib.Path], dest_dir: str):
     """Create a symbolic link to "move" the data samples
     to the data directory.
@@ -97,24 +92,27 @@ class Subprocess(BaseSpawner):
         envs,
     ):
         """Spawn a python process (blocking)."""
-        with tempfile.TemporaryDirectory(dir=self._local_worker_dir) as tmpdir:
-            tmpdir = pathlib.Path(tmpdir)
-            args_file = tmpdir / "arguments.txt"
-            uncompress(archive_path, tmpdir)
-            script_name, method_name = _get_entrypoint_from_dockerfile(tmpdir)
+        with tempfile.TemporaryDirectory(dir=self._local_worker_dir) as algo_dir, tempfile.TemporaryDirectory(
+            dir=algo_dir
+        ) as args_dir:
+            algo_dir = pathlib.Path(algo_dir)
+            args_dir = pathlib.Path(args_dir)
+            uncompress(archive_path, algo_dir)
+            script_name, method_name = _get_entrypoint_from_dockerfile(algo_dir)
 
-            # For the @arguments.txt syntax, see https://docs.python.org/3/library/argparse.html#fromfile-prefix-chars
-            py_command = [sys.executable, str(tmpdir / script_name), f"@{args_file}"]
+            args_file = args_dir / "arguments.txt"
+
+            py_command = [sys.executable, str(algo_dir / script_name), f"@{args_file}"]
             py_command_args = _get_command_args(method_name, command_template, local_volumes)
-            _write_args_file(args_file, py_command_args)
+            write_arguments_file(args_file, py_command_args)
 
             if data_sample_paths is not None and len(data_sample_paths) > 0:
-                _symlink_data_samples(data_sample_paths, local_volumes["_VOLUME_INPUTS"])
+                _symlink_data_samples(data_sample_paths, local_volumes[VOLUME_INPUTS])
 
             # Catching error and raising to be ISO to the docker local backend
             # Don't capture the output to be able to use pdb
             try:
-                subprocess.run(py_command, capture_output=False, check=True, cwd=tmpdir, env=envs)
+                subprocess.run(py_command, capture_output=False, check=True, cwd=algo_dir, env=envs)
             except subprocess.CalledProcessError as e:
 
                 raise ExecutionError(e)
