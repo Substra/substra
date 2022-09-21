@@ -54,14 +54,6 @@ class ComputePlanStatus(str, enum.Enum):
     empty = "PLAN_STATUS_EMPTY"
 
 
-class ModelType(str, enum.Enum):
-    """Model type"""
-
-    unknown = "MODEL_UNKNOWN"
-    head = "MODEL_HEAD"
-    simple = "MODEL_SIMPLE"
-
-
 class TaskErrorType(str, enum.Enum):
     """Types of errors that can occur in a task"""
 
@@ -237,7 +229,6 @@ class OutModel(schemas._PydanticConfig):
     model of a composite traintuple"""
 
     key: str
-    category: ModelType  # TODO: delete this field
     compute_task_key: str
     address: Optional[InModel]
     permissions: Permissions

@@ -21,6 +21,11 @@ logger = logging.getLogger(__name__)
 DEFAULT_RETRY_TIMEOUT = 5 * 60
 DEFAULT_BATCH_SIZE = 500
 
+# Temporary output identifiers, to be removed once user can pass its own identifiers
+MODEL_OUTPUT_IDENTIFIER = "model"
+HEAD_OUTPUT_IDENTIFIER = "local"
+TRUNK_OUTPUT_IDENTIFIER = "shared"
+
 
 def logit(f):
     """Decorator used to log all high-level methods of the Substra client."""
@@ -1030,15 +1035,12 @@ class Client(object):
         tuple = self._backend.get(tuple_type, tuple_key)
         model = None
         if tuple_type == schemas.Type.CompositeTraintuple:
-            for m in tuple.composite.models:
-                if head_trunk == "head" and m.category == models.ModelType.head:
-                    model = m
-                elif head_trunk == "trunk" and m.category == models.ModelType.simple:
-                    model = m
+            identifier = HEAD_OUTPUT_IDENTIFIER if head_trunk == "head" else TRUNK_OUTPUT_IDENTIFIER
+            model = tuple.outputs[identifier].value
         elif tuple_type == schemas.Type.Aggregatetuple:
-            model = tuple.aggregate.models[0]
+            model = tuple.outputs[MODEL_OUTPUT_IDENTIFIER].value
         elif tuple_type == schemas.Type.Traintuple:
-            model = tuple.train.models[0]
+            model = tuple.outputs[MODEL_OUTPUT_IDENTIFIER].value
         else:
             raise exceptions.InvalidRequest(f"unhandled tuple type: {tuple_type}")
 

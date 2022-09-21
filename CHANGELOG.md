@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Algo categories are not checked anymore in local mode. Validations based on inputs and outputs are sufficient.
 
+### Removed
+
+- BREAKING CHANGE: Model.category field
+
 ## [0.37.0](https://github.com/Substra/substra/releases/tag/0.37.0) - 2022-09-19
 
 ### Fixed

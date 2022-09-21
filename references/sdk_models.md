@@ -250,7 +250,6 @@ Out model of a traintuple, aggregate tuple or out trunk
 model of a composite traintuple
 ```text
 - key: str
-- category: ModelType
 - compute_task_key: str
 - address: Optional[InModel]
 - permissions: Permissions
