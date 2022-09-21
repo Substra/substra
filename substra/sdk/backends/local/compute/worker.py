@@ -27,6 +27,9 @@ from substra.sdk.backends.local.compute.spawner.base import VOLUME_CLI_ARGS
 from substra.sdk.backends.local.compute.spawner.base import VOLUME_INPUTS
 from substra.sdk.backends.local.compute.spawner.base import VOLUME_OUTPUTS
 
+TPL_VOLUME_INPUTS = "${" + VOLUME_INPUTS + "}"
+TPL_VOLUME_OUTPUTS = "${" + VOLUME_OUTPUTS + "}"
+
 
 class TaskResource(dict):
     def __init__(self, id: str, value: str, multiple: bool):
@@ -118,12 +121,12 @@ class Worker:
         command_template = []
 
         cmd_line_outputs: List[TaskResource] = [
-            TaskResource(id=output_id, value=f"${{{VOLUME_OUTPUTS}}}/" f"{filename}", multiple=False)
+            TaskResource(id=output_id, value=f"{TPL_VOLUME_OUTPUTS}/{filename}", multiple=False)
             for output_id, filename in output_id_filename.items()
         ]
 
         if isinstance(task, models.Testtuple):
-            command_template += ["--opener-path", f"${{{VOLUME_INPUTS}}}/" + Filenames.OPENER]
+            command_template += ["--opener-path", f"{TPL_VOLUME_INPUTS}/{Filenames.OPENER}"]
             command_template += ["--output-perf-path", f"/{cmd_line_outputs[0]['value']}"]
         else:
             if not isinstance(task, models.Predicttuple):
@@ -155,9 +158,7 @@ class Worker:
         path_to_input = input_volume / filename
         Path(input_artifact.address.storage_address).link_to(path_to_input)
 
-        return TaskResource(
-            id=task_input.identifier, value=str(Path(f"${{{VOLUME_INPUTS}}}/") / filename), multiple=multiple
-        )
+        return TaskResource(id=task_input.identifier, value=f"{TPL_VOLUME_INPUTS}/{filename}", multiple=multiple)
 
     def _prepare_dataset_input(
         self, dataset: models.Dataset, task_input: models.InputRef, input_volume: str, multiple: bool
@@ -166,7 +167,7 @@ class Worker:
         Path(dataset.opener.storage_address).link_to(path_to_opener)
         return TaskResource(
             id=task_input.identifier,
-            value=str(Path(f"${{{VOLUME_INPUTS}}}/") / Filenames.OPENER.value),
+            value=f"{TPL_VOLUME_INPUTS}/{Filenames.OPENER.value}",
             multiple=multiple,
         )
 
@@ -176,7 +177,7 @@ class Worker:
         task_resources = list()
         data_sample_paths = dict()
         for datasample_input, datasample in zip(datasample_input_refs, datasamples):
-            datasample_path_arg = str(Path(f"${{{VOLUME_INPUTS}}}/") / datasample_input.asset_key)
+            datasample_path_arg = f"{TPL_VOLUME_INPUTS}/{datasample_input.asset_key}"
             task_resources.append(
                 TaskResource(id=datasample_input.identifier, value=str(datasample_path_arg), multiple=multiple)
             )
@@ -363,7 +364,7 @@ class Worker:
             self._spawner.spawn(
                 container_name,
                 str(algo.algorithm.storage_address),
-                command_template=[string.Template(str(part)) for part in command_template],
+                command_args_tpl=[string.Template(str(part)) for part in command_template],
                 local_volumes=volumes,
                 data_sample_paths=data_sample_paths,
                 envs=None,
