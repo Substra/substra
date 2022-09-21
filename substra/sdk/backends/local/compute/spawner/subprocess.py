@@ -13,7 +13,7 @@ from substra.sdk.archive import uncompress
 from substra.sdk.backends.local.compute.spawner.base import VOLUME_INPUTS
 from substra.sdk.backends.local.compute.spawner.base import BaseSpawner
 from substra.sdk.backends.local.compute.spawner.base import ExecutionError
-from substra.sdk.backends.local.compute.spawner.base import write_args_to_file
+from substra.sdk.backends.local.compute.spawner.base import write_command_args_file
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +104,7 @@ class Subprocess(BaseSpawner):
 
             py_command = [sys.executable, str(algo_dir / script_name), f"@{args_file}"]
             py_command_args = _get_command_args(method_name, command_args_tpl, local_volumes)
-            write_args_to_file(args_file, py_command_args)
+            write_command_args_file(args_file, py_command_args)
 
             if data_sample_paths is not None and len(data_sample_paths) > 0:
                 _symlink_data_samples(data_sample_paths, local_volumes[VOLUME_INPUTS])

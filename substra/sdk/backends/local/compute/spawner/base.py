@@ -32,7 +32,7 @@ class BaseSpawner(abc.ABC):
         raise NotImplementedError
 
 
-def write_args_to_file(args_file: pathlib.Path, command_args: typing.List[str]) -> None:
+def write_command_args_file(args_file: pathlib.Path, command_args: typing.List[str]) -> None:
     """Write the substra-tools command line arguments to a file.
 
     The format uses one line per argument. See

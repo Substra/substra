@@ -13,7 +13,7 @@ from substra.sdk.backends.local.compute.spawner.base import VOLUME_INPUTS
 from substra.sdk.backends.local.compute.spawner.base import VOLUME_OUTPUTS
 from substra.sdk.backends.local.compute.spawner.base import BaseSpawner
 from substra.sdk.backends.local.compute.spawner.base import ExecutionError
-from substra.sdk.backends.local.compute.spawner.base import write_args_to_file
+from substra.sdk.backends.local.compute.spawner.base import write_command_args_file
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +100,7 @@ class Docker(BaseSpawner):
         # format the command to replace each occurrence of a DOCKER_VOLUMES's key
         # by its "bind" value
         volumes_format = {volume_name: volume_path["bind"] for volume_name, volume_path in DOCKER_VOLUMES.items()}
-        args = [tpl.substitute(**volumes_format) for tpl in command_args_tpl]
+        command_args = [tpl.substitute(**volumes_format) for tpl in command_args_tpl]
 
         if data_sample_paths is not None and len(data_sample_paths) > 0:
             _copy_data_samples(data_sample_paths, local_volumes[VOLUME_INPUTS])
@@ -108,7 +108,7 @@ class Docker(BaseSpawner):
         args_filename = "arguments.txt"
         args_path_local = pathlib.Path(local_volumes[VOLUME_CLI_ARGS]) / args_filename
         args_path_docker = pathlib.Path(DOCKER_VOLUMES[VOLUME_CLI_ARGS]["bind"]) / args_filename
-        write_args_to_file(args_path_local, args)
+        write_command_args_file(args_path_local, command_args)
 
         # create the volumes dict for docker by binding the local_volumes and the DOCKER_VOLUME
         volumes_docker = {
