@@ -198,7 +198,6 @@ TRAINTUPLE = {
             "transient": False,
             "value": {
                 "key": "6f0ee20a328044fb89e70ee5d219fa0c",
-                "category": "MODEL_SIMPLE",
                 "compute_task_key": "30c283be-d385-424e-94a6-4d8538275260",
                 "address": {
                     "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
@@ -224,7 +223,6 @@ TRAINTUPLE = {
         "models": [
             {
                 "key": "6f0ee20a328044fb89e70ee5d219fa0c",
-                "category": "MODEL_SIMPLE",
                 "compute_task_key": "30c283be-d385-424e-94a6-4d8538275260",
                 "address": {
                     "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
@@ -287,7 +285,6 @@ AGGREGATETUPLE = {
             "transient": False,
             "value": {
                 "key": "5f0ee20a328044fb89e70ee5d219fa0b",
-                "category": "MODEL_SIMPLE",
                 "compute_task_key": "06207faf-1785-4fa9-4220-99a50dcfe064",
                 "address": {
                     "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
@@ -306,7 +303,6 @@ AGGREGATETUPLE = {
         "models": [
             {
                 "key": "5f0ee20a328044fb89e70ee5d219fa0b",
-                "category": "MODEL_SIMPLE",
                 "compute_task_key": "06207faf-1785-4fa9-4220-99a50dcfe064",
                 "address": {
                     "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
@@ -380,7 +376,6 @@ COMPOSITE_TRAINTUPLE = {
             "transient": False,
             "value": {
                 "key": "dc9d114d1ed54936b57dd7fef1c0cbf4",
-                "category": "MODEL_SIMPLE",
                 "compute_task_key": "aa09180a-fec6-46a5-a1a7-58c971b39217",
                 "address": {
                     "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
@@ -402,7 +397,6 @@ COMPOSITE_TRAINTUPLE = {
             "transient": False,
             "value": {
                 "key": "ac4a1a82ced4419b83f4bba78c024b94",
-                "category": "MODEL_HEAD",
                 "compute_task_key": "aa09180a-fec6-46a5-a1a7-58c971b39217",
                 "address": {
                     "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
@@ -423,7 +417,6 @@ COMPOSITE_TRAINTUPLE = {
         "models": [
             {
                 "key": "ac4a1a82ced4419b83f4bba78c024b94",
-                "category": "MODEL_HEAD",
                 "compute_task_key": "aa09180a-fec6-46a5-a1a7-58c971b39217",
                 "address": {
                     "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
@@ -438,7 +431,6 @@ COMPOSITE_TRAINTUPLE = {
             },
             {
                 "key": "dc9d114d1ed54936b57dd7fef1c0cbf4",
-                "category": "MODEL_SIMPLE",
                 "compute_task_key": "aa09180a-fec6-46a5-a1a7-58c971b39217",
                 "address": {
                     "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
@@ -795,7 +787,6 @@ MODEL = {
         "storage_address": "http://substra-backend.org-1.com/model/d7d88d74-d42f-43f4-affa-d0cdb99873fc/file/",
         "checksum": "b7881c547f7b80f01200fd2c41546010a15c66e2db46722dbbffa428a0bd0a26",
     },
-    "category": "MODEL_SIMPLE",
     "compute_task_key": "b2b37c0f-de0a-4a61-9d00-58079efa9b33",
     "creation_date": "2022-03-01T11:22:35.791650Z",
     "key": "d7d88d74-d42f-43f4-affa-d0cdb99873fc",
