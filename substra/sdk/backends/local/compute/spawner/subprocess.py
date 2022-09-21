@@ -13,7 +13,7 @@ from substra.sdk.archive import uncompress
 from substra.sdk.backends.local.compute.spawner.base import VOLUME_INPUTS
 from substra.sdk.backends.local.compute.spawner.base import BaseSpawner
 from substra.sdk.backends.local.compute.spawner.base import ExecutionError
-from substra.sdk.backends.local.compute.spawner.base import write_arguments_file
+from substra.sdk.backends.local.compute.spawner.base import write_args_to_file
 
 logger = logging.getLogger(__name__)
 
@@ -51,11 +51,11 @@ def _get_entrypoint_from_dockerfile(tmpdir):
 
 
 def _get_command_args(
-    method_name: str, command_template: typing.List[string.Template], local_volumes: typing.Dict[str, str]
+    method_name: str, args_template: typing.List[string.Template], local_volumes: typing.Dict[str, str]
 ) -> typing.List[str]:
-    command_args = ["--method-name", str(method_name)]
-    command_args += [tpl.substitute(**local_volumes) for tpl in command_template]
-    return command_args
+    args = ["--method-name", str(method_name)]
+    args += [tpl.substitute(**local_volumes) for tpl in args_template]
+    return args
 
 
 def _symlink_data_samples(data_sample_paths: typing.Dict[str, pathlib.Path], dest_dir: str):
@@ -86,7 +86,7 @@ class Subprocess(BaseSpawner):
         self,
         name,
         archive_path,
-        command_template: string.Template,
+        command_args_tpl: typing.List[string.Template],
         data_sample_paths: typing.Optional[typing.Dict[str, pathlib.Path]],
         local_volumes,
         envs,
@@ -103,8 +103,8 @@ class Subprocess(BaseSpawner):
             args_file = args_dir / "arguments.txt"
 
             py_command = [sys.executable, str(algo_dir / script_name), f"@{args_file}"]
-            py_command_args = _get_command_args(method_name, command_template, local_volumes)
-            write_arguments_file(args_file, py_command_args)
+            py_command_args = _get_command_args(method_name, command_args_tpl, local_volumes)
+            write_args_to_file(args_file, py_command_args)
 
             if data_sample_paths is not None and len(data_sample_paths) > 0:
                 _symlink_data_samples(data_sample_paths, local_volumes[VOLUME_INPUTS])

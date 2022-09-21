@@ -23,7 +23,7 @@ class BaseSpawner(abc.ABC):
         self,
         name,
         archive_path,
-        command_template: string.Template,
+        command_args_tpl: typing.List[string.Template],
         data_sample_paths: typing.Optional[typing.Dict[str, pathlib.Path]],
         local_volumes,
         envs,
@@ -32,11 +32,11 @@ class BaseSpawner(abc.ABC):
         raise NotImplementedError
 
 
-def write_arguments_file(args_file: pathlib.Path, command_args: typing.List[str]) -> None:
-    """Write the CLI arguments to a file, using a format understood by substra-tools
+def write_args_to_file(args_file: pathlib.Path, command_args: typing.List[str]) -> None:
+    """Write the substra-tools command line arguments to a file.
 
-    The format uses one line per argument.
-    See https://docs.python.org/3/library/argparse.html#fromfile-prefix-chars
+    The format uses one line per argument. See
+    https://docs.python.org/3/library/argparse.html#fromfile-prefix-chars
     """
     with open(args_file, "w") as f:
         for item in command_args:
