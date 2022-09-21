@@ -49,7 +49,7 @@ def _get_entrypoint_from_dockerfile(tmpdir):
 
 
 def _get_command_args(
-    method_name: str, command_template: typing.List[string.Template], local_volumes: dict[str, str]
+    method_name: str, command_template: typing.List[string.Template], local_volumes: typing.Dict[str, str]
 ) -> typing.List[str]:
     command_args = ["--method-name", str(method_name)]
     command_args += [tpl.substitute(**local_volumes) for tpl in command_template]
