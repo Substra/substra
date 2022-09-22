@@ -7,11 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
+### Tests
 
 - used openers within the library only exposes `get_data` and `fake_data` methods due to breaking changes within
   substra-tools
 - a third argument `task_properties` (containing the `rank` of a task) has been added to all algo methods relying on substra-tools
+
+### Changed
+
 - Algo categories are not checked anymore in local mode. Validations based on inputs and outputs are sufficient.
 - BREAKING CHANGE: the backend type is now set in the Client, the env variable `DEBUG_SPAWNER` is not used anymore. Default value is deployed (#287)
 
