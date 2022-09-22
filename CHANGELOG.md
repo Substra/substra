@@ -28,6 +28,7 @@ API after
 client = substra.Client(backend_type=substra.BackendType.LOCAL_SUBPROCESS)
 ```
 - Pass substra-tools arguments via a file instead of the command line
+- Python package depends on substra-tools v0.18.0
 
 ### Removed
 
