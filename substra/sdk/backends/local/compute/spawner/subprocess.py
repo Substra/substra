@@ -2,7 +2,6 @@ import logging
 import os
 import pathlib
 import re
-import shlex
 import shutil
 import string
 import subprocess
@@ -11,8 +10,10 @@ import tempfile
 import typing
 
 from substra.sdk.archive import uncompress
+from substra.sdk.backends.local.compute.spawner.base import VOLUME_INPUTS
 from substra.sdk.backends.local.compute.spawner.base import BaseSpawner
 from substra.sdk.backends.local.compute.spawner.base import ExecutionError
+from substra.sdk.backends.local.compute.spawner.base import write_command_args_file
 
 logger = logging.getLogger(__name__)
 
@@ -49,38 +50,12 @@ def _get_entrypoint_from_dockerfile(tmpdir):
     raise ExecutionError("Couldn't get entrypoint in Dockerfile", valid_example)
 
 
-# TODO: _get_py_command should only return the command_args, and the py_command should be defined in the spawn function
-# in the current state, the only args needed to get the command args are command_template, local_volumes, the rest is
-# only to build the command
-def _get_py_command(script_name, method_name, tmpdir, command_template, local_volumes):
-    """
-    Substitute the local_volumes in the command_template and split it to have the
-    py_command
-
-    Args:
-        script_name (str): the name of the script
-        tmpdir (pathlib.Path): the tmpdir in which the subprocess mode is running
-        command_template (string.Template): template containing all arguments for the subprocess
-        local_volumes (dict[str, str]): paths to substitute in command_template
-
-    Returns:
-        py_command (list[str]): the list with all commands for the subprocess
-    """
-    # modify local_volumes not to split paths with spaces
-    local_volumes = {k: str(v).replace(" ", r"\\\\") for k, v in local_volumes.items()}
-    # replace volumes variables by local volumes
-    command = command_template.substitute(**local_volumes)
-    # split command to run into subprocess
-    command_args = shlex.split(command)
-    # replace paths with spaces that were modified
-    # Not using regex as shlex replaced '\' with '\\' automatically. Hence '\\\\' which was represented as '\\' is now
-    # '\\\\'
-    command_args = [command_arg.replace("\\\\", " ") for command_arg in command_args]
-    # put current python interpreter and script to launch before script command
-    py_command = [sys.executable, str(tmpdir / script_name), "--method-name", str(method_name)]
-    py_command.extend(command_args)
-
-    return py_command
+def _get_command_args(
+    method_name: str, args_template: typing.List[string.Template], local_volumes: typing.Dict[str, str]
+) -> typing.List[str]:
+    args = ["--method-name", str(method_name)]
+    args += [tpl.substitute(**local_volumes) for tpl in args_template]
+    return args
 
 
 def _symlink_data_samples(data_sample_paths: typing.Dict[str, pathlib.Path], dest_dir: str):
@@ -111,26 +86,33 @@ class Subprocess(BaseSpawner):
         self,
         name,
         archive_path,
-        command_template: string.Template,
+        command_args_tpl: typing.List[string.Template],
         data_sample_paths: typing.Optional[typing.Dict[str, pathlib.Path]],
         local_volumes,
         envs,
     ):
         """Spawn a python process (blocking)."""
-        with tempfile.TemporaryDirectory(dir=self._local_worker_dir) as tmpdir:
-            tmpdir = pathlib.Path(tmpdir)
-            uncompress(archive_path, tmpdir)
-            script_name, method_name = _get_entrypoint_from_dockerfile(tmpdir)
-            # get py_command for subprocess
-            py_command = _get_py_command(script_name, method_name, tmpdir, command_template, local_volumes)
+        with tempfile.TemporaryDirectory(dir=self._local_worker_dir) as algo_dir, tempfile.TemporaryDirectory(
+            dir=algo_dir
+        ) as args_dir:
+            algo_dir = pathlib.Path(algo_dir)
+            args_dir = pathlib.Path(args_dir)
+            uncompress(archive_path, algo_dir)
+            script_name, method_name = _get_entrypoint_from_dockerfile(algo_dir)
+
+            args_file = args_dir / "arguments.txt"
+
+            py_command = [sys.executable, str(algo_dir / script_name), f"@{args_file}"]
+            py_command_args = _get_command_args(method_name, command_args_tpl, local_volumes)
+            write_command_args_file(args_file, py_command_args)
 
             if data_sample_paths is not None and len(data_sample_paths) > 0:
-                _symlink_data_samples(data_sample_paths, local_volumes["_VOLUME_INPUTS"])
+                _symlink_data_samples(data_sample_paths, local_volumes[VOLUME_INPUTS])
 
             # Catching error and raising to be ISO to the docker local backend
             # Don't capture the output to be able to use pdb
             try:
-                subprocess.run(py_command, capture_output=False, check=True, cwd=tmpdir, env=envs)
+                subprocess.run(py_command, capture_output=False, check=True, cwd=algo_dir, env=envs)
             except subprocess.CalledProcessError as e:
 
                 raise ExecutionError(e)

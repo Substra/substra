@@ -8,15 +8,20 @@ import typing
 import docker
 
 from substra.sdk.archive import uncompress
+from substra.sdk.backends.local.compute.spawner.base import VOLUME_CLI_ARGS
+from substra.sdk.backends.local.compute.spawner.base import VOLUME_INPUTS
+from substra.sdk.backends.local.compute.spawner.base import VOLUME_OUTPUTS
 from substra.sdk.backends.local.compute.spawner.base import BaseSpawner
 from substra.sdk.backends.local.compute.spawner.base import ExecutionError
+from substra.sdk.backends.local.compute.spawner.base import write_command_args_file
 
 logger = logging.getLogger(__name__)
 
 ROOT_DIR = "/substra_internal"
 DOCKER_VOLUMES = {
-    "_VOLUME_INPUTS": {"bind": f"{ROOT_DIR}/inputs", "mode": "ro"},
-    "_VOLUME_OUTPUTS": {"bind": f"{ROOT_DIR}/outputs", "mode": "rw"},
+    VOLUME_INPUTS: {"bind": f"{ROOT_DIR}/inputs", "mode": "ro"},
+    VOLUME_OUTPUTS: {"bind": f"{ROOT_DIR}/outputs", "mode": "rw"},
+    VOLUME_CLI_ARGS: {"bind": f"{ROOT_DIR}/cli-args", "mode": "rw"},
 }
 
 
@@ -82,7 +87,7 @@ class Docker(BaseSpawner):
         self,
         name: str,
         archive_path: pathlib.Path,
-        command_template: string.Template,
+        command_args_tpl: typing.List[string.Template],
         data_sample_paths: typing.Optional[typing.Dict[str, pathlib.Path]],
         local_volumes: typing.Optional[dict],
         envs: typing.Optional[typing.List[str]],
@@ -95,9 +100,15 @@ class Docker(BaseSpawner):
         # format the command to replace each occurrence of a DOCKER_VOLUMES's key
         # by its "bind" value
         volumes_format = {volume_name: volume_path["bind"] for volume_name, volume_path in DOCKER_VOLUMES.items()}
-        command = command_template.substitute(**volumes_format)
+        command_args = [tpl.substitute(**volumes_format) for tpl in command_args_tpl]
+
         if data_sample_paths is not None and len(data_sample_paths) > 0:
-            _copy_data_samples(data_sample_paths, local_volumes["_VOLUME_INPUTS"])
+            _copy_data_samples(data_sample_paths, local_volumes[VOLUME_INPUTS])
+
+        args_filename = "arguments.txt"
+        args_path_local = pathlib.Path(local_volumes[VOLUME_CLI_ARGS]) / args_filename
+        args_path_docker = pathlib.Path(DOCKER_VOLUMES[VOLUME_CLI_ARGS]["bind"]) / args_filename
+        write_command_args_file(args_path_local, command_args)
 
         # create the volumes dict for docker by binding the local_volumes and the DOCKER_VOLUME
         volumes_docker = {
@@ -106,7 +117,7 @@ class Docker(BaseSpawner):
 
         container = self._docker.containers.run(
             name,
-            command=command,
+            command=f"@{args_path_docker}",
             volumes=volumes_docker or {},
             environment=envs,
             remove=False,
