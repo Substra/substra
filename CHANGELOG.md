@@ -35,6 +35,33 @@ client = substra.Client(backend_type=substra.BackendType.LOCAL_SUBPROCESS)
 ```
 - Pass substra-tools arguments via a file instead of the command line
 
+- BREAKING CHANGE: the substratools `Metrics` is now another algo (#290):
+
+Replace
+
+```python
+import substratools as tools
+
+class MyMetric(tools.Metrics):
+    # ...
+
+if __name__ == '__main__':
+    tools.metrics.execute(MyMetric())
+```
+
+by
+
+```python
+import substratools as tools
+
+class MyMetric(tools.MetricAlgo):
+    # ...
+if __name__ == '__main__':
+    tools.algo.execute(MyMetric())
+```
+
+- internal change: the metrics algo CLI is the same as the other algos (#290)
+
 ### Removed
 
 - BREAKING CHANGE: Model.category field
