@@ -21,9 +21,7 @@ DEFAULT_SUBSTRATOOLS_VERSION = (
     f"latest-nvidiacuda11.6.0-base-ubuntu20.04-python{sys.version_info.major}.{sys.version_info.minor}-minimal"
 )
 
-# TODO: change before merge
-# DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE = f"ghcr.io/substra/substra-tools:{DEFAULT_SUBSTRATOOLS_VERSION}"
-DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE = "ghcr.io/substra/substra-tools:test_gt_amd64-minimal"
+DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE = f"ghcr.io/substra/substra-tools:{DEFAULT_SUBSTRATOOLS_VERSION}"
 
 DEFAULT_OPENER_SCRIPT = f"""
 import csv
