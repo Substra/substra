@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - used openers within the library only exposes `get_data` and `fake_data` methods due to breaking changes within
   substra-tools
 - a third argument `task_properties` (containing the `rank` of a task) has been added to all algo methods relying on substra-tools
+- substra tools metrics `tools.Metrics` become `tools.MetricAlgo` and `tools.metrics.execute` becomes `tools.algo.execute` (#290)
 
 ### Changed
 
@@ -33,7 +34,9 @@ API after
 ```python
 client = substra.Client(backend_type=substra.BackendType.LOCAL_SUBPROCESS)
 ```
+
 - Pass substra-tools arguments via a file instead of the command line
+- internal change: the metrics algo CLI is the same as the other algos (#290)
 
 ### Removed
 
