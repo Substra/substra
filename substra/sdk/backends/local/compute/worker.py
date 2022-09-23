@@ -118,23 +118,19 @@ class Worker:
         cmd_line_inputs,
         output_id_filename,
     ):
-        command_template = [f" --rank {task.rank}"]
+        command_template = ["--rank", task.rank]
 
         cmd_line_outputs: List[TaskResource] = [
             TaskResource(id=output_id, value=f"{TPL_VOLUME_OUTPUTS}/{filename}", multiple=False)
             for output_id, filename in output_id_filename.items()
         ]
 
-        command_template += [(
-            " --inputs "
-            + "'"
-            + json.dumps(cmd_line_inputs, default=str)
-            + "'"
-            + " --outputs "
-            + "'"
-            + json.dumps(cmd_line_outputs, default=str)
-            + "'"
-        )]
+        command_template += [
+            "--inputs",
+            json.dumps(cmd_line_inputs, default=str),
+            "--outputs",
+            json.dumps(cmd_line_outputs, default=str),
+        ]
         return command_template
 
     def _prepare_artifact_input(self, task_input, input_volume, multiple):
