@@ -55,7 +55,7 @@ DEFAULT_METRIC_ALGO_SCRIPT = f"""
 import json
 import substratools as tools
 
-class TestMetrics(tools.Metrics):
+class TestMetrics(tools.MetricAlgo):
     def score(self, inputs, outputs, task_properties):
         y_true = inputs['{InputIdentifiers.datasamples}'][1]
         y_pred = self._get_predictions(inputs['{InputIdentifiers.predictions}'])
