@@ -297,7 +297,6 @@ class Local(base.BaseBackend):
             creation_date=self.__now(),
             name=spec.name,
             owner=self._org_id,
-            category=spec.category,
             permissions={
                 "process": {
                     "public": permissions.public,

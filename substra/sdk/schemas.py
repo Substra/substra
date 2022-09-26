@@ -416,7 +416,6 @@ class AlgoSpec(_Spec):
     file: pathlib.Path
     permissions: Permissions
     metadata: Optional[Dict[str, str]]
-    category: AlgoCategory
     inputs: Optional[List[AlgoInputSpec]] = None
     outputs: Optional[List[AlgoOutputSpec]] = None
 
