@@ -8,7 +8,15 @@ VOLUME_INPUTS = "_VOLUME_INPUTS"
 VOLUME_OUTPUTS = "_VOLUME_OUTPUTS"
 
 
+class BuildError(Exception):
+    """An error occurred during the build of the algo"""
+
+    pass
+
+
 class ExecutionError(Exception):
+    """An error occurred during the execution of the compute task"""
+
     pass
 
 
