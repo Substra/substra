@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.0](https://github.com/Substra/substra/releases/tag/0.38.0) - 2022-09-26
+
 ### Tests
 
 - used openers within the library only exposes `get_data` and `fake_data` methods due to breaking changes within
