@@ -223,7 +223,7 @@ class Remote(base.BaseBackend):
             try:
                 self._add_tuples(batch, spec_options)
             except exceptions.AlreadyExists:
-                logger.info(
+                logger.warning(
                     "Skipping already submitted tasks, probably because of a timeout error. "
                     "Check that the compute plan has the right number of tasks once the submission is complete."
                 )
