@@ -175,7 +175,6 @@ class Algo(_Model):
     owner: str
     permissions: Permissions
     metadata: Dict[str, str]
-    category: schemas.AlgoCategory
     creation_date: datetime
     inputs: List[AlgoInput]
     outputs: List[AlgoOutput]

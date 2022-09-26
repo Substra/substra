@@ -405,12 +405,8 @@ class AssetsFactory:
             ),
         )
 
-        spec_category = category
-        if category == FL_ALGO_PREDICT_COMPOSITE:
-            spec_category = substra.schemas.AlgoCategory.predict
         return substra.sdk.schemas.AlgoSpec(
             name=name,
-            category=spec_category,
             inputs=FLAlgoInputs[category],
             outputs=FLAlgoOutputs[category],
             description=str(description_path),

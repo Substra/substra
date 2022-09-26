@@ -83,7 +83,6 @@ def algo_query(tmpdir):
 
     return AlgoSpec(
         name="algo_name",
-        category=algo_category,
         inputs=FLAlgoInputs[algo_category],
         outputs=FLAlgoOutputs[algo_category],
         description=str(desc_path),
