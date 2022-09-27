@@ -7,9 +7,8 @@ import uuid
 import zipfile
 
 import substra
-from substra.sdk.schemas import AlgoCategory
 
-from .fl_interface import FL_ALGO_PREDICT_COMPOSITE
+from .fl_interface import AlgoCategory
 from .fl_interface import FLAlgoInputs
 from .fl_interface import FLAlgoOutputs
 from .fl_interface import InputIdentifiers
@@ -226,7 +225,7 @@ DEFAULT_ALGO_SCRIPTS = {
     AlgoCategory.aggregate: DEFAULT_AGGREGATE_ALGO_SCRIPT,
     AlgoCategory.predict: DEFAULT_ALGO_SCRIPT,
     AlgoCategory.metric: DEFAULT_METRIC_ALGO_SCRIPT,
-    FL_ALGO_PREDICT_COMPOSITE: DEFAULT_COMPOSITE_ALGO_SCRIPT,
+    AlgoCategory.predict_composite: DEFAULT_COMPOSITE_ALGO_SCRIPT,
 }
 
 DEFAULT_ALGO_METHOD_NAME = {
@@ -235,7 +234,7 @@ DEFAULT_ALGO_METHOD_NAME = {
     AlgoCategory.aggregate: "aggregate",
     AlgoCategory.predict: "predict",
     AlgoCategory.metric: "score",
-    FL_ALGO_PREDICT_COMPOSITE: "predict",
+    AlgoCategory.predict_composite: "predict",
 }
 
 DEFAULT_ALGO_DOCKERFILE = f"""

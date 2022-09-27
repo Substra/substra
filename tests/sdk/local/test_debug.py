@@ -8,11 +8,10 @@ import substra
 from substra.sdk import models
 from substra.sdk.exceptions import InvalidRequest
 from substra.sdk.exceptions import KeyAlreadyExistsError
-from substra.sdk.schemas import AlgoCategory
 
-from ...fl_interface import FL_ALGO_PREDICT_COMPOSITE
 from ...fl_interface import FLTaskInputGenerator
 from ...fl_interface import FLTaskOutputGenerator
+from ...fl_interface import AlgoCategory
 
 
 def test_wrong_debug_spawner():
@@ -573,7 +572,7 @@ def test_two_composite_to_composite(asset_factory, subprocess_clients):
     algo_query = asset_factory.create_algo(AlgoCategory.composite)
     algo_key = client.add_algo(algo_query)
 
-    predict_algo_spec = asset_factory.create_algo(category=FL_ALGO_PREDICT_COMPOSITE)
+    predict_algo_spec = asset_factory.create_algo(category=AlgoCategory.predict_composite)
     predict_algo_key = client.add_algo(predict_algo_spec)
 
     metric = asset_factory.create_algo(category=AlgoCategory.metric)

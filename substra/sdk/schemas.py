@@ -67,17 +67,6 @@ class Type(enum.Enum):
         return self.name
 
 
-class AlgoCategory(str, enum.Enum):
-    """Algo category"""
-
-    unknown = "ALGO_UNKNOWN"
-    simple = "ALGO_SIMPLE"
-    composite = "ALGO_COMPOSITE"
-    aggregate = "ALGO_AGGREGATE"
-    metric = "ALGO_METRIC"
-    predict = "ALGO_PREDICT"
-
-
 class TaskCategory(str, enum.Enum):
     """Task category"""
 
