@@ -153,6 +153,10 @@ class Local(base.BaseBackend):
                 raise exceptions.InvalidRequest("The key in metadata cannot be more than 50 characters", 400)
             if any([len(value) > _MAX_LEN_VALUE_METADATA or len(value) == 0 for value in metadata.values()]):
                 raise exceptions.InvalidRequest("Values in metadata cannot be empty or more than 100 characters", 400)
+            if any("__" in key for key in metadata):
+                raise exceptions.InvalidRequest(
+                    '"__" cannot be used in a metadata key, please use simple underscore instead', 400
+                )
 
     def __compute_permissions(self, permissions):
         """Compute the permissions

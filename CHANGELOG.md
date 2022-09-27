@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Prevent use of `__` in asset metadata keys in local mode
+
 ## [0.38.0](https://github.com/Substra/substra/releases/tag/0.38.0) - 2022-09-26
 
 ### Tests
