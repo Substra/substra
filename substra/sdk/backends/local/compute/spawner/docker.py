@@ -12,6 +12,7 @@ from substra.sdk.backends.local.compute.spawner.base import VOLUME_CLI_ARGS
 from substra.sdk.backends.local.compute.spawner.base import VOLUME_INPUTS
 from substra.sdk.backends.local.compute.spawner.base import VOLUME_OUTPUTS
 from substra.sdk.backends.local.compute.spawner.base import BaseSpawner
+from substra.sdk.backends.local.compute.spawner.base import BuildError
 from substra.sdk.backends.local.compute.spawner.base import ExecutionError
 from substra.sdk.backends.local.compute.spawner.base import write_command_args_file
 
@@ -78,10 +79,12 @@ class Docker(BaseSpawner):
                     uncompress(archive_path, tmpdir)
                     self._docker.images.build(path=tmpdir, tag=name, rm=True)
                 except docker.errors.BuildError as exc:
+                    log = ""
                     for line in exc.build_log:
                         if "stream" in line:
-                            logger.error(line["stream"].strip())
-                    raise
+                            log += line["stream"].strip()
+                    logger.error(log)
+                    raise BuildError(log)
 
     def spawn(
         self,
