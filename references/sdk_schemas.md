@@ -39,6 +39,8 @@ the 'paths' field.
 
 ## DatasetSpec
 Specification for creating a dataset
+
+note : metadata field does not accept strings containing '__' as dict key
 ```text
 - name: str
 - data_opener: Path
@@ -57,6 +59,8 @@ Specification for updating a dataset
 
 ## AlgoSpec
 Specification for creating an algo
+
+note : metadata field does not accept strings containing '__' as dict key
 ```text
 - name: str
 - description: Path
@@ -87,6 +91,8 @@ Asset creation specification base class.
 
 ## PredicttupleSpec
 Specification for creating a predict tuple
+
+note : metadata field does not accept strings containing '__' as dict key
 ```text
 - key: str
 - tag: Optional[str]
@@ -109,6 +115,8 @@ Specification for updating an algo
 
 ## TesttupleSpec
 Specification for creating a testtuple
+
+note : metadata field does not accept strings containing '__' as dict key
 ```text
 - key: str
 - tag: Optional[str]
@@ -125,6 +133,8 @@ Specification for creating a testtuple
 
 ## TraintupleSpec
 Specification for creating a traintuple
+
+note : metadata field does not accept strings containing '__' as dict key
 ```text
 - key: str
 - tag: Optional[str]
@@ -142,6 +152,8 @@ Specification for creating a traintuple
 
 ## AggregatetupleSpec
 Specification for creating an aggregate tuple
+
+note : metadata field does not accept strings containing '__' as dict key
 ```text
 - key: str
 - tag: Optional[str]
@@ -158,6 +170,8 @@ Specification for creating an aggregate tuple
 
 ## CompositeTraintupleSpec
 Specification for creating a composite traintuple
+
+note : metadata field does not accept strings containing '__' as dict key
 ```text
 - key: str
 - tag: Optional[str]
@@ -176,6 +190,8 @@ Specification for creating a composite traintuple
 
 ## ComputePlanSpec
 Specification for creating a compute plan
+
+note : metadata field does not accept strings containing '__' as dict key
 ```text
 - key: str
 - traintuples: Optional[List[ComputePlanTraintupleSpec]]

@@ -218,7 +218,10 @@ class ComputeTaskOutputSpec(_PydanticConfig):
 
 
 class _ComputePlanComputeTaskSpec(_Spec):
-    """Specification of a compute task inside a compute plan specification"""
+    """Specification of a compute task inside a compute plan specification
+
+    note : metadata field does not accept strings containing '__' as dict key
+    """
 
     algo_key: str
     tag: Optional[str]
@@ -286,7 +289,10 @@ class _BaseComputePlanSpec(_Spec):
 
 
 class ComputePlanSpec(_BaseComputePlanSpec):
-    """Specification for creating a compute plan"""
+    """Specification for creating a compute plan
+
+    note : metadata field does not accept strings containing '__' as dict key
+    """
 
     key: str = pydantic.Field(default_factory=lambda: str(uuid.uuid4()))
     tag: Optional[str]
@@ -319,7 +325,10 @@ class UpdateComputePlanSpec(_Spec):
 
 
 class DatasetSpec(_Spec):
-    """Specification for creating a dataset"""
+    """Specification for creating a dataset
+
+    note : metadata field does not accept strings containing '__' as dict key
+    """
 
     name: str
     data_opener: pathlib.Path  # Path to the data opener
@@ -397,7 +406,10 @@ class AlgoOutputSpec(_Spec):
 
 
 class AlgoSpec(_Spec):
-    """Specification for creating an algo"""
+    """Specification for creating an algo
+
+    note : metadata field does not accept strings containing '__' as dict key
+    """
 
     name: str
     description: pathlib.Path
@@ -468,7 +480,10 @@ class _TupleSpec(_Spec):
 
 
 class TraintupleSpec(_TupleSpec):
-    """Specification for creating a traintuple"""
+    """Specification for creating a traintuple
+
+    note : metadata field does not accept strings containing '__' as dict key
+    """
 
     data_manager_key: str
     train_data_sample_keys: List[str]
@@ -497,7 +512,10 @@ class TraintupleSpec(_TupleSpec):
 
 
 class AggregatetupleSpec(_TupleSpec):
-    """Specification for creating an aggregate tuple"""
+    """Specification for creating an aggregate tuple
+
+    note : metadata field does not accept strings containing '__' as dict key
+    """
 
     worker: str
     in_models_keys: List[str]
@@ -526,7 +544,10 @@ class AggregatetupleSpec(_TupleSpec):
 
 
 class CompositeTraintupleSpec(_TupleSpec):
-    """Specification for creating a composite traintuple"""
+    """Specification for creating a composite traintuple
+
+    note : metadata field does not accept strings containing '__' as dict key
+    """
 
     data_manager_key: str
     train_data_sample_keys: List[str]
@@ -559,7 +580,10 @@ class CompositeTraintupleSpec(_TupleSpec):
 
 
 class PredicttupleSpec(_TupleSpec):
-    """Specification for creating a predict tuple"""
+    """Specification for creating a predict tuple
+
+    note : metadata field does not accept strings containing '__' as dict key
+    """
 
     traintuple_key: str
     data_manager_key: str
@@ -589,7 +613,10 @@ class PredicttupleSpec(_TupleSpec):
 
 
 class TesttupleSpec(_TupleSpec):
-    """Specification for creating a testtuple"""
+    """Specification for creating a testtuple
+
+    note : metadata field does not accept strings containing '__' as dict key
+    """
 
     predicttuple_key: str
     data_manager_key: str
