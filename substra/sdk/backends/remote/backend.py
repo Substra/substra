@@ -220,7 +220,14 @@ class Remote(base.BaseBackend):
             batches = [tuples]
 
         for batch in batches:
-            self._add_tuples(batch, spec_options)
+            try:
+                self._add_tuples(batch, spec_options)
+            except exceptions.AlreadyExists:
+                logger.warning(
+                    "Skipping already submitted tasks, probably because of a timeout error. "
+                    "Check that the compute plan has the right number of tasks once the submission is complete."
+                )
+                continue
 
     def _add_tuples(self, batch, spec_options):
         batch_data = []
