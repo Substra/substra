@@ -67,7 +67,6 @@ note : metadata field does not accept strings containing '__' as dict key
 - file: Path
 - permissions: Permissions
 - metadata: Optional[Mapping[str, str]]
-- category: AlgoCategory
 - inputs: Optional[List[AlgoInputSpec]]
 - outputs: Optional[List[AlgoOutputSpec]]
 ```

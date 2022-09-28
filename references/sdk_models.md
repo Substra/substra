@@ -175,7 +175,6 @@ Asset creation specification base class.
 - owner: str
 - permissions: Permissions
 - metadata: Mapping[str, str]
-- category: AlgoCategory
 - creation_date: datetime
 - inputs: List[AlgoInput]
 - outputs: List[AlgoOutput]
