@@ -310,10 +310,6 @@ class AlgoInputSpec(_Spec):
                     f"{StaticInputIdentifier.values()}"
                 )
 
-        identifiers = {value.identifier for value in values}
-        if len(identifiers) != len(values):
-            raise ValueError("Several algo inputs cannot have the same identifier.")
-
         return values
 
 
@@ -346,6 +342,22 @@ class AlgoSpec(_Spec):
     outputs: Optional[List[AlgoOutputSpec]] = None
 
     type_: typing.ClassVar[Type] = Type.Algo
+
+    @pydantic.validator("inputs")
+    def _check_inputs(cls, v):  # noqa: N805
+        inputs = v or list()
+        identifiers = {value.identifier for value in inputs}
+        if len(identifiers) != len(inputs):
+            raise ValueError("Several algo inputs cannot have the same identifier.")
+        return v
+
+    @pydantic.validator("inputs")
+    def _check_outputs(cls, v):  # noqa: N805
+        outputs = v or list()
+        identifiers = {value.identifier for value in outputs}
+        if len(identifiers) != len(outputs):
+            raise ValueError("Several algo outputs cannot have the same identifier.")
+        return v
 
     @contextlib.contextmanager
     def build_request_kwargs(self):
