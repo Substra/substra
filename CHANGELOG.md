@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Prevent use of `__` in asset metadata keys in local mode
 - docker: add build logs to container image build exception messages
+- At compute plan submission by batch, continue the submission after a timeout error
 
 ## [0.38.0](https://github.com/Substra/substra/releases/tag/0.38.0) - 2022-09-26
 
