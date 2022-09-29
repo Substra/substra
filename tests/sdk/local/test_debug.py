@@ -584,6 +584,34 @@ def test_two_composite_to_composite(asset_factory, subprocess_clients):
     assert client.get_performances(compute_plan.key).performance[0] == 32
 
 
+def test_task_different_owner_dataset(asset_factory, clients):
+    client = clients[0]
+
+    # set dataset, metric and algo
+    dataset_query = asset_factory.create_dataset()
+    dataset_key = client.add_dataset(dataset_query)
+
+    data_sample = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
+    data_sample_key = client.add_data_sample(data_sample)
+
+    algo_query = asset_factory.create_algo(AlgoCategory.simple)
+    algo_key = client.add_algo(algo_query)
+
+    with pytest.raises(substra.sdk.exceptions.InvalidRequest) as err:
+        client.add_task(
+            substra.sdk.schemas.TaskSpec(
+                algo_key=algo_key,
+                inputs=[
+                    substra.sdk.schemas.InputRef(identifier=InputIdentifiers.datasamples, asset_key=data_sample_key),
+                    substra.sdk.schemas.InputRef(identifier=InputIdentifiers.opener, asset_key=dataset_key),
+                ],
+                outputs=FLTaskOutputGenerator.traintuple(),
+                worker="bad_worker",
+            )
+        )
+    assert "The task worker must be the organization that contains the data:" in str(err.value)
+
+
 class TestMultipleOrgLocalClient:
     def test_local_org_info(self, docker_clients):
 

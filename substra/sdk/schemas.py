@@ -287,29 +287,32 @@ class AlgoInputSpec(_Spec):
     @pydantic.root_validator
     def _check_identifiers(cls, values):  # noqa: N805
         """Checks that the multiplicity and the optionality of a data manager is always set to False"""
-        if values.get("kind") == AssetKind.data_manager:
-            if values.get("multiple"):
+        if values["kind"] == AssetKind.data_manager:
+            if values["multiple"]:
                 raise ValueError("Data manager input can't be multiple.")
-            if values.get("optional"):
+            if values["optional"]:
                 raise ValueError("Data manager input can't be optional.")
-            if values.get("identifier") != StaticInputIdentifier.opener:
+            if values["identifier"] != StaticInputIdentifier.opener:
                 raise ValueError(
                     f"Data manager input identifier must be `{StaticInputIdentifier.opener}` "
                     f"but was set to {values['identifier']}"
                 )
-        elif values.get("kind") == AssetKind.data_sample:
-            if values.get("identifier") != StaticInputIdentifier.datasamples:
+        elif values["kind"] == AssetKind.data_sample:
+            if values["identifier"] != StaticInputIdentifier.datasamples:
                 raise ValueError(
                     f"Data sample input identifier must be `{StaticInputIdentifier.datasamples}` "
                     f"but was set to {values['identifier']}"
                 )
-
         else:
-            if StaticInputIdentifier.has_value(values.get("identifier")):
+            if StaticInputIdentifier.has_value(values["identifier"]):
                 raise ValueError(
-                    f"Inputs of kind {values.get('kind')} cannot have an identifier among the flowing: "
+                    f"Inputs of kind {values['kind']} cannot have an identifier among the flowing: "
                     f"{StaticInputIdentifier.values()}"
                 )
+
+        identifiers = {value.identifier for value in values}
+        if len(identifiers) != len(values):
+            raise ValueError("Several algo inputs cannot have the same identifier.")
 
         return values
 

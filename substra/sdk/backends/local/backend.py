@@ -129,24 +129,30 @@ class Local(base.BaseBackend):
                     '"__" cannot be used in a metadata key, please use simple underscore instead', 400
                 )
 
-    def _check_data_samples(self, inputs: List[schemas.InputRef]):
+    def _check_data_samples(self, spec: schemas.TaskSpec):
         """Get all the data samples from the db once and run sanity checks on them"""
 
         dataset_input_ref = [
-            input_ref.asset_key for input_ref in inputs if input_ref.identifier == schemas.StaticInputIdentifier.opener
+            input_ref.asset_key
+            for input_ref in spec.inputs
+            if input_ref.identifier == schemas.StaticInputIdentifier.opener
         ]
         data_sample_keys = [
             input_ref.asset_key
-            for input_ref in inputs
+            for input_ref in spec.inputs
             if input_ref.identifier == schemas.StaticInputIdentifier.datasamples
         ]
-
-        if len(dataset_input_ref) > 1:
-            raise NotImplementedError("Having several openers in the same task is not supported")
 
         if len(dataset_input_ref) == 1 and len(data_sample_keys) > 0:
             data_manager_key = dataset_input_ref[0]
             data_samples = self.list(schemas.Type.DataSample, filters={"key": data_sample_keys})
+
+            if self._db.is_local(data_manager_key, schemas.Type.Dataset):
+                data_manager = self._db.get(schemas.Type.Dataset, data_manager_key)
+                if data_manager.owner != spec.worker:
+                    raise substra.exceptions.InvalidRequest(
+                        f"The task worker must be the organization that contains the data: {data_manager.owner}", 400
+                    )
 
             # Check that we've got all the data_samples
             if len(data_samples) != len(data_sample_keys):
@@ -260,8 +266,8 @@ class Local(base.BaseBackend):
 
         return compute_plan
 
-    def __add_algo(self, key, spec, spec_options=None):
-
+    def _add_algo(self, key, spec, spec_options=None):
+        self._check_metadata(spec.metadata)
         permissions = self.__compute_permissions(spec.permissions)
         algo_file_path = self._db.save_file(spec.file, key)
         algo_description_path = self._db.save_file(spec.description, key)
@@ -284,10 +290,6 @@ class Local(base.BaseBackend):
             outputs=spec.outputs or list(),
         )
         return self._db.add(algo)
-
-    def _add_algo(self, key, spec, spec_options=None):
-        self._check_metadata(spec.metadata)
-        return self.__add_algo(key, spec, spec_options=spec_options)
 
     def _add_dataset(self, key, spec, spec_options=None):
 
@@ -398,7 +400,7 @@ class Local(base.BaseBackend):
 
     def _add_task(self, key, spec, spec_options=None):
         self._check_metadata(spec.metadata)
-        self._check_data_samples(spec.inputs)
+        self._check_data_samples(spec)
         algo = self._db.get(schemas.Type.Algo, spec.algo_key)
 
         _warn_on_transient_outputs(spec.outputs)
