@@ -129,6 +129,50 @@ class Local(base.BaseBackend):
                     '"__" cannot be used in a metadata key, please use simple underscore instead', 400
                 )
 
+    def _check_data_samples(self, inputs: List[schemas.InputRef]):
+        """Get all the data samples from the db once and run sanity checks on them"""
+
+        dataset_input_ref = [
+            input_ref.asset_key for input_ref in inputs if input_ref.identifier == schemas.StaticInputIdentifier.opener
+        ]
+        data_sample_keys = [
+            input_ref.asset_key
+            for input_ref in inputs
+            if input_ref.identifier == schemas.StaticInputIdentifier.datasamples
+        ]
+
+        if len(dataset_input_ref) > 1:
+            raise NotImplementedError("Having several openers in the same task is not supported")
+
+        if len(dataset_input_ref) == 1 and len(data_sample_keys) > 0:
+            data_manager_key = dataset_input_ref[0]
+            data_samples = self.list(schemas.Type.DataSample, filters={"key": data_sample_keys})
+
+            # Check that we've got all the data_samples
+            if len(data_samples) != len(data_sample_keys):
+                raise substra.exceptions.InvalidRequest(
+                    "Could not get all the data_samples in the database with the given data_sample_keys", 400
+                )
+
+            self._check_same_data_manager(data_manager_key, data_samples)
+
+    def _check_same_data_manager(self, data_manager_key, data_samples):
+        """Check that all data samples are linked to this data manager"""
+        # If the dataset is remote: the backend does not return the datasets
+        # linked to each sample, so no check (already done in the backend).
+        if self._db.is_local(data_manager_key, schemas.Type.Dataset):
+            same_data_manager = all(
+                [data_manager_key in data_sample.data_manager_keys for data_sample in (data_samples or list())]
+            )
+            if not same_data_manager:
+                raise substra.exceptions.InvalidRequest("A data_sample does not belong to the same dataManager", 400)
+
+    def _check_not_test_data(self, data_samples):
+        """Check that we do not use test data samples for train tuples"""
+        for data_sample in data_samples:
+            if data_sample.test_only:
+                raise substra.exceptions.InvalidRequest("Cannot create train task with test data", 400)
+
     def __compute_permissions(self, permissions):
         """Compute the permissions
 
@@ -185,7 +229,7 @@ class Local(base.BaseBackend):
             compute_plan.status = models.Status.waiting
 
         elif not spec.compute_plan_key and (spec.rank == 0 or spec.rank is None):
-            #  Create a compute plan
+            # Create a compute plan
             compute_plan = self.__add_compute_plan(task_count=1)
             rank = 0
             compute_plan_key = compute_plan.key
@@ -354,11 +398,11 @@ class Local(base.BaseBackend):
 
     def _add_task(self, key, spec, spec_options=None):
         self._check_metadata(spec.metadata)
+        self._check_data_samples(spec.inputs)
         algo = self._db.get(schemas.Type.Algo, spec.algo_key)
+
         _warn_on_transient_outputs(spec.outputs)
 
-        # Create or update the compute plan
-        # TODO
         in_task_keys = list(
             {inputref.parent_task_key for inputref in (spec.inputs or list()) if inputref.parent_task_key}
         )

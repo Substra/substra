@@ -229,7 +229,7 @@ class TestsDebug:
         assert dataset_ref[0].asset_key == dataset_key
         assert len(predicttuple.inputs) == 3  # data sample + opener + input task
 
-        model_ref = [x for x in testtuple.inputs if x.identifier == InputIdentifiers.model]
+        model_ref = [x for x in testtuple.inputs if x.identifier == InputIdentifiers.predictions]
         assert len(model_ref) == 1
         assert model_ref[0].parent_task_key == predicttuple_key
 
@@ -254,63 +254,6 @@ class TestsDebug:
         assert len(dataset_ref) == 1
         assert dataset_ref[0].asset_key == dataset_key
         assert len(composite_traintuple.inputs) == 2  # data sample + opener
-
-    def test_traintuple_with_test_data_sample(self, asset_factory, clients):
-        """Check that we can't use test data samples for traintuples"""
-        client = clients[0]
-
-        dataset_query = asset_factory.create_dataset()
-        dataset_1_key = client.add_dataset(dataset_query)
-
-        data_sample_1 = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=False)
-        sample_1_key = client.add_data_sample(data_sample_1)
-
-        data_sample_2 = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=True)
-        sample_2_key = client.add_data_sample(data_sample_2)
-
-        algo_query = asset_factory.create_algo(AlgoCategory.simple)
-        algo_key = client.add_algo(algo_query)
-
-        with pytest.raises(InvalidRequest) as e:
-            client.add_task(
-                substra.sdk.schemas.TaskSpec(
-                    algo_key=algo_key,
-                    task_id=str(uuid.uuid4()),
-                    inputs=FLTaskInputGenerator.tuple(
-                        opener_key=dataset_1_key, data_sample_keys=[sample_1_key, sample_2_key]
-                    ),
-                    outputs=FLTaskOutputGenerator.traintuple(),
-                    worker=client.organization_info().organization_id,
-                )
-            )
-
-        assert "Cannot create train task with test data" in str(e.value)
-
-    def test_composite_traintuple_with_test_data_sample(self, asset_factory, clients):
-        """Check that we can't use test data samples for composite_traintuples"""
-        client = clients[0]
-
-        dataset_query = asset_factory.create_dataset()
-        dataset_1_key = client.add_dataset(dataset_query)
-
-        data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=True)
-        sample_1_key = client.add_data_sample(data_sample)
-
-        composite_algo_query = asset_factory.create_algo(AlgoCategory.composite)
-        composite_algo_key = client.add_algo(composite_algo_query)
-
-        with pytest.raises(InvalidRequest) as e:
-            client.add_task(
-                substra.sdk.schemas.TaskSpec(
-                    algo_key=composite_algo_key,
-                    task_id=str(uuid.uuid4()),
-                    inputs=FLTaskInputGenerator.tuple(opener_key=dataset_1_key, data_sample_keys=[sample_1_key]),
-                    outputs=FLTaskOutputGenerator.composite_traintuple(),
-                    worker=client.organization_info().organization_id,
-                )
-            )
-
-        assert "Cannot create train task with test data" in str(e.value)
 
     def test_add_two_compute_plan_with_same_cp_key(self, clients):
         client = clients[0]

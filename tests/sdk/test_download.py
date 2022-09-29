@@ -75,8 +75,8 @@ def test_download_content_not_found(asset_type, tmp_path, client, mocker):
     [
         ("TRAINTUPLE", "model"),
         ("AGGREGATETUPLE", "model"),
-        ("COMPOSITE_TRAINTUPLE", "head"),
-        ("COMPOSITE_TRAINTUPLE", "trunk"),
+        ("COMPOSITE_TRAINTUPLE", "local"),
+        ("COMPOSITE_TRAINTUPLE", "shared"),
     ],
 )
 @patch.object(Client, "download_model")
@@ -89,8 +89,7 @@ def test_download_model_from_task(fake_download_model, tmp_path, client, asset_t
 
     m = mock_requests_responses(mocker, "get", responses)
 
-    method = client.download
-    method("key", identifier, tmp_path)
+    client.download_model_from_task("key", identifier, tmp_path)
 
     m.assert_called
     assert fake_download_model.call_count == 1

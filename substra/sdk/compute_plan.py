@@ -16,7 +16,7 @@ def get_dependency_graph(spec: schemas._BaseComputePlanSpec):
     tasks = {}
 
     if spec.tasks:
-        for task in tasks:
+        for task in spec.tasks:
             _insert_into_graph(
                 task_graph=task_graph,
                 tuple_id=task.task_id,
