@@ -50,13 +50,9 @@ class Type(enum.Enum):
     DataSample = "data_sample"
     Dataset = "dataset"
     Model = "model"
-    Predicttuple = "predicttuple"
-    Testtuple = "testtuple"
-    Traintuple = "traintuple"
-    Aggregatetuple = "aggregatetuple"
-    CompositeTraintuple = "composite_traintuple"
     ComputePlan = "compute_plan"
     Organization = "organization"
+    Task = "task"
 
     def to_server(self):
         """Returns the name used to identify the asset on the backend."""
@@ -65,17 +61,6 @@ class Type(enum.Enum):
 
     def __str__(self):
         return self.name
-
-
-class TaskCategory(str, enum.Enum):
-    """Task category"""
-
-    unknown = "TASK_UNKNOWN"
-    train = "TASK_TRAIN"
-    aggregate = "TASK_AGGREGATE"
-    composite = "TASK_COMPOSITE"
-    predict = "TASK_PREDICT"
-    test = "TASK_TEST"
 
 
 class _PydanticConfig(pydantic.BaseModel):
@@ -206,12 +191,13 @@ class ComputeTaskOutputSpec(_PydanticConfig):
         allow_population_by_field_name = True
 
 
-class _ComputePlanComputeTaskSpec(_Spec):
+class ComputePlanComputeTaskSpec(_Spec):
     """Specification of a compute task inside a compute plan specification
 
     note : metadata field does not accept strings containing '__' as dict key
     """
 
+    task_id: str
     algo_key: str
     tag: Optional[str]
     metadata: Optional[Dict[str, str]]
@@ -219,62 +205,9 @@ class _ComputePlanComputeTaskSpec(_Spec):
     outputs: Optional[Dict[str, ComputeTaskOutputSpec]]
 
 
-class ComputePlanTraintupleSpec(_ComputePlanComputeTaskSpec):
-    """Specification of a traintuple inside a compute
-    plan specification"""
-
-    data_manager_key: str
-    train_data_sample_keys: List[str]
-    traintuple_id: str
-    in_models_ids: Optional[List[str]]
-
-
-class ComputePlanAggregatetupleSpec(_ComputePlanComputeTaskSpec):
-    """Specification of an aggregate tuple inside a compute
-    plan specification"""
-
-    aggregatetuple_id: str
-    worker: str
-    in_models_ids: Optional[List[str]]
-
-
-class ComputePlanCompositeTraintupleSpec(_ComputePlanComputeTaskSpec):
-    """Specification of a composite traintuple inside a compute
-    plan specification"""
-
-    composite_traintuple_id: str
-    data_manager_key: str
-    train_data_sample_keys: List[str]
-    in_head_model_id: Optional[str]
-    in_trunk_model_id: Optional[str]
-
-
-class ComputePlanPredicttupleSpec(_ComputePlanComputeTaskSpec):
-    """Specification of a predict tuple inside a compute
-    plan specification"""
-
-    predicttuple_id: str
-    traintuple_id: str
-    data_manager_key: str
-    test_data_sample_keys: List[str]
-
-
-class ComputePlanTesttupleSpec(_ComputePlanComputeTaskSpec):
-    """Specification of a testtuple inside a compute
-    plan specification"""
-
-    predicttuple_id: str
-    data_manager_key: str
-    test_data_sample_keys: List[str]
-
-
 class _BaseComputePlanSpec(_Spec):
     key: str
-    traintuples: Optional[List[ComputePlanTraintupleSpec]]
-    composite_traintuples: Optional[List[ComputePlanCompositeTraintupleSpec]]
-    aggregatetuples: Optional[List[ComputePlanAggregatetupleSpec]]
-    predicttuples: Optional[List[ComputePlanPredicttupleSpec]]
-    testtuples: Optional[List[ComputePlanTesttupleSpec]]
+    tasks: Optional[List[ComputePlanComputeTaskSpec]]
 
 
 class ComputePlanSpec(_BaseComputePlanSpec):
@@ -446,7 +379,7 @@ class UpdateAlgoSpec(_Spec):
     type_: typing.ClassVar[Type] = Type.Algo
 
 
-class _TupleSpec(_Spec):
+class TaskSpec(_Spec):
     key: str = pydantic.Field(default_factory=lambda: str(uuid.uuid4()))
     tag: Optional[str]
     compute_plan_key: Optional[str]
@@ -466,163 +399,15 @@ class _TupleSpec(_Spec):
         data["outputs"] = {k: v.dict(by_alias=True) for k, v in self.outputs.items()} if self.outputs else {}
         yield data, None
 
-
-class TraintupleSpec(_TupleSpec):
-    """Specification for creating a traintuple
-
-    note : metadata field does not accept strings containing '__' as dict key
-    """
-
-    data_manager_key: str
-    train_data_sample_keys: List[str]
-    in_models_keys: Optional[List[str]]
-    rank: Optional[int]  # Rank of the traintuple in the compute plan
-    category: TaskCategory = pydantic.Field(TaskCategory.train, const=True)
-
-    compute_plan_attr_name: typing.ClassVar[str] = "traintuple_keys"
-    type_: typing.ClassVar[Type] = Type.Traintuple
-
     @classmethod
-    def from_compute_plan(cls, compute_plan_key: str, rank: int, spec: ComputePlanTraintupleSpec) -> "TraintupleSpec":
-        return TraintupleSpec(
-            key=spec.traintuple_id,
+    def from_compute_plan(cls, compute_plan_key: str, rank: int, spec: ComputePlanComputeTaskSpec) -> "TaskSpec":
+        return TaskSpec(
+            key=spec.task_id,
             algo_key=spec.algo_key,
-            data_manager_key=spec.data_manager_key,
-            train_data_sample_keys=spec.train_data_sample_keys,
-            in_models_keys=spec.in_models_ids or list(),
             inputs=spec.inputs,
             outputs=spec.outputs,
             tag=spec.tag,
             compute_plan_key=compute_plan_key,
             rank=rank,
-            metadata=spec.metadata,
-        )
-
-
-class AggregatetupleSpec(_TupleSpec):
-    """Specification for creating an aggregate tuple
-
-    note : metadata field does not accept strings containing '__' as dict key
-    """
-
-    worker: str
-    in_models_keys: List[str]
-    rank: Optional[int]
-    category: TaskCategory = pydantic.Field(TaskCategory.aggregate, const=True)
-
-    compute_plan_attr_name: typing.ClassVar[str] = "aggregatetuple_keys"
-    type_: typing.ClassVar[Type] = Type.Aggregatetuple
-
-    @classmethod
-    def from_compute_plan(
-        cls, compute_plan_key: str, rank: int, spec: ComputePlanAggregatetupleSpec
-    ) -> "AggregatetupleSpec":
-        return AggregatetupleSpec(
-            key=spec.aggregatetuple_id,
-            algo_key=spec.algo_key,
-            worker=spec.worker,
-            in_models_keys=spec.in_models_ids or list(),
-            inputs=spec.inputs,
-            outputs=spec.outputs,
-            tag=spec.tag,
-            compute_plan_key=compute_plan_key,
-            rank=rank,
-            metadata=spec.metadata,
-        )
-
-
-class CompositeTraintupleSpec(_TupleSpec):
-    """Specification for creating a composite traintuple
-
-    note : metadata field does not accept strings containing '__' as dict key
-    """
-
-    data_manager_key: str
-    train_data_sample_keys: List[str]
-    in_head_model_key: Optional[str]
-    in_trunk_model_key: Optional[str]
-    rank: Optional[int]
-    category: TaskCategory = pydantic.Field(TaskCategory.composite, const=True)
-
-    compute_plan_attr_name: typing.ClassVar[str] = "composite_traintuple_keys"
-    type_: typing.ClassVar[Type] = Type.CompositeTraintuple
-
-    @classmethod
-    def from_compute_plan(
-        cls, compute_plan_key: str, rank: int, spec: ComputePlanCompositeTraintupleSpec
-    ) -> "CompositeTraintupleSpec":
-        return CompositeTraintupleSpec(
-            key=spec.composite_traintuple_id,
-            algo_key=spec.algo_key,
-            data_manager_key=spec.data_manager_key,
-            train_data_sample_keys=spec.train_data_sample_keys,
-            in_head_model_key=spec.in_head_model_id,
-            in_trunk_model_key=spec.in_trunk_model_id,
-            inputs=spec.inputs,
-            outputs=spec.outputs,
-            tag=spec.tag,
-            compute_plan_key=compute_plan_key,
-            rank=rank,
-            metadata=spec.metadata,
-        )
-
-
-class PredicttupleSpec(_TupleSpec):
-    """Specification for creating a predict tuple
-
-    note : metadata field does not accept strings containing '__' as dict key
-    """
-
-    traintuple_key: str
-    data_manager_key: str
-    test_data_sample_keys: List[str]
-    category: TaskCategory = pydantic.Field(TaskCategory.predict, const=True)
-
-    compute_plan_attr_name: typing.ClassVar[str] = "predicttuple_keys"
-    type_: typing.ClassVar[Type] = Type.Predicttuple
-
-    @classmethod
-    def from_compute_plan(
-        cls, compute_plan_key: str, rank: int, spec: ComputePlanPredicttupleSpec
-    ) -> "PredicttupleSpec":
-        return PredicttupleSpec(
-            key=spec.predicttuple_id,
-            algo_key=spec.algo_key,
-            traintuple_key=spec.traintuple_id,
-            inputs=spec.inputs,
-            outputs=spec.outputs,
-            tag=spec.tag,
-            data_manager_key=spec.data_manager_key,
-            test_data_sample_keys=spec.test_data_sample_keys,
-            compute_plan_key=compute_plan_key,
-            metadata=spec.metadata,
-            rank=rank,
-        )
-
-
-class TesttupleSpec(_TupleSpec):
-    """Specification for creating a testtuple
-
-    note : metadata field does not accept strings containing '__' as dict key
-    """
-
-    predicttuple_key: str
-    data_manager_key: str
-    test_data_sample_keys: List[str]
-    category: TaskCategory = pydantic.Field(TaskCategory.test, const=True)
-
-    type_: typing.ClassVar[Type] = Type.Testtuple
-
-    @classmethod
-    def from_compute_plan(cls, compute_plan_key: str, spec: ComputePlanTesttupleSpec) -> "TesttupleSpec":
-        return TesttupleSpec(
-            algo_key=spec.algo_key,
-            predicttuple_key=spec.predicttuple_id,
-            inputs=spec.inputs,
-            outputs=spec.outputs,
-            tag=spec.tag,
-            data_manager_key=spec.data_manager_key,
-            test_data_sample_keys=spec.test_data_sample_keys,
-            compute_plan_key=compute_plan_key,
             metadata=spec.metadata,
         )

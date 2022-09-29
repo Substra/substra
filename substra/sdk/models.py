@@ -262,9 +262,8 @@ class ComputeTaskOutput(schemas._PydanticConfig):
         allow_population_by_field_name = True
 
 
-class _GenericTraintuple(_Model):
+class Task(_Model):
     key: str
-    category: schemas.TaskCategory
     algo: Algo
     owner: str
     compute_plan_key: str
@@ -273,7 +272,7 @@ class _GenericTraintuple(_Model):
     worker: str
     rank: Optional[int]
     parent_task_keys: List[str]
-    parent_tasks: Optional[List[Union["Traintuple", "CompositeTraintuple", "Aggregatetuple", "Predicttuple"]]] = list()
+    parent_tasks: Optional[List["Task"]] = list()
     inputs: List[InputRef]
     outputs: Dict[str, ComputeTaskOutput]
     tag: str
@@ -344,46 +343,7 @@ class _Test(schemas._PydanticConfig):
     _check_data_manager_key = root_validator(allow_reuse=True)(check_data_manager_key)
 
 
-class Traintuple(_GenericTraintuple):
-    """Traintuple"""
-
-    train: _Train
-    type_: ClassVar[str] = schemas.Type.Traintuple
-
-
-class Aggregatetuple(_GenericTraintuple):
-    """Aggregatetuple"""
-
-    aggregate: _Aggregate
-    type_: ClassVar[str] = schemas.Type.Aggregatetuple
-
-
-class CompositeTraintuple(_GenericTraintuple):
-    """CompositeTraintuple"""
-
-    composite: _Composite
-    type_: ClassVar[str] = schemas.Type.CompositeTraintuple
-
-
-class Predicttuple(_GenericTraintuple):
-    """Predicttuple"""
-
-    predict: _Predict
-    type_: ClassVar[str] = schemas.Type.Predicttuple
-
-
-_GenericTraintuple.update_forward_refs()
-Predicttuple.update_forward_refs()
-Traintuple.update_forward_refs()
-Aggregatetuple.update_forward_refs()
-CompositeTraintuple.update_forward_refs()
-
-
-class Testtuple(_GenericTraintuple):
-    """Testtuple"""
-
-    test: _Test
-    type_: ClassVar[str] = schemas.Type.Testtuple
+Task.update_forward_refs()
 
 
 class FailedTuple(_Model):
@@ -465,15 +425,11 @@ class OrganizationInfo(schemas._PydanticConfig):
 
 
 SCHEMA_TO_MODEL = {
-    schemas.Type.Aggregatetuple: Aggregatetuple,
+    schemas.Type.Task: Task,
     schemas.Type.Algo: Algo,
-    schemas.Type.CompositeTraintuple: CompositeTraintuple,
     schemas.Type.ComputePlan: ComputePlan,
     schemas.Type.DataSample: DataSample,
     schemas.Type.Dataset: Dataset,
-    schemas.Type.Predicttuple: Predicttuple,
-    schemas.Type.Testtuple: Testtuple,
-    schemas.Type.Traintuple: Traintuple,
     schemas.Type.Organization: Organization,
     schemas.Type.Model: OutModel,
 }

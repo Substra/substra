@@ -80,7 +80,7 @@ def test_download_content_not_found(asset_type, tmp_path, client, mocker):
     ],
 )
 @patch.object(Client, "download_model")
-def test_download_model_from_tuple(fake_download_model, tmp_path, client, method_name, asset_type, mocker):
+def test_download_model_from_task(fake_download_model, tmp_path, client, method_name, asset_type, mocker):
     item = getattr(datastore, asset_type)
     responses = [
         mock_response(item),  # metadata

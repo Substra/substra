@@ -310,78 +310,17 @@ class Client:
         return self._backend.add(spec)
 
     @logit
-    def add_traintuple(self, data: Union[dict, schemas.TraintupleSpec]) -> str:
-        """Create new traintuple asset.
+    def add_task(self, data: Union[dict, schemas.TaskSpec]) -> str:
+        """Create new task asset.
 
         Args:
-            data (Union[dict, schemas.TraintupleSpec]): If it is a dict, it must have the same
-                keys as specified in [schemas.TraintupleSpec](sdk_schemas.md#TraintupleSpec).
+            data (Union[dict, schemas.TaskSpec]): If it is a dict, it must have the same
+                keys as specified in [schemas.TaskSpec](sdk_schemas.md#TaskSpec).
 
         Returns:
             str: Key of the asset
         """
-        spec = self._get_spec(schemas.TraintupleSpec, data)
-        return self._backend.add(spec)
-
-    @logit
-    def add_aggregatetuple(self, data: Union[dict, schemas.AggregatetupleSpec]) -> str:
-        """Create a new aggregate tuple asset.
-
-        Args:
-            data (Union[dict, schemas.AggregatetupleSpec]): If it is a dict, it must have the same
-                keys as specified in
-                [schemas.AggregatetupleSpec](sdk_schemas.md#AggregatetupleSpec).
-
-        Returns:
-            str: Key of the asset
-        """
-        spec = self._get_spec(schemas.AggregatetupleSpec, data)
-        return self._backend.add(spec)
-
-    @logit
-    def add_composite_traintuple(self, data: Union[dict, schemas.CompositeTraintupleSpec]) -> str:
-        """Create new composite traintuple asset.
-
-        As specified in the data structure, output trunk models cannot be made
-        public.
-
-        Args:
-            data (Union[dict, schemas.CompositeTraintupleSpec]): If it is a dict, it must have the
-                same keys as specified in
-                [schemas.CompositeTraintupleSpec](sdk_schemas.md#CompositeTraintupleSpec).
-
-        Returns:
-            str: Key of the asset
-        """
-        spec = self._get_spec(schemas.CompositeTraintupleSpec, data)
-        return self._backend.add(spec)
-
-    @logit
-    def add_predicttuple(self, data: Union[dict, schemas.PredicttupleSpec]) -> str:
-        """Create new predicttuple asset.
-
-        Args:
-            data (Union[dict, schemas.PredicttupleSpec]): If it is a dict, it must have the same
-                keys as specified in [schemas.PredicttupleSpec](sdk_schemas.md#PredicttupleSpec).
-
-        Returns:
-            str: Key of the asset
-        """
-        spec = self._get_spec(schemas.PredicttupleSpec, data)
-        return self._backend.add(spec)
-
-    @logit
-    def add_testtuple(self, data: Union[dict, schemas.TesttupleSpec]) -> str:
-        """Create new testtuple asset.
-
-        Args:
-            data (Union[dict, schemas.TesttupleSpec]): If it is a dict, it must have the same
-                keys as specified in [schemas.TesttupleSpec](sdk_schemas.md#TesttupleSpec).
-
-        Returns:
-            str: Key of the asset
-        """
-        spec = self._get_spec(schemas.TesttupleSpec, data)
+        spec = self._get_spec(schemas.TaskSpec, data)
         return self._backend.add(spec)
 
     @logit
@@ -458,34 +397,10 @@ class Client:
         return self._backend.get(schemas.Type.Dataset, key)
 
     @logit
-    def get_predicttuple(self, key: str) -> models.Predicttuple:
-        """Get predicttuple by key, the returned object is described
-        in the [models.Predicttuple](sdk_models.md#Predicttuple) model"""
-        return self._backend.get(schemas.Type.Predicttuple, key)
-
-    @logit
-    def get_testtuple(self, key: str) -> models.Testtuple:
-        """Get testtuple by key, the returned object is described
-        in the [models.Testtuple](sdk_models.md#Testtuple) model"""
-        return self._backend.get(schemas.Type.Testtuple, key)
-
-    @logit
-    def get_traintuple(self, key: str) -> models.Traintuple:
-        """Get traintuple by key, the returned object is described
-        in the [models.Traintuple](sdk_models.md#Traintuple) model"""
-        return self._backend.get(schemas.Type.Traintuple, key)
-
-    @logit
-    def get_aggregatetuple(self, key: str) -> models.Aggregatetuple:
-        """Get aggregatetuple by key, the returned object is described
-        in the [models.Aggregatetuple](sdk_models.md#Aggregatetuple) model"""
-        return self._backend.get(schemas.Type.Aggregatetuple, key)
-
-    @logit
-    def get_composite_traintuple(self, key: str) -> models.CompositeTraintuple:
-        """Get composite traintuple by key, the returned object is described
-        in the [models.CompositeTraintuple](sdk_models.md#CompositeTraintuple) model"""
-        return self._backend.get(schemas.Type.CompositeTraintuple, key)
+    def get_task(self, key: str) -> models.Task:
+        """Get task by key, the returned object is described
+        in the [models.Task](sdk_models.md#Task) model"""
+        return self._backend.get(schemas.Type.Task, key)
 
     @logit
     def get_logs(self, tuple_key: str) -> str:
@@ -653,28 +568,26 @@ class Client:
         return self._list(schemas.Type.Dataset, filters, "creation_date", ascending)
 
     @logit
-    def list_predicttuple(
+    def list_task(
         self, filters: dict = None, order_by: str = "creation_date", ascending: bool = False
-    ) -> List[models.Predicttuple]:
-        """List predicttuples.
+    ) -> List[models.Task]:
+        """List tasks.
 
         The ``filters`` argument is a dictionary, with those possible keys:\n
-            key (List[str]): list predicttuples with listed keys.\n
-            owner (List[str]): list predicttuples with listed owners.\n
-            worker (List[str]): list predicttuples which ran on listed workers. Remote mode only.\n
-            rank (List[int]): list predicttuples which are at given ranks.\n
-            status (List[str]): list predicttuples with given status.
+            key (List[str]): list tasks with listed keys.\n
+            owner (List[str]): list tasks with listed owners.\n
+            worker (List[str]): list tasks which ran on listed workers. Remote mode only.\n
+            rank (List[int]): list tasks which are at given ranks.\n
+            status (List[str]): list tasks with given status.
                 The possible values are the values of `substra.models.Status`
             metadata (dict)
                 {
                     "key": str # the key of the metadata to filter on
                     "type": "is", "contains" or "exists" # the type of query that will be used
                     "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-                }: list predicttuples matching provided conditions in metadata. Remote mode only.
-            compute_plan_key (str): list predicttuples that are in the given compute plan. Remote mode only.
-            algo_key (str): list predicttuples that used the given algo. Remote mode only.
-            dataset_key (str): list predicttuples linked or using this dataset. Remote mode only.
-            data_sample_key (List[str]): list predicttuples linked or that used this data sample(s). Remote mode only.
+                }: list tasks matching provided conditions in metadata. Remote mode only.
+            compute_plan_key (str): list tasks that are in the given compute plan. Remote mode only.
+            algo_key (str): list tasks that used the given algo. Remote mode only.
 
         Args:
             filters (dict, optional): List of key values pair to filter on. Default None.
@@ -683,167 +596,12 @@ class Client:
             ascending (bool, optional): Sorts results on order_by by ascending order. Default False (descending order).
 
         Returns:
-            models.Predicttuple: the returned object is described in the
-                [models.Predicttuple](sdk_models.md#Predicttuple) model
+            models.Task: the returned object is described in the
+                [models.Task](sdk_models.md#Task) model
 
 
         """
-
-        return self._list(schemas.Type.Predicttuple, filters, order_by, ascending)
-
-    @logit
-    def list_testtuple(
-        self, filters: dict = None, order_by: str = "creation_date", ascending: bool = False
-    ) -> List[models.Testtuple]:
-        """List testtuples.
-
-        The ``filters`` argument is a dictionary, with those possible keys:\n
-            key (List[str]): list testtuples with listed keys.\n
-            owner (List[str]): list testtuples with listed owners.\n
-            worker (List[str]): list testtuples which ran on listed workers. Remote mode only.\n
-            rank (List[int]): list testtuples which are at given ranks.\n
-            status (List[str]): list testtuples with given status.
-                The possible values are the values of `substra.models.Status`
-            metadata (dict)
-                {
-                    "key": str # the key of the metadata to filter on
-                    "type": "is", "contains" or "exists" # the type of query that will be used
-                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-                }: list testtuples matching provided conditions in metadata. Remote mode only.
-            compute_plan_key (str): list testtuples that are in the given compute plan. Remote mode only.
-            algo_key (str): list testtuples that used the given algo. Remote mode only.
-            dataset_key (str): list testtuples linked or using this dataset. Remote mode only.
-            data_sample_key (List[str]): list testtuples linked or that used this data sample(s). Remote mode only.
-
-        Args:
-            filters (dict, optional): List of key values pair to filter on. Default None.
-            order_by (str, optional): Field to sort results by.
-                Possible values: `creation_date`, `start_date`, `end_date`. Default creation_date.
-            ascending (bool, optional): Sorts results on order_by by ascending order. Default False (descending order).
-
-        Returns:
-            models.Testtuple: the returned object is described
-        in the [models.Testtuple](sdk_models.md#Testtuple) model
-        """
-
-        return self._list(schemas.Type.Testtuple, filters, order_by, ascending)
-
-    @logit
-    def list_traintuple(
-        self, filters: dict = None, order_by: str = "creation_date", ascending: bool = False
-    ) -> List[models.Traintuple]:
-        """List traintuples.
-
-        The ``filters`` argument is a dictionary, with those possible keys:\n
-            key (List[str]): list traintuples with listed keys.\n
-            owner (List[str]): list traintuples with listed owners.\n
-            worker (List[str]): list traintuples which ran on listed workers. Remote mode only.\n
-            rank (List[int]): list traintuples which are at given ranks.\n
-            status (List[str]): list traintuples with given status.
-                The possible values are the values of `substra.models.Status`
-            metadata (dict)
-                {
-                    "key": str # the key of the metadata to filter on
-                    "type": "is", "contains" or "exists" # the type of query that will be used
-                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-                }: list traintuples matching provided conditions in metadata. Remote mode only.
-            compute_plan_key (str): list traintuples that are in the given compute plan. Remote mode only.
-            algo_key (str): list traintuples that used the given algo. Remote mode only.
-            dataset_key (str): list traintuples linked or using this dataset. Remote mode only.
-            data_sample_key (List[str]): list traintuples linked or that used this data sample(s). Remote mode only.
-
-        Args:
-            filters (dict, optional): List of key values pair to filter on. Default None.
-            order_by (str, optional): Field to sort results by.
-                Possible values: `creation_date`, `start_date`, `end_date`. Default creation_date.
-            ascending (bool, optional): Sorts results on order_by by ascending order. Default False (descending order).
-
-        Returns:
-            models.Traintuple: the returned object is described
-        in the [models.Traintuple](sdk_models.md#Traintuple) model
-
-
-        """
-
-        return self._list(schemas.Type.Traintuple, filters, order_by, ascending)
-
-    @logit
-    def list_aggregatetuple(
-        self, filters: dict = None, order_by: str = "creation_date", ascending: bool = False
-    ) -> List[models.Aggregatetuple]:
-        """List aggregatetuples.
-
-        The ``filters`` argument is a dictionary, with those possible keys:\n
-            key (List[str]): list aggregatetuples with listed keys.\n
-            owner (List[str]): list aggregatetuples with listed owners.\n
-            worker (List[str]): list aggregatetuples which ran on listed workers. Remote mode only.\n
-            rank (List[int]): list aggregatetuples which are at given ranks.\n
-            status (List[str]): list aggregatetuples with given status.
-                The possible values are the values of `substra.models.Status`
-            metadata (dict)
-                {
-                    "key": str # the key of the metadata to filter on
-                    "type": "is", "contains" or "exists" # the type of query that will be used
-                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-                }: list aggregatetuples matching provided conditions in metadata. Remote mode only.
-            compute_plan_key (str): list aggregatetuples that are in the given compute plan. Remote mode only.
-            algo_key (str): list aggregatetuples that used the given algo. Remote mode only.
-            dataset_key (str): list aggregatetuples linked or using this dataset. Remote mode only.
-            data_sample_key (List[str]): list aggregatetuples linked or that used this data sample(s). Remote mode only.
-
-
-        Args:
-            filters (dict, optional): List of key values pair to filter on. Default None.
-            order_by (str, optional): Field to sort results by.
-                Possible values: `creation_date`, `start_date`, `end_date`. Default creation_date.
-            ascending (bool, optional): Sorts results on order_by by ascending order. Default False (descending order).
-
-        Returns:
-            models.Aggregatetuple: the returned object is described
-        in the [models.Aggregatetuple](sdk_models.md#Aggregatetuple) model
-        """
-
-        return self._list(schemas.Type.Aggregatetuple, filters, order_by, ascending)
-
-    @logit
-    def list_composite_traintuple(
-        self, filters: dict = None, order_by: str = "creation_date", ascending: bool = False
-    ) -> List[models.CompositeTraintuple]:
-        """List composite traintuples.
-
-        The ``filters`` argument is a dictionary, with those possible keys:\n
-            key (List[str]): list composite traintuples with listed keys.\n
-            owner (List[str]): list composite traintuples with listed owners.\n
-            worker (List[str]): list composite traintuples which ran on listed workers. Remote mode only.\n
-            rank (List[int]): list composite traintuples which are at given ranks.\n
-            status (List[str]): list composite traintuples with given status.
-                The possible values are the values of `substra.models.Status`
-            metadata (dict)
-                {
-                    "key": str # the key of the metadata to filter on
-                    "type": "is", "contains" or "exists" # the type of query that will be used
-                    "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-                }: list composite traintuples matching provided conditions in metadata. Remote mode only.
-            compute_plan_key (str): list composite traintuples that are in the given compute plan. Remote mode only.
-            algo_key (str): list composite traintuples that used the given algo. Remote mode only.
-            dataset_key (str): list composite traintuples linked or using this dataset. Remote mode only.
-            data_sample_key (List[str]): list composite traintuples linked or that used this data sample(s).
-                Remote mode only.
-
-        Args:
-            filters (dict, optional): List of key values pair to filter on. Default None.
-            order_by (str, optional): Field to sort results by.
-                Possible values: `creation_date`, `start_date`, `end_date`. Default creation_date.
-            ascending (bool, optional): Sorts results on order_by by ascending order. Default False (descending order).
-
-        Returns:
-            models.CompositeTraintuple: the returned object is described
-        in the [models.CompositeTraintuple](sdk_models.md#CompositeTraintuple) model.
-
-
-        """
-
-        return self._list(schemas.Type.CompositeTraintuple, filters, order_by, ascending)
+        return self._list(schemas.Type.Task, filters, order_by, ascending)
 
     @logit
     def list_organization(self, *args, **kwargs) -> List[models.Organization]:
@@ -977,97 +735,23 @@ class Client:
         return pathlib.Path(self._backend.download_model(key, os.path.join(destination_folder, f"model_{key}")))
 
     @logit
-    def download_model_from_traintuple(self, tuple_key: str, folder) -> None:
-        """Download traintuple model to destination file.
+    def download_model_from_trask(self, task_key: str, identifier: str, folder: os.PathLike) -> None:
+        """Download task model to destination file.
 
         This model was saved using the 'save_model' function of the algorithm.
         To load and use the model, please refer to the 'load_model' and 'predict' functions of the
         algorithm.
 
         Args:
-            tuple_key (str): Tuple key to download
-            folder (_type_): Destination folder
+            task_key (str): Task key to download
+            identifier(str): output identifier
+            folder (os.PathLike): Destination folder
 
         Returns:
             pathlib.Path: Path of the downloaded model
         """
-
-        return pathlib.Path(self._download_model_from_tuple(schemas.Type.Traintuple, tuple_key, folder))
-
-    @logit
-    def download_model_from_aggregatetuple(self, tuple_key: str, folder) -> None:
-        """Download aggregatetuple model to destination file.
-
-        This model was saved using the 'save_model' function of the algorithm.
-        To load and use the model, please refer to the 'load_model' and 'predict' functions of the
-        algorithm.
-
-        Args:
-            tuple_key (str): Tuple key to download
-            folder (_type_): Destination folder
-
-        Returns:
-            pathlib.Path: Path of the downloaded model
-        """
-        return pathlib.Path(self._download_model_from_tuple(schemas.Type.Aggregatetuple, tuple_key, folder))
-
-    @logit
-    def download_head_model_from_composite_traintuple(self, tuple_key: str, folder) -> None:
-        """Download composite traintuple head model to destination file.
-
-        This model was saved using the 'save_model' function of the algorithm.
-        To load and use the model, please refer to the 'load_model' and 'predict' functions of the
-        algorithm.
-
-        Args:
-            tuple_key (str): Tuple key to download
-            folder (_type_): Destination folder
-
-        Returns:
-            pathlib.Path: Path of the downloaded model
-        """
-        return pathlib.Path(
-            self._download_model_from_tuple(schemas.Type.CompositeTraintuple, tuple_key, folder, "head")
-        )
-
-    @logit
-    def download_trunk_model_from_composite_traintuple(self, tuple_key: str, folder) -> None:
-        """Download composite traintuple trunk model to destination file.
-
-        This model was saved using the 'save_model' function of the algorithm.
-        To load and use the model, please refer to the 'load_model' and 'predict' functions of the
-        algorithm.
-
-        Args:
-            tuple_key (str): Tuple key to download
-            folder (_type_): Destination folder
-
-        Returns:
-            pathlib.Path: Path of the downloaded model
-        """
-        return pathlib.Path(
-            self._download_model_from_tuple(schemas.Type.CompositeTraintuple, tuple_key, folder, "trunk")
-        )
-
-    def _download_model_from_tuple(self, tuple_type, tuple_key, folder, head_trunk=None) -> None:
-        """Download model to a destination file."""
-        tuple = self._backend.get(tuple_type, tuple_key)
-        model = None
-        if tuple_type == schemas.Type.CompositeTraintuple:
-            identifier = HEAD_OUTPUT_IDENTIFIER if head_trunk == "head" else TRUNK_OUTPUT_IDENTIFIER
-            model = tuple.outputs[identifier].value
-        elif tuple_type == schemas.Type.Aggregatetuple:
-            model = tuple.outputs[MODEL_OUTPUT_IDENTIFIER].value
-        elif tuple_type == schemas.Type.Traintuple:
-            model = tuple.outputs[MODEL_OUTPUT_IDENTIFIER].value
-        else:
-            raise exceptions.InvalidRequest(f"unhandled tuple type: {tuple_type}")
-
-        if not model:
-            desc = f"{head_trunk} " if head_trunk else ""
-            msg = f'{tuple_type} {tuple_key}, status "{tuple.status}" has no {desc}out-model'
-            raise exceptions.NotFound(msg, 404)
-
+        task = self._backend.get(schemas.Type.Task, task_key)
+        model = task.outputs[identifier].value
         return self.download_model(model.key, folder)
 
     @logit
