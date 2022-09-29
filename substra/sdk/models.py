@@ -292,8 +292,6 @@ class Task(_Model):
             "metadata",
             "compute_plan_key",
             "algo_key",
-            "dataset_key",
-            "data_sample_key",
         ]
 
 
