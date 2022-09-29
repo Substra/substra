@@ -208,7 +208,7 @@ client1_org_id = clients[0].organization_info().organization_id
 
 ### Removed
 
-- BREAKING: "out_trunk_model_permissions" field from substra.sdk.schemas.CompositeTraintupleSpec (superseded by "outputs")
+- BREAKING: "out_trunk_model_permissions" field from substra.sdk.schemas.TaskSpec (superseded by "outputs")
 
 ## [0.29.0](https://github.com/Substra/substra/releases/tag/0.29.0) - 2022-07-11
 

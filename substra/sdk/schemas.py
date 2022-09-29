@@ -191,7 +191,7 @@ class ComputeTaskOutputSpec(_PydanticConfig):
         allow_population_by_field_name = True
 
 
-class ComputePlanComputeTaskSpec(_Spec):
+class ComputePlanTaskSpec(_Spec):
     """Specification of a compute task inside a compute plan specification
 
     note : metadata field does not accept strings containing '__' as dict key
@@ -199,6 +199,7 @@ class ComputePlanComputeTaskSpec(_Spec):
 
     task_id: str
     algo_key: str
+    worker: str
     tag: Optional[str]
     metadata: Optional[Dict[str, str]]
     inputs: Optional[List[InputRef]]
@@ -207,7 +208,7 @@ class ComputePlanComputeTaskSpec(_Spec):
 
 class _BaseComputePlanSpec(_Spec):
     key: str
-    tasks: Optional[List[ComputePlanComputeTaskSpec]]
+    tasks: Optional[List[ComputePlanTaskSpec]]
 
 
 class ComputePlanSpec(_BaseComputePlanSpec):
@@ -385,8 +386,12 @@ class TaskSpec(_Spec):
     compute_plan_key: Optional[str]
     metadata: Optional[Dict[str, str]]
     algo_key: str
+    worker: str
+    rank: Optional[int] = None
     inputs: Optional[List[InputRef]]
     outputs: Optional[Dict[str, ComputeTaskOutputSpec]]
+
+    type_: typing.ClassVar[Type] = Type.Task
 
     @contextlib.contextmanager
     def build_request_kwargs(self):
@@ -400,7 +405,7 @@ class TaskSpec(_Spec):
         yield data, None
 
     @classmethod
-    def from_compute_plan(cls, compute_plan_key: str, rank: int, spec: ComputePlanComputeTaskSpec) -> "TaskSpec":
+    def from_compute_plan(cls, compute_plan_key: str, rank: int, spec: ComputePlanTaskSpec) -> "TaskSpec":
         return TaskSpec(
             key=spec.task_id,
             algo_key=spec.algo_key,
@@ -410,4 +415,5 @@ class TaskSpec(_Spec):
             compute_plan_key=compute_plan_key,
             rank=rank,
             metadata=spec.metadata,
+            worker=spec.worker,
         )

@@ -332,9 +332,6 @@ class Client:
     ) -> models.ComputePlan:
         """Create new compute plan asset.
 
-        As specified in the data dict structure, output trunk models of composite
-        traintuples cannot be made public.
-
         Args:
             data (Union[dict, schemas.ComputePlanSpec]): If it is a dict, it must have the same
                 keys as specified in [schemas.ComputePlanSpec](sdk_schemas.md#ComputePlanSpec).
@@ -626,9 +623,6 @@ class Client:
     ) -> models.ComputePlan:
         """Update compute plan.
 
-        As specified in the tuples dict structure, output trunk models of composite
-        traintuples cannot be made public.
-
         Args:
             key (str): Compute plan key
             tuples (Union[dict, schemas.UpdateComputePlanTuplesSpec]): If it is a dict,
@@ -735,7 +729,7 @@ class Client:
         return pathlib.Path(self._backend.download_model(key, os.path.join(destination_folder, f"model_{key}")))
 
     @logit
-    def download_model_from_trask(self, task_key: str, identifier: str, folder: os.PathLike) -> None:
+    def download_model_from_task(self, task_key: str, identifier: str, folder: os.PathLike) -> None:
         """Download task model to destination file.
 
         This model was saved using the 'save_model' function of the algorithm.

@@ -79,23 +79,8 @@ class Local(base.BaseBackend):
         asset = self._db.get(asset_type, key)
 
         # extra data for tasks
-
-        if asset_type == schemas.Type.Traintuple:
-            asset.train.data_manager = self._db.get(schemas.Type.Dataset, asset.train.data_manager_key)
-        if asset_type == schemas.Type.CompositeTraintuple:
-            asset.composite.data_manager = self._db.get(schemas.Type.Dataset, asset.composite.data_manager_key)
-        if asset_type == schemas.Type.Testtuple:
-            asset.test.data_manager = self._db.get(schemas.Type.Dataset, asset.test.data_manager_key)
-        if asset_type == schemas.Type.Predicttuple:
-            asset.predict.data_manager = self._db.get(schemas.Type.Dataset, asset.predict.data_manager_key)
-        if asset_type in [
-            schemas.Type.Traintuple,
-            schemas.Type.CompositeTraintuple,
-            schemas.Type.Aggregatetuple,
-            schemas.Type.Predicttuple,
-            schemas.Type.Testtuple,
-        ]:
-            asset.parent_tasks = [self._get_parent_task(key) for key in asset.parent_task_keys]
+        if asset_type == schemas.Type.Task:
+            asset.parent_tasks = [self._db.get(schemas.Type.Task, key) for key in asset.parent_task_keys]
 
         return asset
 
@@ -104,20 +89,6 @@ class Local(base.BaseBackend):
         performances = self._db.get_performances(key)
 
         return performances
-
-    def _get_parent_task(self, key):
-        for tuple_type in [
-            schemas.Type.Traintuple,
-            schemas.Type.Predicttuple,
-            schemas.Type.CompositeTraintuple,
-            schemas.Type.Aggregatetuple,
-        ]:
-            try:
-                return self._db.get(tuple_type, key)
-            except exceptions.NotFound:
-                pass
-
-        raise exceptions.NotFound(f"Wrong pk {key}", 404)
 
     def list(
         self,
@@ -224,15 +195,6 @@ class Local(base.BaseBackend):
         return compute_plan_key, rank
 
     def __execute_compute_plan(self, spec, compute_plan, visited, tuples, spec_options):
-        if spec.testtuples:
-            for testtuple in spec.testtuples:
-                tuple_spec = schemas.TesttupleSpec.from_compute_plan(
-                    compute_plan_key=spec.key,
-                    spec=testtuple,
-                )
-                visited[tuple_spec.key] = visited.get(testtuple.predicttuple_id, -1) + 1
-                tuples[tuple_spec.key] = tuple_spec
-
         with tqdm(
             total=len(visited),
             desc="Compute plan progress",
@@ -253,38 +215,6 @@ class Local(base.BaseBackend):
                 progress_bar.update()
 
         return compute_plan
-
-    def __check_data_samples(self, data_manager_key: str, data_sample_keys: List[str], allow_test_only: bool):
-        """Get all the data samples from the db once and run sanity checks on them"""
-
-        data_samples = self.list(schemas.Type.DataSample, filters={"key": data_sample_keys})
-
-        # Check that we've got all the data_samples
-        if len(data_samples) != len(data_sample_keys):
-            raise substra.exceptions.InvalidRequest(
-                "Could not get all the data_samples in the database with the given data_sample_keys", 400
-            )
-
-        self.__check_same_data_manager(data_manager_key, data_samples)
-        if not allow_test_only:
-            self.__check_not_test_data(data_samples)
-
-    def __check_same_data_manager(self, data_manager_key, data_samples):
-        """Check that all data samples are linked to this data manager"""
-        # If the dataset is remote: the backend does not return the datasets
-        # linked to each sample, so no check (already done in the backend).
-        if self._db.is_local(data_manager_key, schemas.Type.Dataset):
-            same_data_manager = all(
-                [data_manager_key in data_sample.data_manager_keys for data_sample in (data_samples or list())]
-            )
-            if not same_data_manager:
-                raise substra.exceptions.InvalidRequest("A data_sample does not belong to the same dataManager", 400)
-
-    def __check_not_test_data(self, data_samples):
-        """Check that we do not use test data samples for train tuples"""
-        for data_sample in data_samples:
-            if data_sample.test_only:
-                raise substra.exceptions.InvalidRequest("Cannot create train task with test data", 400)
 
     def __add_algo(self, key, spec, spec_options=None):
 
@@ -396,7 +326,7 @@ class Local(base.BaseBackend):
         # Get all the tuples and their dependencies
         tuple_graph, tuples = compute_plan_module.get_dependency_graph(spec)
 
-        # Define the rank of each traintuple, aggregate tuple and composite tuple
+        # Define the rank of each task
         visited = graph.compute_ranks(node_graph=tuple_graph)
 
         compute_plan = models.ComputePlan(
@@ -422,265 +352,22 @@ class Local(base.BaseBackend):
         compute_plan = self.__execute_compute_plan(spec, compute_plan, visited, tuples, spec_options)
         return compute_plan
 
-    # TODO: '_add_traintuple' is too complex, consider refactoring
-    def _add_traintuple(self, key, spec, spec_options=None):  # noqa: C901
-        # validation
+    def _add_task(self, key, spec, spec_options=None):
         self._check_metadata(spec.metadata)
-
         algo = self._db.get(schemas.Type.Algo, spec.algo_key)
-
-        dataset = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
-        in_tuples = []
-        if spec.in_models_keys is not None:
-            for in_tuple_key in spec.in_models_keys:
-                in_tuple = None
-                for in_tuple_type in [schemas.Type.Traintuple, schemas.Type.Aggregatetuple]:
-                    try:
-                        in_tuple = self._db.get(in_tuple_type, in_tuple_key)
-                        break
-                    except exceptions.NotFound:
-                        pass
-
-                if in_tuple is None:
-                    raise exceptions.NotFound(f"Wrong pk {key}", 404)
-                else:
-                    in_tuples.append(in_tuple)
-
-        self.__check_data_samples(
-            data_manager_key=spec.data_manager_key, data_sample_keys=spec.train_data_sample_keys, allow_test_only=False
-        )
-
-        compute_plan_key, rank = self.__create_compute_plan_from_tuple(spec=spec, key=key, in_tuples=in_tuples)
-
         _warn_on_transient_outputs(spec.outputs)
 
-        # create model
-        traintuple = models.Traintuple(
-            train={
-                "data_manager_key": spec.data_manager_key,
-                "data_sample_keys": spec.train_data_sample_keys,
-                "models": None,
-            },
+        # Create or update the compute plan
+        # TODO
+        in_task_keys = list(
+            {inputref.parent_task_key for inputref in (spec.inputs or list()) if inputref.parent_task_key}
+        )
+        in_tasks = [self._db.get(schemas.Type.Task, in_task_key) for in_task_key in in_task_keys]
+        compute_plan_key, rank = self.__create_compute_plan_from_tuple(spec=spec, key=key, in_tuples=in_tasks)
+
+        task = models.Task(
             key=key,
             creation_date=self.__now(),
-            category=schemas.TaskCategory.train,
-            algo=algo,
-            owner=self._org_id,
-            worker=dataset.owner,
-            compute_plan_key=compute_plan_key,
-            rank=rank,
-            inputs=spec.inputs or [],
-            outputs=_output_from_spec(spec.outputs),
-            tag=spec.tag or "",
-            status=models.Status.waiting,
-            metadata=spec.metadata if spec.metadata else dict(),
-            parent_task_keys=spec.in_models_keys or list(),
-        )
-
-        traintuple = self._db.add(traintuple)
-        self._worker.schedule_task(traintuple)
-        return traintuple
-
-    def _add_predicttuple(self, key, spec, spec_options=None):
-
-        # validation
-        self._check_metadata(spec.metadata)
-        algo = self._db.get(schemas.Type.Algo, spec.algo_key)
-
-        traintuple = self._get_parent_task(spec.traintuple_key)
-
-        if traintuple.status in [models.Status.failed, models.Status.canceled]:
-            raise substra.exceptions.InvalidRequest(
-                f"could not register this testtuple, \
-                the traintuple {traintuple.key} has a status {traintuple.status}",
-                400,
-            )
-
-        dataset = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
-        self.__check_data_samples(
-            data_manager_key=spec.data_manager_key, data_sample_keys=spec.test_data_sample_keys, allow_test_only=True
-        )
-
-        assert len(spec.test_data_sample_keys) > 0
-        worker = dataset.owner
-
-        _warn_on_transient_outputs(spec.outputs)
-
-        if traintuple.compute_plan_key:
-            compute_plan = self._db.get(schemas.Type.ComputePlan, traintuple.compute_plan_key)
-            compute_plan.task_count += 1
-            compute_plan.todo_count += 1
-            compute_plan.status = models.Status.waiting
-
-        predicttuple = models.Predicttuple(
-            predict=models._Predict(
-                data_manager_key=spec.data_manager_key,
-                data_sample_keys=spec.test_data_sample_keys,
-            ),
-            key=key,
-            creation_date=self.__now(),
-            category=schemas.TaskCategory.predict,
-            algo=algo,
-            owner=self._org_id,
-            worker=worker,
-            compute_plan_key=traintuple.compute_plan_key,
-            rank=traintuple.rank + 1,
-            inputs=spec.inputs or [],
-            outputs=_output_from_spec(spec.outputs),
-            tag=spec.tag or "",
-            status=models.Status.waiting,
-            metadata=spec.metadata if spec.metadata else dict(),
-            parent_task_keys=[traintuple.key],
-        )
-        predicttuple = self._db.add(predicttuple)
-        self._worker.schedule_task(predicttuple)
-        return predicttuple
-
-    def _add_testtuple(self, key, spec, spec_options=None):
-
-        # validation
-        self._check_metadata(spec.metadata)
-        algo = self._db.get(schemas.Type.Algo, spec.algo_key)
-
-        predicttuple = self._get_parent_task(spec.predicttuple_key)
-
-        if predicttuple.status in [models.Status.failed, models.Status.canceled]:
-            raise substra.exceptions.InvalidRequest(
-                f"could not register this testtuple, \
-                the traintuple {predicttuple.key} has a status {predicttuple.status}",
-                400,
-            )
-
-        dataset = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
-        self.__check_data_samples(
-            data_manager_key=spec.data_manager_key, data_sample_keys=spec.test_data_sample_keys, allow_test_only=True
-        )
-
-        assert len(spec.test_data_sample_keys) > 0
-        dataset_key = spec.data_manager_key
-        test_data_sample_keys = spec.test_data_sample_keys
-        worker = dataset.owner
-
-        if predicttuple.compute_plan_key:
-            compute_plan = self._db.get(schemas.Type.ComputePlan, predicttuple.compute_plan_key)
-            compute_plan.task_count += 1
-            compute_plan.todo_count += 1
-            compute_plan.status = models.Status.waiting
-
-        _warn_on_transient_outputs(spec.outputs)
-
-        testtuple = models.Testtuple(
-            test=models._Test(
-                data_manager_key=dataset_key,
-                data_sample_keys=test_data_sample_keys,
-                perfs={},
-            ),
-            key=key,
-            creation_date=self.__now(),
-            category=schemas.TaskCategory.test,
-            algo=algo,
-            owner=self._org_id,
-            worker=worker,
-            compute_plan_key=predicttuple.compute_plan_key,
-            rank=predicttuple.rank + 1,
-            inputs=spec.inputs or [],
-            outputs=_output_from_spec(spec.outputs),
-            tag=spec.tag or "",
-            status=models.Status.waiting,
-            metadata=spec.metadata if spec.metadata else dict(),
-            parent_task_keys=[predicttuple.key],
-        )
-        testtuple = self._db.add(testtuple)
-        self._worker.schedule_task(testtuple)
-        return testtuple
-
-    def _add_composite_traintuple(self, key: str, spec: schemas.CompositeTraintupleSpec, spec_options=None):
-        # validation
-        self._check_metadata(spec.metadata)
-        algo = self._db.get(schemas.Type.Algo, spec.algo_key)
-        dataset = self._db.get(schemas.Type.Dataset, spec.data_manager_key)
-        self.__check_data_samples(
-            data_manager_key=spec.data_manager_key, data_sample_keys=spec.train_data_sample_keys, allow_test_only=False
-        )
-        in_tuples = list()
-        if spec.in_head_model_key:
-            in_head_tuple = self._db.get(schemas.Type.CompositeTraintuple, spec.in_head_model_key)
-            in_tuples.append(in_head_tuple)
-
-        if spec.in_trunk_model_key:
-            try:
-                # in trunk model is a composite traintuple out trunk model
-                in_trunk_tuple = self._db.get(schemas.Type.CompositeTraintuple, spec.in_trunk_model_key)
-            except exceptions.NotFound:
-                # in trunk model is an aggregate tuple out model
-                in_trunk_tuple = self._db.get(schemas.Type.Aggregatetuple, spec.in_trunk_model_key)
-            in_tuples.append(in_trunk_tuple)
-
-        # Compute plan
-        compute_plan_key, rank = self.__create_compute_plan_from_tuple(spec, key, in_tuples)
-
-        parent_task_keys: List[str] = list()
-        if spec.in_head_model_key is not None:
-            parent_task_keys.append(spec.in_head_model_key)
-        if spec.in_trunk_model_key is not None:
-            parent_task_keys.append(spec.in_trunk_model_key)
-
-        _warn_on_transient_outputs(spec.outputs)
-
-        composite_traintuple = models.CompositeTraintuple(
-            composite=models._Composite(
-                data_manager_key=spec.data_manager_key,
-                data_sample_keys=spec.train_data_sample_keys,
-                models=list(),
-            ),
-            key=key,
-            creation_date=self.__now(),
-            category=schemas.TaskCategory.composite,
-            algo=algo,
-            owner=self._org_id,
-            worker=dataset.owner,
-            compute_plan_key=compute_plan_key,
-            rank=rank,
-            inputs=spec.inputs or [],
-            outputs=_output_from_spec(spec.outputs),
-            tag=spec.tag or "",
-            status=models.Status.waiting,
-            metadata=spec.metadata if spec.metadata else dict(),
-            parent_task_keys=parent_task_keys,
-        )
-        composite_traintuple = self._db.add(composite_traintuple)
-        if composite_traintuple.status == models.Status.waiting:
-            self._worker.schedule_task(composite_traintuple)
-        return composite_traintuple
-
-    def _add_aggregatetuple(
-        self,
-        key: str,
-        spec: schemas.AggregatetupleSpec,
-        spec_options: dict = None,
-    ):
-        # validation
-        self._check_metadata(spec.metadata)
-        algo = self._db.get(schemas.Type.Algo, spec.algo_key)
-
-        in_tuples = list()
-        for in_tuple_key in spec.in_models_keys:
-            in_tuple = self._get_parent_task(in_tuple_key)
-            in_tuples.append(in_tuple)
-
-        if len(in_tuples) == 0:
-            raise exceptions.EmptyInModelException("aggregatetuple needs in_model to aggregate")
-
-        # Compute plan
-        compute_plan_key, rank = self.__create_compute_plan_from_tuple(spec, key, in_tuples)
-
-        aggregatetuple = models.Aggregatetuple(
-            aggregate=models._Aggregate(
-                models=None,
-            ),
-            creation_date=self.__now(),
-            key=key,
-            category=schemas.TaskCategory.aggregate,
             algo=algo,
             owner=self._org_id,
             worker=spec.worker,
@@ -691,12 +378,12 @@ class Local(base.BaseBackend):
             tag=spec.tag or "",
             status=models.Status.waiting,
             metadata=spec.metadata if spec.metadata else dict(),
-            parent_task_keys=spec.in_models_keys or list(),
+            parent_task_keys=in_task_keys,
         )
-        aggregatetuple = self._db.add(aggregatetuple)
-        if aggregatetuple.status == models.Status.waiting:
-            self._worker.schedule_task(aggregatetuple)
-        return aggregatetuple
+
+        task = self._db.add(task)
+        self._worker.schedule_task(task)
+        return task
 
     def _check_inputs_outputs(self, spec, algo_key):
         algo = self._db.get(schemas.Type.Algo, algo_key)
@@ -840,25 +527,13 @@ class Local(base.BaseBackend):
 
         # Get the rank of all the tuples already in the compute plan
         filters = {"compute_plan_key": [key]}
-        cp_traintuples = self.list(
-            asset_type=schemas.Type.Traintuple,
-            filters=filters,
-        )
-        cp_aggregatetuples = self.list(
-            asset_type=schemas.Type.Aggregatetuple,
-            filters=filters,
-        )
-        cp_composite_traintuples = self.list(
-            asset_type=schemas.Type.CompositeTraintuple,
-            filters=filters,
-        )
-        cp_predicttuple = self.list(
-            asset_type=schemas.Type.Predicttuple,
+        cp_tasks = self.list(
+            asset_type=schemas.Type.Task,
             filters=filters,
         )
         visited = dict()
-        for tuple_ in cp_traintuples + cp_aggregatetuples + cp_composite_traintuples + cp_predicttuple:
-            visited[tuple_.key] = tuple_.rank
+        for task in cp_tasks:
+            visited[task.key] = task.rank
 
         # Update the tuple graph with the tuples already in the CP
         tuple_graph.update({k: list() for k in visited})

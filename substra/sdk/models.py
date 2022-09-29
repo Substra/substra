@@ -12,7 +12,6 @@ import pydantic
 from pydantic import AnyUrl
 from pydantic import DirectoryPath
 from pydantic import FilePath
-from pydantic import root_validator
 from pydantic.fields import Field
 
 from substra.sdk import schemas
@@ -217,15 +216,14 @@ class Algo(_Model):
 
 
 class InModel(schemas._PydanticConfig):
-    """In model of a traintuple, aggregate or composite traintuple"""
+    """In model of a task"""
 
     checksum: str
     storage_address: UriPath
 
 
 class OutModel(schemas._PydanticConfig):
-    """Out model of a traintuple, aggregate tuple or out trunk
-    model of a composite traintuple"""
+    """Out model of a task"""
 
     key: str
     compute_task_key: str
@@ -271,8 +269,8 @@ class Task(_Model):
     status: Status
     worker: str
     rank: Optional[int]
-    parent_task_keys: List[str]
-    parent_tasks: Optional[List["Task"]] = list()
+    parent_task_keys: List[str]  # TODO: are these fields still in the model?
+    parent_tasks: Optional[List["Task"]] = list()  # TODO: are these fields still in the model?
     inputs: List[InputRef]
     outputs: Dict[str, ComputeTaskOutput]
     tag: str
@@ -280,6 +278,8 @@ class Task(_Model):
     start_date: Optional[datetime]
     end_date: Optional[datetime]
     error_type: Optional[TaskErrorType] = None
+
+    type_: ClassVar[str] = schemas.Type.Task
 
     @staticmethod
     def allowed_filters() -> List[str]:
@@ -293,52 +293,6 @@ class Task(_Model):
             "compute_plan_key",
             "algo_key",
         ]
-
-
-def check_data_manager_key(cls, values):
-    if values.get("data_manager"):
-        assert values["data_manager_key"] == values["data_manager"].key, "data_manager does not match data_manager_key"
-    return values
-
-
-class _Composite(schemas._PydanticConfig):
-    data_manager_key: str
-    data_manager: Optional[Dataset] = None
-    data_sample_keys: List[str]
-    models: Optional[List[OutModel]]
-
-    _check_data_manager_key = root_validator(allow_reuse=True)(check_data_manager_key)
-
-
-class _Train(schemas._PydanticConfig):
-    data_manager_key: str
-    data_manager: Optional[Dataset] = None
-    data_sample_keys: List[str]
-    models: Optional[List[OutModel]]
-
-    _check_data_manager_key = root_validator(allow_reuse=True)(check_data_manager_key)
-
-
-class _Aggregate(schemas._PydanticConfig):
-    models: Optional[List[OutModel]]
-
-
-class _Predict(schemas._PydanticConfig):
-    data_manager_key: str
-    data_manager: Optional[Dataset] = None
-    data_sample_keys: List[str]
-    models: Optional[List[OutModel]]
-
-    _check_data_manager_key = root_validator(allow_reuse=True)(check_data_manager_key)
-
-
-class _Test(schemas._PydanticConfig):
-    data_manager_key: str
-    data_manager: Optional[Dataset] = None
-    data_sample_keys: List[str]
-    perfs: Optional[Dict[str, float]]
-
-    _check_data_manager_key = root_validator(allow_reuse=True)(check_data_manager_key)
 
 
 Task.update_forward_refs()

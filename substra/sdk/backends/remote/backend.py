@@ -157,13 +157,7 @@ class Remote(base.BaseBackend):
             cp = self._add_compute_plan(spec, spec_options)
             self._add_tuples_from_computeplan(spec, spec_options, auto_batching, batch_size)
             return cp
-        elif asset_type in (
-            schemas.Type.Traintuple,
-            schemas.Type.Aggregatetuple,
-            schemas.Type.CompositeTraintuple,
-            schemas.Type.Predicttuple,
-            schemas.Type.Testtuple,
-        ):
+        elif asset_type == schemas.Type.Task:
             cp_spec = schemas.ComputePlanSpec(name=f"{spec.category}_{spec.key}")
             self._add_compute_plan(cp_spec, spec_options)
             spec.compute_plan_key = cp_spec.key
@@ -177,11 +171,7 @@ class Remote(base.BaseBackend):
     def _add_compute_plan(self, spec, spec_options):
         """Register compute plan info (without tuples)."""
         cp_spec = spec.copy()
-        del cp_spec.traintuples
-        del cp_spec.predicttuples
-        del cp_spec.testtuples
-        del cp_spec.aggregatetuples
-        del cp_spec.composite_traintuples
+        del cp_spec.tasks
 
         with spec.build_request_kwargs(**spec_options) as (data, _):
             response = self._add(schemas.Type.ComputePlan, data)

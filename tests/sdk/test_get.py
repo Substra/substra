@@ -18,11 +18,6 @@ from ..utils import mock_response
         "dataset",
         "data_sample",
         "algo",
-        "predicttuple",
-        "testtuple",
-        "traintuple",
-        "aggregatetuple",
-        "composite_traintuple",
         "compute_plan",
     ],
 )
@@ -38,6 +33,27 @@ def test_get_asset(asset_type, client, mocker):
     m.assert_called()
 
 
+@pytest.mark.parametrize(
+    "asset_type",
+    [
+        "predicttuple",
+        "testtuple",
+        "traintuple",
+        "aggregatetuple",
+        "composite_traintuple",
+    ],
+)
+def test_get_task(asset_type, client, mocker):
+    item = getattr(datastore, asset_type.upper())
+
+    m = mock_requests(mocker, "get", response=item)
+
+    response = client.get_task("magic-key")
+
+    assert response == models.SCHEMA_TO_MODEL[schemas.Type.Task](**item)
+    m.assert_called()
+
+
 def test_get_asset_not_found(client, mocker):
     mock_requests(mocker, "get", status=404)
 
@@ -50,11 +66,6 @@ def test_get_asset_not_found(client, mocker):
     [
         "dataset",
         "algo",
-        "predicttuple",
-        "testtuple",
-        "traintuple",
-        "aggregatetuple",
-        "composite_traintuple",
         "compute_plan",
         "model",
     ],
@@ -71,6 +82,29 @@ def test_get_extra_field(asset_type, client, mocker):
     response = method("magic-key")
 
     assert response == models.SCHEMA_TO_MODEL[schemas.Type(asset_type)](**item)
+    m.assert_called()
+
+
+@pytest.mark.parametrize(
+    "asset_type",
+    [
+        "predicttuple",
+        "testtuple",
+        "traintuple",
+        "aggregatetuple",
+        "composite_traintuple",
+    ],
+)
+def test_get_task_extra_field(asset_type, client, mocker):
+    item = getattr(datastore, asset_type.upper())
+    raw = getattr(datastore, asset_type.upper()).copy()
+    raw["unknown_extra_field"] = "some value"
+
+    m = mock_requests(mocker, "get", response=raw)
+
+    response = client.get_task("magic-key")
+
+    assert response == models.SCHEMA_TO_MODEL[schemas.Type.Task](**item)
     m.assert_called()
 
 

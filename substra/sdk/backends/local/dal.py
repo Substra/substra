@@ -30,10 +30,7 @@ class DataAccess:
 
     def is_local(self, key: str, type_: schemas.Type):
         try:
-            if type_ == schemas.Type.Model:
-                self._get_local_model(key)
-            else:
-                self._db.get(type_, key)
+            self._db.get(type_, key)
             return True
         except exceptions.NotFound:
             return False
@@ -101,10 +98,7 @@ class DataAccess:
     def get(self, type_, key: str):
         try:
             # Try to find the asset locally
-            if type_ == schemas.Type.Model:
-                return self._get_local_model(key)
-            else:
-                return self._db.get(type_, key)
+            return self._db.get(type_, key)
         except exceptions.NotFound:
             if self._remote is not None:
                 return self._remote.get(type_, key)
@@ -112,11 +106,11 @@ class DataAccess:
 
     def get_performances(self, key):
         """Get the performances of a given compute. Return models.Performances() object
-        easily convertible to dict, filled by the performances data of done testtuples.
+        easily convertible to dict, filled by the performances data of done tasks that output a performance.
         """
         compute_plan = self.get(schemas.Type.ComputePlan, key)
-        list_testtuple = self.list(
-            schemas.Type.Testtuple,
+        list_tasks = self.list(
+            schemas.Type.Task,
             filters={"compute_plan_key": [key]},
             order_by="rank",
             ascending=True,
@@ -124,23 +118,26 @@ class DataAccess:
 
         performances = models.Performances()
 
-        for testtuple in list_testtuple:
-            if testtuple.status == models.Status.done:
-                metric = self.get(schemas.Type.Algo, testtuple.algo.key)
+        for task in list_tasks:
+            if task.status == models.Status.done:
+                metric = self.get(schemas.Type.Algo, task.algo.key)
 
-                performances.compute_plan_key.append(compute_plan.key)
-                performances.compute_plan_tag.append(compute_plan.tag)
-                performances.compute_plan_status.append(compute_plan.status)
-                performances.compute_plan_start_date.append(compute_plan.start_date)
-                performances.compute_plan_end_date.append(compute_plan.end_date)
-                performances.compute_plan_metadata.append(compute_plan.metadata)
+                for perf_identifier in [
+                    output.identifier for output in metric.outputs if output.kind == schemas.AssetKind.performance
+                ]:
+                    performances.compute_plan_key.append(compute_plan.key)
+                    performances.compute_plan_tag.append(compute_plan.tag)
+                    performances.compute_plan_status.append(compute_plan.status)
+                    performances.compute_plan_start_date.append(compute_plan.start_date)
+                    performances.compute_plan_end_date.append(compute_plan.end_date)
+                    performances.compute_plan_metadata.append(compute_plan.metadata)
 
-                performances.worker.append(testtuple.worker)
-                performances.testtuple_key.append(testtuple.key)
-                performances.metric_name.append(metric.name)
-                performances.testtuple_rank.append(testtuple.rank)
-                performances.round_idx.append(testtuple.metadata.get("round_idx"))
-                performances.performance.append(testtuple.test.perfs[testtuple.algo.key])
+                    performances.worker.append(task.worker)
+                    performances.testtuple_key.append(task.key)
+                    performances.metric_name.append(metric.name)
+                    performances.testtuple_rank.append(task.rank)
+                    performances.round_idx.append(task.metadata.get("round_idx"))
+                    performances.performance.append(task.outputs[perf_identifier].value)
 
         return performances
 
@@ -188,26 +185,3 @@ class DataAccess:
     def update(self, asset):
         self._db.update(asset)
         return
-
-    # TODO: '_get_local_model' is too complex, consider refactoring
-    def _get_local_model(self, key):  # noqa: C901
-
-        for t in self.list(schemas.Type.Traintuple, filters=None):
-            if t.train.models:
-                for model in t.train.models:
-                    if model.key == key:
-                        return model
-
-        for t in self.list(schemas.Type.CompositeTraintuple, filters=None):
-            if t.composite.models:
-                for model in t.composite.models:
-                    if model.key == key:
-                        return model
-
-        for t in self.list(schemas.Type.Aggregatetuple, filters=None):
-            if t.aggregate.models:
-                for model in t.aggregate.models:
-                    if model.key == key:
-                        return model
-
-        raise exceptions.NotFound(f"Wrong pk {key}", 404)
