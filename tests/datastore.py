@@ -2,7 +2,6 @@ METRIC = {
     "key": "d5002e1c-d50b-d5de-5341-df8a7b7d11b6",
     "name": "Skin Lesion Classification Challenge",
     "owner": "MyOrg1MSP",
-    "category": "ALGO_METRIC",
     "creation_date": "2021-08-24T13:36:07.428974249Z",
     "metadata": {},
     "permissions": {
@@ -67,7 +66,6 @@ ALGO = {
         "download": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
     },
     "metadata": {},
-    "category": "ALGO_SIMPLE",
     "description": {
         "checksum": "756589d5971c421a388a751d533ab8ce09715c93040e9e8fff1365e831545aa2",
         "storage_address": "http://testserver/algo/17f98afc-2b82-4ce9-b232-1a471633d020/description/",
@@ -95,7 +93,6 @@ ALGO_PREDICT = {
         "download": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
     },
     "metadata": {},
-    "category": "ALGO_PREDICT",
     "description": {
         "checksum": "756589d5971c421a388a751d533ab8ce09715c93040e9e8fff1365e831545aa2",
         "storage_address": "http://testserver/algo/681eedb9-db00-4480-a66f-63c86cc20280/description/",
@@ -124,7 +121,6 @@ ALGO_METRIC = {
         "download": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
     },
     "metadata": {},
-    "category": "ALGO_METRIC",
     "description": {
         "checksum": "756589d5971c421a388a751d533ab8ce09715c93040e9e8fff1365e831545aa2",
         "storage_address": "http://testserver/algo/6a8ada2e-740f-46f4-af0f-11376763ed72/description/",
@@ -178,7 +174,6 @@ TRAINTUPLE = {
     "status": "STATUS_DONE",
     "worker": "MyOrg1MSP",
     "rank": 0,
-    "parent_task_keys": [],
     "tag": "",
     "start_date": "2021-10-12T09:28:06.947765800Z",
     "end_date": "2021-10-12T09:30:04.705947400Z",
@@ -211,31 +206,6 @@ TRAINTUPLE = {
                 "creation_date": "2021-08-24T13:36:07.393646367Z",
             },
         },
-    },
-    "train": {
-        "data_manager_key": "a67b9387-fd80-429a-bc2f-034fac430b0f",
-        "data_sample_keys": [
-            "3180e12c-a821-434a-ad8a-a341076c7f98",
-            "21bb59ca-abd4-4154-b04a-44a92556a078",
-            "67512646-2464-4521-84de-419b1b307d30",
-            "8c5e430b-cb6b-4f4e-95da-499b523d9f5b",
-        ],
-        "models": [
-            {
-                "key": "6f0ee20a328044fb89e70ee5d219fa0c",
-                "compute_task_key": "30c283be-d385-424e-94a6-4d8538275260",
-                "address": {
-                    "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
-                    "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/model/5f0ee20a328044fb89e70ee5d219fa0b/address/",  # noqa: E501
-                },
-                "permissions": {
-                    "process": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
-                    "download": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
-                },
-                "owner": "MyOrg1MSP",
-                "creation_date": "2021-08-24T13:36:07.393646367Z",
-            }
-        ],
     },
 }
 
@@ -271,7 +241,6 @@ AGGREGATETUPLE = {
     "status": "STATUS_DONE",
     "worker": "MyOrg1MSP",
     "rank": None,
-    "parent_task_keys": [],
     "tag": "My super tag",
     "start_date": "2021-10-12T09:28:06.947765800Z",
     "end_date": "2021-10-12T09:30:04.705947400Z",
@@ -298,24 +267,6 @@ AGGREGATETUPLE = {
                 "creation_date": "2021-08-24T13:36:07.393646367Z",
             },
         },
-    },
-    "aggregate": {
-        "models": [
-            {
-                "key": "5f0ee20a328044fb89e70ee5d219fa0b",
-                "compute_task_key": "06207faf-1785-4fa9-4220-99a50dcfe064",
-                "address": {
-                    "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
-                    "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/model/5f0ee20a328044fb89e70ee5d219fa0b/address/",  # noqa: E501
-                },
-                "permissions": {
-                    "process": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
-                    "download": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
-                },
-                "owner": "MyOrg1MSP",
-                "creation_date": "2021-08-24T13:36:07.393646367Z",
-            }
-        ],
     },
 }
 
@@ -359,7 +310,6 @@ COMPOSITE_TRAINTUPLE = {
     "status": "STATUS_DONE",
     "worker": "MyOrg2MSP",
     "rank": 0,
-    "parent_task_keys": [],
     "tag": "",
     "start_date": "2021-10-12T09:28:06.947765800Z",
     "end_date": "2021-10-12T09:30:04.705947400Z",
@@ -410,40 +360,6 @@ COMPOSITE_TRAINTUPLE = {
                 "creation_date": "2021-08-24T13:36:07.393646367Z",
             },
         },
-    },
-    "composite": {
-        "data_manager_key": "1ae64423-aa99-4b8a-8660-61a56e4ca42d",
-        "data_sample_keys": ["1288d38c-dec2-4433-bc40-ec17f99f522a"],
-        "models": [
-            {
-                "key": "ac4a1a82ced4419b83f4bba78c024b94",
-                "compute_task_key": "aa09180a-fec6-46a5-a1a7-58c971b39217",
-                "address": {
-                    "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
-                    "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/model/ac4a1a82ced4419b83f4bba78c024b94/address/",  # noqa: E501
-                },
-                "permissions": {
-                    "process": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
-                    "download": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
-                },
-                "owner": "MyOrg1MSP",
-                "creation_date": "2021-08-24T13:36:07.393646367Z",
-            },
-            {
-                "key": "dc9d114d1ed54936b57dd7fef1c0cbf4",
-                "compute_task_key": "aa09180a-fec6-46a5-a1a7-58c971b39217",
-                "address": {
-                    "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
-                    "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/model/ac4a1a82ced4419b83f4bba78c024b94/address/",  # noqa: E501
-                },
-                "permissions": {
-                    "process": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
-                    "download": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
-                },
-                "owner": "MyOrg1MSP",
-                "creation_date": "2021-08-24T13:36:07.393646367Z",
-            },
-        ],
     },
 }
 
@@ -487,7 +403,6 @@ COMPOSITE_TRAINTUPLE_DOING = {
     "status": "STATUS_DOING",
     "worker": "MyOrg2MSP",
     "rank": 0,
-    "parent_task_keys": [],
     "tag": "",
     "inputs": [
         {"identifier": "opener", "asset_key": "1ae64423-aa99-4b8a-8660-61a56e4ca42d"},
@@ -508,11 +423,6 @@ COMPOSITE_TRAINTUPLE_DOING = {
             },
             "transient": False,
         },
-    },
-    "composite": {
-        "data_manager_key": "1ae64423-aa99-4b8a-8660-61a56e4ca42d",
-        "data_sample_keys": ["1288d38c-dec2-4433-bc40-ec17f99f522a"],
-        "models": None,
     },
 }
 
@@ -553,7 +463,6 @@ PREDICTTUPLE = {
     "status": "STATUS_DONE",
     "worker": "MyOrg1MSP",
     "rank": 0,
-    "parent_task_keys": ["30c283be-d385-424e-94a6-4d8538275260"],
     "tag": "",
     "start_date": "2021-10-12T09:28:06.947765800Z",
     "end_date": "2021-10-12T09:30:04.705947400Z",
@@ -574,17 +483,6 @@ PREDICTTUPLE = {
                 "download": {"public": True, "authorized_ids": []},
             },
             "transient": False,
-        },
-    },
-    "predict": {
-        "data_manager_key": "a67b9387-fd80-429a-bc2f-034fac430b0f",
-        "data_sample_keys": [
-            "3180e12c-a821-434a-ad8a-a341076c7f98",
-            "21bb59ca-abd4-4154-b04a-44a92556a078",
-        ],
-        "prediction_permissions": {
-            "process": {"public": True, "authorized_ids": []},
-            "download": {"public": True, "authorized_ids": []},
         },
     },
 }
@@ -625,7 +523,6 @@ TESTTUPLE = {
     "status": "STATUS_DONE",
     "worker": "MyOrg1MSP",
     "rank": 0,
-    "parent_task_keys": ["05cf2e58-5862-444b-82de-cdaaead97c53"],
     "tag": "",
     "start_date": "2021-10-12T09:28:06.947765800Z",
     "end_date": "2021-10-12T09:30:04.705947400Z",
@@ -648,50 +545,8 @@ TESTTUPLE = {
             "transient": False,
         },
     },
-    "test": {
-        "data_manager_key": "a67b9387-fd80-429a-bc2f-034fac430b0f",
-        "data_sample_keys": [
-            "3180e12c-a821-434a-ad8a-a341076c7f98",
-            "21bb59ca-abd4-4154-b04a-44a92556a078",
-        ],
-        "metric_keys": ["e526243f-f51a-4737-9fea-a5d55f4205fe"],
-        "perfs": {"e526243f-f51a-4737-9fea-a5d55f4205fe": 0.82681566},
-    },
 }
 
-LEADERBOARD = {
-    "metric": {
-        "key": "c6a6139a-28b5-936c-1086-a49d7c772734",
-        "name": "data-network - Metric 1",
-        "data_manager_key": "c0230e3a-b5b9-2e50-fe3c-166471e754e3",
-        "data_sample_keys": ["d2e599ef-e128-8a86-46b9-9330eb50f385"],
-        "permissions": {
-            "process": {"public": True, "authorized_ids": []},
-            "download": {"public": True, "authorized_ids": []},
-        },
-        "description": {
-            "checksum": "c6a6139a28b5936c1086a49d7c772734f4ad65f4580ca4ab14029a925847faf3",
-            "storage_address": "",
-        },
-        "algorithm": {
-            "checksum": "48e748a15552ea2a8a258f6e8e75b1d67da5d6ca7471f80f9b69dae3cb950335",
-            "storage_address": "",
-        },
-        "owner": "MyOrg2MSP",
-        "category": "ALGO_METRIC",
-        "test_dataset": {
-            "data_manager_key": "c0230e3a-b5b9-2e50-fe3c-166471e754e3",
-            "data_sample_keys": ["d2e599ef-e128-8a86-46b9-9330eb50f385"],
-            "worker": "",
-        },
-    },
-    "testtuples": [],
-}
-
-ORGANIZATIONS = [
-    {"id": "foo", "is_current": False, "creation_date": "2021-08-24T13:36:07.393646367Z"},
-    {"id": "bar", "is_current": True, "creation_date": "2021-08-24T13:36:07.393646367Z"},
-]
 
 COMPUTE_PLAN = {
     "key": "e983a185-5368-bd0a-0190-183af9a8e560",

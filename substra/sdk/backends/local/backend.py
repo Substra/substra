@@ -76,13 +76,7 @@ class Local(base.BaseBackend):
         self._db.login(username, password)
 
     def get(self, asset_type, key):
-        asset = self._db.get(asset_type, key)
-
-        # extra data for tasks
-        if asset_type == schemas.Type.Task:
-            asset.parent_task_keys = [self._db.get(schemas.Type.Task, key) for key in asset.parent_task_keys]
-
-        return asset
+        return self._db.get(asset_type, key)
 
     def get_performances(self, key):
 
@@ -213,7 +207,7 @@ class Local(base.BaseBackend):
 
         return self._db.add(compute_plan)
 
-    def __create_compute_plan_from_tuple(self, spec, key, in_tuples):
+    def __create_compute_plan_from_tuple(self, spec, in_tuples):
         # compute plan and rank
         if spec.compute_plan_key is not None:
             compute_plan = self._db.get(schemas.Type.ComputePlan, spec.compute_plan_key)
@@ -409,7 +403,7 @@ class Local(base.BaseBackend):
             {inputref.parent_task_key for inputref in (spec.inputs or list()) if inputref.parent_task_key}
         )
         in_tasks = [self._db.get(schemas.Type.Task, in_task_key) for in_task_key in in_task_keys]
-        compute_plan_key, rank = self.__create_compute_plan_from_tuple(spec=spec, key=key, in_tuples=in_tasks)
+        compute_plan_key, rank = self.__create_compute_plan_from_tuple(spec=spec, in_tuples=in_tasks)
 
         task = models.Task(
             key=key,
@@ -424,7 +418,6 @@ class Local(base.BaseBackend):
             tag=spec.tag or "",
             status=models.Status.waiting,
             metadata=spec.metadata if spec.metadata else dict(),
-            parent_task_keys=in_task_keys,
         )
 
         task = self._db.add(task)

@@ -269,7 +269,6 @@ class Task(_Model):
     status: Status
     worker: str
     rank: Optional[int]
-    parent_task_keys: List[str]
     inputs: List[InputRef]
     outputs: Dict[str, ComputeTaskOutput]
     tag: str
