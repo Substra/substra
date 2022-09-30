@@ -269,8 +269,7 @@ class Task(_Model):
     status: Status
     worker: str
     rank: Optional[int]
-    parent_task_keys: List[str]  # TODO: are these fields still in the model?
-    parent_tasks: Optional[List["Task"]] = list()  # TODO: are these fields still in the model?
+    parent_task_keys: List[str]
     inputs: List[InputRef]
     outputs: Dict[str, ComputeTaskOutput]
     tag: str

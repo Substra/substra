@@ -55,7 +55,6 @@ Asset creation specification base class.
 - worker: str
 - rank: Optional[int]
 - parent_task_keys: List[str]
-- parent_tasks: Optional[List[Task]]
 - inputs: List[InputRef]
 - outputs: Mapping[str, ComputeTaskOutput]
 - tag: str

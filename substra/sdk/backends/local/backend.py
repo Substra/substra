@@ -80,7 +80,7 @@ class Local(base.BaseBackend):
 
         # extra data for tasks
         if asset_type == schemas.Type.Task:
-            asset.parent_tasks = [self._db.get(schemas.Type.Task, key) for key in asset.parent_task_keys]
+            asset.parent_task_keys = [self._db.get(schemas.Type.Task, key) for key in asset.parent_task_keys]
 
         return asset
 
