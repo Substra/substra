@@ -115,3 +115,34 @@ def test_compute_ranks_straight_branch(vertices):
         "5": 3,
         "6": 4,
     }
+
+
+@pytest.mark.parametrize("vertices", itertools.permutations([str(i) for i in range(6)]))
+def test_compute_ranks_alpha(vertices):
+    """
+    0       1
+    |-> 2 <-|
+    |   |   |
+    3 <---> 4
+    |
+    5
+    """
+    node_graph = {
+        "0": [],
+        "1": [],
+        "2": ["0", "1"],
+        "3": ["0", "2"],
+        "4": ["1", "2"],
+        "5": ["3"],  # duplicated link
+    }
+    ordered_node_graph = {v: node_graph[v] for v in vertices}
+    visited = graph.compute_ranks(node_graph=ordered_node_graph)
+    print(list(ordered_node_graph.keys()))
+    assert visited == {
+        "0": 0,
+        "1": 0,
+        "2": 1,
+        "3": 2,
+        "4": 2,
+        "5": 3,
+    }
