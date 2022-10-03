@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.39.0](https://github.com/Substra/substra/releases/tag/0.39.0) - 2022-10-03
+
 ### Removed
 
 - BREAKING CHANGE: remove category from substra.schema.AlgoSpec and substra.models.Algo
