@@ -12,8 +12,8 @@ def _get_inverted_node_graph(node_graph, node_to_ignore):
         if node not in node_to_ignore:
             for dependency in dependencies:
                 if dependency not in node_to_ignore:
-                    inverted.setdefault(dependency, set())
-                    inverted[dependency].add(node)
+                    inverted.setdefault(dependency, list())
+                    inverted[dependency].append(node)
     return inverted
 
 
@@ -74,7 +74,7 @@ def compute_ranks(
     while len(visited) != len(node_graph):
         current_node = _get_current_node(visited, ranks)
         visited.add(current_node)
-        for child in inverted_node_graph.get(current_node, set()):
+        for child in inverted_node_graph.get(current_node, list()):
             ranks[child] = max(ranks[current_node] + 1, ranks.get(child, -1))
 
             # Cycle detection
