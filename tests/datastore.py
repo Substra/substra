@@ -140,7 +140,6 @@ ALGO_METRIC = {
 
 TRAINTUPLE = {
     "key": "30c283be-d385-424e-94a6-4d8538275260",
-    "category": "TASK_TRAIN",
     "algo": {
         "key": "17f98afc-2b82-4ce9-b232-1a471633d020",
         "name": "def637b111f2495bb6b4771644d2409e_test_traintuple_data_samples_relative_order - Algo 0",
@@ -151,7 +150,6 @@ TRAINTUPLE = {
             "download": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
         },
         "metadata": {},
-        "category": "ALGO_SIMPLE",
         "description": {
             "checksum": "756589d5971c421a388a751d533ab8ce09715c93040e9e8fff1365e831545aa2",
             "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/algo/17f98afc-2b82-4ce9-b232-1a471633d020/description/",  # noqa: E501
@@ -211,11 +209,9 @@ TRAINTUPLE = {
 
 AGGREGATETUPLE = {
     "key": "06207faf-1785-4fa9-4220-99a50dcfe064",
-    "category": "TASK_AGGREGATE",
     "algo": {
         "key": "7c9f9799-bf64-c100-6238-1583a9ffc535",
         "name": "Logistic regression",
-        "category": "ALGO_AGGREGATE",
         "algorithm": {
             "checksum": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6g0c614d3f6f868f72a9d5",
             "storage_address": "",
@@ -272,7 +268,6 @@ AGGREGATETUPLE = {
 
 COMPOSITE_TRAINTUPLE = {
     "key": "aa09180a-fec6-46a5-a1a7-58c971b39217",
-    "category": "TASK_COMPOSITE",
     "algo": {
         "key": "c663b6e6-dd62-49fb-afe8-191fa7627a64",
         "name": "c5e21113fcc64160b4dfac17892db879_test_aggregate_composite_traintuples - Algo 0",
@@ -283,7 +278,6 @@ COMPOSITE_TRAINTUPLE = {
             "download": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
         },
         "metadata": {},
-        "category": "ALGO_COMPOSITE",
         "description": {
             "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
             "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/algo/c663b6e6-dd62-49fb-afe8-191fa7627a64/description/",  # noqa: E501
@@ -365,7 +359,6 @@ COMPOSITE_TRAINTUPLE = {
 
 COMPOSITE_TRAINTUPLE_DOING = {
     "key": "aa09180a-fec6-46a5-a1a7-58c971b39217",
-    "category": "TASK_COMPOSITE",
     "algo": {
         "key": "c663b6e6-dd62-49fb-afe8-191fa7627a64",
         "name": "c5e21113fcc64160b4dfac17892db879_test_aggregate_composite_traintuples - Algo 0",
@@ -376,7 +369,6 @@ COMPOSITE_TRAINTUPLE_DOING = {
             "download": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
         },
         "metadata": {},
-        "category": "ALGO_COMPOSITE",
         "description": {
             "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
             "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/algo/c663b6e6-dd62-49fb-afe8-191fa7627a64/description/",  # noqa: E501
@@ -428,7 +420,6 @@ COMPOSITE_TRAINTUPLE_DOING = {
 
 PREDICTTUPLE = {
     "key": "afa9c7b1-21b5-4e58-a098-79de4ecede35",
-    "category": "TASK_PREDICT",
     "algo": {
         "key": "681eedb9-db00-4480-a66f-63c86cc20280",
         "name": "def637b111f2495bb6b4771644d2409e_test_traintuple_data_samples_relative_order - Algo Predict681eedb9-db00-4480-a66f-63c86cc20280",  # noqa: E501
@@ -439,7 +430,6 @@ PREDICTTUPLE = {
             "download": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
         },
         "metadata": {},
-        "category": "ALGO_PREDICT",
         "description": {
             "checksum": "756589d5971c421a388a751d533ab8ce09715c93040e9e8fff1365e831545aa2",
             "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/algo/681eedb9-db00-4480-a66f-63c86cc20280/description/",  # noqa: E501
@@ -489,7 +479,6 @@ PREDICTTUPLE = {
 
 TESTTUPLE = {
     "key": "afa9c7b1-21b5-4e58-a098-79de4ecede35",
-    "category": "TASK_TEST",
     "algo": {
         "key": "6a8ada2e-740f-46f4-af0f-11376763ed72",
         "name": "def637b111f2495bb6b4771644d2409e_test_traintuple_data_samples_relative_order - Algo Metric",
@@ -500,7 +489,6 @@ TESTTUPLE = {
             "download": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
         },
         "metadata": {},
-        "category": "ALGO_METRIC",
         "description": {
             "checksum": "756589d5971c421a388a751d533ab8ce09715c93040e9e8fff1365e831545aa2",
             "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/algo/6a8ada2e-740f-46f4-af0f-11376763ed72/description/",  # noqa: E501

@@ -414,7 +414,6 @@ class TaskSpec(_Spec):
         # this is why we need to reimplement this custom function.
         data = json.loads(self.json(exclude_unset=True))
         data["key"] = self.key
-        data["category"] = self.category
         data["inputs"] = [input.dict() for input in self.inputs] if self.inputs else []
         data["outputs"] = {k: v.dict(by_alias=True) for k, v in self.outputs.items()} if self.outputs else {}
         yield data, None

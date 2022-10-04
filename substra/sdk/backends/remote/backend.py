@@ -158,7 +158,7 @@ class Remote(base.BaseBackend):
             self._add_tuples_from_computeplan(spec, spec_options, auto_batching, batch_size)
             return cp
         elif asset_type == schemas.Type.Task:
-            cp_spec = schemas.ComputePlanSpec(name=f"{spec.category}_{spec.key}")
+            cp_spec = schemas.ComputePlanSpec(name=f"{spec.key}")
             self._add_compute_plan(cp_spec, spec_options)
             spec.compute_plan_key = cp_spec.key
             return self._add_tuples([spec], spec_options)[0]["key"]
