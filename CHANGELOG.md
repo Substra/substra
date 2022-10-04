@@ -7,11 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.39.0](https://github.com/Substra/substra/releases/tag/0.39.0) - 2022-10-03
+### Changed
 
-### Removed
-
-- BREAKING CHANGE: remove category from substra.schema.AlgoSpec and substra.models.Algo
 - BREAKING CHANGE: replace the tasks `traintuple`, `aggregatetuple`, `predicttuple`, `testtuple`, `composite_traintuple` with a single `task`
 
 ```python
@@ -78,6 +75,12 @@ compute_plan = client.add_compute_plan(
 )
 ```
 
+
+## [0.39.0](https://github.com/Substra/substra/releases/tag/0.39.0) - 2022-10-03
+
+### Removed
+
+- BREAKING CHANGE: remove category from substra.schema.AlgoSpec and substra.models.Algo
 ### Added
 
 - Prevent use of `__` in asset metadata keys in local mode
