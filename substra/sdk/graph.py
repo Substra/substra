@@ -59,6 +59,9 @@ def compute_ranks(
     queue = [node for node in ranks]
     visited = set(queue)
 
+    if len(queue) == 0:
+        raise exceptions.InvalidRequest("missing dependency among inModels IDs, circular dependency found", 400)
+
     while len(queue) > 0:
         current_node = queue.pop(0)
         for child in inverted_node_graph.get(current_node, list()):
