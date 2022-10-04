@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- BREAKING CHANGE: replace the tasks `traintuple`, `aggregatetuple`, `predicttuple`, `testtuple`, `composite_traintuple` with a single `task`
+- BREAKING CHANGE: replace the tasks `traintuple`, `aggregatetuple`, `predicttuple`, `testtuple`, `composite_traintuple` with a single `task` (#299)
 
 ```python
 task_key = client.add_task(
@@ -75,6 +75,7 @@ compute_plan = client.add_compute_plan(
 )
 ```
 
+- Fix the compute plan rank calculation in local mode (#299)
 
 ## [0.39.0](https://github.com/Substra/substra/releases/tag/0.39.0) - 2022-10-03
 
