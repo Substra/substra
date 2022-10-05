@@ -278,6 +278,7 @@ class Remote(base.BaseBackend):
             path="bulk_update/",
             data=data,
         )
+        return data_sample_keys
 
     def _download(self, url: str, destination_file: str) -> str:
         response = self._client.get_data(url, stream=True)
