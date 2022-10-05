@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - link_dataset_with_data_samples return value in remote mode
 
+
+### Added
+
+- dataset method to archive the asset
+
 ## [0.39.0](https://github.com/Substra/substra/releases/tag/0.39.0) - 2022-10-03
 
 ### Removed

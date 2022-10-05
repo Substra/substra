@@ -832,6 +832,15 @@ class Local(base.BaseBackend):
         self._db.update(updated_asset)
         return
 
+    def archive(self, key, spec, spec_options=None):
+        asset_type = spec.__class__.type_
+        asset = self.get(asset_type, key)
+        data = asset.dict()
+        data.update(spec.dict())
+        archived_asset = models.SCHEMA_TO_MODEL[asset_type](**data)
+        self._db.update(archived_asset)
+        return
+
     def add_compute_plan_tuples(self, spec: schemas.UpdateComputePlanTuplesSpec, spec_options: dict = None):
         key = spec.key
         compute_plan = self._db.get(schemas.Type.ComputePlan, key)

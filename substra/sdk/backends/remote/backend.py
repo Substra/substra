@@ -255,6 +255,16 @@ class Remote(base.BaseBackend):
         with spec.build_request_kwargs(**spec_options) as (data, files):
             return self._update(asset_type, key, data, files=files)
 
+    def archive(self, key, spec, spec_options=None):
+        spec_options = spec_options or {}
+        asset_type = spec.__class__.type_
+        with spec.build_request_kwargs(**spec_options) as (data, files):
+            kwargs = {
+                "json": data,
+            }
+            data = deepcopy(data) 
+            return self._client.request("put", asset_type, key, **kwargs)
+
     def add_compute_plan_tuples(self, spec, spec_options):
         # Remove auto_batching and batch_size from spec_options
         auto_batching = spec_options.pop(AUTO_BATCHING, False)

@@ -344,6 +344,14 @@ class UpdateDatasetSpec(_Spec):
     type_: typing.ClassVar[Type] = Type.Dataset
 
 
+class ArchiveDatasetSpec(_Spec):
+    """Specification for archiving a dataset"""
+
+    archived: bool
+
+    type_: typing.ClassVar[Type] = Type.Dataset
+
+
 class AlgoInputSpec(_Spec):
     identifier: str
     multiple: bool
