@@ -25,12 +25,12 @@ def _get_entrypoint_from_dockerfile(tmpdir):
     """
     Extracts the .py script and the function name to execute in
     an ENTRYPOINT line of a Dockerfile, located in tmpdir.
-    For instance if the line `ENTRYPOINT ["python3", "algo.py", "--method-name", "train"]` is in the Dockerfile,
+    For instance if the line `ENTRYPOINT ["python3", "algo.py", "--function-name", "train"]` is in the Dockerfile,
      `algo.py`, `train` is extracted.
     """
     valid_example = (
         """The entry point should be specified as follow: """
-        """``ENTRYPOINT ["<executor>", "<algo_file.py>", "--method-name", "<method name>"]"""
+        """``ENTRYPOINT ["<executor>", "<algo_file.py>", "--function-name", "<method name>"]"""
     )
     with open(tmpdir / "Dockerfile") as f:
         for line in f:
@@ -41,19 +41,19 @@ def _get_entrypoint_from_dockerfile(tmpdir):
             if len(script_name) != 1:
                 raise ExecutionError("Couldn't extract script from ENTRYPOINT line in Dockerfile", valid_example)
 
-            method_name = re.findall(METHOD_REGEX, line)
-            if len(method_name) != 1:
+            function_name = re.findall(METHOD_REGEX, line)
+            if len(function_name) != 1:
                 raise ExecutionError("Couldn't extract method name from ENTRYPOINT line in Dockerfile", valid_example)
 
-            return script_name[0], method_name[0]
+            return script_name[0], function_name[0]
 
     raise ExecutionError("Couldn't get entrypoint in Dockerfile", valid_example)
 
 
 def _get_command_args(
-    method_name: str, args_template: typing.List[string.Template], local_volumes: typing.Dict[str, str]
+    function_name: str, args_template: typing.List[string.Template], local_volumes: typing.Dict[str, str]
 ) -> typing.List[str]:
-    args = ["--method-name", str(method_name)]
+    args = ["--function-name", str(function_name)]
     args += [tpl.substitute(**local_volumes) for tpl in args_template]
     return args
 
@@ -98,12 +98,12 @@ class Subprocess(BaseSpawner):
             algo_dir = pathlib.Path(algo_dir)
             args_dir = pathlib.Path(args_dir)
             uncompress(archive_path, algo_dir)
-            script_name, method_name = _get_entrypoint_from_dockerfile(algo_dir)
+            script_name, function_name = _get_entrypoint_from_dockerfile(algo_dir)
 
             args_file = args_dir / "arguments.txt"
 
             py_command = [sys.executable, str(algo_dir / script_name), f"@{args_file}"]
-            py_command_args = _get_command_args(method_name, command_args_tpl, local_volumes)
+            py_command_args = _get_command_args(function_name, command_args_tpl, local_volumes)
             write_command_args_file(args_file, py_command_args)
 
             if data_sample_paths is not None and len(data_sample_paths) > 0:
