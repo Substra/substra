@@ -1,4 +1,5 @@
 import abc
+from typing import List
 
 from substra.sdk.schemas import BackendType
 
@@ -34,7 +35,7 @@ class BaseBackend(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def link_dataset_with_data_samples(self, dataset_key, data_sample_keys):
+    def link_dataset_with_data_samples(self, dataset_key, data_sample_keys) -> List[str]:
         raise NotImplementedError
 
     @abc.abstractmethod

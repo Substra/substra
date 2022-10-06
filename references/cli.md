@@ -71,8 +71,7 @@ Options:
 ```text
 Usage: substra cancel compute_plan [OPTIONS] COMPUTE_PLAN_KEY
 
-  Cancel execution of a compute plan. Nothing is printed, you can check again
-  the compute plan status with `substra get compute_plan`.
+  Cancel execution of a compute plan.
 
 Options:
   --log-level [DEBUG|INFO|WARNING|ERROR|CRITICAL]
