@@ -73,8 +73,8 @@ def test_command_config(workdir):
     assert list(cfg.keys()) == expected_profiles
 
 
-def mock_client_call(mocker, method_name, response="", side_effect=None):
-    return mocker.patch(f"substra.cli.interface.Client.{method_name}", return_value=response, side_effect=side_effect)
+def mock_client_call(mocker, function_name, response="", side_effect=None):
+    return mocker.patch(f"substra.cli.interface.Client.{function_name}", return_value=response, side_effect=side_effect)
 
 
 def test_command_login(workdir, mocker):
