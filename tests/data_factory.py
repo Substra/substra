@@ -16,9 +16,9 @@ from .fl_interface import OutputIdentifiers
 
 DEFAULT_DATA_SAMPLE_FILENAME = "data.csv"
 
-DEFAULT_SUBSTRATOOLS_VERSION = (
-    f"latest-nvidiacuda11.6.0-base-ubuntu20.04-python{sys.version_info.major}.{sys.version_info.minor}-minimal"
-)
+DEFAULT_SUBSTRATOOLS_VERSION = "class-to-function"  # TODO: change before merge
+#     f"latest-nvidiacuda11.6.0-base-ubuntu20.04-python{sys.version_info.major}.{sys.version_info.minor}-minimal"
+# )
 
 DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE = f"ghcr.io/substra/substra-tools:{DEFAULT_SUBSTRATOOLS_VERSION}"
 
@@ -66,7 +66,7 @@ def _get_predictions(path):
         return json.load(f)
 
 if __name__ == '__main__':
-    tools.algo.execute([score])
+    tools.method.execute_cli([score])
 """
 
 
@@ -116,7 +116,7 @@ def _save_predictions(y_pred, path):
         return json.dump(y_pred, f)
 
 if __name__ == '__main__':
-    tools.algo.execute([train, predict])
+    tools.method.execute_cli([train, predict])
 """
 
 DEFAULT_AGGREGATE_ALGO_SCRIPT = f"""
@@ -149,7 +149,7 @@ def _save_predictions(y_pred, path):
         return json.dump(y_pred, f)
 
 if __name__ == '__main__':
-    tools.algo.execute([aggregate, predict])
+    tools.method.execute_cli([aggregate, predict])
 """
 
 # TODO we should have a different serializer for head and trunk models
@@ -212,7 +212,7 @@ def _save_predictions(y_pred, path):
         return json.dump(y_pred, f)
 
 if __name__ == '__main__':
-    tools.algo.execute([predict, train])
+    tools.method.execute_cli([predict, train])
 """
 
 
