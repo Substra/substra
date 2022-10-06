@@ -266,7 +266,7 @@ class Remote(base.BaseBackend):
             key=spec.key,
         )
 
-    def link_dataset_with_data_samples(self, dataset_key, data_sample_keys):
+    def link_dataset_with_data_samples(self, dataset_key, data_sample_keys) -> List[str]:
         """Returns the list of the data sample keys"""
         data = {
             "data_manager_keys": [dataset_key],
@@ -278,6 +278,7 @@ class Remote(base.BaseBackend):
             path="bulk_update/",
             data=data,
         )
+        return data_sample_keys
 
     def _download(self, url: str, destination_file: str) -> str:
         response = self._client.get_data(url, stream=True)

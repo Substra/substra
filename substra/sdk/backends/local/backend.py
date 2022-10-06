@@ -750,7 +750,7 @@ class Local(base.BaseBackend):
                 add_asset(key, spec, spec_options)
                 return key
 
-    def link_dataset_with_data_samples(self, dataset_key, data_sample_keys):
+    def link_dataset_with_data_samples(self, dataset_key, data_sample_keys) -> List[str]:
         dataset = self._db.get(schemas.Type.Dataset, dataset_key)
         data_samples = list()
         for key in data_sample_keys:
