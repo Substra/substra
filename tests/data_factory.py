@@ -66,7 +66,7 @@ def _get_predictions(path):
         return json.load(f)
 
 if __name__ == '__main__':
-    tools.method.execute_cli([score])
+    tools.function.execute_cli([score])
 """
 
 
@@ -116,7 +116,7 @@ def _save_predictions(y_pred, path):
         return json.dump(y_pred, f)
 
 if __name__ == '__main__':
-    tools.method.execute_cli([train, predict])
+    tools.function.execute_cli([train, predict])
 """
 
 DEFAULT_AGGREGATE_ALGO_SCRIPT = f"""
@@ -149,7 +149,7 @@ def _save_predictions(y_pred, path):
         return json.dump(y_pred, f)
 
 if __name__ == '__main__':
-    tools.method.execute_cli([aggregate, predict])
+    tools.function.execute_cli([aggregate, predict])
 """
 
 # TODO we should have a different serializer for head and trunk models
@@ -212,7 +212,7 @@ def _save_predictions(y_pred, path):
         return json.dump(y_pred, f)
 
 if __name__ == '__main__':
-    tools.method.execute_cli([predict, train])
+    tools.function.execute_cli([predict, train])
 """
 
 
@@ -225,7 +225,7 @@ DEFAULT_ALGO_SCRIPTS = {
     AlgoCategory.predict_composite: DEFAULT_COMPOSITE_ALGO_SCRIPT,
 }
 
-DEFAULT_ALGO_METHOD_NAME = {
+DEFAULT_ALGO_FUNCTION_NAME = {
     AlgoCategory.simple: "train",
     AlgoCategory.composite: "train",
     AlgoCategory.aggregate: "aggregate",
@@ -237,7 +237,7 @@ DEFAULT_ALGO_METHOD_NAME = {
 DEFAULT_ALGO_DOCKERFILE = f"""
 FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
 COPY algo.py .
-ENTRYPOINT ["python3", "algo.py", "--method-name", "{{method_name}}"]
+ENTRYPOINT ["python3", "algo.py", "--function-name", "{{function_name}}"]
 """
 
 BAD_ENTRYPOINT_DOCKERFILE = f"""
@@ -251,7 +251,7 @@ FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
 COPY algo.py .
 """
 
-NO_METHOD_NAME_DOCKERFILE = f"""
+NO_FUNCTION_NAME_DOCKERFILE = f"""
 FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
 COPY algo.py .
 ENTRYPOINT ["python3", "algo.txt", "train"]
@@ -394,9 +394,9 @@ class AssetsFactory:
                     if dockerfile_type == "BAD_ENTRYPOINT"
                     else NO_ENTRYPOINT_DOCKERFILE
                     if dockerfile_type == "NO_ENTRYPOINT"
-                    else NO_METHOD_NAME_DOCKERFILE
-                    if dockerfile_type == "NO_METHOD_NAME"
-                    else DEFAULT_ALGO_DOCKERFILE.format(method_name=DEFAULT_ALGO_METHOD_NAME[category])
+                    else NO_FUNCTION_NAME_DOCKERFILE
+                    if dockerfile_type == "NO_FUNCTION_NAME"
+                    else DEFAULT_ALGO_DOCKERFILE.format(function_name=DEFAULT_ALGO_FUNCTION_NAME[category])
                 ),
             ),
         )

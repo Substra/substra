@@ -18,7 +18,7 @@ from substra.sdk.backends.local.compute.spawner.base import write_command_args_f
 logger = logging.getLogger(__name__)
 
 PYTHON_SCRIPT_REGEX = r"(?<=\")([^\"]*\.py)(?=\")"
-METHOD_REGEX = r"\"\-\-method-name\"\,\s*\"([^\"]*)\""
+METHOD_REGEX = r"\"\-\-function-name\"\,\s*\"([^\"]*)\""
 
 
 def _get_entrypoint_from_dockerfile(tmpdir):
