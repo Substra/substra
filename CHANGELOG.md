@@ -82,7 +82,7 @@ compute_plan = client.add_compute_plan(
 
 ### Changed
 
-- Apply changes from algo to function in substratools <https://github.com/Substra/substra/pull/303>
+- Apply changes from algo to function in substratools (#303)
 
 ## [0.39.0](https://github.com/Substra/substra/releases/tag/0.39.0) - 2022-10-03
 
