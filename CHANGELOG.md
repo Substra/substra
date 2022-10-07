@@ -75,6 +75,9 @@ compute_plan = client.add_compute_plan(
 )
 ```
 
+### Fixed
+
+- link_dataset_with_data_samples return value in remote mode
 - Fix the compute plan rank calculation in local mode (#299)
 
 ## [0.39.0](https://github.com/Substra/substra/releases/tag/0.39.0) - 2022-10-03
