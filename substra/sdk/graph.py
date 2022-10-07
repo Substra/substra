@@ -17,7 +17,7 @@ def _get_inverted_node_graph(node_graph, node_to_ignore):
     return inverted
 
 
-def _breadth_first_tranversal_rank(
+def _breadth_first_traversal_rank(
     ranks: typing.Dict[str, int], inverted_node_graph: typing.Dict[str, typing.List[str]]
 ):
     edges = set()
@@ -93,6 +93,6 @@ def compute_ranks(
             if len(actual_deps) == 0:
                 ranks[node] = 0
 
-    ranks = _breadth_first_tranversal_rank(ranks=ranks, inverted_node_graph=inverted_node_graph)
+    ranks = _breadth_first_traversal_rank(ranks=ranks, inverted_node_graph=inverted_node_graph)
 
     return ranks

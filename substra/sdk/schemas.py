@@ -351,7 +351,7 @@ class AlgoSpec(_Spec):
             raise ValueError("Several algo inputs cannot have the same identifier.")
         return v
 
-    @pydantic.validator("inputs")
+    @pydantic.validator("outputs")
     def _check_outputs(cls, v):  # noqa: N805
         outputs = v or list()
         identifiers = {value.identifier for value in outputs}

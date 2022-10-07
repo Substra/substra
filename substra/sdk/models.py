@@ -6,6 +6,7 @@ from typing import ClassVar
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Type
 from typing import Union
 
 import pydantic
@@ -277,7 +278,7 @@ class Task(_Model):
     end_date: Optional[datetime]
     error_type: Optional[TaskErrorType] = None
 
-    type_: ClassVar[str] = schemas.Type.Task
+    type_: ClassVar[Type] = schemas.Type.Task
 
     @staticmethod
     def allowed_filters() -> List[str]:

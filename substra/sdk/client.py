@@ -729,7 +729,7 @@ class Client:
         return pathlib.Path(self._backend.download_model(key, os.path.join(destination_folder, f"model_{key}")))
 
     @logit
-    def download_model_from_task(self, task_key: str, identifier: str, folder: os.PathLike) -> None:
+    def download_model_from_task(self, task_key: str, identifier: str, folder: os.PathLike) -> pathlib.Path:
         """Download task model to destination file.
 
         This model was saved using the 'save_model' function of the algorithm.
