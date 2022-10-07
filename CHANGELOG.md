@@ -98,7 +98,7 @@ compute_plan = client.add_compute_plan(
 - used openers within the library only exposes `get_data` and `fake_data` methods due to breaking changes within
   substra-tools
 - a third argument `task_properties` (containing the `rank` of a task) has been added to all algo methods relying on substra-tools
-- substra tools metrics `tools.Metrics` become `tools.MetricAlgo` and `tools.metrics.execute` becomes `tools.function.execute_cli` (#290)
+- substra tools metrics `tools.Metrics` become `tools.MetricAlgo` and `tools.metrics.execute` becomes `tools.execute` (#290)
 
 ### Changed
 
