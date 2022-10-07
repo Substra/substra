@@ -17,18 +17,40 @@ def _get_inverted_node_graph(node_graph, node_to_ignore):
     return inverted
 
 
-def _get_current_node(visited, ranks):
-    """Find the next node to visit: node with the minimum rank not yet visited."""
-    current_node = None
-    current_rank = None
-    for node, rank in ranks.items():
-        if node not in visited and (current_rank is None or rank < current_rank):
-            current_node = node
-            current_rank = rank
-    # Failure means that there is a closed cycle: A -> B -> ... -> A
-    if current_node is None:
-        raise exceptions.InvalidRequest("missing dependency among inModels IDs", 400)
-    return current_node
+def _breadth_first_traversal_rank(
+    ranks: typing.Dict[str, int], inverted_node_graph: typing.Dict[str, typing.List[str]]
+):
+    edges = set()
+    queue = [node for node in ranks]
+    visited = set(queue)
+
+    if len(queue) == 0:
+        raise exceptions.InvalidRequest("missing dependency among inModels IDs, circular dependency found", 400)
+
+    while len(queue) > 0:
+        current_node = queue.pop(0)
+        for child in inverted_node_graph.get(current_node, list()):
+
+            new_child_rank = max(ranks[current_node] + 1, ranks.get(child, -1))
+
+            if new_child_rank != ranks.get(child, -1):
+                # either the child has never been visited
+                # or its rank has been updated and we must visit again
+                ranks[child] = new_child_rank
+                visited.add(child)
+                queue.append(child)
+
+            # Cycle detection
+            edge = (current_node, child)
+            if (edge[1], edge[0]) in edges:
+                raise exceptions.InvalidRequest(
+                    f"missing dependency among inModels IDs, \
+                        circular dependency between {edge[0]} and {edge[1]}",
+                    400,
+                )
+            else:
+                edges.add(edge)
+    return ranks
 
 
 def compute_ranks(
@@ -53,8 +75,10 @@ def compute_ranks(
         typing.Dict[str, int]: Dict { node_id : rank }
     """
     ranks = ranks or dict()
-    visited = set()
     node_to_ignore = node_to_ignore or set()
+
+    if len(node_graph) == 0:
+        return dict()
 
     extra_nodes = set(node_graph.keys()).intersection(node_to_ignore)
     if len(extra_nodes) > 0:
@@ -69,23 +93,6 @@ def compute_ranks(
             if len(actual_deps) == 0:
                 ranks[node] = 0
 
-    edges = set()
-
-    while len(visited) != len(node_graph):
-        current_node = _get_current_node(visited, ranks)
-        visited.add(current_node)
-        for child in inverted_node_graph.get(current_node, list()):
-            ranks[child] = max(ranks[current_node] + 1, ranks.get(child, -1))
-
-            # Cycle detection
-            edge = (current_node, child)
-            if (edge[1], edge[0]) in edges:
-                raise exceptions.InvalidRequest(
-                    f"missing dependency among inModels IDs, \
-                        circular dependency between {edge[0]} and {edge[1]}",
-                    400,
-                )
-            else:
-                edges.add(edge)
+    ranks = _breadth_first_traversal_rank(ranks=ranks, inverted_node_graph=inverted_node_graph)
 
     return ranks

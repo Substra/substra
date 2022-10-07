@@ -80,15 +80,15 @@ def test_check_metadata_search_filter(filters, expected, exception):
             None,
         ),
         (
-            schemas.Type.Traintuple,
+            schemas.Type.Task,
             {"status": [substra.models.Status.done.value]},
             {"status": [substra.models.Status.done.value]},
             None,
         ),
-        (schemas.Type.Traintuple, {"rank": [1]}, {"rank": ["1"]}, None),
+        (schemas.Type.Task, {"rank": [1]}, {"rank": ["1"]}, None),
         (schemas.Type.DataSample, ["wrong filter type"], None, exceptions.FilterFormatError),
         (schemas.Type.ComputePlan, {"name": ["list"]}, None, exceptions.FilterFormatError),
-        (schemas.Type.Traintuple, {"foo": "not allowed key"}, None, exceptions.NotAllowedFilterError),
+        (schemas.Type.Task, {"foo": "not allowed key"}, None, exceptions.NotAllowedFilterError),
         (
             schemas.Type.ComputePlan,
             {"name": "cp1", "key": ["key1", "key2"]},

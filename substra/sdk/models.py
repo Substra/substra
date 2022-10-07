@@ -6,13 +6,13 @@ from typing import ClassVar
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Type
 from typing import Union
 
 import pydantic
 from pydantic import AnyUrl
 from pydantic import DirectoryPath
 from pydantic import FilePath
-from pydantic import root_validator
 from pydantic.fields import Field
 
 from substra.sdk import schemas
@@ -217,15 +217,14 @@ class Algo(_Model):
 
 
 class InModel(schemas._PydanticConfig):
-    """In model of a traintuple, aggregate or composite traintuple"""
+    """In model of a task"""
 
     checksum: str
     storage_address: UriPath
 
 
 class OutModel(schemas._PydanticConfig):
-    """Out model of a traintuple, aggregate tuple or out trunk
-    model of a composite traintuple"""
+    """Out model of a task"""
 
     key: str
     compute_task_key: str
@@ -262,9 +261,8 @@ class ComputeTaskOutput(schemas._PydanticConfig):
         allow_population_by_field_name = True
 
 
-class _GenericTraintuple(_Model):
+class Task(_Model):
     key: str
-    category: schemas.TaskCategory
     algo: Algo
     owner: str
     compute_plan_key: str
@@ -272,8 +270,6 @@ class _GenericTraintuple(_Model):
     status: Status
     worker: str
     rank: Optional[int]
-    parent_task_keys: List[str]
-    parent_tasks: Optional[List[Union["Traintuple", "CompositeTraintuple", "Aggregatetuple", "Predicttuple"]]] = list()
     inputs: List[InputRef]
     outputs: Dict[str, ComputeTaskOutput]
     tag: str
@@ -281,6 +277,8 @@ class _GenericTraintuple(_Model):
     start_date: Optional[datetime]
     end_date: Optional[datetime]
     error_type: Optional[TaskErrorType] = None
+
+    type_: ClassVar[Type] = schemas.Type.Task
 
     @staticmethod
     def allowed_filters() -> List[str]:
@@ -293,97 +291,10 @@ class _GenericTraintuple(_Model):
             "metadata",
             "compute_plan_key",
             "algo_key",
-            "dataset_key",
-            "data_sample_key",
         ]
 
 
-def check_data_manager_key(cls, values):
-    if values.get("data_manager"):
-        assert values["data_manager_key"] == values["data_manager"].key, "data_manager does not match data_manager_key"
-    return values
-
-
-class _Composite(schemas._PydanticConfig):
-    data_manager_key: str
-    data_manager: Optional[Dataset] = None
-    data_sample_keys: List[str]
-    models: Optional[List[OutModel]]
-
-    _check_data_manager_key = root_validator(allow_reuse=True)(check_data_manager_key)
-
-
-class _Train(schemas._PydanticConfig):
-    data_manager_key: str
-    data_manager: Optional[Dataset] = None
-    data_sample_keys: List[str]
-    models: Optional[List[OutModel]]
-
-    _check_data_manager_key = root_validator(allow_reuse=True)(check_data_manager_key)
-
-
-class _Aggregate(schemas._PydanticConfig):
-    models: Optional[List[OutModel]]
-
-
-class _Predict(schemas._PydanticConfig):
-    data_manager_key: str
-    data_manager: Optional[Dataset] = None
-    data_sample_keys: List[str]
-    models: Optional[List[OutModel]]
-
-    _check_data_manager_key = root_validator(allow_reuse=True)(check_data_manager_key)
-
-
-class _Test(schemas._PydanticConfig):
-    data_manager_key: str
-    data_manager: Optional[Dataset] = None
-    data_sample_keys: List[str]
-    perfs: Optional[Dict[str, float]]
-
-    _check_data_manager_key = root_validator(allow_reuse=True)(check_data_manager_key)
-
-
-class Traintuple(_GenericTraintuple):
-    """Traintuple"""
-
-    train: _Train
-    type_: ClassVar[str] = schemas.Type.Traintuple
-
-
-class Aggregatetuple(_GenericTraintuple):
-    """Aggregatetuple"""
-
-    aggregate: _Aggregate
-    type_: ClassVar[str] = schemas.Type.Aggregatetuple
-
-
-class CompositeTraintuple(_GenericTraintuple):
-    """CompositeTraintuple"""
-
-    composite: _Composite
-    type_: ClassVar[str] = schemas.Type.CompositeTraintuple
-
-
-class Predicttuple(_GenericTraintuple):
-    """Predicttuple"""
-
-    predict: _Predict
-    type_: ClassVar[str] = schemas.Type.Predicttuple
-
-
-_GenericTraintuple.update_forward_refs()
-Predicttuple.update_forward_refs()
-Traintuple.update_forward_refs()
-Aggregatetuple.update_forward_refs()
-CompositeTraintuple.update_forward_refs()
-
-
-class Testtuple(_GenericTraintuple):
-    """Testtuple"""
-
-    test: _Test
-    type_: ClassVar[str] = schemas.Type.Testtuple
+Task.update_forward_refs()
 
 
 class FailedTuple(_Model):
@@ -465,15 +376,11 @@ class OrganizationInfo(schemas._PydanticConfig):
 
 
 SCHEMA_TO_MODEL = {
-    schemas.Type.Aggregatetuple: Aggregatetuple,
+    schemas.Type.Task: Task,
     schemas.Type.Algo: Algo,
-    schemas.Type.CompositeTraintuple: CompositeTraintuple,
     schemas.Type.ComputePlan: ComputePlan,
     schemas.Type.DataSample: DataSample,
     schemas.Type.Dataset: Dataset,
-    schemas.Type.Predicttuple: Predicttuple,
-    schemas.Type.Testtuple: Testtuple,
-    schemas.Type.Traintuple: Traintuple,
     schemas.Type.Organization: Organization,
     schemas.Type.Model: OutModel,
 }

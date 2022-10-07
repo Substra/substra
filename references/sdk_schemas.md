@@ -6,20 +6,12 @@
 - [AlgoSpec](#AlgoSpec)
 - [AlgoInputSpec](#AlgoInputSpec)
 - [AlgoOutputSpec](#AlgoOutputSpec)
-- [PredicttupleSpec](#PredicttupleSpec)
+- [TaskSpec](#TaskSpec)
 - [UpdateAlgoSpec](#UpdateAlgoSpec)
-- [TesttupleSpec](#TesttupleSpec)
-- [TraintupleSpec](#TraintupleSpec)
-- [AggregatetupleSpec](#AggregatetupleSpec)
-- [CompositeTraintupleSpec](#CompositeTraintupleSpec)
 - [ComputePlanSpec](#ComputePlanSpec)
 - [UpdateComputePlanSpec](#UpdateComputePlanSpec)
 - [UpdateComputePlanTuplesSpec](#UpdateComputePlanTuplesSpec)
-- [ComputePlanPredicttupleSpec](#ComputePlanPredicttupleSpec)
-- [ComputePlanTesttupleSpec](#ComputePlanTesttupleSpec)
-- [ComputePlanAggregatetupleSpec](#ComputePlanAggregatetupleSpec)
-- [ComputePlanCompositeTraintupleSpec](#ComputePlanCompositeTraintupleSpec)
-- [ComputePlanTraintupleSpec](#ComputePlanTraintupleSpec)
+- [ComputePlanTaskSpec](#ComputePlanTaskSpec)
 - [Permissions](#Permissions)
 - [PrivatePermissions](#PrivatePermissions)
 
@@ -88,22 +80,18 @@ Asset creation specification base class.
 - multiple: bool
 ```
 
-## PredicttupleSpec
-Specification for creating a predict tuple
-
-note : metadata field does not accept strings containing '__' as dict key
+## TaskSpec
+Asset creation specification base class.
 ```text
 - key: str
 - tag: Optional[str]
 - compute_plan_key: Optional[str]
 - metadata: Optional[Mapping[str, str]]
 - algo_key: str
+- worker: str
+- rank: Optional[int]
 - inputs: Optional[List[InputRef]]
 - outputs: Optional[Mapping[str, ComputeTaskOutputSpec]]
-- traintuple_key: str
-- data_manager_key: str
-- test_data_sample_keys: List[str]
-- category: TaskCategory
 ```
 
 ## UpdateAlgoSpec
@@ -112,92 +100,13 @@ Specification for updating an algo
 - name: str
 ```
 
-## TesttupleSpec
-Specification for creating a testtuple
-
-note : metadata field does not accept strings containing '__' as dict key
-```text
-- key: str
-- tag: Optional[str]
-- compute_plan_key: Optional[str]
-- metadata: Optional[Mapping[str, str]]
-- algo_key: str
-- inputs: Optional[List[InputRef]]
-- outputs: Optional[Mapping[str, ComputeTaskOutputSpec]]
-- predicttuple_key: str
-- data_manager_key: str
-- test_data_sample_keys: List[str]
-- category: TaskCategory
-```
-
-## TraintupleSpec
-Specification for creating a traintuple
-
-note : metadata field does not accept strings containing '__' as dict key
-```text
-- key: str
-- tag: Optional[str]
-- compute_plan_key: Optional[str]
-- metadata: Optional[Mapping[str, str]]
-- algo_key: str
-- inputs: Optional[List[InputRef]]
-- outputs: Optional[Mapping[str, ComputeTaskOutputSpec]]
-- data_manager_key: str
-- train_data_sample_keys: List[str]
-- in_models_keys: Optional[List[str]]
-- rank: Optional[int]
-- category: TaskCategory
-```
-
-## AggregatetupleSpec
-Specification for creating an aggregate tuple
-
-note : metadata field does not accept strings containing '__' as dict key
-```text
-- key: str
-- tag: Optional[str]
-- compute_plan_key: Optional[str]
-- metadata: Optional[Mapping[str, str]]
-- algo_key: str
-- inputs: Optional[List[InputRef]]
-- outputs: Optional[Mapping[str, ComputeTaskOutputSpec]]
-- worker: str
-- in_models_keys: List[str]
-- rank: Optional[int]
-- category: TaskCategory
-```
-
-## CompositeTraintupleSpec
-Specification for creating a composite traintuple
-
-note : metadata field does not accept strings containing '__' as dict key
-```text
-- key: str
-- tag: Optional[str]
-- compute_plan_key: Optional[str]
-- metadata: Optional[Mapping[str, str]]
-- algo_key: str
-- inputs: Optional[List[InputRef]]
-- outputs: Optional[Mapping[str, ComputeTaskOutputSpec]]
-- data_manager_key: str
-- train_data_sample_keys: List[str]
-- in_head_model_key: Optional[str]
-- in_trunk_model_key: Optional[str]
-- rank: Optional[int]
-- category: TaskCategory
-```
-
 ## ComputePlanSpec
 Specification for creating a compute plan
 
 note : metadata field does not accept strings containing '__' as dict key
 ```text
 - key: str
-- traintuples: Optional[List[ComputePlanTraintupleSpec]]
-- composite_traintuples: Optional[List[ComputePlanCompositeTraintupleSpec]]
-- aggregatetuples: Optional[List[ComputePlanAggregatetupleSpec]]
-- predicttuples: Optional[List[ComputePlanPredicttupleSpec]]
-- testtuples: Optional[List[ComputePlanTesttupleSpec]]
+- tasks: Optional[List[ComputePlanTaskSpec]]
 - tag: Optional[str]
 - name: str
 - metadata: Optional[Mapping[str, str]]
@@ -213,85 +122,21 @@ Specification for updating a compute plan
 Specification for updating a compute plan's tuples
 ```text
 - key: str
-- traintuples: Optional[List[ComputePlanTraintupleSpec]]
-- composite_traintuples: Optional[List[ComputePlanCompositeTraintupleSpec]]
-- aggregatetuples: Optional[List[ComputePlanAggregatetupleSpec]]
-- predicttuples: Optional[List[ComputePlanPredicttupleSpec]]
-- testtuples: Optional[List[ComputePlanTesttupleSpec]]
+- tasks: Optional[List[ComputePlanTaskSpec]]
 ```
 
-## ComputePlanPredicttupleSpec
-Specification of a predict tuple inside a compute
-plan specification
-```text
-- algo_key: str
-- tag: Optional[str]
-- metadata: Optional[Mapping[str, str]]
-- inputs: Optional[List[InputRef]]
-- outputs: Optional[Mapping[str, ComputeTaskOutputSpec]]
-- predicttuple_id: str
-- traintuple_id: str
-- data_manager_key: str
-- test_data_sample_keys: List[str]
-```
+## ComputePlanTaskSpec
+Specification of a compute task inside a compute plan specification
 
-## ComputePlanTesttupleSpec
-Specification of a testtuple inside a compute
-plan specification
+note : metadata field does not accept strings containing '__' as dict key
 ```text
+- task_id: str
 - algo_key: str
-- tag: Optional[str]
-- metadata: Optional[Mapping[str, str]]
-- inputs: Optional[List[InputRef]]
-- outputs: Optional[Mapping[str, ComputeTaskOutputSpec]]
-- predicttuple_id: str
-- data_manager_key: str
-- test_data_sample_keys: List[str]
-```
-
-## ComputePlanAggregatetupleSpec
-Specification of an aggregate tuple inside a compute
-plan specification
-```text
-- algo_key: str
-- tag: Optional[str]
-- metadata: Optional[Mapping[str, str]]
-- inputs: Optional[List[InputRef]]
-- outputs: Optional[Mapping[str, ComputeTaskOutputSpec]]
-- aggregatetuple_id: str
 - worker: str
-- in_models_ids: Optional[List[str]]
-```
-
-## ComputePlanCompositeTraintupleSpec
-Specification of a composite traintuple inside a compute
-plan specification
-```text
-- algo_key: str
 - tag: Optional[str]
 - metadata: Optional[Mapping[str, str]]
 - inputs: Optional[List[InputRef]]
 - outputs: Optional[Mapping[str, ComputeTaskOutputSpec]]
-- composite_traintuple_id: str
-- data_manager_key: str
-- train_data_sample_keys: List[str]
-- in_head_model_id: Optional[str]
-- in_trunk_model_id: Optional[str]
-```
-
-## ComputePlanTraintupleSpec
-Specification of a traintuple inside a compute
-plan specification
-```text
-- algo_key: str
-- tag: Optional[str]
-- metadata: Optional[Mapping[str, str]]
-- inputs: Optional[List[InputRef]]
-- outputs: Optional[Mapping[str, ComputeTaskOutputSpec]]
-- data_manager_key: str
-- train_data_sample_keys: List[str]
-- traintuple_id: str
-- in_models_ids: Optional[List[str]]
 ```
 
 ## Permissions

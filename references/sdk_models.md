@@ -2,11 +2,7 @@
 
 - [DataSample](#DataSample)
 - [Dataset](#Dataset)
-- [Predicttuple](#Predicttuple)
-- [Testtuple](#Testtuple)
-- [Traintuple](#Traintuple)
-- [Aggregatetuple](#Aggregatetuple)
-- [CompositeTraintuple](#CompositeTraintuple)
+- [Task](#Task)
 - [Algo](#Algo)
 - [ComputePlan](#ComputePlan)
 - [Performances](#Performances)
@@ -47,11 +43,10 @@ Dataset asset
 - logs_permission: Permission
 ```
 
-## Predicttuple
-Predicttuple
+## Task
+Asset creation specification base class.
 ```text
 - key: str
-- category: TaskCategory
 - algo: Algo
 - owner: str
 - compute_plan_key: str
@@ -59,8 +54,6 @@ Predicttuple
 - status: Status
 - worker: str
 - rank: Optional[int]
-- parent_task_keys: List[str]
-- parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple'), ForwardRef('Predicttuple')]]]
 - inputs: List[InputRef]
 - outputs: Mapping[str, ComputeTaskOutput]
 - tag: str
@@ -68,103 +61,6 @@ Predicttuple
 - start_date: Optional[datetime]
 - end_date: Optional[datetime]
 - error_type: Optional[TaskErrorType]
-- predict: _Predict
-```
-
-## Testtuple
-Testtuple
-```text
-- key: str
-- category: TaskCategory
-- algo: Algo
-- owner: str
-- compute_plan_key: str
-- metadata: Mapping[str, str]
-- status: Status
-- worker: str
-- rank: Optional[int]
-- parent_task_keys: List[str]
-- parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple'), ForwardRef('Predicttuple')]]]
-- inputs: List[InputRef]
-- outputs: Mapping[str, ComputeTaskOutput]
-- tag: str
-- creation_date: datetime
-- start_date: Optional[datetime]
-- end_date: Optional[datetime]
-- error_type: Optional[TaskErrorType]
-- test: _Test
-```
-
-## Traintuple
-Traintuple
-```text
-- key: str
-- category: TaskCategory
-- algo: Algo
-- owner: str
-- compute_plan_key: str
-- metadata: Mapping[str, str]
-- status: Status
-- worker: str
-- rank: Optional[int]
-- parent_task_keys: List[str]
-- parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple'), ForwardRef('Predicttuple')]]]
-- inputs: List[InputRef]
-- outputs: Mapping[str, ComputeTaskOutput]
-- tag: str
-- creation_date: datetime
-- start_date: Optional[datetime]
-- end_date: Optional[datetime]
-- error_type: Optional[TaskErrorType]
-- train: _Train
-```
-
-## Aggregatetuple
-Aggregatetuple
-```text
-- key: str
-- category: TaskCategory
-- algo: Algo
-- owner: str
-- compute_plan_key: str
-- metadata: Mapping[str, str]
-- status: Status
-- worker: str
-- rank: Optional[int]
-- parent_task_keys: List[str]
-- parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple'), ForwardRef('Predicttuple')]]]
-- inputs: List[InputRef]
-- outputs: Mapping[str, ComputeTaskOutput]
-- tag: str
-- creation_date: datetime
-- start_date: Optional[datetime]
-- end_date: Optional[datetime]
-- error_type: Optional[TaskErrorType]
-- aggregate: _Aggregate
-```
-
-## CompositeTraintuple
-CompositeTraintuple
-```text
-- key: str
-- category: TaskCategory
-- algo: Algo
-- owner: str
-- compute_plan_key: str
-- metadata: Mapping[str, str]
-- status: Status
-- worker: str
-- rank: Optional[int]
-- parent_task_keys: List[str]
-- parent_tasks: Optional[List[Union[ForwardRef('Traintuple'), ForwardRef('CompositeTraintuple'), ForwardRef('Aggregatetuple'), ForwardRef('Predicttuple')]]]
-- inputs: List[InputRef]
-- outputs: Mapping[str, ComputeTaskOutput]
-- tag: str
-- creation_date: datetime
-- start_date: Optional[datetime]
-- end_date: Optional[datetime]
-- error_type: Optional[TaskErrorType]
-- composite: _Composite
 ```
 
 ## Algo
@@ -238,15 +134,14 @@ Permissions structure stored in various asset types.
 ```
 
 ## InModel
-In model of a traintuple, aggregate or composite traintuple
+In model of a task
 ```text
 - checksum: str
 - storage_address: Union[FilePath, AnyUrl, str]
 ```
 
 ## OutModel
-Out model of a traintuple, aggregate tuple or out trunk
-model of a composite traintuple
+Out model of a task
 ```text
 - key: str
 - compute_task_key: str

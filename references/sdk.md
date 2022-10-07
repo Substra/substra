@@ -2,7 +2,7 @@
 
 # Client
 ```text
-Client(url: Optional[str] = None, token: Optional[str] = None, retry_timeout: int = 300, insecure: bool = False, backend_type: substra.sdk.schemas.BackendType = <BackendType.REMOTE: 'remote'>)
+Client(url: Union[str, NoneType] = None, token: Union[str, NoneType] = None, retry_timeout: int = 300, insecure: bool = False, backend_type: substra.sdk.schemas.BackendType = <BackendType.REMOTE: 'remote'>)
 ```
 
 Create a client
@@ -44,21 +44,6 @@ _This is a property._
 Temporary directory for storing assets in debug mode.
         Deleted when the client is deleted.
         
-## add_aggregatetuple
-```text
-add_aggregatetuple(self, data: Union[dict, substra.sdk.schemas.AggregatetupleSpec]) -> str
-```
-
-Create a new aggregate tuple asset.
-
-**Arguments:**
- - `data (Union[dict, schemas.AggregatetupleSpec], required)`: If it is a dict, it must have the same
-keys as specified in
-[schemas.AggregatetupleSpec](sdk_schemas.md#AggregatetupleSpec).
-
-**Returns:**
-
- - `str`: Key of the asset
 ## add_algo
 ```text
 add_algo(self, data: Union[dict, substra.sdk.schemas.AlgoSpec]) -> str
@@ -73,31 +58,12 @@ as specified in [schemas.AlgoSpec](sdk_schemas.md#AlgoSpec).
 **Returns:**
 
  - `str`: Key of the algo
-## add_composite_traintuple
-```text
-add_composite_traintuple(self, data: Union[dict, substra.sdk.schemas.CompositeTraintupleSpec]) -> str
-```
-
-Create new composite traintuple asset.
-As specified in the data structure, output trunk models cannot be made
-public.
-
-**Arguments:**
- - `data (Union[dict, schemas.CompositeTraintupleSpec], required)`: If it is a dict, it must have the
-same keys as specified in
-[schemas.CompositeTraintupleSpec](sdk_schemas.md#CompositeTraintupleSpec).
-
-**Returns:**
-
- - `str`: Key of the asset
 ## add_compute_plan
 ```text
 add_compute_plan(self, data: Union[dict, substra.sdk.schemas.ComputePlanSpec], auto_batching: bool = True, batch_size: int = 500) -> substra.sdk.models.ComputePlan
 ```
 
 Create new compute plan asset.
-As specified in the data dict structure, output trunk models of composite
-traintuples cannot be made public.
 
 **Arguments:**
  - `data (Union[dict, schemas.ComputePlanSpec], required)`: If it is a dict, it must have the same
@@ -116,8 +82,6 @@ add_compute_plan_tuples(self, key: str, tuples: Union[dict, substra.sdk.schemas.
 ```
 
 Update compute plan.
-As specified in the tuples dict structure, output trunk models of composite
-traintuples cannot be made public.
 
 **Arguments:**
  - `key (str, required)`: Compute plan key
@@ -191,44 +155,16 @@ keys as specified in [schemas.DatasetSpec](sdk_schemas.md#DatasetSpec).
 **Returns:**
 
  - `str`: Key of the dataset
-## add_predicttuple
+## add_task
 ```text
-add_predicttuple(self, data: Union[dict, substra.sdk.schemas.PredicttupleSpec]) -> str
+add_task(self, data: Union[dict, substra.sdk.schemas.TaskSpec]) -> str
 ```
 
-Create new predicttuple asset.
+Create new task asset.
 
 **Arguments:**
- - `data (Union[dict, schemas.PredicttupleSpec], required)`: If it is a dict, it must have the same
-keys as specified in [schemas.PredicttupleSpec](sdk_schemas.md#PredicttupleSpec).
-
-**Returns:**
-
- - `str`: Key of the asset
-## add_testtuple
-```text
-add_testtuple(self, data: Union[dict, substra.sdk.schemas.TesttupleSpec]) -> str
-```
-
-Create new testtuple asset.
-
-**Arguments:**
- - `data (Union[dict, schemas.TesttupleSpec], required)`: If it is a dict, it must have the same
-keys as specified in [schemas.TesttupleSpec](sdk_schemas.md#TesttupleSpec).
-
-**Returns:**
-
- - `str`: Key of the asset
-## add_traintuple
-```text
-add_traintuple(self, data: Union[dict, substra.sdk.schemas.TraintupleSpec]) -> str
-```
-
-Create new traintuple asset.
-
-**Arguments:**
- - `data (Union[dict, schemas.TraintupleSpec], required)`: If it is a dict, it must have the same
-keys as specified in [schemas.TraintupleSpec](sdk_schemas.md#TraintupleSpec).
+ - `data (Union[dict, schemas.TaskSpec], required)`: If it is a dict, it must have the same
+keys as specified in [schemas.TaskSpec](sdk_schemas.md#TaskSpec).
 
 **Returns:**
 
@@ -281,23 +217,6 @@ Download opener script in destination folder.
 **Returns:**
 
  - `pathlib.Path`: Path of the downloaded dataset
-## download_head_model_from_composite_traintuple
-```text
-download_head_model_from_composite_traintuple(self, tuple_key: str, folder) -> None
-```
-
-Download composite traintuple head model to destination file.
-This model was saved using the 'save_model' function of the algorithm.
-To load and use the model, please refer to the 'load_model' and 'predict' functions of the
-algorithm.
-
-**Arguments:**
- - `tuple_key (str, required)`: Tuple key to download
- - `folder (_type_, required)`: Destination folder
-
-**Returns:**
-
- - `pathlib.Path`: Path of the downloaded model
 ## download_logs
 ```text
 download_logs(self, tuple_key: str, folder: str) -> str
@@ -334,60 +253,27 @@ algorithm.
 **Returns:**
 
  - `pathlib.Path`: Path of the downloaded model
-## download_model_from_aggregatetuple
+## download_model_from_task
 ```text
-download_model_from_aggregatetuple(self, tuple_key: str, folder) -> None
+download_model_from_task(self, task_key: str, identifier: str, folder: os.PathLike) -> None
 ```
 
-Download aggregatetuple model to destination file.
+Download task model to destination file.
 This model was saved using the 'save_model' function of the algorithm.
 To load and use the model, please refer to the 'load_model' and 'predict' functions of the
 algorithm.
 
 **Arguments:**
- - `tuple_key (str, required)`: Tuple key to download
- - `folder (_type_, required)`: Destination folder
-
-**Returns:**
-
- - `pathlib.Path`: Path of the downloaded model
-## download_model_from_traintuple
-```text
-download_model_from_traintuple(self, tuple_key: str, folder) -> None
-```
-
-Download traintuple model to destination file.
-This model was saved using the 'save_model' function of the algorithm.
-To load and use the model, please refer to the 'load_model' and 'predict' functions of the
-algorithm.
-
-**Arguments:**
- - `tuple_key (str, required)`: Tuple key to download
- - `folder (_type_, required)`: Destination folder
-
-**Returns:**
-
- - `pathlib.Path`: Path of the downloaded model
-## download_trunk_model_from_composite_traintuple
-```text
-download_trunk_model_from_composite_traintuple(self, tuple_key: str, folder) -> None
-```
-
-Download composite traintuple trunk model to destination file.
-This model was saved using the 'save_model' function of the algorithm.
-To load and use the model, please refer to the 'load_model' and 'predict' functions of the
-algorithm.
-
-**Arguments:**
- - `tuple_key (str, required)`: Tuple key to download
- - `folder (_type_, required)`: Destination folder
+ - `task_key (str, required)`: Task key to download
+ - `identifier (str, required)`: output identifier
+ - `folder (os.PathLike, required)`: Destination folder
 
 **Returns:**
 
  - `pathlib.Path`: Path of the downloaded model
 ## from_config_file
 ```text
-from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Optional[str] = None, retry_timeout: int = 300, backend_type: substra.sdk.schemas.BackendType = <BackendType.REMOTE: 'remote'>)
+from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Union[str, NoneType] = None, retry_timeout: int = 300, backend_type: substra.sdk.schemas.BackendType = <BackendType.REMOTE: 'remote'>)
 ```
 
 Returns a new Client configured with profile data from configuration files.
@@ -419,13 +305,6 @@ locally).
 **Returns:**
 
  - `Client`: The new client.
-## get_aggregatetuple
-```text
-get_aggregatetuple(self, key: str) -> substra.sdk.models.Aggregatetuple
-```
-
-Get aggregatetuple by key, the returned object is described
-in the [models.Aggregatetuple](sdk_models.md#Aggregatetuple) model
 ## get_algo
 ```text
 get_algo(self, key: str) -> substra.sdk.models.Algo
@@ -433,13 +312,6 @@ get_algo(self, key: str) -> substra.sdk.models.Algo
 
 Get algo by key, the returned object is described
 in the [models.Algo](sdk_models.md#Algo) model
-## get_composite_traintuple
-```text
-get_composite_traintuple(self, key: str) -> substra.sdk.models.CompositeTraintuple
-```
-
-Get composite traintuple by key, the returned object is described
-in the [models.CompositeTraintuple](sdk_models.md#CompositeTraintuple) model
 ## get_compute_plan
 ```text
 get_compute_plan(self, key: str) -> substra.sdk.models.ComputePlan
@@ -493,71 +365,19 @@ perf = client.get_performances(cp_key)
 df = pd.DataFrame(perf.dict())
 print(df)
 ```
-## get_predicttuple
+## get_task
 ```text
-get_predicttuple(self, key: str) -> substra.sdk.models.Predicttuple
+get_task(self, key: str) -> substra.sdk.models.Task
 ```
 
-Get predicttuple by key, the returned object is described
-in the [models.Predicttuple](sdk_models.md#Predicttuple) model
-## get_testtuple
-```text
-get_testtuple(self, key: str) -> substra.sdk.models.Testtuple
-```
-
-Get testtuple by key, the returned object is described
-in the [models.Testtuple](sdk_models.md#Testtuple) model
-## get_traintuple
-```text
-get_traintuple(self, key: str) -> substra.sdk.models.Traintuple
-```
-
-Get traintuple by key, the returned object is described
-in the [models.Traintuple](sdk_models.md#Traintuple) model
+Get task by key, the returned object is described
+in the [models.Task](sdk_models.md#Task) model
 ## link_dataset_with_data_samples
 ```text
 link_dataset_with_data_samples(self, dataset_key: str, data_sample_keys: str) -> List[str]
 ```
 
 Link dataset with data samples.
-## list_aggregatetuple
-```text
-list_aggregatetuple(self, filters: dict = None, order_by: str = 'creation_date', ascending: bool = False) -> List[substra.sdk.models.Aggregatetuple]
-```
-
-List aggregatetuples.
-The ``filters`` argument is a dictionary, with those possible keys:
-
-    key (List[str]): list aggregatetuples with listed keys.
-
-    owner (List[str]): list aggregatetuples with listed owners.
-
-    worker (List[str]): list aggregatetuples which ran on listed workers. Remote mode only.
-
-    rank (List[int]): list aggregatetuples which are at given ranks.
-
-    status (List[str]): list aggregatetuples with given status.
-        The possible values are the values of `substra.models.Status`
-    metadata (dict)
-        {
-            "key": str # the key of the metadata to filter on
-            "type": "is", "contains" or "exists" # the type of query that will be used
-            "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-        }: list aggregatetuples matching provided conditions in metadata. Remote mode only.
-    compute_plan_key (str): list aggregatetuples that are in the given compute plan. Remote mode only.
-    algo_key (str): list aggregatetuples that used the given algo. Remote mode only.
-    dataset_key (str): list aggregatetuples linked or using this dataset. Remote mode only.
-    data_sample_key (List[str]): list aggregatetuples linked or that used this data sample(s). Remote mode only.
-
-**Arguments:**
- - `filters (dict, optional)`: List of key values pair to filter on. Default None.
- - `order_by (str, optional)`: Field to sort results by.
-Possible values: `creation_date`, `start_date`, `end_date`. Default creation_date.
- - `ascending (bool, optional)`: Sorts results on order_by by ascending order. Default False (descending order).
-
-**Returns:**
-
- - `models.Aggregatetuple`: the returned object is described
 ## list_algo
 ```text
 list_algo(self, filters: dict = None, ascending: bool = False) -> List[substra.sdk.models.Algo]
@@ -591,45 +411,6 @@ The ``filters`` argument is a dictionary, with those possible keys:
 **Returns:**
 
  - `models.Algo`: the returned object is described in the [models.Algo](sdk_models.md#Algo) model
-## list_composite_traintuple
-```text
-list_composite_traintuple(self, filters: dict = None, order_by: str = 'creation_date', ascending: bool = False) -> List[substra.sdk.models.CompositeTraintuple]
-```
-
-List composite traintuples.
-The ``filters`` argument is a dictionary, with those possible keys:
-
-    key (List[str]): list composite traintuples with listed keys.
-
-    owner (List[str]): list composite traintuples with listed owners.
-
-    worker (List[str]): list composite traintuples which ran on listed workers. Remote mode only.
-
-    rank (List[int]): list composite traintuples which are at given ranks.
-
-    status (List[str]): list composite traintuples with given status.
-        The possible values are the values of `substra.models.Status`
-    metadata (dict)
-        {
-            "key": str # the key of the metadata to filter on
-            "type": "is", "contains" or "exists" # the type of query that will be used
-            "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-        }: list composite traintuples matching provided conditions in metadata. Remote mode only.
-    compute_plan_key (str): list composite traintuples that are in the given compute plan. Remote mode only.
-    algo_key (str): list composite traintuples that used the given algo. Remote mode only.
-    dataset_key (str): list composite traintuples linked or using this dataset. Remote mode only.
-    data_sample_key (List[str]): list composite traintuples linked or that used this data sample(s).
-        Remote mode only.
-
-**Arguments:**
- - `filters (dict, optional)`: List of key values pair to filter on. Default None.
- - `order_by (str, optional)`: Field to sort results by.
-Possible values: `creation_date`, `start_date`, `end_date`. Default creation_date.
- - `ascending (bool, optional)`: Sorts results on order_by by ascending order. Default False (descending order).
-
-**Returns:**
-
- - `models.CompositeTraintuple`: the returned object is described
 ## list_compute_plan
 ```text
 list_compute_plan(self, filters: dict = None, order_by: str = 'creation_date', ascending: bool = False) -> List[substra.sdk.models.ComputePlan]
@@ -751,34 +532,32 @@ list_organization(self, *args, **kwargs) -> List[substra.sdk.models.Organization
 
 List organizations, the returned object is described
 in the [models.Organization](sdk_models.md#Organization) model
-## list_predicttuple
+## list_task
 ```text
-list_predicttuple(self, filters: dict = None, order_by: str = 'creation_date', ascending: bool = False) -> List[substra.sdk.models.Predicttuple]
+list_task(self, filters: dict = None, order_by: str = 'creation_date', ascending: bool = False) -> List[substra.sdk.models.Task]
 ```
 
-List predicttuples.
+List tasks.
 The ``filters`` argument is a dictionary, with those possible keys:
 
-    key (List[str]): list predicttuples with listed keys.
+    key (List[str]): list tasks with listed keys.
 
-    owner (List[str]): list predicttuples with listed owners.
+    owner (List[str]): list tasks with listed owners.
 
-    worker (List[str]): list predicttuples which ran on listed workers. Remote mode only.
+    worker (List[str]): list tasks which ran on listed workers. Remote mode only.
 
-    rank (List[int]): list predicttuples which are at given ranks.
+    rank (List[int]): list tasks which are at given ranks.
 
-    status (List[str]): list predicttuples with given status.
+    status (List[str]): list tasks with given status.
         The possible values are the values of `substra.models.Status`
     metadata (dict)
         {
             "key": str # the key of the metadata to filter on
             "type": "is", "contains" or "exists" # the type of query that will be used
             "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-        }: list predicttuples matching provided conditions in metadata. Remote mode only.
-    compute_plan_key (str): list predicttuples that are in the given compute plan. Remote mode only.
-    algo_key (str): list predicttuples that used the given algo. Remote mode only.
-    dataset_key (str): list predicttuples linked or using this dataset. Remote mode only.
-    data_sample_key (List[str]): list predicttuples linked or that used this data sample(s). Remote mode only.
+        }: list tasks matching provided conditions in metadata. Remote mode only.
+    compute_plan_key (str): list tasks that are in the given compute plan. Remote mode only.
+    algo_key (str): list tasks that used the given algo. Remote mode only.
 
 **Arguments:**
  - `filters (dict, optional)`: List of key values pair to filter on. Default None.
@@ -788,84 +567,8 @@ Possible values: `creation_date`, `start_date`, `end_date`. Default creation_dat
 
 **Returns:**
 
- - `models.Predicttuple`: the returned object is described in the
-[models.Predicttuple](sdk_models.md#Predicttuple) model
-## list_testtuple
-```text
-list_testtuple(self, filters: dict = None, order_by: str = 'creation_date', ascending: bool = False) -> List[substra.sdk.models.Testtuple]
-```
-
-List testtuples.
-The ``filters`` argument is a dictionary, with those possible keys:
-
-    key (List[str]): list testtuples with listed keys.
-
-    owner (List[str]): list testtuples with listed owners.
-
-    worker (List[str]): list testtuples which ran on listed workers. Remote mode only.
-
-    rank (List[int]): list testtuples which are at given ranks.
-
-    status (List[str]): list testtuples with given status.
-        The possible values are the values of `substra.models.Status`
-    metadata (dict)
-        {
-            "key": str # the key of the metadata to filter on
-            "type": "is", "contains" or "exists" # the type of query that will be used
-            "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-        }: list testtuples matching provided conditions in metadata. Remote mode only.
-    compute_plan_key (str): list testtuples that are in the given compute plan. Remote mode only.
-    algo_key (str): list testtuples that used the given algo. Remote mode only.
-    dataset_key (str): list testtuples linked or using this dataset. Remote mode only.
-    data_sample_key (List[str]): list testtuples linked or that used this data sample(s). Remote mode only.
-
-**Arguments:**
- - `filters (dict, optional)`: List of key values pair to filter on. Default None.
- - `order_by (str, optional)`: Field to sort results by.
-Possible values: `creation_date`, `start_date`, `end_date`. Default creation_date.
- - `ascending (bool, optional)`: Sorts results on order_by by ascending order. Default False (descending order).
-
-**Returns:**
-
- - `models.Testtuple`: the returned object is described
-## list_traintuple
-```text
-list_traintuple(self, filters: dict = None, order_by: str = 'creation_date', ascending: bool = False) -> List[substra.sdk.models.Traintuple]
-```
-
-List traintuples.
-The ``filters`` argument is a dictionary, with those possible keys:
-
-    key (List[str]): list traintuples with listed keys.
-
-    owner (List[str]): list traintuples with listed owners.
-
-    worker (List[str]): list traintuples which ran on listed workers. Remote mode only.
-
-    rank (List[int]): list traintuples which are at given ranks.
-
-    status (List[str]): list traintuples with given status.
-        The possible values are the values of `substra.models.Status`
-    metadata (dict)
-        {
-            "key": str # the key of the metadata to filter on
-            "type": "is", "contains" or "exists" # the type of query that will be used
-            "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-        }: list traintuples matching provided conditions in metadata. Remote mode only.
-    compute_plan_key (str): list traintuples that are in the given compute plan. Remote mode only.
-    algo_key (str): list traintuples that used the given algo. Remote mode only.
-    dataset_key (str): list traintuples linked or using this dataset. Remote mode only.
-    data_sample_key (List[str]): list traintuples linked or that used this data sample(s). Remote mode only.
-
-**Arguments:**
- - `filters (dict, optional)`: List of key values pair to filter on. Default None.
- - `order_by (str, optional)`: Field to sort results by.
-Possible values: `creation_date`, `start_date`, `end_date`. Default creation_date.
- - `ascending (bool, optional)`: Sorts results on order_by by ascending order. Default False (descending order).
-
-**Returns:**
-
- - `models.Traintuple`: the returned object is described
+ - `models.Task`: the returned object is described in the
+[models.Task](sdk_models.md#Task) model
 ## login
 ```text
 login(self, username, password)

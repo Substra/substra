@@ -7,16 +7,84 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- BREAKING CHANGE: replace the tasks `traintuple`, `aggregatetuple`, `predicttuple`, `testtuple`, `composite_traintuple` with a single `task` (#299)
+
+```python
+task_key = client.add_task(
+    substra.schemas.TaskSpec(
+        algo_key=algo_key,
+        worker=client.organization_info().organization_id,  # org on which the task is executed
+        inputs=[
+            {
+                'identifier': 'datasamples',
+                'asset_key': datasample_key
+            },
+            {
+                'identifier': 'opener',
+                'asset_key': dataset_key
+            }
+        ],
+        outputs= {
+            'example_output': {
+                'permissions': {
+                    'public': False,
+                    'authorized_ids': ['org1'],
+                },
+                'is_transient': True,
+            }
+        }
+    )
+)
+
+task = client.get_task(task_key)
+tasks = client.list_task()
+
+# Compute plan changes
+compute_plan = client.add_compute_plan(
+    substra.schemas.ComputePlanSpec(
+        name = 'my compute plan',
+        tasks = [
+            schemas.ComputePlanTaskSpec(
+                task_id=uuid.uuid4(),
+                algo_key=algo_key,
+                worker=client.organization_info().organization_id,  # org on which the task is executed
+                inputs=[
+                    {
+                        'identifier': 'datasamples',
+                        'asset_key': datasample_key
+                    },
+                    {
+                        'identifier': 'opener',
+                        'asset_key': dataset_key
+                    }
+                ],
+                outputs= {
+                    'example_output': {
+                        'permissions': {
+                            'public': False,
+                            'authorized_ids': ['org1'],
+                        },
+                        'is_transient': True,
+                    }
+                }
+            )
+        ]
+    )
+)
+```
+
 ### Fixed
 
 - link_dataset_with_data_samples return value in remote mode
+- Fix the compute plan rank calculation in local mode (#299)
 
 ## [0.39.0](https://github.com/Substra/substra/releases/tag/0.39.0) - 2022-10-03
 
 ### Removed
 
 - BREAKING CHANGE: remove category from substra.schema.AlgoSpec and substra.models.Algo
-
 ### Added
 
 - Prevent use of `__` in asset metadata keys in local mode

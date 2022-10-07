@@ -14,7 +14,6 @@ from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Type
-from typing import Union
 
 from substra.sdk import exceptions
 from substra.sdk import fs
@@ -134,16 +133,7 @@ class Worker:
         return command_template
 
     def _prepare_artifact_input(self, task_input, input_volume, multiple):
-        in_task, _ = self._get_asset_unknown_type(
-            asset_key=task_input.parent_task_key,
-            possible_types=[
-                schemas.Type.Aggregatetuple,
-                schemas.Type.CompositeTraintuple,
-                schemas.Type.Predicttuple,
-                schemas.Type.Testtuple,
-                schemas.Type.Traintuple,
-            ],
-        )
+        in_task = self._db.get(schemas.Type.Task, task_input.parent_task_key)
         input_artifact = in_task.outputs[task_input.parent_task_output_identifier].value
         assert isinstance(
             input_artifact, models.OutModel
@@ -203,22 +193,6 @@ class Worker:
 
         return command_template, datasample_task_resources, data_sample_paths
 
-    def _update_deprecated_fields(self, task, value: Union[float, models.OutModel], algo_key: str):
-        if isinstance(task, models.Aggregatetuple):
-            task.aggregate.models = [value]
-        elif isinstance(task, models.CompositeTraintuple):
-            if task.composite.models is None:
-                task.composite.models = list()
-            task.composite.models.append(value)
-        elif isinstance(task, models.Predicttuple):
-            task.predict.models = [value]
-        elif isinstance(task, models.Testtuple):
-            task.test.perfs[algo_key] = value
-        elif isinstance(task, models.Traintuple):
-            task.train.models = [value]
-        else:
-            raise ValueError(f"Unsupported type of task {type(task)}")
-
     def _save_output(
         self,
         task,
@@ -259,10 +233,9 @@ class Worker:
         else:
             raise ValueError(f"This asset kind is not supported for algo output: {algo_output.kind}")
 
-        self._update_deprecated_fields(task=task, value=value, algo_key=algo_key)
         return update_live_performances
 
-    def schedule_task(self, task: models._GenericTraintuple):
+    def schedule_task(self, task: models.Task):
         """Execute the task
 
         Args:

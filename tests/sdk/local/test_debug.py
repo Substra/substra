@@ -9,9 +9,10 @@ from substra.sdk import models
 from substra.sdk.exceptions import InvalidRequest
 from substra.sdk.exceptions import KeyAlreadyExistsError
 
+from ...fl_interface import AlgoCategory
 from ...fl_interface import FLTaskInputGenerator
 from ...fl_interface import FLTaskOutputGenerator
-from ...fl_interface import AlgoCategory
+from ...fl_interface import InputIdentifiers
 
 
 def test_wrong_debug_spawner():
@@ -57,14 +58,15 @@ class TestsDebug:
         algo_key = client.add_algo(algo_query)
 
         cp = asset_factory.create_compute_plan()
-        cp.traintuples = [
-            substra.sdk.schemas.ComputePlanTraintupleSpec(
+        cp.tasks = [
+            substra.sdk.schemas.ComputePlanTaskSpec(
                 algo_key=algo_key,
                 data_manager_key=dataset_1_key,
-                traintuple_id=str(uuid.uuid4()),
+                task_id=str(uuid.uuid4()),
                 train_data_sample_keys=[sample_1_key],
                 inputs=FLTaskInputGenerator.tuple(opener_key=dataset_1_key, data_sample_keys=[sample_1_key]),
                 outputs=FLTaskOutputGenerator.traintuple(),
+                worker=client.organization_info().organization_id,
             ),
         ]
         with pytest.raises((substra.sdk.backends.local.compute.spawner.base.ExecutionError, docker.errors.APIError)):
@@ -93,29 +95,25 @@ class TestsDebug:
         algo_query = asset_factory.create_algo(AlgoCategory.simple)
         algo_key = client.add_algo(algo_query)
 
-        traintuple_key = client.add_traintuple(
-            substra.sdk.schemas.TraintupleSpec(
+        traintuple_key = client.add_task(
+            substra.sdk.schemas.TaskSpec(
                 algo_key=algo_key,
-                data_manager_key=dataset_key,
-                train_data_sample_keys=[data_sample_key],
-                in_models_keys=None,
                 compute_plan_key=compute_plan.key,
                 rank=None,
                 metadata=None,
                 inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[data_sample_key]),
                 outputs=FLTaskOutputGenerator.traintuple(),
+                worker=client.organization_info().organization_id,
             )
         )
 
-        traintuple = substra.sdk.schemas.ComputePlanTraintupleSpec(
+        traintuple = substra.sdk.schemas.ComputePlanTaskSpec(
             algo_key=algo_key,
-            data_manager_key=dataset_key,
-            train_data_sample_keys=[data_sample_key],
-            in_models_ids=[traintuple_key],
-            traintuple_id=str(uuid.uuid4()),
+            task_id=str(uuid.uuid4()),
             inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[data_sample_key])
             + FLTaskInputGenerator.trains_to_train([traintuple_key]),
             outputs=FLTaskOutputGenerator.traintuple(),
+            worker=client.organization_info().organization_id,
         )
 
         compute_plan = client.add_compute_plan_tuples(
@@ -173,134 +171,89 @@ class TestsDebug:
 
         # test traintuple extra field
 
-        traintuple_key = client.add_traintuple(
-            substra.sdk.schemas.TraintupleSpec(
+        traintuple_key = client.add_task(
+            substra.sdk.schemas.TaskSpec(
                 algo_key=algo_key,
-                data_manager_key=dataset_key,
-                train_data_sample_keys=[data_sample_key],
                 inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[data_sample_key]),
                 outputs=FLTaskOutputGenerator.traintuple(),
+                worker=client.organization_info().organization_id,
             )
         )
 
-        traintuple = client.get_traintuple(traintuple_key)
-        assert traintuple.train.data_manager
-        assert traintuple.train.data_manager.key == dataset_key
-        assert traintuple.parent_tasks == []
+        traintuple = client.get_task(traintuple_key)
+        dataset_ref = [x for x in traintuple.inputs if x.identifier == substra.sdk.schemas.StaticInputIdentifier.opener]
+        assert len(dataset_ref) == 1
+        assert dataset_ref[0].asset_key == dataset_key
+        assert len(traintuple.inputs) == 2  # data sample + opener
 
         # test predicttuple extra fields
-        predicttuple_key = client.add_predicttuple(
-            substra.sdk.schemas.PredicttupleSpec(
-                traintuple_key=traintuple_key,
+        predicttuple_key = client.add_task(
+            substra.sdk.schemas.TaskSpec(
                 algo_key=predict_algo_key,
-                data_manager_key=dataset_key,
-                test_data_sample_keys=[data_sample_key],
                 inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[data_sample_key])
                 + FLTaskInputGenerator.train_to_predict(traintuple_key),
                 outputs=FLTaskOutputGenerator.predicttuple(),
+                worker=client.organization_info().organization_id,
             )
         )
 
-        predicttuple = client.get_predicttuple(predicttuple_key)
-        assert predicttuple.predict.data_manager
-        assert predicttuple.predict.data_manager.key == dataset_key
-        assert [p.key for p in predicttuple.parent_tasks] == [traintuple_key]
+        predicttuple = client.get_task(predicttuple_key)
+        dataset_ref = [
+            x for x in predicttuple.inputs if x.identifier == substra.sdk.schemas.StaticInputIdentifier.opener
+        ]
+        assert len(dataset_ref) == 1
+        assert dataset_ref[0].asset_key == dataset_key
+
+        assert len(predicttuple.inputs) == 3  # data sample + opener + input task
+
+        model_ref = [x for x in predicttuple.inputs if x.identifier == InputIdentifiers.model]
+        assert len(model_ref) == 1
+        assert model_ref[0].parent_task_key == traintuple_key
 
         # test testtuple extra fields
-
-        testtuple_key = client.add_testtuple(
-            substra.sdk.schemas.TesttupleSpec(
-                predicttuple_key=predicttuple_key,
-                data_manager_key=dataset_key,
-                test_data_sample_keys=[data_sample_key],
+        testtuple_key = client.add_task(
+            substra.sdk.schemas.TaskSpec(
                 algo_key=metric_key,
                 inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[data_sample_key])
                 + FLTaskInputGenerator.predict_to_test(predicttuple_key),
                 outputs=FLTaskOutputGenerator.testtuple(),
+                worker=client.organization_info().organization_id,
             )
         )
-        testtuple = client.get_testtuple(testtuple_key)
-        assert testtuple.test.data_manager
-        assert testtuple.test.data_manager.key == dataset_key
+        testtuple = client.get_task(testtuple_key)
+
+        dataset_ref = [
+            x for x in predicttuple.inputs if x.identifier == substra.sdk.schemas.StaticInputIdentifier.opener
+        ]
+        assert len(dataset_ref) == 1
+        assert dataset_ref[0].asset_key == dataset_key
+        assert len(predicttuple.inputs) == 3  # data sample + opener + input task
+
+        model_ref = [x for x in testtuple.inputs if x.identifier == InputIdentifiers.predictions]
+        assert len(model_ref) == 1
+        assert model_ref[0].parent_task_key == predicttuple_key
+
         assert testtuple.algo
         assert testtuple.algo.key == metric_key
-        assert [t.key for t in testtuple.parent_tasks] == [predicttuple_key]
 
         # test composite extra field
 
-        composite_traintuple_key = client.add_composite_traintuple(
-            substra.sdk.schemas.CompositeTraintupleSpec(
+        composite_traintuple_key = client.add_task(
+            substra.sdk.schemas.TaskSpec(
                 algo_key=composite_algo_key,
-                data_manager_key=dataset_key,
-                train_data_sample_keys=[data_sample_key],
                 inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[data_sample_key]),
                 outputs=FLTaskOutputGenerator.composite_traintuple(),
+                worker=client.organization_info().organization_id,
             )
         )
 
-        composite_traintuple = client.get_composite_traintuple(composite_traintuple_key)
-        assert composite_traintuple.composite.data_manager
-        assert composite_traintuple.composite.data_manager.key == dataset_key
-        assert composite_traintuple.parent_tasks == []
-
-    def test_traintuple_with_test_data_sample(self, asset_factory, clients):
-        """Check that we can't use test data samples for traintuples"""
-        client = clients[0]
-
-        dataset_query = asset_factory.create_dataset()
-        dataset_1_key = client.add_dataset(dataset_query)
-
-        data_sample_1 = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=False)
-        sample_1_key = client.add_data_sample(data_sample_1)
-
-        data_sample_2 = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=True)
-        sample_2_key = client.add_data_sample(data_sample_2)
-
-        algo_query = asset_factory.create_algo(AlgoCategory.simple)
-        algo_key = client.add_algo(algo_query)
-
-        with pytest.raises(InvalidRequest) as e:
-            client.add_traintuple(
-                substra.sdk.schemas.TraintupleSpec(
-                    algo_key=algo_key,
-                    traintuple_id=str(uuid.uuid4()),
-                    data_manager_key=dataset_1_key,
-                    train_data_sample_keys=[sample_1_key, sample_2_key],
-                    inputs=FLTaskInputGenerator.tuple(
-                        opener_key=dataset_1_key, data_sample_keys=[sample_1_key, sample_2_key]
-                    ),
-                    outputs=FLTaskOutputGenerator.traintuple(),
-                )
-            )
-
-        assert "Cannot create train task with test data" in str(e.value)
-
-    def test_composite_traintuple_with_test_data_sample(self, asset_factory, clients):
-        """Check that we can't use test data samples for composite_traintuples"""
-        client = clients[0]
-
-        dataset_query = asset_factory.create_dataset()
-        dataset_1_key = client.add_dataset(dataset_query)
-
-        data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=True)
-        sample_1_key = client.add_data_sample(data_sample)
-
-        composite_algo_query = asset_factory.create_algo(AlgoCategory.composite)
-        composite_algo_key = client.add_algo(composite_algo_query)
-
-        with pytest.raises(InvalidRequest) as e:
-            client.add_composite_traintuple(
-                substra.sdk.schemas.CompositeTraintupleSpec(
-                    algo_key=composite_algo_key,
-                    traintuple_id=str(uuid.uuid4()),
-                    data_manager_key=dataset_1_key,
-                    train_data_sample_keys=[sample_1_key],
-                    inputs=FLTaskInputGenerator.tuple(opener_key=dataset_1_key, data_sample_keys=[sample_1_key]),
-                    outputs=FLTaskOutputGenerator.composite_traintuple(),
-                )
-            )
-
-        assert "Cannot create train task with test data" in str(e.value)
+        composite_traintuple = client.get_task(composite_traintuple_key)
+        dataset_ref = [
+            x for x in composite_traintuple.inputs if x.identifier == substra.sdk.schemas.StaticInputIdentifier.opener
+        ]
+        assert len(dataset_ref) == 1
+        assert dataset_ref[0].asset_key == dataset_key
+        assert len(composite_traintuple.inputs) == 2  # data sample + opener
 
     def test_add_two_compute_plan_with_same_cp_key(self, clients):
         client = clients[0]
@@ -357,39 +310,34 @@ class TestsDebug:
 
         cp = asset_factory.create_compute_plan()
 
-        traintuple = substra.sdk.schemas.ComputePlanTraintupleSpec(
+        traintuple = substra.sdk.schemas.ComputePlanTaskSpec(
             algo_key=algo_key,
-            traintuple_id=str(uuid.uuid4()),
-            data_manager_key=dataset_key,
-            train_data_sample_keys=[sample_key],
+            task_id=str(uuid.uuid4()),
             inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[sample_key]),
             outputs=FLTaskOutputGenerator.traintuple(),
+            worker=client.organization_info().organization_id,
         )
 
-        predicttuple = substra.sdk.schemas.ComputePlanPredicttupleSpec(
+        predicttuple = substra.sdk.schemas.ComputePlanTaskSpec(
             algo_key=predict_algo_key,
-            data_manager_key=dataset_key,
-            predicttuple_id=str(uuid.uuid4()),
-            traintuple_id=traintuple.traintuple_id,
-            test_data_sample_keys=[sample_key],
+            task_id=str(uuid.uuid4()),
             inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[sample_key])
-            + FLTaskInputGenerator.train_to_predict(traintuple.traintuple_id),
+            + FLTaskInputGenerator.train_to_predict(traintuple.task_id),
             outputs=FLTaskOutputGenerator.predicttuple(),
+            worker=client.organization_info().organization_id,
         )
 
-        cp.testtuples = [
-            substra.sdk.schemas.ComputePlanTesttupleSpec(
+        testtuples = [
+            substra.sdk.schemas.ComputePlanTaskSpec(
+                task_id=str(uuid.uuid4()),
                 algo_key=metric_key,
-                predicttuple_id=predicttuple.predicttuple_id,
-                data_manager_key=dataset_key,
-                test_data_sample_keys=[sample_key],
                 inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[sample_key])
-                + FLTaskInputGenerator.predict_to_test(predicttuple.predicttuple_id),
+                + FLTaskInputGenerator.predict_to_test(predicttuple.task_id),
                 outputs=FLTaskOutputGenerator.testtuple(),
+                worker=client.organization_info().organization_id,
             )
         ]
-        cp.traintuples = [traintuple]
-        cp.predicttuples = [predicttuple]
+        cp.tasks = [traintuple, predicttuple] + testtuples
 
         client.add_compute_plan(cp)
 
@@ -518,46 +466,41 @@ def test_execute_compute_plan_several_testtuples_per_train(asset_factory, subpro
 
     cp = asset_factory.create_compute_plan()
 
-    traintuple = substra.sdk.schemas.ComputePlanTraintupleSpec(
+    traintuple = substra.sdk.schemas.ComputePlanTaskSpec(
         algo_key=algo_key,
-        traintuple_id=str(uuid.uuid4()),
-        data_manager_key=dataset_key,
-        train_data_sample_keys=[sample_1_key],
+        task_id=str(uuid.uuid4()),
         inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[sample_1_key]),
         outputs=FLTaskOutputGenerator.traintuple(),
+        worker=client.organization_info().organization_id,
     )
 
-    predicttuple = substra.sdk.schemas.ComputePlanPredicttupleSpec(
+    predicttuple = substra.sdk.schemas.ComputePlanTaskSpec(
         algo_key=predict_algo_key,
-        data_manager_key=dataset_key,
-        traintuple_id=traintuple.traintuple_id,
-        predicttuple_id=str(uuid.uuid4()),
-        test_data_sample_keys=[sample_1_key],
+        task_id=str(uuid.uuid4()),
         inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[sample_1_key])
-        + FLTaskInputGenerator.train_to_predict(traintuple.traintuple_id),
+        + FLTaskInputGenerator.train_to_predict(traintuple.task_id),
         outputs=FLTaskOutputGenerator.predicttuple(),
+        worker=client.organization_info().organization_id,
     )
 
-    cp.testtuples = [
-        substra.sdk.schemas.ComputePlanTesttupleSpec(
+    testtuples = [
+        substra.sdk.schemas.ComputePlanTaskSpec(
+            task_id=str(uuid.uuid4()),
             algo_key=metric_key,
-            predicttuple_id=predicttuple.predicttuple_id,
-            data_manager_key=dataset_key,
-            test_data_sample_keys=[sample_1_key],
             inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[sample_1_key])
-            + FLTaskInputGenerator.predict_to_test(predicttuple.predicttuple_id),
+            + FLTaskInputGenerator.predict_to_test(predicttuple.task_id),
             outputs=FLTaskOutputGenerator.testtuple(),
+            worker=client.organization_info().organization_id,
         )
         for _ in range(2)
     ]
-    cp.traintuples = [traintuple]
-    cp.predicttuples = [predicttuple]
+    cp.tasks = [traintuple, predicttuple] + testtuples
 
     compute_plan = client.add_compute_plan(cp)
     assert compute_plan.done_count == 4
 
-    testtuples = client.list_testtuple(filters={"compute_plan_key": [compute_plan.key]})
-    assert len(testtuples) == 2
+    tasks = client.list_task(filters={"compute_plan_key": [compute_plan.key]})
+    assert len(tasks) == 4
 
 
 def test_two_composite_to_composite(asset_factory, subprocess_clients):
@@ -583,72 +526,90 @@ def test_two_composite_to_composite(asset_factory, subprocess_clients):
     authorized_ids = ["MyOrg1", "MyOrg2"]
 
     composite_1_key = str(uuid.uuid4())
-    composite_1 = substra.sdk.schemas.ComputePlanCompositeTraintupleSpec(
+    composite_1 = substra.sdk.schemas.ComputePlanTaskSpec(
         algo_key=algo_key,
-        composite_traintuple_id=composite_1_key,
-        data_manager_key=dataset_key,
-        train_data_sample_keys=[sample_1_key],
+        task_id=composite_1_key,
         inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[sample_1_key]),
         outputs=FLTaskOutputGenerator.composite_traintuple(
             shared_authorized_ids=authorized_ids, local_authorized_ids=authorized_ids
         ),
+        worker=client.organization_info().organization_id,
     )
     composite_2_key = str(uuid.uuid4())
-    composite_2 = substra.sdk.schemas.ComputePlanCompositeTraintupleSpec(
+    composite_2 = substra.sdk.schemas.ComputePlanTaskSpec(
         algo_key=algo_key,
-        data_manager_key=dataset_key,
-        composite_traintuple_id=composite_2_key,
-        train_data_sample_keys=[sample_1_key],
+        task_id=composite_2_key,
         inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[sample_1_key]),
         outputs=FLTaskOutputGenerator.composite_traintuple(
             shared_authorized_ids=authorized_ids, local_authorized_ids=authorized_ids
         ),
+        worker=client.organization_info().organization_id,
     )
 
     composite_3_key = str(uuid.uuid4())
-    composite_3 = substra.sdk.schemas.ComputePlanCompositeTraintupleSpec(
+    composite_3 = substra.sdk.schemas.ComputePlanTaskSpec(
         algo_key=algo_key,
-        data_manager_key=dataset_key,
-        composite_traintuple_id=composite_3_key,
-        train_data_sample_keys=[sample_1_key],
-        in_head_model_id=composite_1_key,
-        in_trunk_model_id=composite_2_key,
+        task_id=composite_3_key,
         inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[sample_1_key])
         + FLTaskInputGenerator.composite_to_composite(composite_1_key, composite_2_key),
         outputs=FLTaskOutputGenerator.composite_traintuple(
             shared_authorized_ids=authorized_ids, local_authorized_ids=authorized_ids
         ),
+        worker=client.organization_info().organization_id,
     )
 
     predicttuple_key = str(uuid.uuid4())
-    predicttuple = substra.sdk.schemas.ComputePlanPredicttupleSpec(
+    predicttuple = substra.sdk.schemas.ComputePlanTaskSpec(
         algo_key=predict_algo_key,
-        data_manager_key=dataset_key,
-        traintuple_id=composite_3_key,
-        predicttuple_id=predicttuple_key,
-        test_data_sample_keys=[sample_1_key],
+        task_id=predicttuple_key,
         inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[sample_1_key])
         + FLTaskInputGenerator.composite_to_predict(composite_3_key),
         outputs=FLTaskOutputGenerator.predicttuple(authorized_ids),
+        worker=client.organization_info().organization_id,
     )
 
-    testtuple = substra.sdk.schemas.ComputePlanTesttupleSpec(
+    testtuple = substra.sdk.schemas.ComputePlanTaskSpec(
         algo_key=metric_key,
-        predicttuple_id=predicttuple_key,
-        data_manager_key=dataset_key,
-        test_data_sample_keys=[sample_1_key],
+        task_id=str(uuid.uuid4()),
         inputs=FLTaskInputGenerator.tuple(opener_key=dataset_key, data_sample_keys=[sample_1_key])
         + FLTaskInputGenerator.predict_to_test(predicttuple_key),
         outputs=FLTaskOutputGenerator.testtuple(authorized_ids),
+        worker=client.organization_info().organization_id,
     )
 
-    cp.composite_traintuples = [composite_1, composite_2, composite_3]
-    cp.predicttuples = [predicttuple]
-    cp.testtuples = [testtuple]
+    cp.tasks = [composite_1, composite_2, composite_3, predicttuple, testtuple]
 
     compute_plan = client.add_compute_plan(cp)
     assert compute_plan.done_count == 5
     assert client.get_performances(compute_plan.key).performance[0] == 32
+
+
+def test_task_different_owner_dataset(asset_factory, clients):
+    client = clients[0]
+
+    # set dataset, metric and algo
+    dataset_query = asset_factory.create_dataset()
+    dataset_key = client.add_dataset(dataset_query)
+
+    data_sample = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
+    data_sample_key = client.add_data_sample(data_sample)
+
+    algo_query = asset_factory.create_algo(AlgoCategory.simple)
+    algo_key = client.add_algo(algo_query)
+
+    with pytest.raises(substra.sdk.exceptions.InvalidRequest) as err:
+        client.add_task(
+            substra.sdk.schemas.TaskSpec(
+                algo_key=algo_key,
+                inputs=[
+                    substra.sdk.schemas.InputRef(identifier=InputIdentifiers.datasamples, asset_key=data_sample_key),
+                    substra.sdk.schemas.InputRef(identifier=InputIdentifiers.opener, asset_key=dataset_key),
+                ],
+                outputs=FLTaskOutputGenerator.traintuple(),
+                worker="bad_worker",
+            )
+        )
+    assert "The task worker must be the organization that contains the data:" in str(err.value)
 
 
 class TestMultipleOrgLocalClient:

@@ -71,16 +71,16 @@ def test_download_content_not_found(asset_type, tmp_path, client, mocker):
 
 
 @pytest.mark.parametrize(
-    "method_name, asset_type",
+    "asset_type, identifier",
     [
-        ("download_model_from_traintuple", "TRAINTUPLE"),
-        ("download_model_from_aggregatetuple", "AGGREGATETUPLE"),
-        ("download_head_model_from_composite_traintuple", "COMPOSITE_TRAINTUPLE"),
-        ("download_trunk_model_from_composite_traintuple", "COMPOSITE_TRAINTUPLE"),
+        ("TRAINTUPLE", "model"),
+        ("AGGREGATETUPLE", "model"),
+        ("COMPOSITE_TRAINTUPLE", "local"),
+        ("COMPOSITE_TRAINTUPLE", "shared"),
     ],
 )
 @patch.object(Client, "download_model")
-def test_download_model_from_tuple(fake_download_model, tmp_path, client, method_name, asset_type, mocker):
+def test_download_model_from_task(fake_download_model, tmp_path, client, asset_type, identifier, mocker):
     item = getattr(datastore, asset_type)
     responses = [
         mock_response(item),  # metadata
@@ -89,8 +89,7 @@ def test_download_model_from_tuple(fake_download_model, tmp_path, client, method
 
     m = mock_requests_responses(mocker, "get", responses)
 
-    method = getattr(client, method_name)
-    method("key", tmp_path)
+    client.download_model_from_task("key", identifier, tmp_path)
 
     m.assert_called
     assert fake_download_model.call_count == 1
