@@ -262,7 +262,7 @@ class Remote(base.BaseBackend):
             kwargs = {
                 "json": data,
             }
-            data = deepcopy(data) 
+            data = deepcopy(data)
             return self._client.request("put", asset_type, key, **kwargs)
 
     def add_compute_plan_tuples(self, spec, spec_options):

@@ -29,7 +29,7 @@ class BaseBackend(abc.ABC):
     @abc.abstractmethod
     def update(self, key, spec, spec_options=None):
         raise NotImplementedError
-    
+
     @abc.abstractmethod
     def archive(self, key, spec, spec_options=None):
         raise NotImplementedError
