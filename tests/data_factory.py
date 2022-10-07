@@ -66,7 +66,7 @@ def _get_predictions(path):
         return json.load(f)
 
 if __name__ == '__main__':
-    tools.execute([score])
+    tools.execute(score)
 """
 
 
@@ -116,7 +116,7 @@ def _save_predictions(y_pred, path):
         return json.dump(y_pred, f)
 
 if __name__ == '__main__':
-    tools.execute([train, predict])
+    tools.execute(train, predict)
 """
 
 DEFAULT_AGGREGATE_ALGO_SCRIPT = f"""
@@ -149,7 +149,7 @@ def _save_predictions(y_pred, path):
         return json.dump(y_pred, f)
 
 if __name__ == '__main__':
-    tools.execute([aggregate, predict])
+    tools.execute(aggregate, predict)
 """
 
 # TODO we should have a different serializer for head and trunk models
@@ -212,7 +212,7 @@ def _save_predictions(y_pred, path):
         return json.dump(y_pred, f)
 
 if __name__ == '__main__':
-    tools.execute([predict, train])
+    tools.execute(predict, train)
 """
 
 
