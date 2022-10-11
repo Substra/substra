@@ -16,7 +16,7 @@ from .fl_interface import OutputIdentifiers
 
 DEFAULT_DATA_SAMPLE_FILENAME = "data.csv"
 
-DEFAULT_SUBSTRATOOLS_VERSION = "class-to-function"  # TODO: change before merge
+DEFAULT_SUBSTRATOOLS_VERSION = "register-decorator"  # TODO: change before merge
 #     f"latest-nvidiacuda11.6.0-base-ubuntu20.04-python{sys.version_info.major}.{sys.version_info.minor}-minimal"
 # )
 
