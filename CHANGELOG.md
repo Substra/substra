@@ -80,11 +80,16 @@ compute_plan = client.add_compute_plan(
 - link_dataset_with_data_samples return value in remote mode
 - Fix the compute plan rank calculation in local mode (#299)
 
+### Changed
+
+- Apply changes from algo to function in substratools (#303)
+
 ## [0.39.0](https://github.com/Substra/substra/releases/tag/0.39.0) - 2022-10-03
 
 ### Removed
 
 - BREAKING CHANGE: remove category from substra.schema.AlgoSpec and substra.models.Algo
+
 ### Added
 
 - Prevent use of `__` in asset metadata keys in local mode

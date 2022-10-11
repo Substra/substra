@@ -16,9 +16,9 @@ from .fl_interface import OutputIdentifiers
 
 DEFAULT_DATA_SAMPLE_FILENAME = "data.csv"
 
-DEFAULT_SUBSTRATOOLS_VERSION = (
-    f"latest-nvidiacuda11.6.0-base-ubuntu20.04-python{sys.version_info.major}.{sys.version_info.minor}-minimal"
-)
+DEFAULT_SUBSTRATOOLS_VERSION = "class-to-function"  # TODO: change before merge
+#     f"latest-nvidiacuda11.6.0-base-ubuntu20.04-python{sys.version_info.major}.{sys.version_info.minor}-minimal"
+# )
 
 DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE = f"ghcr.io/substra/substra-tools:{DEFAULT_SUBSTRATOOLS_VERSION}"
 
@@ -54,168 +54,165 @@ DEFAULT_METRIC_ALGO_SCRIPT = f"""
 import json
 import substratools as tools
 
-class TestMetrics(tools.MetricAlgo):
-    def score(self, inputs, outputs, task_properties):
-        y_true = inputs['{InputIdentifiers.datasamples}'][1]
-        y_pred = self._get_predictions(inputs['{InputIdentifiers.predictions}'])
-        res = sum(y_pred) - sum(y_true)
-        print(f'metrics, y_true: {{y_true}}, y_pred: {{y_pred}}, result: {{res}}')
-        tools.save_performance(res, outputs['{OutputIdentifiers.performance}'])
+def score(inputs, outputs, task_properties):
+    y_true = inputs['{InputIdentifiers.datasamples}'][1]
+    y_pred = _get_predictions(inputs['{InputIdentifiers.predictions}'])
+    res = sum(y_pred) - sum(y_true)
+    print(f'metrics, y_true: {{y_true}}, y_pred: {{y_pred}}, result: {{res}}')
+    tools.save_performance(res, outputs['{OutputIdentifiers.performance}'])
 
-    def _get_predictions(self, path):
-        with open(path) as f:
-            return json.load(f)
+def _get_predictions(path):
+    with open(path) as f:
+        return json.load(f)
 
 if __name__ == '__main__':
-    tools.algo.execute(TestMetrics())
+    tools.execute(score)
 """
 
 
 DEFAULT_ALGO_SCRIPT = f"""
 import json
 import substratools as tools
-class TestAlgo(tools.Algo):
-    def train(self, inputs, outputs, task_properties):
-        X = inputs['{InputIdentifiers.datasamples}'][0]
-        y = inputs['{InputIdentifiers.datasamples}'][1]
-        models_path = inputs.get('{InputIdentifiers.models}', [])
-        models = [self._load_model(model_path) for model_path in models_path]
+def train(inputs, outputs, task_properties):
+    X = inputs['{InputIdentifiers.datasamples}'][0]
+    y = inputs['{InputIdentifiers.datasamples}'][1]
+    models_path = inputs.get('{InputIdentifiers.models}', [])
+    models = [_load_model(model_path) for model_path in models_path]
 
-        print(f'Train, get X: {{X}}, y: {{y}}, models: {{models}}')
+    print(f'Train, get X: {{X}}, y: {{y}}, models: {{models}}')
 
-        ratio = sum(y) / sum(X)
-        err = 0.1 * ratio  # Add a small error
+    ratio = sum(y) / sum(X)
+    err = 0.1 * ratio  # Add a small error
 
-        if len(models) == 0:
-            res = dict(value=ratio + err)
-        else:
-            ratios = [m['value'] for m in models]
-            avg = sum(ratios) / len(ratios)
-            res = dict(value=avg + err)
+    if len(models) == 0:
+        res = dict(value=ratio + err)
+    else:
+        ratios = [m['value'] for m in models]
+        avg = sum(ratios) / len(ratios)
+        res = dict(value=avg + err)
 
-        print(f'Train, return {{res}}')
-        self._save_model(res, outputs['{OutputIdentifiers.model}'])
+    print(f'Train, return {{res}}')
+    _save_model(res, outputs['{OutputIdentifiers.model}'])
 
-    def predict(self, inputs, outputs, task_properties):
-        X = inputs['{InputIdentifiers.datasamples}'][0]
-        model = self._load_model(inputs['{InputIdentifiers.model}'])
+def predict(inputs, outputs, task_properties):
+    X = inputs['{InputIdentifiers.datasamples}'][0]
+    model = _load_model(inputs['{InputIdentifiers.model}'])
 
-        res = [x * model['value'] for x in X]
-        print(f'Predict, get X: {{X}}, model: {{model}}, return {{res}}')
+    res = [x * model['value'] for x in X]
+    print(f'Predict, get X: {{X}}, model: {{model}}, return {{res}}')
 
-        self._save_predictions(res, outputs['{OutputIdentifiers.predictions}'])
+    _save_predictions(res, outputs['{OutputIdentifiers.predictions}'])
 
-    def _load_model(self, path):
-        with open(path) as f:
-            return json.load(f)
+def _load_model(path):
+    with open(path) as f:
+        return json.load(f)
 
-    def _save_model(self, model, path):
-        with open(path, 'w') as f:
-            return json.dump(model, f)
+def _save_model(model, path):
+    with open(path, 'w') as f:
+        return json.dump(model, f)
 
-    def _save_predictions(self, y_pred, path):
-        with open(path, 'w') as f:
-            return json.dump(y_pred, f)
+def _save_predictions(y_pred, path):
+    with open(path, 'w') as f:
+        return json.dump(y_pred, f)
 
 if __name__ == '__main__':
-    tools.algo.execute(TestAlgo())
+    tools.execute(train, predict)
 """
 
 DEFAULT_AGGREGATE_ALGO_SCRIPT = f"""
 import json
 import substratools as tools
-class TestAggregateAlgo(tools.AggregateAlgo):
-    def aggregate(self, inputs, outputs, task_properties):
-        models_path = inputs.get('{InputIdentifiers.models}', [])
-        models = [self._load_model(model_path) for model_path in models_path]
-        print(f'Aggregate models: {{models}}')
-        values = [m['value'] for m in models]
-        avg = sum(values) / len(values)
-        res = dict(value=avg)
-        print(f'Aggregate result: {{res}}')
-        self._save_model(res, outputs['{OutputIdentifiers.model}'])
 
-    def predict(self, inputs, outputs, task_properties):
-        self._save_predictions(0, outputs['{OutputIdentifiers.predictions}'])
+def aggregate(inputs, outputs, task_properties):
+    models_path = inputs.get('{InputIdentifiers.models}', [])
+    models = [_load_model(model_path) for model_path in models_path]
+    print(f'Aggregate models: {{models}}')
+    values = [m['value'] for m in models]
+    avg = sum(values) / len(values)
+    res = dict(value=avg)
+    print(f'Aggregate result: {{res}}')
+    _save_model(res, outputs['{OutputIdentifiers.model}'])
 
-    def _load_model(self, path):
-        with open(path) as f:
-            return json.load(f)
+def predict(inputs, outputs, task_properties):
+    _save_predictions(0, outputs['{OutputIdentifiers.predictions}'])
 
-    def _save_model(self, model, path):
-        with open(path, 'w') as f:
-            return json.dump(model, f)
+def _load_model(path):
+    with open(path) as f:
+        return json.load(f)
 
-    def _save_predictions(self, y_pred, path):
-        with open(path, 'w') as f:
-            return json.dump(y_pred, f)
+def _save_model(model, path):
+    with open(path, 'w') as f:
+        return json.dump(model, f)
+
+def _save_predictions(y_pred, path):
+    with open(path, 'w') as f:
+        return json.dump(y_pred, f)
 
 if __name__ == '__main__':
-    tools.algo.execute(TestAggregateAlgo())
+    tools.execute(aggregate, predict)
 """
 
 # TODO we should have a different serializer for head and trunk models
 DEFAULT_COMPOSITE_ALGO_SCRIPT = f"""
 import json
 import substratools as tools
-class TestCompositeAlgo(tools.CompositeAlgo):
-    def train(self, inputs, outputs, task_properties):
-        X = inputs['{InputIdentifiers.datasamples}'][0]
-        y = inputs['{InputIdentifiers.datasamples}'][1]
-        head_model_path = inputs.get('{InputIdentifiers.local}')
-        head_model = self._load_model(head_model_path) if head_model_path else None
+def train(inputs, outputs, task_properties):
+    X = inputs['{InputIdentifiers.datasamples}'][0]
+    y = inputs['{InputIdentifiers.datasamples}'][1]
+    head_model_path = inputs.get('{InputIdentifiers.local}')
+    head_model = _load_model(head_model_path) if head_model_path else None
 
-        trunk_model_path = inputs.get('{InputIdentifiers.shared}')
-        trunk_model = self._load_model(trunk_model_path) if trunk_model_path else None
+    trunk_model_path = inputs.get('{InputIdentifiers.shared}')
+    trunk_model = _load_model(trunk_model_path) if trunk_model_path else None
 
-        print(f'Composite algo train X: {{X}}, y: {{y}}, head_model: {{head_model}}, trunk_model: {{trunk_model}}')
+    print(f'Composite algo train X: {{X}}, y: {{y}}, head_model: {{head_model}}, trunk_model: {{trunk_model}}')
 
-        ratio = sum(y) / sum(X)
-        err_head = 0.1 * ratio  # Add a small error
-        err_trunk = 0.2 * ratio  # Add a small error
+    ratio = sum(y) / sum(X)
+    err_head = 0.1 * ratio  # Add a small error
+    err_trunk = 0.2 * ratio  # Add a small error
 
-        if head_model:
-            res_head = head_model['value']
-        else:
-            res_head = ratio
+    if head_model:
+        res_head = head_model['value']
+    else:
+        res_head = ratio
 
-        if trunk_model:
-            res_trunk = trunk_model['value']
-        else:
-            res_trunk = ratio
+    if trunk_model:
+        res_trunk = trunk_model['value']
+    else:
+        res_trunk = ratio
 
-        res = dict(value= res_head + err_head), dict(value= res_trunk + err_trunk)
-        print(f'Composite algo train head, trunk result: {{res}}')
+    res = dict(value= res_head + err_head), dict(value= res_trunk + err_trunk)
+    print(f'Composite algo train head, trunk result: {{res}}')
 
-        self._save_model(res[0], outputs['{OutputIdentifiers.local}'])
-        self._save_model(res[1], outputs['{OutputIdentifiers.shared}'])
+    _save_model(res[0], outputs['{OutputIdentifiers.local}'])
+    _save_model(res[1], outputs['{OutputIdentifiers.shared}'])
 
-    def predict(self, inputs, outputs, task_properties):
-        X = inputs['{InputIdentifiers.datasamples}'][0]
-        head_model = self._load_model(inputs['{InputIdentifiers.local}'])
-        trunk_model = self._load_model(inputs['{InputIdentifiers.shared}'])
+def predict(inputs, outputs, task_properties):
+    X = inputs['{InputIdentifiers.datasamples}'][0]
+    head_model = _load_model(inputs['{InputIdentifiers.local}'])
+    trunk_model = _load_model(inputs['{InputIdentifiers.shared}'])
 
-        print(f'Composite algo predict X: {{X}}, head_model: {{head_model}}, trunk_model: {{trunk_model}}')
-        ratio_sum = head_model['value'] + trunk_model['value']
-        res = [x * ratio_sum for x in X]
-        print(f'Composite algo predict result: {{res}}')
+    print(f'Composite algo predict X: {{X}}, head_model: {{head_model}}, trunk_model: {{trunk_model}}')
+    ratio_sum = head_model['value'] + trunk_model['value']
+    res = [x * ratio_sum for x in X]
+    print(f'Composite algo predict result: {{res}}')
 
-        self._save_predictions(res, outputs['{OutputIdentifiers.predictions}'])
+    _save_predictions(res, outputs['{OutputIdentifiers.predictions}'])
 
-    def _load_model(self, path):
-        with open(path) as f:
-            return json.load(f)
+def _load_model(path):
+    with open(path) as f:
+        return json.load(f)
 
-    def _save_model(self, model, path):
-        with open(path, 'w') as f:
-            return json.dump(model, f)
+def _save_model(model, path):
+    with open(path, 'w') as f:
+        return json.dump(model, f)
 
-    def _save_predictions(self, y_pred, path):
-        with open(path, 'w') as f:
-            return json.dump(y_pred, f)
+def _save_predictions(y_pred, path):
+    with open(path, 'w') as f:
+        return json.dump(y_pred, f)
 
 if __name__ == '__main__':
-    tools.algo.execute(TestCompositeAlgo())
+    tools.execute(predict, train)
 """
 
 
@@ -228,7 +225,7 @@ DEFAULT_ALGO_SCRIPTS = {
     AlgoCategory.predict_composite: DEFAULT_COMPOSITE_ALGO_SCRIPT,
 }
 
-DEFAULT_ALGO_METHOD_NAME = {
+DEFAULT_ALGO_FUNCTION_NAME = {
     AlgoCategory.simple: "train",
     AlgoCategory.composite: "train",
     AlgoCategory.aggregate: "aggregate",
@@ -240,7 +237,7 @@ DEFAULT_ALGO_METHOD_NAME = {
 DEFAULT_ALGO_DOCKERFILE = f"""
 FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
 COPY algo.py .
-ENTRYPOINT ["python3", "algo.py", "--method-name", "{{method_name}}"]
+ENTRYPOINT ["python3", "algo.py", "--function-name", "{{function_name}}"]
 """
 
 BAD_ENTRYPOINT_DOCKERFILE = f"""
@@ -254,7 +251,7 @@ FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
 COPY algo.py .
 """
 
-NO_METHOD_NAME_DOCKERFILE = f"""
+NO_FUNCTION_NAME_DOCKERFILE = f"""
 FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
 COPY algo.py .
 ENTRYPOINT ["python3", "algo.txt", "train"]
@@ -397,9 +394,9 @@ class AssetsFactory:
                     if dockerfile_type == "BAD_ENTRYPOINT"
                     else NO_ENTRYPOINT_DOCKERFILE
                     if dockerfile_type == "NO_ENTRYPOINT"
-                    else NO_METHOD_NAME_DOCKERFILE
-                    if dockerfile_type == "NO_METHOD_NAME"
-                    else DEFAULT_ALGO_DOCKERFILE.format(method_name=DEFAULT_ALGO_METHOD_NAME[category])
+                    else NO_FUNCTION_NAME_DOCKERFILE
+                    if dockerfile_type == "NO_FUNCTION_NAME"
+                    else DEFAULT_ALGO_DOCKERFILE.format(function_name=DEFAULT_ALGO_FUNCTION_NAME[category])
                 ),
             ),
         )

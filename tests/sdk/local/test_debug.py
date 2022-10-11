@@ -43,7 +43,7 @@ class TestsDebug:
         """Test the creation of a temp directory for the debug client"""
         assert clients[0].temp_directory
 
-    @pytest.mark.parametrize("dockerfile_type", ("BAD_ENTRYPOINT", "NO_ENTRYPOINT", "NO_METHOD_NAME"))
+    @pytest.mark.parametrize("dockerfile_type", ("BAD_ENTRYPOINT", "NO_ENTRYPOINT", "NO_FUNCTION_NAME"))
     def test_client_bad_dockerfile(self, asset_factory, dockerfile_type, clients):
 
         client = clients[0]
