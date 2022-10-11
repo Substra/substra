@@ -54,6 +54,7 @@ DEFAULT_METRIC_ALGO_SCRIPT = f"""
 import json
 import substratools as tools
 
+@tools.register
 def score(inputs, outputs, task_properties):
     y_true = inputs['{InputIdentifiers.datasamples}'][1]
     y_pred = _get_predictions(inputs['{InputIdentifiers.predictions}'])
@@ -66,13 +67,15 @@ def _get_predictions(path):
         return json.load(f)
 
 if __name__ == '__main__':
-    tools.execute(score)
+    tools.execute()
 """
 
 
 DEFAULT_ALGO_SCRIPT = f"""
 import json
 import substratools as tools
+
+@tools.register
 def train(inputs, outputs, task_properties):
     X = inputs['{InputIdentifiers.datasamples}'][0]
     y = inputs['{InputIdentifiers.datasamples}'][1]
@@ -94,6 +97,7 @@ def train(inputs, outputs, task_properties):
     print(f'Train, return {{res}}')
     _save_model(res, outputs['{OutputIdentifiers.model}'])
 
+@tools.register
 def predict(inputs, outputs, task_properties):
     X = inputs['{InputIdentifiers.datasamples}'][0]
     model = _load_model(inputs['{InputIdentifiers.model}'])
@@ -116,13 +120,14 @@ def _save_predictions(y_pred, path):
         return json.dump(y_pred, f)
 
 if __name__ == '__main__':
-    tools.execute(train, predict)
+    tools.execute()
 """
 
 DEFAULT_AGGREGATE_ALGO_SCRIPT = f"""
 import json
 import substratools as tools
 
+@tools.register
 def aggregate(inputs, outputs, task_properties):
     models_path = inputs.get('{InputIdentifiers.models}', [])
     models = [_load_model(model_path) for model_path in models_path]
@@ -133,6 +138,7 @@ def aggregate(inputs, outputs, task_properties):
     print(f'Aggregate result: {{res}}')
     _save_model(res, outputs['{OutputIdentifiers.model}'])
 
+@tools.register
 def predict(inputs, outputs, task_properties):
     _save_predictions(0, outputs['{OutputIdentifiers.predictions}'])
 
@@ -149,13 +155,15 @@ def _save_predictions(y_pred, path):
         return json.dump(y_pred, f)
 
 if __name__ == '__main__':
-    tools.execute(aggregate, predict)
+    tools.execute()
 """
 
 # TODO we should have a different serializer for head and trunk models
 DEFAULT_COMPOSITE_ALGO_SCRIPT = f"""
 import json
 import substratools as tools
+
+@tools.register
 def train(inputs, outputs, task_properties):
     X = inputs['{InputIdentifiers.datasamples}'][0]
     y = inputs['{InputIdentifiers.datasamples}'][1]
@@ -187,6 +195,7 @@ def train(inputs, outputs, task_properties):
     _save_model(res[0], outputs['{OutputIdentifiers.local}'])
     _save_model(res[1], outputs['{OutputIdentifiers.shared}'])
 
+@tools.register
 def predict(inputs, outputs, task_properties):
     X = inputs['{InputIdentifiers.datasamples}'][0]
     head_model = _load_model(inputs['{InputIdentifiers.local}'])
@@ -212,7 +221,7 @@ def _save_predictions(y_pred, path):
         return json.dump(y_pred, f)
 
 if __name__ == '__main__':
-    tools.execute(predict, train)
+    tools.execute()
 """
 
 
