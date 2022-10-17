@@ -28,13 +28,15 @@ logger = logging.getLogger(__name__)
 _MAX_LEN_KEY_METADATA = 50
 _MAX_LEN_VALUE_METADATA = 100
 
+LOCAL_WORKER_DIR = "local-worker"
+
 
 class Local(base.BaseBackend):
 
     org_counter = 1
 
     def __init__(self, backend, backend_type, *args, **kwargs):
-        self._local_worker_dir = Path.cwd() / "local-worker"
+        self._local_worker_dir = Path.cwd() / LOCAL_WORKER_DIR
         self._local_worker_dir.mkdir(exist_ok=True)
 
         self._execution_mode = backend_type
