@@ -341,7 +341,7 @@ class TestsDebug:
 
         client.add_compute_plan(cp)
 
-        json_perf_path = Path.cwd() / local.LOCAL_WORKER_DIR / "live_performances" / cp.key / "performances.json"
+        json_perf_path = client.temp_directory.parent / "live_performances" / cp.key / "performances.json"
 
         assert json_perf_path.is_file()
 
