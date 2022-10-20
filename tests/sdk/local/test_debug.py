@@ -6,8 +6,8 @@ import pytest
 
 import substra
 from substra.sdk import models
-from substra.sdk.exceptions import InvalidRequest
-from substra.sdk.exceptions import KeyAlreadyExistsError
+from substra.sdk import exceptions
+from substra.sdk.backends import local
 
 from ...fl_interface import AlgoCategory
 from ...fl_interface import FLTaskInputGenerator
@@ -16,7 +16,7 @@ from ...fl_interface import InputIdentifiers
 
 
 def test_wrong_debug_spawner():
-    with pytest.raises(substra.sdk.exceptions.SDKException) as err:
+    with pytest.raises(exceptions.SDKException) as err:
         substra.Client(backend_type="test")
     assert (
         str(err.value) == "Unknown value for the execution mode: test, valid values are: dict_values"
@@ -266,7 +266,7 @@ class TestsDebug:
                 metadata=dict(),
             )
         )
-        with pytest.raises(KeyAlreadyExistsError):
+        with pytest.raises(exceptions.KeyAlreadyExistsError):
             client.add_compute_plan(
                 substra.sdk.schemas.ComputePlanSpec(
                     key=common_cp_key,
@@ -279,7 +279,7 @@ class TestsDebug:
     def test_add_compute_plan_with_wrong_metadata(self, clients):
         client = clients[0]
         cp_key = str(uuid.uuid4())
-        with pytest.raises(InvalidRequest):
+        with pytest.raises(exceptions.InvalidRequest):
             client.add_compute_plan(
                 substra.sdk.schemas.ComputePlanSpec(
                     key=cp_key,
@@ -341,7 +341,7 @@ class TestsDebug:
 
         client.add_compute_plan(cp)
 
-        json_perf_path = Path.cwd() / "local-worker" / "live_performances" / cp.key / "performances.json"
+        json_perf_path = client.temp_directory.parent / "live_performances" / cp.key / "performances.json"
 
         assert json_perf_path.is_file()
 
