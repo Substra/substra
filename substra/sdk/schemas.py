@@ -396,6 +396,8 @@ class UpdateAlgoSpec(_Spec):
 
 
 class TaskSpec(_Spec):
+    """Specification for creating a Task"""
+
     key: str = pydantic.Field(default_factory=lambda: str(uuid.uuid4()))
     tag: Optional[str]
     compute_plan_key: Optional[str]

@@ -81,7 +81,7 @@ Asset creation specification base class.
 ```
 
 ## TaskSpec
-Asset creation specification base class.
+Specification for creating a Task
 ```text
 - key: str
 - tag: Optional[str]
