@@ -90,6 +90,7 @@ compute_plan = client.add_compute_plan(
 ### Removed
 
 - BREAKING CHANGE: remove category from substra.schema.AlgoSpec and substra.models.Algo
+- Remove '# substra.sdk' from sdk documentation
 
 ### Added
 
