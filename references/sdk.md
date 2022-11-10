@@ -1,5 +1,3 @@
-# substra.sdk
-
 # Client
 ```text
 Client(url: Optional[str] = None, token: Optional[str] = None, retry_timeout: int = 300, insecure: bool = False, backend_type: substra.sdk.schemas.BackendType = <BackendType.REMOTE: 'remote'>)
