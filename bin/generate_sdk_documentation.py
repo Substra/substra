@@ -58,9 +58,6 @@ def generate_properties_help(fh, public_methods):
 
 
 def generate_help(fh):
-
-    fh.write("# substra.sdk\n\n")
-
     for asset in MODULE_LIST:
         if inspect.isclass(asset):  # Class
             public_methods = [
