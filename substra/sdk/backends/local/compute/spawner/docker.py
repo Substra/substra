@@ -18,11 +18,11 @@ from substra.sdk.backends.local.compute.spawner.base import write_command_args_f
 
 logger = logging.getLogger(__name__)
 
-ROOT_DIR = pathlib.PurePath("/substra_internal")
+ROOT_DIR = "/substra_internal"
 DOCKER_VOLUMES = {
-    VOLUME_INPUTS: {"bind": ROOT_DIR / "inputs", "mode": "ro"},
-    VOLUME_OUTPUTS: {"bind": ROOT_DIR / "outputs", "mode": "rw"},
-    VOLUME_CLI_ARGS: {"bind": ROOT_DIR / "cli-args", "mode": "rw"},
+    VOLUME_INPUTS: {"bind": f"{ROOT_DIR}/inputs", "mode": "ro"},
+    VOLUME_OUTPUTS: {"bind": f"{ROOT_DIR}/outputs", "mode": "rw"},
+    VOLUME_CLI_ARGS: {"bind": f"{ROOT_DIR}/cli-args", "mode": "rw"},
 }
 
 
@@ -110,7 +110,7 @@ class Docker(BaseSpawner):
 
         args_filename = "arguments.txt"
         args_path_local = pathlib.Path(local_volumes[VOLUME_CLI_ARGS]) / args_filename
-        args_path_docker = DOCKER_VOLUMES[VOLUME_CLI_ARGS]["bind"] / args_filename
+        args_path_docker = pathlib.Path(DOCKER_VOLUMES[VOLUME_CLI_ARGS]["bind"]) / args_filename
         write_command_args_file(args_path_local, command_args)
 
         # create the volumes dict for docker by binding the local_volumes and the DOCKER_VOLUME
@@ -120,7 +120,7 @@ class Docker(BaseSpawner):
 
         container = self._docker.containers.run(
             name,
-            command=f"@{args_path_docker}",
+            command=f"@{str(args_path_docker)}",
             volumes=volumes_docker or {},
             environment=envs,
             remove=False,
