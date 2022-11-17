@@ -75,7 +75,7 @@ compute_plan = client.add_compute_plan(
 )
 ```
 
-- BREAKING CHANGE: Update substratools Docker image name (#316)
+- Update substratools Docker image name (#316)
 
 ### Fixed
 
