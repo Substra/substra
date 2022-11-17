@@ -542,4 +542,5 @@ client1_org_id = clients[0].organization_info().organization_id
 
 ## [0.10.0](https://github.com/Substra/substra/releases/tag/0.10.0) - 2021-08-05
 
-[unreleased]: https://github.com/Substra/substra/compare/0.10.0...HEAD
+- [0.10.0]: https://github.com/Substra/substra/compare/0.9.0...0.10.0
+- [unreleased]: https://github.com/Substra/substra/compare/0.10.0...HEAD
