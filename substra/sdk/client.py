@@ -662,7 +662,7 @@ class Client:
     def link_dataset_with_data_samples(
         self,
         dataset_key: str,
-        data_sample_keys: str,
+        data_sample_keys: List[str],
     ) -> List[str]:
         """Link dataset with data samples."""
         return self._backend.link_dataset_with_data_samples(dataset_key, data_sample_keys)
