@@ -75,6 +75,8 @@ compute_plan = client.add_compute_plan(
 )
 ```
 
+- Update substratools Docker image name (#316)
+
 ### Fixed
 
 - link_dataset_with_data_samples return value in remote mode
