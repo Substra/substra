@@ -372,7 +372,7 @@ Get task by key, the returned object is described
 in the [models.Task](sdk_models.md#Task) model
 ## link_dataset_with_data_samples
 ```text
-link_dataset_with_data_samples(self, dataset_key: str, data_sample_keys: str) -> List[str]
+link_dataset_with_data_samples(self, dataset_key: str, data_sample_keys: List[str]) -> List[str]
 ```
 
 Link dataset with data samples.
