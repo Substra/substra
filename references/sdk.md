@@ -19,16 +19,14 @@ Defaults to 5 minutes.
  - `insecure (bool, optional)`: If True, the client can call a not-certified backend. This is
 for development purposes.
 Defaults to False.
- - `backend_type (schemas.BackendType, optional)`: Which mode to use. Defaults to deployed.
-In deployed mode, assets are registered on a deployed platform which also executes the tasks.
-In local mode (subprocess or docker), if no URL is given then all assets are created locally and tasks are
-executed locally.
-In local mode (subprocess or docker), if a URL is given then the mode is a hybrid one: new assets are
+ - `backend_type (schemas.BackendType, optional)`: Which mode to use.
+Possible values are `remote`, `docker` and `subprocess`.
+Defaults to `remote`.
+In `remote`mode, assets are registered on a deployed platform which also executes the tasks.
+In `subprocess` or `docker` mode, if no URL is given then all assets are created locally and tasks are
+executed locally. If a URL is given then the mode is a hybrid one: new assets are
 created locally but can access assets from the deployed Substra platform. The platform is in read-only mode
 and tasks are executed locally.
-The local mode is either docker or subprocess mode: `docker` if you want the tasks to
-be executed in containers (default) or `subprocess` to execute them in Python subprocesses (faster,
-experimental: The `Dockerfile` commands are not executed, requires dependencies to be installed locally).
 ## backend_mode
 _This is a property._  
 Get the backend mode: deployed,
@@ -372,7 +370,7 @@ Get task by key, the returned object is described
 in the [models.Task](sdk_models.md#Task) model
 ## link_dataset_with_data_samples
 ```text
-link_dataset_with_data_samples(self, dataset_key: str, data_sample_keys: str) -> List[str]
+link_dataset_with_data_samples(self, dataset_key: str, data_sample_keys: List[str]) -> List[str]
 ```
 
 Link dataset with data samples.
