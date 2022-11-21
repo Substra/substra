@@ -82,6 +82,7 @@ compute_plan = client.add_compute_plan(
 - Remove depreciated `pytest-runner` from setup.py (#320)
 - link_dataset_with_data_samples return value in remote mode
 - Fix the compute plan rank calculation in local mode (#299)
+- Windows compatibility on `pathlib` usage for a Docker argument (#317)
 
 ### Changed
 

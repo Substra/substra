@@ -110,7 +110,8 @@ class Docker(BaseSpawner):
 
         args_filename = "arguments.txt"
         args_path_local = pathlib.Path(local_volumes[VOLUME_CLI_ARGS]) / args_filename
-        args_path_docker = pathlib.Path(DOCKER_VOLUMES[VOLUME_CLI_ARGS]["bind"]) / args_filename
+        # Pathlib is incompatible here for Windows, as it would create a "WindowsPath"
+        args_path_docker = DOCKER_VOLUMES[VOLUME_CLI_ARGS]["bind"] + "/" + args_filename
         write_command_args_file(args_path_local, command_args)
 
         # create the volumes dict for docker by binding the local_volumes and the DOCKER_VOLUME
