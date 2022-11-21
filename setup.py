@@ -48,7 +48,6 @@ setup(
         "tqdm",
     ],
     python_requires=">=3.8",
-    setup_requires=["pytest-runner"],
     extras_require={
         "dev": [
             "pandas",
