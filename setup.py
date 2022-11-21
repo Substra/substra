@@ -23,7 +23,7 @@ setup(
     description="Substra CLI for interacting with substra-backend",
     long_description=readme,
     long_description_content_type="text/markdown",
-    url="https://connect-docs.owkin.com/",
+    url="https://docs.substra.org/en/latest/",
     author="Owkin, Inc.",
     license="Apache 2.0",
     classifiers=[
