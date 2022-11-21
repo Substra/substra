@@ -3,7 +3,7 @@
 <br /><br /></div>
 
 <div align="center">
-  <img src="substra_horizontal-color.svg" width="600"/>
+  <img src="Substra-logo-color.svg" width="600"/>
 </div>
 
 Substra is a python library and a command line interface to interact with the Substra platform.
