@@ -79,6 +79,7 @@ compute_plan = client.add_compute_plan(
 
 ### Fixed
 
+- Remove depreciated `pytest-runner` from setup.py (#320)
 - link_dataset_with_data_samples return value in remote mode
 - Fix the compute plan rank calculation in local mode (#299)
 
@@ -544,5 +545,5 @@ client1_org_id = clients[0].organization_info().organization_id
 
 ## [0.10.0](https://github.com/Substra/substra/releases/tag/0.10.0) - 2021-08-05
 
-[0.10.0]: https://github.com/Substra/substra/compare/0.9.0...0.10.0
-[unreleased]: https://github.com/Substra/substra/compare/0.10.0...HEAD
+- [0.10.0]: https://github.com/Substra/substra/compare/0.9.0...0.10.0
+- [unreleased]: https://github.com/Substra/substra/compare/0.10.0...HEAD

@@ -16,4 +16,4 @@ doc-sdk: pyclean
 doc: doc-cli doc-sdk
 
 test: pyclean
-	python setup.py test
+	pytest tests
