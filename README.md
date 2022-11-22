@@ -2,10 +2,14 @@
 <a href="https://join.slack.com/t/substra-workspace/shared_invite/zt-1fqnk0nw6-xoPwuLJ8dAPXThfyldX8yA"><img src="https://img.shields.io/badge/chat-on%20slack-blue?logo=slack" /></a> <a href="https://docs.substra.org/"><img src="https://img.shields.io/badge/read-docs-purple?logo=mdbook" /></a>
 <br /><br /></div>
 
-<div align="center">
-  <img src="Substra-logo-color.svg" width="600"/>
-</div>
 
+
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="Substra-logo-white.svg">
+  <source media="(prefers-color-scheme: light)" srcset="Substra-logo-colour.svg">
+  <img alt="Substra" src="Substra-logo-colour.svg" width="600">
+</picture>
 
 Substra is an open source federated learning (FL) software. It enables the training and validation of machine learning models on distributed datasets. It provides a flexible Python interface and a web application to run federated learning training at scale. This specifc reposity is the low-level Python library used to interact with a Substra network.
 
