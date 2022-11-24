@@ -15,7 +15,7 @@
 
 Substra is an open source federated learning (FL) software. It enables the training and validation of machine learning models on distributed datasets. It provides a flexible Python interface and a web application to run federated learning training at scale. This specifc reposity is the low-level Python library used to interact with a Substra network.
 
-Substra's main usage is in production environments. It has already been deployed and used by hospitals and biotech companies (see the MELLODDY project for instance). Substra can also be used on a single machine to perform FL simulations and debug code.
+Substra's main usage is in production environments. It has already been deployed and used by hospitals and biotech companies (see the [MELLODDY](https://www.melloddy.eu/) project for instance). Substra can also be used on a single machine to perform FL simulations and debug code.
 
 Substra was originally developed by [Owkin](https://owkin.com/) and is now hosted by the [Linux Foundation for AI and Data](https://lfaidata.foundation/). Today Owkin is the main contributor to Substra.
 
@@ -32,9 +32,6 @@ Try out our [MNIST example](https://docs.substra.org/en/stable/substrafl_doc/exa
 
 If you need support, please either raise an issue on Github or ask on [Slack](https://join.slack.com/t/substra-workspace/shared_invite/zt-1fqnk0nw6-xoPwuLJ8dAPXThfyldX8yA).
 
-## Real world use cases
-
-Discover how Substra powers projects solving critical scientific questions in a privacy-preserving way. Read more here.
 
 
 ## Contributing
