@@ -22,6 +22,7 @@ DEFAULT_RETRY_TIMEOUT = 5 * 60
 DEFAULT_BATCH_SIZE = 500
 
 # Temporary output identifiers, to be removed once user can pass its own identifiers
+# test
 MODEL_OUTPUT_IDENTIFIER = "model"
 HEAD_OUTPUT_IDENTIFIER = "local"
 TRUNK_OUTPUT_IDENTIFIER = "shared"
