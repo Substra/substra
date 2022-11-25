@@ -9,7 +9,7 @@ on:
 jobs:
   lint:
     name: Lint and documentation
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - name: Set up python
@@ -42,7 +42,7 @@ jobs:
           name: references
           path: references/*
   tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       XDG_RUNTIME_DIR: /home/runner/.docker/run
       DOCKER_HOST: unix:///home/runner/.docker/run/docker.sock
