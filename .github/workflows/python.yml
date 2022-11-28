@@ -57,6 +57,13 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
+      - name: Free disk space
+        run: |
+          # Based on https://github.com/actions/runner-images/issues/2840#issuecomment-790492173
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
       - name: Install Docker rootless
         run: |
           sudo systemctl disable --now docker.service
@@ -65,7 +72,7 @@ jobs:
       - name: Configure docker
         run: |
           export PATH=/home/runner/bin:$PATH
-          systemctl --user start docker &
+          /home/runner/bin/dockerd-rootless.sh &  # Start Docker rootless in the background
       - name: Cloning substra
         uses: actions/checkout@v3
         with:
