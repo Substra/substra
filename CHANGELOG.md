@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Pass the Python Github Actions on ubuntu 20.04 to be compatible with docker rootless mode (#325)
+
 ## [0.40.0](https://github.com/Substra/substra/releases/tag/0.40.0) - 2022-11-22
 
 ### Changed
