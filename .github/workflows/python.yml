@@ -53,7 +53,7 @@ jobs:
     name: Tests on Python ${{ matrix.python-version }}
     steps:
       - name: Set up python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -61,7 +61,7 @@ jobs:
         run: |
           sudo systemctl disable --now docker.service
           export FORCE_ROOTLESS_INSTALL=1
-          curl -fsSL https://get.docker.com/rootless | sh
+          /home/runner/bin/dockerd-rootless-setuptool.sh install
       - name: Configure docker
         run: |
           export PATH=/home/runner/bin:$PATH
