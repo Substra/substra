@@ -60,7 +60,7 @@ jobs:
         run: |
           sudo apt-get install -y dbus-user-session
           sudo systemctl disable --now docker.service docker.socket
-          /home/runner/bin/dockerd-rootless.sh/dockerd-rootless-setuptool.sh install
+          /home/runner/bin/dockerd-rootless-setuptool.sh install
       - name: Configure docker
         run: |
           export PATH=/home/runner/bin:$PATH
