@@ -42,10 +42,9 @@ jobs:
           name: references
           path: references/*
   tests:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       XDG_RUNTIME_DIR: /home/runner/.docker/run
-      DOCKER_HOST: unix:///home/runner/.docker/run/docker.sock
     strategy:
       fail-fast: false
       matrix:
@@ -59,12 +58,14 @@ jobs:
           architecture: x64
       - name: Install Docker rootless
         run: |
+          sudo apt-get install -y dbus-user-session docker.socket
           sudo systemctl disable --now docker.service
           export FORCE_ROOTLESS_INSTALL=1
           curl -fsSL https://get.docker.com/rootless | sh
       - name: Configure docker
         run: |
           export PATH=/home/runner/bin:$PATH
+          export DOCKER_HOST=unix:///home/runner/.docker/run/docker.sock
           /home/runner/bin/dockerd-rootless.sh &  # Start Docker rootless in the background
       - name: Cloning substra
         uses: actions/checkout@v3
