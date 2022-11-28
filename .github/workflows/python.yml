@@ -57,6 +57,15 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
+      - name: Install Docker rootless
+        run: |
+          sudo systemctl disable --now docker.service docker.socket
+          export FORCE_ROOTLESS_INSTALL=1
+          curl -fsSL https://get.docker.com/rootless | sh
+      - name: Configure docker
+        run: |
+          export PATH=/home/runner/bin:$PATH
+          /home/runner/bin/dockerd-rootless.sh &  # Start Docker rootless in the background
       - name: Cloning substra
         uses: actions/checkout@v3
         with:
