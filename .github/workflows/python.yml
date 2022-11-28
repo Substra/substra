@@ -61,6 +61,7 @@ jobs:
         run: |
           sudo systemctl disable --now docker.service
           export FORCE_ROOTLESS_INSTALL=1
+          sudo apt-get install -y docker-ce-rootless-extras
           /home/runner/bin/dockerd-rootless-setuptool.sh install
       - name: Configure docker
         run: |
