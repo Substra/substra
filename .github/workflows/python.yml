@@ -45,7 +45,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       XDG_RUNTIME_DIR: /home/runner/.docker/run
-      DOCKER_HOST: unix:///home/runner/.docker/run/docker.sock
     strategy:
       fail-fast: false
       matrix:
@@ -60,11 +59,12 @@ jobs:
       - name: Install Docker rootless
         run: |
           sudo systemctl disable --now docker.service docker.socket
-          sudo apt-get install -y docker-ce-rootless-extras
           export FORCE_ROOTLESS_INSTALL=1
+          curl -fsSL https://get.docker.com/rootless | sh
       - name: Configure docker
         run: |
           export PATH=/home/runner/bin:$PATH
+          export DOCKER_HOST=unix:///home/runner/.docker/run/docker.sock
           /home/runner/bin/dockerd-rootless.sh &  # Start Docker rootless in the background
       - name: Cloning substra
         uses: actions/checkout@v3
