@@ -53,7 +53,7 @@ jobs:
     name: Tests on Python ${{ matrix.python-version }}
     steps:
       - name: Set up python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
