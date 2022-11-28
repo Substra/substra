@@ -42,7 +42,7 @@ jobs:
           name: references
           path: references/*
   tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       XDG_RUNTIME_DIR: /home/runner/.docker/run
       DOCKER_HOST: unix:///home/runner/.docker/run/docker.sock
@@ -61,7 +61,6 @@ jobs:
         run: |
           sudo systemctl disable --now docker.service
           export FORCE_ROOTLESS_INSTALL=1
-          curl -fsSL https://get.docker.com | sh
           curl -fsSL https://get.docker.com/rootless | sh
       - name: Configure docker
         run: |
