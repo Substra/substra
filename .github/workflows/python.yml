@@ -60,8 +60,8 @@ jobs:
         run: |
           sudo apt-get install -y dbus-user-session
           sudo systemctl disable --now docker.service docker.socket
-          export FORCE_ROOTLESS_INSTALL=1
-          curl -fsSL https://get.docker.com/rootless | sh
+          sudo apt-get install -y docker-ce-rootless-extras
+          /home/runner/bin/dockerd-rootless.sh/dockerd-rootless-setuptool.sh install
       - name: Configure docker
         run: |
           export PATH=/home/runner/bin:$PATH
