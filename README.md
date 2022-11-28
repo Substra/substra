@@ -39,7 +39,7 @@ If you need support, please either raise an issue on Github or ask on [Slack](ht
 Substra warmly welcomes any contribution. Feel free to fork the repo and create a pull request.
 
 
-### Setup
+## Setup
 
 To setup the project in development mode, run:
 
@@ -53,7 +53,7 @@ To run all tests, use the following command:
 python setup.py test
 ```
 
-### Code formatting
+## Code formatting
 
 You can opt into auto-formatting of code on pre-commit using [Black](https://github.com/psf/black).
 
@@ -65,7 +65,7 @@ Install [pre-commit](https://pre-commit.com/), then run:
 pre-commit install
 ```
 
-### Documentation generation
+## Documentation generation
 
 To generate the command line interface documentation, sdk and schemas documentation, the `python` version
 must be 3.8. Run the following command:
