@@ -58,8 +58,8 @@ jobs:
           architecture: x64
       - name: Install Docker rootless
         run: |
-          sudo apt-get install -y dbus-user-session docker.socket
-          sudo systemctl disable --now docker.service
+          sudo apt-get install -y dbus-user-session
+          sudo systemctl disable --now docker.service docker.socket
           export FORCE_ROOTLESS_INSTALL=1
           curl -fsSL https://get.docker.com/rootless | sh
       - name: Configure docker
