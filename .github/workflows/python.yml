@@ -15,7 +15,7 @@ jobs:
       - name: Set up python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: "3.8"
       - name: Install tools
         run: pip install flake8 black isort wheel docstring-parser
       - name: Lint
@@ -57,14 +57,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
-      - name: Install Docker rootless
-        run: |
-          export FORCE_ROOTLESS_INSTALL=1
-          curl -fsSL https://get.docker.com/rootless | sh
-      - name: configure docker
-        run: |
-          export PATH=/home/runner/bin:$PATH
-          /home/runner/bin/dockerd-rootless.sh &  # Start Docker rootless in the background
       - name: Cloning substra
         uses: actions/checkout@v3
         with:
