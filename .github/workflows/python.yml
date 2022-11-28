@@ -60,8 +60,8 @@ jobs:
       - name: Install Docker rootless
         run: |
           sudo systemctl disable --now docker.service docker.socket
+          sudo apt-get install -y docker-ce-rootless-extras
           export FORCE_ROOTLESS_INSTALL=1
-          curl -fsSL https://get.docker.com/rootless | sh
       - name: Configure docker
         run: |
           export PATH=/home/runner/bin:$PATH
