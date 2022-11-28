@@ -9,7 +9,7 @@ on:
 jobs:
   lint:
     name: Lint and documentation
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
       - name: Set up python
@@ -42,7 +42,7 @@ jobs:
           name: references
           path: references/*
   tests:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     env:
       XDG_RUNTIME_DIR: /home/runner/.docker/run
       DOCKER_HOST: unix:///home/runner/.docker/run/docker.sock
@@ -59,7 +59,6 @@ jobs:
           architecture: x64
       - name: Install Docker rootless
         run: |
-          sudo apt-get install -y dbus-user-session
           sudo systemctl disable --now docker.service
           export FORCE_ROOTLESS_INSTALL=1
           curl -fsSL https://get.docker.com/rootless | sh
