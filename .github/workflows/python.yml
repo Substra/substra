@@ -15,7 +15,7 @@ jobs:
       - name: Set up python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: "3.8"
       - name: Install tools
         run: pip install flake8 black isort wheel docstring-parser
       - name: Lint
@@ -42,7 +42,7 @@ jobs:
           name: references
           path: references/*
   tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       XDG_RUNTIME_DIR: /home/runner/.docker/run
       DOCKER_HOST: unix:///home/runner/.docker/run/docker.sock
@@ -62,7 +62,7 @@ jobs:
           sudo systemctl disable --now docker.service
           export FORCE_ROOTLESS_INSTALL=1
           curl -fsSL https://get.docker.com/rootless | sh
-      - name: configure docker
+      - name: Configure docker
         run: |
           export PATH=/home/runner/bin:$PATH
           /home/runner/bin/dockerd-rootless.sh &  # Start Docker rootless in the background
