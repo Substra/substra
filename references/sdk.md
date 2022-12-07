@@ -292,8 +292,8 @@ Defaults to `remote`.
 In `remote`mode, assets are registered on a deployed platform which also executes the tasks.
 In `subprocess` or `docker` mode, if no URL is given then all assets are created locally and tasks are
 executed locally. If a URL is given then the mode is a hybrid one: new assets are
-created locally but can access assets from the deployed Substra platform.
-The platform is in read-only mode and tasks are executed locally.
+created locally but can access assets from the deployed Substra platform. The platform is in read-only
+mode and tasks are executed locally.
 
 **Returns:**
 
