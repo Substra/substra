@@ -94,7 +94,7 @@ class Client:
 
     def _get_backend(self, backend_type: schemas.BackendType):
         # Three possibilities:
-        # - deployed: get a deployed backend
+        # - remote: get a remote backend
         # - subprocess/docker and no url is defined: fully local backend
         # - subprocess/docker and url is defined: local backend that connects to
         #                           a deployed backend (read-only)
@@ -135,8 +135,7 @@ class Client:
 
     @property
     def backend_mode(self) -> schemas.BackendType:
-        """Get the backend mode: deployed,
-        local and which type of local mode
+        """Get the backend mode.
 
         Returns:
             str: Backend mode

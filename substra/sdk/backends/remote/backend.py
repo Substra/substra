@@ -36,7 +36,7 @@ class Remote(base.BaseBackend):
 
     @property
     def backend_mode(self) -> schemas.BackendType:
-        """Get the backend mode: deployed"""
+        """Get the backend mode: remote"""
         return schemas.BackendType.REMOTE
 
     def login(self, username, password):

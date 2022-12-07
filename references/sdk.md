@@ -29,8 +29,7 @@ created locally but can access assets from the deployed Substra platform. The pl
 and tasks are executed locally.
 ## backend_mode
 _This is a property._  
-Get the backend mode: deployed,
-        local and which type of local mode
+Get the backend mode.
 
         Returns:
             str: Backend mode
