@@ -117,7 +117,8 @@ class Worker:
         cmd_line_inputs,
         output_id_filename,
     ):
-        command_template = ["--rank", task.rank]
+        task_properties = {"rank": task.rank}
+        command_template = ["--task-properties", json.dumps(task_properties, default=str)]
 
         cmd_line_outputs: List[TaskResource] = [
             TaskResource(id=output_id, value=f"{TPL_VOLUME_OUTPUTS}/{filename}", multiple=False)
