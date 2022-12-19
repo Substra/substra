@@ -69,7 +69,7 @@ class Client:
         backend_type (schemas.BackendType, optional): Which mode to use.
             Possible values are `remote`, `docker` and `subprocess`.
             Defaults to `remote`.
-            In `remote`mode, assets are registered on a deployed platform which also executes the tasks.
+            In `remote` mode, assets are registered on a deployed platform which also executes the tasks.
             In `subprocess` or `docker` mode, if no URL is given then all assets are created locally and tasks are
             executed locally. If a URL is given then the mode is a hybrid one: new assets are
             created locally but can access assets from the deployed Substra platform. The platform is in read-only mode
@@ -94,7 +94,7 @@ class Client:
 
     def _get_backend(self, backend_type: schemas.BackendType):
         # Three possibilities:
-        # - deployed: get a deployed backend
+        # - remote: get a remote backend
         # - subprocess/docker and no url is defined: fully local backend
         # - subprocess/docker and url is defined: local backend that connects to
         #                           a deployed backend (read-only)
@@ -135,8 +135,7 @@ class Client:
 
     @property
     def backend_mode(self) -> schemas.BackendType:
-        """Get the backend mode: deployed,
-        local and which type of local mode
+        """Get the backend mode.
 
         Returns:
             str: Backend mode
@@ -181,17 +180,14 @@ class Client:
                 instead of any token found at tokens_path). Defaults to None.
             retry_timeout (int, optional): Number of seconds before attempting a retry call in case
                 of timeout. Defaults to 5 minutes.
-            backend_type (schemas.BackendType, optional): Which mode to use. Defaults to deployed.
-                In deployed mode, assets are registered on a deployed platform which also executes the tasks.
-                In local mode (subprocess or docker), if no URL is given then all assets are created locally and tasks
-                are executed locally.
-                In local mode (subprocess or docker), if a URL is given then the mode is a hybrid one: new assets are
+            backend_type (schemas.BackendType, optional): Which mode to use.
+                Possible values are `remote`, `docker` and `subprocess`.
+                Defaults to `remote`.
+                In `remote` mode, assets are registered on a deployed platform which also executes the tasks.
+                In `subprocess` or `docker` mode, if no URL is given then all assets are created locally and tasks are
+                executed locally. If a URL is given then the mode is a hybrid one: new assets are
                 created locally but can access assets from the deployed Substra platform. The platform is in read-only
                 mode and tasks are executed locally.
-                The local mode is either docker or subprocess mode: `docker` if you want the tasks to
-                be executed in containers (default) or `subprocess` to execute them in Python subprocesses (faster,
-                experimental: The `Dockerfile` commands are not executed, requires dependencies to be installed
-                locally).
 
         Returns:
             Client: The new client.
