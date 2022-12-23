@@ -324,7 +324,7 @@ class AssetsFactory:
     def __exit__(self, type, value, traceback):
         shutil.rmtree(str(self._workdir), ignore_errors=True)
 
-    def create_data_sample(self, content=None, datasets=None, test_only=False):
+    def create_data_sample(self, content=None, datasets=None):
         idx = self._data_sample_counter.inc()
         tmpdir = self._workdir / f"data-{idx}"
         tmpdir.mkdir()
@@ -340,7 +340,6 @@ class AssetsFactory:
 
         return substra.sdk.schemas.DataSampleSpec(
             path=str(tmpdir),
-            test_only=test_only,
             data_manager_keys=datasets,
         )
 

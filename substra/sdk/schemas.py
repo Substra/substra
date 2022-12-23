@@ -128,7 +128,6 @@ class DataSampleSpec(_Spec):
 
     path: Optional[pathlib.Path]  # Path to the data sample if only one
     paths: Optional[List[pathlib.Path]]  # Path to the data samples if several
-    test_only: bool  # If the data sample is for train or test
     data_manager_keys: typing.List[str]
 
     type_: typing.ClassVar[Type] = Type.DataSample

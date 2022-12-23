@@ -34,8 +34,7 @@ DATASET = {
         "download": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
     },
     "type": "Test",
-    "train_data_sample_keys": [],
-    "test_data_sample_keys": [],
+    "data_sample_keys": [],
     "metadata": {"foo": "bar"},
     "opener": {
         "checksum": "9d6cdc6cc5963476f371acc3d2a6e5a68727c2cc0d8f3af6262f2bad70421887",
@@ -53,7 +52,6 @@ DATA_SAMPLE = {
     "owner": "MyOrg1MSP",
     "data_manager_keys": ["d7dc4a5b-e81f-4f3f-b94c-5e2bbaca15cd"],
     "creation_date": "2021-08-24T13:36:07.428974249Z",
-    "test_only": False,
 }
 
 ALGO = {

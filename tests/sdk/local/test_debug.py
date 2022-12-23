@@ -51,7 +51,7 @@ class TestsDebug:
         dataset_query = asset_factory.create_dataset()
         dataset_1_key = client.add_dataset(dataset_query)
 
-        data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key], test_only=False)
+        data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key])
         sample_1_key = client.add_data_sample(data_sample)
 
         algo_query = asset_factory.create_algo(AlgoCategory.simple, dockerfile_type=dockerfile_type)
@@ -89,7 +89,7 @@ class TestsDebug:
         dataset_query = asset_factory.create_dataset()
         dataset_key = client.add_dataset(dataset_query)
 
-        data_sample = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
+        data_sample = asset_factory.create_data_sample(datasets=[dataset_key])
         data_sample_key = client.add_data_sample(data_sample)
 
         algo_query = asset_factory.create_algo(AlgoCategory.simple)
@@ -154,7 +154,7 @@ class TestsDebug:
         dataset_query = asset_factory.create_dataset()
         dataset_key = client.add_dataset(dataset_query)
 
-        data_sample = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
+        data_sample = asset_factory.create_data_sample(datasets=[dataset_key])
         data_sample_key = client.add_data_sample(data_sample)
 
         algo_query = asset_factory.create_algo(AlgoCategory.simple)
@@ -296,7 +296,7 @@ class TestsDebug:
         dataset_query = asset_factory.create_dataset()
         dataset_key = client.add_dataset(dataset_query)
 
-        data_sample = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
+        data_sample = asset_factory.create_data_sample(datasets=[dataset_key])
         sample_key = client.add_data_sample(data_sample)
 
         algo_query = asset_factory.create_algo(AlgoCategory.simple)
@@ -356,13 +356,13 @@ class TestsList:
         dataset_query = asset_factory.create_dataset()
         dataset_key = client.add_dataset(dataset_query)
 
-        data_sample_1 = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
+        data_sample_1 = asset_factory.create_data_sample(datasets=[dataset_key])
         data_sample_keys.append(client.add_data_sample(data_sample_1))
 
-        data_sample_2 = asset_factory.create_data_sample(datasets=[dataset_key], test_only=True)
+        data_sample_2 = asset_factory.create_data_sample(datasets=[dataset_key])
         data_sample_keys.append(client.add_data_sample(data_sample_2))
 
-        data_sample_3 = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
+        data_sample_3 = asset_factory.create_data_sample(datasets=[dataset_key])
         data_sample_keys.append(client.add_data_sample(data_sample_3))
         return client, data_sample_keys
 
@@ -452,7 +452,7 @@ def test_execute_compute_plan_several_testtuples_per_train(asset_factory, subpro
     dataset_query = asset_factory.create_dataset()
     dataset_key = client.add_dataset(dataset_query)
 
-    data_sample_1 = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
+    data_sample_1 = asset_factory.create_data_sample(datasets=[dataset_key])
     sample_1_key = client.add_data_sample(data_sample_1)
 
     algo_query = asset_factory.create_algo(AlgoCategory.simple)
@@ -509,7 +509,7 @@ def test_two_composite_to_composite(asset_factory, subprocess_clients):
     dataset_query = asset_factory.create_dataset()
     dataset_key = client.add_dataset(dataset_query)
 
-    data_sample_1 = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
+    data_sample_1 = asset_factory.create_data_sample(datasets=[dataset_key])
     sample_1_key = client.add_data_sample(data_sample_1)
 
     algo_query = asset_factory.create_algo(AlgoCategory.composite)
@@ -591,7 +591,7 @@ def test_task_different_owner_dataset(asset_factory, clients):
     dataset_query = asset_factory.create_dataset()
     dataset_key = client.add_dataset(dataset_query)
 
-    data_sample = asset_factory.create_data_sample(datasets=[dataset_key], test_only=False)
+    data_sample = asset_factory.create_data_sample(datasets=[dataset_key])
     data_sample_key = client.add_data_sample(data_sample)
 
     algo_query = asset_factory.create_algo(AlgoCategory.simple)
