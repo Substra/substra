@@ -415,16 +415,16 @@ class TestsList:
 
     def test_list_datasamples_AND(self, _init_data_samples):
         # Test the AND operator
-        # Get sample 1 by key and correct test_only value
+        # Get sample 1 by key
         client, data_sample_keys = _init_data_samples
-        filters = {"key": [data_sample_keys[0]], "test_only": ["False"]}
+        filters = {"key": [data_sample_keys[0]]}
         data_samples = client.list_data_sample(filters=filters)
         assert len(data_samples) == 1
         assert data_samples[0].key == data_sample_keys[0]
 
-        # Get sample 1 by key and wrong test_only value (should send empty list)
+        # Get sample 0 by key and wrong owner value (should send empty list)
         client, data_sample_keys = _init_data_samples
-        filters = {"key": [data_sample_keys[0]], "test_only": ["True"]}
+        filters = {"key": [data_sample_keys[0]], "owner": ["fake_owner"]}
         data_samples = client.list_data_sample(filters=filters)
         assert len(data_samples) == 0
 
