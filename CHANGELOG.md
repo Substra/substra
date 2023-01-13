@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
+## [0.41.0](https://github.com/Substra/substra/releases/tag/0.41.0) - 2022-12-19
+
+### Changed
 
 - Adapt hybrid mode to pass the rank in a task property argument to match backend behavior (#329)
+
+### Fixed
+
 - Pass the Python Github Actions on ubuntu 20.04 to be compatible with docker rootless mode (#325)
 
 ## [0.40.0](https://github.com/Substra/substra/releases/tag/0.40.0) - 2022-11-22
