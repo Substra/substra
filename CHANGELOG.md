@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Creator field in Compute Plan model (#331)
+- Contributing, contributors & code of conduct files (#333)
 
 ### Removed
 
