@@ -100,6 +100,7 @@ ComputePlan
 - end_date: Optional[datetime]
 - estimated_end_date: Optional[datetime]
 - duration: Optional[int]
+- creator: Optional[str]
 ```
 
 ## Performances

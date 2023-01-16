@@ -326,6 +326,7 @@ class ComputePlan(_Model):
     end_date: Optional[datetime]
     estimated_end_date: Optional[datetime]
     duration: Optional[int]
+    creator: Optional[str]
 
     type_: ClassVar[str] = schemas.Type.ComputePlan
 

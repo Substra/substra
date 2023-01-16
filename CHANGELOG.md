@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Creator field in Compute Plan model (#331)
+
 ## [0.41.0](https://github.com/Substra/substra/releases/tag/0.41.0) - 2022-12-19
 
 ### Changed
