@@ -104,7 +104,6 @@ def data_sample_query(tmpdir):
     return {
         "path": str(data_sample_dir_path),
         "data_manager_keys": ["42"],
-        "test_only": False,
     }
 
 
@@ -122,7 +121,6 @@ def data_samples_query(tmpdir):
     return {
         "paths": paths,
         "data_manager_keys": ["42"],
-        "test_only": False,
     }
 
 

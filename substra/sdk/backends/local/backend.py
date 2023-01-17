@@ -167,12 +167,6 @@ class Local(base.BaseBackend):
             if not same_data_manager:
                 raise substra.exceptions.InvalidRequest("A data_sample does not belong to the same dataManager", 400)
 
-    def _check_not_test_data(self, data_samples):
-        """Check that we do not use test data samples for train tuples"""
-        for data_sample in data_samples:
-            if data_sample.test_only:
-                raise substra.exceptions.InvalidRequest("Cannot create train task with test data", 400)
-
     def __compute_permissions(self, permissions):
         """Compute the permissions
 
@@ -306,8 +300,7 @@ class Local(base.BaseBackend):
                 },
             },
             type=spec.type,
-            train_data_sample_keys=list(),
-            test_data_sample_keys=list(),
+            data_sample_keys=list(),
             opener={"checksum": fs.hash_file(dataset_file_path), "storage_address": dataset_file_path},
             description={
                 "checksum": fs.hash_file(dataset_description_path),
@@ -329,16 +322,12 @@ class Local(base.BaseBackend):
             owner=self._org_id,
             path=spec.path,
             data_manager_keys=spec.data_manager_keys,
-            test_only=spec.test_only,
         )
         data_sample = self._db.add(data_sample)
 
         # update dataset(s) accordingly
         for dataset in datasets:
-            if spec.test_only:
-                samples_list = dataset.test_data_sample_keys
-            else:
-                samples_list = dataset.train_data_sample_keys
+            samples_list = dataset.data_sample_keys
             if data_sample.key not in samples_list:
                 samples_list.append(data_sample.key)
 
@@ -350,7 +339,6 @@ class Local(base.BaseBackend):
             data_sample_spec = schemas.DataSampleSpec(
                 path=path,
                 data_manager_keys=spec.data_manager_keys,
-                test_only=spec.test_only,
             )
             key = data_sample_spec.compute_key()
             data_sample = self._add_data_sample(
@@ -486,10 +474,7 @@ class Local(base.BaseBackend):
             data_sample = self._db.get(schemas.Type.DataSample, key)
             if dataset_key not in data_sample.data_manager_keys:
                 data_sample.data_manager_keys.append(dataset_key)
-                if data_sample.test_only:
-                    dataset.test_data_sample_keys.append(key)
-                else:
-                    dataset.train_data_sample_keys.append(key)
+                dataset.data_sample_keys.append(key)
             else:
                 logger.warning(f"Data sample already in dataset: {key}")
             data_samples.append(data_sample)

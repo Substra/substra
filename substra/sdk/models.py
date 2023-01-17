@@ -116,14 +116,12 @@ class DataSample(_Model):
     data_manager_keys: Optional[List[str]]
     path: Optional[DirectoryPath]
     creation_date: datetime
-    # The backend does not return this but it is needed for link_dataset_with_data_samples
-    test_only: bool = False
 
     type_: ClassVar[str] = schemas.Type.DataSample
 
     @staticmethod
     def allowed_filters() -> List[str]:
-        return ["key", "owner", "compute_plan_key", "algo_key", "dataset_key", "test_only"]
+        return ["key", "owner", "compute_plan_key", "algo_key", "dataset_key"]
 
 
 class _File(schemas._PydanticConfig):
@@ -141,8 +139,7 @@ class Dataset(_Model):
     owner: str
     permissions: Permissions
     type: str
-    train_data_sample_keys: List[str] = list()
-    test_data_sample_keys: List[str] = list()
+    data_sample_keys: List[str] = list()
     opener: _File
     description: _File
     metadata: Dict[str, str]
