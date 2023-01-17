@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- BREAKING CHANGE: failed task category (#309)
 - BREAKING: DataSampleSpec don't have a `test_only` field anymore (#332)
 
 ### Changed
@@ -125,10 +126,6 @@ compute_plan = client.add_compute_plan(
 - Apply changes from algo to function in substratools (#303)
 - Register functions in substratools using decorator `@tools.register` (#310)
 - Update README image (#318)
-
-### Removed
-
-- BREAKING CHANGE: failed task category
 
 ## [0.39.0](https://github.com/Substra/substra/releases/tag/0.39.0) - 2022-10-03
 
