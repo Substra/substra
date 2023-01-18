@@ -111,6 +111,11 @@ compute_plan = client.add_compute_plan(
 - Register functions in substratools using decorator `@tools.register` (#310)
 - Update README image (#318)
 
+
+### Added
+
+- dataset method to archive the asset
+
 ## [0.39.0](https://github.com/Substra/substra/releases/tag/0.39.0) - 2022-10-03
 
 ### Removed

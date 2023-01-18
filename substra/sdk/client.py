@@ -653,6 +653,12 @@ class Client:
         return
 
     @logit
+    def archive_dataset(self, key: str, archived: bool):
+        spec = self._get_spec(schemas.ArchiveDatasetSpec, {"archived": archived})
+        self._backend.archive(key, spec)
+        return
+
+    @logit
     def link_dataset_with_data_samples(
         self,
         dataset_key: str,
