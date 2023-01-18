@@ -50,8 +50,10 @@ pip install -e ".[dev]"
 To run all tests, use the following command:
 
 ```sh
-python setup.py test
+make test
 ```
+
+ Some of the tests require Docker running on your machine before running them.
 
 ## Code formatting
 
