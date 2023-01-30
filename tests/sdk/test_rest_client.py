@@ -105,7 +105,7 @@ def test_add_wrong_url(mocker):
 
 def test_list_paginated(mocker):
     asset_type = "traintask"
-    items = [datastore.TRAINTUPLE, datastore.TRAINTUPLE]
+    items = [datastore.TRAINTASK, datastore.TRAINTASK]
     responses = [
         mock_response(
             response={
@@ -134,7 +134,7 @@ def test_list_paginated(mocker):
 
 def test_list_not_paginated(mocker):
     asset_type = "traintask"
-    items = [datastore.TRAINTUPLE, datastore.TRAINTUPLE]
+    items = [datastore.TRAINTASK, datastore.TRAINTASK]
     m_get = mock_requests(
         mocker,
         "get",

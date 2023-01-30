@@ -136,7 +136,7 @@ ALGO_METRIC = {
 }
 
 
-TRAINTUPLE = {
+TRAINTASK = {
     "key": "30c283be-d385-424e-94a6-4d8538275260",
     "algo": {
         "key": "17f98afc-2b82-4ce9-b232-1a471633d020",
@@ -205,7 +205,7 @@ TRAINTUPLE = {
     },
 }
 
-AGGREGATETUPLE = {
+AGGREGATETASK = {
     "key": "06207faf-1785-4fa9-4220-99a50dcfe064",
     "algo": {
         "key": "7c9f9799-bf64-c100-6238-1583a9ffc535",
@@ -264,7 +264,7 @@ AGGREGATETUPLE = {
     },
 }
 
-COMPOSITE_TRAINTUPLE = {
+COMPOSITE_TRAINTASK = {
     "key": "aa09180a-fec6-46a5-a1a7-58c971b39217",
     "algo": {
         "key": "c663b6e6-dd62-49fb-afe8-191fa7627a64",
@@ -355,7 +355,7 @@ COMPOSITE_TRAINTUPLE = {
     },
 }
 
-COMPOSITE_TRAINTUPLE_DOING = {
+COMPOSITE_TRAINTASK_DOING = {
     "key": "aa09180a-fec6-46a5-a1a7-58c971b39217",
     "algo": {
         "key": "c663b6e6-dd62-49fb-afe8-191fa7627a64",
@@ -416,7 +416,7 @@ COMPOSITE_TRAINTUPLE_DOING = {
     },
 }
 
-PREDICTTUPLE = {
+PREDICTTASK = {
     "key": "afa9c7b1-21b5-4e58-a098-79de4ecede35",
     "algo": {
         "key": "681eedb9-db00-4480-a66f-63c86cc20280",
@@ -475,7 +475,7 @@ PREDICTTUPLE = {
     },
 }
 
-TESTTUPLE = {
+TESTTASK = {
     "key": "afa9c7b1-21b5-4e58-a098-79de4ecede35",
     "algo": {
         "key": "6a8ada2e-740f-46f4-af0f-11376763ed72",

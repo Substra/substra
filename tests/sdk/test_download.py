@@ -73,10 +73,10 @@ def test_download_content_not_found(asset_type, tmp_path, client, mocker):
 @pytest.mark.parametrize(
     "asset_type, identifier",
     [
-        ("TRAINTUPLE", "model"),
-        ("AGGREGATETUPLE", "model"),
-        ("COMPOSITE_TRAINTUPLE", "local"),
-        ("COMPOSITE_TRAINTUPLE", "shared"),
+        ("TRAINTASK", "model"),
+        ("AGGREGATETASK", "model"),
+        ("COMPOSITE_TRAINTASK", "local"),
+        ("COMPOSITE_TRAINTASK", "shared"),
     ],
 )
 @patch.object(Client, "download_model")
