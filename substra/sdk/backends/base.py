@@ -31,7 +31,7 @@ class BaseBackend(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_compute_plan_tuples(self, spec, spec_options):
+    def add_compute_plan_tasks(self, spec, spec_options):
         raise NotImplementedError
 
     @abc.abstractmethod

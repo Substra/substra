@@ -201,7 +201,7 @@ class Local(base.BaseBackend):
 
         return self._db.add(compute_plan)
 
-    def __create_compute_plan_from_tuple(self, spec, in_tuples):
+    def __create_compute_plan_from_task(self, spec, in_tasks):
         # compute plan and rank
         if spec.compute_plan_key is not None:
             compute_plan = self._db.get(schemas.Type.ComputePlan, spec.compute_plan_key)
@@ -210,11 +210,11 @@ class Local(base.BaseBackend):
                 # Use the rank given by the user
                 rank = spec.rank
             else:
-                if len(in_tuples) == 0:
+                if len(in_tasks) == 0:
                     rank = 0
                 else:
                     rank = 1 + max(
-                        [in_tuple.rank for in_tuple in in_tuples if in_tuple.compute_plan_key == compute_plan_key]
+                        [in_task.rank for in_task in in_tasks if in_task.compute_plan_key == compute_plan_key]
                     )
 
             # Add to the compute plan
@@ -232,7 +232,7 @@ class Local(base.BaseBackend):
 
         return compute_plan_key, rank
 
-    def __execute_compute_plan(self, spec, compute_plan, visited, tuples, spec_options):
+    def __execute_compute_plan(self, spec, compute_plan, visited, tasks, spec_options):
         with tqdm(
             total=len(visited),
             desc="Compute plan progress",
@@ -240,13 +240,13 @@ class Local(base.BaseBackend):
 
             for id_, _ in sorted(visited.items(), key=lambda item: item[1]):
 
-                tuple_spec = tuples.get(id_)
-                if not tuple_spec:
+                task_spec = tasks.get(id_)
+                if not task_spec:
                     continue
 
                 self.add(
-                    key=tuple_spec.key,
-                    spec=tuple_spec,
+                    key=task_spec.key,
+                    spec=task_spec,
                     spec_options=spec_options,
                 )
 
@@ -351,11 +351,11 @@ class Local(base.BaseBackend):
 
     def _add_compute_plan(self, spec: schemas.ComputePlanSpec, spec_options: dict = None):
         self._check_metadata(spec.metadata)
-        # Get all the tuples and their dependencies
-        tuple_graph, tuples = compute_plan_module.get_dependency_graph(spec)
+        # Get all the tasks and their dependencies
+        task_graph, tasks = compute_plan_module.get_dependency_graph(spec)
 
         # Define the rank of each task
-        visited = graph.compute_ranks(node_graph=tuple_graph)
+        visited = graph.compute_ranks(node_graph=task_graph)
 
         compute_plan = models.ComputePlan(
             key=spec.key,
@@ -376,8 +376,8 @@ class Local(base.BaseBackend):
         )
         compute_plan = self._db.add(compute_plan)
 
-        # go through the tuples sorted by rank
-        compute_plan = self.__execute_compute_plan(spec, compute_plan, visited, tuples, spec_options)
+        # go through the tasks sorted by rank
+        compute_plan = self.__execute_compute_plan(spec, compute_plan, visited, tasks, spec_options)
         return compute_plan
 
     def _add_task(self, key, spec, spec_options=None):
@@ -391,7 +391,7 @@ class Local(base.BaseBackend):
             {inputref.parent_task_key for inputref in (spec.inputs or list()) if inputref.parent_task_key}
         )
         in_tasks = [self._db.get(schemas.Type.Task, in_task_key) for in_task_key in in_task_keys]
-        compute_plan_key, rank = self.__create_compute_plan_from_tuple(spec=spec, in_tuples=in_tasks)
+        compute_plan_key, rank = self.__create_compute_plan_from_task(spec=spec, in_tasks=in_tasks)
 
         task = models.Task(
             key=key,
@@ -503,8 +503,8 @@ class Local(base.BaseBackend):
 
         return destination_file
 
-    def download_logs(self, tuple_key: str, destination_file: str = None) -> NoReturn:
-        raise NotImplementedError("Logs of tuples ran in local mode are not accessible")
+    def download_logs(self, task_key: str, destination_file: str = None) -> NoReturn:
+        raise NotImplementedError("Logs of tasks ran in local mode are not accessible")
 
     def describe(self, asset_type, key):
         if self._db.is_local(key, schemas.Type.Dataset):
@@ -543,13 +543,13 @@ class Local(base.BaseBackend):
         self._db.update(updated_asset)
         return
 
-    def add_compute_plan_tuples(self, spec: schemas.UpdateComputePlanTuplesSpec, spec_options: dict = None):
+    def add_compute_plan_tasks(self, spec: schemas.UpdateComputePlanTuplesSpec, spec_options: dict = None):
         key = spec.key
         compute_plan = self._db.get(schemas.Type.ComputePlan, key)
-        # Get all the new tuples and their dependencies
-        tuple_graph, tuples = compute_plan_module.get_dependency_graph(spec)
+        # Get all the new tasks and their dependencies
+        task_graph, tasks = compute_plan_module.get_dependency_graph(spec)
 
-        # Get the rank of all the tuples already in the compute plan
+        # Get the rank of all the tasks already in the compute plan
         filters = {"compute_plan_key": [key]}
         cp_tasks = self.list(
             asset_type=schemas.Type.Task,
@@ -559,11 +559,11 @@ class Local(base.BaseBackend):
         for task in cp_tasks:
             visited[task.key] = task.rank
 
-        # Update the tuple graph with the tuples already in the CP
-        tuple_graph.update({k: list() for k in visited})
-        visited = graph.compute_ranks(node_graph=tuple_graph, ranks=visited)
+        # Update the task graph with the tasks already in the CP
+        task_graph.update({k: list() for k in visited})
+        visited = graph.compute_ranks(node_graph=task_graph, ranks=visited)
 
-        compute_plan = self.__execute_compute_plan(spec, compute_plan, visited, tuples, spec_options)
+        compute_plan = self.__execute_compute_plan(spec, compute_plan, visited, tasks, spec_options)
         return compute_plan
 
 

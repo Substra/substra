@@ -30,24 +30,24 @@ def test_update_asset(asset_type, client, mocker):
     m_get.assert_called()
 
 
-def test_add_compute_plan_tuples(client, mocker):
+def test_add_compute_plan_tasks(client, mocker):
     item = datastore.COMPUTE_PLAN
     m = mock_requests(mocker, "post", response=item)
     m_get = mock_requests(mocker, "get", response=datastore.COMPUTE_PLAN)
 
-    response = client.add_compute_plan_tuples("foo", {})
+    response = client.add_compute_plan_tasks("foo", {})
 
     assert response == models.ComputePlan(**item)
     m.assert_called
     m_get.assert_called
 
 
-def test_add_compute_plan_tuples_with_schema(client, mocker):
+def test_add_compute_plan_tasks_with_schema(client, mocker):
     item = datastore.COMPUTE_PLAN
     m = mock_requests(mocker, "post", response=item)
     m_get = mock_requests(mocker, "get", response=datastore.COMPUTE_PLAN)
 
-    response = client.add_compute_plan_tuples("foo", schemas.UpdateComputePlanTuplesSpec(key="foo"))
+    response = client.add_compute_plan_tasks("foo", schemas.UpdateComputePlanTuplesSpec(key="foo"))
 
     assert response == models.ComputePlan(**item)
     m.assert_called

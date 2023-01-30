@@ -36,11 +36,11 @@ def test_get_asset(asset_type, client, mocker):
 @pytest.mark.parametrize(
     "asset_type",
     [
-        "predicttuple",
-        "testtuple",
-        "traintuple",
-        "aggregatetuple",
-        "composite_traintuple",
+        "predicttask",
+        "testtask",
+        "traintask",
+        "aggregatetask",
+        "composite_traintask",
     ],
 )
 def test_get_task(asset_type, client, mocker):
@@ -88,11 +88,11 @@ def test_get_extra_field(asset_type, client, mocker):
 @pytest.mark.parametrize(
     "asset_type",
     [
-        "predicttuple",
-        "testtuple",
-        "traintuple",
-        "aggregatetuple",
-        "composite_traintuple",
+        "predicttask",
+        "testtask",
+        "traintask",
+        "aggregatetask",
+        "composite_traintask",
     ],
 )
 def test_get_task_extra_field(asset_type, client, mocker):
@@ -110,11 +110,11 @@ def test_get_task_extra_field(asset_type, client, mocker):
 
 def test_get_logs(client, mocker):
     logs = "Lorem ipsum dolor sit amet"
-    tuple_key = "key"
+    task_key = "key"
 
     responses = [mock_response(logs)]
     m = mock_requests_responses(mocker, "get", responses)
-    result = client.get_logs(tuple_key)
+    result = client.get_logs(task_key)
 
     m.assert_called_once()
     assert result == logs

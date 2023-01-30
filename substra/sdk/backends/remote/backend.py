@@ -65,9 +65,9 @@ class Remote(base.BaseBackend):
             performances.compute_plan_metadata.append(compute_plan.metadata)
 
             performances.worker.append(test_task["compute_task"]["worker"])
-            performances.testtuple_key.append(test_task["compute_task"]["key"])
+            performances.testtask_key.append(test_task["compute_task"]["key"])
             performances.metric_name.append(test_task["metric"]["name"])
-            performances.testtuple_rank.append(test_task["compute_task"]["rank"])
+            performances.testtask_rank.append(test_task["compute_task"]["rank"])
             performances.round_idx.append(test_task["compute_task"]["round_idx"])
             performances.performance.append(test_task["perf"])
 
@@ -155,13 +155,13 @@ class Remote(base.BaseBackend):
             )
         elif asset_type == schemas.Type.ComputePlan:
             cp = self._add_compute_plan(spec, spec_options)
-            self._add_tuples_from_computeplan(spec, spec_options, auto_batching, batch_size)
+            self._add_tasks_from_computeplan(spec, spec_options, auto_batching, batch_size)
             return cp
         elif asset_type == schemas.Type.Task:
             cp_spec = schemas.ComputePlanSpec(name=f"{spec.key}")
             self._add_compute_plan(cp_spec, spec_options)
             spec.compute_plan_key = cp_spec.key
-            return self._add_tuples([spec], spec_options)[0]["key"]
+            return self._add_tasks([spec], spec_options)[0]["key"]
 
         with spec.build_request_kwargs(**spec_options) as (data, files):
             response = self._add(asset_type, data, files=files)
@@ -169,7 +169,7 @@ class Remote(base.BaseBackend):
         return response["key"]
 
     def _add_compute_plan(self, spec, spec_options):
-        """Register compute plan info (without tuples)."""
+        """Register compute plan info (without tasks)."""
         cp_spec = spec.copy()
         del cp_spec.tasks
 
@@ -177,27 +177,27 @@ class Remote(base.BaseBackend):
             response = self._add(schemas.Type.ComputePlan, data)
         return models.ComputePlan(**response)
 
-    def _add_tuples_from_computeplan(self, spec, spec_options, auto_batching, batch_size):
-        """Register batch(es) of tuples."""
-        tuples = compute_plan.get_tuples(spec)
+    def _add_tasks_from_computeplan(self, spec, spec_options, auto_batching, batch_size):
+        """Register batch(es) of tasks."""
+        tasks = compute_plan.get_tasks(spec)
         if auto_batching:
             if not batch_size:
                 raise ValueError(
                     "Batch size must be defined to create a compute plan \
                     with the auto-batching feature."
                 )
-            # Split tuples by batch
+            # Split tasks by batch
             batches = []
-            for i in range(math.ceil(len(tuples) / batch_size)):
+            for i in range(math.ceil(len(tasks) / batch_size)):
                 start = i * batch_size
-                end = min(len(tuples), (i + 1) * batch_size)
-                batches.append(tuples[start:end])
+                end = min(len(tasks), (i + 1) * batch_size)
+                batches.append(tasks[start:end])
         else:
-            batches = [tuples]
+            batches = [tasks]
 
         for batch in batches:
             try:
-                self._add_tuples(batch, spec_options)
+                self._add_tasks(batch, spec_options)
             except exceptions.AlreadyExists:
                 logger.warning(
                     "Skipping already submitted tasks, probably because of a timeout error. "
@@ -205,11 +205,11 @@ class Remote(base.BaseBackend):
                 )
                 continue
 
-    def _add_tuples(self, batch, spec_options):
+    def _add_tasks(self, batch, spec_options):
         batch_data = []
-        for tuple_spec in batch:
-            with tuple_spec.build_request_kwargs(**spec_options) as (tuple_data, _):
-                batch_data.append(tuple_data)
+        for task_spec in batch:
+            with task_spec.build_request_kwargs(**spec_options) as (task_data, _):
+                batch_data.append(task_data)
         return self._client.request(
             "post",
             "task",
@@ -245,11 +245,11 @@ class Remote(base.BaseBackend):
         with spec.build_request_kwargs(**spec_options) as (data, files):
             return self._update(asset_type, key, data, files=files)
 
-    def add_compute_plan_tuples(self, spec, spec_options):
+    def add_compute_plan_tasks(self, spec, spec_options):
         # Remove auto_batching and batch_size from spec_options
         auto_batching = spec_options.pop(AUTO_BATCHING, False)
         batch_size = spec_options.pop(BATCH_SIZE, None)
-        self._add_tuples_from_computeplan(spec, spec_options, auto_batching, batch_size)
+        self._add_tasks_from_computeplan(spec, spec_options, auto_batching, batch_size)
 
         return self.get(
             asset_type=schemas.Type.ComputePlan,
@@ -287,11 +287,11 @@ class Remote(base.BaseBackend):
         url = f"{self._client.base_url}/model/{key}/file/"
         return self._download(url, destination_file)
 
-    def download_logs(self, tuple_key: str, destination_file: str = None) -> str:
-        """Download the logs of a failed tuple. If destination_file is set, return the full
+    def download_logs(self, task_key: str, destination_file: str = None) -> str:
+        """Download the logs of a failed task. If destination_file is set, return the full
         destination path, otherwise, return the logs as a str.
         """
-        url = f"{self._client.base_url}/logs/{tuple_key}/file/"
+        url = f"{self._client.base_url}/logs/{task_key}/file/"
 
         if destination_file:
             return self._download(url, destination_file)

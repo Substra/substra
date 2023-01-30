@@ -295,7 +295,7 @@ Task.update_forward_refs()
 
 
 class FailedTuple(_Model):
-    """Info on failed tuple."""
+    """Info on failed task."""
 
     key: str
     category: str
@@ -342,9 +342,9 @@ class Performances(_Model):
     compute_plan_end_date: List[datetime] = list()
     compute_plan_metadata: List[dict] = list()
     worker: List[str] = list()
-    testtuple_key: List[str] = list()
+    testtask_key: List[str] = list()
     metric_name: List[str] = list()
-    testtuple_rank: List[int] = list()
+    testtask_rank: List[int] = list()
     round_idx: List[int] = list()
     performance: List[float] = list()
 

@@ -422,22 +422,22 @@ class AssetsFactory:
     def create_compute_plan(self, key=None, tag="", name="Test compute plan", metadata=None):
         return substra.sdk.schemas.ComputePlanSpec(
             key=key or random_uuid(),
-            traintuples=[],
-            composite_traintuples=[],
-            aggregatetuples=[],
-            predicttuples=[],
-            testtuples=[],
+            traintasks=[],
+            composite_traintasks=[],
+            aggregatetasks=[],
+            predicttasks=[],
+            testtasks=[],
             tag=tag,
             name=name,
             metadata=metadata,
         )
 
-    def add_compute_plan_tuples(self, compute_plan):
+    def add_compute_plan_tasks(self, compute_plan):
         return substra.sdk.schemas.UpdateComputePlanTuplesSpec(
-            traintuples=[],
-            composite_traintuples=[],
-            aggregatetuples=[],
-            predicttuples=[],
-            testtuples=[],
+            traintasks=[],
+            composite_traintasks=[],
+            aggregatetasks=[],
+            predicttasks=[],
+            testtasks=[],
             key=compute_plan.key,
         )

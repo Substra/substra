@@ -147,7 +147,7 @@ class FLTaskInputGenerator:
         ]
 
     @staticmethod
-    def tuple(opener_key, data_sample_keys):
+    def task(opener_key, data_sample_keys):
         return FLTaskInputGenerator.opener(opener_key=opener_key) + FLTaskInputGenerator.data_samples(
             data_sample_keys=data_sample_keys
         )
@@ -297,19 +297,19 @@ class FLTaskOutputGenerator:
     "Generates task outputs based on Input and OutputIdentifiers"
 
     @staticmethod
-    def traintuple(authorized_ids=None):
+    def traintask(authorized_ids=None):
         return {OutputIdentifiers.model: ComputeTaskOutputSpec(permissions=_permission_from_ids(authorized_ids))}
 
     @staticmethod
-    def aggregatetuple(authorized_ids=None):
+    def aggregatetask(authorized_ids=None):
         return {OutputIdentifiers.model: ComputeTaskOutputSpec(permissions=_permission_from_ids(authorized_ids))}
 
     @staticmethod
-    def predicttuple(authorized_ids=None):
+    def predicttask(authorized_ids=None):
         return {OutputIdentifiers.predictions: ComputeTaskOutputSpec(permissions=_permission_from_ids(authorized_ids))}
 
     @staticmethod
-    def testtuple(authorized_ids=None):
+    def testtask(authorized_ids=None):
         return {
             OutputIdentifiers.performance: ComputeTaskOutputSpec(
                 permissions=Permissions(public=True, authorized_ids=[])
@@ -317,7 +317,7 @@ class FLTaskOutputGenerator:
         }
 
     @staticmethod
-    def composite_traintuple(shared_authorized_ids=None, local_authorized_ids=None):
+    def composite_traintask(shared_authorized_ids=None, local_authorized_ids=None):
         return {
             OutputIdentifiers.shared: ComputeTaskOutputSpec(permissions=_permission_from_ids(shared_authorized_ids)),
             OutputIdentifiers.local: ComputeTaskOutputSpec(permissions=_permission_from_ids(local_authorized_ids)),

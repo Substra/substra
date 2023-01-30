@@ -35,11 +35,11 @@ def test_list_asset(asset_type, client, mocker):
 @pytest.mark.parametrize(
     "asset_type",
     [
-        "predicttuple",
-        "testtuple",
-        "traintuple",
-        "aggregatetuple",
-        "composite_traintuple",
+        "predicttask",
+        "testtask",
+        "traintask",
+        "aggregatetask",
+        "composite_traintask",
     ],
 )
 def test_list_task(asset_type, client, mocker):
@@ -80,11 +80,11 @@ def test_list_asset_with_filters(asset_type, filters, client, mocker):
 @pytest.mark.parametrize(
     "asset_type,filters",
     [
-        ("predicttuple", {"rank": [1, 3]}),
-        ("testtuple", {"rank": [1, 3]}),
-        ("traintuple", {"key": ["foo", "bar"]}),
-        ("aggregatetuple", {"worker": ["foo", "bar"]}),
-        ("composite_traintuple", {"owner": ["foo", "bar"]}),
+        ("predicttask", {"rank": [1, 3]}),
+        ("testtask", {"rank": [1, 3]}),
+        ("traintask", {"key": ["foo", "bar"]}),
+        ("aggregatetask", {"worker": ["foo", "bar"]}),
+        ("composite_traintask", {"owner": ["foo", "bar"]}),
     ],
 )
 def test_list_task_with_filters(asset_type, filters, client, mocker):
@@ -127,11 +127,11 @@ def test_list_compute_plan_with_ordering(client, mocker):
 @pytest.mark.parametrize(
     "asset_type",
     [
-        "predicttuple",
-        "testtuple",
-        "traintuple",
-        "aggregatetuple",
-        "composite_traintuple",
+        "predicttask",
+        "testtask",
+        "traintask",
+        "aggregatetask",
+        "composite_traintask",
     ],
 )
 def test_list_task_with_ordering(asset_type, client, mocker):
