@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - BREAKING: DataSampleSpec don't have a `test_only` field anymore (#332)
 
+### Changed
+
+- chore: rename tuple to task (#337)
+
 ## [0.41.0](https://github.com/Substra/substra/releases/tag/0.41.0) - 2022-12-19
 
 ### Changed
