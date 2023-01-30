@@ -22,7 +22,7 @@ schemas_list = [
     schemas.UpdateAlgoSpec,
     schemas.ComputePlanSpec,
     schemas.UpdateComputePlanSpec,
-    schemas.UpdateComputePlanTuplesSpec,
+    schemas.UpdateComputePlanTasksSpec,
     schemas.ComputePlanTaskSpec,
     schemas.Permissions,
     schemas.PrivatePermissions,

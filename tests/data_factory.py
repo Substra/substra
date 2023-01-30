@@ -433,7 +433,7 @@ class AssetsFactory:
         )
 
     def add_compute_plan_tasks(self, compute_plan):
-        return substra.sdk.schemas.UpdateComputePlanTuplesSpec(
+        return substra.sdk.schemas.UpdateComputePlanTasksSpec(
             traintasks=[],
             composite_traintasks=[],
             aggregatetasks=[],

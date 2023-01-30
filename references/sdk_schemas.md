@@ -10,7 +10,7 @@
 - [UpdateAlgoSpec](#UpdateAlgoSpec)
 - [ComputePlanSpec](#ComputePlanSpec)
 - [UpdateComputePlanSpec](#UpdateComputePlanSpec)
-- [UpdateComputePlanTuplesSpec](#UpdateComputePlanTuplesSpec)
+- [UpdateComputePlanTasksSpec](#UpdateComputePlanTasksSpec)
 - [ComputePlanTaskSpec](#ComputePlanTaskSpec)
 - [Permissions](#Permissions)
 - [PrivatePermissions](#PrivatePermissions)
@@ -25,7 +25,6 @@ the 'paths' field.
 ```text
 - path: Optional[Path]
 - paths: Optional[List[Path]]
-- test_only: bool
 - data_manager_keys: List[str]
 ```
 
@@ -118,8 +117,8 @@ Specification for updating a compute plan
 - name: str
 ```
 
-## UpdateComputePlanTuplesSpec
-Specification for updating a compute plan's tuples
+## UpdateComputePlanTasksSpec
+Specification for updating a compute plan's tasks
 ```text
 - key: str
 - tasks: Optional[List[ComputePlanTaskSpec]]

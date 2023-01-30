@@ -543,7 +543,7 @@ class Local(base.BaseBackend):
         self._db.update(updated_asset)
         return
 
-    def add_compute_plan_tasks(self, spec: schemas.UpdateComputePlanTuplesSpec, spec_options: dict = None):
+    def add_compute_plan_tasks(self, spec: schemas.UpdateComputePlanTasksSpec, spec_options: dict = None):
         key = spec.key
         compute_plan = self._db.get(schemas.Type.ComputePlan, key)
         # Get all the new tasks and their dependencies

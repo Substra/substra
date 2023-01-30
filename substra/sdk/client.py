@@ -611,7 +611,7 @@ class Client:
     def add_compute_plan_tasks(
         self,
         key: str,
-        tasks: Union[dict, schemas.UpdateComputePlanTuplesSpec],
+        tasks: Union[dict, schemas.UpdateComputePlanTasksSpec],
         auto_batching: bool = True,
         batch_size: int = DEFAULT_BATCH_SIZE,
     ) -> models.ComputePlan:
@@ -619,9 +619,9 @@ class Client:
 
         Args:
             key (str): Compute plan key
-            tasks (Union[dict, schemas.UpdateComputePlanTuplesSpec]): If it is a dict,
+            tasks (Union[dict, schemas.UpdateComputePlanTasksSpec]): If it is a dict,
                 it must have the same keys as specified in
-                [schemas.UpdateComputePlanTuplesSpec](sdk_schemas.md#UpdateComputePlanTuplesSpec).
+                [schemas.UpdateComputePlanTasksSpec](sdk_schemas.md#UpdateComputePlanTasksSpec).
             auto_batching (bool, optional): Set 'auto_batching' to False to upload all
                 the tasks of the compute plan at once. Defaults to True.
             batch_size (int, optional): If 'auto_batching' is True, change `batch_size`
@@ -633,7 +633,7 @@ class Client:
         """
         if isinstance(tasks, dict):
             tasks["key"] = key
-        spec = self._get_spec(schemas.UpdateComputePlanTuplesSpec, tasks)
+        spec = self._get_spec(schemas.UpdateComputePlanTasksSpec, tasks)
         spec_options = {
             "auto_batching": auto_batching,
             "batch_size": batch_size,
