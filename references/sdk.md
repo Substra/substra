@@ -63,30 +63,30 @@ Create new compute plan asset.
 **Arguments:**
  - `data (Union[dict, schemas.ComputePlanSpec], required)`: If it is a dict, it must have the same
 keys as specified in [schemas.ComputePlanSpec](sdk_schemas.md#ComputePlanSpec).
- - `auto_batching (bool, optional)`: Set 'auto_batching' to False to upload all the tuples of
+ - `auto_batching (bool, optional)`: Set 'auto_batching' to False to upload all the tasks of
 the compute plan at once. Defaults to True.
  - `batch_size (int, optional)`: If 'auto_batching' is True, change `batch_size` to define
-the number of tuples uploaded in each batch (default 500).
+the number of tasks uploaded in each batch (default 500).
 
 **Returns:**
 
  - `models.ComputePlan`: Created compute plan
-## add_compute_plan_tuples
+## add_compute_plan_tasks
 ```text
-add_compute_plan_tuples(self, key: str, tuples: Union[dict, substra.sdk.schemas.UpdateComputePlanTuplesSpec], auto_batching: bool = True, batch_size: int = 500) -> substra.sdk.models.ComputePlan
+add_compute_plan_tasks(self, key: str, tasks: Union[dict, substra.sdk.schemas.UpdateComputePlanTasksSpec], auto_batching: bool = True, batch_size: int = 500) -> substra.sdk.models.ComputePlan
 ```
 
 Update compute plan.
 
 **Arguments:**
  - `key (str, required)`: Compute plan key
- - `tuples (Union[dict, schemas.UpdateComputePlanTuplesSpec], required)`: If it is a dict,
+ - `tasks (Union[dict, schemas.UpdateComputePlanTasksSpec], required)`: If it is a dict,
 it must have the same keys as specified in
-[schemas.UpdateComputePlanTuplesSpec](sdk_schemas.md#UpdateComputePlanTuplesSpec).
+[schemas.UpdateComputePlanTasksSpec](sdk_schemas.md#UpdateComputePlanTasksSpec).
  - `auto_batching (bool, optional)`: Set 'auto_batching' to False to upload all
-the tuples of the compute plan at once. Defaults to True.
+the tasks of the compute plan at once. Defaults to True.
  - `batch_size (int, optional)`: If 'auto_batching' is True, change `batch_size`
-to define the number of tuples uploaded in each batch (default 500).
+to define the number of tasks uploaded in each batch (default 500).
 
 **Returns:**
 
@@ -214,18 +214,18 @@ Download opener script in destination folder.
  - `pathlib.Path`: Path of the downloaded dataset
 ## download_logs
 ```text
-download_logs(self, tuple_key: str, folder: str) -> str
+download_logs(self, task_key: str, folder: str) -> str
 ```
 
-Download the execution logs of a failed tuple to a destination file.
-The logs are saved in the folder to a file named 'tuple_logs_{tuple_key}.txt'.
+Download the execution logs of a failed task to a destination file.
+The logs are saved in the folder to a file named 'task_logs_{task_key}.txt'.
 
-Logs are only available for tuples that experienced an execution failure.
-Attempting to retrieve logs for tuples in any other states or for non-existing
-tuples will result in a NotFound error.
+Logs are only available for tasks that experienced an execution failure.
+Attempting to retrieve logs for tasks in any other states or for non-existing
+tasks will result in a NotFound error.
 
 **Arguments:**
- - `tuple_key `: the key of the tuple that produced the logs
+ - `task_key `: the key of the task that produced the logs
  - `folder `: the destination directory
 
 **Returns:**
@@ -327,15 +327,15 @@ Get dataset by key, the returned object is described
 in the [models.Dataset](sdk_models.md#Dataset) model
 ## get_logs
 ```text
-get_logs(self, tuple_key: str) -> str
+get_logs(self, task_key: str) -> str
 ```
 
-Get tuple logs by tuple key, the returned object is a string
+Get task logs by task key, the returned object is a string
 containing the logs.
 
-Logs are only available for tuples that experienced an execution failure.
-Attempting to retrieve logs for tuples in any other states or for non-existing
-tuples will result in a NotFound error.
+Logs are only available for tasks that experienced an execution failure.
+Attempting to retrieve logs for tasks in any other states or for non-existing
+tasks will result in a NotFound error.
 ## get_model
 ```text
 get_model(self, key: str) -> substra.sdk.models.OutModel

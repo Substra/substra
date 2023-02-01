@@ -39,7 +39,7 @@ def _copy_data_samples(data_sample_paths: typing.Dict[str, pathlib.Path], dest_d
         data_sample_paths (typing.Dict[str, pathlib.Path]): Paths to the samples
         dest_dir (str): Temp data directory
     """
-    # Check if there are already data samples in the dest dir (testtuples are executed in 2 parts)
+    # Check if there are already data samples in the dest dir (testtasks are executed in 2 parts)
     sample_key = next(iter(data_sample_paths))
     if (pathlib.Path(dest_dir) / sample_key).exists():
         return

@@ -23,7 +23,6 @@ Data sample
 - data_manager_keys: Optional[List[str]]
 - path: Optional[DirectoryPath]
 - creation_date: datetime
-- test_only: bool
 ```
 
 ## Dataset
@@ -34,8 +33,7 @@ Dataset asset
 - owner: str
 - permissions: Permissions
 - type: str
-- train_data_sample_keys: List[str]
-- test_data_sample_keys: List[str]
+- data_sample_keys: List[str]
 - opener: _File
 - description: _File
 - metadata: Mapping[str, str]
@@ -93,7 +91,7 @@ ComputePlan
 - canceled_count: int
 - failed_count: int
 - done_count: int
-- failed_task: Optional[FailedTuple]
+- failed_task: Optional[FailedTask]
 - status: ComputePlanStatus
 - creation_date: datetime
 - start_date: Optional[datetime]
@@ -113,9 +111,9 @@ Performances of the different compute tasks of a compute plan
 - compute_plan_end_date: List[datetime]
 - compute_plan_metadata: List[dict]
 - worker: List[str]
-- testtuple_key: List[str]
+- testtask_key: List[str]
 - metric_name: List[str]
-- testtuple_rank: List[int]
+- testtask_rank: List[int]
 - round_idx: List[int]
 - performance: List[float]
 ```

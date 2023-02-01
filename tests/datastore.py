@@ -26,7 +26,7 @@ METRIC = {
 
 DATASET = {
     "key": "d7dc4a5b-e81f-4f3f-b94c-5e2bbaca15cd",
-    "name": "c5e21113fcc64160b4dfac17892db879_test_composite_traintuple_data_samples_relative_order - Dataset 0",
+    "name": "c5e21113fcc64160b4dfac17892db879_test_composite_traintask_data_samples_relative_order - Dataset 0",
     "owner": "MyOrg1MSP",
     "creation_date": "2021-08-24T13:36:07.428974249Z",
     "permissions": {
@@ -56,7 +56,7 @@ DATA_SAMPLE = {
 
 ALGO = {
     "key": "17f98afc-2b82-4ce9-b232-1a471633d020",
-    "name": "def637b111f2495bb6b4771644d2409e_test_traintuple_data_samples_relative_order - Algo 0",
+    "name": "def637b111f2495bb6b4771644d2409e_test_traintask_data_samples_relative_order - Algo 0",
     "owner": "MyOrg1MSP",
     "creation_date": "2021-08-24T13:36:07.393646367Z",
     "permissions": {
@@ -83,7 +83,7 @@ ALGO = {
 
 ALGO_PREDICT = {
     "key": "681eedb9-db00-4480-a66f-63c86cc20280",
-    "name": "def637b111f2495bb6b4771644d2409e_test_traintuple_data_samples_relative_order - Algo Predict",
+    "name": "def637b111f2495bb6b4771644d2409e_test_traintask_data_samples_relative_order - Algo Predict",
     "owner": "MyOrg1MSP",
     "creation_date": "2021-08-24T13:36:07.393646367Z",
     "permissions": {
@@ -111,7 +111,7 @@ ALGO_PREDICT = {
 
 ALGO_METRIC = {
     "key": "6a8ada2e-740f-46f4-af0f-11376763ed72",
-    "name": "def637b111f2495bb6b4771644d2409e_test_traintuple_data_samples_relative_order - Algo Metric",
+    "name": "def637b111f2495bb6b4771644d2409e_test_traintask_data_samples_relative_order - Algo Metric",
     "owner": "MyOrg1MSP",
     "creation_date": "2021-08-24T13:36:07.393646367Z",
     "permissions": {
@@ -136,11 +136,11 @@ ALGO_METRIC = {
 }
 
 
-TRAINTUPLE = {
+TRAINTASK = {
     "key": "30c283be-d385-424e-94a6-4d8538275260",
     "algo": {
         "key": "17f98afc-2b82-4ce9-b232-1a471633d020",
-        "name": "def637b111f2495bb6b4771644d2409e_test_traintuple_data_samples_relative_order - Algo 0",
+        "name": "def637b111f2495bb6b4771644d2409e_test_traintask_data_samples_relative_order - Algo 0",
         "owner": "MyOrg1MSP",
         "creation_date": "2021-08-24T13:36:07.428974249Z",
         "permissions": {
@@ -205,7 +205,7 @@ TRAINTUPLE = {
     },
 }
 
-AGGREGATETUPLE = {
+AGGREGATETASK = {
     "key": "06207faf-1785-4fa9-4220-99a50dcfe064",
     "algo": {
         "key": "7c9f9799-bf64-c100-6238-1583a9ffc535",
@@ -264,11 +264,11 @@ AGGREGATETUPLE = {
     },
 }
 
-COMPOSITE_TRAINTUPLE = {
+COMPOSITE_TRAINTASK = {
     "key": "aa09180a-fec6-46a5-a1a7-58c971b39217",
     "algo": {
         "key": "c663b6e6-dd62-49fb-afe8-191fa7627a64",
-        "name": "c5e21113fcc64160b4dfac17892db879_test_aggregate_composite_traintuples - Algo 0",
+        "name": "c5e21113fcc64160b4dfac17892db879_test_aggregate_composite_traintasks - Algo 0",
         "owner": "MyOrg1MSP",
         "creation_date": "2021-08-24T13:36:07.428974249Z",
         "permissions": {
@@ -355,11 +355,11 @@ COMPOSITE_TRAINTUPLE = {
     },
 }
 
-COMPOSITE_TRAINTUPLE_DOING = {
+COMPOSITE_TRAINTASK_DOING = {
     "key": "aa09180a-fec6-46a5-a1a7-58c971b39217",
     "algo": {
         "key": "c663b6e6-dd62-49fb-afe8-191fa7627a64",
-        "name": "c5e21113fcc64160b4dfac17892db879_test_aggregate_composite_traintuples - Algo 0",
+        "name": "c5e21113fcc64160b4dfac17892db879_test_aggregate_composite_traintasks - Algo 0",
         "owner": "MyOrg1MSP",
         "creation_date": "2021-08-24T13:36:07.428974249Z",
         "permissions": {
@@ -416,11 +416,11 @@ COMPOSITE_TRAINTUPLE_DOING = {
     },
 }
 
-PREDICTTUPLE = {
+PREDICTTASK = {
     "key": "afa9c7b1-21b5-4e58-a098-79de4ecede35",
     "algo": {
         "key": "681eedb9-db00-4480-a66f-63c86cc20280",
-        "name": "def637b111f2495bb6b4771644d2409e_test_traintuple_data_samples_relative_order - Algo Predict681eedb9-db00-4480-a66f-63c86cc20280",  # noqa: E501
+        "name": "def637b111f2495bb6b4771644d2409e_test_traintask_data_samples_relative_order - Algo Predict681eedb9-db00-4480-a66f-63c86cc20280",  # noqa: E501
         "owner": "MyOrg1MSP",
         "creation_date": "2021-08-24T13:36:07.428974249Z",
         "permissions": {
@@ -475,11 +475,11 @@ PREDICTTUPLE = {
     },
 }
 
-TESTTUPLE = {
+TESTTASK = {
     "key": "afa9c7b1-21b5-4e58-a098-79de4ecede35",
     "algo": {
         "key": "6a8ada2e-740f-46f4-af0f-11376763ed72",
-        "name": "def637b111f2495bb6b4771644d2409e_test_traintuple_data_samples_relative_order - Algo Metric",
+        "name": "def637b111f2495bb6b4771644d2409e_test_traintask_data_samples_relative_order - Algo Metric",
         "owner": "MyOrg1MSP",
         "creation_date": "2021-08-24T13:36:07.428974249Z",
         "permissions": {

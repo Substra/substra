@@ -73,7 +73,7 @@ def test_request_connection_error(mocker):
 
 
 def test_add_timeout_with_retry(mocker):
-    asset_type = "traintuple"
+    asset_type = "traintask"
     responses = [
         mock_response(response={"key": "a-key"}, status=408),
         mock_response(response={"key": "a-key"}),
@@ -85,7 +85,7 @@ def test_add_timeout_with_retry(mocker):
 
 
 def test_add_already_exist(mocker):
-    asset_type = "traintuple"
+    asset_type = "traintask"
     m_post = mock_requests(mocker, "post", response={"key": "a-key"}, status=409)
     asset = _client_from_config(CONFIG).add(asset_type)
     assert len(m_post.call_args_list) == 1
@@ -104,8 +104,8 @@ def test_add_wrong_url(mocker):
 
 
 def test_list_paginated(mocker):
-    asset_type = "traintuple"
-    items = [datastore.TRAINTUPLE, datastore.TRAINTUPLE]
+    asset_type = "traintask"
+    items = [datastore.TRAINTASK, datastore.TRAINTASK]
     responses = [
         mock_response(
             response={
@@ -133,8 +133,8 @@ def test_list_paginated(mocker):
 
 
 def test_list_not_paginated(mocker):
-    asset_type = "traintuple"
-    items = [datastore.TRAINTUPLE, datastore.TRAINTUPLE]
+    asset_type = "traintask"
+    items = [datastore.TRAINTASK, datastore.TRAINTASK]
     m_get = mock_requests(
         mocker,
         "get",

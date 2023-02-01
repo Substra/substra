@@ -133,9 +133,9 @@ class DataAccess:
                     performances.compute_plan_metadata.append(compute_plan.metadata)
 
                     performances.worker.append(task.worker)
-                    performances.testtuple_key.append(task.key)
+                    performances.testtask_key.append(task.key)
                     performances.metric_name.append(metric.name)
-                    performances.testtuple_rank.append(task.rank)
+                    performances.testtask_rank.append(task.rank)
                     performances.round_idx.append(task.metadata.get("round_idx"))
                     performances.performance.append(task.outputs[perf_identifier].value)
 

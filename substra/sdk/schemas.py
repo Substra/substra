@@ -232,8 +232,8 @@ class ComputePlanSpec(_BaseComputePlanSpec):
         yield data, None
 
 
-class UpdateComputePlanTuplesSpec(_BaseComputePlanSpec):
-    """Specification for updating a compute plan's tuples"""
+class UpdateComputePlanTasksSpec(_BaseComputePlanSpec):
+    """Specification for updating a compute plan's tasks"""
 
     pass
 

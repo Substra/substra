@@ -3,14 +3,14 @@ from substra.sdk import graph
 from substra.sdk import schemas
 
 
-def _insert_into_graph(task_graph, tuple_id, in_model_ids):
-    if tuple_id in task_graph:
+def _insert_into_graph(task_graph, task_id, in_model_ids):
+    if task_id in task_graph:
         raise exceptions.InvalidRequest("Two tasks cannot have the same id.", 400)
-    task_graph[tuple_id] = in_model_ids
+    task_graph[task_id] = in_model_ids
 
 
 def get_dependency_graph(spec: schemas._BaseComputePlanSpec):
-    """Get the tuple dependency graph and, for each type of tuple, a mapping table id/tuple."""
+    """Get the task dependency graph and, for each type of task, a mapping table id/task."""
     task_graph = {}
     tasks = {}
 
@@ -18,7 +18,7 @@ def get_dependency_graph(spec: schemas._BaseComputePlanSpec):
         for task in spec.tasks:
             _insert_into_graph(
                 task_graph=task_graph,
-                tuple_id=task.task_id,
+                task_id=task.task_id,
                 in_model_ids=[
                     input_ref.parent_task_key for input_ref in (task.inputs or list()) if input_ref.parent_task_key
                 ],
@@ -31,7 +31,7 @@ def get_dependency_graph(spec: schemas._BaseComputePlanSpec):
     return task_graph, tasks
 
 
-def get_tuples(spec):
+def get_tasks(spec):
     """Returns compute plan tasks sorted by dependencies."""
 
     # Create the dependency graph and get the dict of tasks by id

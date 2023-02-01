@@ -329,10 +329,10 @@ class Client:
         Args:
             data (Union[dict, schemas.ComputePlanSpec]): If it is a dict, it must have the same
                 keys as specified in [schemas.ComputePlanSpec](sdk_schemas.md#ComputePlanSpec).
-            auto_batching (bool, optional): Set 'auto_batching' to False to upload all the tuples of
+            auto_batching (bool, optional): Set 'auto_batching' to False to upload all the tasks of
                 the compute plan at once. Defaults to True.
             batch_size (int, optional): If 'auto_batching' is True, change `batch_size` to define
-                the number of tuples uploaded in each batch (default 500).
+                the number of tasks uploaded in each batch (default 500).
 
         Returns:
             models.ComputePlan: Created compute plan
@@ -394,15 +394,15 @@ class Client:
         return self._backend.get(schemas.Type.Task, key)
 
     @logit
-    def get_logs(self, tuple_key: str) -> str:
-        """Get tuple logs by tuple key, the returned object is a string
+    def get_logs(self, task_key: str) -> str:
+        """Get task logs by task key, the returned object is a string
         containing the logs.
 
-        Logs are only available for tuples that experienced an execution failure.
-        Attempting to retrieve logs for tuples in any other states or for non-existing
-        tuples will result in a NotFound error.
+        Logs are only available for tasks that experienced an execution failure.
+        Attempting to retrieve logs for tasks in any other states or for non-existing
+        tasks will result in a NotFound error.
         """
-        return self._backend.download_logs(tuple_key, destination_file=None)
+        return self._backend.download_logs(task_key, destination_file=None)
 
     @logit
     def get_model(self, key: str) -> models.OutModel:
@@ -608,10 +608,10 @@ class Client:
         return
 
     @logit
-    def add_compute_plan_tuples(
+    def add_compute_plan_tasks(
         self,
         key: str,
-        tuples: Union[dict, schemas.UpdateComputePlanTuplesSpec],
+        tasks: Union[dict, schemas.UpdateComputePlanTasksSpec],
         auto_batching: bool = True,
         batch_size: int = DEFAULT_BATCH_SIZE,
     ) -> models.ComputePlan:
@@ -619,26 +619,26 @@ class Client:
 
         Args:
             key (str): Compute plan key
-            tuples (Union[dict, schemas.UpdateComputePlanTuplesSpec]): If it is a dict,
+            tasks (Union[dict, schemas.UpdateComputePlanTasksSpec]): If it is a dict,
                 it must have the same keys as specified in
-                [schemas.UpdateComputePlanTuplesSpec](sdk_schemas.md#UpdateComputePlanTuplesSpec).
+                [schemas.UpdateComputePlanTasksSpec](sdk_schemas.md#UpdateComputePlanTasksSpec).
             auto_batching (bool, optional): Set 'auto_batching' to False to upload all
-                the tuples of the compute plan at once. Defaults to True.
+                the tasks of the compute plan at once. Defaults to True.
             batch_size (int, optional): If 'auto_batching' is True, change `batch_size`
-                to define the number of tuples uploaded in each batch (default 500).
+                to define the number of tasks uploaded in each batch (default 500).
 
         Returns:
             models.ComputePlan: updated compute plan, as described in the
             [models.ComputePlan](sdk_models.md#ComputePlan) model
         """
-        if isinstance(tuples, dict):
-            tuples["key"] = key
-        spec = self._get_spec(schemas.UpdateComputePlanTuplesSpec, tuples)
+        if isinstance(tasks, dict):
+            tasks["key"] = key
+        spec = self._get_spec(schemas.UpdateComputePlanTasksSpec, tasks)
         spec_options = {
             "auto_batching": auto_batching,
             "batch_size": batch_size,
         }
-        return self._backend.add_compute_plan_tuples(spec, spec_options=spec_options)
+        return self._backend.add_compute_plan_tasks(spec, spec_options=spec_options)
 
     @logit
     def update_compute_plan(self, key: str, name: str):
@@ -743,23 +743,23 @@ class Client:
         return self.download_model(model.key, folder)
 
     @logit
-    def download_logs(self, tuple_key: str, folder: str) -> str:
-        """Download the execution logs of a failed tuple to a destination file.
+    def download_logs(self, task_key: str, folder: str) -> str:
+        """Download the execution logs of a failed task to a destination file.
 
-        The logs are saved in the folder to a file named 'tuple_logs_{tuple_key}.txt'.
+        The logs are saved in the folder to a file named 'task_logs_{task_key}.txt'.
 
-        Logs are only available for tuples that experienced an execution failure.
-        Attempting to retrieve logs for tuples in any other states or for non-existing
-        tuples will result in a NotFound error.
+        Logs are only available for tasks that experienced an execution failure.
+        Attempting to retrieve logs for tasks in any other states or for non-existing
+        tasks will result in a NotFound error.
 
         Args:
-            tuple_key: the key of the tuple that produced the logs
+            task_key: the key of the task that produced the logs
             folder: the destination directory
 
         Returns:
             str: The logs as a str
         """
-        return self._backend.download_logs(tuple_key, os.path.join(folder, f"tuple_logs_{tuple_key}.txt"))
+        return self._backend.download_logs(task_key, os.path.join(folder, f"task_logs_{task_key}.txt"))
 
     @logit
     def describe_algo(self, key: str) -> str:

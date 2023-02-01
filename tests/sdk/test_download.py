@@ -73,10 +73,10 @@ def test_download_content_not_found(asset_type, tmp_path, client, mocker):
 @pytest.mark.parametrize(
     "asset_type, identifier",
     [
-        ("TRAINTUPLE", "model"),
-        ("AGGREGATETUPLE", "model"),
-        ("COMPOSITE_TRAINTUPLE", "local"),
-        ("COMPOSITE_TRAINTUPLE", "shared"),
+        ("TRAINTASK", "model"),
+        ("AGGREGATETASK", "model"),
+        ("COMPOSITE_TRAINTASK", "local"),
+        ("COMPOSITE_TRAINTASK", "shared"),
     ],
 )
 @patch.object(Client, "download_model")
@@ -97,15 +97,15 @@ def test_download_model_from_task(fake_download_model, tmp_path, client, asset_t
 
 def test_download_logs(tmp_path, client, mocker):
     logs = b"Lorem ipsum dolor sit amet"
-    tuple_key = "key"
+    task_key = "key"
 
     response = mock_response(logs)
     response.iter_content.return_value = [logs]
 
     m = mock_requests_responses(mocker, "get", [response])
-    client.download_logs(tuple_key, tmp_path)
+    client.download_logs(task_key, tmp_path)
 
     m.assert_called_once()
     response.iter_content.assert_called_once()
 
-    assert (tmp_path / f"tuple_logs_{tuple_key}.txt").read_bytes() == logs
+    assert (tmp_path / f"task_logs_{task_key}.txt").read_bytes() == logs
