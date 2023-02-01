@@ -197,26 +197,26 @@ class Worker:
     def _save_output(
         self,
         task,
-        algo_output: models.AlgoOutput,
+        function_output: models.FunctionOutput,
         output_id_filename: Dict[str, str],
         output_volume: str,
-        algo_key: str,
+        function_key: str,
     ) -> bool:
         update_live_performances = False
-        if algo_output.multiple:
+        if function_output.multiple:
             raise NotImplementedError("Multiple output value is not supported yet.")
-        filename = output_id_filename[algo_output.identifier]
+        filename = output_id_filename[function_output.identifier]
         tmp_path = output_volume / filename
         output_dir = _mkdir(self._local_worker_dir / "outputs" / task.key)
         output_path = output_dir / filename
         shutil.copy(tmp_path, output_path)
 
-        if algo_output.kind == schemas.AssetKind.performance:
+        if function_output.kind == schemas.AssetKind.performance:
             update_live_performances = True
             perf = json.loads(output_path.read_text())["all"]
-            task.outputs[algo_output.identifier].value = perf
+            task.outputs[function_output.identifier].value = perf
             value = perf
-        elif algo_output.kind == schemas.AssetKind.model:
+        elif function_output.kind == schemas.AssetKind.model:
             value = models.OutModel(
                 key=str(uuid.uuid4()),
                 compute_task_key=task.key,
@@ -226,13 +226,13 @@ class Worker:
                 ),
                 creation_date=datetime.datetime.now(),
                 owner=task.owner,
-                permissions=task.outputs[algo_output.identifier].permissions,
+                permissions=task.outputs[function_output.identifier].permissions,
             )
-            task.outputs[algo_output.identifier].value = value
+            task.outputs[function_output.identifier].value = value
             self._db.add(value)
 
         else:
-            raise ValueError(f"This asset kind is not supported for algo output: {algo_output.kind}")
+            raise ValueError(f"This asset kind is not supported for function output: {function_output.kind}")
 
         return update_live_performances
 
@@ -246,8 +246,8 @@ class Worker:
             task.status = models.Status.doing
             task.start_date = datetime.datetime.now()
 
-            algo = self._db.get_with_files(schemas.Type.Algo, task.algo.key)
-            input_multiplicity = {i.identifier: i.multiple for i in algo.inputs}
+            function = self._db.get_with_files(schemas.Type.Function, task.function.key)
+            input_multiplicity = {i.identifier: i.multiple for i in function.inputs}
             compute_plan = self._db.get(schemas.Type.ComputePlan, task.compute_plan_key)
 
             command_template = []
@@ -322,10 +322,10 @@ class Worker:
             command_template += ["--log-level", "warning"]
 
             # Task execution
-            container_name = f"algo-{algo.algorithm.checksum}"
+            container_name = f"function-{function.function.checksum}"
             self._spawner.spawn(
                 container_name,
-                str(algo.algorithm.storage_address),
+                str(function.function.storage_address),
                 command_args_tpl=[string.Template(str(part)) for part in command_template],
                 local_volumes=volumes,
                 data_sample_paths=data_sample_paths,
@@ -334,13 +334,13 @@ class Worker:
 
             # Save the outputs
             update_live_performances = False
-            for algo_output in algo.outputs:
+            for function_output in function.outputs:
                 update_live_performances = self._save_output(
                     task=task,
-                    algo_output=algo_output,
+                    function_output=function_output,
                     output_id_filename=output_id_filename,
                     output_volume=volumes[VOLUME_OUTPUTS],
-                    algo_key=algo.key,
+                    function_key=function.key,
                 )
 
             # Set status

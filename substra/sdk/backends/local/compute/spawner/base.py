@@ -9,7 +9,7 @@ VOLUME_OUTPUTS = "_VOLUME_OUTPUTS"
 
 
 class BuildError(Exception):
-    """An error occurred during the build of the algo"""
+    """An error occurred during the build of the function"""
 
     pass
 

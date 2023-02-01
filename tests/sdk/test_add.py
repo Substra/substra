@@ -44,13 +44,13 @@ def test_add_dataset_409_success(client, dataset_query, mocker):
     assert key == datastore.DATASET["key"]
 
 
-def test_add_algo(client, algo_query, mocker):
-    m_post = mock_requests(mocker, "post", response=datastore.ALGO)
-    m_get = mock_requests(mocker, "get", response=datastore.ALGO)
-    key = client.add_algo(algo_query)
-    response = client.get_algo(key)
+def test_add_function(client, function_query, mocker):
+    m_post = mock_requests(mocker, "post", response=datastore.FUNCTION)
+    m_get = mock_requests(mocker, "get", response=datastore.FUNCTION)
+    key = client.add_function(function_query)
+    response = client.get_function(key)
 
-    assert response == models.Algo(**datastore.ALGO)
+    assert response == models.Function(**datastore.FUNCTION)
     m_post.assert_called()
     m_get.assert_called()
 

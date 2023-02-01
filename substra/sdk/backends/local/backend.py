@@ -250,13 +250,13 @@ class Local(base.BaseBackend):
 
         return compute_plan
 
-    def _add_algo(self, key, spec, spec_options=None):
+    def _add_function(self, key, spec, spec_options=None):
         self._check_metadata(spec.metadata)
         permissions = self.__compute_permissions(spec.permissions)
-        algo_file_path = self._db.save_file(spec.file, key)
-        algo_description_path = self._db.save_file(spec.description, key)
+        function_file_path = self._db.save_file(spec.file, key)
+        function_description_path = self._db.save_file(spec.description, key)
 
-        algo = models.Algo(
+        function = models.Function(
             key=key,
             creation_date=self.__now(),
             name=spec.name,
@@ -267,13 +267,16 @@ class Local(base.BaseBackend):
                     "authorized_ids": permissions.authorized_ids,
                 },
             },
-            algorithm={"checksum": fs.hash_file(algo_file_path), "storage_address": algo_file_path},
-            description={"checksum": fs.hash_file(algo_description_path), "storage_address": algo_description_path},
+            function={"checksum": fs.hash_file(function_file_path), "storage_address": function_file_path},
+            description={
+                "checksum": fs.hash_file(function_description_path),
+                "storage_address": function_description_path,
+            },
             metadata=spec.metadata if spec.metadata else dict(),
             inputs=spec.inputs or list(),
             outputs=spec.outputs or list(),
         )
-        return self._db.add(algo)
+        return self._db.add(function)
 
     def _add_dataset(self, key, spec, spec_options=None):
         self._check_metadata(spec.metadata)
@@ -378,7 +381,7 @@ class Local(base.BaseBackend):
     def _add_task(self, key, spec, spec_options=None):
         self._check_metadata(spec.metadata)
         self._check_data_samples(spec)
-        algo = self._db.get(schemas.Type.Algo, spec.algo_key)
+        function = self._db.get(schemas.Type.Function, spec.function_key)
 
         _warn_on_transient_outputs(spec.outputs)
 
@@ -391,7 +394,7 @@ class Local(base.BaseBackend):
         task = models.Task(
             key=key,
             creation_date=self.__now(),
-            algo=algo,
+            function=function,
             owner=self._org_id,
             worker=spec.worker,
             compute_plan_key=compute_plan_key,
@@ -407,31 +410,31 @@ class Local(base.BaseBackend):
         self._worker.schedule_task(task)
         return task
 
-    def _check_inputs_outputs(self, spec, algo_key):
-        algo = self._db.get(schemas.Type.Algo, algo_key)
+    def _check_inputs_outputs(self, spec, function_key):
+        function = self._db.get(schemas.Type.Function, function_key)
         spec_inputs = spec.inputs or list()
         spec_outputs = spec.outputs or dict()
 
         error_msg = ""
-        for algo_input in algo.inputs:
-            spec_values = [x for x in spec_inputs if x.identifier == algo_input.identifier]
-            if len(spec_values) == 0 and not algo_input.optional:
-                error_msg += f"  - The input {algo_input.identifier} is not optional according to the algo.\n"
-            if len(spec_values) > 1 and not algo_input.multiple:
-                error_msg += f"  - The input {algo_input.identifier} is not multiple according to the algo.\n"
+        for function_input in function.inputs:
+            spec_values = [x for x in spec_inputs if x.identifier == function_input.identifier]
+            if len(spec_values) == 0 and not function_input.optional:
+                error_msg += f"  - The input {function_input.identifier} is not optional according to the function.\n"
+            if len(spec_values) > 1 and not function_input.multiple:
+                error_msg += f"  - The input {function_input.identifier} is not multiple according to the function.\n"
 
-        if not set([x.identifier for x in spec_inputs]).issubset(set([x.identifier for x in algo.inputs])):
-            error_msg += "  - There are keys in the spec inputs that have not been declared in the algo inputs.\n"
+        if not set([x.identifier for x in spec_inputs]).issubset(set([x.identifier for x in function.inputs])):
+            error_msg += "  - There are keys in the spec inputs that have not been declared in the function inputs.\n"
 
         spec_output_keys = set([x for x in spec_outputs])
-        algo_output_keys = set([x.identifier for x in algo.outputs])
-        if not spec_output_keys == algo_output_keys:
+        function_output_keys = set([x.identifier for x in function.outputs])
+        if not spec_output_keys == function_output_keys:
             error_msg += (
-                "  - The identifiers in the spec outputs and the algo outputs must match:"
-                f"{spec_output_keys.symmetric_difference(algo_output_keys)}.\n"
+                "  - The identifiers in the spec outputs and the function outputs must match:"
+                f"{spec_output_keys.symmetric_difference(function_output_keys)}.\n"
             )
 
-        for output_performance in (x for x in algo.outputs if x.kind == schemas.AssetKind.performance):
+        for output_performance in (x for x in function.outputs if x.kind == schemas.AssetKind.performance):
             if not spec_outputs[output_performance.identifier].permissions.public:
                 error_msg += '  - invalid task output "performance": a PERFORMANCE output should be public.'
                 break
@@ -440,9 +443,9 @@ class Local(base.BaseBackend):
             raise exceptions.InvalidRequest(f"There are errors in the inputs / outputs fields:\n{error_msg}", "OE0101")
 
     def add(self, spec, spec_options=None, key=None):
-        algo_key = getattr(spec, "algo_key", None)
-        if algo_key is not None:
-            self._check_inputs_outputs(spec=spec, algo_key=algo_key)
+        function_key = getattr(spec, "function_key", None)
+        if function_key is not None:
+            self._check_inputs_outputs(spec=spec, function_key=function_key)
 
         # find dynamically the method to call to create the asset
         method_name = f"_add_{spec.__class__.type_.value}"

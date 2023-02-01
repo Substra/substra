@@ -36,9 +36,9 @@ class DataAccess:
             return False
 
     def _get_asset_content_filename(self, type_):
-        if type_ == schemas.Type.Algo:
-            filename = "algo.tar.gz"
-            field_name = "algorithm"
+        if type_ == schemas.Type.Function:
+            filename = "function.tar.gz"
+            field_name = "function"
 
         elif type_ == schemas.Type.Dataset:
             filename = "opener.py"
@@ -120,7 +120,7 @@ class DataAccess:
 
         for task in list_tasks:
             if task.status == models.Status.done:
-                metric = self.get(schemas.Type.Algo, task.algo.key)
+                metric = self.get(schemas.Type.Function, task.function.key)
 
                 for perf_identifier in [
                     output.identifier for output in metric.outputs if output.kind == schemas.AssetKind.performance

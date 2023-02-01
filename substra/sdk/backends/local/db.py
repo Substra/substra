@@ -78,7 +78,7 @@ class InMemoryDb:
         """List assets by filters.
 
         Args:
-            asset_type (str): asset type. e.g. "algo"
+            asset_type (str): asset type. e.g. "function"
             filters (dict, optional): keys = attributes, values = list of values for this attribute.
                 e.g. {"name": ["name1", "name2"]}. "," corresponds to an "OR". Defaults to None.
             order_by (str, optional): attribute name to order the results on. Defaults to None.

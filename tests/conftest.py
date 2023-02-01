@@ -1,12 +1,12 @@
 import pytest
 
 import substra
-from substra.sdk.schemas import AlgoSpec
+from substra.sdk.schemas import FunctionSpec
 
 from . import data_factory
-from .fl_interface import FLAlgoInputs
-from .fl_interface import FLAlgoOutputs
-from .fl_interface import AlgoCategory
+from .fl_interface import FLFunctionInputs
+from .fl_interface import FLFunctionOutputs
+from .fl_interface import FunctionCategory
 
 
 def pytest_configure(config):
@@ -73,21 +73,21 @@ def metric_query(tmpdir):
 
 
 @pytest.fixture
-def algo_query(tmpdir):
-    algo_file_path = tmpdir / "algo.tar.gz"
-    algo_file_path.write(b"tar gz archive")
+def function_query(tmpdir):
+    function_file_path = tmpdir / "function.tar.gz"
+    function_file_path.write(b"tar gz archive")
 
     desc_path = tmpdir / "description.md"
     desc_path.write_text("#Hello world", encoding="utf-8")
 
-    algo_category = AlgoCategory.simple
+    function_category = FunctionCategory.simple
 
-    return AlgoSpec(
-        name="algo_name",
-        inputs=FLAlgoInputs[algo_category],
-        outputs=FLAlgoOutputs[algo_category],
+    return FunctionSpec(
+        name="function_name",
+        inputs=FLFunctionInputs[function_category],
+        outputs=FLFunctionOutputs[function_category],
         description=str(desc_path),
-        file=str(algo_file_path),
+        file=str(function_file_path),
         permissions={
             "public": True,
             "authorized_ids": [],

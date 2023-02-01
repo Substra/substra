@@ -13,7 +13,7 @@ from ..utils import mock_requests
     "asset_type",
     [
         "dataset",
-        "algo",
+        "function",
         "compute_plan",
         "data_sample",
         "model",
@@ -58,7 +58,7 @@ def test_list_task(asset_type, client, mocker):
     "asset_type,filters",
     [
         ("dataset", {"permissions": ["foo", "bar"]}),
-        ("algo", {"owner": ["foo", "bar"]}),
+        ("function", {"owner": ["foo", "bar"]}),
         ("compute_plan", {"name": "foo"}),
         ("compute_plan", {"status": [models.ComputePlanStatus.done.value]}),
         ("model", {"owner": ["MyOrg1MSP"]}),
@@ -100,12 +100,12 @@ def test_list_task_with_filters(asset_type, filters, client, mocker):
 
 
 def test_list_asset_with_filters_failure(client, mocker):
-    items = [datastore.ALGO]
+    items = [datastore.FUNCTION]
     m = mock_requests(mocker, "get", response=items)
 
     filters = {"foo"}
     with pytest.raises(exceptions.FilterFormatError) as exc_info:
-        client.list_algo(filters)
+        client.list_function(filters)
 
     m.assert_not_called()
     assert str(exc_info.value).startswith("Cannot load filters")

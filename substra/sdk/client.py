@@ -290,17 +290,17 @@ class Client:
         return self._backend.add(spec)
 
     @logit
-    def add_algo(self, data: Union[dict, schemas.AlgoSpec]) -> str:
-        """Create new algo asset.
+    def add_function(self, data: Union[dict, schemas.FunctionSpec]) -> str:
+        """Create new function asset.
 
         Args:
-            data (Union[dict, schemas.AlgoSpec]): If it is a dict, it must have the same keys
-                as specified in [schemas.AlgoSpec](sdk_schemas.md#AlgoSpec).
+            data (Union[dict, schemas.FunctionSpec]): If it is a dict, it must have the same keys
+                as specified in [schemas.FunctionSpec](sdk_schemas.md#FunctionSpec).
 
         Returns:
-            str: Key of the algo
+            str: Key of the function
         """
-        spec = self._get_spec(schemas.AlgoSpec, data)
+        spec = self._get_spec(schemas.FunctionSpec, data)
         return self._backend.add(spec)
 
     @logit
@@ -352,10 +352,10 @@ class Client:
         return self._backend.add(spec, spec_options=spec_options)
 
     @logit
-    def get_algo(self, key: str) -> models.Algo:
-        """Get algo by key, the returned object is described
-        in the [models.Algo](sdk_models.md#Algo) model"""
-        return self._backend.get(schemas.Type.Algo, key)
+    def get_function(self, key: str) -> models.Function:
+        """Get function by key, the returned object is described
+        in the [models.Function](sdk_models.md#Function) model"""
+        return self._backend.get(schemas.Type.Function, key)
 
     @logit
     def get_compute_plan(self, key: str) -> models.ComputePlan:
@@ -440,34 +440,34 @@ class Client:
         return self._backend.list(asset_type, filters, order_by, ascending)
 
     @logit
-    def list_algo(self, filters: dict = None, ascending: bool = False) -> List[models.Algo]:
-        """List algos.
+    def list_function(self, filters: dict = None, ascending: bool = False) -> List[models.Function]:
+        """List functions.
 
         The ``filters`` argument is a dictionary, with those possible keys:\n
-            key (List[str]): list algo with given keys.\n
-            name (str): list algo with name partially matching given string. Remote mode only.\n
-            owner (List[str]): list algo with given owners.\n
+            key (List[str]): list function with given keys.\n
+            name (str): list function with name partially matching given string. Remote mode only.\n
+            owner (List[str]): list function with given owners.\n
             metadata (dict)
                 {
                     "key": str # the key of the metadata to filter on
                     "type": "is", "contains" or "exists" # the type of query that will be used
                     "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-                }: list algo matching provided conditions in metadata.\n
-            permissions (List[str]): list algo which can be used by any of the listed nodes. Remote mode only.
-            compute_plan_key (str): list algo that are in the given compute plan. Remote mode only.
-            dataset_key (str): list algo linked or using this dataset. Remote mode only.
-            data_sample_key (List[str]): list algo linked or that used this data sample(s). Remote mode only.
+                }: list function matching provided conditions in metadata.\n
+            permissions (List[str]): list function which can be used by any of the listed nodes. Remote mode only.
+            compute_plan_key (str): list function that are in the given compute plan. Remote mode only.
+            dataset_key (str): list function linked or using this dataset. Remote mode only.
+            data_sample_key (List[str]): list function linked or that used this data sample(s). Remote mode only.
 
         Args:
             filters (dict, optional): List of key values pair to filter on. Default None.
             ascending (bool, optional): Sorts results by oldest creation_date first. Default False (descending order).
 
         Returns:
-            models.Algo: the returned object is described in the [models.Algo](sdk_models.md#Algo) model
+            models.Function: the returned object is described in the [models.Function](sdk_models.md#Function) model
 
         """
 
-        return self._list(schemas.Type.Algo, filters, "creation_date", ascending)
+        return self._list(schemas.Type.Function, filters, "creation_date", ascending)
 
     @logit
     def list_compute_plan(
@@ -488,7 +488,7 @@ class Client:
                     "type": "is", "contains" or "exists" # the type of query that will be used
                     "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
                 }: list compute plans matching provided conditions in metadata. Remote mode only.
-            algo_key (str): list compute plans that used the given algo. Remote mode only.
+            function_key (str): list compute plans that used the given function. Remote mode only.
             dataset_key (str): list compute plans linked or using this dataset. Remote mode only.
             data_sample_key (List[str]): list compute plans linked or that used this data sample(s). Remote mode only.
 
@@ -513,7 +513,7 @@ class Client:
                 key (List[str]): list data samples with listed keys.
                 owner (List[str]): list data samples with listed owners.
                 compute_plan_key (str): list data samples that are in the given compute plan. Remote mode only.
-                algo_key (str): list data samples that used the given algo. Remote mode only.
+                function_key (str): list data samples that used the given function. Remote mode only.
                 dataset_key (str): list data samples linked or using this dataset. Remote mode only.
 
         Args:
@@ -542,7 +542,7 @@ class Client:
                 }: list dataset matching provided conditions in metadata.\n
             permissions (List[str]) : list dataset which can be used by any of the listed nodes. Remote mode only.
             compute_plan_key (str): list dataset that are in the given compute plan. Remote mode only.
-            algo_key (str): list dataset that used the given algo. Remote mode only.
+            function_key (str): list dataset that used the given function. Remote mode only.
             data_sample_key (List[str]): list dataset linked or that used this data sample(s). Remote mode only.
 
         Args:
@@ -578,7 +578,7 @@ class Client:
                     "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
                 }: list tasks matching provided conditions in metadata. Remote mode only.
             compute_plan_key (str): list tasks that are in the given compute plan. Remote mode only.
-            algo_key (str): list tasks that used the given algo. Remote mode only.
+            function_key (str): list tasks that used the given function. Remote mode only.
 
         Args:
             filters (dict, optional): List of key values pair to filter on. Default None.
@@ -602,8 +602,8 @@ class Client:
         return self._backend.list(schemas.Type.Organization, paginated=False)
 
     @logit
-    def update_algo(self, key: str, name: str):
-        spec = self._get_spec(schemas.UpdateAlgoSpec, {"name": name})
+    def update_function(self, key: str, name: str):
+        spec = self._get_spec(schemas.UpdateFunctionSpec, {"name": name})
         self._backend.update(key, spec)
         return
 
@@ -683,24 +683,24 @@ class Client:
         )
 
     @logit
-    def download_algo(self, key: str, destination_folder: str) -> None:
-        """Download algo resource.
-        Download algo package in destination folder.
+    def download_function(self, key: str, destination_folder: str) -> None:
+        """Download function resource.
+        Download function package in destination folder.
 
         Args:
-            key (str): Algo key to download
+            key (str): Function key to download
             destination_folder (str): Destination folder
 
         Returns:
-            pathlib.Path: Path of the downloaded algo
+            pathlib.Path: Path of the downloaded function
         """
 
         return pathlib.Path(
             self._backend.download(
-                schemas.Type.Algo,
-                "algorithm.storage_address",
+                schemas.Type.Function,
+                "function.storage_address",
                 key,
-                os.path.join(destination_folder, "algo.tar.gz"),
+                os.path.join(destination_folder, "function.tar.gz"),
             )
         )
 
@@ -708,9 +708,9 @@ class Client:
     def download_model(self, key: str, destination_folder) -> None:
         """Download model to destination file.
 
-        This model was saved using the 'save_model' function of the algorithm.
+        This model was saved using the 'save_model' function of the class.
         To load and use the model, please refer to the 'load_model' and 'predict' functions of the
-        algorithm.
+        class.
 
         Args:
             key (str): Model key to download
@@ -726,9 +726,9 @@ class Client:
     def download_model_from_task(self, task_key: str, identifier: str, folder: os.PathLike) -> pathlib.Path:
         """Download task model to destination file.
 
-        This model was saved using the 'save_model' function of the algorithm.
+        This model was saved using the 'save_model' function of the class.
         To load and use the model, please refer to the 'load_model' and 'predict' functions of the
-        algorithm.
+        class.
 
         Args:
             task_key (str): Task key to download
@@ -762,9 +762,9 @@ class Client:
         return self._backend.download_logs(task_key, os.path.join(folder, f"task_logs_{task_key}.txt"))
 
     @logit
-    def describe_algo(self, key: str) -> str:
-        """Get algo description."""
-        return self._backend.describe(schemas.Type.Algo, key)
+    def describe_function(self, key: str) -> str:
+        """Get function description."""
+        return self._backend.describe(schemas.Type.Function, key)
 
     @logit
     def describe_dataset(self, key: str) -> str:

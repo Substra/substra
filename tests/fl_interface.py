@@ -1,7 +1,7 @@
 from enum import Enum
 
-from substra.sdk.schemas import AlgoInputSpec
-from substra.sdk.schemas import AlgoOutputSpec
+from substra.sdk.schemas import FunctionInputSpec
+from substra.sdk.schemas import FunctionOutputSpec
 from substra.sdk.schemas import AssetKind
 from substra.sdk.schemas import ComputeTaskOutputSpec
 from substra.sdk.schemas import InputRef
@@ -10,16 +10,16 @@ from substra.sdk.schemas import Permissions
 PUBLIC_PERMISSIONS = Permissions(public=True, authorized_ids=[])
 
 
-class AlgoCategory(str, Enum):
-    """Algo category"""
+class FunctionCategory(str, Enum):
+    """Function category"""
 
-    unknown = "ALGO_UNKNOWN"
-    simple = "ALGO_SIMPLE"
-    composite = "ALGO_COMPOSITE"
-    aggregate = "ALGO_AGGREGATE"
-    metric = "ALGO_METRIC"
-    predict = "ALGO_PREDICT"
-    predict_composite = "ALGO_PREDICT_COMPOSITE"
+    unknown = "FUNCTION_UNKNOWN"
+    simple = "FUNCTION_SIMPLE"
+    composite = "FUNCTION_COMPOSITE"
+    aggregate = "FUNCTION_AGGREGATE"
+    metric = "FUNCTION_METRIC"
+    predict = "FUNCTION_PREDICT"
+    predict_composite = "FUNCTION_PREDICT_COMPOSITE"
 
 
 class InputIdentifiers(str, Enum):
@@ -41,95 +41,107 @@ class OutputIdentifiers(str, Enum):
     performance = "performance"
 
 
-class FLAlgoInputs(list, Enum):
-    """Substra algo inputs by algo category based on the InputIdentifiers"""
+class FLFunctionInputs(list, Enum):
+    """Substra function inputs by function category based on the InputIdentifiers"""
 
-    ALGO_AGGREGATE = [
-        AlgoInputSpec(identifier=InputIdentifiers.models, kind=AssetKind.model.value, optional=False, multiple=True)
+    FUNCTION_AGGREGATE = [
+        FunctionInputSpec(identifier=InputIdentifiers.models, kind=AssetKind.model.value, optional=False, multiple=True)
     ]
-    ALGO_SIMPLE = [
-        AlgoInputSpec(
+    FUNCTION_SIMPLE = [
+        FunctionInputSpec(
             identifier=InputIdentifiers.datasamples,
             kind=AssetKind.data_sample.value,
             optional=False,
             multiple=True,
         ),
-        AlgoInputSpec(
+        FunctionInputSpec(
             identifier=InputIdentifiers.opener, kind=AssetKind.data_manager.value, optional=False, multiple=False
         ),
-        AlgoInputSpec(identifier=InputIdentifiers.models, kind=AssetKind.model.value, optional=True, multiple=True),
+        FunctionInputSpec(identifier=InputIdentifiers.models, kind=AssetKind.model.value, optional=True, multiple=True),
     ]
-    ALGO_COMPOSITE = [
-        AlgoInputSpec(
+    FUNCTION_COMPOSITE = [
+        FunctionInputSpec(
             identifier=InputIdentifiers.datasamples,
             kind=AssetKind.data_sample.value,
             optional=False,
             multiple=True,
         ),
-        AlgoInputSpec(
+        FunctionInputSpec(
             identifier=InputIdentifiers.opener, kind=AssetKind.data_manager.value, optional=False, multiple=False
         ),
-        AlgoInputSpec(identifier=InputIdentifiers.local, kind=AssetKind.model.value, optional=True, multiple=False),
-        AlgoInputSpec(identifier=InputIdentifiers.shared, kind=AssetKind.model.value, optional=True, multiple=False),
+        FunctionInputSpec(identifier=InputIdentifiers.local, kind=AssetKind.model.value, optional=True, multiple=False),
+        FunctionInputSpec(
+            identifier=InputIdentifiers.shared, kind=AssetKind.model.value, optional=True, multiple=False
+        ),
     ]
-    ALGO_PREDICT = [
-        AlgoInputSpec(
+    FUNCTION_PREDICT = [
+        FunctionInputSpec(
             identifier=InputIdentifiers.datasamples,
             kind=AssetKind.data_sample.value,
             optional=False,
             multiple=True,
         ),
-        AlgoInputSpec(
+        FunctionInputSpec(
             identifier=InputIdentifiers.opener, kind=AssetKind.data_manager.value, optional=False, multiple=False
         ),
-        AlgoInputSpec(identifier=InputIdentifiers.model, kind=AssetKind.model.value, optional=False, multiple=False),
+        FunctionInputSpec(
+            identifier=InputIdentifiers.model, kind=AssetKind.model.value, optional=False, multiple=False
+        ),
     ]
-    ALGO_PREDICT_COMPOSITE = [
-        AlgoInputSpec(
+    FUNCTION_PREDICT_COMPOSITE = [
+        FunctionInputSpec(
             identifier=InputIdentifiers.datasamples,
             kind=AssetKind.data_sample.value,
             optional=False,
             multiple=True,
         ),
-        AlgoInputSpec(
+        FunctionInputSpec(
             identifier=InputIdentifiers.opener, kind=AssetKind.data_manager.value, optional=False, multiple=False
         ),
-        AlgoInputSpec(identifier=InputIdentifiers.local, kind=AssetKind.model.value, optional=False, multiple=False),
-        AlgoInputSpec(identifier=InputIdentifiers.shared, kind=AssetKind.model.value, optional=False, multiple=False),
+        FunctionInputSpec(
+            identifier=InputIdentifiers.local, kind=AssetKind.model.value, optional=False, multiple=False
+        ),
+        FunctionInputSpec(
+            identifier=InputIdentifiers.shared, kind=AssetKind.model.value, optional=False, multiple=False
+        ),
     ]
-    ALGO_METRIC = [
-        AlgoInputSpec(
+    FUNCTION_METRIC = [
+        FunctionInputSpec(
             identifier=InputIdentifiers.datasamples,
             kind=AssetKind.data_sample.value,
             optional=False,
             multiple=True,
         ),
-        AlgoInputSpec(
+        FunctionInputSpec(
             identifier=InputIdentifiers.opener, kind=AssetKind.data_manager.value, optional=False, multiple=False
         ),
-        AlgoInputSpec(
+        FunctionInputSpec(
             identifier=InputIdentifiers.predictions, kind=AssetKind.model.value, optional=False, multiple=False
         ),
     ]
 
 
-class FLAlgoOutputs(list, Enum):
-    """Substra algo outputs by algo category based on the OutputIdentifiers"""
+class FLFunctionOutputs(list, Enum):
+    """Substra function outputs by function category based on the OutputIdentifiers"""
 
-    ALGO_AGGREGATE = [AlgoOutputSpec(identifier=OutputIdentifiers.model, kind=AssetKind.model.value, multiple=False)]
-    ALGO_SIMPLE = [AlgoOutputSpec(identifier=OutputIdentifiers.model, kind=AssetKind.model.value, multiple=False)]
-    ALGO_COMPOSITE = [
-        AlgoOutputSpec(identifier=OutputIdentifiers.local, kind=AssetKind.model.value, multiple=False),
-        AlgoOutputSpec(identifier=OutputIdentifiers.shared, kind=AssetKind.model.value, multiple=False),
+    FUNCTION_AGGREGATE = [
+        FunctionOutputSpec(identifier=OutputIdentifiers.model, kind=AssetKind.model.value, multiple=False)
     ]
-    ALGO_PREDICT = [
-        AlgoOutputSpec(identifier=OutputIdentifiers.predictions, kind=AssetKind.model.value, multiple=False)
+    FUNCTION_SIMPLE = [
+        FunctionOutputSpec(identifier=OutputIdentifiers.model, kind=AssetKind.model.value, multiple=False)
     ]
-    ALGO_PREDICT_COMPOSITE = [
-        AlgoOutputSpec(identifier=OutputIdentifiers.predictions, kind=AssetKind.model.value, multiple=False)
+    FUNCTION_COMPOSITE = [
+        FunctionOutputSpec(identifier=OutputIdentifiers.local, kind=AssetKind.model.value, multiple=False),
+        FunctionOutputSpec(identifier=OutputIdentifiers.shared, kind=AssetKind.model.value, multiple=False),
     ]
-    ALGO_METRIC = [
-        AlgoOutputSpec(identifier=OutputIdentifiers.performance, kind=AssetKind.performance.value, multiple=False)
+    FUNCTION_PREDICT = [
+        FunctionOutputSpec(identifier=OutputIdentifiers.predictions, kind=AssetKind.model.value, multiple=False)
+    ]
+    FUNCTION_PREDICT_COMPOSITE = [
+        FunctionOutputSpec(identifier=OutputIdentifiers.predictions, kind=AssetKind.model.value, multiple=False)
+    ]
+    FUNCTION_METRIC = [
+        FunctionOutputSpec(identifier=OutputIdentifiers.performance, kind=AssetKind.performance.value, multiple=False)
     ]
 
 

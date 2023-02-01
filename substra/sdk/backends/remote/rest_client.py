@@ -168,7 +168,7 @@ class Client:
 
         Args:
             request_name (str): http rest method invoked. e.g. "get", "post" or "put"
-            asset_type (str): asset type. e.g. "algo"
+            asset_type (str): asset type. e.g. "function"
             path (str, optional): additional route e.g. "cp_key/perf" in /compute_plan/cp_key/perf. Defaults to None.
             json_response (bool, optional): whether the expected response is formatted in json. Defaults to True.
             paginated (bool, optional): whether the response would be paginated or not. Defaults to False.
@@ -238,7 +238,7 @@ class Client:
         """List assets by filters.
 
         Args:
-            asset_type (str): asset type. e.g. "algo"
+            asset_type (str): asset type. e.g. "function"
             filters (dict, optional): keys = attributes, values = value(s) for this attribute
                 (depends on the attribute, cf [sdk reference](references/sdk.md)).
                 e.g. {"key": ["key1", "key2"]}. "," corresponds to an "OR". Defaults to None.
