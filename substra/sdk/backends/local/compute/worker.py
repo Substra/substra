@@ -243,7 +243,6 @@ class Worker:
             task: Task to execute
         """
         with self._context(task.key) as task_dir:
-
             task.status = models.Status.doing
             task.start_date = datetime.datetime.now()
 

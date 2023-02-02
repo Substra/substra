@@ -56,7 +56,6 @@ class Remote(base.BaseBackend):
         performances = models.Performances()
 
         for test_task in results:
-
             performances.compute_plan_key.append(compute_plan.key)
             performances.compute_plan_tag.append(compute_plan.tag)
             performances.compute_plan_status.append(compute_plan.status)

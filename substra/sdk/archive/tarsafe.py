@@ -31,7 +31,6 @@ class TarSafe(tarfile.TarFile):
         super().extractall(path, members, numeric_owner=numeric_owner)
 
     def _safetar_check(self):
-
         """
         Runs all necessary checks for the safety of a tarfile.
         """

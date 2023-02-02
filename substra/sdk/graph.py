@@ -30,7 +30,6 @@ def _breadth_first_traversal_rank(
     while len(queue) > 0:
         current_node = queue.pop(0)
         for child in inverted_node_graph.get(current_node, list()):
-
             new_child_rank = max(ranks[current_node] + 1, ranks.get(child, -1))
 
             if new_child_rank != ranks.get(child, -1):
