@@ -30,7 +30,6 @@ _MAX_LEN_VALUE_METADATA = 100
 
 
 class Local(base.BaseBackend):
-
     org_counter = 1
 
     def __init__(self, backend, backend_type, *args, **kwargs):
@@ -79,7 +78,6 @@ class Local(base.BaseBackend):
         return self._db.get(asset_type, key)
 
     def get_performances(self, key):
-
         performances = self._db.get_performances(key)
 
         return performances
@@ -237,9 +235,7 @@ class Local(base.BaseBackend):
             total=len(visited),
             desc="Compute plan progress",
         ) as progress_bar:
-
             for id_, _ in sorted(visited.items(), key=lambda item: item[1]):
-
                 task_spec = tasks.get(id_)
                 if not task_spec:
                     continue
@@ -280,7 +276,6 @@ class Local(base.BaseBackend):
         return self._db.add(algo)
 
     def _add_dataset(self, key, spec, spec_options=None):
-
         self._check_metadata(spec.metadata)
 
         permissions = self.__compute_permissions(spec.permissions)
@@ -445,7 +440,6 @@ class Local(base.BaseBackend):
             raise exceptions.InvalidRequest(f"There are errors in the inputs / outputs fields:\n{error_msg}", "OE0101")
 
     def add(self, spec, spec_options=None, key=None):
-
         algo_key = getattr(spec, "algo_key", None)
         if algo_key is not None:
             self._check_inputs_outputs(spec=spec, algo_key=algo_key)
