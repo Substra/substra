@@ -1,17 +1,15 @@
 import uuid
-from pathlib import Path
 
 import docker
 import pytest
 
 import substra
-from substra.sdk import models
 from substra.sdk import exceptions
-from substra.sdk.backends import local
+from substra.sdk import models
 
-from ...fl_interface import FunctionCategory
 from ...fl_interface import FLTaskInputGenerator
 from ...fl_interface import FLTaskOutputGenerator
+from ...fl_interface import FunctionCategory
 from ...fl_interface import InputIdentifiers
 
 

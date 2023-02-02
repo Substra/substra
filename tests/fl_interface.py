@@ -1,9 +1,9 @@
 from enum import Enum
 
-from substra.sdk.schemas import FunctionInputSpec
-from substra.sdk.schemas import FunctionOutputSpec
 from substra.sdk.schemas import AssetKind
 from substra.sdk.schemas import ComputeTaskOutputSpec
+from substra.sdk.schemas import FunctionInputSpec
+from substra.sdk.schemas import FunctionOutputSpec
 from substra.sdk.schemas import InputRef
 from substra.sdk.schemas import Permissions
 

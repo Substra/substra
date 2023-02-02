@@ -8,9 +8,9 @@ import zipfile
 
 import substra
 
-from .fl_interface import FunctionCategory
 from .fl_interface import FLFunctionInputs
 from .fl_interface import FLFunctionOutputs
+from .fl_interface import FunctionCategory
 from .fl_interface import InputIdentifiers
 from .fl_interface import OutputIdentifiers
 
