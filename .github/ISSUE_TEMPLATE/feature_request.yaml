@@ -1,5 +1,5 @@
 name: Feature Request
-description: Suggest an idea for substra
+description: Suggest an idea for Substra
 title: "ENH: "
 labels: [Enhancement]
 
@@ -11,19 +11,17 @@ body:
       description: Please check what type of feature request you would like to propose.
       options:
         - label: >
-            Adding new functionality to substra
+            Adding new functionality to Substra
         - label: >
-            Changing existing functionality in substra
+            Changing existing functionality in Substra
         - label: >
-            Removing existing functionality in substra
+            Removing existing functionality in Substra
   - type: textarea
     id: description
     attributes:
       label: Problem Description
       description: >
-        Please describe what problem the feature would solve, e.g. "I wish I could use substra to ..."
-      placeholder: >
-        A clear and concise description of what the problem is.
+        Please describe what problem the feature would solve, e.g. "I wish I could use Substra to ..."
     validations:
       required: true
   - type: textarea
@@ -31,9 +29,7 @@ body:
     attributes:
       label: Feature Description
       description: >
-        Please describe how the new feature would be implemented, using pseudocode if relevant.
-      placeholder: >
-        A clear and concise description of what you want to happen.
+        Please describe what will be this new feature.
     validations:
       required: true
   - type: textarea
