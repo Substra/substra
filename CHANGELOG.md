@@ -7,14 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.42.0](https://github.com/Substra/substra/releases/tag/0.42.0) - 2023-01-20
+
 ### Added
 
 - Creator field in Compute Plan model (#331)
 - Contributing, contributors & code of conduct files (#333)
 
 ### Removed
-
-## [0.42.0](https://github.com/Substra/substra/releases/tag/0.42.0) - 2023-01-20
 
 - BREAKING: DataSampleSpec don't have a `test_only` field anymore (#332)
 
