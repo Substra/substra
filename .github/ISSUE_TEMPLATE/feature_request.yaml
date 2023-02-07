@@ -1,0 +1,48 @@
+name: Feature Request
+description: Suggest an idea for Substra
+title: "ENH: "
+labels: [Enhancement]
+
+body:
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Feature Type
+      description: Please check what type of feature request you would like to propose.
+      options:
+        - label: >
+            Adding new functionality to Substra
+        - label: >
+            Changing existing functionality in Substra
+        - label: >
+            Removing existing functionality in Substra
+  - type: textarea
+    id: description
+    attributes:
+      label: Problem Description
+      description: >
+        Please describe what problem the feature would solve, e.g. "I wish I could use Substra to ..."
+    validations:
+      required: true
+  - type: textarea
+    id: feature
+    attributes:
+      label: Feature Description
+      description: >
+        Please describe what will be this new feature.
+    validations:
+      required: true
+  - type: textarea
+    id: alternative
+    attributes:
+      label: Alternative Solutions
+      description: >
+        Please describe any alternative solution (existing functionality, 3rd party package, etc.)
+        that would satisfy the feature request.
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: >
+        Please provide any relevant GitHub issues, code examples or references that help describe and support
+        the feature request.

@@ -1,0 +1,87 @@
+name: Bug Report
+description: Report bug or performance issue
+title: "BUG: "
+labels: [Bug]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: textarea
+    id: context
+    attributes:
+      label: What are you trying to do?
+      description: >
+        Please provide some context on what you are trying to achieve.
+      placeholder:
+    validations:
+      required: true
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: Issue Description (what is happening?)
+      description: >
+        Please provide a description of the issue.
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior (what should happen?)
+      description: >
+        Please describe or show a code example of the expected behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Reproducible Example
+      description: >
+        If possible, provide a reproducible example.
+      render: python
+
+  - type: textarea
+    id: os-version
+    attributes:
+      label: Operating system
+      description: >
+        Which operating system are you using? (Provide the version number)
+    validations:
+      required: true
+  - type: textarea
+    id: os-version
+    attributes:
+      label: Python version
+      description: >
+        Which Python version are you using?
+      placeholder: >
+        python --version
+    validations:
+      required: true
+  - type: textarea
+    id: substra-version
+    attributes:
+      label: Installed Substra versions
+      description: >
+        Which version of `substrafl`/ `substra` / `substra-tools` are you using?
+        You can check if they are compatible in the [compatibility table](https://docs.substra.org/en/stable/additional/release.html#compatibility-table).
+      placeholder: >
+        pip freeze | grep substra
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies-version
+    attributes:
+      label: Installed versions of dependencies
+      description: >
+        Please provide versions of dependencies which might be relevant to your issue (eg. `helm` and `skaffold` version for a deployment issue, `numpy` and `pytorch` for an algorithmic issue).
+
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Stacktrace
+      description: >
+        Please copy-paste here any log and/or stacktrace that might be relevant. Remove confidential and personal information if necessary.
