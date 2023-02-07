@@ -39,20 +39,6 @@ _This is a property._
 Temporary directory for storing assets in debug mode.
         Deleted when the client is deleted.
         
-## add_algo
-```text
-add_algo(self, data: Union[dict, substra.sdk.schemas.AlgoSpec]) -> str
-```
-
-Create new algo asset.
-
-**Arguments:**
- - `data (Union[dict, schemas.AlgoSpec], required)`: If it is a dict, it must have the same keys
-as specified in [schemas.AlgoSpec](sdk_schemas.md#AlgoSpec).
-
-**Returns:**
-
- - `str`: Key of the algo
 ## add_compute_plan
 ```text
 add_compute_plan(self, data: Union[dict, substra.sdk.schemas.ComputePlanSpec], auto_batching: bool = True, batch_size: int = 500) -> substra.sdk.models.ComputePlan
@@ -150,6 +136,20 @@ keys as specified in [schemas.DatasetSpec](sdk_schemas.md#DatasetSpec).
 **Returns:**
 
  - `str`: Key of the dataset
+## add_function
+```text
+add_function(self, data: Union[dict, substra.sdk.schemas.FunctionSpec]) -> str
+```
+
+Create new function asset.
+
+**Arguments:**
+ - `data (Union[dict, schemas.FunctionSpec], required)`: If it is a dict, it must have the same keys
+as specified in [schemas.FunctionSpec](sdk_schemas.md#FunctionSpec).
+
+**Returns:**
+
+ - `str`: Key of the function
 ## add_task
 ```text
 add_task(self, data: Union[dict, substra.sdk.schemas.TaskSpec]) -> str
@@ -170,33 +170,18 @@ cancel_compute_plan(self, key: str) -> None
 ```
 
 Cancel execution of compute plan. Nothing is returned by this method
-## describe_algo
-```text
-describe_algo(self, key: str) -> str
-```
-
-Get algo description.
 ## describe_dataset
 ```text
 describe_dataset(self, key: str) -> str
 ```
 
 Get dataset description.
-## download_algo
+## describe_function
 ```text
-download_algo(self, key: str, destination_folder: str) -> None
+describe_function(self, key: str) -> str
 ```
 
-Download algo resource.
-Download algo package in destination folder.
-
-**Arguments:**
- - `key (str, required)`: Algo key to download
- - `destination_folder (str, required)`: Destination folder
-
-**Returns:**
-
- - `pathlib.Path`: Path of the downloaded algo
+Get function description.
 ## download_dataset
 ```text
 download_dataset(self, key: str, destination_folder: str) -> None
@@ -212,6 +197,21 @@ Download opener script in destination folder.
 **Returns:**
 
  - `pathlib.Path`: Path of the downloaded dataset
+## download_function
+```text
+download_function(self, key: str, destination_folder: str) -> None
+```
+
+Download function resource.
+Download function package in destination folder.
+
+**Arguments:**
+ - `key (str, required)`: Function key to download
+ - `destination_folder (str, required)`: Destination folder
+
+**Returns:**
+
+ - `pathlib.Path`: Path of the downloaded function
 ## download_logs
 ```text
 download_logs(self, task_key: str, folder: str) -> str
@@ -237,9 +237,9 @@ download_model(self, key: str, destination_folder) -> None
 ```
 
 Download model to destination file.
-This model was saved using the 'save_model' function of the algorithm.
+This model was saved using the 'save_model' function of the class.
 To load and use the model, please refer to the 'load_model' and 'predict' functions of the
-algorithm.
+class.
 
 **Arguments:**
  - `key (str, required)`: Model key to download
@@ -254,9 +254,9 @@ download_model_from_task(self, task_key: str, identifier: str, folder: os.PathLi
 ```
 
 Download task model to destination file.
-This model was saved using the 'save_model' function of the algorithm.
+This model was saved using the 'save_model' function of the class.
 To load and use the model, please refer to the 'load_model' and 'predict' functions of the
-algorithm.
+class.
 
 **Arguments:**
  - `task_key (str, required)`: Task key to download
@@ -297,13 +297,6 @@ mode and tasks are executed locally.
 **Returns:**
 
  - `Client`: The new client.
-## get_algo
-```text
-get_algo(self, key: str) -> substra.sdk.models.Algo
-```
-
-Get algo by key, the returned object is described
-in the [models.Algo](sdk_models.md#Algo) model
 ## get_compute_plan
 ```text
 get_compute_plan(self, key: str) -> substra.sdk.models.ComputePlan
@@ -325,6 +318,13 @@ get_dataset(self, key: str) -> substra.sdk.models.Dataset
 
 Get dataset by key, the returned object is described
 in the [models.Dataset](sdk_models.md#Dataset) model
+## get_function
+```text
+get_function(self, key: str) -> substra.sdk.models.Function
+```
+
+Get function by key, the returned object is described
+in the [models.Function](sdk_models.md#Function) model
 ## get_logs
 ```text
 get_logs(self, task_key: str) -> str
@@ -370,39 +370,6 @@ link_dataset_with_data_samples(self, dataset_key: str, data_sample_keys: List[st
 ```
 
 Link dataset with data samples.
-## list_algo
-```text
-list_algo(self, filters: dict = None, ascending: bool = False) -> List[substra.sdk.models.Algo]
-```
-
-List algos.
-The ``filters`` argument is a dictionary, with those possible keys:
-
-    key (List[str]): list algo with given keys.
-
-    name (str): list algo with name partially matching given string. Remote mode only.
-
-    owner (List[str]): list algo with given owners.
-
-    metadata (dict)
-        {
-            "key": str # the key of the metadata to filter on
-            "type": "is", "contains" or "exists" # the type of query that will be used
-            "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
-        }: list algo matching provided conditions in metadata.
-
-    permissions (List[str]): list algo which can be used by any of the listed nodes. Remote mode only.
-    compute_plan_key (str): list algo that are in the given compute plan. Remote mode only.
-    dataset_key (str): list algo linked or using this dataset. Remote mode only.
-    data_sample_key (List[str]): list algo linked or that used this data sample(s). Remote mode only.
-
-**Arguments:**
- - `filters (dict, optional)`: List of key values pair to filter on. Default None.
- - `ascending (bool, optional)`: Sorts results by oldest creation_date first. Default False (descending order).
-
-**Returns:**
-
- - `models.Algo`: the returned object is described in the [models.Algo](sdk_models.md#Algo) model
 ## list_compute_plan
 ```text
 list_compute_plan(self, filters: dict = None, order_by: str = 'creation_date', ascending: bool = False) -> List[substra.sdk.models.ComputePlan]
@@ -427,7 +394,7 @@ The ``filters`` argument is a dictionary, with those possible keys:
             "type": "is", "contains" or "exists" # the type of query that will be used
             "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
         }: list compute plans matching provided conditions in metadata. Remote mode only.
-    algo_key (str): list compute plans that used the given algo. Remote mode only.
+    function_key (str): list compute plans that used the given function. Remote mode only.
     dataset_key (str): list compute plans linked or using this dataset. Remote mode only.
     data_sample_key (List[str]): list compute plans linked or that used this data sample(s). Remote mode only.
 
@@ -451,7 +418,7 @@ The ``filters`` argument is a dictionary, with those possible keys:
         key (List[str]): list data samples with listed keys.
         owner (List[str]): list data samples with listed owners.
         compute_plan_key (str): list data samples that are in the given compute plan. Remote mode only.
-        algo_key (str): list data samples that used the given algo. Remote mode only.
+        function_key (str): list data samples that used the given function. Remote mode only.
         dataset_key (str): list data samples linked or using this dataset. Remote mode only.
 
 **Arguments:**
@@ -485,7 +452,7 @@ The ``filters`` argument is a dictionary, with those possible keys:
 
     permissions (List[str]) : list dataset which can be used by any of the listed nodes. Remote mode only.
     compute_plan_key (str): list dataset that are in the given compute plan. Remote mode only.
-    algo_key (str): list dataset that used the given algo. Remote mode only.
+    function_key (str): list dataset that used the given function. Remote mode only.
     data_sample_key (List[str]): list dataset linked or that used this data sample(s). Remote mode only.
 
 **Arguments:**
@@ -495,6 +462,39 @@ The ``filters`` argument is a dictionary, with those possible keys:
 **Returns:**
 
  - `models.Dataset`: the returned object is described
+## list_function
+```text
+list_function(self, filters: dict = None, ascending: bool = False) -> List[substra.sdk.models.Function]
+```
+
+List functions.
+The ``filters`` argument is a dictionary, with those possible keys:
+
+    key (List[str]): list function with given keys.
+
+    name (str): list function with name partially matching given string. Remote mode only.
+
+    owner (List[str]): list function with given owners.
+
+    metadata (dict)
+        {
+            "key": str # the key of the metadata to filter on
+            "type": "is", "contains" or "exists" # the type of query that will be used
+            "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
+        }: list function matching provided conditions in metadata.
+
+    permissions (List[str]): list function which can be used by any of the listed nodes. Remote mode only.
+    compute_plan_key (str): list function that are in the given compute plan. Remote mode only.
+    dataset_key (str): list function linked or using this dataset. Remote mode only.
+    data_sample_key (List[str]): list function linked or that used this data sample(s). Remote mode only.
+
+**Arguments:**
+ - `filters (dict, optional)`: List of key values pair to filter on. Default None.
+ - `ascending (bool, optional)`: Sorts results by oldest creation_date first. Default False (descending order).
+
+**Returns:**
+
+ - `models.Function`: the returned object is described in the [models.Function](sdk_models.md#Function) model
 ## list_model
 ```text
 list_model(self, filters: dict = None, ascending: bool = False) -> List[substra.sdk.models.OutModel]
@@ -549,7 +549,7 @@ The ``filters`` argument is a dictionary, with those possible keys:
             "value": str # the value that the key must be (if type is "is") or contain (if type if "contains")
         }: list tasks matching provided conditions in metadata. Remote mode only.
     compute_plan_key (str): list tasks that are in the given compute plan. Remote mode only.
-    algo_key (str): list tasks that used the given algo. Remote mode only.
+    function_key (str): list tasks that used the given function. Remote mode only.
 
 **Arguments:**
  - `filters (dict, optional)`: List of key values pair to filter on. Default None.
@@ -573,12 +573,6 @@ organization_info(self) -> substra.sdk.models.OrganizationInfo
 ```
 
 Get organization information.
-## update_algo
-```text
-update_algo(self, key: str, name: str)
-```
-
-None
 ## update_compute_plan
 ```text
 update_compute_plan(self, key: str, name: str)
@@ -588,6 +582,12 @@ None
 ## update_dataset
 ```text
 update_dataset(self, key: str, name: str)
+```
+
+None
+## update_function
+```text
+update_function(self, key: str, name: str)
 ```
 
 None
