@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- BREAKING: rename Algo to Function ([#341](https://github.com/Substra/orchestrator/pull/341))
+- BREAKING: rename Algo to Function ([#341](https://github.com/Substra/substra/pull/341))
 - BREAKING: rename tuple to task (#337)
 
 ## [0.41.0](https://github.com/Substra/substra/releases/tag/0.41.0) - 2022-12-19
