@@ -16,7 +16,7 @@ from ..utils import mock_response
     "asset_type",
     [
         ("dataset"),
-        ("algo"),
+        ("function"),
         ("model"),
     ],
 )
@@ -35,7 +35,7 @@ def test_download_asset(asset_type, tmp_path, client, mocker):
     m.assert_called()
 
 
-@pytest.mark.parametrize("asset_type", ["dataset", "algo", "model", "logs"])
+@pytest.mark.parametrize("asset_type", ["dataset", "function", "model", "logs"])
 def test_download_asset_not_found(asset_type, tmp_path, client, mocker):
     m = mock_requests(mocker, "get", status=404)
 
@@ -46,7 +46,7 @@ def test_download_asset_not_found(asset_type, tmp_path, client, mocker):
     assert m.call_count == 1
 
 
-@pytest.mark.parametrize("asset_type", ["dataset", "algo", "model"])
+@pytest.mark.parametrize("asset_type", ["dataset", "function", "model"])
 def test_download_content_not_found(asset_type, tmp_path, client, mocker):
     item = getattr(datastore, asset_type.upper())
 

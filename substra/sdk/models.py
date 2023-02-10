@@ -121,7 +121,7 @@ class DataSample(_Model):
 
     @staticmethod
     def allowed_filters() -> List[str]:
-        return ["key", "owner", "compute_plan_key", "algo_key", "dataset_key"]
+        return ["key", "owner", "compute_plan_key", "function_key", "dataset_key"]
 
 
 class _File(schemas._PydanticConfig):
@@ -150,36 +150,36 @@ class Dataset(_Model):
 
     @staticmethod
     def allowed_filters() -> List[str]:
-        return ["key", "name", "owner", "permissions", "compute_plan_key", "algo_key", "data_sample_key"]
+        return ["key", "name", "owner", "permissions", "compute_plan_key", "function_key", "data_sample_key"]
 
 
-class AlgoInput(_Model):
+class FunctionInput(_Model):
     identifier: str
     kind: schemas.AssetKind
     optional: bool
     multiple: bool
 
 
-class AlgoOutput(_Model):
+class FunctionOutput(_Model):
     identifier: str
     kind: schemas.AssetKind
     multiple: bool
 
 
-class Algo(_Model):
+class Function(_Model):
     key: str
     name: str
     owner: str
     permissions: Permissions
     metadata: Dict[str, str]
     creation_date: datetime
-    inputs: List[AlgoInput]
-    outputs: List[AlgoOutput]
+    inputs: List[FunctionInput]
+    outputs: List[FunctionOutput]
 
     description: _File
-    algorithm: _File
+    function: _File
 
-    type_: ClassVar[str] = schemas.Type.Algo
+    type_: ClassVar[str] = schemas.Type.Function
 
     @staticmethod
     def allowed_filters() -> List[str]:
@@ -190,13 +190,13 @@ class Algo(_Model):
         if isinstance(v, dict):
             # Transform the inputs dict to a list
             return [
-                AlgoInput(
+                FunctionInput(
                     identifier=identifier,
-                    kind=algo_input["kind"],
-                    optional=algo_input["optional"],
-                    multiple=algo_input["multiple"],
+                    kind=function_input["kind"],
+                    optional=function_input["optional"],
+                    multiple=function_input["multiple"],
                 )
-                for identifier, algo_input in v.items()
+                for identifier, function_input in v.items()
             ]
         else:
             return v
@@ -206,8 +206,10 @@ class Algo(_Model):
         if isinstance(v, dict):
             # Transform the outputs dict to a list
             return [
-                AlgoOutput(identifier=identifier, kind=algo_output["kind"], multiple=algo_output["multiple"])
-                for identifier, algo_output in v.items()
+                FunctionOutput(
+                    identifier=identifier, kind=function_output["kind"], multiple=function_output["multiple"]
+                )
+                for identifier, function_output in v.items()
             ]
         else:
             return v
@@ -260,7 +262,7 @@ class ComputeTaskOutput(schemas._PydanticConfig):
 
 class Task(_Model):
     key: str
-    algo: Algo
+    function: Function
     owner: str
     compute_plan_key: str
     metadata: Dict[str, str]
@@ -287,7 +289,7 @@ class Task(_Model):
             "status",
             "metadata",
             "compute_plan_key",
-            "algo_key",
+            "function_key",
         ]
 
 
@@ -329,7 +331,17 @@ class ComputePlan(_Model):
 
     @staticmethod
     def allowed_filters() -> List[str]:
-        return ["key", "name", "owner", "worker", "status", "metadata", "algo_key", "dataset_key", "data_sample_key"]
+        return [
+            "key",
+            "name",
+            "owner",
+            "worker",
+            "status",
+            "metadata",
+            "function_key",
+            "dataset_key",
+            "data_sample_key",
+        ]
 
 
 class Performances(_Model):
@@ -375,7 +387,7 @@ class OrganizationInfo(schemas._PydanticConfig):
 
 SCHEMA_TO_MODEL = {
     schemas.Type.Task: Task,
-    schemas.Type.Algo: Algo,
+    schemas.Type.Function: Function,
     schemas.Type.ComputePlan: ComputePlan,
     schemas.Type.DataSample: DataSample,
     schemas.Type.Dataset: Dataset,

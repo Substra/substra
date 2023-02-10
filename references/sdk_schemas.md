@@ -3,11 +3,11 @@
 - [DataSampleSpec](#DataSampleSpec)
 - [DatasetSpec](#DatasetSpec)
 - [UpdateDatasetSpec](#UpdateDatasetSpec)
-- [AlgoSpec](#AlgoSpec)
-- [AlgoInputSpec](#AlgoInputSpec)
-- [AlgoOutputSpec](#AlgoOutputSpec)
+- [FunctionSpec](#FunctionSpec)
+- [FunctionInputSpec](#FunctionInputSpec)
+- [FunctionOutputSpec](#FunctionOutputSpec)
 - [TaskSpec](#TaskSpec)
-- [UpdateAlgoSpec](#UpdateAlgoSpec)
+- [UpdateFunctionSpec](#UpdateFunctionSpec)
 - [ComputePlanSpec](#ComputePlanSpec)
 - [UpdateComputePlanSpec](#UpdateComputePlanSpec)
 - [UpdateComputePlanTasksSpec](#UpdateComputePlanTasksSpec)
@@ -48,8 +48,8 @@ Specification for updating a dataset
 - name: str
 ```
 
-## AlgoSpec
-Specification for creating an algo
+## FunctionSpec
+Specification for creating an function
 
 note : metadata field does not accept strings containing '__' as dict key
 ```text
@@ -58,11 +58,11 @@ note : metadata field does not accept strings containing '__' as dict key
 - file: Path
 - permissions: Permissions
 - metadata: Optional[Mapping[str, str]]
-- inputs: Optional[List[AlgoInputSpec]]
-- outputs: Optional[List[AlgoOutputSpec]]
+- inputs: Optional[List[FunctionInputSpec]]
+- outputs: Optional[List[FunctionOutputSpec]]
 ```
 
-## AlgoInputSpec
+## FunctionInputSpec
 Asset creation specification base class.
 ```text
 - identifier: str
@@ -71,7 +71,7 @@ Asset creation specification base class.
 - kind: AssetKind
 ```
 
-## AlgoOutputSpec
+## FunctionOutputSpec
 Asset creation specification base class.
 ```text
 - identifier: str
@@ -86,15 +86,15 @@ Asset creation specification base class.
 - tag: Optional[str]
 - compute_plan_key: Optional[str]
 - metadata: Optional[Mapping[str, str]]
-- algo_key: str
+- function_key: str
 - worker: str
 - rank: Optional[int]
 - inputs: Optional[List[InputRef]]
 - outputs: Optional[Mapping[str, ComputeTaskOutputSpec]]
 ```
 
-## UpdateAlgoSpec
-Specification for updating an algo
+## UpdateFunctionSpec
+Specification for updating an function
 ```text
 - name: str
 ```
@@ -130,7 +130,7 @@ Specification of a compute task inside a compute plan specification
 note : metadata field does not accept strings containing '__' as dict key
 ```text
 - task_id: str
-- algo_key: str
+- function_key: str
 - worker: str
 - tag: Optional[str]
 - metadata: Optional[Mapping[str, str]]

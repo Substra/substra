@@ -17,7 +17,7 @@ from ..utils import mock_response
         "model",
         "dataset",
         "data_sample",
-        "algo",
+        "function",
         "compute_plan",
     ],
 )
@@ -65,7 +65,7 @@ def test_get_asset_not_found(client, mocker):
     "asset_type",
     [
         "dataset",
-        "algo",
+        "function",
         "compute_plan",
         "model",
     ],

@@ -1,4 +1,4 @@
-ALGO = "algo"
+FUNCTION = "function"
 DATA_SAMPLE = "data_sample"
 DATASET = "dataset"
 MODEL = "model"

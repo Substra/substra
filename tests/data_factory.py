@@ -8,9 +8,9 @@ import zipfile
 
 import substra
 
-from .fl_interface import AlgoCategory
-from .fl_interface import FLAlgoInputs
-from .fl_interface import FLAlgoOutputs
+from .fl_interface import FLFunctionInputs
+from .fl_interface import FLFunctionOutputs
+from .fl_interface import FunctionCategory
 from .fl_interface import InputIdentifiers
 from .fl_interface import OutputIdentifiers
 
@@ -50,7 +50,7 @@ class TestOpener(tools.Opener):
 """
 
 
-DEFAULT_METRIC_ALGO_SCRIPT = f"""
+DEFAULT_METRIC_FUNCTION_SCRIPT = f"""
 import json
 import substratools as tools
 
@@ -71,7 +71,7 @@ if __name__ == '__main__':
 """
 
 
-DEFAULT_ALGO_SCRIPT = f"""
+DEFAULT_FUNCTION_SCRIPT = f"""
 import json
 import substratools as tools
 
@@ -123,7 +123,7 @@ if __name__ == '__main__':
     tools.execute()
 """
 
-DEFAULT_AGGREGATE_ALGO_SCRIPT = f"""
+DEFAULT_AGGREGATE_FUNCTION_SCRIPT = f"""
 import json
 import substratools as tools
 
@@ -159,7 +159,7 @@ if __name__ == '__main__':
 """
 
 # TODO we should have a different serializer for head and trunk models
-DEFAULT_COMPOSITE_ALGO_SCRIPT = f"""
+DEFAULT_COMPOSITE_FUNCTION_SCRIPT = f"""
 import json
 import substratools as tools
 
@@ -173,7 +173,7 @@ def train(inputs, outputs, task_properties):
     trunk_model_path = inputs.get('{InputIdentifiers.shared}')
     trunk_model = _load_model(trunk_model_path) if trunk_model_path else None
 
-    print(f'Composite algo train X: {{X}}, y: {{y}}, head_model: {{head_model}}, trunk_model: {{trunk_model}}')
+    print(f'Composite function train X: {{X}}, y: {{y}}, head_model: {{head_model}}, trunk_model: {{trunk_model}}')
 
     ratio = sum(y) / sum(X)
     err_head = 0.1 * ratio  # Add a small error
@@ -190,7 +190,7 @@ def train(inputs, outputs, task_properties):
         res_trunk = ratio
 
     res = dict(value= res_head + err_head), dict(value= res_trunk + err_trunk)
-    print(f'Composite algo train head, trunk result: {{res}}')
+    print(f'Composite function train head, trunk result: {{res}}')
 
     _save_model(res[0], outputs['{OutputIdentifiers.local}'])
     _save_model(res[1], outputs['{OutputIdentifiers.shared}'])
@@ -201,10 +201,10 @@ def predict(inputs, outputs, task_properties):
     head_model = _load_model(inputs['{InputIdentifiers.local}'])
     trunk_model = _load_model(inputs['{InputIdentifiers.shared}'])
 
-    print(f'Composite algo predict X: {{X}}, head_model: {{head_model}}, trunk_model: {{trunk_model}}')
+    print(f'Composite function predict X: {{X}}, head_model: {{head_model}}, trunk_model: {{trunk_model}}')
     ratio_sum = head_model['value'] + trunk_model['value']
     res = [x * ratio_sum for x in X]
-    print(f'Composite algo predict result: {{res}}')
+    print(f'Composite function predict result: {{res}}')
 
     _save_predictions(res, outputs['{OutputIdentifiers.predictions}'])
 
@@ -225,45 +225,45 @@ if __name__ == '__main__':
 """
 
 
-DEFAULT_ALGO_SCRIPTS = {
-    AlgoCategory.simple: DEFAULT_ALGO_SCRIPT,
-    AlgoCategory.composite: DEFAULT_COMPOSITE_ALGO_SCRIPT,
-    AlgoCategory.aggregate: DEFAULT_AGGREGATE_ALGO_SCRIPT,
-    AlgoCategory.predict: DEFAULT_ALGO_SCRIPT,
-    AlgoCategory.metric: DEFAULT_METRIC_ALGO_SCRIPT,
-    AlgoCategory.predict_composite: DEFAULT_COMPOSITE_ALGO_SCRIPT,
+DEFAULT_FUNCTION_SCRIPTS = {
+    FunctionCategory.simple: DEFAULT_FUNCTION_SCRIPT,
+    FunctionCategory.composite: DEFAULT_COMPOSITE_FUNCTION_SCRIPT,
+    FunctionCategory.aggregate: DEFAULT_AGGREGATE_FUNCTION_SCRIPT,
+    FunctionCategory.predict: DEFAULT_FUNCTION_SCRIPT,
+    FunctionCategory.metric: DEFAULT_METRIC_FUNCTION_SCRIPT,
+    FunctionCategory.predict_composite: DEFAULT_COMPOSITE_FUNCTION_SCRIPT,
 }
 
-DEFAULT_ALGO_FUNCTION_NAME = {
-    AlgoCategory.simple: "train",
-    AlgoCategory.composite: "train",
-    AlgoCategory.aggregate: "aggregate",
-    AlgoCategory.predict: "predict",
-    AlgoCategory.metric: "score",
-    AlgoCategory.predict_composite: "predict",
+DEFAULT_FUNCTION_FUNCTION_NAME = {
+    FunctionCategory.simple: "train",
+    FunctionCategory.composite: "train",
+    FunctionCategory.aggregate: "aggregate",
+    FunctionCategory.predict: "predict",
+    FunctionCategory.metric: "score",
+    FunctionCategory.predict_composite: "predict",
 }
 
-DEFAULT_ALGO_DOCKERFILE = f"""
+DEFAULT_FUNCTION_DOCKERFILE = f"""
 FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
-COPY algo.py .
-ENTRYPOINT ["python3", "algo.py", "--function-name", "{{function_name}}"]
+COPY function.py .
+ENTRYPOINT ["python3", "function.py", "--function-name", "{{function_name}}"]
 """
 
 BAD_ENTRYPOINT_DOCKERFILE = f"""
 FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
-COPY algo.py .
-ENTRYPOINT ["python3", "algo.txt"]
+COPY function.py .
+ENTRYPOINT ["python3", "function.txt"]
 """
 
 NO_ENTRYPOINT_DOCKERFILE = f"""
 FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
-COPY algo.py .
+COPY function.py .
 """
 
 NO_FUNCTION_NAME_DOCKERFILE = f"""
 FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
-COPY algo.py .
-ENTRYPOINT ["python3", "algo.txt", "train"]
+COPY function.py .
+ENTRYPOINT ["python3", "function.txt", "train"]
 """
 
 DEFAULT_PERMISSIONS = substra.sdk.schemas.Permissions(public=True, authorized_ids=[])
@@ -314,7 +314,7 @@ class AssetsFactory:
         self._data_sample_counter = Counter()
         self._dataset_counter = Counter()
         self._metric_counter = Counter()
-        self._algo_counter = Counter()
+        self._function_counter = Counter()
         self._workdir = pathlib.Path(tempfile.mkdtemp(prefix="/tmp/"))
         self._uuid = name
 
@@ -369,18 +369,18 @@ class AssetsFactory:
             logs_permission=logs_permission or DEFAULT_PERMISSIONS,
         )
 
-    def create_algo(
+    def create_function(
         self,
-        category=AlgoCategory.simple,
+        category=FunctionCategory.simple,
         py_script=None,
         permissions=None,
         metadata=None,
         dockerfile_type=None,
     ):
-        idx = self._algo_counter.inc()
-        tmpdir = self._workdir / f"algo-{idx}"
+        idx = self._function_counter.inc()
+        tmpdir = self._workdir / f"function-{idx}"
         tmpdir.mkdir()
-        name = _shorten_name(f"{self._uuid} - Algo {idx}")
+        name = _shorten_name(f"{self._uuid} - Function {idx}")
 
         description_path = tmpdir / "description.md"
         description_content = name
@@ -388,13 +388,13 @@ class AssetsFactory:
             f.write(description_content)
 
         try:
-            algo_content = py_script or DEFAULT_ALGO_SCRIPTS[category]
+            function_content = py_script or DEFAULT_FUNCTION_SCRIPTS[category]
         except KeyError:
-            raise Exception("Invalid algo category: ", category)
+            raise Exception("Invalid function category: ", category)
 
-        algo_zip = create_archive(
-            tmpdir / "algo",
-            ("algo.py", algo_content),
+        function_zip = create_archive(
+            tmpdir / "function",
+            ("function.py", function_content),
             (
                 "Dockerfile",
                 (
@@ -404,17 +404,17 @@ class AssetsFactory:
                     if dockerfile_type == "NO_ENTRYPOINT"
                     else NO_FUNCTION_NAME_DOCKERFILE
                     if dockerfile_type == "NO_FUNCTION_NAME"
-                    else DEFAULT_ALGO_DOCKERFILE.format(function_name=DEFAULT_ALGO_FUNCTION_NAME[category])
+                    else DEFAULT_FUNCTION_DOCKERFILE.format(function_name=DEFAULT_FUNCTION_FUNCTION_NAME[category])
                 ),
             ),
         )
 
-        return substra.sdk.schemas.AlgoSpec(
+        return substra.sdk.schemas.FunctionSpec(
             name=name,
-            inputs=FLAlgoInputs[category],
-            outputs=FLAlgoOutputs[category],
+            inputs=FLFunctionInputs[category],
+            outputs=FLFunctionOutputs[category],
             description=str(description_path),
-            file=str(algo_zip),
+            file=str(function_zip),
             permissions=permissions or DEFAULT_PERMISSIONS,
             metadata=metadata,
         )

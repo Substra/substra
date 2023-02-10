@@ -9,7 +9,7 @@ from ..utils import mock_requests
 
 @pytest.mark.parametrize(
     "asset_type",
-    ["dataset", "algo", "compute_plan"],
+    ["dataset", "function", "compute_plan"],
 )
 def test_update_asset(asset_type, client, mocker):
     update_method = getattr(client, f"update_{asset_type}")

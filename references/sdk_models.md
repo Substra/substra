@@ -3,7 +3,7 @@
 - [DataSample](#DataSample)
 - [Dataset](#Dataset)
 - [Task](#Task)
-- [Algo](#Algo)
+- [Function](#Function)
 - [ComputePlan](#ComputePlan)
 - [Performances](#Performances)
 - [Organization](#Organization)
@@ -45,7 +45,7 @@ Dataset asset
 Asset creation specification base class.
 ```text
 - key: str
-- algo: Algo
+- function: Function
 - owner: str
 - compute_plan_key: str
 - metadata: Mapping[str, str]
@@ -61,7 +61,7 @@ Asset creation specification base class.
 - error_type: Optional[TaskErrorType]
 ```
 
-## Algo
+## Function
 Asset creation specification base class.
 ```text
 - key: str
@@ -70,10 +70,10 @@ Asset creation specification base class.
 - permissions: Permissions
 - metadata: Mapping[str, str]
 - creation_date: datetime
-- inputs: List[AlgoInput]
-- outputs: List[AlgoOutput]
+- inputs: List[FunctionInput]
+- outputs: List[FunctionOutput]
 - description: _File
-- algorithm: _File
+- function: _File
 ```
 
 ## ComputePlan

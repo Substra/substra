@@ -25,12 +25,12 @@ def _get_entrypoint_from_dockerfile(tmpdir):
     """
     Extracts the .py script and the function name to execute in
     an ENTRYPOINT line of a Dockerfile, located in tmpdir.
-    For instance if the line `ENTRYPOINT ["python3", "algo.py", "--function-name", "train"]` is in the Dockerfile,
-     `algo.py`, `train` is extracted.
+    For instance if the line `ENTRYPOINT ["python3", "function.py", "--function-name", "train"]` is in the Dockerfile,
+     `function.py`, `train` is extracted.
     """
     valid_example = (
         """The entry point should be specified as follow: """
-        """``ENTRYPOINT ["<executor>", "<algo_file.py>", "--function-name", "<method name>"]"""
+        """``ENTRYPOINT ["<executor>", "<function_file.py>", "--function-name", "<method name>"]"""
     )
     with open(tmpdir / "Dockerfile") as f:
         for line in f:
@@ -92,17 +92,17 @@ class Subprocess(BaseSpawner):
         envs,
     ):
         """Spawn a python process (blocking)."""
-        with tempfile.TemporaryDirectory(dir=self._local_worker_dir) as algo_dir, tempfile.TemporaryDirectory(
-            dir=algo_dir
+        with tempfile.TemporaryDirectory(dir=self._local_worker_dir) as function_dir, tempfile.TemporaryDirectory(
+            dir=function_dir
         ) as args_dir:
-            algo_dir = pathlib.Path(algo_dir)
+            function_dir = pathlib.Path(function_dir)
             args_dir = pathlib.Path(args_dir)
-            uncompress(archive_path, algo_dir)
-            script_name, function_name = _get_entrypoint_from_dockerfile(algo_dir)
+            uncompress(archive_path, function_dir)
+            script_name, function_name = _get_entrypoint_from_dockerfile(function_dir)
 
             args_file = args_dir / "arguments.txt"
 
-            py_command = [sys.executable, str(algo_dir / script_name), f"@{args_file}"]
+            py_command = [sys.executable, str(function_dir / script_name), f"@{args_file}"]
             py_command_args = _get_command_args(function_name, command_args_tpl, local_volumes)
             write_command_args_file(args_file, py_command_args)
 
@@ -112,6 +112,6 @@ class Subprocess(BaseSpawner):
             # Catching error and raising to be ISO to the docker local backend
             # Don't capture the output to be able to use pdb
             try:
-                subprocess.run(py_command, capture_output=False, check=True, cwd=algo_dir, env=envs)
+                subprocess.run(py_command, capture_output=False, check=True, cwd=function_dir, env=envs)
             except subprocess.CalledProcessError as e:
                 raise ExecutionError(e)

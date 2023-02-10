@@ -46,7 +46,7 @@ class AssetKind(str, enum.Enum):
 
 
 class Type(enum.Enum):
-    Algo = "algo"
+    Function = "function"
     DataSample = "data_sample"
     Dataset = "dataset"
     Model = "model"
@@ -197,7 +197,7 @@ class ComputePlanTaskSpec(_Spec):
     """
 
     task_id: str
-    algo_key: str
+    function_key: str
     worker: str
     tag: Optional[str]
     metadata: Optional[Dict[str, str]]
@@ -277,7 +277,7 @@ class UpdateDatasetSpec(_Spec):
     type_: typing.ClassVar[Type] = Type.Dataset
 
 
-class AlgoInputSpec(_Spec):
+class FunctionInputSpec(_Spec):
     identifier: str
     multiple: bool
     optional: bool
@@ -312,7 +312,7 @@ class AlgoInputSpec(_Spec):
         return values
 
 
-class AlgoOutputSpec(_Spec):
+class FunctionOutputSpec(_Spec):
     identifier: str
     kind: AssetKind
     multiple: bool
@@ -326,8 +326,8 @@ class AlgoOutputSpec(_Spec):
         return values
 
 
-class AlgoSpec(_Spec):
-    """Specification for creating an algo
+class FunctionSpec(_Spec):
+    """Specification for creating an function
 
     note : metadata field does not accept strings containing '__' as dict key
     """
@@ -337,17 +337,17 @@ class AlgoSpec(_Spec):
     file: pathlib.Path
     permissions: Permissions
     metadata: Optional[Dict[str, str]]
-    inputs: Optional[List[AlgoInputSpec]] = None
-    outputs: Optional[List[AlgoOutputSpec]] = None
+    inputs: Optional[List[FunctionInputSpec]] = None
+    outputs: Optional[List[FunctionOutputSpec]] = None
 
-    type_: typing.ClassVar[Type] = Type.Algo
+    type_: typing.ClassVar[Type] = Type.Function
 
     @pydantic.validator("inputs")
     def _check_inputs(cls, v):  # noqa: N805
         inputs = v or list()
         identifiers = {value.identifier for value in inputs}
         if len(identifiers) != len(inputs):
-            raise ValueError("Several algo inputs cannot have the same identifier.")
+            raise ValueError("Several function inputs cannot have the same identifier.")
         return v
 
     @pydantic.validator("outputs")
@@ -355,7 +355,7 @@ class AlgoSpec(_Spec):
         outputs = v or list()
         identifiers = {value.identifier for value in outputs}
         if len(identifiers) != len(outputs):
-            raise ValueError("Several algo outputs cannot have the same identifier.")
+            raise ValueError("Several function outputs cannot have the same identifier.")
         return v
 
     @contextlib.contextmanager
@@ -386,12 +386,12 @@ class AlgoSpec(_Spec):
         )
 
 
-class UpdateAlgoSpec(_Spec):
-    """Specification for updating an algo"""
+class UpdateFunctionSpec(_Spec):
+    """Specification for updating an function"""
 
     name: str
 
-    type_: typing.ClassVar[Type] = Type.Algo
+    type_: typing.ClassVar[Type] = Type.Function
 
 
 class TaskSpec(_Spec):
@@ -399,7 +399,7 @@ class TaskSpec(_Spec):
     tag: Optional[str]
     compute_plan_key: Optional[str]
     metadata: Optional[Dict[str, str]]
-    algo_key: str
+    function_key: str
     worker: str
     rank: Optional[int] = None
     inputs: Optional[List[InputRef]]
@@ -421,7 +421,7 @@ class TaskSpec(_Spec):
     def from_compute_plan(cls, compute_plan_key: str, rank: int, spec: ComputePlanTaskSpec) -> "TaskSpec":
         return TaskSpec(
             key=spec.task_id,
-            algo_key=spec.algo_key,
+            function_key=spec.function_key,
             inputs=spec.inputs,
             outputs=spec.outputs,
             tag=spec.tag,

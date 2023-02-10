@@ -1,17 +1,15 @@
 import uuid
-from pathlib import Path
 
 import docker
 import pytest
 
 import substra
-from substra.sdk import models
 from substra.sdk import exceptions
-from substra.sdk.backends import local
+from substra.sdk import models
 
-from ...fl_interface import AlgoCategory
 from ...fl_interface import FLTaskInputGenerator
 from ...fl_interface import FLTaskOutputGenerator
+from ...fl_interface import FunctionCategory
 from ...fl_interface import InputIdentifiers
 
 
@@ -54,13 +52,13 @@ class TestsDebug:
         data_sample = asset_factory.create_data_sample(datasets=[dataset_1_key])
         sample_1_key = client.add_data_sample(data_sample)
 
-        algo_query = asset_factory.create_algo(AlgoCategory.simple, dockerfile_type=dockerfile_type)
-        algo_key = client.add_algo(algo_query)
+        function_query = asset_factory.create_function(FunctionCategory.simple, dockerfile_type=dockerfile_type)
+        function_key = client.add_function(function_query)
 
         cp = asset_factory.create_compute_plan()
         cp.tasks = [
             substra.sdk.schemas.ComputePlanTaskSpec(
-                algo_key=algo_key,
+                function_key=function_key,
                 data_manager_key=dataset_1_key,
                 task_id=str(uuid.uuid4()),
                 train_data_sample_keys=[sample_1_key],
@@ -92,12 +90,12 @@ class TestsDebug:
         data_sample = asset_factory.create_data_sample(datasets=[dataset_key])
         data_sample_key = client.add_data_sample(data_sample)
 
-        algo_query = asset_factory.create_algo(AlgoCategory.simple)
-        algo_key = client.add_algo(algo_query)
+        function_query = asset_factory.create_function(FunctionCategory.simple)
+        function_key = client.add_function(function_query)
 
         traintask_key = client.add_task(
             substra.sdk.schemas.TaskSpec(
-                algo_key=algo_key,
+                function_key=function_key,
                 compute_plan_key=compute_plan.key,
                 rank=None,
                 metadata=None,
@@ -108,7 +106,7 @@ class TestsDebug:
         )
 
         traintask = substra.sdk.schemas.ComputePlanTaskSpec(
-            algo_key=algo_key,
+            function_key=function_key,
             task_id=str(uuid.uuid4()),
             inputs=FLTaskInputGenerator.task(opener_key=dataset_key, data_sample_keys=[data_sample_key])
             + FLTaskInputGenerator.trains_to_train([traintask_key]),
@@ -150,30 +148,30 @@ class TestsDebug:
     def test_tasks_extra_fields(self, asset_factory, clients):
         client = clients[0]
 
-        # set dataset, metric and algo
+        # set dataset, metric and function
         dataset_query = asset_factory.create_dataset()
         dataset_key = client.add_dataset(dataset_query)
 
         data_sample = asset_factory.create_data_sample(datasets=[dataset_key])
         data_sample_key = client.add_data_sample(data_sample)
 
-        algo_query = asset_factory.create_algo(AlgoCategory.simple)
-        algo_key = client.add_algo(algo_query)
+        function_query = asset_factory.create_function(FunctionCategory.simple)
+        function_key = client.add_function(function_query)
 
-        predict_algo_spec = asset_factory.create_algo(category=AlgoCategory.predict)
-        predict_algo_key = client.add_algo(predict_algo_spec)
+        predict_function_spec = asset_factory.create_function(category=FunctionCategory.predict)
+        predict_function_key = client.add_function(predict_function_spec)
 
-        composite_algo_query = asset_factory.create_algo(AlgoCategory.composite)
-        composite_algo_key = client.add_algo(composite_algo_query)
+        composite_function_query = asset_factory.create_function(FunctionCategory.composite)
+        composite_function_key = client.add_function(composite_function_query)
 
-        metric_query = asset_factory.create_algo(category=AlgoCategory.metric)
-        metric_key = client.add_algo(metric_query)
+        metric_query = asset_factory.create_function(category=FunctionCategory.metric)
+        metric_key = client.add_function(metric_query)
 
         # test traintask extra field
 
         traintask_key = client.add_task(
             substra.sdk.schemas.TaskSpec(
-                algo_key=algo_key,
+                function_key=function_key,
                 inputs=FLTaskInputGenerator.task(opener_key=dataset_key, data_sample_keys=[data_sample_key]),
                 outputs=FLTaskOutputGenerator.traintask(),
                 worker=client.organization_info().organization_id,
@@ -189,7 +187,7 @@ class TestsDebug:
         # test predicttask extra fields
         predicttask_key = client.add_task(
             substra.sdk.schemas.TaskSpec(
-                algo_key=predict_algo_key,
+                function_key=predict_function_key,
                 inputs=FLTaskInputGenerator.task(opener_key=dataset_key, data_sample_keys=[data_sample_key])
                 + FLTaskInputGenerator.train_to_predict(traintask_key),
                 outputs=FLTaskOutputGenerator.predicttask(),
@@ -213,7 +211,7 @@ class TestsDebug:
         # test testtask extra fields
         testtask_key = client.add_task(
             substra.sdk.schemas.TaskSpec(
-                algo_key=metric_key,
+                function_key=metric_key,
                 inputs=FLTaskInputGenerator.task(opener_key=dataset_key, data_sample_keys=[data_sample_key])
                 + FLTaskInputGenerator.predict_to_test(predicttask_key),
                 outputs=FLTaskOutputGenerator.testtask(),
@@ -233,14 +231,14 @@ class TestsDebug:
         assert len(model_ref) == 1
         assert model_ref[0].parent_task_key == predicttask_key
 
-        assert testtask.algo
-        assert testtask.algo.key == metric_key
+        assert testtask.function
+        assert testtask.function.key == metric_key
 
         # test composite extra field
 
         composite_traintask_key = client.add_task(
             substra.sdk.schemas.TaskSpec(
-                algo_key=composite_algo_key,
+                function_key=composite_function_key,
                 inputs=FLTaskInputGenerator.task(opener_key=dataset_key, data_sample_keys=[data_sample_key]),
                 outputs=FLTaskOutputGenerator.composite_traintask(),
                 worker=client.organization_info().organization_id,
@@ -299,19 +297,19 @@ class TestsDebug:
         data_sample = asset_factory.create_data_sample(datasets=[dataset_key])
         sample_key = client.add_data_sample(data_sample)
 
-        algo_query = asset_factory.create_algo(AlgoCategory.simple)
-        algo_key = client.add_algo(algo_query)
+        function_query = asset_factory.create_function(FunctionCategory.simple)
+        function_key = client.add_function(function_query)
 
-        predict_algo_spec = asset_factory.create_algo(category=AlgoCategory.predict)
-        predict_algo_key = client.add_algo(predict_algo_spec)
+        predict_function_spec = asset_factory.create_function(category=FunctionCategory.predict)
+        predict_function_key = client.add_function(predict_function_spec)
 
-        metric = asset_factory.create_algo(category=AlgoCategory.metric)
-        metric_key = client.add_algo(metric)
+        metric = asset_factory.create_function(category=FunctionCategory.metric)
+        metric_key = client.add_function(metric)
 
         cp = asset_factory.create_compute_plan()
 
         traintask = substra.sdk.schemas.ComputePlanTaskSpec(
-            algo_key=algo_key,
+            function_key=function_key,
             task_id=str(uuid.uuid4()),
             inputs=FLTaskInputGenerator.task(opener_key=dataset_key, data_sample_keys=[sample_key]),
             outputs=FLTaskOutputGenerator.traintask(),
@@ -319,7 +317,7 @@ class TestsDebug:
         )
 
         predicttask = substra.sdk.schemas.ComputePlanTaskSpec(
-            algo_key=predict_algo_key,
+            function_key=predict_function_key,
             task_id=str(uuid.uuid4()),
             inputs=FLTaskInputGenerator.task(opener_key=dataset_key, data_sample_keys=[sample_key])
             + FLTaskInputGenerator.train_to_predict(traintask.task_id),
@@ -330,7 +328,7 @@ class TestsDebug:
         testtasks = [
             substra.sdk.schemas.ComputePlanTaskSpec(
                 task_id=str(uuid.uuid4()),
-                algo_key=metric_key,
+                function_key=metric_key,
                 inputs=FLTaskInputGenerator.task(opener_key=dataset_key, data_sample_keys=[sample_key])
                 + FLTaskInputGenerator.predict_to_test(predicttask.task_id),
                 outputs=FLTaskOutputGenerator.testtask(),
@@ -366,7 +364,7 @@ class TestsList:
         data_sample_keys.append(client.add_data_sample(data_sample_3))
         return client, data_sample_keys
 
-    @pytest.mark.parametrize("asset_name", ["dataset", "algo"])
+    @pytest.mark.parametrize("asset_name", ["dataset", "function"])
     def test_list_assets(self, asset_name, asset_factory, docker_clients):
         client = docker_clients[0]
         query = getattr(asset_factory, f"create_{asset_name}")()
@@ -455,19 +453,19 @@ def test_execute_compute_plan_several_testtasks_per_train(asset_factory, subproc
     data_sample_1 = asset_factory.create_data_sample(datasets=[dataset_key])
     sample_1_key = client.add_data_sample(data_sample_1)
 
-    algo_query = asset_factory.create_algo(AlgoCategory.simple)
-    algo_key = client.add_algo(algo_query)
+    function_query = asset_factory.create_function(FunctionCategory.simple)
+    function_key = client.add_function(function_query)
 
-    predict_algo_spec = asset_factory.create_algo(category=AlgoCategory.predict)
-    predict_algo_key = client.add_algo(predict_algo_spec)
+    predict_function_spec = asset_factory.create_function(category=FunctionCategory.predict)
+    predict_function_key = client.add_function(predict_function_spec)
 
-    metric = asset_factory.create_algo(category=AlgoCategory.metric)
-    metric_key = client.add_algo(metric)
+    metric = asset_factory.create_function(category=FunctionCategory.metric)
+    metric_key = client.add_function(metric)
 
     cp = asset_factory.create_compute_plan()
 
     traintask = substra.sdk.schemas.ComputePlanTaskSpec(
-        algo_key=algo_key,
+        function_key=function_key,
         task_id=str(uuid.uuid4()),
         inputs=FLTaskInputGenerator.task(opener_key=dataset_key, data_sample_keys=[sample_1_key]),
         outputs=FLTaskOutputGenerator.traintask(),
@@ -475,7 +473,7 @@ def test_execute_compute_plan_several_testtasks_per_train(asset_factory, subproc
     )
 
     predicttask = substra.sdk.schemas.ComputePlanTaskSpec(
-        algo_key=predict_algo_key,
+        function_key=predict_function_key,
         task_id=str(uuid.uuid4()),
         inputs=FLTaskInputGenerator.task(opener_key=dataset_key, data_sample_keys=[sample_1_key])
         + FLTaskInputGenerator.train_to_predict(traintask.task_id),
@@ -486,7 +484,7 @@ def test_execute_compute_plan_several_testtasks_per_train(asset_factory, subproc
     testtasks = [
         substra.sdk.schemas.ComputePlanTaskSpec(
             task_id=str(uuid.uuid4()),
-            algo_key=metric_key,
+            function_key=metric_key,
             inputs=FLTaskInputGenerator.task(opener_key=dataset_key, data_sample_keys=[sample_1_key])
             + FLTaskInputGenerator.predict_to_test(predicttask.task_id),
             outputs=FLTaskOutputGenerator.testtask(),
@@ -512,14 +510,14 @@ def test_two_composite_to_composite(asset_factory, subprocess_clients):
     data_sample_1 = asset_factory.create_data_sample(datasets=[dataset_key])
     sample_1_key = client.add_data_sample(data_sample_1)
 
-    algo_query = asset_factory.create_algo(AlgoCategory.composite)
-    algo_key = client.add_algo(algo_query)
+    function_query = asset_factory.create_function(FunctionCategory.composite)
+    function_key = client.add_function(function_query)
 
-    predict_algo_spec = asset_factory.create_algo(category=AlgoCategory.predict_composite)
-    predict_algo_key = client.add_algo(predict_algo_spec)
+    predict_function_spec = asset_factory.create_function(category=FunctionCategory.predict_composite)
+    predict_function_key = client.add_function(predict_function_spec)
 
-    metric = asset_factory.create_algo(category=AlgoCategory.metric)
-    metric_key = client.add_algo(metric)
+    metric = asset_factory.create_function(category=FunctionCategory.metric)
+    metric_key = client.add_function(metric)
 
     cp = asset_factory.create_compute_plan()
 
@@ -527,7 +525,7 @@ def test_two_composite_to_composite(asset_factory, subprocess_clients):
 
     composite_1_key = str(uuid.uuid4())
     composite_1 = substra.sdk.schemas.ComputePlanTaskSpec(
-        algo_key=algo_key,
+        function_key=function_key,
         task_id=composite_1_key,
         inputs=FLTaskInputGenerator.task(opener_key=dataset_key, data_sample_keys=[sample_1_key]),
         outputs=FLTaskOutputGenerator.composite_traintask(
@@ -537,7 +535,7 @@ def test_two_composite_to_composite(asset_factory, subprocess_clients):
     )
     composite_2_key = str(uuid.uuid4())
     composite_2 = substra.sdk.schemas.ComputePlanTaskSpec(
-        algo_key=algo_key,
+        function_key=function_key,
         task_id=composite_2_key,
         inputs=FLTaskInputGenerator.task(opener_key=dataset_key, data_sample_keys=[sample_1_key]),
         outputs=FLTaskOutputGenerator.composite_traintask(
@@ -548,7 +546,7 @@ def test_two_composite_to_composite(asset_factory, subprocess_clients):
 
     composite_3_key = str(uuid.uuid4())
     composite_3 = substra.sdk.schemas.ComputePlanTaskSpec(
-        algo_key=algo_key,
+        function_key=function_key,
         task_id=composite_3_key,
         inputs=FLTaskInputGenerator.task(opener_key=dataset_key, data_sample_keys=[sample_1_key])
         + FLTaskInputGenerator.composite_to_composite(composite_1_key, composite_2_key),
@@ -560,7 +558,7 @@ def test_two_composite_to_composite(asset_factory, subprocess_clients):
 
     predicttask_key = str(uuid.uuid4())
     predicttask = substra.sdk.schemas.ComputePlanTaskSpec(
-        algo_key=predict_algo_key,
+        function_key=predict_function_key,
         task_id=predicttask_key,
         inputs=FLTaskInputGenerator.task(opener_key=dataset_key, data_sample_keys=[sample_1_key])
         + FLTaskInputGenerator.composite_to_predict(composite_3_key),
@@ -569,7 +567,7 @@ def test_two_composite_to_composite(asset_factory, subprocess_clients):
     )
 
     testtask = substra.sdk.schemas.ComputePlanTaskSpec(
-        algo_key=metric_key,
+        function_key=metric_key,
         task_id=str(uuid.uuid4()),
         inputs=FLTaskInputGenerator.task(opener_key=dataset_key, data_sample_keys=[sample_1_key])
         + FLTaskInputGenerator.predict_to_test(predicttask_key),
@@ -587,20 +585,20 @@ def test_two_composite_to_composite(asset_factory, subprocess_clients):
 def test_task_different_owner_dataset(asset_factory, clients):
     client = clients[0]
 
-    # set dataset, metric and algo
+    # set dataset, metric and function
     dataset_query = asset_factory.create_dataset()
     dataset_key = client.add_dataset(dataset_query)
 
     data_sample = asset_factory.create_data_sample(datasets=[dataset_key])
     data_sample_key = client.add_data_sample(data_sample)
 
-    algo_query = asset_factory.create_algo(AlgoCategory.simple)
-    algo_key = client.add_algo(algo_query)
+    function_query = asset_factory.create_function(FunctionCategory.simple)
+    function_key = client.add_function(function_query)
 
     with pytest.raises(substra.sdk.exceptions.InvalidRequest) as err:
         client.add_task(
             substra.sdk.schemas.TaskSpec(
-                algo_key=algo_key,
+                function_key=function_key,
                 inputs=[
                     substra.sdk.schemas.InputRef(identifier=InputIdentifiers.datasamples, asset_key=data_sample_key),
                     substra.sdk.schemas.InputRef(identifier=InputIdentifiers.opener, asset_key=dataset_key),
