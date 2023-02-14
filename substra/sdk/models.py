@@ -354,9 +354,9 @@ class Performances(_Model):
     compute_plan_end_date: List[datetime] = list()
     compute_plan_metadata: List[dict] = list()
     worker: List[str] = list()
-    testtask_key: List[str] = list()
-    metric_name: List[str] = list()
-    testtask_rank: List[int] = list()
+    task_key: List[str] = list()
+    function_name: List[str] = list()
+    task_rank: List[int] = list()
     round_idx: List[int] = list()
     performance: List[float] = list()
 

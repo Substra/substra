@@ -120,10 +120,10 @@ class DataAccess:
 
         for task in list_tasks:
             if task.status == models.Status.done:
-                metric = self.get(schemas.Type.Function, task.function.key)
+                function = self.get(schemas.Type.Function, task.function.key)
 
                 for perf_identifier in [
-                    output.identifier for output in metric.outputs if output.kind == schemas.AssetKind.performance
+                    output.identifier for output in function.outputs if output.kind == schemas.AssetKind.performance
                 ]:
                     performances.compute_plan_key.append(compute_plan.key)
                     performances.compute_plan_tag.append(compute_plan.tag)
@@ -133,9 +133,9 @@ class DataAccess:
                     performances.compute_plan_metadata.append(compute_plan.metadata)
 
                     performances.worker.append(task.worker)
-                    performances.testtask_key.append(task.key)
-                    performances.metric_name.append(metric.name)
-                    performances.testtask_rank.append(task.rank)
+                    performances.task_key.append(task.key)
+                    performances.function_name.append(function.name)
+                    performances.task_rank.append(task.rank)
                     performances.round_idx.append(task.metadata.get("round_idx"))
                     performances.performance.append(task.outputs[perf_identifier].value)
 
