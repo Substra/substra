@@ -5,9 +5,9 @@
 <div align="center">
 <picture>
   <object-position: center>
-  <source media="(prefers-color-scheme: dark)" srcset="Substra-logo-white.svg">
-  <source media="(prefers-color-scheme: light)" srcset="Substra-logo-colour.svg">
-  <img alt="Substra" src="Substra-logo-colour.svg" width="500">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/substra/substra/main/Substra-logo-white.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/substra/substra/main/Substra-logo-colour.svg">
+  <img alt="Substra" src="https://raw.githubusercontent.com/substra/substra/main/Substra-logo-colour.svg" width="500">
 </picture>
 </div>
 <br>
