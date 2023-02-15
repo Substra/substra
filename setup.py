@@ -20,10 +20,10 @@ with open(os.path.join(here, "substra", "__version__.py"), "r", "utf-8") as fp:
 setup(
     name="substra",
     version=about["__version__"],
-    description="Substra CLI for interacting with substra-backend",
+    description="Low-level Python library for interacting with a Substra network",
     long_description=readme,
     long_description_content_type="text/markdown",
-    url="https://docs.substra.org/en/latest/",
+    url="https://docs.substra.org",
     author="Owkin, Inc.",
     license="Apache 2.0",
     classifiers=[
