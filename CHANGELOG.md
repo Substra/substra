@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.42.0](https://github.com/Substra/substra/releases/tag/0.42.0) - 2023-02-06
+## [0.42.0](https://github.com/Substra/substra/releases/tag/0.42.0) - 2023-02-20
 
 ### Added
 
@@ -574,5 +574,5 @@ client1_org_id = clients[0].organization_info().organization_id
 
 ## [0.10.0](https://github.com/Substra/substra/releases/tag/0.10.0) - 2021-08-05
 
-- [0.10.0]: https://github.com/Substra/substra/compare/0.9.0...0.10.0
-- [unreleased]: https://github.com/Substra/substra/compare/0.10.0...HEAD
+- [0.10.0]: <https://github.com/Substra/substra/compare/0.9.0...0.10.0>
+- [unreleased]: <https://github.com/Substra/substra/compare/0.10.0...HEAD>
