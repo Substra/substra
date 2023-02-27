@@ -171,12 +171,13 @@ class Local(base.BaseBackend):
         If the permissions are private, the active organization is
         in the authorized ids.
         """
+        updated_permissions = copy.deepcopy(permissions)
         owner = self._org_id
-        if permissions.public:
-            permissions.authorized_ids = list()
-        elif not permissions.public and owner not in permissions.authorized_ids:
-            permissions.authorized_ids.append(owner)
-        return permissions
+        if updated_permissions.public:
+            updated_permissions.authorized_ids = list()
+        elif not updated_permissions.public and owner not in updated_permissions.authorized_ids:
+            updated_permissions.authorized_ids.append(owner)
+        return updated_permissions
 
     def __add_compute_plan(
         self,

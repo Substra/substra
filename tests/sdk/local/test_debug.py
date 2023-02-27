@@ -1,3 +1,4 @@
+import copy
 import uuid
 
 import docker
@@ -43,7 +44,6 @@ class TestsDebug:
 
     @pytest.mark.parametrize("dockerfile_type", ("BAD_ENTRYPOINT", "NO_ENTRYPOINT", "NO_FUNCTION_NAME"))
     def test_client_bad_dockerfile(self, asset_factory, dockerfile_type, clients):
-
         client = clients[0]
 
         dataset_query = asset_factory.create_dataset()
@@ -286,6 +286,30 @@ class TestsDebug:
                     metadata={"wrong__key": "value"},
                 )
             )
+
+    def test_permissions_consistency_add_dataset(self, clients, asset_factory):
+        client = clients[0]
+
+        permissions = substra.sdk.schemas.Permissions(public=False, authorized_ids=["foo"])
+        copy_permissions = copy.deepcopy(permissions)
+
+        dataset_query = asset_factory.create_dataset(permissions=permissions)
+
+        client.add_dataset(dataset_query)
+
+        assert str(copy_permissions) == str(permissions)
+
+    def test_permissions_consistency_add_function(self, clients, asset_factory):
+        client = clients[0]
+
+        permissions = substra.sdk.schemas.Permissions(public=False, authorized_ids=["foo"])
+        copy_permissions = copy.deepcopy(permissions)
+
+        function_query = asset_factory.create_function(permissions=permissions)
+
+        client.add_function(function_query)
+
+        assert str(copy_permissions) == str(permissions)
 
     def test_live_performances_json_file_exist(self, asset_factory, clients):
         """Assert the performances file is well created."""
@@ -612,14 +636,12 @@ def test_task_different_owner_dataset(asset_factory, clients):
 
 class TestMultipleOrgLocalClient:
     def test_local_org_info(self, docker_clients):
-
         org1info = docker_clients[0].organization_info()
         org2info = docker_clients[1].organization_info()
 
         assert org1info.organization_id != org2info.organization_id
 
     def test_list_org(self, docker_clients):
-
         org1_id = docker_clients[0].organization_info().organization_id
         org2_id = docker_clients[1].organization_info().organization_id
 
@@ -634,7 +656,6 @@ class TestMultipleOrgLocalClient:
         assert not org2[0].is_current
 
     def test_local_org_owner(self, asset_factory, docker_clients):
-
         client = docker_clients[0]
         dataset_query = asset_factory.create_dataset()
         dataset_key = client.add_dataset(dataset_query)
@@ -643,7 +664,6 @@ class TestMultipleOrgLocalClient:
         assert dataset.owner == client.organization_info().organization_id
 
     def test_local_org_shared_db(self, asset_factory, docker_clients):
-
         dataset_query = asset_factory.create_dataset()
         dataset_key = docker_clients[0].add_dataset(dataset_query)
 
