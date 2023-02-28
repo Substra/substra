@@ -10,7 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - BREAKING: rename Algo to Function ([#341](https://github.com/Substra/substra/pull/341))
-- Rename fields in Performances model (#344)
+- Rename fields in Performances model ([#344](https://github.com/Substra/substra/pull/344))
+
+### Fixed
+
+- Permissions inconsistency in local mode ([#348](https://github.com/Substra/substra/pull/348))
 
 ## [0.42.0](https://github.com/Substra/substra/releases/tag/0.42.0) - 2023-02-20
 
