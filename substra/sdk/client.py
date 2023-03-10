@@ -150,6 +150,14 @@ class Client:
         self._token = self._backend.login(username, password)
         return self._token
 
+    @logit
+    def login_with_token(self, token) -> None:
+        """Login to a remote server using a bearer token."""
+        # TODO: maybe it should call a /check-token endpoint or something
+        if not self._backend:
+            raise exceptions.SDKException("No backend found")
+        self._token = token
+
     @staticmethod
     def _get_spec(asset_type, data):
         if isinstance(data, asset_type):
