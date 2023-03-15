@@ -260,7 +260,7 @@ class ComputeTaskOutput(schemas._PydanticConfig):
         allow_population_by_field_name = True
 
 
-class Task(_Model):
+class AbridgedTask(_Model):
     key: str
     function: Function
     owner: str
@@ -269,8 +269,6 @@ class Task(_Model):
     status: Status
     worker: str
     rank: Optional[int]
-    inputs: List[InputRef]
-    outputs: Dict[str, ComputeTaskOutput]
     tag: str
     creation_date: datetime
     start_date: Optional[datetime]
@@ -291,6 +289,11 @@ class Task(_Model):
             "compute_plan_key",
             "function_key",
         ]
+
+
+class Task(AbridgedTask):
+    inputs: List[InputRef]
+    outputs: Dict[str, ComputeTaskOutput]
 
 
 Task.update_forward_refs()
@@ -387,6 +390,7 @@ class OrganizationInfo(schemas._PydanticConfig):
 
 SCHEMA_TO_MODEL = {
     schemas.Type.Task: Task,
+    schemas.Type.AbridgedTask: AbridgedTask,
     schemas.Type.Function: Function,
     schemas.Type.ComputePlan: ComputePlan,
     schemas.Type.DataSample: DataSample,

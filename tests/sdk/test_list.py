@@ -50,7 +50,7 @@ def test_list_task(asset_type, client, mocker):
 
     response = client.list_task()
 
-    assert response == [models.SCHEMA_TO_MODEL[schemas.Type.Task](**item)]
+    assert response == [models.AbridgedTask(**item)]
     m.assert_called()
 
 
@@ -95,7 +95,7 @@ def test_list_task_with_filters(asset_type, filters, client, mocker):
 
     response = client.list_task(filters)
 
-    assert response == [models.SCHEMA_TO_MODEL[schemas.Type.Task](**item)]
+    assert response == [models.AbridgedTask(**item)]
     m.assert_called()
 
 
@@ -143,7 +143,7 @@ def test_list_task_with_ordering(asset_type, client, mocker):
     order_by = "start_date"
     response = client.list_task(order_by=order_by)
 
-    assert response == [models.SCHEMA_TO_MODEL[schemas.Type.Task](**item)]
+    assert response == [models.AbridgedTask(**item)]
     m.assert_called()
 
 
