@@ -155,7 +155,7 @@ class DataAccess:
         else:
             local_assets = self._db.list(type_=type_, filters=filters, order_by=order_by, ascending=ascending)
 
-        remote_assets = list()
+        remote_assets = []
         if self._remote:
             try:
                 remote_assets = self._remote.list(

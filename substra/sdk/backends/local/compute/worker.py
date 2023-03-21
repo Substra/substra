@@ -159,7 +159,7 @@ class Worker:
     def _prepare_datasample_input(
         self, datasample_input_refs: List[models.InputRef], datasamples: List[models.DataSample], multiple: bool
     ) -> Tuple[List[TaskResource], Dict[str, str]]:
-        task_resources = list()
+        task_resources = []
         data_sample_paths = dict()
         for datasample_input, datasample in zip(datasample_input_refs, datasamples):
             datasample_path_arg = f"{TPL_VOLUME_INPUTS}/{datasample_input.asset_key}"
@@ -263,8 +263,8 @@ class Worker:
             dataset: Optional[models.Dataset] = None
             data_sample_paths: Optional[Dict[str, str]] = None
 
-            datasample_input_refs: List[models.InputRef] = list()
-            datasamples: List[models.DataSample] = list()
+            datasample_input_refs: List[models.InputRef] = []
+            datasamples: List[models.DataSample] = []
 
             # Prepare inputs
             for task_input in task.inputs:

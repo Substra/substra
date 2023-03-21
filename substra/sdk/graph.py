@@ -12,7 +12,7 @@ def _get_inverted_node_graph(node_graph, node_to_ignore):
         if node not in node_to_ignore:
             for dependency in dependencies:
                 if dependency not in node_to_ignore:
-                    inverted.setdefault(dependency, list())
+                    inverted.setdefault(dependency, [])
                     inverted[dependency].append(node)
     return inverted
 
@@ -29,7 +29,7 @@ def _breadth_first_traversal_rank(
 
     while len(queue) > 0:
         current_node = queue.pop(0)
-        for child in inverted_node_graph.get(current_node, list()):
+        for child in inverted_node_graph.get(current_node, []):
             new_child_rank = max(ranks[current_node] + 1, ranks.get(child, -1))
 
             if new_child_rank != ranks.get(child, -1):

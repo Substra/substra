@@ -160,7 +160,7 @@ class Local(base.BaseBackend):
         # linked to each sample, so no check (already done in the backend).
         if self._db.is_local(data_manager_key, schemas.Type.Dataset):
             same_data_manager = all(
-                [data_manager_key in data_sample.data_manager_keys for data_sample in (data_samples or list())]
+                [data_manager_key in data_sample.data_manager_keys for data_sample in (data_samples or [])]
             )
             if not same_data_manager:
                 raise substra.exceptions.InvalidRequest("A data_sample does not belong to the same dataManager", 400)
@@ -174,7 +174,7 @@ class Local(base.BaseBackend):
         updated_permissions = copy.deepcopy(permissions)
         owner = self._org_id
         if updated_permissions.public:
-            updated_permissions.authorized_ids = list()
+            updated_permissions.authorized_ids = []
         elif not updated_permissions.public and owner not in updated_permissions.authorized_ids:
             updated_permissions.authorized_ids.append(owner)
         return updated_permissions
@@ -274,8 +274,8 @@ class Local(base.BaseBackend):
                 "storage_address": function_description_path,
             },
             metadata=spec.metadata if spec.metadata else dict(),
-            inputs=spec.inputs or list(),
-            outputs=spec.outputs or list(),
+            inputs=spec.inputs or [],
+            outputs=spec.outputs or [],
         )
         return self._db.add(function)
 
@@ -299,7 +299,7 @@ class Local(base.BaseBackend):
                 },
             },
             type=spec.type,
-            data_sample_keys=list(),
+            data_sample_keys=[],
             opener={"checksum": fs.hash_file(dataset_file_path), "storage_address": dataset_file_path},
             description={
                 "checksum": fs.hash_file(dataset_description_path),
@@ -333,7 +333,7 @@ class Local(base.BaseBackend):
         return data_sample
 
     def _add_data_samples(self, spec, spec_options=None):
-        data_samples = list()
+        data_samples = []
         for path in spec.paths:
             data_sample_spec = schemas.DataSampleSpec(
                 path=path,
@@ -386,9 +386,7 @@ class Local(base.BaseBackend):
 
         _warn_on_transient_outputs(spec.outputs)
 
-        in_task_keys = list(
-            {inputref.parent_task_key for inputref in (spec.inputs or list()) if inputref.parent_task_key}
-        )
+        in_task_keys = list({inputref.parent_task_key for inputref in (spec.inputs or []) if inputref.parent_task_key})
         in_tasks = [self._db.get(schemas.Type.Task, in_task_key) for in_task_key in in_task_keys]
         compute_plan_key, rank = self.__create_compute_plan_from_task(spec=spec, in_tasks=in_tasks)
 
@@ -413,7 +411,7 @@ class Local(base.BaseBackend):
 
     def _check_inputs_outputs(self, spec, function_key):
         function = self._db.get(schemas.Type.Function, function_key)
-        spec_inputs = spec.inputs or list()
+        spec_inputs = spec.inputs or []
         spec_outputs = spec.outputs or dict()
 
         error_msg = ""
@@ -467,7 +465,7 @@ class Local(base.BaseBackend):
 
     def link_dataset_with_data_samples(self, dataset_key, data_sample_keys) -> List[str]:
         dataset = self._db.get(schemas.Type.Dataset, dataset_key)
-        data_samples = list()
+        data_samples = []
         for key in data_sample_keys:
             data_sample = self._db.get(schemas.Type.DataSample, key)
             if dataset_key not in data_sample.data_manager_keys:
@@ -558,7 +556,7 @@ class Local(base.BaseBackend):
             visited[task.key] = task.rank
 
         # Update the task graph with the tasks already in the CP
-        task_graph.update({k: list() for k in visited})
+        task_graph.update({k: [] for k in visited})
         visited = graph.compute_ranks(node_graph=task_graph, ranks=visited)
 
         compute_plan = self.__execute_compute_plan(spec, compute_plan, visited, tasks, spec_options)

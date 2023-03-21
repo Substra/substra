@@ -105,7 +105,7 @@ class _Model(schemas._PydanticConfig, abc.ABC):
     @staticmethod
     def allowed_filters() -> List[str]:
         """allowed fields to filter on"""
-        return list()
+        return []
 
 
 class DataSample(_Model):
@@ -139,7 +139,7 @@ class Dataset(_Model):
     owner: str
     permissions: Permissions
     type: str
-    data_sample_keys: List[str] = list()
+    data_sample_keys: List[str] = []
     opener: _File
     description: _File
     metadata: Dict[str, str]
@@ -350,18 +350,18 @@ class ComputePlan(_Model):
 class Performances(_Model):
     """Performances of the different compute tasks of a compute plan"""
 
-    compute_plan_key: List[str] = list()
-    compute_plan_tag: List[str] = list()
-    compute_plan_status: List[str] = list()
-    compute_plan_start_date: List[datetime] = list()
-    compute_plan_end_date: List[datetime] = list()
-    compute_plan_metadata: List[dict] = list()
-    worker: List[str] = list()
-    task_key: List[str] = list()
-    function_name: List[str] = list()
-    task_rank: List[int] = list()
-    round_idx: List[int] = list()
-    performance: List[float] = list()
+    compute_plan_key: List[str] = []
+    compute_plan_tag: List[str] = []
+    compute_plan_status: List[str] = []
+    compute_plan_start_date: List[datetime] = []
+    compute_plan_end_date: List[datetime] = []
+    compute_plan_metadata: List[dict] = []
+    worker: List[str] = []
+    task_key: List[str] = []
+    function_name: List[str] = []
+    task_rank: List[int] = []
+    round_idx: List[int] = []
+    performance: List[float] = []
 
 
 class Organization(schemas._PydanticConfig):
