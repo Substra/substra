@@ -533,6 +533,10 @@ TESTTASK = {
     },
 }
 
+TASK_LIST = [
+    {key: value for key, value in task.items() if key not in {"inputs", "outputs"}}
+    for task in [PREDICTTASK, AGGREGATETASK, COMPOSITE_TRAINTASK, TRAINTASK, TESTTASK]
+]
 
 COMPUTE_PLAN = {
     "key": "e983a185-5368-bd0a-0190-183af9a8e560",
