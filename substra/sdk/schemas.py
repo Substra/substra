@@ -15,7 +15,7 @@ from substra.sdk import utils
 
 _SERVER_NAMES = {
     "dataset": "data_manager",
-    "abridged_task": "task",
+    "summary_task": "task",
 }
 
 
@@ -54,7 +54,7 @@ class Type(enum.Enum):
     ComputePlan = "compute_plan"
     Organization = "organization"
     Task = "task"
-    AbridgedTask = "abridged_task"
+    SummaryTask = "summary_task"
 
     def to_server(self):
         """Returns the name used to identify the asset on the backend."""

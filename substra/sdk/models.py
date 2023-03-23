@@ -260,7 +260,7 @@ class ComputeTaskOutput(schemas._PydanticConfig):
         allow_population_by_field_name = True
 
 
-class AbridgedTask(_Model):
+class SummaryTask(_Model):
     key: str
     function: Function
     owner: str
@@ -291,7 +291,7 @@ class AbridgedTask(_Model):
         ]
 
 
-class Task(AbridgedTask):
+class Task(SummaryTask):
     inputs: List[InputRef]
     outputs: Dict[str, ComputeTaskOutput]
 
@@ -390,7 +390,7 @@ class OrganizationInfo(schemas._PydanticConfig):
 
 SCHEMA_TO_MODEL = {
     schemas.Type.Task: Task,
-    schemas.Type.AbridgedTask: AbridgedTask,
+    schemas.Type.SummaryTask: SummaryTask,
     schemas.Type.Function: Function,
     schemas.Type.ComputePlan: ComputePlan,
     schemas.Type.DataSample: DataSample,

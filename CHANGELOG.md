@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `AbridgedTask` Pydantic validator to match the new API behavior (returning compute tasks without details in list view) ([#350](https://github.com/Substra/substra/pull/350/))
+- Add `SummaryTask` Pydantic validator to match the new API behavior (returning compute tasks without details in list view) ([#350](https://github.com/Substra/substra/pull/350/))
 
 ### Changed
 

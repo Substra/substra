@@ -147,8 +147,8 @@ class DataAccess:
         """Joins the results of the [local db](substra.sdk.backends.local.db.list) and the
         [remote db](substra.sdk.backends.rest_client.list) in hybrid mode.
         """
-        if type_ == schemas.Type.AbridgedTask:
-            # for the local DB, we need to map the abridged task type to the regular task type
+        if type_ == schemas.Type.SummaryTask:
+            # for the local DB, we need to map the summary task type to the regular task type
             local_assets = self._db.list(
                 type_=schemas.Type.Task, filters=filters, order_by=order_by, ascending=ascending
             )

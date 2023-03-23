@@ -50,7 +50,7 @@ def test_list_task(asset_type, client, mocker):
 
     response = client.list_task()
 
-    assert response == [models.AbridgedTask(**item)]
+    assert response == [models.SummaryTask(**item)]
     m.assert_called()
 
 
@@ -94,7 +94,7 @@ def test_list_task_with_filters(filters, client, mocker):
 
     response = client.list_task(filters)
 
-    assert response == [models.AbridgedTask(**item) for item in items]
+    assert response == [models.SummaryTask(**item) for item in items]
     m.assert_called()
 
 
@@ -132,7 +132,7 @@ def test_list_task_with_ordering(client, mocker):
     order_by = "start_date"
     response = client.list_task(order_by=order_by)
 
-    assert response == [models.AbridgedTask(**item) for item in items]
+    assert response == [models.SummaryTask(**item) for item in items]
     m.assert_called()
 
 
