@@ -1,23 +1,22 @@
 # Summary
 
-- [DataSample](#datasample)
-- [Dataset](#dataset)
-- [Task](#task)
-- [Function](#function)
-- [ComputePlan](#computeplan)
-- [Performances](#performances)
-- [Organization](#organization)
-- [Permissions](#permissions)
-- [InModel](#inmodel)
-- [OutModel](#outmodel)
-- [_File](#_file)
+- [DataSample](#DataSample)
+- [Dataset](#Dataset)
+- [Task](#Task)
+- [Function](#Function)
+- [ComputePlan](#ComputePlan)
+- [Performances](#Performances)
+- [Organization](#Organization)
+- [Permissions](#Permissions)
+- [InModel](#InModel)
+- [OutModel](#OutModel)
+- [_File](#_File)
+
 
 # Models
 
 ## DataSample
-
 Data sample
-
 ```text
 - key: str
 - owner: str
@@ -27,9 +26,7 @@ Data sample
 ```
 
 ## Dataset
-
 Dataset asset
-
 ```text
 - key: str
 - name: str
@@ -45,9 +42,7 @@ Dataset asset
 ```
 
 ## Task
-
 Asset creation specification base class.
-
 ```text
 - key: str
 - function: Function
@@ -67,9 +62,7 @@ Asset creation specification base class.
 ```
 
 ## Function
-
 Asset creation specification base class.
-
 ```text
 - key: str
 - name: str
@@ -84,9 +77,7 @@ Asset creation specification base class.
 ```
 
 ## ComputePlan
-
 ComputePlan
-
 ```text
 - key: str
 - tag: str
@@ -111,9 +102,7 @@ ComputePlan
 ```
 
 ## Performances
-
 Performances of the different compute tasks of a compute plan
-
 ```text
 - compute_plan_key: List[str]
 - compute_plan_tag: List[str]
@@ -122,17 +111,15 @@ Performances of the different compute tasks of a compute plan
 - compute_plan_end_date: List[datetime]
 - compute_plan_metadata: List[dict]
 - worker: List[str]
-- testtask_key: List[str]
-- metric_name: List[str]
-- testtask_rank: List[int]
+- task_key: List[str]
+- function_name: List[str]
+- task_rank: List[int]
 - round_idx: List[int]
 - performance: List[float]
 ```
 
 ## Organization
-
 Organization
-
 ```text
 - id: str
 - is_current: bool
@@ -140,26 +127,20 @@ Organization
 ```
 
 ## Permissions
-
 Permissions structure stored in various asset types.
-
 ```text
 - process: Permission
 ```
 
 ## InModel
-
 In model of a task
-
 ```text
 - checksum: str
 - storage_address: Union[FilePath, AnyUrl, str]
 ```
 
 ## OutModel
-
 Out model of a task
-
 ```text
 - key: str
 - compute_task_key: str
@@ -170,10 +151,9 @@ Out model of a task
 ```
 
 ## _File
-
 File as stored in the models
-
 ```text
 - checksum: str
 - storage_address: Union[FilePath, AnyUrl, str]
 ```
+
