@@ -1,22 +1,23 @@
 # Summary
 
-- [DataSample](#DataSample)
-- [Dataset](#Dataset)
-- [Task](#Task)
-- [Function](#Function)
-- [ComputePlan](#ComputePlan)
-- [Performances](#Performances)
-- [Organization](#Organization)
-- [Permissions](#Permissions)
-- [InModel](#InModel)
-- [OutModel](#OutModel)
-- [_File](#_File)
-
+- [DataSample](#datasample)
+- [Dataset](#dataset)
+- [Task](#task)
+- [Function](#function)
+- [ComputePlan](#computeplan)
+- [Performances](#performances)
+- [Organization](#organization)
+- [Permissions](#permissions)
+- [InModel](#inmodel)
+- [OutModel](#outmodel)
+- [_File](#_file)
 
 # Models
 
 ## DataSample
+
 Data sample
+
 ```text
 - key: str
 - owner: str
@@ -26,7 +27,9 @@ Data sample
 ```
 
 ## Dataset
+
 Dataset asset
+
 ```text
 - key: str
 - name: str
@@ -42,7 +45,9 @@ Dataset asset
 ```
 
 ## Task
+
 Asset creation specification base class.
+
 ```text
 - key: str
 - function: Function
@@ -62,7 +67,9 @@ Asset creation specification base class.
 ```
 
 ## Function
+
 Asset creation specification base class.
+
 ```text
 - key: str
 - name: str
@@ -77,7 +84,9 @@ Asset creation specification base class.
 ```
 
 ## ComputePlan
+
 ComputePlan
+
 ```text
 - key: str
 - tag: str
@@ -91,7 +100,7 @@ ComputePlan
 - canceled_count: int
 - failed_count: int
 - done_count: int
-- failed_task: Optional[FailedTask]
+- failed_task_key: Optional[str]
 - status: ComputePlanStatus
 - creation_date: datetime
 - start_date: Optional[datetime]
@@ -102,7 +111,9 @@ ComputePlan
 ```
 
 ## Performances
+
 Performances of the different compute tasks of a compute plan
+
 ```text
 - compute_plan_key: List[str]
 - compute_plan_tag: List[str]
@@ -119,7 +130,9 @@ Performances of the different compute tasks of a compute plan
 ```
 
 ## Organization
+
 Organization
+
 ```text
 - id: str
 - is_current: bool
@@ -127,20 +140,26 @@ Organization
 ```
 
 ## Permissions
+
 Permissions structure stored in various asset types.
+
 ```text
 - process: Permission
 ```
 
 ## InModel
+
 In model of a task
+
 ```text
 - checksum: str
 - storage_address: Union[FilePath, AnyUrl, str]
 ```
 
 ## OutModel
+
 Out model of a task
+
 ```text
 - key: str
 - compute_task_key: str
@@ -151,9 +170,10 @@ Out model of a task
 ```
 
 ## _File
+
 File as stored in the models
+
 ```text
 - checksum: str
 - storage_address: Union[FilePath, AnyUrl, str]
 ```
-

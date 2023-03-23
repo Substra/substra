@@ -296,13 +296,6 @@ class Task(_Model):
 Task.update_forward_refs()
 
 
-class FailedTask(_Model):
-    """Info on failed task."""
-
-    key: str
-    category: str
-
-
 class ComputePlan(_Model):
     """ComputePlan"""
 
@@ -318,7 +311,7 @@ class ComputePlan(_Model):
     canceled_count: int = 0
     failed_count: int = 0
     done_count: int = 0
-    failed_task: Optional[FailedTask]
+    failed_task_key: Optional[str]
     status: ComputePlanStatus
     creation_date: datetime
     start_date: Optional[datetime]
