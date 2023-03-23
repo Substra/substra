@@ -91,7 +91,7 @@ ComputePlan
 - canceled_count: int
 - failed_count: int
 - done_count: int
-- failed_task: Optional[FailedTask]
+- failed_task_key: Optional[str]
 - status: ComputePlanStatus
 - creation_date: datetime
 - start_date: Optional[datetime]
@@ -111,9 +111,9 @@ Performances of the different compute tasks of a compute plan
 - compute_plan_end_date: List[datetime]
 - compute_plan_metadata: List[dict]
 - worker: List[str]
-- testtask_key: List[str]
-- metric_name: List[str]
-- testtask_rank: List[int]
+- task_key: List[str]
+- function_name: List[str]
+- task_rank: List[int]
 - round_idx: List[int]
 - performance: List[float]
 ```

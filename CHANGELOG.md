@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- BREAKING CHANGE: failed task category (#309)
 - BREAKING: DataSampleSpec don't have a `test_only` field anymore (#332)
 
 ### Changed
