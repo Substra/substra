@@ -15,6 +15,7 @@ from substra.sdk import utils
 
 _SERVER_NAMES = {
     "dataset": "data_manager",
+    "summary_task": "task",
 }
 
 
@@ -53,6 +54,7 @@ class Type(enum.Enum):
     ComputePlan = "compute_plan"
     Organization = "organization"
     Task = "task"
+    SummaryTask = "summary_task"
 
     def to_server(self):
         """Returns the name used to identify the asset on the backend."""
@@ -344,7 +346,7 @@ class FunctionSpec(_Spec):
 
     @pydantic.validator("inputs")
     def _check_inputs(cls, v):  # noqa: N805
-        inputs = v or list()
+        inputs = v or []
         identifiers = {value.identifier for value in inputs}
         if len(identifiers) != len(inputs):
             raise ValueError("Several function inputs cannot have the same identifier.")
@@ -352,7 +354,7 @@ class FunctionSpec(_Spec):
 
     @pydantic.validator("outputs")
     def _check_outputs(cls, v):  # noqa: N805
-        outputs = v or list()
+        outputs = v or []
         identifiers = {value.identifier for value in outputs}
         if len(identifiers) != len(outputs):
             raise ValueError("Several function outputs cannot have the same identifier.")

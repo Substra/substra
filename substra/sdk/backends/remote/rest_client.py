@@ -255,7 +255,7 @@ class Client:
 
         request_kwargs = {"params": {}}
         if filters:
-            request_kwargs["params"] = request_formatter.format_search_filters_for_remote(filters)
+            request_kwargs["params"].update(request_formatter.format_search_filters_for_remote(filters))
         if order_by:
             request_kwargs["params"]["ordering"] = request_formatter.format_search_ordering_for_remote(
                 order_by, ascending

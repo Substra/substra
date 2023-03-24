@@ -20,7 +20,7 @@ def get_dependency_graph(spec: schemas._BaseComputePlanSpec):
                 task_graph=task_graph,
                 task_id=task.task_id,
                 in_model_ids=[
-                    input_ref.parent_task_key for input_ref in (task.inputs or list()) if input_ref.parent_task_key
+                    input_ref.parent_task_key for input_ref in (task.inputs or []) if input_ref.parent_task_key
                 ],
             )
             tasks[task.task_id] = schemas.TaskSpec.from_compute_plan(

@@ -50,7 +50,7 @@ def test_list_task(asset_type, client, mocker):
 
     response = client.list_task()
 
-    assert response == [models.SCHEMA_TO_MODEL[schemas.Type.Task](**item)]
+    assert response == [models.SummaryTask(**item)]
     m.assert_called()
 
 
@@ -78,24 +78,23 @@ def test_list_asset_with_filters(asset_type, filters, client, mocker):
 
 
 @pytest.mark.parametrize(
-    "asset_type,filters",
+    "filters",
     [
-        ("predicttask", {"rank": [1, 3]}),
-        ("testtask", {"rank": [1, 3]}),
-        ("traintask", {"key": ["foo", "bar"]}),
-        ("aggregatetask", {"worker": ["foo", "bar"]}),
-        ("composite_traintask", {"owner": ["foo", "bar"]}),
+        {"rank": [1, 3]},
+        {"key": ["foo", "bar"]},
+        {"worker": ["foo", "bar"]},
+        {"owner": ["foo", "bar"]},
     ],
 )
-def test_list_task_with_filters(asset_type, filters, client, mocker):
-    item = getattr(datastore, asset_type.upper())
+def test_list_task_with_filters(filters, client, mocker):
+    items = datastore.TASK_LIST
 
-    mocked_response = make_paginated_response([item])
+    mocked_response = make_paginated_response(items)
     m = mock_requests(mocker, "get", response=mocked_response)
 
     response = client.list_task(filters)
 
-    assert response == [models.SCHEMA_TO_MODEL[schemas.Type.Task](**item)]
+    assert response == [models.SummaryTask(**item) for item in items]
     m.assert_called()
 
 
@@ -124,26 +123,16 @@ def test_list_compute_plan_with_ordering(client, mocker):
     m.assert_called()
 
 
-@pytest.mark.parametrize(
-    "asset_type",
-    [
-        "predicttask",
-        "testtask",
-        "traintask",
-        "aggregatetask",
-        "composite_traintask",
-    ],
-)
-def test_list_task_with_ordering(asset_type, client, mocker):
-    item = getattr(datastore, asset_type.upper())
+def test_list_task_with_ordering(client, mocker):
+    items = datastore.TASK_LIST
 
-    mocked_response = make_paginated_response([item])
+    mocked_response = make_paginated_response(items)
     m = mock_requests(mocker, "get", response=mocked_response)
 
     order_by = "start_date"
     response = client.list_task(order_by=order_by)
 
-    assert response == [models.SCHEMA_TO_MODEL[schemas.Type.Task](**item)]
+    assert response == [models.SummaryTask(**item) for item in items]
     m.assert_called()
 
 
