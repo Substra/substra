@@ -3,6 +3,7 @@ import logging
 import os
 import pathlib
 import time
+import uuid
 from typing import List
 from typing import Optional
 from typing import Union
@@ -78,6 +79,7 @@ class Client:
 
     def __init__(
         self,
+        name: Optional[str] = None,
         url: Optional[str] = None,
         token: Optional[str] = None,
         retry_timeout: int = DEFAULT_RETRY_TIMEOUT,
@@ -86,6 +88,11 @@ class Client:
     ):
         self._retry_timeout = retry_timeout
         self._token = token
+
+        if name is None:
+            self.name = uuid.uuid4()
+        else:
+            self.name = name
 
         self._insecure = insecure
         self._url = url
