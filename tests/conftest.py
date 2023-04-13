@@ -18,7 +18,7 @@ def pytest_configure(config):
 
 @pytest.fixture
 def client(tmpdir):
-    c = substra.Client(url="http://foo.io")
+    c = substra.Client(url="http://foo.io", backend_type="remote")
     return c
 
 

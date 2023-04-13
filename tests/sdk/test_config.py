@@ -72,7 +72,7 @@ def test_from_config_file_fail(tmpdir):
 
 def test_login_remote_without_url(tmpdir):
     with pytest.raises(substra.exceptions.SDKException):
-        substra.Client()
+        substra.Client(backend_type="remote")
 
 
 def test_token_without_tokens_path(tmpdir):

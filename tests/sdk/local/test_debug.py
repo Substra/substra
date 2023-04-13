@@ -33,7 +33,7 @@ def test_get_backend_type_subprocess(subprocess_clients):
 
 
 def test_get_backend_type_remote():
-    client = substra.Client(url="foo.com")
+    client = substra.Client(url="foo.com", backend_type="remote")
     assert client.backend_mode == substra.BackendType.REMOTE
 
 

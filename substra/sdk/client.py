@@ -82,7 +82,7 @@ class Client:
         token: Optional[str] = None,
         retry_timeout: int = DEFAULT_RETRY_TIMEOUT,
         insecure: bool = False,
-        backend_type: schemas.BackendType = schemas.BackendType.REMOTE,
+        backend_type: schemas.BackendType = schemas.BackendType.LOCAL_SUBPROCESS,
     ):
         self._retry_timeout = retry_timeout
         self._token = token
