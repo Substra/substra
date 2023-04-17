@@ -12,7 +12,6 @@ from substra.sdk.archive.safezip import ZipFile
 
 
 class TestsZipFile:
-
     # This zip file was specifically crafted and contains empty files named:
     # foo/bar
     # ../foo/bar
@@ -68,7 +67,6 @@ class TestsTarSafe:
 
     def test_raise_on_symlink(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-
             # create the following tree structure:
             # ./Dockerfile
             # ./foo

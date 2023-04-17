@@ -23,7 +23,6 @@ def _click_parse_node(name, command, parent, callback):
 
 
 def click_get_commands(name, command):
-
     commands = []
 
     def cb(command_path):

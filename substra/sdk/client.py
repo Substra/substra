@@ -1,12 +1,19 @@
+import dataclasses
 import functools
 import logging
 import os
 import pathlib
 import time
 import uuid
+from typing import Any
+from typing import Dict
 from typing import List
+from typing import Literal
 from typing import Optional
 from typing import Union
+
+import yaml
+from slugify import slugify
 
 from substra.sdk import backends
 from substra.sdk import config as cfg
@@ -50,6 +57,65 @@ def logit(f):
     return wrapper
 
 
+def _get_env_var(attribute_name, client_name):
+    return f"SUBSTRA_{slugify(client_name).upper()}_{slugify(attribute_name).upper()}"
+
+
+@dataclasses.dataclass
+class SettingValue:
+    value: Any
+    origin: Literal["code", "environment", "config_file"]
+
+
+settings_precedence = ["code", "environment", "config_file"]
+
+
+def _get_config_value(attribute_name, code_values, client_name, client_config_dict) -> Optional[SettingValue]:
+    # Please ensure that the precedence coded by this function stays synchronized with the
+    # list above
+
+    # Some values are boolean that might be set to False, so we check explicitly "is not None"
+    # Note that explicitly passing "None" in the code is equivalent to omitting it.
+    # (code_values will actually always contain all the keys, with None values for keys that were omitted)
+    if code_values.get(attribute_name) is not None:
+        return SettingValue(value=code_values[attribute_name], origin="code")
+
+    # if client_name is not given, we cannot look through env var and config files
+    if not client_name:
+        return None
+
+    env_var_name = _get_env_var(attribute_name, client_name)
+    # In environment variables, though, we never get "None"
+    if env_var_name in os.environ:
+        return SettingValue(value=os.environ[env_var_name], origin="environment")
+
+    if attribute_name in client_config_dict:
+        return SettingValue(value=client_config_dict[attribute_name], origin="config_file")
+
+    return None
+
+
+def get_client_configuration(
+    *,
+    config_file: Optional[pathlib.Path],
+    client_name: Optional[str],
+    code_values: Dict[str, Any],
+) -> Dict[str, Optional[SettingValue]]:
+    if config_file and config_file.exists():
+        config_dict = yaml.safe_load(config_file.read_text())
+    else:
+        config_dict = {}
+    return {
+        attribute_name: _get_config_value(
+            attribute_name=attribute_name,
+            code_values=code_values,
+            client_name=client_name,
+            client_config_dict=config_dict.get(client_name, {}),
+        )
+        for attribute_name in code_values
+    }
+
+
 class Client:
     """Create a client
 
@@ -77,27 +143,59 @@ class Client:
             and tasks are executed locally.
     """
 
+    # TODO update docstring
+
     def __init__(
         self,
         name: Optional[str] = None,
+        configuration_file: Optional[pathlib.Path] = None,
         url: Optional[str] = None,
         token: Optional[str] = None,
-        retry_timeout: int = DEFAULT_RETRY_TIMEOUT,
-        insecure: bool = False,
-        backend_type: schemas.BackendType = schemas.BackendType.LOCAL_SUBPROCESS,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        retry_timeout: Optional[int] = None,
+        insecure: Optional[bool] = None,
+        backend_type: Optional[schemas.BackendType] = None,
     ):
-        self._retry_timeout = retry_timeout
-        self._token = token
+        code_values = {
+            "url": url,
+            "token": token,
+            "username": username,
+            "password": password,
+            "retry_timeout": retry_timeout,
+            "insecure": insecure,
+            "backend_type": backend_type,
+        }
+        config_dict = get_client_configuration(
+            client_name=name, config_file=configuration_file, code_values=code_values
+        )
 
         if name is None:
             self.name = uuid.uuid4()
         else:
             self.name = name
 
-        self._insecure = insecure
-        self._url = url
+        if config_dict["retry_timeout"] is not None:
+            self._retry_timeout = int(config_dict["retry_timeout"].value)
+        else:
+            self._retry_timeout = DEFAULT_RETRY_TIMEOUT
 
+        self._insecure = bool(config_dict["insecure"].value) if config_dict["insecure"] is not None else False
+
+        if config_dict["backend_type"] is None:
+            backend_type = schemas.BackendType.LOCAL_SUBPROCESS
+        else:
+            backend_type = config_dict["backend_type"].value
+
+        self._url = config_dict["url"].value if config_dict["url"] is not None else None
+        self._token = config_dict["token"].value if config_dict["token"] is not None else None
         self._backend = self._get_backend(backend_type)
+        if (
+            self._url
+            and self._token is None
+            and not (config_dict["username"] is None or config_dict["password"] is None)
+        ):
+            self._token = self.login(config_dict["username"].value, config_dict["password"].value)
 
     def _get_backend(self, backend_type: schemas.BackendType):
         # Three possibilities:
