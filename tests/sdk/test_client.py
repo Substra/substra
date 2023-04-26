@@ -3,45 +3,43 @@ import yaml
 
 from substra.sdk import schemas
 from substra.sdk.client import Client
+from substra.sdk.client import _upper_slug
 
 
-@pytest.fixture
-def dummy_rest_client():
-    class DummyRestClient:
-        def __init__(self, url):
-            self.url = url
-
-        def login(self, username, password):
-            if self.url == "example1.com":
-                return "token1"
-            if self.url == "example2.com":
-                return "token2"
-            if self.url == "example3.com":
-                return "token3"
-
-    def get_rest_client(url):
-        return DummyRestClient(url)
-
-    return get_rest_client
+@pytest.mark.parametrize(
+    ["input", "expected"],
+    [
+        ("toto", "TOTO"),
+        ("client-org-1", "CLIENT_ORG_1"),
+        ("un nom très français", "UN_NOM_TRES_FRANCAIS"),
+    ],
+)
+def test_upper_slug(input, expected):
+    assert expected == _upper_slug(input)
 
 
 def test_default_client():
     client = Client()
     assert client.backend_mode == schemas.BackendType.LOCAL_SUBPROCESS
-    assert client.name is not None
 
 
 @pytest.mark.parametrize(
-    ["mode", "name", "url", "token", "insecure", "retry_timeout"],
+    ["mode", "configuration_name", "url", "token", "insecure", "retry_timeout"],
     [
-        ("subprocess", "foo", None, None, True, 5),
-        ("docker", "foobar", None, None, True, None),
-        ("remote", "bar", "example.com", "bloop", False, 15),
+        (schemas.BackendType.LOCAL_SUBPROCESS, "foo", None, None, True, 5),
+        (schemas.BackendType.LOCAL_DOCKER, "foobar", None, None, True, None),
+        (schemas.BackendType.REMOTE, "bar", "example.com", "bloop", False, 15),
     ],
 )
-def test_client_configured_in_code(mode, name, url, token, insecure, retry_timeout):
-    client = Client(backend_type=mode, name=name, url=url, token=token, insecure=insecure, retry_timeout=retry_timeout)
-    assert client.name == name
+def test_client_configured_in_code(mode, configuration_name, url, token, insecure, retry_timeout):
+    client = Client(
+        backend_type=mode,
+        configuration_name=configuration_name,
+        url=url,
+        token=token,
+        insecure=insecure,
+        retry_timeout=retry_timeout,
+    )
     assert client.backend_mode == mode
     assert client._insecure == insecure
     if retry_timeout is not None:
@@ -66,7 +64,12 @@ def stub_login(username, password):
 def test_client_with_password(mocker):
     mocker.patch("substra.sdk.Client.login", side_effect=stub_login)
     client = Client(
-        backend_type="remote", name="toto", url="example.com", token=None, username="org-1", password="password1"
+        backend_type="remote",
+        configuration_name="toto",
+        url="example.com",
+        token=None,
+        username="org-1",
+        password="password1",
     )
     assert client._token == "token1"
 
@@ -95,7 +98,7 @@ def test_client_config_env_overrides_config_file(mocker, monkeypatch, config_fil
     client = Client(
         configuration_file=config_file,
         backend_type="remote",
-        name="toto",
+        configuration_name="toto",
         url=None,
         token=None,
     )
