@@ -61,12 +61,12 @@ def _upper_slug(s: str) -> str:
     return slugify(s, separator="_").upper()
 
 
-def _get_env_var(attribute_name: str, configuration_name: str) -> str:
+def _get_env_var(attribute_name: str, client_name: str) -> str:
     """
     Returns the environment variable associated with a given attribute for a given Client,
-    identified by its configuration_name
+    identified by its client_name
     """
-    return f"SUBSTRA_{_upper_slug(configuration_name)}_{_upper_slug(attribute_name)}"
+    return f"SUBSTRA_{_upper_slug(client_name)}_{_upper_slug(attribute_name)}"
 
 
 @dataclasses.dataclass
@@ -79,7 +79,7 @@ def _get_config_value(
     *,
     attribute_name: str,
     code_values: Dict[str, Any],
-    configuration_name: Optional[str],
+    client_name: Optional[str],
     client_config_dict: Dict[str, str],
     mapping: Dict[str, callable],
 ) -> SettingValue:
@@ -91,8 +91,8 @@ def _get_config_value(
     Args:
         attribute_name (str): Name of the attribute for which we want to get the value to use
         code_values (dict): Dictionary containing the values read from the code (or None)
-        configuration_name (str or None): Name of the configuration to use; it is used to determine which env var to use
-            and which sub-dictionary of the configuration file to consider; if None, only the values defined in the code
+        client_name (str or None): Name of the client; it is used to determine which env var to use and which
+            sub-dictionary of the configuration file to consider; if None, only the values defined in the code
             are considered.
         client_config_dict (dict): Content of the configuration file
         mapping (dict): Mapping associating a callable to each attribute; usually used for type conversion, but could be
@@ -109,10 +109,10 @@ def _get_config_value(
         return SettingValue(value=code_values[attribute_name], origin="code")
 
     # if client_name is not given, we cannot look through env var and config files
-    if not configuration_name:
+    if not client_name:
         return SettingValue(value=None, origin="default")
 
-    env_var_name = _get_env_var(attribute_name, configuration_name)
+    env_var_name = _get_env_var(attribute_name, client_name)
     # In environment variables, though, we never get "None"
     if env_var_name in os.environ:
         return SettingValue(value=mapping[attribute_name](os.environ[env_var_name]), origin="environment_variable")
@@ -126,7 +126,7 @@ def _get_config_value(
 def get_client_configuration(
     *,
     config_file: Optional[pathlib.Path],
-    configuration_name: Optional[str],
+    client_name: Optional[str],
     code_values: Dict[str, Any],
 ) -> Dict[str, SettingValue]:
     """
@@ -136,8 +136,8 @@ def get_client_configuration(
 
     Args:
         config_file (Path or None): Path to the yaml configuration file, if existing
-        configuration_name (str or None): Name of the configuration to use; it is used to determine which env var to use
-            and which sub-dictionary of the configuration file to consider; if None, only the values defined in the code
+        client_name (str or None): Name of the client; it is used to determine which env var to use and which
+            sub-dictionary of the configuration file to consider; if None, only the values defined in the code
             are considered.
         code_values (dict): Value passed by the user directly in the code when instantiating the `Client`
 
@@ -163,8 +163,8 @@ def get_client_configuration(
         attribute_name: _get_config_value(
             attribute_name=attribute_name,
             code_values=code_values,
-            configuration_name=configuration_name,
-            client_config_dict=config_dict.get(configuration_name, {}),
+            client_name=client_name,
+            client_config_dict=config_dict.get(client_name, {}),
             mapping=values_mapping,
         )
         for attribute_name in values_mapping
@@ -177,15 +177,15 @@ class Client:
     Configuration can be passed in the code, through environment variables or through a configuration file.
     The order of precedence is: values defined by the user in the code, environment variables, values read from the
     configuration file. If the attribute is not set, the value returned is None (and the origin is set to "default").
-    In order to use configuration values not explicitly defined in the code, the parameter `configuration_name` must
+    In order to use configuration values not explicitly defined in the code, the parameter `client_name` must
     not be None.
 
     Args:
-        configuration_name (str, optional): Name of the configuration.
+        client_name (str, optional): Name of the client.
             Used to load relevant environment variables and select the right dictionary in the configuration file.
             Defaults to None.
         configuration_file (path, optional): Path to te configuration file.
-            `configuration_name` must be defined too.
+            `client_name` must be defined too.
             Defaults to None.
         url (str, optional): URL of the Substra platform.
             Mandatory to connect to a Substra platform. If no URL is given, all assets are created locally.
@@ -222,7 +222,7 @@ class Client:
     def __init__(
         self,
         *,
-        configuration_name: Optional[str] = None,
+        client_name: Optional[str] = None,
         configuration_file: Optional[pathlib.Path] = None,
         url: Optional[str] = None,
         token: Optional[str] = None,
@@ -232,9 +232,9 @@ class Client:
         insecure: Optional[bool] = None,
         backend_type: Optional[schemas.BackendType] = None,
     ):
-        if configuration_file and not configuration_name:
-            raise exceptions.BadConfiguration(
-                "Configuration file cannot be used because no `configuration_name` was given."
+        if configuration_file and not client_name:
+            raise exceptions.ConfigurationInfoError(
+                "Configuration file cannot be used because no `client_name` was given."
             )
 
         code_values = {
@@ -247,7 +247,7 @@ class Client:
             "backend_type": backend_type,
         }
         config_dict = get_client_configuration(
-            configuration_name=configuration_name, config_file=configuration_file, code_values=code_values
+            client_name=client_name, config_file=configuration_file, code_values=code_values
         )
         if config_dict["backend_type"].value is None:
             logger.info("No backend type specified, defaulting to subprocess")

@@ -1,6 +1,6 @@
 # Client
 ```text
-Client(*, configuration_name: Optional[str] = None, configuration_file: Optional[pathlib.Path] = None, url: Optional[str] = None, token: Optional[str] = None, username: Optional[str] = None, password: Optional[str] = None, retry_timeout: Optional[int] = None, insecure: Optional[bool] = None, backend_type: Optional[substra.sdk.schemas.BackendType] = None)
+Client(*, client_name: Optional[str] = None, configuration_file: Optional[pathlib.Path] = None, url: Optional[str] = None, token: Optional[str] = None, username: Optional[str] = None, password: Optional[str] = None, retry_timeout: Optional[int] = None, insecure: Optional[bool] = None, backend_type: Optional[substra.sdk.schemas.BackendType] = None)
 ```
 
 Create a client.
@@ -8,15 +8,15 @@ Defaults to a subprocess client, suitable for development purpose.
 Configuration can be passed in the code, through environment variables or through a configuration file.
 The order of precedence is: values defined by the user in the code, environment variables, values read from the
 configuration file. If the attribute is not set, the value returned is None (and the origin is set to "default").
-In order to use configuration values not explicitly defined in the code, the parameter `configuration_name` must
+In order to use configuration values not explicitly defined in the code, the parameter `client_name` must
 not be None.
 
 **Arguments:**
- - `configuration_name (str, optional)`: Name of the configuration.
+ - `client_name (str, optional)`: Name of the client.
 Used to load relevant environment variables and select the right dictionary in the configuration file.
 Defaults to None.
  - `configuration_file (path, optional)`: Path to te configuration file.
-`configuration_name` must be defined too.
+`client_name` must be defined too.
 Defaults to None.
  - `url (str, optional)`: URL of the Substra platform.
 Mandatory to connect to a Substra platform. If no URL is given, all assets are created locally.

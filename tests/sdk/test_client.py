@@ -4,6 +4,7 @@ import yaml
 from substra.sdk import schemas
 from substra.sdk.client import Client
 from substra.sdk.client import _upper_slug
+from substra.sdk.exceptions import ConfigurationInfoError
 
 
 @pytest.fixture
@@ -48,7 +49,7 @@ def test_default_client():
 
 
 @pytest.mark.parametrize(
-    ["mode", "configuration_name", "url", "token", "insecure", "retry_timeout"],
+    ["mode", "client_name", "url", "token", "insecure", "retry_timeout"],
     [
         (schemas.BackendType.LOCAL_SUBPROCESS, "foo", None, None, True, 5),
         (schemas.BackendType.LOCAL_DOCKER, "foobar", None, None, True, None),
@@ -56,10 +57,10 @@ def test_default_client():
         (schemas.BackendType.REMOTE, "hybrid", "example.com", "foo", True, 500),
     ],
 )
-def test_client_configured_in_code(mode, configuration_name, url, token, insecure, retry_timeout):
+def test_client_configured_in_code(mode, client_name, url, token, insecure, retry_timeout):
     client = Client(
         backend_type=mode,
-        configuration_name=configuration_name,
+        client_name=client_name,
         url=url,
         token=token,
         insecure=insecure,
@@ -79,6 +80,11 @@ def test_client_configured_in_code(mode, configuration_name, url, token, insecur
         assert client._url == url
     else:
         assert client._url is None
+
+
+def test_client_should_raise_when_missing_name():
+    with pytest.raises(ConfigurationInfoError):
+        Client(configuration_file="something")
 
 
 def test_client_with_password(mocker):
@@ -113,7 +119,7 @@ def test_client_configuration_from_env_var(mocker, monkeypatch):
     monkeypatch.setenv("SUBSTRA_TOTO_PASSWORD", "env_var_password")
     monkeypatch.setenv("SUBSTRA_TOTO_RETRY_TIMEOUT", "42")
     monkeypatch.setenv("SUBSTRA_TOTO_INSECURE", "true")
-    client = Client(configuration_name="toto")
+    client = Client(client_name="toto")
     assert client.backend_mode == "remote"
     assert client._url == "toto-org.com"
     assert client._token == "env_var_token"
@@ -123,7 +129,7 @@ def test_client_configuration_from_env_var(mocker, monkeypatch):
 
 def test_client_configuration_from_config_file(mocker, config_file):
     mocker.patch("substra.sdk.Client.login", side_effect=stub_login)
-    client = Client(configuration_file=config_file, configuration_name="toto")
+    client = Client(configuration_file=config_file, client_name="toto")
     assert client.backend_mode == "remote"
     assert client._url == "toto-org.com"
     assert client._token == "toto_file_token"
@@ -142,7 +148,7 @@ def test_client_configuration_code_overrides_env_var(monkeypatch):
     monkeypatch.setenv("SUBSTRA_TOTO_RETRY_TIMEOUT", "42")
     monkeypatch.setenv("SUBSTRA_TOTO_INSECURE", "true")
     client = Client(
-        configuration_name="toto",
+        client_name="toto",
         backend_type="subprocess",
         url="",
     )
@@ -159,7 +165,7 @@ def test_client_configuration_code_overrides_config_file(mocker, config_file):
     """
     mocker.patch("substra.sdk.Client.login", side_effect=stub_login)
     client = Client(
-        configuration_name="toto",
+        client_name="toto",
         configuration_file=config_file,
         username="org-1",
         password="password1",
@@ -180,7 +186,7 @@ def test_client_configuration_env_var_overrides_config_file(mocker, monkeypatch,
     monkeypatch.setenv("SUBSTRA_TOTO_BACKEND_TYPE", "docker")
     monkeypatch.setenv("SUBSTRA_TOTO_USERNAME", "env_var_username")
     monkeypatch.setenv("SUBSTRA_TOTO_PASSWORD", "env_var_password")
-    client = Client(configuration_file=config_file, configuration_name="toto", retry_timeout=12)
+    client = Client(configuration_file=config_file, client_name="toto", retry_timeout=12)
     assert client.backend_mode == "docker"
     assert client._url == "toto-org.com"
     assert client._token == "env_var_token"
