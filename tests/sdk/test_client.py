@@ -144,11 +144,11 @@ def test_client_configuration_code_overrides_env_var(monkeypatch):
     client = Client(
         configuration_name="toto",
         backend_type="subprocess",
-        token="foobar",
+        url="",
     )
     assert client.backend_mode == "subprocess"
-    assert client._url == "toto-org.com"
-    assert client._token == "foobar"
+    assert client._url == ""
+    assert client._token is None
     assert client._retry_timeout == 42
     assert client._insecure is True
 

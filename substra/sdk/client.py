@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_RETRY_TIMEOUT = 5 * 60
 DEFAULT_BATCH_SIZE = 500
+DEFAULT_BACKEND_TYPE = schemas.BackendType.LOCAL_SUBPROCESS
 
 # Temporary output identifiers, to be removed once user can pass its own identifiers
 MODEL_OUTPUT_IDENTIFIER = "model"
@@ -174,18 +175,21 @@ class Client:
     """Create a client.
     Defaults to a subprocess client, suitable for development purpose.
     Configuration can be passed in the code, through environment variables or through a configuration file.
+    The order of precedence is: values defined by the user in the code, environment variables, values read from the
+    configuration file. If the attribute is not set, the value returned is None (and the origin is set to "default").
+    In order to use configuration values not explicitly defined in the code, the parameter `configuration_name` must
+    not be None.
 
     Args:
         configuration_name (str, optional): Name of the configuration.
             Used to load relevant environment variables and select the right dictionary in the configuration file.
-            If None, configuration values will only be read from the code, or default will be used.
             Defaults to None.
         configuration_file (path, optional): Path to te configuration file.
             `configuration_name` must be defined too.
             Defaults to None.
         url (str, optional): URL of the Substra platform.
-            Mandatory to connect to a Substra platform. If no URL is given debug must be True and all
-            assets must be created locally.
+            Mandatory to connect to a Substra platform. If no URL is given, all assets are created locally.
+            Can be set to "" to remove any previously defined URL (in a configuration file or environment variable).
             Defaults to None.
         token (str, optional): Token to authenticate to the Substra platform.
             If no token is given, and a `username`/ `password` pair is provided,  the Client will try to authenticate
@@ -197,7 +201,7 @@ class Client:
             Not stored.
             Defaults to None.
         password (str, optional): Password to authenticate to the Substra platform.
-            Used in conjunction with an username to generate a token if not given, using the `login` function.
+            Used in conjunction with a username to generate a token if not given, using the `login` function.
             Not stored.
             Defaults to None.
         retry_timeout (int, optional): Number of seconds before attempting a retry call in case of timeout.
@@ -229,7 +233,9 @@ class Client:
         backend_type: Optional[schemas.BackendType] = None,
     ):
         if configuration_file and not configuration_name:
-            logger.info("Configuration file ignored because no `configuration_name` was given.")
+            raise exceptions.BadConfiguration(
+                "Configuration file cannot be used because no `configuration_name` was given."
+            )
 
         code_values = {
             "url": url,
@@ -245,13 +251,18 @@ class Client:
         )
         if config_dict["backend_type"].value is None:
             logger.info("No backend type specified, defaulting to subprocess")
-            backend_type = schemas.BackendType.LOCAL_SUBPROCESS
+            backend_type = DEFAULT_BACKEND_TYPE
         else:
             backend_type = config_dict["backend_type"].value
             logger.info(f"Backend type set to {backend_type}, " f"as defined in {config_dict['backend_type'].origin}")
 
         self._url = config_dict["url"].value
-        logger.info(f"The parameter `url` has been set to {self._url} " f"as defined in {config_dict['url'].origin} ")
+        if self._url:
+            logger.info(
+                f"The parameter `url` has been set to {self._url} " f"as defined in {config_dict['url'].origin} "
+            )
+        else:
+            logger.info("No URL has been given, all assets will be created locally.")
 
         self._token = config_dict["token"].value
         if self._token:
@@ -321,7 +332,7 @@ class Client:
 
     @property
     def temp_directory(self):
-        """Temporary directory for storing assets in debug mode.
+        """Temporary directory for storing assets in local mode.
         Deleted when the client is deleted.
         """
         if isinstance(self._backend, backends.Local):
