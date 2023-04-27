@@ -52,13 +52,13 @@ Asset creation specification base class.
 - status: Status
 - worker: str
 - rank: Optional[int]
-- inputs: List[InputRef]
-- outputs: Mapping[str, ComputeTaskOutput]
 - tag: str
 - creation_date: datetime
 - start_date: Optional[datetime]
 - end_date: Optional[datetime]
 - error_type: Optional[TaskErrorType]
+- inputs: List[InputRef]
+- outputs: Mapping[str, ComputeTaskOutput]
 ```
 
 ## Function
