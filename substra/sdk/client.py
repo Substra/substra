@@ -291,11 +291,11 @@ class Client:
             and self._token is None
             and not (config_dict["username"] is None or config_dict["password"] is None)
         ):
-            self._token = self.login(config_dict["username"].value, config_dict["password"].value)
             logger.info(
-                f"No token provided, getting one using username set in {config_dict['username'].origin}"
+                f"No token provided, getting one using username set in {config_dict['username'].origin} "
                 f"and password set in {config_dict['password'].origin}"
             )
+            self._token = self.login(config_dict["username"].value, config_dict["password"].value)
 
     def _get_backend(self, backend_type: schemas.BackendType):
         # Three possibilities:
