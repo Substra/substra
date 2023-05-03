@@ -289,7 +289,7 @@ class Client:
         if (
             self._url
             and self._token is None
-            and not (config_dict["username"] is None or config_dict["password"] is None)
+            and not (config_dict["username"].value is None or config_dict["password"].value is None)
         ):
             logger.info(
                 f"No token provided, getting one using username set in {config_dict['username'].origin} "
