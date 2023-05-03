@@ -137,6 +137,7 @@ class DataAccess:
                     performances.function_name.append(function.name)
                     performances.task_rank.append(task.rank)
                     performances.round_idx.append(task.metadata.get("round_idx"))
+                    performances.identifier.append(perf_identifier)
                     performances.performance.append(task.outputs[perf_identifier].value)
 
         return performances

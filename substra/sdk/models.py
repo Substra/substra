@@ -354,6 +354,7 @@ class Performances(_Model):
     function_name: List[str] = []
     task_rank: List[int] = []
     round_idx: List[int] = []
+    identifier: List[str] = []
     performance: List[float] = []
 
 
