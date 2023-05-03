@@ -349,7 +349,17 @@ class Client:
             Example: compute_plan_key=str(uuid.uuid4())"
             )
 
-        return self._backend.add(spec, spec_options=spec_options)
+        compute_plan = self._backend.add(spec, spec_options=spec_options)
+
+        if os.getenv("SUBSTRA_SAFE_CP_REGISTRATION", "False").lower() not in {"false", "0", "no"}:
+            while len(spec.tasks) > self.get_number_of_tasks_in_compute_plan(spec.key):
+                logger.info(
+                    f"sleeping: {self.get_number_of_tasks_in_compute_plan(spec.key)} tasks registered "
+                    f"out of {len(spec.tasks)}"
+                )
+                time.sleep(10)
+
+        return compute_plan
 
     @logit
     def get_function(self, key: str) -> models.Function:
@@ -662,7 +672,7 @@ class Client:
         return self._backend.link_dataset_with_data_samples(dataset_key, data_sample_keys)
 
     @logit
-    def download_dataset(self, key: str, destination_folder: str) -> None:
+    def download_dataset(self, key: str, destination_folder: str) -> pathlib.Path:
         """Download data manager resource.
         Download opener script in destination folder.
 
@@ -683,7 +693,7 @@ class Client:
         )
 
     @logit
-    def download_function(self, key: str, destination_folder: str) -> None:
+    def download_function(self, key: str, destination_folder: str) -> pathlib.Path:
         """Download function resource.
         Download function package in destination folder.
 
@@ -705,7 +715,7 @@ class Client:
         )
 
     @logit
-    def download_model(self, key: str, destination_folder) -> None:
+    def download_model(self, key: str, destination_folder) -> pathlib.Path:
         """Download model to destination file.
 
         This model was saved using the 'save_model' function of the class.
@@ -780,3 +790,9 @@ class Client:
     def cancel_compute_plan(self, key: str) -> None:
         """Cancel execution of compute plan. Nothing is returned by this method"""
         self._backend.cancel_compute_plan(key)
+
+    @logit
+    def get_number_of_tasks_in_compute_plan(self, key: str) -> int:
+        compute_plan_details = self.list_compute_plan(filters={"key": [key]})
+        assert len(compute_plan_details) == 1
+        return compute_plan_details[0].task_count
