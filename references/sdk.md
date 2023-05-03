@@ -1,27 +1,48 @@
 # Client
 ```text
-Client(url: Optional[str] = None, token: Optional[str] = None, retry_timeout: int = 300, insecure: bool = False, backend_type: substra.sdk.schemas.BackendType = <BackendType.REMOTE: 'remote'>)
+Client(*, client_name: Optional[str] = None, configuration_file: Optional[pathlib.Path] = None, url: Optional[str] = None, token: Optional[str] = None, username: Optional[str] = None, password: Optional[str] = None, retry_timeout: Optional[int] = None, insecure: Optional[bool] = None, backend_type: Optional[substra.sdk.schemas.BackendType] = None)
 ```
 
-Create a client
+Create a client.
+Defaults to a subprocess client, suitable for development purpose.
+Configuration can be passed in the code, through environment variables or through a configuration file.
+The order of precedence is: values defined by the user in the code, environment variables, values read from the
+configuration file. If the attribute is not set, the value returned is None (and the origin is set to "default").
+In order to use configuration values not explicitly defined in the code, the parameter `client_name` must
+not be None.
 
 **Arguments:**
- - `url (str, optional)`: URL of the Substra platform. Mandatory
-to connect to a Substra platform. If no URL is given debug must be True and all
-assets must be created locally.
+ - `client_name (str, optional)`: Name of the client.
+Used to load relevant environment variables and select the right dictionary in the configuration file.
+Defaults to None.
+ - `configuration_file (path, optional)`: Path to te configuration file.
+`client_name` must be defined too.
+Defaults to None.
+ - `url (str, optional)`: URL of the Substra platform.
+Mandatory to connect to a Substra platform. If no URL is given, all assets are created locally.
+Can be set to "" to remove any previously defined URL (in a configuration file or environment variable).
 Defaults to None.
  - `token (str, optional)`: Token to authenticate to the Substra platform.
-If no token is given, use the 'login' function to authenticate.
+If no token is given, and a `username`/ `password` pair is provided,  the Client will try to authenticate
+using 'login' function. It's always possible to generate a new token later by making another call to the
+`login` function.
 Defaults to None.
- - `retry_timeout (int, optional)`: Number of seconds before attempting a retry call in case
-of timeout.
+ - `username (str, optional)`: Username to authenticate to the Substra platform.
+Used in conjunction with a password to generate a token if not given, using the `login` function.
+Not stored.
+Defaults to None.
+ - `password (str, optional)`: Password to authenticate to the Substra platform.
+Used in conjunction with a username to generate a token if not given, using the `login` function.
+Not stored.
+Defaults to None.
+ - `retry_timeout (int, optional)`: Number of seconds before attempting a retry call in case of timeout.
 Defaults to 5 minutes.
- - `insecure (bool, optional)`: If True, the client can call a not-certified backend. This is
-for development purposes.
+ - `insecure (bool, optional)`: If True, the client can call a not-certified backend.
+This is for development purposes.
 Defaults to False.
- - `backend_type (schemas.BackendType, optional)`: Which mode to use.
+ - `backend_type (schemas.BackendType, optional)`: Which backend type to use.
 Possible values are `remote`, `docker` and `subprocess`.
-Defaults to `remote`.
+Defaults to `subprocess`.
 In `remote` mode, assets are registered on a deployed platform which also executes the tasks.
 In `subprocess` or `docker` mode, if no URL is given then all assets are created locally and tasks are
 executed locally. If a URL is given then the mode is a hybrid one: new assets are
@@ -36,7 +57,7 @@ Get the backend mode.
         
 ## temp_directory
 _This is a property._  
-Temporary directory for storing assets in debug mode.
+Temporary directory for storing assets in local mode.
         Deleted when the client is deleted.
         
 ## add_compute_plan

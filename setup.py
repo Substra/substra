@@ -46,6 +46,7 @@ setup(
         "pydantic>=1.5.1",
         "six",
         "tqdm",
+        "python-slugify",
     ],
     python_requires=">=3.8",
     extras_require={

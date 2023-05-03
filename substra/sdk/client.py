@@ -1,11 +1,18 @@
+import dataclasses
 import functools
 import logging
 import os
 import pathlib
 import time
+from typing import Any
+from typing import Dict
 from typing import List
+from typing import Literal
 from typing import Optional
 from typing import Union
+
+import yaml
+from slugify import slugify
 
 from substra.sdk import backends
 from substra.sdk import config as cfg
@@ -20,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_RETRY_TIMEOUT = 5 * 60
 DEFAULT_BATCH_SIZE = 500
+DEFAULT_BACKEND_TYPE = schemas.BackendType.LOCAL_SUBPROCESS
 
 # Temporary output identifiers, to be removed once user can pass its own identifiers
 MODEL_OUTPUT_IDENTIFIER = "model"
@@ -49,26 +57,161 @@ def logit(f):
     return wrapper
 
 
-class Client:
-    """Create a client
+def _upper_slug(s: str) -> str:
+    return slugify(s, separator="_").upper()
+
+
+def _get_env_var(attribute_name: str, client_name: str) -> str:
+    """
+    Returns the environment variable associated with a given attribute for a given Client,
+    identified by its client_name
+    """
+    return f"SUBSTRA_{_upper_slug(client_name)}_{_upper_slug(attribute_name)}"
+
+
+@dataclasses.dataclass
+class SettingValue:
+    value: Any
+    origin: Literal["code", "environment_variable", "config_file", "default"]
+
+
+def _get_config_value(
+    *,
+    attribute_name: str,
+    code_values: Dict[str, Any],
+    client_name: Optional[str],
+    client_config_dict: Dict[str, str],
+    mapping: Dict[str, callable],
+) -> SettingValue:
+    """
+    For a given attribute, return the value to be used in the Client configuration.
+    The order of precedence is: values defined by the user in the code, environment variables, values read from the
+    configuration file. If the attribute is not set, the value returned is None (and the origin is set to "default").
 
     Args:
-        url (str, optional): URL of the Substra platform. Mandatory
-            to connect to a Substra platform. If no URL is given debug must be True and all
-            assets must be created locally.
+        attribute_name (str): Name of the attribute for which we want to get the value to use
+        code_values (dict): Dictionary containing the values read from the code (or None)
+        client_name (str or None): Name of the client; it is used to determine which env var to use and which
+            sub-dictionary of the configuration file to consider; if None, only the values defined in the code
+            are considered.
+        client_config_dict (dict): Content of the configuration file
+        mapping (dict): Mapping associating a callable to each attribute; usually used for type conversion, but could be
+            used for more advanced processing
+
+    Returns:
+        SettingValue: Object containing the value and its origin (code, environment_variable, config_file or default)
+    """
+
+    # Some values are boolean that might be set to False, so we check explicitly "is not None"
+    # Note that explicitly passing "None" in the code is equivalent to omitting it.
+    # (code_values will actually always contain all the keys, with None values for keys that were omitted)
+    if code_values.get(attribute_name) is not None:
+        return SettingValue(value=code_values[attribute_name], origin="code")
+
+    # if client_name is not given, we cannot look through env var and config files
+    if not client_name:
+        return SettingValue(value=None, origin="default")
+
+    env_var_name = _get_env_var(attribute_name, client_name)
+    # In environment variables, though, we never get "None"
+    if env_var_name in os.environ:
+        return SettingValue(value=mapping[attribute_name](os.environ[env_var_name]), origin="environment_variable")
+
+    if attribute_name in client_config_dict:
+        return SettingValue(value=mapping[attribute_name](client_config_dict[attribute_name]), origin="config_file")
+
+    return SettingValue(value=None, origin="default")
+
+
+def get_client_configuration(
+    *,
+    config_file: Optional[pathlib.Path],
+    client_name: Optional[str],
+    code_values: Dict[str, Any],
+) -> Dict[str, SettingValue]:
+    """
+    Get the unified configuration values for a given client, out of three possible sources.
+    The order of precedence is: values defined by the user in the code, environment variables, values read from the
+    configuration file. If the attribute is not set, the value returned is None (and the origin is set to "default").
+
+    Args:
+        config_file (Path or None): Path to the yaml configuration file, if existing
+        client_name (str or None): Name of the client; it is used to determine which env var to use and which
+            sub-dictionary of the configuration file to consider; if None, only the values defined in the code
+            are considered.
+        code_values (dict): Value passed by the user directly in the code when instantiating the `Client`
+
+    Returns:
+     A dictionary associating each attribute with its `SettingValue` (containing the actual value and its origin)
+
+    """
+    if config_file and config_file.exists():
+        config_dict = yaml.safe_load(config_file.read_text())
+    else:
+        config_dict = {}
+
+    values_mapping = {
+        "url": str,
+        "token": str,
+        "username": str,
+        "password": str,
+        "retry_timeout": int,
+        "insecure": bool,
+        "backend_type": schemas.BackendType,
+    }
+    return {
+        attribute_name: _get_config_value(
+            attribute_name=attribute_name,
+            code_values=code_values,
+            client_name=client_name,
+            client_config_dict=config_dict.get(client_name, {}),
+            mapping=values_mapping,
+        )
+        for attribute_name in values_mapping
+    }
+
+
+class Client:
+    """Create a client.
+    Defaults to a subprocess client, suitable for development purpose.
+    Configuration can be passed in the code, through environment variables or through a configuration file.
+    The order of precedence is: values defined by the user in the code, environment variables, values read from the
+    configuration file. If the attribute is not set, the value returned is None (and the origin is set to "default").
+    In order to use configuration values not explicitly defined in the code, the parameter `client_name` must
+    not be None.
+
+    Args:
+        client_name (str, optional): Name of the client.
+            Used to load relevant environment variables and select the right dictionary in the configuration file.
+            Defaults to None.
+        configuration_file (path, optional): Path to te configuration file.
+            `client_name` must be defined too.
+            Defaults to None.
+        url (str, optional): URL of the Substra platform.
+            Mandatory to connect to a Substra platform. If no URL is given, all assets are created locally.
+            Can be set to "" to remove any previously defined URL (in a configuration file or environment variable).
             Defaults to None.
         token (str, optional): Token to authenticate to the Substra platform.
-            If no token is given, use the 'login' function to authenticate.
+            If no token is given, and a `username`/ `password` pair is provided,  the Client will try to authenticate
+            using 'login' function. It's always possible to generate a new token later by making another call to the
+            `login` function.
             Defaults to None.
-        retry_timeout (int, optional): Number of seconds before attempting a retry call in case
-            of timeout.
+        username (str, optional): Username to authenticate to the Substra platform.
+            Used in conjunction with a password to generate a token if not given, using the `login` function.
+            Not stored.
+            Defaults to None.
+        password (str, optional): Password to authenticate to the Substra platform.
+            Used in conjunction with a username to generate a token if not given, using the `login` function.
+            Not stored.
+            Defaults to None.
+        retry_timeout (int, optional): Number of seconds before attempting a retry call in case of timeout.
             Defaults to 5 minutes.
-        insecure (bool, optional): If True, the client can call a not-certified backend. This is
-            for development purposes.
+        insecure (bool, optional): If True, the client can call a not-certified backend.
+            This is for development purposes.
             Defaults to False.
-        backend_type (schemas.BackendType, optional): Which mode to use.
+        backend_type (schemas.BackendType, optional): Which backend type to use.
             Possible values are `remote`, `docker` and `subprocess`.
-            Defaults to `remote`.
+            Defaults to `subprocess`.
             In `remote` mode, assets are registered on a deployed platform which also executes the tasks.
             In `subprocess` or `docker` mode, if no URL is given then all assets are created locally and tasks are
             executed locally. If a URL is given then the mode is a hybrid one: new assets are
@@ -78,19 +221,81 @@ class Client:
 
     def __init__(
         self,
+        *,
+        client_name: Optional[str] = None,
+        configuration_file: Optional[pathlib.Path] = None,
         url: Optional[str] = None,
         token: Optional[str] = None,
-        retry_timeout: int = DEFAULT_RETRY_TIMEOUT,
-        insecure: bool = False,
-        backend_type: schemas.BackendType = schemas.BackendType.REMOTE,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        retry_timeout: Optional[int] = None,
+        insecure: Optional[bool] = None,
+        backend_type: Optional[schemas.BackendType] = None,
     ):
-        self._retry_timeout = retry_timeout
-        self._token = token
+        if configuration_file and not client_name:
+            raise exceptions.ConfigurationInfoError(
+                "Configuration file cannot be used because no `client_name` was given."
+            )
 
-        self._insecure = insecure
-        self._url = url
+        code_values = {
+            "url": url,
+            "token": token,
+            "username": username,
+            "password": password,
+            "retry_timeout": retry_timeout,
+            "insecure": insecure,
+            "backend_type": backend_type,
+        }
+        config_dict = get_client_configuration(
+            client_name=client_name, config_file=configuration_file, code_values=code_values
+        )
+        if config_dict["backend_type"].value is None:
+            logger.info("No backend type specified, defaulting to subprocess")
+            backend_type = DEFAULT_BACKEND_TYPE
+        else:
+            backend_type = config_dict["backend_type"].value
+            logger.info(f"Backend type set to {backend_type}, " f"as defined in {config_dict['backend_type'].origin}")
+
+        self._url = config_dict["url"].value
+        if self._url:
+            logger.info(
+                f"The parameter `url` has been set to {self._url} " f"as defined in {config_dict['url'].origin} "
+            )
+        else:
+            logger.info("No URL has been given, all assets will be created locally.")
+
+        self._token = config_dict["token"].value
+        if self._token:
+            logger.info(f"Token read from {config_dict['token'].origin}")
+
+        self._retry_timeout = (
+            config_dict["retry_timeout"].value
+            if config_dict["retry_timeout"].value is not None
+            else DEFAULT_RETRY_TIMEOUT
+        )
+        logger.info(
+            f"The parameter `retry_timeout` has been set to {self._retry_timeout} "
+            f"as defined in {config_dict['retry_timeout'].origin} "
+        )
+
+        self._insecure = config_dict["insecure"].value if config_dict["insecure"].value is not None else False
+
+        logger.info(
+            f"The parameter `insecure` has been set to {self._insecure} "
+            f"as defined in {config_dict['insecure'].origin} "
+        )
 
         self._backend = self._get_backend(backend_type)
+        if (
+            self._url
+            and self._token is None
+            and not (config_dict["username"] is None or config_dict["password"] is None)
+        ):
+            logger.info(
+                f"No token provided, getting one using username set in {config_dict['username'].origin} "
+                f"and password set in {config_dict['password'].origin}"
+            )
+            self._token = self.login(config_dict["username"].value, config_dict["password"].value)
 
     def _get_backend(self, backend_type: schemas.BackendType):
         # Three possibilities:
@@ -127,7 +332,7 @@ class Client:
 
     @property
     def temp_directory(self):
-        """Temporary directory for storing assets in debug mode.
+        """Temporary directory for storing assets in local mode.
         Deleted when the client is deleted.
         """
         if isinstance(self._backend, backends.Local):

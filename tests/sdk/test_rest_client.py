@@ -97,7 +97,7 @@ def test_add_wrong_url(mocker):
     error = json.decoder.JSONDecodeError("", "", 0)
 
     mock_requests(mocker, "post", status=200, json_error=error)
-    test_client = Client(url="http://www.dummy.com")
+    test_client = Client(url="http://www.dummy.com", token="foo")
     with pytest.raises(exceptions.BadConfiguration) as e:
         test_client.login("test_client", "hehe")
     assert "Make sure that given url" in e.value.args[0]

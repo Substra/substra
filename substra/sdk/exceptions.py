@@ -142,6 +142,12 @@ class BadLoginException(RequestException):
     pass
 
 
+class ConfigurationInfoError(SDKException):
+    """ConfigurationInfoError"""
+
+    pass
+
+
 class BadConfiguration(SDKException):
     """Bad configuration"""
 

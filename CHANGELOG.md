@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Client can now be configured using environment variables or a configuration Yaml file ([#353](https://github.com/Substra/substra/pull/353))
+
+### Changed
+
+- BREAKING: default backend type for Client is now "subprocess" ([#353](https://github.com/Substra/substra/pull/353))
+
 ## [0.43.0](https://github.com/Substra/substra/releases/tag/0.43.0) - 2023-03-31
 
 ### Added

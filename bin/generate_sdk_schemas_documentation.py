@@ -49,7 +49,6 @@ def _get_field_description(fields):
 
 
 def generate_help(fh, models: bool):
-
     if models:
         asset_list = models_list
         title = "Models"
@@ -89,7 +88,6 @@ def write_help(path, models: bool):
 
 
 if __name__ == "__main__":
-
     expected_pydantic_version = "1.9.0"
     if pydantic.VERSION != expected_pydantic_version:
         warnings.warn(
