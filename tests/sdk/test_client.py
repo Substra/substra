@@ -54,7 +54,8 @@ def test_default_client():
         (schemas.BackendType.LOCAL_SUBPROCESS, "foo", None, None, True, 5),
         (schemas.BackendType.LOCAL_DOCKER, "foobar", None, None, True, None),
         (schemas.BackendType.REMOTE, "bar", "example.com", "bloop", False, 15),
-        (schemas.BackendType.REMOTE, "hybrid", "example.com", "foo", True, 500),
+        (schemas.BackendType.LOCAL_SUBPROCESS, "hybrid", "example.com", "foo", True, 500),
+        (schemas.BackendType.REMOTE, "foofoo", "https://example.com/api-token-auth/", None, True, 500),
     ],
 )
 def test_client_configured_in_code(mode, client_name, url, token, insecure, retry_timeout):
