@@ -582,6 +582,7 @@ COMPUTE_PLAN_PERF = {
                 "key": "e526243f-f51a-4737-9fea-a5d55f4205fe",
                 "name": "accuracy",
             },
+            "identifier": "performance",
             "perf": 0.673,
         },
         {
@@ -602,6 +603,7 @@ COMPUTE_PLAN_PERF = {
                 "key": "e526243f-f51a-4737-9fea-a5d55f4205fe",
                 "name": "accuracy",
             },
+            "identifier": "performance",
             "perf": 0.834,
         },
         {
@@ -622,6 +624,7 @@ COMPUTE_PLAN_PERF = {
                 "key": "e526243f-f51a-4737-9fea-a5d55f4205fe",
                 "name": "accuracy",
             },
+            "identifier": "performance",
             "perf": 0.956,
         },
     ],
