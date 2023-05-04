@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - BREAKING: default backend type for Client is now "subprocess" ([#353](https://github.com/Substra/substra/pull/353))
-- Add identifier to performance view when calling `client.get_performances` ([#197](https://github.com/Substra/orchestrator/pull/197))
+- Add identifier to performance view when calling `client.get_performances` ([#357](https://github.com/Substra/substra/pull/357))
 
 ## [0.43.0](https://github.com/Substra/substra/releases/tag/0.43.0) - 2023-03-31
 
