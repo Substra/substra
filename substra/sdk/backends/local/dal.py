@@ -134,7 +134,6 @@ class DataAccess:
 
                     performances.worker.append(task.worker)
                     performances.task_key.append(task.key)
-                    performances.function_name.append(function.name)
                     performances.task_rank.append(task.rank)
                     performances.round_idx.append(task.metadata.get("round_idx"))
                     performances.identifier.append(perf_identifier)

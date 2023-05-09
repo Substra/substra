@@ -351,7 +351,6 @@ class Performances(_Model):
     compute_plan_metadata: List[dict] = []
     worker: List[str] = []
     task_key: List[str] = []
-    function_name: List[str] = []
     task_rank: List[int] = []
     round_idx: List[int] = []
     identifier: List[str] = []

@@ -578,10 +578,6 @@ COMPUTE_PLAN_PERF = {
                 ],
                 "worker": "MyOrg1MSP",
             },
-            "metric": {
-                "key": "e526243f-f51a-4737-9fea-a5d55f4205fe",
-                "name": "accuracy",
-            },
             "identifier": "performance",
             "perf": 0.673,
         },
@@ -599,10 +595,6 @@ COMPUTE_PLAN_PERF = {
                 ],
                 "worker": "MyOrg1MSP",
             },
-            "metric": {
-                "key": "e526243f-f51a-4737-9fea-a5d55f4205fe",
-                "name": "accuracy",
-            },
             "identifier": "performance",
             "perf": 0.834,
         },
@@ -619,10 +611,6 @@ COMPUTE_PLAN_PERF = {
                     "21bb59ca-abd4-4154-b04a-44a92556a078",
                 ],
                 "worker": "MyOrg1MSP",
-            },
-            "metric": {
-                "key": "e526243f-f51a-4737-9fea-a5d55f4205fe",
-                "name": "accuracy",
             },
             "identifier": "performance",
             "perf": 0.956,
