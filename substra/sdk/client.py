@@ -943,8 +943,8 @@ class Client:
         Returns:
             pathlib.Path: Path of the downloaded model
         """
-        task = self._backend.get(schemas.Type.Task, task_key)
-        model = task.outputs[identifier].value
+        task_output = self._backend.get_output_asset(task_key, identifier)
+        model = task_output.asset
         return self.download_model(model.key, folder)
 
     @logit

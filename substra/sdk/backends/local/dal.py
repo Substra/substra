@@ -121,10 +121,13 @@ class DataAccess:
         for task in list_tasks:
             if task.status == models.Status.done:
                 function = self.get(schemas.Type.Function, task.function.key)
-
-                for perf_identifier in [
+                perf_identifiers = [
                     output.identifier for output in function.outputs if output.kind == schemas.AssetKind.performance
-                ]:
+                ]
+                outputs = self.list(
+                    schemas.Type.OutputAsset, {"compute_task_key": task.key, "identifier": perf_identifiers}
+                )
+                for output in outputs:
                     performances.compute_plan_key.append(compute_plan.key)
                     performances.compute_plan_tag.append(compute_plan.tag)
                     performances.compute_plan_status.append(compute_plan.status)
@@ -137,7 +140,7 @@ class DataAccess:
                     performances.task_rank.append(task.rank)
                     performances.round_idx.append(task.metadata.get("round_idx"))
                     performances.identifier.append(perf_identifier)
-                    performances.performance.append(task.outputs[perf_identifier].value)
+                    performances.performance.append(output.asset)
 
         return performances
 
@@ -147,13 +150,8 @@ class DataAccess:
         """Joins the results of the [local db](substra.sdk.backends.local.db.list) and the
         [remote db](substra.sdk.backends.rest_client.list) in hybrid mode.
         """
-        if type_ == schemas.Type.SummaryTask:
-            # for the local DB, we need to map the summary task type to the regular task type
-            local_assets = self._db.list(
-                type_=schemas.Type.Task, filters=filters, order_by=order_by, ascending=ascending
-            )
-        else:
-            local_assets = self._db.list(type_=type_, filters=filters, order_by=order_by, ascending=ascending)
+
+        local_assets = self._db.list(type_=type_, filters=filters, order_by=order_by, ascending=ascending)
 
         remote_assets = []
         if self._remote:

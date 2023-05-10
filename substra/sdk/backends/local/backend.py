@@ -77,6 +77,16 @@ class Local(base.BaseBackend):
     def get(self, asset_type, key):
         return self._db.get(asset_type, key)
 
+    def get_output_asset(self, compute_task_key: str, identifier: str) -> models.OutputAsset:
+        outputs = self._db.list(
+            schemas.Type.OutputAsset, {"identifier": identifier, "compute_task_key": compute_task_key}
+        )
+
+        if len(outputs) != 1:
+            raise ValueError("Expecting only one asset")
+
+        return outputs
+
     def get_performances(self, key):
         performances = self._db.get_performances(key)
 
@@ -379,6 +389,11 @@ class Local(base.BaseBackend):
         compute_plan = self.__execute_compute_plan(spec, compute_plan, visited, tasks, spec_options)
         return compute_plan
 
+    def _add_output_assets(self, output_specs: Dict[str, schemas.ComputeTaskOutputSpec]):
+
+         for identifier, output in outputs.items():
+            self._db.add(schemas.Type.ComputeTaskOutputAsset)
+            pass
     def _add_task(self, key, spec, spec_options=None):
         self._check_metadata(spec.metadata)
         self._check_data_samples(spec)
@@ -398,15 +413,15 @@ class Local(base.BaseBackend):
             worker=spec.worker,
             compute_plan_key=compute_plan_key,
             rank=rank,
-            inputs=spec.inputs or [],
-            outputs=_output_from_spec(spec.outputs),
+            
             tag=spec.tag or "",
             status=models.Status.waiting,
             metadata=spec.metadata if spec.metadata else dict(),
         )
 
+
         task = self._db.add(task)
-        self._worker.schedule_task(task)
+        self._worker.schedule_task(task, spec)
         return task
 
     def _check_inputs_outputs(self, spec, function_key):

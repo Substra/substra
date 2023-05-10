@@ -134,14 +134,16 @@ class Worker:
         return command_template
 
     def _prepare_artifact_input(self, task_input, input_volume, multiple):
-        in_task = self._db.get(schemas.Type.Task, task_input.parent_task_key)
-        input_artifact = in_task.outputs[task_input.parent_task_output_identifier].value
-        assert isinstance(
-            input_artifact, models.OutModel
-        ), "The task_input value must be an artifact, not a performance"
+        outputs = self._db.list(
+            schemas.Type.OutputAsset,
+            {"compute_task_key": task_input.parent_task_key, "identifier": task_input.parent_task_output_identifier},
+        )
+        assert len(outputs) == 1, "The input should be unique"
+        output = outputs[0]
+        assert output.kind == schemas.AssetKind.model, "The task_input value must be an artifact, not a performance"
         filename = _generate_filename()
         path_to_input = input_volume / filename
-        Path(input_artifact.address.storage_address).link_to(path_to_input)
+        Path(output.asset.address.storage_address).link_to(path_to_input)
 
         return TaskResource(id=task_input.identifier, value=f"{TPL_VOLUME_INPUTS}/{filename}", multiple=multiple)
 
@@ -214,8 +216,18 @@ class Worker:
         if function_output.kind == schemas.AssetKind.performance:
             update_live_performances = True
             perf = json.loads(output_path.read_text())["all"]
-            task.outputs[function_output.identifier].value = perf
             value = perf
+            print(value)
+             print("_save_output value", value)
+        output_asset = models.OutputAsset(
+            kind=function_output.kind,
+            identifier=function_output.identifier,
+            asset=value,
+            compute_task_key=task.key,
+        )
+       
+        print("_save_output output_asset", output_asset)
+        self._db.add(output_asset)
         elif function_output.kind == schemas.AssetKind.model:
             value = models.OutModel(
                 key=str(uuid.uuid4()),
@@ -226,17 +238,27 @@ class Worker:
                 ),
                 creation_date=datetime.datetime.now(),
                 owner=task.owner,
-                permissions=task.outputs[function_output.identifier].permissions,
+                # TODO: Fix
+                permissions = models.Permissions(process=models.Permission(public=True, authorized_ids=["all"]))
             )
-            task.outputs[function_output.identifier].value = value
+            print(value)
             self._db.add(value)
-
+            
         else:
             raise ValueError(f"This asset kind is not supported for function output: {function_output.kind}")
-
+        print("_save_output value", value)
+        output_asset = models.OutputAsset(
+            kind=function_output.kind,
+            identifier=function_output.identifier,
+            asset=value,
+            compute_task_key=task.key,
+        )
+       
+        print("_save_output output_asset", output_asset)
+        self._db.add(output_asset)
         return update_live_performances
 
-    def schedule_task(self, task: models.Task):
+    def schedule_task(self, task: models.Task, specs: schemas.TaskSpec):
         """Execute the task
 
         Args:
@@ -267,7 +289,7 @@ class Worker:
             datasamples: List[models.DataSample] = []
 
             # Prepare inputs
-            for task_input in task.inputs:
+            for task_input in specs.inputs:
                 multiple = input_multiplicity[task_input.identifier]
 
                 if task_input.parent_task_key is not None:
@@ -312,7 +334,7 @@ class Worker:
             cmd_line_inputs.extend(datasample_task_resources)
 
             # Prepare the outputs
-            output_id_filename: Dict[str, str] = {output_id: _generate_filename() for output_id in task.outputs}
+            output_id_filename: Dict[str, str] = {output: _generate_filename() for output in specs.outputs}
 
             command_template += self._get_cmd_template_inputs_outputs(
                 task=task,

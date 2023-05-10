@@ -47,6 +47,19 @@ class Remote(base.BaseBackend):
         asset = self._client.get(asset_type.to_server(), key)
         return models.SCHEMA_TO_MODEL[asset_type](**asset)
 
+    def get_output_asset(self, compute_task_key: str, identifier: str) -> models.OutputAsset:
+        outputs = self._client.list(
+            schemas.Type.Task.to_server(),
+            path=compute_task_key + "/output_assets",
+            filters={"identifier": identifier},
+            paginated=False,
+        )
+
+        if len(outputs) != 1:
+            raise ValueError("Expecting only one asset")
+
+        return models.OutputAsset(**outputs[0], compute_task_key=compute_task_key)
+
     def get_performances(self, key):
         """Get an compute plan performance by key."""
 
