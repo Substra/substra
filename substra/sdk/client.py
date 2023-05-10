@@ -797,7 +797,7 @@ class Client:
 
 
         """
-        return self._list(schemas.Type.SummaryTask, filters, order_by, ascending)
+        return self._list(schemas.Type.Task, filters, order_by, ascending)
 
     @logit
     def list_organization(self, *args, **kwargs) -> List[models.Organization]:

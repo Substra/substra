@@ -260,7 +260,7 @@ class ComputeTaskOutput(schemas._PydanticConfig):
         allow_population_by_field_name = True
 
 
-class SummaryTask(_Model):
+class Task(_Model):
     key: str
     function: Function
     owner: str
@@ -289,11 +289,6 @@ class SummaryTask(_Model):
             "compute_plan_key",
             "function_key",
         ]
-
-
-class Task(SummaryTask):
-    inputs: List[InputRef]
-    outputs: Dict[str, ComputeTaskOutput]
 
 
 Task.update_forward_refs()
