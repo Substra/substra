@@ -65,7 +65,6 @@ class Remote(base.BaseBackend):
 
             performances.worker.append(test_task["compute_task"]["worker"])
             performances.task_key.append(test_task["compute_task"]["key"])
-            performances.function_name.append(test_task["metric"]["name"])
             performances.task_rank.append(test_task["compute_task"]["rank"])
             performances.round_idx.append(test_task["compute_task"]["round_idx"])
             performances.identifier.append(test_task["identifier"])
