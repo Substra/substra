@@ -48,7 +48,7 @@ DATASET = {
 }
 
 DATA_SAMPLE = {
-    "key": "d7dc4a5b-e81f-4f3f-b94c-5e2bbaca15cd",
+    "key": "7096db67-c175-4b45-9fb3-ad785eebb347",
     "owner": "MyOrg1MSP",
     "data_manager_keys": ["d7dc4a5b-e81f-4f3f-b94c-5e2bbaca15cd"],
     "creation_date": "2021-08-24T13:36:07.428974249Z",
@@ -174,7 +174,7 @@ TRAINTASK = {
     "start_date": "2021-10-12T09:28:06.947765800Z",
     "end_date": "2021-10-12T09:30:04.705947400Z",
     "inputs": [
-        {"identifier": "opener", "asset_key": "a67b9387-fd80-429a-bc2f-034fac430b0f"},
+        {"identifier": "opener", "asset_key": "d7dc4a5b-e81f-4f3f-b94c-5e2bbaca15cd"},
         {"identifier": "datasamples", "asset_key": "3180e12c-a821-434a-ad8a-a341076c7f98"},
         {"identifier": "datasamples", "asset_key": "21bb59ca-abd4-4154-b04a-44a92556a078"},
         {"identifier": "datasamples", "asset_key": "67512646-2464-4521-84de-419b1b307d30"},
@@ -481,7 +481,7 @@ PREDICTTASK = {
     "start_date": "2021-10-12T09:28:06.947765800Z",
     "end_date": "2021-10-12T09:30:04.705947400Z",
     "inputs": [
-        {"identifier": "opener", "asset_key": "a67b9387-fd80-429a-bc2f-034fac430b0f"},
+        {"identifier": "opener", "asset_key": "d7dc4a5b-e81f-4f3f-b94c-5e2bbaca15cd"},
         {"identifier": "datasamples", "asset_key": "3180e12c-a821-434a-ad8a-a341076c7f98"},
         {"identifier": "datasamples", "asset_key": "21bb59ca-abd4-4154-b04a-44a92556a078"},
         {
@@ -539,7 +539,7 @@ TESTTASK = {
     "start_date": "2021-10-12T09:28:06.947765800Z",
     "end_date": "2021-10-12T09:30:04.705947400Z",
     "inputs": [
-        {"identifier": "opener", "asset_key": "a67b9387-fd80-429a-bc2f-034fac430b0f"},
+        {"identifier": "opener", "asset_key": "d7dc4a5b-e81f-4f3f-b94c-5e2bbaca15cd"},
         {"identifier": "datasamples", "asset_key": "3180e12c-a821-434a-ad8a-a341076c7f98"},
         {"identifier": "datasamples", "asset_key": "21bb59ca-abd4-4154-b04a-44a92556a078"},
         {
@@ -593,7 +593,7 @@ COMPUTE_PLAN_PERF = {
         {
             "compute_task": {
                 "key": "afa9c7b1-21b5-4e58-a098-79de4ecede35",
-                "data_manager_key": "a67b9387-fd80-429a-bc2f-034fac430b0f",
+                "data_manager_key": "d7dc4a5b-e81f-4f3f-b94c-5e2bbaca15cd",
                 "function_key": "17f98afc-2b82-4ce9-b232-1a471633d020",
                 "rank": 1,
                 "epoch": None,
@@ -610,7 +610,7 @@ COMPUTE_PLAN_PERF = {
         {
             "compute_task": {
                 "key": "afa9c7b1-21b5-4e58-a098-79de4ecede35",
-                "data_manager_key": "a67b9387-fd80-429a-bc2f-034fac430b0f",
+                "data_manager_key": "d7dc4a5b-e81f-4f3f-b94c-5e2bbaca15cd",
                 "function_key": "17f98afc-2b82-4ce9-b232-1a471633d020",
                 "rank": 2,
                 "epoch": None,
@@ -627,7 +627,7 @@ COMPUTE_PLAN_PERF = {
         {
             "compute_task": {
                 "key": "afa9c7b1-21b5-4e58-a098-79de4ecede35",
-                "data_manager_key": "a67b9387-fd80-429a-bc2f-034fac430b0f",
+                "data_manager_key": "d7dc4a5b-e81f-4f3f-b94c-5e2bbaca15cd",
                 "function_key": "17f98afc-2b82-4ce9-b232-1a471633d020",
                 "rank": 3,
                 "epoch": None,

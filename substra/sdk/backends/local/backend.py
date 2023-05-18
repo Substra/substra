@@ -389,11 +389,6 @@ class Local(base.BaseBackend):
         compute_plan = self.__execute_compute_plan(spec, compute_plan, visited, tasks, spec_options)
         return compute_plan
 
-    def _add_output_assets(self, output_specs: Dict[str, schemas.ComputeTaskOutputSpec]):
-
-         for identifier, output in outputs.items():
-            self._db.add(schemas.Type.ComputeTaskOutputAsset)
-            pass
     def _add_task(self, key, spec, spec_options=None):
         self._check_metadata(spec.metadata)
         self._check_data_samples(spec)

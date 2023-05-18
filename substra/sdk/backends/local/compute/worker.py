@@ -29,7 +29,6 @@ from substra.sdk.backends.local.compute.spawner.base import VOLUME_OUTPUTS
 TPL_VOLUME_INPUTS = "${" + VOLUME_INPUTS + "}"
 TPL_VOLUME_OUTPUTS = "${" + VOLUME_OUTPUTS + "}"
 
-
 class TaskResource(dict):
     def __init__(self, id: str, value: str, multiple: bool):
         super().__init__(self, id=id, value=value, multiple=multiple)
@@ -215,19 +214,7 @@ class Worker:
 
         if function_output.kind == schemas.AssetKind.performance:
             update_live_performances = True
-            perf = json.loads(output_path.read_text())["all"]
-            value = perf
-            print(value)
-             print("_save_output value", value)
-        output_asset = models.OutputAsset(
-            kind=function_output.kind,
-            identifier=function_output.identifier,
-            asset=value,
-            compute_task_key=task.key,
-        )
-       
-        print("_save_output output_asset", output_asset)
-        self._db.add(output_asset)
+            value = json.loads(output_path.read_text())["all"]
         elif function_output.kind == schemas.AssetKind.model:
             value = models.OutModel(
                 key=str(uuid.uuid4()),
@@ -241,20 +228,16 @@ class Worker:
                 # TODO: Fix
                 permissions = models.Permissions(process=models.Permission(public=True, authorized_ids=["all"]))
             )
-            print(value)
-            self._db.add(value)
-            
+            self._db.add(value)    
         else:
-            raise ValueError(f"This asset kind is not supported for function output: {function_output.kind}")
-        print("_save_output value", value)
+            raise ValueError(f"This asset kind is not supported for function output: {function_output.kind}") 
         output_asset = models.OutputAsset(
+            key=str(uuid.uuid4()),
             kind=function_output.kind,
             identifier=function_output.identifier,
             asset=value,
             compute_task_key=task.key,
         )
-       
-        print("_save_output output_asset", output_asset)
         self._db.add(output_asset)
         return update_live_performances
 

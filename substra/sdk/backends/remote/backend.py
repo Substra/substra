@@ -1,6 +1,7 @@
 import json
 import logging
 import math
+import uuid
 from copy import deepcopy
 from typing import Dict
 from typing import List
@@ -58,7 +59,7 @@ class Remote(base.BaseBackend):
         if len(outputs) != 1:
             raise ValueError("Expecting only one asset")
 
-        return models.OutputAsset(**outputs[0], compute_task_key=compute_task_key)
+        return models.OutputAsset(**outputs[0], key=str(uuid.uuid4()), compute_task_key=compute_task_key)
 
     def get_performances(self, key):
         """Get an compute plan performance by key."""
