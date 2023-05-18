@@ -139,7 +139,7 @@ class DataAccess:
                     performances.task_key.append(task.key)
                     performances.task_rank.append(task.rank)
                     performances.round_idx.append(task.metadata.get("round_idx"))
-                    performances.identifier.append(perf_identifier)
+                    performances.identifier.append(output.identifier)
                     performances.performance.append(output.asset)
 
         return performances
