@@ -198,8 +198,10 @@ class Worker:
 
     def _save_output(
         self,
+        *,
         task,
         function_output: models.FunctionOutput,
+        permissions: schemas.Permissions,
         output_id_filename: Dict[str, str],
         output_volume: str,
         function_key: str,
@@ -226,8 +228,7 @@ class Worker:
                 ),
                 creation_date=datetime.datetime.now(),
                 owner=task.owner,
-                # TODO: Fix
-                permissions=models.Permissions(process=models.Permission(public=True, authorized_ids=["all"])),
+                permissions=models.Permissions(process=permissions),
             )
             self._db.add(value)
         else:
@@ -341,9 +342,11 @@ class Worker:
             # Save the outputs
             update_live_performances = False
             for function_output in function.outputs:
+                permissions = specs.outputs[function_output.identifier].permissions
                 update_live_performances = self._save_output(
                     task=task,
                     function_output=function_output,
+                    permissions=permissions,
                     output_id_filename=output_id_filename,
                     output_volume=volumes[VOLUME_OUTPUTS],
                     function_key=function.key,
