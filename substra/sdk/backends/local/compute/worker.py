@@ -29,6 +29,7 @@ from substra.sdk.backends.local.compute.spawner.base import VOLUME_OUTPUTS
 TPL_VOLUME_INPUTS = "${" + VOLUME_INPUTS + "}"
 TPL_VOLUME_OUTPUTS = "${" + VOLUME_OUTPUTS + "}"
 
+
 class TaskResource(dict):
     def __init__(self, id: str, value: str, multiple: bool):
         super().__init__(self, id=id, value=value, multiple=multiple)
@@ -226,11 +227,11 @@ class Worker:
                 creation_date=datetime.datetime.now(),
                 owner=task.owner,
                 # TODO: Fix
-                permissions = models.Permissions(process=models.Permission(public=True, authorized_ids=["all"]))
+                permissions=models.Permissions(process=models.Permission(public=True, authorized_ids=["all"])),
             )
-            self._db.add(value)    
+            self._db.add(value)
         else:
-            raise ValueError(f"This asset kind is not supported for function output: {function_output.kind}") 
+            raise ValueError(f"This asset kind is not supported for function output: {function_output.kind}")
         output_asset = models.OutputAsset(
             key=str(uuid.uuid4()),
             kind=function_output.kind,

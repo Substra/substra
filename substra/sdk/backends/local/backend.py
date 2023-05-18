@@ -408,12 +408,10 @@ class Local(base.BaseBackend):
             worker=spec.worker,
             compute_plan_key=compute_plan_key,
             rank=rank,
-            
             tag=spec.tag or "",
             status=models.Status.waiting,
             metadata=spec.metadata if spec.metadata else dict(),
         )
-
 
         task = self._db.add(task)
         self._worker.schedule_task(task, spec)
@@ -587,4 +585,4 @@ def _output_from_spec(outputs: Dict[str, schemas.ComputeTaskOutputSpec]) -> Dict
 def _warn_on_transient_outputs(outputs: typing.Dict[str, schemas.ComputeTaskOutputSpec]):
     for _, output in outputs.items():
         if output.is_transient:
-            warnings.warn("`transient=True` is ignored in local mode")
+            warnings.warn("`transient=True` is ignored in local mode", stacklevel=1)

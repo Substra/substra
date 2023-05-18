@@ -375,6 +375,7 @@ class OrganizationInfo(schemas._PydanticConfig):
     version: str
     orchestrator_version: str
 
+
 class OutputAsset(schemas._PydanticConfig):
     key: str
     kind: str
@@ -386,8 +387,6 @@ class OutputAsset(schemas._PydanticConfig):
     @staticmethod
     def allowed_filters() -> List[str]:
         return ["compute_task_key", "identifier", "kind"]
-
-
 
 
 SCHEMA_TO_MODEL = {
