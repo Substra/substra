@@ -375,32 +375,17 @@ class OrganizationInfo(schemas._PydanticConfig):
     version: str
     orchestrator_version: str
 
-
-class _TaskAsset(schemas._PydanticConfig):
+class OutputAsset(schemas._PydanticConfig):
+    key: str
     kind: str
-    asset: Union[DataSample, Dataset, OutModel]
     identifier: str
+    compute_task_key: str
+    asset: Union[float, OutModel]
+    type_: ClassVar[str] = schemas.Type.OutputAsset
 
     @staticmethod
     def allowed_filters() -> List[str]:
         return ["compute_task_key", "identifier", "kind"]
-
-    @property
-    def key(self) -> str:
-        self.asset.key
-
-class InputAsset(_TaskAsset):
-    compute_task_key: str
-    type_: ClassVar[str] = schemas.Type.InputAsset
-
-
-class OutputAsset(_TaskAsset):
-    compute_task_key: str
-    type_: ClassVar[str] = schemas.Type.OutputAsset
-
-    @property
-    def id(self) -> str:
-        return self.asset.key
 
 
 
@@ -414,5 +399,4 @@ SCHEMA_TO_MODEL = {
     schemas.Type.Organization: Organization,
     schemas.Type.Model: OutModel,
     schemas.Type.OutputAsset: OutputAsset,
-    schemas.Type.InputAsset: InputAsset,
 }

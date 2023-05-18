@@ -55,7 +55,6 @@ class Type(enum.Enum):
     Organization = "organization"
     Task = "task"
     OutputAsset = "output_asset"
-    InputAsset = "input_asset"
 
     def to_server(self):
         """Returns the name used to identify the asset on the backend."""
