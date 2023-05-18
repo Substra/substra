@@ -168,66 +168,65 @@ class TestsDebug:
         metric_key = client.add_function(metric_query)
 
         # test traintask extra field
-
+        inputs = FLTaskInputGenerator.task(opener_key=dataset_key, data_sample_keys=[data_sample_key])
         traintask_key = client.add_task(
             substra.sdk.schemas.TaskSpec(
                 function_key=function_key,
-                inputs=FLTaskInputGenerator.task(opener_key=dataset_key, data_sample_keys=[data_sample_key]),
-                outputs=FLTaskOutputGenerator.traintask(),
                 worker=client.organization_info().organization_id,
+                inputs=inputs,
+                outputs=FLTaskOutputGenerator.traintask(),
             )
         )
-
-        traintask = client.get_task(traintask_key)
-        dataset_ref = [x for x in traintask.inputs if x.identifier == substra.sdk.schemas.StaticInputIdentifier.opener]
+        client.get_task(traintask_key)
+        dataset_ref = [x for x in inputs if x.identifier == substra.sdk.schemas.StaticInputIdentifier.opener]
         assert len(dataset_ref) == 1
         assert dataset_ref[0].asset_key == dataset_key
-        assert len(traintask.inputs) == 2  # data sample + opener
+        assert len(inputs) == 2  # data sample + opener
 
         # test predicttask extra fields
+        input_specs = FLTaskInputGenerator.task(
+            opener_key=dataset_key, data_sample_keys=[data_sample_key]
+        ) + FLTaskInputGenerator.train_to_predict(traintask_key)
         predicttask_key = client.add_task(
             substra.sdk.schemas.TaskSpec(
                 function_key=predict_function_key,
-                inputs=FLTaskInputGenerator.task(opener_key=dataset_key, data_sample_keys=[data_sample_key])
-                + FLTaskInputGenerator.train_to_predict(traintask_key),
+                inputs=input_specs,
                 outputs=FLTaskOutputGenerator.predicttask(),
                 worker=client.organization_info().organization_id,
             )
         )
 
-        predicttask = client.get_task(predicttask_key)
-        dataset_ref = [
-            x for x in predicttask.inputs if x.identifier == substra.sdk.schemas.StaticInputIdentifier.opener
-        ]
+        client.get_task(predicttask_key)
+        dataset_ref = [x for x in input_specs if x.identifier == substra.sdk.schemas.StaticInputIdentifier.opener]
         assert len(dataset_ref) == 1
         assert dataset_ref[0].asset_key == dataset_key
 
-        assert len(predicttask.inputs) == 3  # data sample + opener + input task
+        assert len(input_specs) == 3  # data sample + opener + input task
 
-        model_ref = [x for x in predicttask.inputs if x.identifier == InputIdentifiers.model]
+        model_ref = [x for x in input_specs if x.identifier == InputIdentifiers.model]
         assert len(model_ref) == 1
         assert model_ref[0].parent_task_key == traintask_key
 
         # test testtask extra fields
+        input_specs = FLTaskInputGenerator.task(
+            opener_key=dataset_key, data_sample_keys=[data_sample_key]
+        ) + FLTaskInputGenerator.predict_to_test(predicttask_key)
         testtask_key = client.add_task(
             substra.sdk.schemas.TaskSpec(
                 function_key=metric_key,
-                inputs=FLTaskInputGenerator.task(opener_key=dataset_key, data_sample_keys=[data_sample_key])
-                + FLTaskInputGenerator.predict_to_test(predicttask_key),
+                inputs=input_specs,
                 outputs=FLTaskOutputGenerator.testtask(),
                 worker=client.organization_info().organization_id,
             )
         )
         testtask = client.get_task(testtask_key)
 
-        dataset_ref = [
-            x for x in predicttask.inputs if x.identifier == substra.sdk.schemas.StaticInputIdentifier.opener
-        ]
+        dataset_ref = [x for x in input_specs if x.identifier == substra.sdk.schemas.StaticInputIdentifier.opener]
         assert len(dataset_ref) == 1
         assert dataset_ref[0].asset_key == dataset_key
-        assert len(predicttask.inputs) == 3  # data sample + opener + input task
+        assert len(input_specs) == 3  # data sample + opener + input task
 
-        model_ref = [x for x in testtask.inputs if x.identifier == InputIdentifiers.predictions]
+        model_ref = [x for x in input_specs if x.identifier == InputIdentifiers.predictions]
         assert len(model_ref) == 1
         assert model_ref[0].parent_task_key == predicttask_key
 
@@ -235,23 +234,21 @@ class TestsDebug:
         assert testtask.function.key == metric_key
 
         # test composite extra field
-
+        input_specs = FLTaskInputGenerator.task(opener_key=dataset_key, data_sample_keys=[data_sample_key])
         composite_traintask_key = client.add_task(
             substra.sdk.schemas.TaskSpec(
                 function_key=composite_function_key,
-                inputs=FLTaskInputGenerator.task(opener_key=dataset_key, data_sample_keys=[data_sample_key]),
+                inputs=input_specs,
                 outputs=FLTaskOutputGenerator.composite_traintask(),
                 worker=client.organization_info().organization_id,
             )
         )
 
-        composite_traintask = client.get_task(composite_traintask_key)
-        dataset_ref = [
-            x for x in composite_traintask.inputs if x.identifier == substra.sdk.schemas.StaticInputIdentifier.opener
-        ]
+        client.get_task(composite_traintask_key)
+        dataset_ref = [x for x in input_specs if x.identifier == substra.sdk.schemas.StaticInputIdentifier.opener]
         assert len(dataset_ref) == 1
         assert dataset_ref[0].asset_key == dataset_key
-        assert len(composite_traintask.inputs) == 2  # data sample + opener
+        assert len(input_specs) == 2  # data sample + opener
 
     def test_add_two_compute_plan_with_same_cp_key(self, clients):
         client = clients[0]
