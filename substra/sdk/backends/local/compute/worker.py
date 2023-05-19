@@ -207,7 +207,6 @@ class Worker:
         *,
         task,
         function_output: models.FunctionOutput,
-        permissions: schemas.Permissions,
         output_id_filename: Dict[str, str],
         output_volume: str,
         function_key: str,
@@ -234,7 +233,7 @@ class Worker:
                 ),
                 creation_date=datetime.datetime.now(),
                 owner=task.owner,
-                permissions=models.Permissions(process=permissions),
+                permissions=task.outputs[function_output.identifier].permissions,
             )
             self._db.add(value)
         else:
@@ -248,7 +247,7 @@ class Worker:
         self._db.add(output_asset)
         return update_live_performances
 
-    def schedule_task(self, task: models.Task, specs: schemas.TaskSpec):
+    def schedule_task(self, task: models.Task):
         """Execute the task
 
         Args:
@@ -279,7 +278,7 @@ class Worker:
             datasamples: List[models.DataSample] = []
 
             # Prepare inputs
-            for task_input in specs.inputs:
+            for task_input in task.inputs:
                 multiple = input_multiplicity[task_input.identifier]
 
                 if task_input.parent_task_key is not None:
@@ -334,7 +333,7 @@ class Worker:
             cmd_line_inputs.extend(datasample_task_resources)
 
             # Prepare the outputs
-            output_id_filename: Dict[str, str] = {output: _generate_filename() for output in specs.outputs}
+            output_id_filename: Dict[str, str] = {output: _generate_filename() for output in task.outputs}
 
             command_template += self._get_cmd_template_inputs_outputs(
                 task=task,
@@ -357,11 +356,9 @@ class Worker:
             # Save the outputs
             update_live_performances = False
             for function_output in function.outputs:
-                permissions = specs.outputs[function_output.identifier].permissions
                 update_live_performances = self._save_output(
                     task=task,
                     function_output=function_output,
-                    permissions=permissions,
                     output_id_filename=output_id_filename,
                     output_volume=volumes[VOLUME_OUTPUTS],
                     function_key=function.key,

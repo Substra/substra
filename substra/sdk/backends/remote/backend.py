@@ -47,7 +47,7 @@ class Remote(base.BaseBackend):
         asset = self._client.get(asset_type.to_server(), key)
         return models.SCHEMA_TO_MODEL[asset_type](**asset)
 
-    def get_output_asset(self, compute_task_key: str, identifier: str) -> models.OutputAsset:
+    def get_task_output_asset(self, compute_task_key: str, identifier: str) -> models.OutputAsset:
         outputs = self._client.list(
             schemas.Type.Task.to_server(),
             path=compute_task_key + "/output_assets",

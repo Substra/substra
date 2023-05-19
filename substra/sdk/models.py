@@ -274,6 +274,8 @@ class Task(_Model):
     start_date: Optional[datetime]
     end_date: Optional[datetime]
     error_type: Optional[TaskErrorType] = None
+    inputs: List[InputRef]
+    outputs: Dict[str, ComputeTaskOutput]
 
     type_: ClassVar[Type] = schemas.Type.Task
 

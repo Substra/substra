@@ -77,7 +77,7 @@ class Local(base.BaseBackend):
     def get(self, asset_type, key):
         return self._db.get(asset_type, key)
 
-    def get_output_asset(self, compute_task_key: str, identifier: str) -> models.OutputAsset:
+    def get_task_output_asset(self, compute_task_key: str, identifier: str) -> models.OutputAsset:
         outputs = self._db.list(
             schemas.Type.OutputAsset, {"identifier": identifier, "compute_task_key": compute_task_key}
         )
@@ -418,13 +418,15 @@ class Local(base.BaseBackend):
             worker=spec.worker,
             compute_plan_key=compute_plan_key,
             rank=rank,
+            inputs=spec.inputs,
+            outputs=_output_from_spec(spec.outputs),
             tag=spec.tag or "",
             status=models.Status.waiting,
             metadata=spec.metadata if spec.metadata else dict(),
         )
 
         task = self._db.add(task)
-        self._worker.schedule_task(task, spec)
+        self._worker.schedule_task(task)
         return task
 
     def _check_inputs_outputs(self, spec, function_key):

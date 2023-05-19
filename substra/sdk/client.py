@@ -812,6 +812,12 @@ class Client:
         return self._backend.list_task_output_assets(key)
 
     @logit
+    def get_task_output_asset(self, key: str, identifier: str) -> models.OutputAsset:
+        """Get an output asset for a specific task with a defined identifier, the returned object is described
+        in the [models.Task](sdk_models.md#Task) model"""
+        return self._backend.get_task_output_asset(key, identifier)
+
+    @logit
     def list_organization(self, *args, **kwargs) -> List[models.Organization]:
         """List organizations, the returned object is described
         in the [models.Organization](sdk_models.md#Organization) model"""
@@ -955,7 +961,7 @@ class Client:
         Returns:
             pathlib.Path: Path of the downloaded model
         """
-        task_output = self._backend.get_output_asset(task_key, identifier)
+        task_output = self._backend.get_task_output_asset(task_key, identifier)
         model = task_output.asset
         return self.download_model(model.key, folder)
 
