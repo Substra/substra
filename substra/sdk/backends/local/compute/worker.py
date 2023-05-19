@@ -20,6 +20,7 @@ from substra.sdk import fs
 from substra.sdk import models
 from substra.sdk import schemas
 from substra.sdk.backends.local import dal
+from substra.sdk.backends.local import models as models_local
 from substra.sdk.backends.local.compute import spawner
 from substra.sdk.backends.local.compute.spawner import BaseSpawner
 from substra.sdk.backends.local.compute.spawner.base import VOLUME_CLI_ARGS
@@ -233,8 +234,7 @@ class Worker:
             self._db.add(value)
         else:
             raise ValueError(f"This asset kind is not supported for function output: {function_output.kind}")
-        output_asset = models.OutputAsset(
-            key=str(uuid.uuid4()),
+        output_asset = models_local.OutputAssetDb(
             kind=function_output.kind,
             identifier=function_output.identifier,
             asset=value,
