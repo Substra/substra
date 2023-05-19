@@ -62,6 +62,13 @@ class Type(enum.Enum):
         name = self.value
         return _SERVER_NAMES.get(name, name)
 
+    def to_asset_kind(self):
+        """Returns the name used to identify the asset on the backend."""
+        if self.value == self.Dataset.value:
+            return AssetKind.data_manager
+        else:
+            return AssetKind[self.value]
+
     def __str__(self):
         return self.name
 

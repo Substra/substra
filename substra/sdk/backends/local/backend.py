@@ -85,7 +85,17 @@ class Local(base.BaseBackend):
         if len(outputs) != 1:
             raise ValueError("Expecting only one asset")
 
+        return outputs[0]
+
+    def list_task_output_assets(self, compute_task_key: str) -> List[models.OutputAsset]:
+        outputs = self._db.list(schemas.Type.OutputAsset, {"compute_task_key": compute_task_key})
+
         return outputs
+
+    def list_task_input_assets(self, compute_task_key: str) -> List[models.InputAsset]:
+        inputs = self._db.list(schemas.Type.InputAsset, {"compute_task_key": compute_task_key})
+
+        return inputs
 
     def get_performances(self, key):
         performances = self._db.get_performances(key)

@@ -800,6 +800,18 @@ class Client:
         return self._list(schemas.Type.Task, filters, order_by, ascending)
 
     @logit
+    def list_task_input_assets(self, key: str) -> List[models.InputAsset]:
+        """List input assets for a specific task, the returned object is described
+        in the [models.Task](sdk_models.md#Task) model"""
+        return self._backend.list_task_input_assets(key)
+
+    @logit
+    def list_task_output_assets(self, key: str) -> List[models.OutputAsset]:
+        """List output assets for a specific task, the returned object is described
+        in the [models.Task](sdk_models.md#Task) model"""
+        return self._backend.list_task_output_assets(key)
+
+    @logit
     def list_organization(self, *args, **kwargs) -> List[models.Organization]:
         """List organizations, the returned object is described
         in the [models.Organization](sdk_models.md#Organization) model"""

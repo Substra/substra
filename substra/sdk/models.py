@@ -386,7 +386,7 @@ class _TaskAsset(schemas._PydanticConfig):
 
 
 class InputAsset(_TaskAsset):
-    asset: Union[DataSample, Dataset]
+    asset: Union[Dataset, DataSample, OutModel]
     type_: ClassVar[str] = schemas.Type.InputAsset
 
 

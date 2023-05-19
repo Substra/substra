@@ -60,7 +60,7 @@ class Remote(base.BaseBackend):
 
         return models.OutputAsset(**outputs[0])
 
-    def get_output_assets(self, compute_task_key: str) -> List[models.OutputAsset]:
+    def list_task_output_assets(self, compute_task_key: str) -> List[models.OutputAsset]:
         assets = self._client.list(
             schemas.Type.Task.to_server(),
             path=compute_task_key + "/output_assets",
@@ -69,7 +69,7 @@ class Remote(base.BaseBackend):
 
         return [models.OutputAsset(**asset) for asset in assets]
 
-    def get_input_assets(self, compute_task_key: str) -> List[models.InputAsset]:
+    def list_task_input_assets(self, compute_task_key: str) -> List[models.InputAsset]:
         assets = self._client.list(
             schemas.Type.Task.to_server(),
             path=compute_task_key + "/input_assets",

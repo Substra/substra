@@ -134,13 +134,18 @@ class Worker:
         ]
         return command_template
 
-    def _prepare_artifact_input(self, task_input, input_volume, multiple):
+    def _prepare_artifact_input(self, task_input, task_key, input_volume, multiple):
         outputs = self._db.list(
             schemas.Type.OutputAsset,
             {"compute_task_key": task_input.parent_task_key, "identifier": task_input.parent_task_output_identifier},
         )
         assert len(outputs) == 1, "The input should be unique"
         output = outputs[0]
+        self._db.add(
+            models_local.InputAssetLocal(
+                compute_task_key=task_key, kind=output.kind, identifier=output.identifier, asset=output.asset
+            )
+        )
         assert output.kind == schemas.AssetKind.model, "The task_input value must be an artifact, not a performance"
         filename = _generate_filename()
         path_to_input = input_volume / filename
@@ -234,7 +239,7 @@ class Worker:
             self._db.add(value)
         else:
             raise ValueError(f"This asset kind is not supported for function output: {function_output.kind}")
-        output_asset = models_local.OutputAssetDb(
+        output_asset = models_local.OutputAssetLocal(
             kind=function_output.kind,
             identifier=function_output.identifier,
             asset=value,
@@ -280,6 +285,7 @@ class Worker:
                 if task_input.parent_task_key is not None:
                     task_resource = self._prepare_artifact_input(
                         task_input=task_input,
+                        task_key=task.key,
                         input_volume=volumes[VOLUME_INPUTS],
                         multiple=multiple,
                     )
@@ -294,15 +300,24 @@ class Worker:
                         datasample_input_refs.append(task_input)
                         datasamples.append(asset)
                     elif asset_type == schemas.Type.Dataset:
-                        dataset = self._db.get_with_files(schemas.Type.Dataset, task_input.asset_key)
+                        asset = self._db.get_with_files(schemas.Type.Dataset, task_input.asset_key)
                         cmd_line_inputs.append(
                             self._prepare_dataset_input(
-                                dataset=dataset,
+                                dataset=asset,
                                 task_input=task_input,
                                 input_volume=volumes[VOLUME_INPUTS],
                                 multiple=multiple,
                             )
                         )
+                    else:
+                        continue
+                    input_asset = models_local.InputAssetLocal(
+                        compute_task_key=task.key,
+                        kind=asset_type.to_asset_kind(),
+                        identifier=task_input.identifier,
+                        asset=asset,
+                    )
+                    self._db.add(input_asset)
 
             (
                 datasample_cmd_template,
