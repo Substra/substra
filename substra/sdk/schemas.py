@@ -54,6 +54,7 @@ class Type(enum.Enum):
     ComputePlan = "compute_plan"
     Organization = "organization"
     Task = "task"
+    InputAsset = "input_asset"
     OutputAsset = "output_asset"
 
     def to_server(self):

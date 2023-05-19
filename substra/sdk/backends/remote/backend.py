@@ -1,7 +1,6 @@
 import json
 import logging
 import math
-import uuid
 from copy import deepcopy
 from typing import Dict
 from typing import List
@@ -59,7 +58,25 @@ class Remote(base.BaseBackend):
         if len(outputs) != 1:
             raise ValueError("Expecting only one asset")
 
-        return models.OutputAsset(**outputs[0], key=str(uuid.uuid4()), compute_task_key=compute_task_key)
+        return models.OutputAsset(**outputs[0])
+
+    def get_output_assets(self, compute_task_key: str) -> List[models.OutputAsset]:
+        assets = self._client.list(
+            schemas.Type.Task.to_server(),
+            path=compute_task_key + "/output_assets",
+            paginated=False,
+        )
+
+        return [models.OutputAsset(**asset) for asset in assets]
+
+    def get_input_assets(self, compute_task_key: str) -> List[models.InputAsset]:
+        assets = self._client.list(
+            schemas.Type.Task.to_server(),
+            path=compute_task_key + "/input_assets",
+            paginated=False,
+        )
+
+        return [models.InputAsset(**asset) for asset in assets]
 
     def get_performances(self, key):
         """Get an compute plan performance by key."""
