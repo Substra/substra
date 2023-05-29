@@ -191,26 +191,26 @@ TRAINTASK = {
     },
 }
 
-TRAINTASK_MODEL = [
-    {
-        "asset": {
-            "key": "6f0ee20a328044fb89e70ee5d219fa0c",
-            "compute_task_key": "30c283be-d385-424e-94a6-4d8538275260",
-            "address": {
-                "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
-                "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/model/5f0ee20a328044fb89e70ee5d219fa0b/address/",  # noqa: E501
-            },
-            "permissions": {
-                "process": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
-                "download": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
-            },
-            "owner": "MyOrg1MSP",
-            "creation_date": "2021-08-24T13:36:07.393646367Z",
+TRAINTASK_MODEL = {
+    "asset": {
+        "key": "6f0ee20a328044fb89e70ee5d219fa0c",
+        "compute_task_key": "30c283be-d385-424e-94a6-4d8538275260",
+        "address": {
+            "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
+            "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/model/5f0ee20a328044fb89e70ee5d219fa0b/address/",  # noqa: E501
         },
-        "identifier": "model",
-        "kind": "ASSET_MODEL",
-    }
-]
+        "permissions": {
+            "process": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
+            "download": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
+        },
+        "owner": "MyOrg1MSP",
+        "creation_date": "2021-08-24T13:36:07.393646367Z",
+    },
+    "identifier": "model",
+    "kind": "ASSET_MODEL",
+}
+
+TRAINTASK_MODEL_RESPONSE = {"count": 1, "previous": None, "next": None, "results": [TRAINTASK_MODEL]}
 
 AGGREGATETASK = {
     "key": "06207faf-1785-4fa9-4220-99a50dcfe064",
@@ -257,26 +257,26 @@ AGGREGATETASK = {
     },
 }
 
-AGGREGATETASK_MODEL = [
-    {
-        "asset": {
-            "key": "5f0ee20a328044fb89e70ee5d219fa0b",
-            "compute_task_key": "06207faf-1785-4fa9-4220-99a50dcfe064",
-            "address": {
-                "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
-                "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/model/5f0ee20a328044fb89e70ee5d219fa0b/address/",  # noqa: E501
-            },
-            "permissions": {
-                "process": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
-                "download": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
-            },
-            "owner": "MyOrg1MSP",
-            "creation_date": "2021-08-24T13:36:07.393646367Z",
+AGGREGATETASK_MODEL = {
+    "asset": {
+        "key": "5f0ee20a328044fb89e70ee5d219fa0b",
+        "compute_task_key": "06207faf-1785-4fa9-4220-99a50dcfe064",
+        "address": {
+            "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
+            "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/model/5f0ee20a328044fb89e70ee5d219fa0b/address/",  # noqa: E501
         },
-        "identifier": "model",
-        "kind": "ASSET_MODEL",
-    }
-]
+        "permissions": {
+            "process": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
+            "download": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
+        },
+        "owner": "MyOrg1MSP",
+        "creation_date": "2021-08-24T13:36:07.393646367Z",
+    },
+    "identifier": "model",
+    "kind": "ASSET_MODEL",
+}
+
+AGGREGATETASK_MODEL_RESPONSE = {"count": 1, "previous": None, "next": None, "results": [AGGREGATETASK_MODEL]}
 
 COMPOSITE_TRAINTASK = {
     "key": "aa09180a-fec6-46a5-a1a7-58c971b39217",
@@ -341,46 +341,55 @@ COMPOSITE_TRAINTASK = {
     },
 }
 
-COMPOSITE_TRAINTASK_SHARED = [
-    {
-        "asset": {
-            "key": "dc9d114d1ed54936b57dd7fef1c0cbf4",
-            "compute_task_key": "aa09180a-fec6-46a5-a1a7-58c971b39217",
-            "address": {
-                "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
-                "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/model/ac4a1a82ced4419b83f4bba78c024b94/address/",  # noqa: E501
-            },
-            "permissions": {
-                "process": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
-                "download": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
-            },
-            "owner": "MyOrg1MSP",
-            "creation_date": "2021-08-24T13:36:07.393646367Z",
+COMPOSITE_TRAINTASK_SHARED = {
+    "asset": {
+        "key": "dc9d114d1ed54936b57dd7fef1c0cbf4",
+        "compute_task_key": "aa09180a-fec6-46a5-a1a7-58c971b39217",
+        "address": {
+            "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
+            "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/model/ac4a1a82ced4419b83f4bba78c024b94/address/",  # noqa: E501
         },
-        "identifier": "shared",
-        "kind": "ASSET_MODEL",
-    }
-]
-COMPOSITE_TRAINTASK_LOCAL = [
-    {
-        "asset": {
-            "key": "dc9d114d1ed54936b57dd7fef1c0cbf4",
-            "compute_task_key": "aa09180a-fec6-46a5-a1a7-58c971b39217",
-            "address": {
-                "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
-                "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/model/ac4a1a82ced4419b83f4bba78c024b94/address/",  # noqa: E501
-            },
-            "permissions": {
-                "process": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
-                "download": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
-            },
-            "owner": "MyOrg1MSP",
-            "creation_date": "2021-08-24T13:36:07.393646367Z",
+        "permissions": {
+            "process": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
+            "download": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
         },
-        "identifier": "local",
-        "kind": "ASSET_MODEL",
-    }
-]
+        "owner": "MyOrg1MSP",
+        "creation_date": "2021-08-24T13:36:07.393646367Z",
+    },
+    "identifier": "shared",
+    "kind": "ASSET_MODEL",
+}
+
+
+COMPOSITE_TRAINTASK_SHARED_RESPONSE = {"count": 1, "previous": None, "next": None, "results": [AGGREGATETASK_MODEL]}
+
+COMPOSITE_TRAINTASK_LOCAL = {
+    "asset": {
+        "key": "dc9d114d1ed54936b57dd7fef1c0cbf4",
+        "compute_task_key": "aa09180a-fec6-46a5-a1a7-58c971b39217",
+        "address": {
+            "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
+            "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/model/ac4a1a82ced4419b83f4bba78c024b94/address/",  # noqa: E501
+        },
+        "permissions": {
+            "process": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
+            "download": {"public": False, "authorized_ids": ["MyOrg1MSP", "MyOrg2MSP"]},
+        },
+        "owner": "MyOrg1MSP",
+        "creation_date": "2021-08-24T13:36:07.393646367Z",
+    },
+    "identifier": "local",
+    "kind": "ASSET_MODEL",
+}
+
+
+COMPOSITE_TRAINTASK_LOCAL_RESPONSE = {
+    "count": 1,
+    "previous": None,
+    "next": None,
+    "results": [COMPOSITE_TRAINTASK_LOCAL],
+}
+
 COMPOSITE_TRAINTASK_DOING = {
     "key": "aa09180a-fec6-46a5-a1a7-58c971b39217",
     "function": {
