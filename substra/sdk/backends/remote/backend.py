@@ -52,6 +52,7 @@ class Remote(base.BaseBackend):
             schemas.Type.Task.to_server(),
             path=compute_task_key + "/output_assets",
             filters={"identifier": [identifier]},
+            paginated=False,
         )
 
         if len(outputs) == 0:
