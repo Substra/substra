@@ -51,32 +51,28 @@ class Remote(base.BaseBackend):
         outputs = self._client.list(
             schemas.Type.Task.to_server(),
             path=compute_task_key + "/output_assets",
-            filters={"identifier": identifier},
-            paginated=False,
+            filters={"identifier": [identifier]},
         )
 
-        if len(outputs) != 1:
-            raise ValueError("Expecting only one asset")
-
+        if len(outputs) == 0:
+            raise ValueError("Expecting one asset, found none.")
+        elif len(outputs) > 1:
+            raise ValueError(f"Expecting one asset, found {outputs}")
         return models.OutputAsset(**outputs[0])
 
     def list_task_output_assets(self, compute_task_key: str) -> List[models.OutputAsset]:
-        assets = self._client.list(
+        outputs = self._client.list(
             schemas.Type.Task.to_server(),
             path=compute_task_key + "/output_assets",
-            paginated=False,
         )
-
-        return [models.OutputAsset(**asset) for asset in assets]
+        return [models.OutputAsset(**output) for output in outputs]
 
     def list_task_input_assets(self, compute_task_key: str) -> List[models.InputAsset]:
-        assets = self._client.list(
+        inputs = self._client.list(
             schemas.Type.Task.to_server(),
             path=compute_task_key + "/input_assets",
-            paginated=False,
         )
-
-        return [models.InputAsset(**asset) for asset in assets]
+        return [models.InputAsset(**i) for i in inputs]
 
     def get_performances(self, key):
         """Get an compute plan performance by key."""
@@ -106,7 +102,7 @@ class Remote(base.BaseBackend):
     def list(
         self,
         asset_type: schemas.Type,
-        filters: Dict[str, Union[List[str], str, dict]] = None,
+        filters: Dict[str, Union[List[str], dict]] = None,
         order_by: str = None,
         ascending: bool = False,
         paginated: bool = True,

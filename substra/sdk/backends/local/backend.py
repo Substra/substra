@@ -81,9 +81,10 @@ class Local(base.BaseBackend):
         outputs = self._db.list(
             schemas.Type.OutputAsset, {"identifier": identifier, "compute_task_key": compute_task_key}
         )
-
-        if len(outputs) != 1:
-            raise ValueError("Expecting only one asset")
+        if len(outputs) == 0:
+            raise ValueError("Expecting one asset, found none")
+        elif len(outputs) > 1:
+            raise ValueError(f"Expecting one asset, found {outputs}")
 
         return outputs[0]
 

@@ -13,6 +13,7 @@ import pydantic
 from pydantic import AnyUrl
 from pydantic import DirectoryPath
 from pydantic import FilePath
+from pydantic import validator
 from pydantic.fields import Field
 
 from substra.sdk import schemas
@@ -394,6 +395,14 @@ class InputAsset(_TaskAsset):
 class OutputAsset(_TaskAsset):
     asset: Union[float, OutModel]
     type_: ClassVar[str] = schemas.Type.OutputAsset
+
+    # Deal with remote returning the actual performance object
+    @validator("asset", pre=True)
+    def convert_remote_performance(cls, value, values):
+        if values.get("kind") == schemas.AssetKind.performance and isinstance(value, dict):
+            return value.get("performance_value")
+
+        return value
 
 
 SCHEMA_TO_MODEL = {
