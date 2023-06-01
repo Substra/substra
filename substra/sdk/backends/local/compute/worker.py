@@ -14,6 +14,7 @@ from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Type
+from typing import Union
 
 from substra.sdk import exceptions
 from substra.sdk import fs
@@ -277,6 +278,7 @@ class Worker:
             datasample_input_refs: List[models.InputRef] = []
             datasamples: List[models.DataSample] = []
 
+            addable_asset: Optional[Union[models.DataSample, models.Dataset]] = None
             # Prepare inputs
             for task_input in task.inputs:
                 multiple = input_multiplicity[task_input.identifier]
@@ -293,30 +295,37 @@ class Worker:
                     asset, asset_type = self._get_asset_unknown_type(
                         asset_key=task_input.asset_key, possible_types=[schemas.Type.DataSample, schemas.Type.Dataset]
                     )
+
                     if asset_type == schemas.Type.DataSample:
                         # This is necessary because of the hybrid mode
                         # Otherwise could process the task_input here
                         datasample_input_refs.append(task_input)
                         datasamples.append(asset)
+
+                        if asset.path:
+                            addable_asset = asset
                     elif asset_type == schemas.Type.Dataset:
-                        asset = self._db.get_with_files(schemas.Type.Dataset, task_input.asset_key)
+                        dataset = self._db.get_with_files(schemas.Type.Dataset, task_input.asset_key)
                         cmd_line_inputs.append(
                             self._prepare_dataset_input(
-                                dataset=asset,
+                                dataset=dataset,
                                 task_input=task_input,
                                 input_volume=volumes[VOLUME_INPUTS],
                                 multiple=multiple,
                             )
                         )
-                    else:
-                        continue
-                    input_asset = models_local.InputAssetLocal(
-                        compute_task_key=task.key,
-                        kind=asset_type.to_asset_kind(),
-                        identifier=task_input.identifier,
-                        asset=asset,
-                    )
-                    self._db.add(input_asset)
+                        addable_asset = dataset
+
+                    if addable_asset:
+                        input_asset = models_local.InputAssetLocal(
+                            compute_task_key=task.key,
+                            kind=asset_type.to_asset_kind(),
+                            identifier=task_input.identifier,
+                            asset=addable_asset,
+                        )
+                        self._db.add(input_asset)
+
+                    addable_asset = None
 
             (
                 datasample_cmd_template,
