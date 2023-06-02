@@ -55,9 +55,9 @@ class Remote(base.BaseBackend):
         )
 
         if len(outputs) == 0:
-            raise ValueError("Expecting one asset, found none.")
+            raise exceptions.TaskAssetNotFoundError(compute_task_key=compute_task_key, identifier=identifier)
         elif len(outputs) > 1:
-            raise ValueError(f"Expecting one asset, found {outputs}")
+            raise exceptions.TaskAssetMultipleFoundError(compute_task_key=compute_task_key, identifier=identifier)
         return models.OutputAsset(**outputs[0])
 
     def list_task_output_assets(self, compute_task_key: str) -> List[models.OutputAsset]:

@@ -82,9 +82,9 @@ class Local(base.BaseBackend):
             schemas.Type.OutputAsset, {"identifier": identifier, "compute_task_key": compute_task_key}
         )
         if len(outputs) == 0:
-            raise ValueError("Expecting one asset, found none")
+            raise exceptions.TaskAssetNotFoundError(compute_task_key=compute_task_key, identifier=identifier)
         elif len(outputs) > 1:
-            raise ValueError(f"Expecting one asset, found {outputs}")
+            raise exceptions.TaskAssetMultipleFoundError(compute_task_key=compute_task_key, identifier=identifier)
 
         return outputs[0]
 
