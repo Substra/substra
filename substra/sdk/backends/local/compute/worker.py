@@ -302,7 +302,7 @@ class Worker:
                         datasample_input_refs.append(task_input)
                         datasamples.append(asset)
 
-                        # In hybrid mode, weuse DataSample assets with a path equals to `None` as it created as fake
+                        # In hybrid mode, we use DataSample assets with a path equals to `None` as it created as fake
                         # data in `_prepare_datasamples_inputs_and_paths`, but if we add these Data samples to the DB,
                         # during the execution substra will try to copy file in these folders and causes an error as
                         # these are not paths.
