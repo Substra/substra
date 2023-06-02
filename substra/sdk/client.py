@@ -802,19 +802,19 @@ class Client:
     @logit
     def list_task_input_assets(self, key: str) -> List[models.InputAsset]:
         """List input assets for a specific task, the returned object is described
-        in the [models.Task](sdk_models.md#Task) model"""
+        in the [models.InputAsset](sdk_models.md#InputAsset) model"""
         return self._backend.list_task_input_assets(key)
 
     @logit
     def list_task_output_assets(self, key: str) -> List[models.OutputAsset]:
         """List output assets for a specific task, the returned object is described
-        in the [models.Task](sdk_models.md#Task) model"""
+        in the [models.OutputAsset](sdk_models.md#OutputAsset) model"""
         return self._backend.list_task_output_assets(key)
 
     @logit
     def get_task_output_asset(self, key: str, identifier: str) -> models.OutputAsset:
         """Get an output asset for a specific task with a defined identifier, the returned object is described
-        in the [models.Task](sdk_models.md#Task) model"""
+        in the [models.OutputAsset](sdk_models.md#OutputAsset) model"""
         return self._backend.get_task_output_asset(key, identifier)
 
     @logit
