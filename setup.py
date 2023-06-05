@@ -39,12 +39,10 @@ setup(
     packages=find_packages(exclude=["tests*"]),
     include_package_data=True,
     install_requires=[
-        "click>=7.1.1,!=8.0.0",  # issue with click 8.0.0 (#4)
         "requests",
         "docker",
         "pyyaml",
         "pydantic>=1.5.1",
-        "six",
         "tqdm",
         "python-slugify",
     ],
@@ -60,11 +58,6 @@ setup(
             "flake8",
             "isort",
             "docstring_parser",
-        ],
-    },
-    entry_points={
-        "console_scripts": [
-            "substra=substra.cli.interface:cli",
         ],
     },
     zip_safe=False,
