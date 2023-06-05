@@ -35,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Function name from the Performance model ([#358](https://github.com/Substra/substra/pull/358))
+- `substra.cli` module ([#362](https://github.com/Substra/substra/pull/362))
+- `Client.from_config_file()`. The recommended way is to use the new the ne config file format or env vars ([#362](https://github.com/Substra/substra/pull/362))
 
 ## [0.43.0](https://github.com/Substra/substra/releases/tag/0.43.0) - 2023-03-31
 
