@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Concepts `InputAsset` and `OutputAsset` have been introduced, mirroring concept in `substra-backend`([#361](https://github.com/Substra/substra/pull/361))
+- Utils to get `input / output assets` for a specific task (`get_task_output_asset`, `list_task_output_assets`, `list_task_input_assets`) ([#361](https://github.com/Substra/substra/pull/361))
+
+### Changed
+
+- `Task`(including `inputs` and `outputs` without linked assets) replace `SummaryTask` ([#361](https://github.com/Substra/substra/pull/361))
+
+### Removed
+
+ - `SummaryTask` ([#361](https://github.com/Substra/substra/pull/361))
+
 ## [0.44.0](https://github.com/Substra/substra/releases/tag/0.44.0) - 2023-05-11
 
 ### Added

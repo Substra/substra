@@ -47,6 +47,33 @@ class Remote(base.BaseBackend):
         asset = self._client.get(asset_type.to_server(), key)
         return models.SCHEMA_TO_MODEL[asset_type](**asset)
 
+    def get_task_output_asset(self, compute_task_key: str, identifier: str) -> models.OutputAsset:
+        outputs = self._client.list(
+            schemas.Type.Task.to_server(),
+            path=compute_task_key + "/output_assets",
+            filters={"identifier": [identifier]},
+        )
+
+        if len(outputs) == 0:
+            raise exceptions.TaskAssetNotFoundError(compute_task_key=compute_task_key, identifier=identifier)
+        elif len(outputs) > 1:
+            raise exceptions.TaskAssetMultipleFoundError(compute_task_key=compute_task_key, identifier=identifier)
+        return models.OutputAsset(**outputs[0])
+
+    def list_task_output_assets(self, compute_task_key: str) -> List[models.OutputAsset]:
+        outputs = self._client.list(
+            schemas.Type.Task.to_server(),
+            path=compute_task_key + "/output_assets",
+        )
+        return [models.OutputAsset(**output) for output in outputs]
+
+    def list_task_input_assets(self, compute_task_key: str) -> List[models.InputAsset]:
+        inputs = self._client.list(
+            schemas.Type.Task.to_server(),
+            path=compute_task_key + "/input_assets",
+        )
+        return [models.InputAsset(**i) for i in inputs]
+
     def get_performances(self, key):
         """Get an compute plan performance by key."""
 
@@ -75,7 +102,7 @@ class Remote(base.BaseBackend):
     def list(
         self,
         asset_type: schemas.Type,
-        filters: Dict[str, Union[List[str], str, dict]] = None,
+        filters: Dict[str, Union[List[str], dict]] = None,
         order_by: str = None,
         ascending: bool = False,
         paginated: bool = True,

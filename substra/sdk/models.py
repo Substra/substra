@@ -186,7 +186,7 @@ class Function(_Model):
         return ["key", "name", "owner", "permissions", "compute_plan_key", "dataset_key", "data_sample_key"]
 
     @pydantic.validator("inputs", pre=True)
-    def dict_input_to_list(cls, v):  # noqa: N805
+    def dict_input_to_list(cls, v):
         if isinstance(v, dict):
             # Transform the inputs dict to a list
             return [
@@ -202,7 +202,7 @@ class Function(_Model):
             return v
 
     @pydantic.validator("outputs", pre=True)
-    def dict_output_to_list(cls, v):  # noqa: N805
+    def dict_output_to_list(cls, v):
         if isinstance(v, dict):
             # Transform the outputs dict to a list
             return [
@@ -253,14 +253,13 @@ class ComputeTaskOutput(schemas._PydanticConfig):
     """Specification of a compute task input"""
 
     permissions: Permissions
-    value: Optional[Union[float, OutModel, List[OutModel]]]  # performance or Model or multiple model
     is_transient: bool = Field(False, alias="transient")
 
     class Config:
         allow_population_by_field_name = True
 
 
-class SummaryTask(_Model):
+class Task(_Model):
     key: str
     function: Function
     owner: str
@@ -274,6 +273,8 @@ class SummaryTask(_Model):
     start_date: Optional[datetime]
     end_date: Optional[datetime]
     error_type: Optional[TaskErrorType] = None
+    inputs: List[InputRef]
+    outputs: Dict[str, ComputeTaskOutput]
 
     type_: ClassVar[Type] = schemas.Type.Task
 
@@ -289,11 +290,6 @@ class SummaryTask(_Model):
             "compute_plan_key",
             "function_key",
         ]
-
-
-class Task(SummaryTask):
-    inputs: List[InputRef]
-    outputs: Dict[str, ComputeTaskOutput]
 
 
 Task.update_forward_refs()
@@ -381,13 +377,41 @@ class OrganizationInfo(schemas._PydanticConfig):
     orchestrator_version: str
 
 
+class _TaskAsset(schemas._PydanticConfig):
+    kind: str
+    identifier: str
+
+    @staticmethod
+    def allowed_filters() -> List[str]:
+        return ["identifier", "kind"]
+
+
+class InputAsset(_TaskAsset):
+    asset: Union[Dataset, DataSample, OutModel]
+    type_: ClassVar[str] = schemas.Type.InputAsset
+
+
+class OutputAsset(_TaskAsset):
+    asset: Union[float, OutModel]
+    type_: ClassVar[str] = schemas.Type.OutputAsset
+
+    # Deal with remote returning the actual performance object
+    @pydantic.validator("asset", pre=True)
+    def convert_remote_performance(cls, value, values):
+        if values.get("kind") == schemas.AssetKind.performance and isinstance(value, dict):
+            return value.get("performance_value")
+
+        return value
+
+
 SCHEMA_TO_MODEL = {
     schemas.Type.Task: Task,
-    schemas.Type.SummaryTask: SummaryTask,
     schemas.Type.Function: Function,
     schemas.Type.ComputePlan: ComputePlan,
     schemas.Type.DataSample: DataSample,
     schemas.Type.Dataset: Dataset,
     schemas.Type.Organization: Organization,
     schemas.Type.Model: OutModel,
+    schemas.Type.InputAsset: InputAsset,
+    schemas.Type.OutputAsset: OutputAsset,
 }

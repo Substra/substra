@@ -194,3 +194,34 @@ class KeyAlreadyExistsError(Exception):
     """The asset key has already been used."""
 
     pass
+
+
+class _TaskAssetError(Exception):
+    """Base eception class for task asset error"""
+
+    def __init__(self, *, compute_task_key: str, identifier: str, message: str):
+        self.compute_task_key = compute_task_key
+        self.identifier = identifier
+        self.message = message
+        super().__init__(self.message)
+
+    pass
+
+
+class TaskAssetNotFoundError(_TaskAssetError):
+    """Exception raised when no task input/output asset have not been found for specific task key and identifier"""
+
+    def __init__(self, compute_task_key: str, identifier: str):
+        message = f"No task asset found with {compute_task_key=} and {identifier=}"
+        super().__init__(compute_task_key=compute_task_key, identifier=identifier, message=message)
+
+    pass
+
+
+class TaskAssetMultipleFoundError(_TaskAssetError):
+    """Exception raised when more than one task input/output assets have been found for specific task key and
+    identifier"""
+
+    def __init__(self, compute_task_key: str, identifier: str):
+        message = f"Multiple task assets found with {compute_task_key=} and {identifier=}"
+        super().__init__(compute_task_key=compute_task_key, identifier=identifier, message=message)

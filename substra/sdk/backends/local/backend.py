@@ -77,6 +77,27 @@ class Local(base.BaseBackend):
     def get(self, asset_type, key):
         return self._db.get(asset_type, key)
 
+    def get_task_output_asset(self, compute_task_key: str, identifier: str) -> models.OutputAsset:
+        outputs = self._db.list(
+            schemas.Type.OutputAsset, {"identifier": identifier, "compute_task_key": compute_task_key}
+        )
+        if len(outputs) == 0:
+            raise exceptions.TaskAssetNotFoundError(compute_task_key=compute_task_key, identifier=identifier)
+        elif len(outputs) > 1:
+            raise exceptions.TaskAssetMultipleFoundError(compute_task_key=compute_task_key, identifier=identifier)
+
+        return outputs[0]
+
+    def list_task_output_assets(self, compute_task_key: str) -> List[models.OutputAsset]:
+        outputs = self._db.list(schemas.Type.OutputAsset, {"compute_task_key": compute_task_key})
+
+        return outputs
+
+    def list_task_input_assets(self, compute_task_key: str) -> List[models.InputAsset]:
+        inputs = self._db.list(schemas.Type.InputAsset, {"compute_task_key": compute_task_key})
+
+        return inputs
+
     def get_performances(self, key):
         performances = self._db.get_performances(key)
 
@@ -398,7 +419,7 @@ class Local(base.BaseBackend):
             worker=spec.worker,
             compute_plan_key=compute_plan_key,
             rank=rank,
-            inputs=spec.inputs or [],
+            inputs=spec.inputs,
             outputs=_output_from_spec(spec.outputs),
             tag=spec.tag or "",
             status=models.Status.waiting,
@@ -577,4 +598,4 @@ def _output_from_spec(outputs: Dict[str, schemas.ComputeTaskOutputSpec]) -> Dict
 def _warn_on_transient_outputs(outputs: typing.Dict[str, schemas.ComputeTaskOutputSpec]):
     for _, output in outputs.items():
         if output.is_transient:
-            warnings.warn("`transient=True` is ignored in local mode")
+            warnings.warn("`transient=True` is ignored in local mode", stacklevel=1)

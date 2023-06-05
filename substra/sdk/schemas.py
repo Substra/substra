@@ -54,12 +54,20 @@ class Type(enum.Enum):
     ComputePlan = "compute_plan"
     Organization = "organization"
     Task = "task"
-    SummaryTask = "summary_task"
+    InputAsset = "input_asset"
+    OutputAsset = "output_asset"
 
     def to_server(self):
         """Returns the name used to identify the asset on the backend."""
         name = self.value
         return _SERVER_NAMES.get(name, name)
+
+    def to_asset_kind(self):
+        """Returns the name used to identify the asset on the backend."""
+        if self.value == self.Dataset.value:
+            return AssetKind.data_manager
+        else:
+            return AssetKind[self.value]
 
     def __str__(self):
         return self.name
@@ -138,7 +146,7 @@ class DataSampleSpec(_Spec):
         return self.paths and len(self.paths) > 0
 
     @pydantic.root_validator(pre=True)
-    def exclusive_paths(cls, values):  # noqa: N805
+    def exclusive_paths(cls, values):
         """Check that one and only one path(s) field is defined."""
         if "paths" in values and "path" in values:
             raise ValueError("'path' and 'paths' fields are exclusive.")
@@ -286,7 +294,7 @@ class FunctionInputSpec(_Spec):
     kind: AssetKind
 
     @pydantic.root_validator
-    def _check_identifiers(cls, values):  # noqa: N805
+    def _check_identifiers(cls, values):
         """Checks that the multiplicity and the optionality of a data manager is always set to False"""
         if values["kind"] == AssetKind.data_manager:
             if values["multiple"]:
@@ -320,7 +328,7 @@ class FunctionOutputSpec(_Spec):
     multiple: bool
 
     @pydantic.root_validator
-    def _check_performance(cls, values):  # noqa: N805
+    def _check_performance(cls, values):
         """Checks that the performance is always set to False"""
         if values.get("kind") == AssetKind.performance and values.get("multiple"):
             raise ValueError("Performance can't be multiple.")
@@ -345,7 +353,7 @@ class FunctionSpec(_Spec):
     type_: typing.ClassVar[Type] = Type.Function
 
     @pydantic.validator("inputs")
-    def _check_inputs(cls, v):  # noqa: N805
+    def _check_inputs(cls, v):
         inputs = v or []
         identifiers = {value.identifier for value in inputs}
         if len(identifiers) != len(inputs):
@@ -353,7 +361,7 @@ class FunctionSpec(_Spec):
         return v
 
     @pydantic.validator("outputs")
-    def _check_outputs(cls, v):  # noqa: N805
+    def _check_outputs(cls, v):
         outputs = v or []
         identifiers = {value.identifier for value in outputs}
         if len(identifiers) != len(outputs):

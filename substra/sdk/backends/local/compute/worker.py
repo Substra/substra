@@ -14,12 +14,14 @@ from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Type
+from typing import Union
 
 from substra.sdk import exceptions
 from substra.sdk import fs
 from substra.sdk import models
 from substra.sdk import schemas
 from substra.sdk.backends.local import dal
+from substra.sdk.backends.local import models as models_local
 from substra.sdk.backends.local.compute import spawner
 from substra.sdk.backends.local.compute.spawner import BaseSpawner
 from substra.sdk.backends.local.compute.spawner.base import VOLUME_CLI_ARGS
@@ -133,15 +135,22 @@ class Worker:
         ]
         return command_template
 
-    def _prepare_artifact_input(self, task_input, input_volume, multiple):
-        in_task = self._db.get(schemas.Type.Task, task_input.parent_task_key)
-        input_artifact = in_task.outputs[task_input.parent_task_output_identifier].value
-        assert isinstance(
-            input_artifact, models.OutModel
-        ), "The task_input value must be an artifact, not a performance"
+    def _prepare_artifact_input(self, task_input, task_key, input_volume, multiple):
+        outputs = self._db.list(
+            schemas.Type.OutputAsset,
+            {"compute_task_key": task_input.parent_task_key, "identifier": task_input.parent_task_output_identifier},
+        )
+        assert len(outputs) == 1, "The input should be unique"
+        output = outputs[0]
+        self._db.add(
+            models_local.InputAssetLocal(
+                compute_task_key=task_key, kind=output.kind, identifier=output.identifier, asset=output.asset
+            )
+        )
+        assert output.kind == schemas.AssetKind.model, "The task_input value must be an artifact, not a performance"
         filename = _generate_filename()
         path_to_input = input_volume / filename
-        Path(input_artifact.address.storage_address).link_to(path_to_input)
+        Path(output.asset.address.storage_address).link_to(path_to_input)
 
         return TaskResource(id=task_input.identifier, value=f"{TPL_VOLUME_INPUTS}/{filename}", multiple=multiple)
 
@@ -196,6 +205,7 @@ class Worker:
 
     def _save_output(
         self,
+        *,
         task,
         function_output: models.FunctionOutput,
         output_id_filename: Dict[str, str],
@@ -213,9 +223,7 @@ class Worker:
 
         if function_output.kind == schemas.AssetKind.performance:
             update_live_performances = True
-            perf = json.loads(output_path.read_text())["all"]
-            task.outputs[function_output.identifier].value = perf
-            value = perf
+            value = json.loads(output_path.read_text())["all"]
         elif function_output.kind == schemas.AssetKind.model:
             value = models.OutModel(
                 key=str(uuid.uuid4()),
@@ -228,12 +236,16 @@ class Worker:
                 owner=task.owner,
                 permissions=task.outputs[function_output.identifier].permissions,
             )
-            task.outputs[function_output.identifier].value = value
             self._db.add(value)
-
         else:
             raise ValueError(f"This asset kind is not supported for function output: {function_output.kind}")
-
+        output_asset = models_local.OutputAssetLocal(
+            kind=function_output.kind,
+            identifier=function_output.identifier,
+            asset=value,
+            compute_task_key=task.key,
+        )
+        self._db.add(output_asset)
         return update_live_performances
 
     def schedule_task(self, task: models.Task):
@@ -266,6 +278,7 @@ class Worker:
             datasample_input_refs: List[models.InputRef] = []
             datasamples: List[models.DataSample] = []
 
+            addable_asset: Optional[Union[models.DataSample, models.Dataset]] = None
             # Prepare inputs
             for task_input in task.inputs:
                 multiple = input_multiplicity[task_input.identifier]
@@ -273,6 +286,7 @@ class Worker:
                 if task_input.parent_task_key is not None:
                     task_resource = self._prepare_artifact_input(
                         task_input=task_input,
+                        task_key=task.key,
                         input_volume=volumes[VOLUME_INPUTS],
                         multiple=multiple,
                     )
@@ -281,11 +295,19 @@ class Worker:
                     asset, asset_type = self._get_asset_unknown_type(
                         asset_key=task_input.asset_key, possible_types=[schemas.Type.DataSample, schemas.Type.Dataset]
                     )
+
                     if asset_type == schemas.Type.DataSample:
                         # This is necessary because of the hybrid mode
                         # Otherwise could process the task_input here
                         datasample_input_refs.append(task_input)
                         datasamples.append(asset)
+
+                        # In hybrid mode, we use DataSample assets with a path equals to `None` as it created as fake
+                        # data in `_prepare_datasamples_inputs_and_paths`, but if we add these Data samples to the DB,
+                        # during the execution substra will try to copy file in these folders and causes an error as
+                        # these are not paths.
+                        if asset.path:
+                            addable_asset = asset
                     elif asset_type == schemas.Type.Dataset:
                         dataset = self._db.get_with_files(schemas.Type.Dataset, task_input.asset_key)
                         cmd_line_inputs.append(
@@ -296,6 +318,18 @@ class Worker:
                                 multiple=multiple,
                             )
                         )
+                        addable_asset = dataset
+
+                    if addable_asset:
+                        input_asset = models_local.InputAssetLocal(
+                            compute_task_key=task.key,
+                            kind=asset_type.to_asset_kind(),
+                            identifier=task_input.identifier,
+                            asset=addable_asset,
+                        )
+                        self._db.add(input_asset)
+
+                    addable_asset = None
 
             (
                 datasample_cmd_template,
@@ -312,7 +346,7 @@ class Worker:
             cmd_line_inputs.extend(datasample_task_resources)
 
             # Prepare the outputs
-            output_id_filename: Dict[str, str] = {output_id: _generate_filename() for output_id in task.outputs}
+            output_id_filename: Dict[str, str] = {output: _generate_filename() for output in task.outputs}
 
             command_template += self._get_cmd_template_inputs_outputs(
                 task=task,
