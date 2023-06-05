@@ -15,7 +15,6 @@ import yaml
 from slugify import slugify
 
 from substra.sdk import backends
-from substra.sdk import config as cfg
 from substra.sdk import exceptions
 from substra.sdk import models
 from substra.sdk import schemas
@@ -146,7 +145,7 @@ def get_client_configuration(
 
     """
     if config_file and config_file.exists():
-        config_dict = yaml.safe_load(config_file.read_text())
+        config_dict = yaml.safe_load(config_file.read_text(encoding=None))
     else:
         config_dict = {}
 
@@ -360,59 +359,6 @@ class Client:
         if isinstance(data, asset_type):
             return data
         return asset_type(**data)
-
-    @classmethod
-    def from_config_file(
-        cls,
-        profile_name: str = cfg.DEFAULT_PROFILE_NAME,
-        config_path: Union[str, pathlib.Path] = cfg.DEFAULT_PATH,
-        tokens_path: Union[str, pathlib.Path] = cfg.DEFAULT_TOKENS_PATH,
-        token: Optional[str] = None,
-        retry_timeout: int = DEFAULT_RETRY_TIMEOUT,
-        backend_type: schemas.BackendType = schemas.BackendType.REMOTE,
-    ):
-        """Returns a new Client configured with profile data from configuration files.
-
-        Args:
-            profile_name (str, optional): Name of the profile to load.
-                Defaults to 'default'.
-            config_path (Union[str, pathlib.Path], optional): Path to the
-                configuration file.
-                Defaults to '~/.substra'.
-            tokens_path (Union[str, pathlib.Path], optional): Path to the tokens file.
-                Defaults to '~/.substra-tokens'.
-            token (str, optional): Token to use for authentication (will be used
-                instead of any token found at tokens_path). Defaults to None.
-            retry_timeout (int, optional): Number of seconds before attempting a retry call in case
-                of timeout. Defaults to 5 minutes.
-            backend_type (schemas.BackendType, optional): Which mode to use.
-                Possible values are `remote`, `docker` and `subprocess`.
-                Defaults to `remote`.
-                In `remote` mode, assets are registered on a deployed platform which also executes the tasks.
-                In `subprocess` or `docker` mode, if no URL is given then all assets are created locally and tasks are
-                executed locally. If a URL is given then the mode is a hybrid one: new assets are
-                created locally but can access assets from the deployed Substra platform. The platform is in read-only
-                mode and tasks are executed locally.
-
-        Returns:
-            Client: The new client.
-        """
-
-        config_path = os.path.expanduser(config_path)
-        profile = cfg.ConfigManager(config_path).get_profile(profile_name)
-        if not token:
-            try:
-                tokens_path = os.path.expanduser(tokens_path)
-                token = cfg.TokenManager(tokens_path).get_profile(profile_name)
-            except cfg.ProfileNotFoundError:
-                token = None
-        return Client(
-            token=token,
-            retry_timeout=retry_timeout,
-            url=profile["url"],
-            insecure=profile["insecure"],
-            backend_type=backend_type,
-        )
 
     @logit
     def add_data_sample(self, data: Union[dict, schemas.DataSampleSpec], local: bool = True) -> str:
