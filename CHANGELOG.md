@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `InputAsset` and `OutputAsset` ([#361](https://github.com/Substra/substra/pull/361))
+- Concepts `InputAsset` and `OutputAsset` have been introduced, mirroring concept in `substra-backend`([#361](https://github.com/Substra/substra/pull/361))
 - Utils to get `input / output assets` for a specific task (`get_task_output_asset`, `list_task_output_assets`, `list_task_input_assets`) ([#361](https://github.com/Substra/substra/pull/361))
 
 ### Changed
