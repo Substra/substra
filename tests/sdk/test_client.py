@@ -1,6 +1,7 @@
 import pytest
 import yaml
 
+from substra.sdk import exceptions
 from substra.sdk import schemas
 from substra.sdk.client import Client
 from substra.sdk.client import _upper_slug
@@ -193,3 +194,8 @@ def test_client_configuration_env_var_overrides_config_file(mocker, monkeypatch,
     assert client._token == "env_var_token"
     assert client._retry_timeout == 12
     assert client._insecure is False
+
+
+def test_login_remote_without_url(tmpdir):
+    with pytest.raises(exceptions.SDKException):
+        Client(backend_type="remote")

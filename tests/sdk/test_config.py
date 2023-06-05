@@ -1,4 +1,3 @@
-import pytest
 import yaml
 
 import substra
@@ -17,11 +16,6 @@ DUMMY_TOKENS = {
         "token": "foo",
     }
 }
-
-
-def test_login_remote_without_url(tmpdir):
-    with pytest.raises(substra.exceptions.SDKException):
-        substra.Client(backend_type="remote")
 
 
 def test_token_without_tokens(tmpdir):
