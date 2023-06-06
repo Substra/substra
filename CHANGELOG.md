@@ -15,10 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `Task`(including `inputs` and `outputs` without linked assets) replace `SummaryTask` ([#361](https://github.com/Substra/substra/pull/361))
+- Fix the ordering when filtering on a remote client ([#363](https://github.com/Substra/substra/pull/363))
 
 ### Removed
 
- - `SummaryTask` ([#361](https://github.com/Substra/substra/pull/361))
+- `SummaryTask` ([#361](https://github.com/Substra/substra/pull/361))
 
 ## [0.44.0](https://github.com/Substra/substra/releases/tag/0.44.0) - 2023-05-11
 
@@ -618,5 +619,4 @@ client1_org_id = clients[0].organization_info().organization_id
 
 ## [0.10.0](https://github.com/Substra/substra/releases/tag/0.10.0) - 2021-08-05
 
-- [0.10.0]: https://github.com/Substra/substra/compare/0.9.0...0.10.0
 - [unreleased]: https://github.com/Substra/substra/compare/0.10.0...HEAD

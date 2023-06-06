@@ -28,8 +28,8 @@ def test_format_search_filters_for_remote(raw, formatted):
 @pytest.mark.parametrize(
     "ordering, ascending, formatted",
     [
-        ("creation_date", False, "creation_date"),
-        ("start_date", True, "-start_date"),
+        ("creation_date", False, "-creation_date"),
+        ("start_date", True, "start_date"),
     ],
 )
 def test_format_search_ordering_for_remote(ordering, ascending, formatted):

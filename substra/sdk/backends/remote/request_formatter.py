@@ -23,6 +23,6 @@ def format_search_filters_for_remote(filters):
 
 
 def format_search_ordering_for_remote(order_by, ascending):
-    if ascending:
+    if not ascending:
         return "-" + order_by
     return order_by
