@@ -25,10 +25,6 @@ jobs:
           flake8 substra
       - name: Install substra
         run: pip install -e .
-      - name: Generate and validate CLI documentation
-        run: |
-          pip install pydantic==1.8.2
-          python bin/generate_cli_documentation.py --output-path references/cli.md
       - name: Generate and validate SDK documentation
         run: |
           python bin/generate_sdk_documentation.py --output-path='references/sdk.md'

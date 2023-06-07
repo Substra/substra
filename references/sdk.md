@@ -287,37 +287,6 @@ class.
 **Returns:**
 
  - `pathlib.Path`: Path of the downloaded model
-## from_config_file
-```text
-from_config_file(profile_name: str = 'default', config_path: Union[str, pathlib.Path] = '~/.substra', tokens_path: Union[str, pathlib.Path] = '~/.substra-tokens', token: Optional[str] = None, retry_timeout: int = 300, backend_type: substra.sdk.schemas.BackendType = <BackendType.REMOTE: 'remote'>)
-```
-
-Returns a new Client configured with profile data from configuration files.
-
-**Arguments:**
- - `profile_name (str, optional)`: Name of the profile to load.
-Defaults to 'default'.
- - `config_path (Union[str, pathlib.Path], optional)`: Path to the
-configuration file.
-Defaults to '~/.substra'.
- - `tokens_path (Union[str, pathlib.Path], optional)`: Path to the tokens file.
-Defaults to '~/.substra-tokens'.
- - `token (str, optional)`: Token to use for authentication (will be used
-instead of any token found at tokens_path). Defaults to None.
- - `retry_timeout (int, optional)`: Number of seconds before attempting a retry call in case
-of timeout. Defaults to 5 minutes.
- - `backend_type (schemas.BackendType, optional)`: Which mode to use.
-Possible values are `remote`, `docker` and `subprocess`.
-Defaults to `remote`.
-In `remote` mode, assets are registered on a deployed platform which also executes the tasks.
-In `subprocess` or `docker` mode, if no URL is given then all assets are created locally and tasks are
-executed locally. If a URL is given then the mode is a hybrid one: new assets are
-created locally but can access assets from the deployed Substra platform. The platform is in read-only
-mode and tasks are executed locally.
-
-**Returns:**
-
- - `Client`: The new client.
 ## get_compute_plan
 ```text
 get_compute_plan(self, key: str) -> substra.sdk.models.ComputePlan
