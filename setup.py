@@ -40,6 +40,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "requests",
+        "urllib3<2",
         "docker",
         "pyyaml",
         "pydantic>=1.5.1",
