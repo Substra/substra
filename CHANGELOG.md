@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.45.0](https://github.com/Substra/substra/releases/tag/0.45.0) - 2023-06-12
+
 ### Added
 
 - Concepts `InputAsset` and `OutputAsset` have been introduced, mirroring concept in `substra-backend`([#361](https://github.com/Substra/substra/pull/361))
