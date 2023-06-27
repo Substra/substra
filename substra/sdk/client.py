@@ -4,11 +4,13 @@ import logging
 import os
 import pathlib
 import time
+from collections.abc import Callable
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Literal
 from typing import Optional
+from typing import Sequence
 from typing import Union
 
 import yaml
@@ -80,7 +82,7 @@ def _get_config_value(
     code_values: Dict[str, Any],
     client_name: Optional[str],
     client_config_dict: Dict[str, str],
-    mapping: Dict[str, callable],
+    mapping: Dict[str, Callable],
 ) -> SettingValue:
     """
     For a given attribute, return the value to be used in the Client configuration.
@@ -949,3 +951,111 @@ class Client:
     def cancel_compute_plan(self, key: str) -> None:
         """Cancel execution of compute plan. Nothing is returned by this method"""
         self._backend.cancel_compute_plan(key)
+
+    @logit
+    def wait_compute_plan(
+        self, key: str, *, timeout: Optional[float] = None, polling_period: float = 2.0, raises: bool = True
+    ) -> models.ComputePlan:
+        """Block the execution until the compute plan finishes.
+
+        It is considered finished when the status is done, failed or cancelled.
+        If a timeout is defined, will raises a `FutureTimeoutError` once it reached it.
+
+        Args:
+            key (str): the key of the compute plan to wait
+            timeout (Optional[float]): maximum time to wait. If set to None, will hang until completion.
+            polling_period (float): time to wait between to checks, in seconds. Default to 2.0.
+            raises (bool): wether or not to raises exception if the execution fails. Default to True.
+
+        Returns:
+            models.ComputePlan: the compute plan after completion
+        """
+        asset_getter = self.get_compute_plan
+        status_failed = models.ComputePlanStatus.failed.value
+        status_canceled = models.ComputePlanStatus.canceled.value
+        statuses_stopped = (
+            models.ComputePlanStatus.done.value,
+            models.ComputePlanStatus.failed.value,
+            models.ComputePlanStatus.canceled.value,
+        )
+
+        return self._wait(
+            key=key,
+            asset_getter=asset_getter,
+            polling_period=polling_period,
+            raises=raises,
+            status_canceled=status_canceled,
+            status_failed=status_failed,
+            statuses_stopped=statuses_stopped,
+            timeout=timeout,
+        )
+
+    @logit
+    def wait_task(
+        self, key: str, *, timeout: Optional[float] = None, polling_period: float = 2.0, raises: bool = True
+    ) -> models.Task:
+        """Block the execution until the task finishes.
+
+        It is considered finished when the status is done, failed or cancelled.
+        If a timeout is defined, will raises a `FutureTimeoutError` once it reached it.
+
+        Args:
+            key (str): the key of the task to wait
+            timeout (Optional[float]): maximum time to wait. If set to None, will hang until completion.
+            polling_period (float): time to wait between to checks, in seconds. Default to 2.0.
+            raises (bool): wether or not to raises exception if the execution fails. Default to True.
+
+        Returns:
+            models.Task: the task after completion
+        """
+        asset_getter = self.get_task
+        status_canceled = models.Status.canceled.value
+        status_failed = models.Status.failed.value
+        statuses_stopped = (models.Status.done.value, models.Status.canceled.value)
+        return self._wait(
+            key=key,
+            asset_getter=asset_getter,
+            polling_period=polling_period,
+            raises=raises,
+            status_canceled=status_canceled,
+            status_failed=status_failed,
+            statuses_stopped=statuses_stopped,
+            timeout=timeout,
+        )
+
+    def _wait(
+        self,
+        *,
+        key: str,
+        asset_getter,
+        polling_period: float,
+        raises: bool,
+        status_failed: str,
+        status_canceled: str,
+        statuses_stopped: Sequence[str],
+        timeout: Optional[float] = None,
+    ):
+        tstart = time.time()
+        while True:
+            asset = asset_getter(key)
+
+            if asset.status in statuses_stopped:
+                break
+
+            if asset.status == models.Status.failed.value and asset.error_type is not None:
+                # when dealing with a failed task, wait for the error_type field of the task to be set
+                # i.e. wait for the registration of the failure report
+                break
+
+            if timeout and time.time() - tstart > timeout:
+                raise exceptions.FutureTimeoutError(f"Future timeout on {asset}")
+
+            time.sleep(polling_period)
+
+        if raises and asset.status == status_failed:
+            raise exceptions.FutureFailureError(f"Future execution failed on {asset}")
+
+        if raises and asset.status == status_canceled:
+            raise exceptions.FutureFailureError(f"Future execution canceled on {asset}")
+
+        return asset
