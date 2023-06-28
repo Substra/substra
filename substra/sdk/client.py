@@ -1001,7 +1001,6 @@ class Client:
         """Wait for the execution of the given task to finish.
 
         It is considered finished when the status is done, failed or cancelled.
-        If a timeout is defined, will raises a `FutureTimeoutError` once it reached it.
 
         Args:
             key (str): the key of the task to wait for.
