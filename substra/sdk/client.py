@@ -956,19 +956,23 @@ class Client:
     def wait_compute_plan(
         self, key: str, *, timeout: Optional[float] = None, polling_period: float = 2.0, raises: bool = True
     ) -> models.ComputePlan:
-        """Block the execution until the compute plan finishes.
+        """Wait for the execution of the given compute plan to finish.
 
         It is considered finished when the status is done, failed or cancelled.
-        If a timeout is defined, will raises a `FutureTimeoutError` once it reached it.
 
         Args:
-            key (str): the key of the compute plan to wait
-            timeout (Optional[float]): maximum time to wait. If set to None, will hang until completion.
-            polling_period (float): time to wait between to checks, in seconds. Default to 2.0.
-            raises (bool): wether or not to raises exception if the execution fails. Default to True.
+            key (str): the key of the compute plan to wait for
+            timeout (float, optional): maximum time to wait, in seconds. If set to None, will hang until completion.
+            polling_period (float): time to wait between two checks, in seconds. Defaults to 2.0.
+            raises (bool): whether to raise an exception if the execution fails. Defaults to True.
 
         Returns:
             models.ComputePlan: the compute plan after completion
+
+        Raises:
+            exceptions.FutureFailureError: The compute plan failed or have been cancelled.
+            exceptions.FutureTimeoutError: The compute plan took more than the duration set in the timeout to complete.
+                Not raised when `timeout == None`
         """
         asset_getter = self.get_compute_plan
         status_failed = models.ComputePlanStatus.failed.value
@@ -994,19 +998,24 @@ class Client:
     def wait_task(
         self, key: str, *, timeout: Optional[float] = None, polling_period: float = 2.0, raises: bool = True
     ) -> models.Task:
-        """Block the execution until the task finishes.
+        """Wait for the execution of the given task to finish.
 
         It is considered finished when the status is done, failed or cancelled.
         If a timeout is defined, will raises a `FutureTimeoutError` once it reached it.
 
         Args:
-            key (str): the key of the task to wait
-            timeout (Optional[float]): maximum time to wait. If set to None, will hang until completion.
-            polling_period (float): time to wait between to checks, in seconds. Default to 2.0.
-            raises (bool): wether or not to raises exception if the execution fails. Default to True.
+            key (str): the key of the task to wait for.
+            timeout (float, optional): maximum time to wait, in seconds. If set to None, will hang until completion.
+            polling_period (float): time to wait between two checks, in seconds. Defaults to 2.0.
+            raises (bool): whether to raise an exception if the execution fails. Defaults to True.
 
         Returns:
             models.Task: the task after completion
+
+         Raises:
+            exceptions.FutureFailureError: The task failed or have been cancelled.
+            exceptions.FutureTimeoutError: The task took more than the duration set in the timeout to complete.
+                Not raised when `timeout == None`
         """
         asset_getter = self.get_task
         status_canceled = models.Status.canceled.value
