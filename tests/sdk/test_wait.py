@@ -6,8 +6,9 @@ from substra.sdk import exceptions
 from substra.sdk.models import ComputePlanStatus
 from substra.sdk.models import Status
 from substra.sdk.models import TaskErrorType
-from substra.test import datastore
-from substra.test.utils import mock_requests
+
+from .. import datastore
+from ..utils import mock_requests
 
 
 def _param_name_maker(arg):
