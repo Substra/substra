@@ -954,7 +954,7 @@ class Client:
 
     @logit
     def wait_compute_plan(
-        self, key: str, *, timeout: Optional[float] = None, polling_period: float = 2.0, raises: bool = True
+        self, key: str, *, timeout: Optional[float] = None, polling_period: float = 2.0, raise_on_failure: bool = True
     ) -> models.ComputePlan:
         """Wait for the execution of the given compute plan to finish.
 
@@ -964,7 +964,7 @@ class Client:
             key (str): the key of the compute plan to wait for
             timeout (float, optional): maximum time to wait, in seconds. If set to None, will hang until completion.
             polling_period (float): time to wait between two checks, in seconds. Defaults to 2.0.
-            raises (bool): whether to raise an exception if the execution fails. Defaults to True.
+            raise_on_failure (bool): whether to raise an exception if the execution fails. Defaults to True.
 
         Returns:
             models.ComputePlan: the compute plan after completion
@@ -987,7 +987,7 @@ class Client:
             key=key,
             asset_getter=asset_getter,
             polling_period=polling_period,
-            raises=raises,
+            raise_on_failure=raise_on_failure,
             status_canceled=status_canceled,
             status_failed=status_failed,
             statuses_stopped=statuses_stopped,
@@ -996,7 +996,7 @@ class Client:
 
     @logit
     def wait_task(
-        self, key: str, *, timeout: Optional[float] = None, polling_period: float = 2.0, raises: bool = True
+        self, key: str, *, timeout: Optional[float] = None, polling_period: float = 2.0, raise_on_failure: bool = True
     ) -> models.Task:
         """Wait for the execution of the given task to finish.
 
@@ -1006,7 +1006,7 @@ class Client:
             key (str): the key of the task to wait for.
             timeout (float, optional): maximum time to wait, in seconds. If set to None, will hang until completion.
             polling_period (float): time to wait between two checks, in seconds. Defaults to 2.0.
-            raises (bool): whether to raise an exception if the execution fails. Defaults to True.
+            raise_on_failure (bool): whether to raise an exception if the execution fails. Defaults to True.
 
         Returns:
             models.Task: the task after completion
@@ -1024,7 +1024,7 @@ class Client:
             key=key,
             asset_getter=asset_getter,
             polling_period=polling_period,
-            raises=raises,
+            raise_on_failure=raise_on_failure,
             status_canceled=status_canceled,
             status_failed=status_failed,
             statuses_stopped=statuses_stopped,
@@ -1037,7 +1037,7 @@ class Client:
         key: str,
         asset_getter,
         polling_period: float,
-        raises: bool,
+        raise_on_failure: bool,
         status_failed: str,
         status_canceled: str,
         statuses_stopped: Sequence[str],
@@ -1060,10 +1060,10 @@ class Client:
 
             time.sleep(polling_period)
 
-        if raises and asset.status == status_failed:
+        if raise_on_failure and asset.status == status_failed:
             raise exceptions.FutureFailureError(f"Future execution failed on {asset}")
 
-        if raises and asset.status == status_canceled:
+        if raise_on_failure and asset.status == status_canceled:
             raise exceptions.FutureFailureError(f"Future execution canceled on {asset}")
 
         return asset
