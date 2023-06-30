@@ -79,7 +79,7 @@ import substratools as tools
 def train(inputs, outputs, task_properties):
     X = inputs['{InputIdentifiers.datasamples}'][0]
     y = inputs['{InputIdentifiers.datasamples}'][1]
-    models_path = inputs.get('{InputIdentifiers.models}', [])
+    models_path = inputs.get('{InputIdentifiers.shared}', [])
     models = [_load_model(model_path) for model_path in models_path]
 
     print(f'Train, get X: {{X}}, y: {{y}}, models: {{models}}')
@@ -95,12 +95,12 @@ def train(inputs, outputs, task_properties):
         res = dict(value=avg + err)
 
     print(f'Train, return {{res}}')
-    _save_model(res, outputs['{OutputIdentifiers.model}'])
+    _save_model(res, outputs['{OutputIdentifiers.shared}'])
 
 @tools.register
 def predict(inputs, outputs, task_properties):
     X = inputs['{InputIdentifiers.datasamples}'][0]
-    model = _load_model(inputs['{InputIdentifiers.model}'])
+    model = _load_model(inputs['{InputIdentifiers.shared}'])
 
     res = [x * model['value'] for x in X]
     print(f'Predict, get X: {{X}}, model: {{model}}, return {{res}}')
@@ -129,14 +129,14 @@ import substratools as tools
 
 @tools.register
 def aggregate(inputs, outputs, task_properties):
-    models_path = inputs.get('{InputIdentifiers.models}', [])
+    models_path = inputs.get('{InputIdentifiers.shared}', [])
     models = [_load_model(model_path) for model_path in models_path]
     print(f'Aggregate models: {{models}}')
     values = [m['value'] for m in models]
     avg = sum(values) / len(values)
     res = dict(value=avg)
     print(f'Aggregate result: {{res}}')
-    _save_model(res, outputs['{OutputIdentifiers.model}'])
+    _save_model(res, outputs['{OutputIdentifiers.shared}'])
 
 @tools.register
 def predict(inputs, outputs, task_properties):

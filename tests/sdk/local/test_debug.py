@@ -204,7 +204,7 @@ class TestsDebug:
 
         assert len(predicttask.inputs) == 3  # data sample + opener + input task
 
-        model_ref = [x for x in predicttask.inputs if x.identifier == InputIdentifiers.model]
+        model_ref = [x for x in predicttask.inputs if x.identifier == InputIdentifiers.shared]
         assert len(model_ref) == 1
         assert model_ref[0].parent_task_key == traintask_key
 
