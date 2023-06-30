@@ -542,9 +542,8 @@ class Client:
             print(df)
             ```
         """
-
+        self.wait_compute_plan(key)
         performances = self._backend.get_performances(key)
-
         return performances
 
     @logit
@@ -770,12 +769,14 @@ class Client:
     def list_task_output_assets(self, key: str) -> List[models.OutputAsset]:
         """List output assets for a specific task, the returned object is described
         in the [models.OutputAsset](sdk_models.md#OutputAsset) model"""
+        self.wait_task(key)
         return self._backend.list_task_output_assets(key)
 
     @logit
     def get_task_output_asset(self, key: str, identifier: str) -> models.OutputAsset:
         """Get an output asset for a specific task with a defined identifier, the returned object is described
         in the [models.OutputAsset](sdk_models.md#OutputAsset) model"""
+        self.wait_task(key)
         return self._backend.get_task_output_asset(key, identifier)
 
     @logit
@@ -889,7 +890,7 @@ class Client:
         )
 
     @logit
-    def download_model(self, key: str, destination_folder) -> None:
+    def download_model(self, key: str, destination_folder) -> pathlib.Path:
         """Download model to destination file.
 
         This model was saved using the 'save_model' function of the class.
@@ -903,7 +904,6 @@ class Client:
         Returns:
             pathlib.Path: Path of the downloaded model
         """
-
         return pathlib.Path(self._backend.download_model(key, os.path.join(destination_folder, f"model_{key}")))
 
     @logit
