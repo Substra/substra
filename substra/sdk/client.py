@@ -233,10 +233,17 @@ class Client:
         insecure: Optional[bool] = None,
         backend_type: Optional[schemas.BackendType] = None,
     ):
+        # The value "" (which is Falsy) is used to bypass configuration file
+        if configuration_file is None:
+            configuration_file = os.getenv("SUBSTRA_CLIENT_CONFIGURATION_FILE_PATH")
+
         if configuration_file and not client_name:
             raise exceptions.ConfigurationInfoError(
                 "Configuration file cannot be used because no `client_name` was given."
             )
+
+        if configuration_file:
+            configuration_file = pathlib.Path(configuration_file)
 
         code_values = {
             "url": url,
