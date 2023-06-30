@@ -225,3 +225,15 @@ class TaskAssetMultipleFoundError(_TaskAssetError):
     def __init__(self, compute_task_key: str, identifier: str):
         message = f"Multiple task assets found with {compute_task_key=} and {identifier=}"
         super().__init__(compute_task_key=compute_task_key, identifier=identifier, message=message)
+
+
+class FutureError(Exception):
+    """Error while waiting a blocking operation to complete"""
+
+
+class FutureTimeoutError(FutureError):
+    """Future execution timed out."""
+
+
+class FutureFailureError(FutureError):
+    """Future execution failed."""

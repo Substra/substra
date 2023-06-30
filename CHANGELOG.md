@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `wait_task` and `wait_compute_plan` to block execution until execution is over ([#368](https://github.com/Substra/substra/pull/368))
+
 ### Changed
 
 - Remove `model` and `models` for input and output identifiers in tests. Replace by `shared` instead. ([#367](https://github.com/Substra/substra/pull/367))
