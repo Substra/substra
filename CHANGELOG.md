@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Pin `pydantic` to `>=1.9.0` & `<2.0.0` as `pydantic` v `2.0.0` has been released with a lot of non backward compatible changes. ([#371](https://github.com/Substra/substra/pull/371))
 
+### Fixed
+
+- `list_task_output_assets` and `get_task_output_asset` wait that the compute task is over before getting assets ([#369](https://github.com/Substra/substra/pull/369))
+- `get_performances` wait that compute plan is over before getting assets ([#369](https://github.com/Substra/substra/pull/369))
 ## [0.45.0](https://github.com/Substra/substra/releases/tag/0.45.0) - 2023-06-12
 
 ### Added
