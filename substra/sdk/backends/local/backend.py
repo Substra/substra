@@ -98,8 +98,8 @@ class Local(base.BaseBackend):
 
         return inputs
 
-    def get_performances(self, key):
-        performances = self._db.get_performances(key)
+    def get_performances(self, compute_plan: models.ComputePlan):
+        performances = self._db.get_performances(compute_plan)
 
         return performances
 

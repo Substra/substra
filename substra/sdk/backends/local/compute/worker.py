@@ -78,10 +78,10 @@ class Worker:
             # delete task working directory
             shutil.rmtree(tmp_dir, ignore_errors=True)
 
-    def _save_cp_performances_as_json(self, compute_plan_key: str, path: Path):
+    def _save_cp_performances_as_json(self, compute_plan: models.ComputePlan, path: Path):
         """Dump a json file containing the performances of the given compute plan in the given path."""
 
-        performances = self._db.get_performances(compute_plan_key)
+        performances = self._db.get_performances(compute_plan)
 
         with (path).open("w", encoding="UTF-8") as json_file:
             json.dump(performances.dict(), json_file, default=str)
@@ -111,7 +111,7 @@ class Worker:
         if update_live_performances:
             live_perf_path = Path(self._local_worker_dir / "live_performances" / compute_plan.key / "performances.json")
             _mkdir(live_perf_path.parent)
-            self._save_cp_performances_as_json(compute_plan.key, live_perf_path)
+            self._save_cp_performances_as_json(compute_plan, live_perf_path)
 
     def _get_cmd_template_inputs_outputs(
         self,

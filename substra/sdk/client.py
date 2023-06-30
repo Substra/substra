@@ -542,8 +542,8 @@ class Client:
             print(df)
             ```
         """
-        self.wait_compute_plan(key)
-        performances = self._backend.get_performances(key)
+        compute_plan = self.wait_compute_plan(key)
+        performances = self._backend.get_performances(compute_plan)
         return performances
 
     @logit
