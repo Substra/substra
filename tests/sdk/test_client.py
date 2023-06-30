@@ -199,3 +199,49 @@ def test_client_configuration_env_var_overrides_config_file(mocker, monkeypatch,
 def test_login_remote_without_url(tmpdir):
     with pytest.raises(exceptions.SDKException):
         Client(backend_type="remote")
+
+
+def test_client_configuration_configuration_file_path_from_env_var(mocker, monkeypatch, config_file):
+    """
+    The configuration file path can be set through an env var
+    """
+    mocker.patch("substra.sdk.Client.login", side_effect=stub_login)
+    monkeypatch.setenv("SUBSTRA_CLIENT_CONFIGURATION_FILE_PATH", config_file)
+    client = Client(client_name="toto")
+    assert client.backend_mode == "remote"
+    assert client._url == "toto-org.com"
+    assert client._token == "toto_file_token"
+    assert client._retry_timeout == 300
+    assert client._insecure is False
+
+
+def test_client_configuration_configuration_file_path_parameter_supercedes_env_var(
+    mocker, monkeypatch, config_file, tmp_path
+):
+    """
+    The configuration file path env var is supercedes by `configuration_file=`
+    """
+    mocker.patch("substra.sdk.Client.login", side_effect=stub_login)
+    monkeypatch.setenv("SUBSTRA_CLIENT_CONFIGURATION_FILE_PATH", config_file)
+
+    config_2_dict = {
+        "toto": {
+            "backend_type": "docker",
+        }
+    }
+    config_2_file = tmp_path / "config.yaml"
+    config_2_file.write_text(yaml.dump(config_2_dict))
+
+    client = Client(configuration_file=config_2_file, client_name="toto")
+    assert client.backend_mode == "docker"
+
+
+def test_client_configuration_file_path_env_var_empty_string(mocker, monkeypatch, config_file):
+    """
+    The configuration file path env var is supercedes by `cconfiguration_file=`
+    """
+    mocker.patch("substra.sdk.Client.login", side_effect=stub_login)
+    monkeypatch.setenv("SUBSTRA_CLIENT_CONFIGURATION_FILE_PATH", config_file)
+
+    client = Client(configuration_file="", client_name="toto")
+    assert client.backend_mode == "subprocess"
