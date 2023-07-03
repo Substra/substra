@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Remove `model` and `models` for input and output identifiers in tests. Replace by `shared` instead. ([#367](https://github.com/Substra/substra/pull/367))
 
+### Fixed
+
+- Pin `pydantic` to `>=1.9.0` & `<2.0.0` as `pydantic` v `2.0.0` has been released with a lot of non backward compatible changes. ([#371](https://github.com/Substra/substra/pull/371))
+
 ## [0.45.0](https://github.com/Substra/substra/releases/tag/0.45.0) - 2023-06-12
 
 ### Added
