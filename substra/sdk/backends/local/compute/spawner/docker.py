@@ -123,6 +123,8 @@ class Docker(BaseSpawner):
             name,
             command=f"@{args_path_docker}",
             volumes=volumes_docker or {},
+            privileged=True,
+            cgroupns="host",
             environment=envs,
             remove=False,
             detach=True,
