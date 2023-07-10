@@ -238,7 +238,7 @@ def test_client_configuration_configuration_file_path_parameter_supercedes_env_v
 
 def test_client_configuration_file_path_env_var_empty_string(mocker, monkeypatch, config_file):
     """
-    The configuration file path env var is supercedes by `cconfiguration_file=`
+    The configuration file path env var is supercedes by `configuration_file=`
     """
     mocker.patch("substra.sdk.Client.login", side_effect=stub_login)
     monkeypatch.setenv("SUBSTRA_CLIENT_CONFIGURATION_FILE_PATH", config_file)
