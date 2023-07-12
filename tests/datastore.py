@@ -593,9 +593,6 @@ COMPUTE_PLAN = {
 }
 
 COMPUTE_PLAN_PERF = {
-    "count": 3,
-    "previous": None,
-    "next": None,
     "results": [
         {
             "compute_task": {
