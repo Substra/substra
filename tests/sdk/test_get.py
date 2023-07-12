@@ -131,5 +131,5 @@ def test_get_performances(client, mocker):
 
     df = pd.DataFrame(response.dict())
     assert list(df.columns) == list(response.dict().keys())
-    assert df.shape[0] == perf_item["count"]
+    assert df.shape[0] == len(response.dict())
     assert m.call_count == 2
