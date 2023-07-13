@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Remove `model` and `models` for input and output identifiers in tests. Replace by `shared` instead. ([#367](https://github.com/Substra/substra/pull/367))
+- Remove pagination on `get_performances` to remove limitation on 1000 first points ([#372](https://github.com/Substra/substra/pull/372))
 
 ### Fixed
 
