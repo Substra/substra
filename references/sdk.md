@@ -354,6 +354,13 @@ get_task(self, key: str) -> substra.sdk.models.Task
 
 Get task by key, the returned object is described
 in the [models.Task](sdk_models.md#Task) model
+## get_task_output_asset
+```text
+get_task_output_asset(self, key: str, identifier: str) -> substra.sdk.models.OutputAsset
+```
+
+Get an output asset for a specific task with a defined identifier, the returned object is described
+in the [models.OutputAsset](sdk_models.md#OutputAsset) model
 ## link_dataset_with_data_samples
 ```text
 link_dataset_with_data_samples(self, dataset_key: str, data_sample_keys: List[str]) -> List[str]
@@ -551,6 +558,20 @@ Possible values: `creation_date`, `start_date`, `end_date`. Default creation_dat
 
  - `models.Task`: the returned object is described in the
 [models.Task](sdk_models.md#Task) model
+## list_task_input_assets
+```text
+list_task_input_assets(self, key: str) -> List[substra.sdk.models.InputAsset]
+```
+
+List input assets for a specific task, the returned object is described
+in the [models.InputAsset](sdk_models.md#InputAsset) model
+## list_task_output_assets
+```text
+list_task_output_assets(self, key: str) -> List[substra.sdk.models.OutputAsset]
+```
+
+List output assets for a specific task, the returned object is described
+in the [models.OutputAsset](sdk_models.md#OutputAsset) model
 ## login
 ```text
 login(self, username, password)
@@ -581,6 +602,53 @@ update_function(self, key: str, name: str)
 ```
 
 None
+## wait_compute_plan
+```text
+wait_compute_plan(self, key: str, *, timeout: Optional[float] = None, polling_period: float = 2.0, raise_on_failure: bool = True) -> substra.sdk.models.ComputePlan
+```
+
+Wait for the execution of the given compute plan to finish.
+It is considered finished when the status is done, failed or cancelled.
+
+**Arguments:**
+ - `key (str, required)`: the key of the compute plan to wait for
+ - `timeout (float, optional)`: maximum time to wait, in seconds. If set to None, will hang until completion.
+ - `polling_period (float, required)`: time to wait between two checks, in seconds. Defaults to 2.0.
+ - `raise_on_failure (bool, required)`: whether to raise an exception if the execution fails. Defaults to True.
+
+**Returns:**
+
+ - `models.ComputePlan`: the compute plan after completion
+
+**Raises:**
+
+ - `exceptions.FutureFailureError`: The compute plan failed or have been cancelled.
+
+**Raises:**
+
+ - `exceptions.FutureTimeoutError`: The compute plan took more than the duration set in the timeout to complete.
+Not raised when `timeout == None`
+## wait_task
+```text
+wait_task(self, key: str, *, timeout: Optional[float] = None, polling_period: float = 2.0, raise_on_failure: bool = True) -> substra.sdk.models.Task
+```
+
+Wait for the execution of the given task to finish.
+It is considered finished when the status is done, failed or cancelled.
+
+**Arguments:**
+ - `key (str, required)`: the key of the task to wait for.
+ - `timeout (float, optional)`: maximum time to wait, in seconds. If set to None, will hang until completion.
+ - `polling_period (float, required)`: time to wait between two checks, in seconds. Defaults to 2.0.
+ - `raise_on_failure (bool, required)`: whether to raise an exception if the execution fails. Defaults to True.
+
+**Returns:**
+
+ - `models.Task`: the task after completion
+Raises:
+   exceptions.FutureFailureError: The task failed or have been cancelled.
+   exceptions.FutureTimeoutError: The task took more than the duration set in the timeout to complete.
+       Not raised when `timeout == None`
 # retry_on_exception
 ```text
 retry_on_exception(exceptions, timeout=300)
