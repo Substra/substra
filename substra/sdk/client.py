@@ -235,7 +235,10 @@ class Client:
     ):
         # The value "" (which is Falsy) is used to bypass configuration file
         if configuration_file is None:
-            configuration_file = os.getenv("SUBSTRA_CLIENT_CONFIGURATION_FILE_PATH")
+            configuration_file = os.getenv("SUBSTRA_CLIENTS_CONFIGURATION_FILE_PATH")
+
+            if configuration_file:
+                logger.info("Getting configuration file path from env var SUBSTRA_CLIENTS_CONFIGURATION_FILE_PATH")
 
         if configuration_file and not client_name:
             raise exceptions.ConfigurationInfoError(
