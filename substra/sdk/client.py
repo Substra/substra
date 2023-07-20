@@ -238,7 +238,10 @@ class Client:
             configuration_file = os.getenv("SUBSTRA_CLIENTS_CONFIGURATION_FILE_PATH")
 
             if configuration_file:
-                logger.info("Getting configuration file path from env var SUBSTRA_CLIENTS_CONFIGURATION_FILE_PATH")
+                logger.info(
+                    "Configuration file path set from env var SUBSTRA_CLIENTS_CONFIGURATION_FILE_PATH: "
+                    f"'{configuration_file}'"
+                )
 
         if configuration_file and not client_name:
             raise exceptions.ConfigurationInfoError(
