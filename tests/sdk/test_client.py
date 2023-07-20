@@ -206,7 +206,7 @@ def test_client_configuration_configuration_file_path_from_env_var(mocker, monke
     The configuration file path can be set through an env var
     """
     mocker.patch("substra.sdk.Client.login", side_effect=stub_login)
-    monkeypatch.setenv("SUBSTRA_CLIENT_CONFIGURATION_FILE_PATH", config_file)
+    monkeypatch.setenv("SUBSTRA_CLIENTS_CONFIGURATION_FILE_PATH", config_file)
     client = Client(client_name="toto")
     assert client.backend_mode == "remote"
     assert client._url == "toto-org.com"
@@ -222,7 +222,7 @@ def test_client_configuration_configuration_file_path_parameter_supercedes_env_v
     The configuration file path env var is supercedes by `configuration_file=`
     """
     mocker.patch("substra.sdk.Client.login", side_effect=stub_login)
-    monkeypatch.setenv("SUBSTRA_CLIENT_CONFIGURATION_FILE_PATH", config_file)
+    monkeypatch.setenv("SUBSTRA_CLIENTS_CONFIGURATION_FILE_PATH", config_file)
 
     config_2_dict = {
         "toto": {
@@ -241,7 +241,7 @@ def test_client_configuration_file_path_env_var_empty_string(mocker, monkeypatch
     The configuration file path env var is supercedes by `configuration_file=`
     """
     mocker.patch("substra.sdk.Client.login", side_effect=stub_login)
-    monkeypatch.setenv("SUBSTRA_CLIENT_CONFIGURATION_FILE_PATH", config_file)
+    monkeypatch.setenv("SUBSTRA_CLIENTS_CONFIGURATION_FILE_PATH", config_file)
 
     client = Client(configuration_file="", client_name="toto")
     assert client.backend_mode == "subprocess"
