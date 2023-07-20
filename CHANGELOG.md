@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `wait_task` and `wait_compute_plan` to block execution until execution is over ([#368](https://github.com/Substra/substra/pull/368))
+- Configuration file path can be set with env var `SUBSTRA_CLIENTS_CONFIGURATION_FILE_PATH` ([#370](https://github.com/Substra/substra/pull/370))
 
 ### Changed
 
