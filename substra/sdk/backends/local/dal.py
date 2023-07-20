@@ -104,13 +104,14 @@ class DataAccess:
                 return self._remote.get(type_, key)
             raise
 
-    def get_performances(self, compute_plan: models.ComputePlan) -> models.Performances:
+    def get_performances(self, key: str) -> models.Performances:
         """Get the performances of a given compute. Return models.Performances() object
         easily convertible to dict, filled by the performances data of done tasks that output a performance.
         """
+        compute_plan = self.get(schemas.Type.ComputePlan, key)
         list_tasks = self.list(
             schemas.Type.Task,
-            filters={"compute_plan_key": [compute_plan.key]},
+            filters={"compute_plan_key": [key]},
             order_by="rank",
             ascending=True,
         )

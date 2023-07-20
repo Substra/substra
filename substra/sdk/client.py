@@ -530,10 +530,11 @@ class Client:
         return self._backend.get(schemas.Type.ComputePlan, key)
 
     @logit
-    def get_performances(self, key: str) -> models.Performances:
+    def get_performances(self, key: str, *, wait_completion: bool = False) -> models.Performances:
         """Get the compute plan performances by key, the returned object is described
         in the [models.Performances](sdk_models.md#Performances) and easily convertible
-        to pandas dataframe.
+        to pandas dataframe. You can wait for compute task to finish by setting
+        `wait_completion = True`
 
         Example:
             ```python
@@ -542,8 +543,9 @@ class Client:
             print(df)
             ```
         """
-        compute_plan = self.wait_compute_plan(key)
-        performances = self._backend.get_performances(compute_plan)
+        if wait_completion:
+            self.wait_compute_plan(key)
+        performances = self._backend.get_performances(key)
         return performances
 
     @logit
@@ -766,17 +768,21 @@ class Client:
         return self._backend.list_task_input_assets(key)
 
     @logit
-    def list_task_output_assets(self, key: str) -> List[models.OutputAsset]:
+    def list_task_output_assets(self, key: str, *, wait_completion: bool = False) -> List[models.OutputAsset]:
         """List output assets for a specific task, the returned object is described
-        in the [models.OutputAsset](sdk_models.md#OutputAsset) model"""
-        self.wait_task(key)
+        in the [models.OutputAsset](sdk_models.md#OutputAsset) model. You can wait
+        for compute task to finish by setting `wait_completion = True`"""
+        if wait_completion:
+            self.wait_task(key)
         return self._backend.list_task_output_assets(key)
 
     @logit
-    def get_task_output_asset(self, key: str, identifier: str) -> models.OutputAsset:
+    def get_task_output_asset(self, key: str, identifier: str, *, wait_completion: bool = False) -> models.OutputAsset:
         """Get an output asset for a specific task with a defined identifier, the returned object is described
-        in the [models.OutputAsset](sdk_models.md#OutputAsset) model"""
-        self.wait_task(key)
+        in the [models.OutputAsset](sdk_models.md#OutputAsset) model. You can wait
+        for compute task to finish by setting `wait_completion = True`"""
+        if wait_completion:
+            self.wait_task(key)
         return self._backend.get_task_output_asset(key, identifier)
 
     @logit
