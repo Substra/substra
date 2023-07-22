@@ -46,6 +46,7 @@ setup(
         "pydantic>=1.9.0, <2.0.0",
         "tqdm",
         "python-slugify",
+        "yaml",
     ],
     python_requires=">=3.8",
     extras_require={
