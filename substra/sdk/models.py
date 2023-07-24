@@ -10,7 +10,7 @@ from typing import Type
 from typing import Union
 
 import pydantic
-from pydantic import AnyUrl
+from pydantic import ConfigDict, AnyUrl
 from pydantic import DirectoryPath
 from pydantic import FilePath
 from pydantic.fields import Field
@@ -113,8 +113,8 @@ class DataSample(_Model):
 
     key: str
     owner: str
-    data_manager_keys: Optional[List[str]]
-    path: Optional[DirectoryPath]
+    data_manager_keys: Optional[List[str]] = None
+    path: Optional[DirectoryPath] = None
     creation_date: datetime
 
     type_: ClassVar[str] = schemas.Type.DataSample
@@ -227,7 +227,7 @@ class OutModel(schemas._PydanticConfig):
 
     key: str
     compute_task_key: str
-    address: Optional[InModel]
+    address: Optional[InModel] = None
     permissions: Permissions
     owner: str
     creation_date: datetime
@@ -241,9 +241,9 @@ class OutModel(schemas._PydanticConfig):
 
 class InputRef(schemas._PydanticConfig):
     identifier: str
-    asset_key: Optional[str]
-    parent_task_key: Optional[str]
-    parent_task_output_identifier: Optional[str]
+    asset_key: Optional[str] = None
+    parent_task_key: Optional[str] = None
+    parent_task_output_identifier: Optional[str] = None
 
     # either (asset_key) or (parent_task_key, parent_task_output_identifier) must be specified
     _check_asset_key_or_parent_ref = pydantic.root_validator(allow_reuse=True)(schemas.check_asset_key_or_parent_ref)
@@ -254,9 +254,7 @@ class ComputeTaskOutput(schemas._PydanticConfig):
 
     permissions: Permissions
     is_transient: bool = Field(False, alias="transient")
-
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class Task(_Model):
@@ -267,11 +265,11 @@ class Task(_Model):
     metadata: Dict[str, str]
     status: Status
     worker: str
-    rank: Optional[int]
+    rank: Optional[int] = None
     tag: str
     creation_date: datetime
-    start_date: Optional[datetime]
-    end_date: Optional[datetime]
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
     error_type: Optional[TaskErrorType] = None
     inputs: List[InputRef]
     outputs: Dict[str, ComputeTaskOutput]
@@ -310,14 +308,14 @@ class ComputePlan(_Model):
     canceled_count: int = 0
     failed_count: int = 0
     done_count: int = 0
-    failed_task_key: Optional[str]
+    failed_task_key: Optional[str] = None
     status: ComputePlanStatus
     creation_date: datetime
-    start_date: Optional[datetime]
-    end_date: Optional[datetime]
-    estimated_end_date: Optional[datetime]
-    duration: Optional[int]
-    creator: Optional[str]
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    estimated_end_date: Optional[datetime] = None
+    duration: Optional[int] = None
+    creator: Optional[str] = None
 
     type_: ClassVar[str] = schemas.Type.ComputePlan
 

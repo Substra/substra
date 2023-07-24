@@ -12,6 +12,7 @@ import pydantic
 from pydantic.fields import Field
 
 from substra.sdk import utils
+from pydantic import ConfigDict
 
 _SERVER_NAMES = {
     "dataset": "data_manager",
@@ -75,10 +76,7 @@ class Type(enum.Enum):
 
 class _PydanticConfig(pydantic.BaseModel):
     """Shared configuration for all schemas here"""
-
-    class Config:
-        # Ignore extra fields, leave them unexposed
-        extra = "ignore"
+    model_config = ConfigDict(extra="ignore")
 
 
 class _Spec(_PydanticConfig):
@@ -136,8 +134,8 @@ class DataSampleSpec(_Spec):
     the 'paths' field.
     """
 
-    path: Optional[pathlib.Path]  # Path to the data sample if only one
-    paths: Optional[List[pathlib.Path]]  # Path to the data samples if several
+    path: Optional[pathlib.Path] = None  # Path to the data sample if only one
+    paths: Optional[List[pathlib.Path]] = None  # Path to the data samples if several
     data_manager_keys: typing.List[str]
 
     type_: typing.ClassVar[Type] = Type.DataSample
@@ -182,9 +180,9 @@ class InputRef(_PydanticConfig):
     """Specification of a compute task input"""
 
     identifier: str
-    asset_key: Optional[str]
-    parent_task_key: Optional[str]
-    parent_task_output_identifier: Optional[str]
+    asset_key: Optional[str] = None
+    parent_task_key: Optional[str] = None
+    parent_task_output_identifier: Optional[str] = None
 
     # either (asset_key) or (parent_task_key, parent_task_output_identifier) must be specified
     _check_asset_key_or_parent_ref = pydantic.root_validator(allow_reuse=True)(check_asset_key_or_parent_ref)
@@ -195,9 +193,7 @@ class ComputeTaskOutputSpec(_PydanticConfig):
 
     permissions: Permissions
     is_transient: Optional[bool] = Field(False, alias="transient")
-
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class ComputePlanTaskSpec(_Spec):
@@ -209,15 +205,15 @@ class ComputePlanTaskSpec(_Spec):
     task_id: str
     function_key: str
     worker: str
-    tag: Optional[str]
-    metadata: Optional[Dict[str, str]]
-    inputs: Optional[List[InputRef]]
-    outputs: Optional[Dict[str, ComputeTaskOutputSpec]]
+    tag: Optional[str] = None
+    metadata: Optional[Dict[str, str]] = None
+    inputs: Optional[List[InputRef]] = None
+    outputs: Optional[Dict[str, ComputeTaskOutputSpec]] = None
 
 
 class _BaseComputePlanSpec(_Spec):
     key: str
-    tasks: Optional[List[ComputePlanTaskSpec]]
+    tasks: Optional[List[ComputePlanTaskSpec]] = None
 
 
 class ComputePlanSpec(_BaseComputePlanSpec):
@@ -227,9 +223,9 @@ class ComputePlanSpec(_BaseComputePlanSpec):
     """
 
     key: str = pydantic.Field(default_factory=lambda: str(uuid.uuid4()))
-    tag: Optional[str]
+    tag: Optional[str] = None
     name: str
-    metadata: Optional[Dict[str, str]]
+    metadata: Optional[Dict[str, str]] = None
 
     type_: typing.ClassVar[Type] = Type.ComputePlan
 
@@ -267,7 +263,7 @@ class DatasetSpec(_Spec):
     type: str
     description: pathlib.Path  # Path to the description file
     permissions: Permissions
-    metadata: Optional[Dict[str, str]]
+    metadata: Optional[Dict[str, str]] = None
     logs_permission: Permissions
 
     type_: typing.ClassVar[Type] = Type.Dataset
@@ -346,7 +342,7 @@ class FunctionSpec(_Spec):
     description: pathlib.Path
     file: pathlib.Path
     permissions: Permissions
-    metadata: Optional[Dict[str, str]]
+    metadata: Optional[Dict[str, str]] = None
     inputs: Optional[List[FunctionInputSpec]] = None
     outputs: Optional[List[FunctionOutputSpec]] = None
 
@@ -406,14 +402,14 @@ class UpdateFunctionSpec(_Spec):
 
 class TaskSpec(_Spec):
     key: str = pydantic.Field(default_factory=lambda: str(uuid.uuid4()))
-    tag: Optional[str]
-    compute_plan_key: Optional[str]
-    metadata: Optional[Dict[str, str]]
+    tag: Optional[str] = None
+    compute_plan_key: Optional[str] = None
+    metadata: Optional[Dict[str, str]] = None
     function_key: str
     worker: str
     rank: Optional[int] = None
-    inputs: Optional[List[InputRef]]
-    outputs: Optional[Dict[str, ComputeTaskOutputSpec]]
+    inputs: Optional[List[InputRef]] = None
+    outputs: Optional[Dict[str, ComputeTaskOutputSpec]] = None
 
     type_: typing.ClassVar[Type] = Type.Task
 
