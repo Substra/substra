@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.46.0](https://github.com/Substra/substra/releases/tag/0.46.0) - 2023-07-25
+
 ### Added
 
 - `wait_task` and `wait_compute_plan` to block execution until execution is over ([#368](https://github.com/Substra/substra/pull/368))
