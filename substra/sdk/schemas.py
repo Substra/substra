@@ -7,6 +7,7 @@ import uuid
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Union
 
 import pydantic
 from pydantic.fields import Field
@@ -76,6 +77,7 @@ class Type(enum.Enum):
 
 class _PydanticConfig(pydantic.BaseModel):
     """Shared configuration for all schemas here"""
+
     model_config = ConfigDict(extra="ignore")
 
 
@@ -143,7 +145,7 @@ class DataSampleSpec(_Spec):
     def is_many(self):
         return self.paths and len(self.paths) > 0
 
-    @pydantic.root_validator(pre=True)
+    @pydantic.model_validator(mode="before")
     def exclusive_paths(cls, values):
         """Check that one and only one path(s) field is defined."""
         if "paths" in values and "path" in values:
@@ -167,8 +169,8 @@ class DataSampleSpec(_Spec):
 def check_asset_key_or_parent_ref(cls, values):
     """Check that either (asset key) or (parent_task_key, parent_task_output_identifier) are set, but not both."""
 
-    has_asset_key = bool(values.get("asset_key"))
-    has_parent = bool(values.get("parent_task_key")) and bool(values.get("parent_task_output_identifier"))
+    has_asset_key = bool(dict(values).get("asset_key"))
+    has_parent = bool(dict(values).get("parent_task_key")) and bool(dict(values).get("parent_task_output_identifier"))
 
     if has_asset_key != has_parent:  # xor
         return values
@@ -185,7 +187,7 @@ class InputRef(_PydanticConfig):
     parent_task_output_identifier: Optional[str] = None
 
     # either (asset_key) or (parent_task_key, parent_task_output_identifier) must be specified
-    _check_asset_key_or_parent_ref = pydantic.root_validator(allow_reuse=True)(check_asset_key_or_parent_ref)
+    _check_asset_key_or_parent_ref = pydantic.model_validator(mode="before")(check_asset_key_or_parent_ref)
 
 
 class ComputeTaskOutputSpec(_PydanticConfig):
@@ -206,7 +208,7 @@ class ComputePlanTaskSpec(_Spec):
     function_key: str
     worker: str
     tag: Optional[str] = None
-    metadata: Optional[Dict[str, str]] = None
+    metadata: Optional[Union[Dict[str, str], Dict[str, int]]] = None
     inputs: Optional[List[InputRef]] = None
     outputs: Optional[Dict[str, ComputeTaskOutputSpec]] = None
 
@@ -289,7 +291,7 @@ class FunctionInputSpec(_Spec):
     optional: bool
     kind: AssetKind
 
-    @pydantic.root_validator
+    @pydantic.model_validator(mode="before")
     def _check_identifiers(cls, values):
         """Checks that the multiplicity and the optionality of a data manager is always set to False"""
         if values["kind"] == AssetKind.data_manager:
@@ -323,7 +325,7 @@ class FunctionOutputSpec(_Spec):
     kind: AssetKind
     multiple: bool
 
-    @pydantic.root_validator
+    @pydantic.model_validator(mode="before")
     def _check_performance(cls, values):
         """Checks that the performance is always set to False"""
         if values.get("kind") == AssetKind.performance and values.get("multiple"):
@@ -373,10 +375,12 @@ class FunctionSpec(_Spec):
         # Computed fields using `@property` are not dumped when `exclude_unset` flag is enabled,
         # this is why we need to reimplement this custom function.
         data["inputs"] = (
-            {input.identifier: input.dict(exclude={"identifier"}) for input in self.inputs} if self.inputs else {}
+            {input.identifier: input.dict(exclude={"identifier"}) for input in self.inputs} if self.inputs else dict()
         )
         data["outputs"] = (
-            {output.identifier: output.dict(exclude={"identifier"}) for output in self.outputs} if self.outputs else {}
+            {output.identifier: output.dict(exclude={"identifier"}) for output in self.outputs}
+            if self.outputs
+            else dict()
         )
 
         if self.Meta.file_attributes:
@@ -404,7 +408,7 @@ class TaskSpec(_Spec):
     key: str = pydantic.Field(default_factory=lambda: str(uuid.uuid4()))
     tag: Optional[str] = None
     compute_plan_key: Optional[str] = None
-    metadata: Optional[Dict[str, str]] = None
+    metadata: Optional[Union[Dict[str, str], Dict[str, int]]] = None
     function_key: str
     worker: str
     rank: Optional[int] = None
@@ -419,7 +423,7 @@ class TaskSpec(_Spec):
         # this is why we need to reimplement this custom function.
         data = json.loads(self.json(exclude_unset=True))
         data["key"] = self.key
-        data["inputs"] = [input.dict() for input in self.inputs] if self.inputs else []
+        data["inputs"] = [input.model_dump() for input in self.inputs] if self.inputs else []
         data["outputs"] = {k: v.dict(by_alias=True) for k, v in self.outputs.items()} if self.outputs else {}
         yield data, None
 
