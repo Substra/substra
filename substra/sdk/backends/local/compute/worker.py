@@ -84,7 +84,7 @@ class Worker:
         performances = self._db.get_performances(compute_plan_key)
 
         with (path).open("w", encoding="UTF-8") as json_file:
-            json.dump(performances.dict(), json_file, default=str)
+            json.dump(performances.model_dump(), json_file, default=str)
 
     def _get_asset_unknown_type(self, asset_key, possible_types: List[schemas.Type]) -> Tuple[Any, schemas.Type]:
         for asset_type in possible_types:

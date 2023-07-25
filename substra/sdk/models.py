@@ -173,8 +173,8 @@ class Function(_Model):
     permissions: Permissions
     metadata: Dict[str, str]
     creation_date: datetime
-    inputs: List[FunctionInput]
-    outputs: List[FunctionOutput]
+    inputs: List[schemas.FunctionInputSpec]
+    outputs: List[schemas.FunctionOutputSpec]
 
     description: _File
     function: _File
@@ -190,7 +190,7 @@ class Function(_Model):
         if isinstance(v, dict):
             # Transform the inputs dict to a list
             return [
-                FunctionInput(
+                schemas.FunctionInputSpec(
                     identifier=identifier,
                     kind=function_input["kind"],
                     optional=function_input["optional"],
@@ -246,7 +246,7 @@ class InputRef(schemas._PydanticConfig):
     parent_task_output_identifier: Optional[str] = None
 
     # either (asset_key) or (parent_task_key, parent_task_output_identifier) must be specified
-    _check_asset_key_or_parent_ref = pydantic.root_validator(allow_reuse=True)(schemas.check_asset_key_or_parent_ref)
+    _check_asset_key_or_parent_ref = pydantic.model_validator(mode="before")(schemas.check_asset_key_or_parent_ref)
 
 
 class ComputeTaskOutput(schemas._PydanticConfig):
@@ -262,7 +262,7 @@ class Task(_Model):
     function: Function
     owner: str
     compute_plan_key: str
-    metadata: Dict[str, str]
+    metadata: Union[Dict[str, str], Dict[str, int]]
     status: Status
     worker: str
     rank: Optional[int] = None
@@ -361,7 +361,8 @@ class Organization(schemas._PydanticConfig):
     type_: ClassVar[str] = schemas.Type.Organization
 
 
-class OrganizationInfoConfig(schemas._PydanticConfig):
+class OrganizationInfoConfig(schemas._PydanticConfig, extra="allow"):
+    model_config = ConfigDict(protected_namespaces=())
     model_export_enabled: bool
 
 
