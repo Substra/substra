@@ -63,7 +63,9 @@ class Client:
             raise exceptions.HTTPError.from_request_exception(e)
 
         try:
-            token = r.json()["token"]
+            rj = r.json()
+            token = rj["token"]
+            expires_at = rj["expires_at"]
         except json.decoder.JSONDecodeError:
             # sometimes requests seem to be fine, but the json is not being found
             # this might be if the url seems to be correct (in the syntax)
@@ -71,6 +73,10 @@ class Client:
             raise exceptions.BadConfiguration(
                 "Unable to get token from json response. " f"Make sure that given url: {self._base_url} is correct"
             )
+        logger.warning(
+            "Using Client.login with credentials is discouraged: you should generate a token on the web UI instead\n"
+            f"Your session will expire: {expires_at}"
+        )
         self._headers["Authorization"] = f"Token {token}"
 
         return token
