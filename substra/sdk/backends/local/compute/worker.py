@@ -78,7 +78,7 @@ class Worker:
             # delete task working directory
             shutil.rmtree(tmp_dir, ignore_errors=True)
 
-    def _save_cp_performances_as_json(self, compute_plan_key: str, path: Path):
+    def _save_cp_performances_as_json(self, compute_plan_key: str, path: Path) -> None:
         """Dump a json file containing the performances of the given compute plan in the given path."""
 
         performances = self._db.get_performances(compute_plan_key)

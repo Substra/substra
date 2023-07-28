@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `wait_completion` param on `get_performances`, `list_task_output_assets` and `get_task_output_asset` to block execution until execution is over ([#368](https://github.com/Substra/substra/pull/368))
+- `list_task_output_assets` and `get_task_output_asset` wait that the compute task is over before getting assets ([#369](https://github.com/Substra/substra/pull/369))
+
 ## [0.46.0](https://github.com/Substra/substra/releases/tag/0.46.0) - 2023-07-25
 
 ### Added

@@ -104,7 +104,7 @@ class DataAccess:
                 return self._remote.get(type_, key)
             raise
 
-    def get_performances(self, key):
+    def get_performances(self, key: str) -> models.Performances:
         """Get the performances of a given compute. Return models.Performances() object
         easily convertible to dict, filled by the performances data of done tasks that output a performance.
         """

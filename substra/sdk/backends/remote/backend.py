@@ -74,12 +74,13 @@ class Remote(base.BaseBackend):
         )
         return [models.InputAsset(**i) for i in inputs]
 
-    def get_performances(self, key):
+    def get_performances(self, key: str) -> models.Performances:
         """Get an compute plan performance by key."""
 
         compute_plan = self.get(schemas.Type.ComputePlan, key)
         response = self._client.list(schemas.Type.ComputePlan.to_server(), path=key + "/perf", paginated=False)
         results = response["results"]
+
         performances = models.Performances()
 
         for test_task in results:
