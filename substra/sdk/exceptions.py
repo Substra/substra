@@ -142,6 +142,24 @@ class BadLoginException(RequestException):
     pass
 
 
+class UsernamePasswordLoginDisabledException(RequestException):
+    """The server disabled the endpoint, preventing the use of Client.login"""
+
+    @classmethod
+    def from_request_exception(cls, request_exception):
+        base = super().from_request_exception(request_exception)
+        return cls(
+            base.msg
+            + (
+                "\n\nAuthenticating with username/password is disabled.\n"
+                "Log onto the frontend for your instance and generate a token there, "
+                'then use it in the Client(token="...") constructor: '
+                "https://docs.substra.org/en/stable/documentation/api_tokens_generation.html"
+            ),
+            base.status_code,
+        )
+
+
 class ConfigurationInfoError(SDKException):
     """ConfigurationInfoError"""
 

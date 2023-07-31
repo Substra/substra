@@ -60,6 +60,9 @@ class Client:
             if e.response.status_code in (400, 401):
                 raise exceptions.BadLoginException.from_request_exception(e)
 
+            if e.response.status_code == 410:
+                raise exceptions.UsernamePasswordLoginDisabledException.from_request_exception(e)
+
             raise exceptions.HTTPError.from_request_exception(e)
 
         try:
