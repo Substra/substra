@@ -49,7 +49,7 @@ Specification for updating a dataset
 ```
 
 ## FunctionSpec
-Specification for creating an function
+Specification for creating a function
 
 note : metadata field does not accept strings containing '__' as dict key
 ```text
