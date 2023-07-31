@@ -1,6 +1,8 @@
 import json
 import logging
 import time
+from datetime import datetime
+from datetime import timezone
 from typing import Dict
 from typing import List
 from typing import Union
@@ -13,6 +15,19 @@ from substra.sdk import utils
 from substra.sdk.backends.remote import request_formatter
 
 logger = logging.getLogger(__name__)
+
+
+def _warn_of_session_expiration(expiration: str) -> None:
+    try:
+        duration = datetime.fromisoformat(expiration) - datetime.now(timezone.utc)
+        if duration.days:
+            duration_msg = f"{duration.days} days"
+        else:
+            duration_msg = f"{duration.seconds//3600} hours"
+        expires_at = f"in {duration_msg} ({expiration})"
+    except ValueError:  # Python 3.11 parses more formats than previous versions
+        expires_at = expiration
+    logger.warning(f"Your session will expire {expires_at}")
 
 
 class Client:
@@ -68,7 +83,6 @@ class Client:
         try:
             rj = r.json()
             token = rj["token"]
-            expires_at = rj["expires_at"]
         except json.decoder.JSONDecodeError:
             # sometimes requests seem to be fine, but the json is not being found
             # this might be if the url seems to be correct (in the syntax)
@@ -76,10 +90,13 @@ class Client:
             raise exceptions.BadConfiguration(
                 "Unable to get token from json response. " f"Make sure that given url: {self._base_url} is correct"
             )
+
         logger.warning(
-            "Using Client.login with credentials is discouraged: you should generate a token on the web UI instead\n"
-            f"Your session will expire: {expires_at}"
+            "Logging in with username/password is discouraged; "
+            "you should generate a token on the web UI instead: "
+            "https://docs.substra.org/en/stable/documentation/api_tokens_generation.html"
         )
+        _warn_of_session_expiration(rj["expires_at"])
         self._headers["Authorization"] = f"Token {token}"
 
         return token
