@@ -34,7 +34,7 @@ def extract_files(data, file_attributes):
     files = {}
     for k, f in paths.items():
         if not os.path.exists(f):
-            raise exceptions.LoadDataException(f"The '{k}' attribute file ({f}) does not exit.")
+            raise exceptions.LoadDataException(f"The '{k}' attribute file ({f}) does not exist.")
         files[k] = open(f, "rb")
 
     try:
