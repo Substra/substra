@@ -16,7 +16,7 @@ class RequestException(SDKException):
     def from_request_exception(cls, request_exception):
         msg = None
         try:
-            msg = request_exception.response.json()["message"]
+            msg = request_exception.response.json()["detail"]
             msg = f"{request_exception}: {msg}"
         except Exception:
             msg = str(request_exception)
@@ -63,7 +63,7 @@ class InvalidRequest(HTTPError):
 
         get_method = getattr(error, "get", None)
         if callable(get_method):
-            msg = get_method("message", str(error))
+            msg = get_method("detail", str(error))
         else:
             msg = str(error)
 
@@ -91,7 +91,7 @@ class RequestTimeout(HTTPError):
         r = request_exception.response.json()
 
         try:
-            key = r["key"] if "key" in r else r["message"].get("key")
+            key = r["key"] if "key" in r else r["detail"].get("key")
         except (AttributeError, KeyError):
             # XXX this is the case when doing a POST query to update the
             #     data manager for instance
@@ -197,7 +197,7 @@ class KeyAlreadyExistsError(Exception):
 
 
 class _TaskAssetError(Exception):
-    """Base eception class for task asset error"""
+    """Base exception class for task asset error"""
 
     def __init__(self, *, compute_task_key: str, identifier: str, message: str):
         self.compute_task_key = compute_task_key
