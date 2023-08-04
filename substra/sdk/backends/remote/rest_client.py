@@ -2,6 +2,7 @@ import json
 import logging
 import time
 from datetime import datetime
+from datetime import timedelta
 from datetime import timezone
 from typing import Dict
 from typing import List
@@ -18,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 def _warn_of_session_expiration(expiration: str) -> None:
+    log_level = logging.INFO
     try:
         duration = datetime.fromisoformat(expiration) - datetime.now(timezone.utc)
         if duration.days:
@@ -25,9 +27,11 @@ def _warn_of_session_expiration(expiration: str) -> None:
         else:
             duration_msg = f"{duration.seconds//3600} hours"
         expires_at = f"in {duration_msg} ({expiration})"
+        if duration < timedelta(hours=4):
+            log_level = logging.WARNING
     except ValueError:  # Python 3.11 parses more formats than previous versions
         expires_at = expiration
-    logger.warning(f"Your session will expire {expires_at}")
+    logger.log(log_level, f"Your session will expire {expires_at}")
 
 
 class Client:
@@ -75,7 +79,10 @@ class Client:
             if e.response.status_code in (400, 401):
                 raise exceptions.BadLoginException.from_request_exception(e)
 
-            if e.response.status_code == 410:
+            if (
+                e.response.status_code == 403
+                and getattr(e.response, "substra_identifier", None) == "implicit_login_disabled"
+            ):
                 raise exceptions.UsernamePasswordLoginDisabledException.from_request_exception(e)
 
             raise exceptions.HTTPError.from_request_exception(e)
@@ -91,7 +98,7 @@ class Client:
                 "Unable to get token from json response. " f"Make sure that given url: {self._base_url} is correct"
             )
 
-        logger.warning(
+        logger.info(
             "Logging in with username/password is discouraged; "
             "you should generate a token on the web UI instead: "
             "https://docs.substra.org/en/stable/documentation/api_tokens_generation.html"
