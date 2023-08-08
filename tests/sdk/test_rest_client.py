@@ -48,10 +48,10 @@ def test_post_success(mocker, config):
 @pytest.mark.parametrize(
     "status_code, http_response, sdk_exception",
     [
-        (400, {"message": "Invalid Request"}, exceptions.InvalidRequest),
-        (401, {"message": "Invalid username/password"}, exceptions.AuthenticationError),
-        (403, {"message": "Unauthorized"}, exceptions.AuthorizationError),
-        (404, {"message": "Not Found"}, exceptions.NotFound),
+        (400, {"detail": "Invalid Request"}, exceptions.InvalidRequest),
+        (401, {"detail": "Invalid username/password"}, exceptions.AuthenticationError),
+        (403, {"detail": "Unauthorized"}, exceptions.AuthorizationError),
+        (404, {"detail": "Not Found"}, exceptions.NotFound),
         (408, {"key": "a-key"}, exceptions.RequestTimeout),
         (408, {}, exceptions.RequestTimeout),
         (500, "CRASH", exceptions.InternalServerError),
