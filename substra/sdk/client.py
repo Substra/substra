@@ -312,11 +312,12 @@ class Client:
             self._token = self.login(config_dict["username"].value, config_dict["password"].value)
 
     def __enter__(self):
-        # for use in a `with` statement
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        # for use in a `with` statement
+        self.logout()
+
+    def __del__(self):
         self.logout()
 
     def _get_backend(self, backend_type: schemas.BackendType):
@@ -381,6 +382,7 @@ class Client:
     def logout(self) -> None:
         """
         Log out from a remote server, if Client.login was used
+        (otherwise, nothing happens)
         """
         if not self._backend:
             raise exceptions.SDKException("No backend found")

@@ -12,10 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `wait_completion` param on `get_performances`, `list_task_output_assets` and `get_task_output_asset` to block execution until execution is over ([#368](https://github.com/Substra/substra/pull/368))
 - `list_task_output_assets` and `get_task_output_asset` wait that the compute task is over before getting assets ([#369](https://github.com/Substra/substra/pull/369))
 - warning and help message when logging in with username/password rather than token ([#378](https://github.com/Substra/substra/pull/378))
+- new `Client.logout` function, mirrorring `Client.login` ([#381](https://github.com/Substra/substra/pull/381))
+- `Client` can now be the expression in a `with` statement ([#381](https://github.com/Substra/substra/pull/381))
 
 ### Changed
 
 - change how API responses are parsed to match server changes ([#379](https://github.com/Substra/substra/pull/379))
+- `Client` will now terminate the sessions it starts when given username & password ([#381](https://github.com/Substra/substra/pull/381))
 
 ### Fixed
 

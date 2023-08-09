@@ -112,13 +112,13 @@ class Client:
 
     def logout(self) -> None:
         if not self._token_id:
-            logger.debug("Logging out has no effect (did not call Client.login)")
             return
         try:
             r = requests.delete(
                 f"{self._base_url}/active-api-tokens/", params={"id": self._token_id}, headers=self._headers
             )
             r.raise_for_status()
+            self._token_id = None
             logger.info("Successfully logged out")
         except requests.exceptions.ConnectionError as e:
             raise exceptions.ConnectionError.from_request_exception(e)
