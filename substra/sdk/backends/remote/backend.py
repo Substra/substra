@@ -42,6 +42,9 @@ class Remote(base.BaseBackend):
     def login(self, username, password):
         return self._client.login(username, password)
 
+    def logout(self):
+        return self._client.logout()
+
     def get(self, asset_type, key):
         """Get an asset by key."""
         asset = self._client.get(asset_type.to_server(), key)

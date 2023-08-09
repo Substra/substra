@@ -311,6 +311,14 @@ class Client:
             )
             self._token = self.login(config_dict["username"].value, config_dict["password"].value)
 
+    def __enter__(self):
+        # for use in a `with` statement
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        # for use in a `with` statement
+        self.logout()
+
     def _get_backend(self, backend_type: schemas.BackendType):
         # Three possibilities:
         # - remote: get a remote backend
@@ -368,6 +376,16 @@ class Client:
             raise exceptions.SDKException("No backend found")
         self._token = self._backend.login(username, password)
         return self._token
+
+    @logit
+    def logout(self) -> None:
+        """
+        Log out from a remote server, if Client.login was used
+        """
+        if not self._backend:
+            raise exceptions.SDKException("No backend found")
+        if hasattr(self._backend, "logout"):
+            self._backend.logout()
 
     @staticmethod
     def _get_spec(asset_type, data):

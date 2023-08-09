@@ -52,6 +52,7 @@ class Client:
         if not url:
             raise exceptions.SDKException("url required to connect to the Substra server")
         self._base_url = url[:-1] if url.endswith("/") else url
+        self._token_id = None  # filled in by self.login
 
     def login(self, username, password):
         # we do not use self._headers in order to avoid existing tokens to be sent alongside the
@@ -90,6 +91,7 @@ class Client:
         try:
             rj = r.json()
             token = rj["token"]
+            self._token_id = rj["id"]
         except json.decoder.JSONDecodeError:
             # sometimes requests seem to be fine, but the json is not being found
             # this might be if the url seems to be correct (in the syntax)
@@ -107,6 +109,23 @@ class Client:
         self._headers["Authorization"] = f"Token {token}"
 
         return token
+
+    def logout(self) -> None:
+        if not self._token_id:
+            logger.debug("Logging out has no effect (did not call Client.login)")
+            return
+        try:
+            r = requests.delete(
+                f"{self._base_url}/active-api-tokens/", params={"id": self._token_id}, headers=self._headers
+            )
+            r.raise_for_status()
+            logger.info("Successfully logged out")
+        except requests.exceptions.ConnectionError as e:
+            raise exceptions.ConnectionError.from_request_exception(e)
+        except requests.exceptions.Timeout as e:
+            raise exceptions.Timeout.from_request_exception(e)
+        except requests.exceptions.HTTPError as e:
+            raise exceptions.HTTPError.from_request_exception(e)
 
     # TODO: '__request' is too complex, consider refactoring
     def __request(self, request_name, url, **request_kwargs):  # noqa: C901
