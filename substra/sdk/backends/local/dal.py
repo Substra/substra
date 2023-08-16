@@ -53,6 +53,10 @@ class DataAccess:
         if self._remote:
             self._remote.login(username, password)
 
+    def logout(self):
+        if self._remote:
+            self._remote.logout()
+
     def add(self, asset):
         return self._db.add(asset)
 

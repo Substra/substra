@@ -74,6 +74,9 @@ class Local(base.BaseBackend):
     def login(self, username, password):
         self._db.login(username, password)
 
+    def logout(self):
+        self._db.logout()
+
     def get(self, asset_type, key):
         return self._db.get(asset_type, key)
 

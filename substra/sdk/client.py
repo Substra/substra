@@ -386,8 +386,7 @@ class Client:
         """
         if not self._backend:
             raise exceptions.SDKException("No backend found")
-        if hasattr(self._backend, "logout"):
-            self._backend.logout()
+        self._backend.logout()
 
     @staticmethod
     def _get_spec(asset_type, data):
