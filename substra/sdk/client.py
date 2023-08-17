@@ -200,7 +200,7 @@ class Client:
         username (str, optional): Username to authenticate to the Substra platform.
             Used in conjunction with a password to generate a token if not given, using the `login` function.
 
-            If using username/password, you should use a context manager to ensure the session is terminated:
+            If using username/password, you should use a context manager to ensure the session terminates as intended:
             ```
             with Client(username, password) as client:
                ...

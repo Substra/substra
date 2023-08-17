@@ -111,7 +111,7 @@ class Client:
         return token
 
     def logout(self) -> None:
-        if not self._token_id:
+        if self._token_id is None:
             return
         try:
             r = requests.delete(

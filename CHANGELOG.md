@@ -13,7 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `list_task_output_assets` and `get_task_output_asset` wait that the compute task is over before getting assets ([#369](https://github.com/Substra/substra/pull/369))
 - warning and help message when logging in with username/password rather than token ([#378](https://github.com/Substra/substra/pull/378))
 - new `Client.logout` function, mirroring `Client.login` ([#381](https://github.com/Substra/substra/pull/381))
-- `Client` can now be the expression in a `with` statement ([#381](https://github.com/Substra/substra/pull/381))
+- `Client` can now be used within a context manager ([#381](https://github.com/Substra/substra/pull/381))
+  ```python
+  with Client(
+      client_name="org-1",
+      backend_type="remote",
+      url="http://substra-backend.org-1.com:8000",
+      username="org-1",
+      password="p@sswr0d44",
+  ) as client:
+      pass
+  ```
 
 ### Changed
 
