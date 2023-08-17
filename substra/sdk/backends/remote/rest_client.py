@@ -18,8 +18,8 @@ from substra.sdk.backends.remote import request_formatter
 logger = logging.getLogger(__name__)
 
 
-def _warn_of_session_expiration(expiration: str) -> None:
-    log_level = logging.INFO
+def _warn_of_session_expiration(expiration: str, minimum_log_level=logging.INFO) -> None:
+    log_level = minimum_log_level
     try:
         duration = datetime.fromisoformat(expiration) - datetime.now(timezone.utc)
         if duration.days:
@@ -28,7 +28,7 @@ def _warn_of_session_expiration(expiration: str) -> None:
             duration_msg = f"{duration.seconds//3600} hours"
         expires_at = f"in {duration_msg} ({expiration})"
         if duration < timedelta(hours=4):
-            log_level = logging.WARNING
+            log_level = max(log_level, logging.WARNING)
     except ValueError:  # Python 3.11 parses more formats than previous versions
         expires_at = expiration
     logger.log(log_level, f"Your session will expire {expires_at}")
@@ -52,9 +52,10 @@ class Client:
         if not url:
             raise exceptions.SDKException("url required to connect to the Substra server")
         self._base_url = url[:-1] if url.endswith("/") else url
-        self._token_id = None  # filled in by self.login
+        self._token = None  # filled in by self.login
 
-    def login(self, username, password):
+    # TODO: 'login' is too complex, consider refactoring
+    def login(self, username, password):  # noqa: C901
         # we do not use self._headers in order to avoid existing tokens to be sent alongside the
         # required Accept header
         if "Accept" not in self._headers:
@@ -90,8 +91,10 @@ class Client:
 
         try:
             rj = r.json()
+            if not all([it in rj for it in ["token", "expires_at", "id"]]):
+                raise exceptions.InvalidResponse(r, "Token object does not contain required fields")
             token = rj["token"]
-            self._token_id = rj["id"]
+            self._token = rj
         except json.decoder.JSONDecodeError:
             # sometimes requests seem to be fine, but the json is not being found
             # this might be if the url seems to be correct (in the syntax)
@@ -105,23 +108,24 @@ class Client:
             "you should generate a token on the web UI instead: "
             "https://docs.substra.org/en/stable/documentation/api_tokens_generation.html"
         )
-        _warn_of_session_expiration(rj["expires_at"])
+        _warn_of_session_expiration(self._token["expires_at"])
         self._headers["Authorization"] = f"Token {token}"
 
         return token
 
     def logout(self) -> None:
-        if self._token_id is None:
+        if self._token is None:
             return
         try:
             r = requests.delete(
-                f"{self._base_url}/active-api-tokens/", params={"id": self._token_id}, headers=self._headers
+                f"{self._base_url}/active-api-tokens/", params={"id": self._token["id"]}, headers=self._headers
             )
             r.raise_for_status()
-            self._token_id = None
+            self._token = None
             logger.info("Successfully logged out")
         except requests.exceptions.HTTPError as e:
-            logger.error(f"Could not end session {self._token_id}, got {e.response.status_code}: {e.response.text}")
+            logger.error(f"Could not end session {self._token['id']}, got {e.response.status_code}: {e.response.text}")
+            _warn_of_session_expiration(self._token["expires_at"], minimum_log_level=logging.WARNING)
             # this isn't too much of an issue, the token will expire on its own
 
     # TODO: '__request' is too complex, consider refactoring
