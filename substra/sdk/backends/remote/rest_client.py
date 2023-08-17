@@ -54,8 +54,7 @@ class Client:
         self._base_url = url[:-1] if url.endswith("/") else url
         self._token = None  # filled in by self.login
 
-    # TODO: 'login' is too complex, consider refactoring
-    def login(self, username, password):  # noqa: C901
+    def login(self, username, password):
         # we do not use self._headers in order to avoid existing tokens to be sent alongside the
         # required Accept header
         if "Accept" not in self._headers:
@@ -71,23 +70,16 @@ class Client:
         try:
             r = requests.post(f"{self._base_url}/api-token-auth/", data=data, headers=headers)
             r.raise_for_status()
-        except requests.exceptions.ConnectionError as e:
-            raise exceptions.ConnectionError.from_request_exception(e)
-        except requests.exceptions.Timeout as e:
-            raise exceptions.Timeout.from_request_exception(e)
-        except requests.exceptions.HTTPError as e:
-            logger.error(f"Requests error status {e.response.status_code}: {e.response.text}")
-
-            if e.response.status_code in (400, 401):
-                raise exceptions.BadLoginException.from_request_exception(e)
-
-            if (
-                e.response.status_code == 403
-                and getattr(e.response, "substra_identifier", None) == "implicit_login_disabled"
-            ):
-                raise exceptions.UsernamePasswordLoginDisabledException.from_request_exception(e)
-
-            raise exceptions.HTTPError.from_request_exception(e)
+        except requests.exceptions.RequestException as e:
+            if isinstance(e, requests.exceptions.HTTPError):
+                if e.response.status_code in (400, 401):
+                    raise exceptions.BadLoginException.from_request_exception(e)
+                if (
+                    e.response.status_code == 403
+                    and getattr(e.response, "substra_identifier", None) == "implicit_login_disabled"
+                ):
+                    raise exceptions.UsernamePasswordLoginDisabledException.from_request_exception(e)
+            raise exceptions.from_request_exception(e)
 
         try:
             rj = r.json()
@@ -128,8 +120,7 @@ class Client:
             _warn_of_session_expiration(self._token["expires_at"], minimum_log_level=logging.WARNING)
             # this isn't too much of an issue, the token will expire on its own
 
-    # TODO: '__request' is too complex, consider refactoring
-    def __request(self, request_name, url, **request_kwargs):  # noqa: C901
+    def __request(self, request_name, url, **request_kwargs):
         """Base request helper."""
 
         if request_name == "get":
@@ -155,41 +146,8 @@ class Client:
             r = fn(url, headers=self._headers, **kwargs)
             r.raise_for_status()
 
-        except requests.exceptions.ConnectionError as e:
-            raise exceptions.ConnectionError.from_request_exception(e)
-
-        except requests.exceptions.Timeout as e:
-            raise exceptions.Timeout.from_request_exception(e)
-
-        except requests.exceptions.HTTPError as e:
-            logger.error(f"Requests error status {e.response.status_code}: {e.response.text}")
-
-            if e.response.status_code == 400:
-                raise exceptions.InvalidRequest.from_request_exception(e)
-
-            if e.response.status_code == 401:
-                raise exceptions.AuthenticationError.from_request_exception(e)
-
-            if e.response.status_code == 403:
-                raise exceptions.AuthorizationError.from_request_exception(e)
-
-            if e.response.status_code == 404:
-                raise exceptions.NotFound.from_request_exception(e)
-
-            if e.response.status_code == 408:
-                raise exceptions.RequestTimeout.from_request_exception(e)
-
-            if e.response.status_code == 409:
-                raise exceptions.AlreadyExists.from_request_exception(e)
-
-            if e.response.status_code == 500:
-                raise exceptions.InternalServerError.from_request_exception(e)
-
-            if e.response.status_code in [502, 503, 504]:
-                raise exceptions.GatewayUnavailable.from_request_exception(e)
-
-            raise exceptions.HTTPError.from_request_exception(e)
-
+        except requests.exceptions.RequestException as e:
+            raise exceptions.from_request_exception(e)
         return r
 
     @utils.retry_on_exception(exceptions=(exceptions.GatewayUnavailable))
