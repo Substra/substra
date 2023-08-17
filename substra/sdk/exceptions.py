@@ -1,3 +1,11 @@
+import logging
+from typing import Union
+
+import requests
+
+logger = logging.getLogger(__name__)
+
+
 class SDKException(Exception):
     pass
 
@@ -158,6 +166,39 @@ class UsernamePasswordLoginDisabledException(RequestException):
             ),
             base.status_code,
         )
+
+
+def from_request_exception(
+    e: requests.exceptions.RequestException,
+) -> Union[RequestException, requests.exceptions.RequestException]:
+    """
+    try turning an exception from the `requests` library into a Substra exception
+    """
+    connection_error_mapping: dict[requests.exceptions.RequestException, RequestException] = {
+        requests.exceptions.ConnectionError: ConnectionError,
+        requests.exceptions.Timeout: Timeout,
+    }
+    for k, v in connection_error_mapping.items():
+        if isinstance(e, k):
+            return v.from_request_exception(e)
+
+    http_status_mapping: dict[int, RequestException] = {
+        400: InvalidRequest,
+        401: AuthenticationError,
+        403: AuthorizationError,
+        404: NotFound,
+        408: RequestTimeout,
+        409: AlreadyExists,
+        500: InternalServerError,
+        502: GatewayUnavailable,
+        503: GatewayUnavailable,
+        504: GatewayUnavailable,
+    }
+    if isinstance(e, requests.exceptions.HTTPError):
+        logger.error(f"Requests error status {e.response.status_code}: {e.response.text}")
+        return http_status_mapping.get(e.response.status_code, HTTPError).from_request_exception(e)
+
+    return e
 
 
 class ConfigurationInfoError(SDKException):
