@@ -120,12 +120,9 @@ class Client:
             r.raise_for_status()
             self._token_id = None
             logger.info("Successfully logged out")
-        except requests.exceptions.ConnectionError as e:
-            raise exceptions.ConnectionError.from_request_exception(e)
-        except requests.exceptions.Timeout as e:
-            raise exceptions.Timeout.from_request_exception(e)
         except requests.exceptions.HTTPError as e:
-            raise exceptions.HTTPError.from_request_exception(e)
+            logger.error(f"Could not end session {self._token_id}, got {e.response.status_code}: {e.response.text}")
+            # this isn't too much of an issue, the token will expire on its own
 
     # TODO: '__request' is too complex, consider refactoring
     def __request(self, request_name, url, **request_kwargs):  # noqa: C901
