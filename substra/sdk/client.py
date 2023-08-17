@@ -199,6 +199,12 @@ class Client:
             Defaults to None.
         username (str, optional): Username to authenticate to the Substra platform.
             Used in conjunction with a password to generate a token if not given, using the `login` function.
+
+            If using username/password, you should use a context manager to ensure the session terminates as intended:
+            ```
+            with Client(username, password) as client:
+               ...
+            ```
             Not stored.
             Defaults to None.
         password (str, optional): Password to authenticate to the Substra platform.
@@ -311,6 +317,15 @@ class Client:
             )
             self._token = self.login(config_dict["username"].value, config_dict["password"].value)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.logout()
+
+    def __del__(self):
+        self.logout()
+
     def _get_backend(self, backend_type: schemas.BackendType):
         # Three possibilities:
         # - remote: get a remote backend
@@ -368,6 +383,17 @@ class Client:
             raise exceptions.SDKException("No backend found")
         self._token = self._backend.login(username, password)
         return self._token
+
+    @logit
+    def logout(self) -> None:
+        """
+        Log out from a remote server, if Client.login was used
+        (otherwise, nothing happens)
+        """
+        if not self._backend:
+            raise exceptions.SDKException("No backend found")
+        self._backend.logout()
+        self._token = None
 
     @staticmethod
     def _get_spec(asset_type, data):

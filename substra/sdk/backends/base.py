@@ -15,6 +15,10 @@ class BaseBackend(abc.ABC):
         pass
 
     @abc.abstractmethod
+    def logout(self):
+        pass
+
+    @abc.abstractmethod
     def get(self, asset_type, key):
         raise NotImplementedError
 

@@ -91,14 +91,31 @@ def test_client_should_raise_when_missing_name():
 
 def test_client_with_password(mocker):
     mocker.patch("substra.sdk.Client.login", side_effect=stub_login)
-    client = Client(
-        backend_type="remote",
-        url="example.com",
-        token=None,
-        username="org-1",
-        password="password1",
-    )
+    rest_client_logout = mocker.patch("substra.sdk.backends.remote.rest_client.Client.logout")
+    client_args = {
+        "backend_type": "remote",
+        "url": "example.com",
+        "token": None,
+        "username": "org-1",
+        "password": "password1",
+    }
+
+    client = Client(**client_args)
     assert client._token == "token1"
+    client.logout()
+    assert client._token is None
+    rest_client_logout.assert_called_once()
+    del client
+
+    rest_client_logout.reset_mock()
+    client = Client(**client_args)
+    del client
+    rest_client_logout.assert_called_once()
+
+    rest_client_logout.reset_mock()
+    with Client(**client_args) as client:
+        assert client._token == "token1"
+    rest_client_logout.assert_called_once()
 
 
 def test_client_token_supercedes_password(mocker):
