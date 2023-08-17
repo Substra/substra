@@ -115,8 +115,15 @@ class Client:
             r.raise_for_status()
             self._token = None
             logger.info("Successfully logged out")
-        except requests.exceptions.HTTPError as e:
-            logger.error(f"Could not end session {self._token['id']}, got {e.response.status_code}: {e.response.text}")
+        except requests.exceptions.RequestException as e:
+            logger.error(
+                f"Could not end session {self._token['id']}"
+                + (
+                    f", got {e.response.status_code}: {e.response.text}"
+                    if isinstance(e, requests.exceptions.HTTPError)
+                    else f": {e}"
+                )
+            )
             _warn_of_session_expiration(self._token["expires_at"], minimum_log_level=logging.WARNING)
             # this isn't too much of an issue, the token will expire on its own
 
