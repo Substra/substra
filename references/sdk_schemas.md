@@ -7,6 +7,7 @@
 - [FunctionInputSpec](#FunctionInputSpec)
 - [FunctionOutputSpec](#FunctionOutputSpec)
 - [TaskSpec](#TaskSpec)
+- [ComputeTaskOutputSpec](#ComputeTaskOutputSpec)
 - [UpdateFunctionSpec](#UpdateFunctionSpec)
 - [ComputePlanSpec](#ComputePlanSpec)
 - [UpdateComputePlanSpec](#UpdateComputePlanSpec)
@@ -49,7 +50,7 @@ Specification for updating a dataset
 ```
 
 ## FunctionSpec
-Specification for creating a function
+Specification for creating an function
 
 note : metadata field does not accept strings containing '__' as dict key
 ```text
@@ -91,6 +92,13 @@ Asset creation specification base class.
 - rank: Optional[int]
 - inputs: Optional[List[InputRef]]
 - outputs: Optional[Mapping[str, ComputeTaskOutputSpec]]
+```
+
+## ComputeTaskOutputSpec
+Specification of a compute task output
+```text
+- permissions: Permissions
+- is_transient: Optional[bool]
 ```
 
 ## UpdateFunctionSpec

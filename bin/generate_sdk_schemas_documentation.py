@@ -19,6 +19,7 @@ schemas_list = [
     schemas.FunctionInputSpec,
     schemas.FunctionOutputSpec,
     schemas.TaskSpec,
+    schemas.ComputeTaskOutputSpec,
     schemas.UpdateFunctionSpec,
     schemas.ComputePlanSpec,
     schemas.UpdateComputePlanSpec,
