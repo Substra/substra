@@ -29,6 +29,12 @@ using 'login' function. It's always possible to generate a new token later by ma
 Defaults to None.
  - `username (str, optional)`: Username to authenticate to the Substra platform.
 Used in conjunction with a password to generate a token if not given, using the `login` function.
+
+If using username/password, you should use a context manager to ensure the session terminates as intended:
+```
+with Client(username, password) as client:
+   ...
+```
 Not stored.
 Defaults to None.
  - `password (str, optional)`: Password to authenticate to the Substra platform.
@@ -254,7 +260,7 @@ tasks will result in a NotFound error.
  - `str`: The logs as a str
 ## download_model
 ```text
-download_model(self, key: str, destination_folder) -> None
+download_model(self, key: str, destination_folder) -> pathlib.Path
 ```
 
 Download model to destination file.
@@ -334,12 +340,13 @@ get_model(self, key: str) -> substra.sdk.models.OutModel
 None
 ## get_performances
 ```text
-get_performances(self, key: str) -> substra.sdk.models.Performances
+get_performances(self, key: str, *, wait_completion: bool = False) -> substra.sdk.models.Performances
 ```
 
 Get the compute plan performances by key, the returned object is described
 in the [models.Performances](sdk_models.md#Performances) and easily convertible
-to pandas dataframe.
+to pandas dataframe. You can wait for compute task to finish by setting
+`wait_completion = True`
 
 **Examples:**
 ```python
@@ -356,11 +363,12 @@ Get task by key, the returned object is described
 in the [models.Task](sdk_models.md#Task) model
 ## get_task_output_asset
 ```text
-get_task_output_asset(self, key: str, identifier: str) -> substra.sdk.models.OutputAsset
+get_task_output_asset(self, key: str, identifier: str, *, wait_completion: bool = False) -> substra.sdk.models.OutputAsset
 ```
 
 Get an output asset for a specific task with a defined identifier, the returned object is described
-in the [models.OutputAsset](sdk_models.md#OutputAsset) model
+in the [models.OutputAsset](sdk_models.md#OutputAsset) model. You can wait
+for compute task to finish by setting `wait_completion = True`
 ## link_dataset_with_data_samples
 ```text
 link_dataset_with_data_samples(self, dataset_key: str, data_sample_keys: List[str]) -> List[str]
@@ -567,17 +575,25 @@ List input assets for a specific task, the returned object is described
 in the [models.InputAsset](sdk_models.md#InputAsset) model
 ## list_task_output_assets
 ```text
-list_task_output_assets(self, key: str) -> List[substra.sdk.models.OutputAsset]
+list_task_output_assets(self, key: str, *, wait_completion: bool = False) -> List[substra.sdk.models.OutputAsset]
 ```
 
 List output assets for a specific task, the returned object is described
-in the [models.OutputAsset](sdk_models.md#OutputAsset) model
+in the [models.OutputAsset](sdk_models.md#OutputAsset) model. You can wait
+for compute task to finish by setting `wait_completion = True`
 ## login
 ```text
 login(self, username, password)
 ```
 
 Login to a remote server.
+## logout
+```text
+logout(self) -> None
+```
+
+Log out from a remote server, if Client.login was used
+(otherwise, nothing happens)
 ## organization_info
 ```text
 organization_info(self) -> substra.sdk.models.OrganizationInfo
