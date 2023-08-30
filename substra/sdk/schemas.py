@@ -10,10 +10,10 @@ from typing import Optional
 from typing import Union
 
 import pydantic
+from pydantic import ConfigDict
 from pydantic.fields import Field
 
 from substra.sdk import utils
-from pydantic import ConfigDict
 
 _SERVER_NAMES = {
     "dataset": "data_manager",
@@ -146,7 +146,7 @@ class DataSampleSpec(_Spec):
         return self.paths and len(self.paths) > 0
 
     @pydantic.model_validator(mode="before")
-    def exclusive_paths(cls, values):
+    def exclusive_paths(cls, values):  # noqa: N805
         """Check that one and only one path(s) field is defined."""
         if "paths" in values and "path" in values:
             raise ValueError("'path' and 'paths' fields are exclusive.")
@@ -292,7 +292,7 @@ class FunctionInputSpec(_Spec):
     kind: AssetKind
 
     @pydantic.model_validator(mode="before")
-    def _check_identifiers(cls, values):
+    def _check_identifiers(cls, values):  # noqa: N805
         """Checks that the multiplicity and the optionality of a data manager is always set to False"""
         if values["kind"] == AssetKind.data_manager:
             if values["multiple"]:
@@ -326,7 +326,7 @@ class FunctionOutputSpec(_Spec):
     multiple: bool
 
     @pydantic.model_validator(mode="before")
-    def _check_performance(cls, values):
+    def _check_performance(cls, values):  # noqa: N805
         """Checks that the performance is always set to False"""
         if values.get("kind") == AssetKind.performance and values.get("multiple"):
             raise ValueError("Performance can't be multiple.")

@@ -10,7 +10,8 @@ from typing import Type
 from typing import Union
 
 import pydantic
-from pydantic import ConfigDict, AnyUrl
+from pydantic import AnyUrl
+from pydantic import ConfigDict
 from pydantic import DirectoryPath
 from pydantic import FilePath
 from pydantic.fields import Field
