@@ -351,7 +351,7 @@ to pandas dataframe. You can wait for compute task to finish by setting
 **Examples:**
 ```python
 perf = client.get_performances(cp_key)
-df = pd.DataFrame(perf.dict())
+df = pd.DataFrame(perf.model_dump())
 print(df)
 ```
 ## get_task

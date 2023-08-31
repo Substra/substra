@@ -18,142 +18,142 @@
 ## DataSample
 Data sample
 ```text
-- key: str
-- owner: str
-- data_manager_keys: Optional[List[str]]
-- path: Optional[DirectoryPath]
-- creation_date: datetime
+- key: <class 'str'>
+- owner: <class 'str'>
+- data_manager_keys: typing.Optional[typing.List[str]]
+- path: typing.Optional[typing.Annotated[pathlib.Path, PathType(path_type='dir')]]
+- creation_date: <class 'datetime.datetime'>
 ```
 
 ## Dataset
 Dataset asset
 ```text
-- key: str
-- name: str
-- owner: str
-- permissions: Permissions
-- type: str
-- data_sample_keys: List[str]
-- opener: _File
-- description: _File
-- metadata: Mapping[str, str]
-- creation_date: datetime
-- logs_permission: Permission
+- key: <class 'str'>
+- name: <class 'str'>
+- owner: <class 'str'>
+- permissions: <class 'substra.sdk.models.Permissions'>
+- type: <class 'str'>
+- data_sample_keys: typing.List[str]
+- opener: <class 'substra.sdk.models._File'>
+- description: <class 'substra.sdk.models._File'>
+- metadata: typing.Dict[str, str]
+- creation_date: <class 'datetime.datetime'>
+- logs_permission: <class 'substra.sdk.models.Permission'>
 ```
 
 ## Task
 Asset creation specification base class.
 ```text
-- key: str
-- function: Function
-- owner: str
-- compute_plan_key: str
-- metadata: Mapping[str, str]
-- status: Status
-- worker: str
-- rank: Optional[int]
-- tag: str
-- creation_date: datetime
-- start_date: Optional[datetime]
-- end_date: Optional[datetime]
-- error_type: Optional[TaskErrorType]
-- inputs: List[InputRef]
-- outputs: Mapping[str, ComputeTaskOutput]
+- key: <class 'str'>
+- function: <class 'substra.sdk.models.Function'>
+- owner: <class 'str'>
+- compute_plan_key: <class 'str'>
+- metadata: typing.Union[typing.Dict[str, str], typing.Dict[str, int]]
+- status: <enum 'Status'>
+- worker: <class 'str'>
+- rank: typing.Optional[int]
+- tag: <class 'str'>
+- creation_date: <class 'datetime.datetime'>
+- start_date: typing.Optional[datetime.datetime]
+- end_date: typing.Optional[datetime.datetime]
+- error_type: typing.Optional[substra.sdk.models.TaskErrorType]
+- inputs: typing.List[substra.sdk.models.InputRef]
+- outputs: typing.Dict[str, substra.sdk.models.ComputeTaskOutput]
 ```
 
 ## Function
 Asset creation specification base class.
 ```text
-- key: str
-- name: str
-- owner: str
-- permissions: Permissions
-- metadata: Mapping[str, str]
-- creation_date: datetime
-- inputs: List[FunctionInput]
-- outputs: List[FunctionOutput]
-- description: _File
-- function: _File
+- key: <class 'str'>
+- name: <class 'str'>
+- owner: <class 'str'>
+- permissions: <class 'substra.sdk.models.Permissions'>
+- metadata: typing.Dict[str, str]
+- creation_date: <class 'datetime.datetime'>
+- inputs: typing.List[substra.sdk.models.FunctionInput]
+- outputs: typing.List[substra.sdk.models.FunctionOutput]
+- description: <class 'substra.sdk.models._File'>
+- function: <class 'substra.sdk.models._File'>
 ```
 
 ## ComputePlan
 ComputePlan
 ```text
-- key: str
-- tag: str
-- name: str
-- owner: str
-- metadata: Mapping[str, str]
-- task_count: int
-- waiting_count: int
-- todo_count: int
-- doing_count: int
-- canceled_count: int
-- failed_count: int
-- done_count: int
-- failed_task_key: Optional[str]
-- status: ComputePlanStatus
-- creation_date: datetime
-- start_date: Optional[datetime]
-- end_date: Optional[datetime]
-- estimated_end_date: Optional[datetime]
-- duration: Optional[int]
-- creator: Optional[str]
+- key: <class 'str'>
+- tag: <class 'str'>
+- name: <class 'str'>
+- owner: <class 'str'>
+- metadata: typing.Dict[str, str]
+- task_count: <class 'int'>
+- waiting_count: <class 'int'>
+- todo_count: <class 'int'>
+- doing_count: <class 'int'>
+- canceled_count: <class 'int'>
+- failed_count: <class 'int'>
+- done_count: <class 'int'>
+- failed_task_key: typing.Optional[str]
+- status: <enum 'ComputePlanStatus'>
+- creation_date: <class 'datetime.datetime'>
+- start_date: typing.Optional[datetime.datetime]
+- end_date: typing.Optional[datetime.datetime]
+- estimated_end_date: typing.Optional[datetime.datetime]
+- duration: typing.Optional[int]
+- creator: typing.Optional[str]
 ```
 
 ## Performances
 Performances of the different compute tasks of a compute plan
 ```text
-- compute_plan_key: List[str]
-- compute_plan_tag: List[str]
-- compute_plan_status: List[str]
-- compute_plan_start_date: List[datetime]
-- compute_plan_end_date: List[datetime]
-- compute_plan_metadata: List[dict]
-- worker: List[str]
-- task_key: List[str]
-- task_rank: List[int]
-- round_idx: List[int]
-- identifier: List[str]
-- performance: List[float]
+- compute_plan_key: typing.List[str]
+- compute_plan_tag: typing.List[str]
+- compute_plan_status: typing.List[str]
+- compute_plan_start_date: typing.List[datetime.datetime]
+- compute_plan_end_date: typing.List[datetime.datetime]
+- compute_plan_metadata: typing.List[dict]
+- worker: typing.List[str]
+- task_key: typing.List[str]
+- task_rank: typing.List[int]
+- round_idx: typing.List[int]
+- identifier: typing.List[str]
+- performance: typing.List[float]
 ```
 
 ## Organization
 Organization
 ```text
-- id: str
-- is_current: bool
-- creation_date: datetime
+- id: <class 'str'>
+- is_current: <class 'bool'>
+- creation_date: <class 'datetime.datetime'>
 ```
 
 ## Permissions
 Permissions structure stored in various asset types.
 ```text
-- process: Permission
+- process: <class 'substra.sdk.models.Permission'>
 ```
 
 ## InModel
 In model of a task
 ```text
-- checksum: str
-- storage_address: Union[FilePath, AnyUrl, str]
+- checksum: <class 'str'>
+- storage_address: typing.Union[typing.Annotated[pathlib.Path, PathType(path_type='file')], pydantic_core._pydantic_core.Url, str]
 ```
 
 ## OutModel
 Out model of a task
 ```text
-- key: str
-- compute_task_key: str
-- address: Optional[InModel]
-- permissions: Permissions
-- owner: str
-- creation_date: datetime
+- key: <class 'str'>
+- compute_task_key: <class 'str'>
+- address: typing.Optional[substra.sdk.models.InModel]
+- permissions: <class 'substra.sdk.models.Permissions'>
+- owner: <class 'str'>
+- creation_date: <class 'datetime.datetime'>
 ```
 
 ## _File
 File as stored in the models
 ```text
-- checksum: str
-- storage_address: Union[FilePath, AnyUrl, str]
+- checksum: <class 'str'>
+- storage_address: typing.Union[typing.Annotated[pathlib.Path, PathType(path_type='file')], pydantic_core._pydantic_core.Url, str]
 ```
 
