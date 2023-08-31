@@ -45,7 +45,7 @@ models_list = [
 
 
 def _get_field_description(fields):
-    desc = [f"{field.name}: {field._type_display()}" for _, field in fields.items()]
+    desc = [f"{name}: {field.annotation}" for name, field in fields.items()]
     return desc
 
 
@@ -76,7 +76,7 @@ def generate_help(fh, models: bool):
         # Write the docstring
         fh.write(f"{inspect.getdoc(asset)}\n")
         # List the fields and their types
-        description = _get_field_description(asset.__fields__)
+        description = _get_field_description(asset.model_fields)
         fh.write("```text\n")
         fh.write("- " + "\n- ".join(description))
         fh.write("\n```")
@@ -89,7 +89,7 @@ def write_help(path, models: bool):
 
 
 if __name__ == "__main__":
-    expected_pydantic_version = "1.9.0"
+    expected_pydantic_version = "2.3.0"
     if pydantic.VERSION != expected_pydantic_version:
         warnings.warn(
             f"The documentation should be generated with the version {expected_pydantic_version} of pydantic or \
