@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - warning and help message when logging in with username/password rather than token ([#378](https://github.com/Substra/substra/pull/378))
 - new `Client.logout` function, mirroring `Client.login` ([#381](https://github.com/Substra/substra/pull/381))
 - `Client` can now be used within a context manager ([#381](https://github.com/Substra/substra/pull/381))
+
   ```python
   with Client(
       client_name="org-1",
@@ -29,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - change how API responses are parsed to match server changes ([#379](https://github.com/Substra/substra/pull/379))
 - `Client` will now terminate the sessions it starts when given username & password ([#381](https://github.com/Substra/substra/pull/381))
+- Update to pydantic 2.3.0 ([#375](https://github.com/Substra/substra/pull/375))
 
 ### Fixed
 

@@ -5,6 +5,7 @@ import typing
 import warnings
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 from typing import Dict
 from typing import List
 from typing import NoReturn
@@ -298,8 +299,8 @@ class Local(base.BaseBackend):
                 "storage_address": function_description_path,
             },
             metadata=spec.metadata if spec.metadata else dict(),
-            inputs=_function_input_model_from_schema(spec.inputs) or [],
-            outputs=_function_output_model_from_schema(spec.outputs) or [],
+            inputs=_schemas_list_to_models_list(spec.inputs, models.FunctionInput) or [],
+            outputs=_schemas_list_to_models_list(spec.outputs, models.FunctionOutput) or [],
         )
         return self._db.add(function)
 
@@ -422,7 +423,7 @@ class Local(base.BaseBackend):
             worker=spec.worker,
             compute_plan_key=compute_plan_key,
             rank=rank,
-            inputs=_input_ref_model_from_schema(spec.inputs),
+            inputs=_schemas_list_to_models_list(spec.inputs, models.InputRef),
             outputs=_output_from_spec(spec.outputs),
             tag=spec.tag or "",
             status=models.Status.waiting,
@@ -598,39 +599,8 @@ def _output_from_spec(outputs: Dict[str, schemas.ComputeTaskOutputSpec]) -> Dict
     }
 
 
-def _input_ref_model_from_schema(inputs: List[schemas.InputRef]) -> List[models.InputRef]:
-    return [
-        models.InputRef(
-            identifier=input_ref_schemas.identifier,
-            asset_key=input_ref_schemas.asset_key,
-            parent_task_key=input_ref_schemas.parent_task_key,
-            parent_task_output_identifier=input_ref_schemas.parent_task_output_identifier,
-        )
-        for input_ref_schemas in inputs
-    ]
-
-
-def _function_input_model_from_schema(inputs: List[schemas.FunctionInputSpec]) -> List[models.FunctionInput]:
-    return [
-        models.FunctionInput(
-            identifier=function_input_schemas.identifier,
-            multiple=function_input_schemas.multiple,
-            optional=function_input_schemas.optional,
-            kind=function_input_schemas.kind,
-        )
-        for function_input_schemas in inputs
-    ]
-
-
-def _function_output_model_from_schema(inputs: List[schemas.FunctionOutputSpec]) -> List[models.FunctionOutput]:
-    return [
-        models.FunctionOutput(
-            identifier=function_output_schemas.identifier,
-            multiple=function_output_schemas.multiple,
-            kind=function_output_schemas.kind,
-        )
-        for function_output_schemas in inputs
-    ]
+def _schemas_list_to_models_list(inputs: Any, model: Any) -> Any:
+    return [model.model_validate(input_schema.model_dump()) for input_schema in inputs]
 
 
 def _warn_on_transient_outputs(outputs: typing.Dict[str, schemas.ComputeTaskOutputSpec]):
