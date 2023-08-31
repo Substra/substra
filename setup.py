@@ -43,7 +43,7 @@ setup(
         "urllib3<2",
         "docker",
         "pyyaml",
-        "pydantic>=2.3.0, <3.0.0",
+        "pydantic<3.0.0",
         "tqdm",
         "python-slugify",
     ],
