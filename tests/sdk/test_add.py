@@ -24,7 +24,7 @@ def test_add_dataset_invalid_args(client, dataset_query, mocker):
     mock_requests(mocker, "post", response=datastore.DATASET)
     del dataset_query["data_opener"]
 
-    with pytest.raises(pydantic.error_wrappers.ValidationError):
+    with pytest.raises(pydantic.ValidationError):
         client.add_dataset(dataset_query)
 
 

@@ -98,10 +98,10 @@ class _Model(schemas._PydanticConfig, abc.ABC):
 
     # pretty print
     def __str__(self):
-        return self.json(indent=4)
+        return self.model_dump_json(indent=4)
 
     def __repr__(self):
-        return self.json(indent=4)
+        return self.model_dump_json(indent=4)
 
     @staticmethod
     def allowed_filters() -> List[str]:
@@ -174,8 +174,8 @@ class Function(_Model):
     permissions: Permissions
     metadata: Dict[str, str]
     creation_date: datetime
-    inputs: List[schemas.FunctionInputSpec]
-    outputs: List[schemas.FunctionOutputSpec]
+    inputs: List[FunctionInput]
+    outputs: List[FunctionOutput]
 
     description: _File
     function: _File
@@ -186,12 +186,12 @@ class Function(_Model):
     def allowed_filters() -> List[str]:
         return ["key", "name", "owner", "permissions", "compute_plan_key", "dataset_key", "data_sample_key"]
 
-    @pydantic.validator("inputs", pre=True)
-    def dict_input_to_list(cls, v):
+    @pydantic.field_validator("inputs", mode="before")
+    def dict_input_to_list(cls, v):  # noqa: N805
         if isinstance(v, dict):
             # Transform the inputs dict to a list
             return [
-                schemas.FunctionInputSpec(
+                FunctionInput(
                     identifier=identifier,
                     kind=function_input["kind"],
                     optional=function_input["optional"],
@@ -202,8 +202,8 @@ class Function(_Model):
         else:
             return v
 
-    @pydantic.validator("outputs", pre=True)
-    def dict_output_to_list(cls, v):
+    @pydantic.field_validator("outputs", mode="before")
+    def dict_output_to_list(cls, v):  # noqa: N805
         if isinstance(v, dict):
             # Transform the outputs dict to a list
             return [
@@ -291,7 +291,7 @@ class Task(_Model):
         ]
 
 
-Task.update_forward_refs()
+Task.model_rebuild()
 
 
 class ComputePlan(_Model):
@@ -396,9 +396,9 @@ class OutputAsset(_TaskAsset):
     type_: ClassVar[str] = schemas.Type.OutputAsset
 
     # Deal with remote returning the actual performance object
-    @pydantic.validator("asset", pre=True)
-    def convert_remote_performance(cls, value, values):
-        if values.get("kind") == schemas.AssetKind.performance and isinstance(value, dict):
+    @pydantic.field_validator("asset", mode="before")
+    def convert_remote_performance(cls, value, values):  # noqa: N805
+        if values.data.get("kind") == schemas.AssetKind.performance and isinstance(value, dict):
             return value.get("performance_value")
 
         return value
@@ -414,4 +414,6 @@ SCHEMA_TO_MODEL = {
     schemas.Type.Model: OutModel,
     schemas.Type.InputAsset: InputAsset,
     schemas.Type.OutputAsset: OutputAsset,
+    schemas.Type.FunctionOutput: FunctionOutput,
+    schemas.Type.FunctionInput: FunctionInput,
 }

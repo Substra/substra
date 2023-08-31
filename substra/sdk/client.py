@@ -565,7 +565,7 @@ class Client:
         Example:
             ```python
             perf = client.get_performances(cp_key)
-            df = pd.DataFrame(perf.dict())
+            df = pd.DataFrame(perf.model_dump())
             print(df)
             ```
         """
