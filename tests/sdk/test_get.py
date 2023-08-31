@@ -128,7 +128,7 @@ def test_get_performances(client, mocker):
     m = mock_requests_responses(mocker, "get", [mock_response(cp_item), mock_response(perf_item)])
 
     response = client.get_performances("magic-key")
-    results = response.dict()
+    results = response.model_dump()
 
     df = pd.DataFrame(results)
     assert list(df.columns) == list(results.keys())

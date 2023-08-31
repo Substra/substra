@@ -50,6 +50,8 @@ class AssetKind(str, enum.Enum):
 
 class Type(enum.Enum):
     Function = "function"
+    FunctionOutput = "function_output"
+    FunctionInput = "function_input"
     DataSample = "data_sample"
     Dataset = "dataset"
     Model = "model"
@@ -86,10 +88,10 @@ class _Spec(_PydanticConfig):
 
     # pretty print
     def __str__(self):
-        return self.json(indent=4)
+        return self.model_dump_json(indent=4)
 
     def __repr__(self):
-        return self.json(indent=4)
+        return self.model_dump_json(indent=4)
 
     class Meta:
         file_attributes = None
@@ -328,7 +330,7 @@ class FunctionOutputSpec(_Spec):
     @pydantic.model_validator(mode="before")
     def _check_performance(cls, values):  # noqa: N805
         """Checks that the performance is always set to False"""
-        if values.get("kind") == AssetKind.performance and values.get("multiple"):
+        if values == AssetKind.performance and values["multiple"]:
             raise ValueError("Performance can't be multiple.")
 
         return values
@@ -350,16 +352,16 @@ class FunctionSpec(_Spec):
 
     type_: typing.ClassVar[Type] = Type.Function
 
-    @pydantic.validator("inputs")
-    def _check_inputs(cls, v):
+    @pydantic.field_validator("inputs")
+    def _check_inputs(cls, v):  # noqa: N805
         inputs = v or []
         identifiers = {value.identifier for value in inputs}
         if len(identifiers) != len(inputs):
             raise ValueError("Several function inputs cannot have the same identifier.")
         return v
 
-    @pydantic.validator("outputs")
-    def _check_outputs(cls, v):
+    @pydantic.field_validator("outputs")
+    def _check_outputs(cls, v):  # noqa: N805
         outputs = v or []
         identifiers = {value.identifier for value in outputs}
         if len(identifiers) != len(outputs):
@@ -424,7 +426,7 @@ class TaskSpec(_Spec):
         data = json.loads(self.json(exclude_unset=True))
         data["key"] = self.key
         data["inputs"] = [input.model_dump() for input in self.inputs] if self.inputs else []
-        data["outputs"] = {k: v.dict(by_alias=True) for k, v in self.outputs.items()} if self.outputs else {}
+        data["outputs"] = {k: v.model_dump(by_alias=True) for k, v in self.outputs.items()} if self.outputs else {}
         yield data, None
 
     @classmethod
