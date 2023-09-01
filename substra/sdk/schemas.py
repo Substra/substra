@@ -103,7 +103,7 @@ class _Spec(_PydanticConfig):
     def build_request_kwargs(self):
         # TODO should be located in the backends/remote module
         # Serialize and deserialize to prevent errors eg with pathlib.Path
-        data = json.loads(self.json(exclude_unset=True))
+        data = json.loads(self.model_dump_json(exclude_unset=True))
         if self.Meta.file_attributes:
             with utils.extract_files(data, self.Meta.file_attributes) as (data, files):
                 yield (data, files)
@@ -160,7 +160,7 @@ class DataSampleSpec(_Spec):
     def build_request_kwargs(self, local):
         # redefine kwargs builder to handle the local paths
         # Serialize and deserialize to prevent errors eg with pathlib.Path
-        data = json.loads(self.json(exclude_unset=True))
+        data = json.loads(self.model_dump_json(exclude_unset=True))
         if local:
             with utils.extract_data_sample_files(data) as (data, files):
                 yield (data, files)
@@ -237,7 +237,7 @@ class ComputePlanSpec(_BaseComputePlanSpec):
     def build_request_kwargs(self):
         # default values are not dumped when `exclude_unset` flag is enabled,
         # this is why we need to reimplement this custom function.
-        data = json.loads(self.json(exclude_unset=True))
+        data = json.loads(self.model_dump_json(exclude_unset=True))
         data["key"] = self.key
         yield data, None
 
@@ -372,15 +372,17 @@ class FunctionSpec(_Spec):
     def build_request_kwargs(self):
         # TODO should be located in the backends/remote module
         # Serialize and deserialize to prevent errors eg with pathlib.Path
-        data = json.loads(self.json(exclude_unset=True))
+        data = json.loads(self.model_dump_json(exclude_unset=True))
 
         # Computed fields using `@property` are not dumped when `exclude_unset` flag is enabled,
         # this is why we need to reimplement this custom function.
         data["inputs"] = (
-            {input.identifier: input.dict(exclude={"identifier"}) for input in self.inputs} if self.inputs else dict()
+            {input.identifier: input.model_dump(exclude={"identifier"}) for input in self.inputs}
+            if self.inputs
+            else dict()
         )
         data["outputs"] = (
-            {output.identifier: output.dict(exclude={"identifier"}) for output in self.outputs}
+            {output.identifier: output.model_dump(exclude={"identifier"}) for output in self.outputs}
             if self.outputs
             else dict()
         )
@@ -423,7 +425,7 @@ class TaskSpec(_Spec):
     def build_request_kwargs(self):
         # default values are not dumped when `exclude_unset` flag is enabled,
         # this is why we need to reimplement this custom function.
-        data = json.loads(self.json(exclude_unset=True))
+        data = json.loads(self.model_dump_json(exclude_unset=True))
         data["key"] = self.key
         data["inputs"] = [input.model_dump() for input in self.inputs] if self.inputs else []
         data["outputs"] = {k: v.model_dump(by_alias=True) for k, v in self.outputs.items()} if self.outputs else {}
