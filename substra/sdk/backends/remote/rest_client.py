@@ -48,7 +48,7 @@ class Client:
             "password": password,
         }
         try:
-            r = requests.post(f"{self._base_url}/api-token-auth/", data=data, headers=headers)
+            r = requests.post(f"{self._base_url}/api-token-auth/", data=data, headers=headers, **self._default_kwargs)
             r.raise_for_status()
         except requests.exceptions.ConnectionError as e:
             raise exceptions.ConnectionError.from_request_exception(e)
