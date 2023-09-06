@@ -45,6 +45,25 @@ def test_post_success(mocker, config):
     assert len(m.call_args_list) == 1
 
 
+@pytest.mark.parametrize("config", CONFIGS)
+def test_verify_login(mocker, config):
+    """
+    check "insecure" configuration results in endpoints being called with verify=False
+    """
+    m_post = mock_requests(mocker, "post", response={"id": "a", "token": "a", "expires_at": "3000-01-01T00:00:00Z"})
+    m_delete = mock_requests(mocker, "delete", response={})
+
+    c = _client_from_config(config)
+    c.login("foo", "bar")
+    c.logout()
+    if config.get("insecure", None):
+        assert m_post.call_args.kwargs["verify"] == False
+        assert m_delete.call_args.kwargs["verify"] == False
+    else:
+        assert "verify" not in m_post.call_args.kwargs or m_post.call_args.kwargs["verify"]
+        assert "verify" not in m_post.call_args.kwargs or m_delete.call_args.kwargs["verify"]
+
+
 @pytest.mark.parametrize(
     "status_code, http_response, sdk_exception",
     [

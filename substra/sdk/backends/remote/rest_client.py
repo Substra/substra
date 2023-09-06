@@ -68,7 +68,7 @@ class Client:
             "password": password,
         }
         try:
-            r = requests.post(f"{self._base_url}/api-token-auth/", data=data, headers=headers)
+            r = requests.post(f"{self._base_url}/api-token-auth/", data=data, headers=headers, **self._default_kwargs)
             r.raise_for_status()
         except requests.exceptions.RequestException as e:
             if isinstance(e, requests.exceptions.HTTPError):
@@ -110,7 +110,10 @@ class Client:
             return
         try:
             r = requests.delete(
-                f"{self._base_url}/active-api-tokens/", params={"id": self._token["id"]}, headers=self._headers
+                f"{self._base_url}/active-api-tokens/",
+                params={"id": self._token["id"]},
+                headers=self._headers,
+                **self._default_kwargs,
             )
             r.raise_for_status()
             self._token = None
