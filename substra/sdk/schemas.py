@@ -7,7 +7,6 @@ import uuid
 from typing import Dict
 from typing import List
 from typing import Optional
-from typing import Union
 
 import pydantic
 from pydantic import ConfigDict
@@ -210,7 +209,7 @@ class ComputePlanTaskSpec(_Spec):
     function_key: str
     worker: str
     tag: Optional[str] = None
-    metadata: Optional[Union[Dict[str, str], Dict[str, int]]] = None
+    metadata: Optional[Dict[str, str]] = None
     inputs: Optional[List[InputRef]] = None
     outputs: Optional[Dict[str, ComputeTaskOutputSpec]] = None
 
@@ -412,7 +411,7 @@ class TaskSpec(_Spec):
     key: str = pydantic.Field(default_factory=lambda: str(uuid.uuid4()))
     tag: Optional[str] = None
     compute_plan_key: Optional[str] = None
-    metadata: Optional[Union[Dict[str, str], Dict[str, int]]] = None
+    metadata: Optional[Dict[str, str]] = None
     function_key: str
     worker: str
     rank: Optional[int] = None

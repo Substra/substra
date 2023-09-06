@@ -592,7 +592,9 @@ def _output_from_spec(outputs: Dict[str, schemas.ComputeTaskOutputSpec]) -> Dict
     """Convert a list of schemas.ComputeTaskOuput to a list of models.ComputeTaskOutput"""
     return {
         identifier: models.ComputeTaskOutput(
-            permissions=models.Permissions(process=dict(output.permissions)), transient=output.is_transient, value=None
+            permissions=models.Permissions(process=output.permissions.model_dump()),
+            transient=output.is_transient,
+            value=None,
         )
         # default isNone (= outputs are not computed yet)
         for identifier, output in outputs.items()
