@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - typo in exception ([#377](https://github.com/Substra/substra/pull/377))
+- Client.login breaking when Client was instanciated with `insecure=True` ([#384](https://github.com/Substra/substra/pull/384))
 
 ## [0.46.0](https://github.com/Substra/substra/releases/tag/0.46.0) - 2023-07-25
 
