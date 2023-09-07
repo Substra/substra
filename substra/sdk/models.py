@@ -263,7 +263,7 @@ class Task(_Model):
     function: Function
     owner: str
     compute_plan_key: str
-    metadata: Union[Dict[str, str], Dict[str, int]]
+    metadata: Dict[str, str]
     status: Status
     worker: str
     rank: Optional[int] = None
