@@ -299,8 +299,8 @@ class Local(base.BaseBackend):
                 "storage_address": function_description_path,
             },
             metadata=spec.metadata if spec.metadata else dict(),
-            inputs=_schemas_list_to_models_list(spec.inputs, models.FunctionInput) or [],
-            outputs=_schemas_list_to_models_list(spec.outputs, models.FunctionOutput) or [],
+            inputs=_schemas_list_to_models_list(spec.inputs, models.FunctionInput),
+            outputs=_schemas_list_to_models_list(spec.outputs, models.FunctionOutput),
         )
         return self._db.add(function)
 
@@ -602,7 +602,10 @@ def _output_from_spec(outputs: Dict[str, schemas.ComputeTaskOutputSpec]) -> Dict
 
 
 def _schemas_list_to_models_list(inputs: Any, model: Any) -> Any:
-    return [model.model_validate(input_schema.model_dump()) for input_schema in inputs]
+    if inputs:
+        return [model.model_validate(input_schema.model_dump()) for input_schema in inputs]
+    else:
+        return []
 
 
 def _warn_on_transient_outputs(outputs: typing.Dict[str, schemas.ComputeTaskOutputSpec]):
