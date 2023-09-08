@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+## [0.48.0](https://github.com/Substra/substra/releases/tag/0.48.0) - 2023-09-08
+
 - Update to pydantic 2.3.0 ([#375](https://github.com/Substra/substra/pull/375))
 
 ## [0.47.0](https://github.com/Substra/substra/releases/tag/0.47.0) - 2023-09-07
