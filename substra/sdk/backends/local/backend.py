@@ -602,10 +602,9 @@ def _output_from_spec(outputs: Dict[str, schemas.ComputeTaskOutputSpec]) -> Dict
 
 
 def _schemas_list_to_models_list(inputs: Any, model: Any) -> Any:
-    if inputs:
-        return [model.model_validate(input_schema.model_dump()) for input_schema in inputs]
-    else:
+    if not inputs:
         return []
+    return [model.model_validate(input_schema.model_dump()) for input_schema in inputs]
 
 
 def _warn_on_transient_outputs(outputs: typing.Dict[str, schemas.ComputeTaskOutputSpec]):
