@@ -11,6 +11,7 @@ from typing import Union
 
 import pydantic
 from pydantic import AnyUrl
+from pydantic import ConfigDict
 from pydantic import DirectoryPath
 from pydantic import FilePath
 from pydantic.fields import Field
@@ -97,10 +98,10 @@ class _Model(schemas._PydanticConfig, abc.ABC):
 
     # pretty print
     def __str__(self):
-        return self.json(indent=4)
+        return self.model_dump_json(indent=4)
 
     def __repr__(self):
-        return self.json(indent=4)
+        return self.model_dump_json(indent=4)
 
     @staticmethod
     def allowed_filters() -> List[str]:
@@ -113,8 +114,8 @@ class DataSample(_Model):
 
     key: str
     owner: str
-    data_manager_keys: Optional[List[str]]
-    path: Optional[DirectoryPath]
+    data_manager_keys: Optional[List[str]] = None
+    path: Optional[DirectoryPath] = None
     creation_date: datetime
 
     type_: ClassVar[str] = schemas.Type.DataSample
@@ -185,8 +186,8 @@ class Function(_Model):
     def allowed_filters() -> List[str]:
         return ["key", "name", "owner", "permissions", "compute_plan_key", "dataset_key", "data_sample_key"]
 
-    @pydantic.validator("inputs", pre=True)
-    def dict_input_to_list(cls, v):
+    @pydantic.field_validator("inputs", mode="before")
+    def dict_input_to_list(cls, v):  # noqa: N805
         if isinstance(v, dict):
             # Transform the inputs dict to a list
             return [
@@ -201,8 +202,8 @@ class Function(_Model):
         else:
             return v
 
-    @pydantic.validator("outputs", pre=True)
-    def dict_output_to_list(cls, v):
+    @pydantic.field_validator("outputs", mode="before")
+    def dict_output_to_list(cls, v):  # noqa: N805
         if isinstance(v, dict):
             # Transform the outputs dict to a list
             return [
@@ -227,7 +228,7 @@ class OutModel(schemas._PydanticConfig):
 
     key: str
     compute_task_key: str
-    address: Optional[InModel]
+    address: Optional[InModel] = None
     permissions: Permissions
     owner: str
     creation_date: datetime
@@ -241,12 +242,12 @@ class OutModel(schemas._PydanticConfig):
 
 class InputRef(schemas._PydanticConfig):
     identifier: str
-    asset_key: Optional[str]
-    parent_task_key: Optional[str]
-    parent_task_output_identifier: Optional[str]
+    asset_key: Optional[str] = None
+    parent_task_key: Optional[str] = None
+    parent_task_output_identifier: Optional[str] = None
 
     # either (asset_key) or (parent_task_key, parent_task_output_identifier) must be specified
-    _check_asset_key_or_parent_ref = pydantic.root_validator(allow_reuse=True)(schemas.check_asset_key_or_parent_ref)
+    _check_asset_key_or_parent_ref = pydantic.model_validator(mode="before")(schemas.check_asset_key_or_parent_ref)
 
 
 class ComputeTaskOutput(schemas._PydanticConfig):
@@ -254,9 +255,7 @@ class ComputeTaskOutput(schemas._PydanticConfig):
 
     permissions: Permissions
     is_transient: bool = Field(False, alias="transient")
-
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class Task(_Model):
@@ -267,11 +266,11 @@ class Task(_Model):
     metadata: Dict[str, str]
     status: Status
     worker: str
-    rank: Optional[int]
+    rank: Optional[int] = None
     tag: str
     creation_date: datetime
-    start_date: Optional[datetime]
-    end_date: Optional[datetime]
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
     error_type: Optional[TaskErrorType] = None
     inputs: List[InputRef]
     outputs: Dict[str, ComputeTaskOutput]
@@ -292,7 +291,7 @@ class Task(_Model):
         ]
 
 
-Task.update_forward_refs()
+Task.model_rebuild()
 
 
 class ComputePlan(_Model):
@@ -310,14 +309,14 @@ class ComputePlan(_Model):
     canceled_count: int = 0
     failed_count: int = 0
     done_count: int = 0
-    failed_task_key: Optional[str]
+    failed_task_key: Optional[str] = None
     status: ComputePlanStatus
     creation_date: datetime
-    start_date: Optional[datetime]
-    end_date: Optional[datetime]
-    estimated_end_date: Optional[datetime]
-    duration: Optional[int]
-    creator: Optional[str]
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    estimated_end_date: Optional[datetime] = None
+    duration: Optional[int] = None
+    creator: Optional[str] = None
 
     type_: ClassVar[str] = schemas.Type.ComputePlan
 
@@ -363,7 +362,8 @@ class Organization(schemas._PydanticConfig):
     type_: ClassVar[str] = schemas.Type.Organization
 
 
-class OrganizationInfoConfig(schemas._PydanticConfig):
+class OrganizationInfoConfig(schemas._PydanticConfig, extra="allow"):
+    model_config = ConfigDict(protected_namespaces=())
     model_export_enabled: bool
 
 
@@ -396,9 +396,9 @@ class OutputAsset(_TaskAsset):
     type_: ClassVar[str] = schemas.Type.OutputAsset
 
     # Deal with remote returning the actual performance object
-    @pydantic.validator("asset", pre=True)
-    def convert_remote_performance(cls, value, values):
-        if values.get("kind") == schemas.AssetKind.performance and isinstance(value, dict):
+    @pydantic.field_validator("asset", mode="before")
+    def convert_remote_performance(cls, value, values):  # noqa: N805
+        if values.data.get("kind") == schemas.AssetKind.performance and isinstance(value, dict):
             return value.get("performance_value")
 
         return value
@@ -414,4 +414,6 @@ SCHEMA_TO_MODEL = {
     schemas.Type.Model: OutModel,
     schemas.Type.InputAsset: InputAsset,
     schemas.Type.OutputAsset: OutputAsset,
+    schemas.Type.FunctionOutput: FunctionOutput,
+    schemas.Type.FunctionInput: FunctionInput,
 }

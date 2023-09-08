@@ -200,7 +200,7 @@ class Remote(base.BaseBackend):
 
     def _add_compute_plan(self, spec, spec_options):
         """Register compute plan info (without tasks)."""
-        cp_spec = spec.copy()
+        cp_spec = spec.model_copy()
         del cp_spec.tasks
 
         with spec.build_request_kwargs(**spec_options) as (data, _):

@@ -9,6 +9,7 @@ from typing import List
 from typing import Optional
 
 import pydantic
+from pydantic import ConfigDict
 from pydantic.fields import Field
 
 from substra.sdk import utils
@@ -48,6 +49,8 @@ class AssetKind(str, enum.Enum):
 
 class Type(enum.Enum):
     Function = "function"
+    FunctionOutput = "function_output"
+    FunctionInput = "function_input"
     DataSample = "data_sample"
     Dataset = "dataset"
     Model = "model"
@@ -76,9 +79,7 @@ class Type(enum.Enum):
 class _PydanticConfig(pydantic.BaseModel):
     """Shared configuration for all schemas here"""
 
-    class Config:
-        # Ignore extra fields, leave them unexposed
-        extra = "ignore"
+    model_config = ConfigDict(extra="ignore")
 
 
 class _Spec(_PydanticConfig):
@@ -86,10 +87,10 @@ class _Spec(_PydanticConfig):
 
     # pretty print
     def __str__(self):
-        return self.json(indent=4)
+        return self.model_dump_json(indent=4)
 
     def __repr__(self):
-        return self.json(indent=4)
+        return self.model_dump_json(indent=4)
 
     class Meta:
         file_attributes = None
@@ -101,7 +102,7 @@ class _Spec(_PydanticConfig):
     def build_request_kwargs(self):
         # TODO should be located in the backends/remote module
         # Serialize and deserialize to prevent errors eg with pathlib.Path
-        data = json.loads(self.json(exclude_unset=True))
+        data = json.loads(self.model_dump_json(exclude_unset=True))
         if self.Meta.file_attributes:
             with utils.extract_files(data, self.Meta.file_attributes) as (data, files):
                 yield (data, files)
@@ -136,8 +137,8 @@ class DataSampleSpec(_Spec):
     the 'paths' field.
     """
 
-    path: Optional[pathlib.Path]  # Path to the data sample if only one
-    paths: Optional[List[pathlib.Path]]  # Path to the data samples if several
+    path: Optional[pathlib.Path] = None  # Path to the data sample if only one
+    paths: Optional[List[pathlib.Path]] = None  # Path to the data samples if several
     data_manager_keys: typing.List[str]
 
     type_: typing.ClassVar[Type] = Type.DataSample
@@ -145,8 +146,8 @@ class DataSampleSpec(_Spec):
     def is_many(self):
         return self.paths and len(self.paths) > 0
 
-    @pydantic.root_validator(pre=True)
-    def exclusive_paths(cls, values):
+    @pydantic.model_validator(mode="before")
+    def exclusive_paths(cls, values):  # noqa: N805
         """Check that one and only one path(s) field is defined."""
         if "paths" in values and "path" in values:
             raise ValueError("'path' and 'paths' fields are exclusive.")
@@ -158,7 +159,7 @@ class DataSampleSpec(_Spec):
     def build_request_kwargs(self, local):
         # redefine kwargs builder to handle the local paths
         # Serialize and deserialize to prevent errors eg with pathlib.Path
-        data = json.loads(self.json(exclude_unset=True))
+        data = json.loads(self.model_dump_json(exclude_unset=True))
         if local:
             with utils.extract_data_sample_files(data) as (data, files):
                 yield (data, files)
@@ -169,8 +170,8 @@ class DataSampleSpec(_Spec):
 def check_asset_key_or_parent_ref(cls, values):
     """Check that either (asset key) or (parent_task_key, parent_task_output_identifier) are set, but not both."""
 
-    has_asset_key = bool(values.get("asset_key"))
-    has_parent = bool(values.get("parent_task_key")) and bool(values.get("parent_task_output_identifier"))
+    has_asset_key = bool(dict(values).get("asset_key"))
+    has_parent = bool(dict(values).get("parent_task_key")) and bool(dict(values).get("parent_task_output_identifier"))
 
     if has_asset_key != has_parent:  # xor
         return values
@@ -182,12 +183,12 @@ class InputRef(_PydanticConfig):
     """Specification of a compute task input"""
 
     identifier: str
-    asset_key: Optional[str]
-    parent_task_key: Optional[str]
-    parent_task_output_identifier: Optional[str]
+    asset_key: Optional[str] = None
+    parent_task_key: Optional[str] = None
+    parent_task_output_identifier: Optional[str] = None
 
     # either (asset_key) or (parent_task_key, parent_task_output_identifier) must be specified
-    _check_asset_key_or_parent_ref = pydantic.root_validator(allow_reuse=True)(check_asset_key_or_parent_ref)
+    _check_asset_key_or_parent_ref = pydantic.model_validator(mode="before")(check_asset_key_or_parent_ref)
 
 
 class ComputeTaskOutputSpec(_PydanticConfig):
@@ -195,9 +196,7 @@ class ComputeTaskOutputSpec(_PydanticConfig):
 
     permissions: Permissions
     is_transient: Optional[bool] = Field(False, alias="transient")
-
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class ComputePlanTaskSpec(_Spec):
@@ -209,15 +208,15 @@ class ComputePlanTaskSpec(_Spec):
     task_id: str
     function_key: str
     worker: str
-    tag: Optional[str]
-    metadata: Optional[Dict[str, str]]
-    inputs: Optional[List[InputRef]]
-    outputs: Optional[Dict[str, ComputeTaskOutputSpec]]
+    tag: Optional[str] = None
+    metadata: Optional[Dict[str, str]] = None
+    inputs: Optional[List[InputRef]] = None
+    outputs: Optional[Dict[str, ComputeTaskOutputSpec]] = None
 
 
 class _BaseComputePlanSpec(_Spec):
     key: str
-    tasks: Optional[List[ComputePlanTaskSpec]]
+    tasks: Optional[List[ComputePlanTaskSpec]] = None
 
 
 class ComputePlanSpec(_BaseComputePlanSpec):
@@ -227,9 +226,9 @@ class ComputePlanSpec(_BaseComputePlanSpec):
     """
 
     key: str = pydantic.Field(default_factory=lambda: str(uuid.uuid4()))
-    tag: Optional[str]
+    tag: Optional[str] = None
     name: str
-    metadata: Optional[Dict[str, str]]
+    metadata: Optional[Dict[str, str]] = None
 
     type_: typing.ClassVar[Type] = Type.ComputePlan
 
@@ -237,7 +236,7 @@ class ComputePlanSpec(_BaseComputePlanSpec):
     def build_request_kwargs(self):
         # default values are not dumped when `exclude_unset` flag is enabled,
         # this is why we need to reimplement this custom function.
-        data = json.loads(self.json(exclude_unset=True))
+        data = json.loads(self.model_dump_json(exclude_unset=True))
         data["key"] = self.key
         yield data, None
 
@@ -267,7 +266,7 @@ class DatasetSpec(_Spec):
     type: str
     description: pathlib.Path  # Path to the description file
     permissions: Permissions
-    metadata: Optional[Dict[str, str]]
+    metadata: Optional[Dict[str, str]] = None
     logs_permission: Permissions
 
     type_: typing.ClassVar[Type] = Type.Dataset
@@ -293,8 +292,8 @@ class FunctionInputSpec(_Spec):
     optional: bool
     kind: AssetKind
 
-    @pydantic.root_validator
-    def _check_identifiers(cls, values):
+    @pydantic.model_validator(mode="before")
+    def _check_identifiers(cls, values):  # noqa: N805
         """Checks that the multiplicity and the optionality of a data manager is always set to False"""
         if values["kind"] == AssetKind.data_manager:
             if values["multiple"]:
@@ -327,10 +326,10 @@ class FunctionOutputSpec(_Spec):
     kind: AssetKind
     multiple: bool
 
-    @pydantic.root_validator
-    def _check_performance(cls, values):
+    @pydantic.model_validator(mode="before")
+    def _check_performance(cls, values):  # noqa: N805
         """Checks that the performance is always set to False"""
-        if values.get("kind") == AssetKind.performance and values.get("multiple"):
+        if values == AssetKind.performance and values["multiple"]:
             raise ValueError("Performance can't be multiple.")
 
         return values
@@ -346,22 +345,22 @@ class FunctionSpec(_Spec):
     description: pathlib.Path
     file: pathlib.Path
     permissions: Permissions
-    metadata: Optional[Dict[str, str]]
+    metadata: Optional[Dict[str, str]] = None
     inputs: Optional[List[FunctionInputSpec]] = None
     outputs: Optional[List[FunctionOutputSpec]] = None
 
     type_: typing.ClassVar[Type] = Type.Function
 
-    @pydantic.validator("inputs")
-    def _check_inputs(cls, v):
+    @pydantic.field_validator("inputs")
+    def _check_inputs(cls, v):  # noqa: N805
         inputs = v or []
         identifiers = {value.identifier for value in inputs}
         if len(identifiers) != len(inputs):
             raise ValueError("Several function inputs cannot have the same identifier.")
         return v
 
-    @pydantic.validator("outputs")
-    def _check_outputs(cls, v):
+    @pydantic.field_validator("outputs")
+    def _check_outputs(cls, v):  # noqa: N805
         outputs = v or []
         identifiers = {value.identifier for value in outputs}
         if len(identifiers) != len(outputs):
@@ -372,15 +371,19 @@ class FunctionSpec(_Spec):
     def build_request_kwargs(self):
         # TODO should be located in the backends/remote module
         # Serialize and deserialize to prevent errors eg with pathlib.Path
-        data = json.loads(self.json(exclude_unset=True))
+        data = json.loads(self.model_dump_json(exclude_unset=True))
 
         # Computed fields using `@property` are not dumped when `exclude_unset` flag is enabled,
         # this is why we need to reimplement this custom function.
         data["inputs"] = (
-            {input.identifier: input.dict(exclude={"identifier"}) for input in self.inputs} if self.inputs else {}
+            {input.identifier: input.model_dump(exclude={"identifier"}) for input in self.inputs}
+            if self.inputs
+            else dict()
         )
         data["outputs"] = (
-            {output.identifier: output.dict(exclude={"identifier"}) for output in self.outputs} if self.outputs else {}
+            {output.identifier: output.model_dump(exclude={"identifier"}) for output in self.outputs}
+            if self.outputs
+            else dict()
         )
 
         if self.Meta.file_attributes:
@@ -406,14 +409,14 @@ class UpdateFunctionSpec(_Spec):
 
 class TaskSpec(_Spec):
     key: str = pydantic.Field(default_factory=lambda: str(uuid.uuid4()))
-    tag: Optional[str]
-    compute_plan_key: Optional[str]
-    metadata: Optional[Dict[str, str]]
+    tag: Optional[str] = None
+    compute_plan_key: Optional[str] = None
+    metadata: Optional[Dict[str, str]] = None
     function_key: str
     worker: str
     rank: Optional[int] = None
-    inputs: Optional[List[InputRef]]
-    outputs: Optional[Dict[str, ComputeTaskOutputSpec]]
+    inputs: Optional[List[InputRef]] = None
+    outputs: Optional[Dict[str, ComputeTaskOutputSpec]] = None
 
     type_: typing.ClassVar[Type] = Type.Task
 
@@ -421,10 +424,10 @@ class TaskSpec(_Spec):
     def build_request_kwargs(self):
         # default values are not dumped when `exclude_unset` flag is enabled,
         # this is why we need to reimplement this custom function.
-        data = json.loads(self.json(exclude_unset=True))
+        data = json.loads(self.model_dump_json(exclude_unset=True))
         data["key"] = self.key
-        data["inputs"] = [input.dict() for input in self.inputs] if self.inputs else []
-        data["outputs"] = {k: v.dict(by_alias=True) for k, v in self.outputs.items()} if self.outputs else {}
+        data["inputs"] = [input.model_dump() for input in self.inputs] if self.inputs else []
+        data["outputs"] = {k: v.model_dump(by_alias=True) for k, v in self.outputs.items()} if self.outputs else {}
         yield data, None
 
     @classmethod

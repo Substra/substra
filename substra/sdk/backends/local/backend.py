@@ -5,6 +5,7 @@ import typing
 import warnings
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 from typing import Dict
 from typing import List
 from typing import NoReturn
@@ -138,7 +139,7 @@ class Local(base.BaseBackend):
         if metadata is not None:
             if any([len(key) > _MAX_LEN_KEY_METADATA for key in metadata]):
                 raise exceptions.InvalidRequest("The key in metadata cannot be more than 50 characters", 400)
-            if any([len(value) > _MAX_LEN_VALUE_METADATA or len(value) == 0 for value in metadata.values()]):
+            if any([len(str(value)) > _MAX_LEN_VALUE_METADATA or len(str(value)) == 0 for value in metadata.values()]):
                 raise exceptions.InvalidRequest("Values in metadata cannot be empty or more than 100 characters", 400)
             if any("__" in key for key in metadata):
                 raise exceptions.InvalidRequest(
@@ -298,8 +299,8 @@ class Local(base.BaseBackend):
                 "storage_address": function_description_path,
             },
             metadata=spec.metadata if spec.metadata else dict(),
-            inputs=spec.inputs or [],
-            outputs=spec.outputs or [],
+            inputs=_schemas_list_to_models_list(spec.inputs, models.FunctionInput),
+            outputs=_schemas_list_to_models_list(spec.outputs, models.FunctionOutput),
         )
         return self._db.add(function)
 
@@ -330,7 +331,7 @@ class Local(base.BaseBackend):
                 "storage_address": dataset_description_path,
             },
             metadata=spec.metadata if spec.metadata else dict(),
-            logs_permission=logs_permission.dict(),
+            logs_permission=logs_permission.model_dump(),
         )
         return self._db.add(asset)
 
@@ -422,7 +423,7 @@ class Local(base.BaseBackend):
             worker=spec.worker,
             compute_plan_key=compute_plan_key,
             rank=rank,
-            inputs=spec.inputs,
+            inputs=_schemas_list_to_models_list(spec.inputs, models.InputRef),
             outputs=_output_from_spec(spec.outputs),
             tag=spec.tag or "",
             status=models.Status.waiting,
@@ -557,8 +558,8 @@ class Local(base.BaseBackend):
     def update(self, key, spec, spec_options=None):
         asset_type = spec.__class__.type_
         asset = self.get(asset_type, key)
-        data = asset.dict()
-        data.update(spec.dict())
+        data = asset.model_dump()
+        data.update(spec.model_dump())
         updated_asset = models.SCHEMA_TO_MODEL[asset_type](**data)
         self._db.update(updated_asset)
         return
@@ -591,11 +592,19 @@ def _output_from_spec(outputs: Dict[str, schemas.ComputeTaskOutputSpec]) -> Dict
     """Convert a list of schemas.ComputeTaskOuput to a list of models.ComputeTaskOutput"""
     return {
         identifier: models.ComputeTaskOutput(
-            permissions=models.Permissions(process=output.permissions), transient=output.is_transient, value=None
+            permissions=models.Permissions(process=output.permissions.model_dump()),
+            transient=output.is_transient,
+            value=None,
         )
         # default isNone (= outputs are not computed yet)
         for identifier, output in outputs.items()
     }
+
+
+def _schemas_list_to_models_list(inputs: Any, model: Any) -> Any:
+    if not inputs:
+        return []
+    return [model.model_validate(input_schema.model_dump()) for input_schema in inputs]
 
 
 def _warn_on_transient_outputs(outputs: typing.Dict[str, schemas.ComputeTaskOutputSpec]):
