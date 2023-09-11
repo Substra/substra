@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.45.1](https://github.com/Substra/substra/releases/tag/0.45.1) - 2023-09-11
+
+### Fixed
+
+- Pin Pydantic < 2.0.0.
+
 ## [0.45.0](https://github.com/Substra/substra/releases/tag/0.45.0) - 2023-06-12
 
 ### Added
