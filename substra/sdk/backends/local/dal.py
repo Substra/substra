@@ -142,7 +142,11 @@ class DataAccess:
                     performances.worker.append(task.worker)
                     performances.task_key.append(task.key)
                     performances.task_rank.append(task.rank)
-                    performances.round_idx.append(int(task.metadata.get("round_idx")))
+                    try:
+                        round_idx = int(task.metadata.get("round_idx"))
+                    except TypeError:
+                        round_idx = None
+                    performances.round_idx.append(round_idx)
                     performances.identifier.append(output.identifier)
                     performances.performance.append(output.asset)
 
