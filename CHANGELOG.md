@@ -9,7 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+### Fixed
+
+- Convert `round_idx` from metadata to `int` when creating `Performances` to fix Pydantic warning ([#387](https://github.com/Substra/substra/pull/387))
+
 ## [0.48.0](https://github.com/Substra/substra/releases/tag/0.48.0) - 2023-09-08
+
+### Changed
 
 - Update to pydantic 2.3.0 ([#375](https://github.com/Substra/substra/pull/375))
 
