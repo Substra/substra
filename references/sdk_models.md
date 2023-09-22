@@ -10,7 +10,6 @@
 - [Permissions](#Permissions)
 - [InModel](#InModel)
 - [OutModel](#OutModel)
-- [_File](#_File)
 
 
 # Models
@@ -48,7 +47,7 @@ Asset creation specification base class.
 - function: <class 'substra.sdk.models.Function'>
 - owner: <class 'str'>
 - compute_plan_key: <class 'str'>
-- metadata: typing.Union[typing.Dict[str, str], typing.Dict[str, int]]
+- metadata: typing.Dict[str, str]
 - status: <enum 'Status'>
 - worker: <class 'str'>
 - rank: typing.Optional[int]
@@ -148,12 +147,5 @@ Out model of a task
 - permissions: <class 'substra.sdk.models.Permissions'>
 - owner: <class 'str'>
 - creation_date: <class 'datetime.datetime'>
-```
-
-## _File
-File as stored in the models
-```text
-- checksum: <class 'str'>
-- storage_address: typing.Union[typing.Annotated[pathlib.Path, PathType(path_type='file')], pydantic_core._pydantic_core.Url, str]
 ```
 

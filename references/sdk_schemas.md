@@ -86,7 +86,7 @@ Asset creation specification base class.
 - key: <class 'str'>
 - tag: typing.Optional[str]
 - compute_plan_key: typing.Optional[str]
-- metadata: typing.Union[typing.Dict[str, str], typing.Dict[str, int], NoneType]
+- metadata: typing.Optional[typing.Dict[str, str]]
 - function_key: <class 'str'>
 - worker: <class 'str'>
 - rank: typing.Optional[int]
@@ -141,7 +141,7 @@ note : metadata field does not accept strings containing '__' as dict key
 - function_key: <class 'str'>
 - worker: <class 'str'>
 - tag: typing.Optional[str]
-- metadata: typing.Union[typing.Dict[str, str], typing.Dict[str, int], NoneType]
+- metadata: typing.Optional[typing.Dict[str, str]]
 - inputs: typing.Optional[typing.List[substra.sdk.schemas.InputRef]]
 - outputs: typing.Optional[typing.Dict[str, substra.sdk.schemas.ComputeTaskOutputSpec]]
 ```
