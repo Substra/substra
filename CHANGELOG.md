@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Use substra-tools base docker image (not minimal) in tests ([#389](https://github.com/Substra/substra/pull/389))
+
 ### Fixed
 
 - Convert `round_idx` from metadata to `int` when creating `Performances` to fix Pydantic warning ([#387](https://github.com/Substra/substra/pull/387))
