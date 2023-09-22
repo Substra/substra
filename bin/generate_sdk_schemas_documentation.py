@@ -40,7 +40,6 @@ models_list = [
     models.Permissions,
     models.InModel,
     models.OutModel,
-    models._File,
 ]
 
 
