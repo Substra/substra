@@ -56,11 +56,11 @@ import substratools as tools
 
 @tools.register
 def score(inputs, outputs, task_properties):
-    y_true = inputs['{InputIdentifiers.datasamples}'][1]
-    y_pred = _get_predictions(inputs['{InputIdentifiers.predictions}'])
+    y_true = inputs['{InputIdentifiers.datasamples.value}'][1]
+    y_pred = _get_predictions(inputs['{InputIdentifiers.predictions.value}'])
     res = sum(y_pred) - sum(y_true)
     print(f'metrics, y_true: {{y_true}}, y_pred: {{y_pred}}, result: {{res}}')
-    tools.save_performance(res, outputs['{OutputIdentifiers.performance}'])
+    tools.save_performance(res, outputs['{OutputIdentifiers.performance.value}'])
 
 def _get_predictions(path):
     with open(path) as f:
@@ -77,9 +77,9 @@ import substratools as tools
 
 @tools.register
 def train(inputs, outputs, task_properties):
-    X = inputs['{InputIdentifiers.datasamples}'][0]
-    y = inputs['{InputIdentifiers.datasamples}'][1]
-    models_path = inputs.get('{InputIdentifiers.shared}', [])
+    X = inputs['{InputIdentifiers.datasamples.value}'][0]
+    y = inputs['{InputIdentifiers.datasamples.value}'][1]
+    models_path = inputs.get('{InputIdentifiers.shared.value}', [])
     models = [_load_model(model_path) for model_path in models_path]
 
     print(f'Train, get X: {{X}}, y: {{y}}, models: {{models}}')
@@ -95,17 +95,17 @@ def train(inputs, outputs, task_properties):
         res = dict(value=avg + err)
 
     print(f'Train, return {{res}}')
-    _save_model(res, outputs['{OutputIdentifiers.shared}'])
+    _save_model(res, outputs['{OutputIdentifiers.shared.value}'])
 
 @tools.register
 def predict(inputs, outputs, task_properties):
-    X = inputs['{InputIdentifiers.datasamples}'][0]
-    model = _load_model(inputs['{InputIdentifiers.shared}'])
+    X = inputs['{InputIdentifiers.datasamples.value}'][0]
+    model = _load_model(inputs['{InputIdentifiers.shared.value}'])
 
     res = [x * model['value'] for x in X]
     print(f'Predict, get X: {{X}}, model: {{model}}, return {{res}}')
 
-    _save_predictions(res, outputs['{OutputIdentifiers.predictions}'])
+    _save_predictions(res, outputs['{OutputIdentifiers.predictions.value}'])
 
 def _load_model(path):
     with open(path) as f:
@@ -129,18 +129,18 @@ import substratools as tools
 
 @tools.register
 def aggregate(inputs, outputs, task_properties):
-    models_path = inputs.get('{InputIdentifiers.shared}', [])
+    models_path = inputs.get('{InputIdentifiers.shared.value}', [])
     models = [_load_model(model_path) for model_path in models_path]
     print(f'Aggregate models: {{models}}')
     values = [m['value'] for m in models]
     avg = sum(values) / len(values)
     res = dict(value=avg)
     print(f'Aggregate result: {{res}}')
-    _save_model(res, outputs['{OutputIdentifiers.shared}'])
+    _save_model(res, outputs['{OutputIdentifiers.shared.value}'])
 
 @tools.register
 def predict(inputs, outputs, task_properties):
-    _save_predictions(0, outputs['{OutputIdentifiers.predictions}'])
+    _save_predictions(0, outputs['{OutputIdentifiers.predictions.value}'])
 
 def _load_model(path):
     with open(path) as f:
@@ -165,12 +165,12 @@ import substratools as tools
 
 @tools.register
 def train(inputs, outputs, task_properties):
-    X = inputs['{InputIdentifiers.datasamples}'][0]
-    y = inputs['{InputIdentifiers.datasamples}'][1]
-    head_model_path = inputs.get('{InputIdentifiers.local}')
+    X = inputs['{InputIdentifiers.datasamples.value}'][0]
+    y = inputs['{InputIdentifiers.datasamples.value}'][1]
+    head_model_path = inputs.get('{InputIdentifiers.local.value}')
     head_model = _load_model(head_model_path) if head_model_path else None
 
-    trunk_model_path = inputs.get('{InputIdentifiers.shared}')
+    trunk_model_path = inputs.get('{InputIdentifiers.shared.value}')
     trunk_model = _load_model(trunk_model_path) if trunk_model_path else None
 
     print(f'Composite function train X: {{X}}, y: {{y}}, head_model: {{head_model}}, trunk_model: {{trunk_model}}')
@@ -192,21 +192,21 @@ def train(inputs, outputs, task_properties):
     res = dict(value= res_head + err_head), dict(value= res_trunk + err_trunk)
     print(f'Composite function train head, trunk result: {{res}}')
 
-    _save_model(res[0], outputs['{OutputIdentifiers.local}'])
-    _save_model(res[1], outputs['{OutputIdentifiers.shared}'])
+    _save_model(res[0], outputs['{OutputIdentifiers.local.value}'])
+    _save_model(res[1], outputs['{OutputIdentifiers.shared.value}'])
 
 @tools.register
 def predict(inputs, outputs, task_properties):
-    X = inputs['{InputIdentifiers.datasamples}'][0]
-    head_model = _load_model(inputs['{InputIdentifiers.local}'])
-    trunk_model = _load_model(inputs['{InputIdentifiers.shared}'])
+    X = inputs['{InputIdentifiers.datasamples.value}'][0]
+    head_model = _load_model(inputs['{InputIdentifiers.local.value}'])
+    trunk_model = _load_model(inputs['{InputIdentifiers.shared.value}'])
 
     print(f'Composite function predict X: {{X}}, head_model: {{head_model}}, trunk_model: {{trunk_model}}')
     ratio_sum = head_model['value'] + trunk_model['value']
     res = [x * ratio_sum for x in X]
     print(f'Composite function predict result: {{res}}')
 
-    _save_predictions(res, outputs['{OutputIdentifiers.predictions}'])
+    _save_predictions(res, outputs['{OutputIdentifiers.predictions.value}'])
 
 def _load_model(path):
     with open(path) as f:
