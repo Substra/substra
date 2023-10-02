@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.48.1](https://github.com/Substra/substra/releases/tag/0.48.1) - 2023-10-02
+
 ### Changed
 
 - Use substra-tools base docker image (not minimal) in tests ([#389](https://github.com/Substra/substra/pull/389))
