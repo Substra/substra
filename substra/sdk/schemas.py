@@ -155,6 +155,25 @@ class DataSampleSpec(_Spec):
             raise ValueError("'path' or 'paths' field must be set.")
         return values
 
+    @pydantic.model_validator(mode="before")
+    def resolve_paths(cls, values):  # noqa: N805
+        """Resolve given path is relative."""
+
+        if "paths" in values:
+            paths = []
+            for path in values["paths"]:
+                if not path.is_absolute():
+                    paths.append(path.resolve())
+                else:
+                    paths.append(path)
+            values["paths"] = paths
+
+        elif "path" in values:
+            if not values["path"].is_absolute():
+                values["path"] = values["path"].resolve()
+
+        return values
+
     @contextlib.contextmanager
     def build_request_kwargs(self, local):
         # redefine kwargs builder to handle the local paths
