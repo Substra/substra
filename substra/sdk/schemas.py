@@ -158,19 +158,17 @@ class DataSampleSpec(_Spec):
     @pydantic.model_validator(mode="before")
     def resolve_paths(cls, values):  # noqa: N805
         """Resolve given path is relative."""
-
         if "paths" in values:
             paths = []
             for path in values["paths"]:
-                if not path.is_absolute():
-                    paths.append(path.resolve())
-                else:
-                    paths.append(path)
+                path = pathlib.Path(path)
+                paths.append(path.resolve()) if not path.is_absolute() else paths.append(path)
+
             values["paths"] = paths
 
         elif "path" in values:
-            if not values["path"].is_absolute():
-                values["path"] = values["path"].resolve()
+            path = pathlib.Path(values["path"])
+            values["path"] = path.resolve() if not path.is_absolute() else path
 
         return values
 
