@@ -879,7 +879,7 @@ class Client:
         return self._backend.link_dataset_with_data_samples(dataset_key, data_sample_keys)
 
     @logit
-    def download_dataset(self, key: str, destination_folder: str) -> None:
+    def download_dataset(self, key: str, destination_folder: str) -> pathlib.Path:
         """Download data manager resource.
         Download opener script in destination folder.
 
@@ -900,7 +900,7 @@ class Client:
         )
 
     @logit
-    def download_function(self, key: str, destination_folder: str) -> None:
+    def download_function(self, key: str, destination_folder: str) -> pathlib.Path:
         """Download function resource.
         Download function package in destination folder.
 
@@ -915,7 +915,7 @@ class Client:
         return pathlib.Path(
             self._backend.download(
                 schemas.Type.Function,
-                "function.storage_address",
+                "archive.storage_address",
                 key,
                 os.path.join(destination_folder, "function.tar.gz"),
             )
