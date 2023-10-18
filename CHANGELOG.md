@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.48.2](https://github.com/Substra/substra/releases/tag/0.48.2) - 2023-10-18
+## [0.49.0](https://github.com/Substra/substra/releases/tag/0.49.0) - 2023-10-18
 
 ### Added
 
