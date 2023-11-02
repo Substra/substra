@@ -151,7 +151,7 @@ class DataSampleSpec(_Spec):
     def resolve_paths(cls, v: typing.Any) -> typing.Any:
         """Resolve given paths."""
         if v is None:
-            raise ValueError("'path' cannot be set to None.")
+            raise ValueError("'paths' cannot be set to None.")
 
         paths = []
         for path in v:
