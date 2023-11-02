@@ -187,7 +187,8 @@ class Function(_Model):
         return ["key", "name", "owner", "permissions", "compute_plan_key", "dataset_key", "data_sample_key"]
 
     @pydantic.field_validator("inputs", mode="before")
-    def dict_input_to_list(cls, v):  # noqa: N805
+    @classmethod
+    def dict_input_to_list(cls, v):
         if isinstance(v, dict):
             # Transform the inputs dict to a list
             return [
@@ -203,7 +204,8 @@ class Function(_Model):
             return v
 
     @pydantic.field_validator("outputs", mode="before")
-    def dict_output_to_list(cls, v):  # noqa: N805
+    @classmethod
+    def dict_output_to_list(cls, v):
         if isinstance(v, dict):
             # Transform the outputs dict to a list
             return [
@@ -397,7 +399,8 @@ class OutputAsset(_TaskAsset):
 
     # Deal with remote returning the actual performance object
     @pydantic.field_validator("asset", mode="before")
-    def convert_remote_performance(cls, value, values):  # noqa: N805
+    @classmethod
+    def convert_remote_performance(cls, value, values):
         if values.data.get("kind") == schemas.AssetKind.performance and isinstance(value, dict):
             return value.get("performance_value")
 
