@@ -18,3 +18,23 @@ def test_datasample_spec_resolve_paths():
     datasample_spec = DataSampleSpec(paths=paths, data_manager_keys=[str(uuid.uuid4())])
 
     assert all([path == pathlib.Path().cwd() / "data" for path in datasample_spec.paths])
+
+
+def test_datasample_spec_exclusive_path():
+    with pytest.raises(ValueError):
+        DataSampleSpec(paths=["fake_paths"], path="fake_paths", data_manager_keys=[str(uuid.uuid4())])
+
+
+def test_datasample_spec_no_path():
+    with pytest.raises(ValueError):
+        DataSampleSpec(data_manager_keys=[str(uuid.uuid4())])
+
+
+def test_datasample_spec_paths_explicit_none():
+    with pytest.raises(TypeError):
+        DataSampleSpec(paths=None, data_manager_keys=[str(uuid.uuid4())])
+
+
+def test_datasample_spec_path_explicit_none():
+    with pytest.raises(TypeError):
+        DataSampleSpec(path=None, data_manager_keys=[str(uuid.uuid4())])
