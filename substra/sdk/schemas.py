@@ -148,27 +148,21 @@ class DataSampleSpec(_Spec):
 
     @pydantic.field_validator("paths")
     @classmethod
-    def resolve_paths(cls, v: typing.Any) -> typing.Any:
+    def resolve_paths(cls, v: List[pathlib.Path]) -> List[pathlib.Path]:
         """Resolve given paths."""
         if v is None:
             raise ValueError("'paths' cannot be set to None.")
 
-        paths = []
-        for path in v:
-            path = pathlib.Path(path)
-            paths.append(path.resolve())
-
-        return paths
+        return [p.resolve() for p in v]
 
     @pydantic.field_validator("path")
     @classmethod
-    def resolve_path(cls, v: typing.Any) -> typing.Any:
+    def resolve_path(cls, v: pathlib.Path) -> pathlib.Path:
         """Resolve given path."""
         if v is None:
             raise ValueError("'path' cannot be set to None.")
 
-        path = pathlib.Path(v)
-        return path.resolve()
+        return v.resolve()
 
     @pydantic.model_validator(mode="before")
     @classmethod
