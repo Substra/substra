@@ -146,6 +146,30 @@ class DataSampleSpec(_Spec):
     def is_many(self):
         return self.paths and len(self.paths) > 0
 
+    @pydantic.field_validator("paths")
+    @classmethod
+    def resolve_paths(cls, v: typing.Any) -> typing.Any:
+        """Resolve given paths."""
+        if v is None:
+            raise ValueError("'path' cannot be set to None.")
+
+        paths = []
+        for path in v:
+            path = pathlib.Path(path)
+            paths.append(path.resolve())
+
+        return paths
+
+    @pydantic.field_validator("path")
+    @classmethod
+    def resolve_path(cls, v: typing.Any) -> typing.Any:
+        """Resolve given path."""
+        if v is None:
+            raise ValueError("'path' cannot be set to None.")
+
+        path = pathlib.Path(v)
+        return path.resolve()
+
     @pydantic.model_validator(mode="before")
     @classmethod
     def exclusive_paths(cls, values: typing.Any) -> typing.Any:
@@ -154,24 +178,6 @@ class DataSampleSpec(_Spec):
             raise ValueError("'path' and 'paths' fields are exclusive.")
         if "paths" not in values and "path" not in values:
             raise ValueError("'path' or 'paths' field must be set.")
-        return values
-
-    @pydantic.model_validator(mode="before")
-    @classmethod
-    def resolve_paths(cls, values: typing.Any) -> typing.Any:
-        """Resolve given path is relative."""
-        if "paths" in values:
-            paths = []
-            for path in values["paths"]:
-                path = pathlib.Path(path)
-                paths.append(path.resolve())
-
-            values["paths"] = paths
-
-        elif "path" in values:
-            path = pathlib.Path(values["path"])
-            values["path"] = path.resolve()
-
         return values
 
     @contextlib.contextmanager
