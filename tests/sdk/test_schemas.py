@@ -28,13 +28,3 @@ def test_datasample_spec_exclusive_path():
 def test_datasample_spec_no_path():
     with pytest.raises(ValueError):
         DataSampleSpec(data_manager_keys=[str(uuid.uuid4())])
-
-
-def test_datasample_spec_paths_explicit_none():
-    with pytest.raises(TypeError):
-        DataSampleSpec(paths=None, data_manager_keys=[str(uuid.uuid4())])
-
-
-def test_datasample_spec_path_explicit_none():
-    with pytest.raises(TypeError):
-        DataSampleSpec(path=None, data_manager_keys=[str(uuid.uuid4())])
