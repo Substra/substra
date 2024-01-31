@@ -257,7 +257,6 @@ class Worker:
         with self._context(task.key) as task_dir:
             task.status = models.Status.doing
             task.start_date = datetime.datetime.now()
-
             function = self._db.get_with_files(schemas.Type.Function, task.function.key)
             input_multiplicity = {i.identifier: i.multiple for i in function.inputs}
             compute_plan = self._db.get(schemas.Type.ComputePlan, task.compute_plan_key)

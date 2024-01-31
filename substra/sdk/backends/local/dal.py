@@ -38,7 +38,7 @@ class DataAccess:
     def _get_asset_content_filename(self, type_):
         if type_ == schemas.Type.Function:
             filename = "function.tar.gz"
-            field_name = "function"
+            field_name = "archive"
 
         elif type_ == schemas.Type.Dataset:
             filename = "opener.py"
