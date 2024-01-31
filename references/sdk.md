@@ -211,7 +211,7 @@ describe_function(self, key: str) -> str
 Get function description.
 ## download_dataset
 ```text
-download_dataset(self, key: str, destination_folder: str) -> None
+download_dataset(self, key: str, destination_folder: str) -> pathlib.Path
 ```
 
 Download data manager resource.
@@ -226,7 +226,7 @@ Download opener script in destination folder.
  - `pathlib.Path`: Path of the downloaded dataset
 ## download_function
 ```text
-download_function(self, key: str, destination_folder: str) -> None
+download_function(self, key: str, destination_folder: str) -> pathlib.Path
 ```
 
 Download function resource.
