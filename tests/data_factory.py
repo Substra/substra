@@ -400,11 +400,17 @@ class AssetsFactory:
                 (
                     BAD_ENTRYPOINT_DOCKERFILE
                     if dockerfile_type == "BAD_ENTRYPOINT"
-                    else NO_ENTRYPOINT_DOCKERFILE
-                    if dockerfile_type == "NO_ENTRYPOINT"
-                    else NO_FUNCTION_NAME_DOCKERFILE
-                    if dockerfile_type == "NO_FUNCTION_NAME"
-                    else DEFAULT_FUNCTION_DOCKERFILE.format(function_name=DEFAULT_FUNCTION_FUNCTION_NAME[category])
+                    else (
+                        NO_ENTRYPOINT_DOCKERFILE
+                        if dockerfile_type == "NO_ENTRYPOINT"
+                        else (
+                            NO_FUNCTION_NAME_DOCKERFILE
+                            if dockerfile_type == "NO_FUNCTION_NAME"
+                            else DEFAULT_FUNCTION_DOCKERFILE.format(
+                                function_name=DEFAULT_FUNCTION_FUNCTION_NAME[category]
+                            )
+                        )
+                    )
                 ),
             ),
         )
