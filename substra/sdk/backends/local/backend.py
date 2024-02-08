@@ -293,7 +293,7 @@ class Local(base.BaseBackend):
                     "authorized_ids": permissions.authorized_ids,
                 },
             },
-            function={"checksum": fs.hash_file(function_file_path), "storage_address": function_file_path},
+            archive={"checksum": fs.hash_file(function_file_path), "storage_address": function_file_path},
             description={
                 "checksum": fs.hash_file(function_description_path),
                 "storage_address": function_description_path,

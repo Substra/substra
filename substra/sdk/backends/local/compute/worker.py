@@ -257,7 +257,6 @@ class Worker:
         with self._context(task.key) as task_dir:
             task.status = models.Status.doing
             task.start_date = datetime.datetime.now()
-
             function = self._db.get_with_files(schemas.Type.Function, task.function.key)
             input_multiplicity = {i.identifier: i.multiple for i in function.inputs}
             compute_plan = self._db.get(schemas.Type.ComputePlan, task.compute_plan_key)
@@ -356,10 +355,10 @@ class Worker:
             command_template += ["--log-level", "warning"]
 
             # Task execution
-            container_name = f"function-{function.function.checksum}"
+            container_name = f"function-{function.archive.checksum}"
             self._spawner.spawn(
                 container_name,
-                str(function.function.storage_address),
+                str(function.archive.storage_address),
                 command_args_tpl=[string.Template(str(part)) for part in command_template],
                 local_volumes=volumes,
                 data_sample_paths=data_sample_paths,

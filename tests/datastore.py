@@ -12,7 +12,7 @@ METRIC = {
         "checksum": "77c7a32520f7564b03f4abac4271307cc639cd9fb78b90435328278f3f24d796",
         "storage_address": "http://testserver/metric/7b75b728-9b9b-45fe-a867-4bb1525b7b5d/description/",
     },
-    "function": {
+    "archive": {
         "checksum": "52eea19fccfde2b12e30f4d16fd7d48f035e03210ad5804616f71799c4bdc0de",
         "storage_address": "http://testserver/metric/7b75b728-9b9b-45fe-a867-4bb1525b7b5d/file/",
     },
@@ -68,7 +68,7 @@ FUNCTION = {
         "checksum": "756589d5971c421a388a751d533ab8ce09715c93040e9e8fff1365e831545aa2",
         "storage_address": "http://testserver/function/17f98afc-2b82-4ce9-b232-1a471633d020/description/",
     },
-    "function": {
+    "archive": {
         "checksum": "aa8d43bf6e3341b0034a2e396451ab731ccca95a4c1d4f65a4fcd30f9081ec7d",
         "storage_address": "http://testserver/function/17f98afc-2b82-4ce9-b232-1a471633d020/file/",
     },
@@ -95,7 +95,7 @@ FUNCTION_PREDICT = {
         "checksum": "756589d5971c421a388a751d533ab8ce09715c93040e9e8fff1365e831545aa2",
         "storage_address": "http://testserver/function/681eedb9-db00-4480-a66f-63c86cc20280/description/",
     },
-    "function": {
+    "archive": {
         "checksum": "aa8d43bf6e3341b0034a2e396451ab731ccca95a4c1d4f65a4fcd30f9081ec7d",
         "storage_address": "http://testserver/function/681eedb9-db00-4480-a66f-63c86cc20280/file/",
     },
@@ -123,7 +123,7 @@ FUNCTION_METRIC = {
         "checksum": "756589d5971c421a388a751d533ab8ce09715c93040e9e8fff1365e831545aa2",
         "storage_address": "http://testserver/function/6a8ada2e-740f-46f4-af0f-11376763ed72/description/",
     },
-    "function": {
+    "archive": {
         "checksum": "aa8d43bf6e3341b0034a2e396451ab731ccca95a4c1d4f65a4fcd30f9081ec7d",
         "storage_address": "http://testserver/function/6a8ada2e-740f-46f4-af0f-11376763ed72/file/",
     },
@@ -152,7 +152,7 @@ TRAINTASK = {
             "checksum": "756589d5971c421a388a751d533ab8ce09715c93040e9e8fff1365e831545aa2",
             "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/function/17f98afc-2b82-4ce9-b232-1a471633d020/description/",  # noqa: E501
         },
-        "function": {
+        "archive": {
             "checksum": "aa8d43bf6e3341b0034a2e396451ab731ccca95a4c1d4f65a4fcd30f9081ec7d",
             "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/function/17f98afc-2b82-4ce9-b232-1a471633d020/file/",  # noqa: E501
         },
@@ -217,7 +217,7 @@ AGGREGATETASK = {
     "function": {
         "key": "7c9f9799-bf64-c100-6238-1583a9ffc535",
         "name": "Logistic regression",
-        "function": {
+        "archive": {
             "checksum": "7c9f9799bf64c10002381583a9ffc535bc3f4bf14d6g0c614d3f6f868f72a9d5",
             "storage_address": "",
         },
@@ -294,7 +294,7 @@ COMPOSITE_TRAINTASK = {
             "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
             "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/function/c663b6e6-dd62-49fb-afe8-191fa7627a64/description/",  # noqa: E501
         },
-        "function": {
+        "archive": {
             "checksum": "51bd5fe2e7f087b203d1b4a73f3b3276b9fde96a0fff9c1f5984de96e4675d59",
             "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/function/c663b6e6-dd62-49fb-afe8-191fa7627a64/file/",  # noqa: E501
         },
@@ -406,7 +406,7 @@ COMPOSITE_TRAINTASK_DOING = {
             "checksum": "40483cd8b99ea7fbd3b73020997ea07547771993a6a3fa56fa2a8e9d7860529e",
             "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/function/c663b6e6-dd62-49fb-afe8-191fa7627a64/description/",  # noqa: E501
         },
-        "function": {
+        "archive": {
             "checksum": "51bd5fe2e7f087b203d1b4a73f3b3276b9fde96a0fff9c1f5984de96e4675d59",
             "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/function/c663b6e6-dd62-49fb-afe8-191fa7627a64/file/",  # noqa: E501
         },
@@ -467,7 +467,7 @@ PREDICTTASK = {
             "checksum": "756589d5971c421a388a751d533ab8ce09715c93040e9e8fff1365e831545aa2",
             "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/function/681eedb9-db00-4480-a66f-63c86cc20280/description/",  # noqa: E501
         },
-        "function": {
+        "archive": {
             "checksum": "aa8d43bf6e3341b0034a2e396451ab731ccca95a4c1d4f65a4fcd30f9081ec7d",
             "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/function/681eedb9-db00-4480-a66f-63c86cc20280/file/",  # noqa: E501
         },
@@ -526,7 +526,7 @@ TESTTASK = {
             "checksum": "756589d5971c421a388a751d533ab8ce09715c93040e9e8fff1365e831545aa2",
             "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/function/6a8ada2e-740f-46f4-af0f-11376763ed72/description/",  # noqa: E501
         },
-        "function": {
+        "archive": {
             "checksum": "aa8d43bf6e3341b0034a2e396451ab731ccca95a4c1d4f65a4fcd30f9081ec7d",
             "storage_address": "http://backend-org-1-substra-backend-server.org-1:8000/function/6a8ada2e-740f-46f4-af0f-11376763ed72/file/",  # noqa: E501
         },

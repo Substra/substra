@@ -92,26 +92,25 @@ class Subprocess(BaseSpawner):
         envs,
     ):
         """Spawn a python process (blocking)."""
-        with tempfile.TemporaryDirectory(dir=self._local_worker_dir) as function_dir, tempfile.TemporaryDirectory(
-            dir=function_dir
-        ) as args_dir:
-            function_dir = pathlib.Path(function_dir)
-            args_dir = pathlib.Path(args_dir)
-            uncompress(archive_path, function_dir)
-            script_name, function_name = _get_entrypoint_from_dockerfile(function_dir)
+        with tempfile.TemporaryDirectory(dir=self._local_worker_dir) as function_dir:
+            with tempfile.TemporaryDirectory(dir=function_dir) as args_dir:
+                function_dir = pathlib.Path(function_dir)
+                args_dir = pathlib.Path(args_dir)
+                uncompress(archive_path, function_dir)
+                script_name, function_name = _get_entrypoint_from_dockerfile(function_dir)
 
-            args_file = args_dir / "arguments.txt"
+                args_file = args_dir / "arguments.txt"
 
-            py_command = [sys.executable, str(function_dir / script_name), f"@{args_file}"]
-            py_command_args = _get_command_args(function_name, command_args_tpl, local_volumes)
-            write_command_args_file(args_file, py_command_args)
+                py_command = [sys.executable, str(function_dir / script_name), f"@{args_file}"]
+                py_command_args = _get_command_args(function_name, command_args_tpl, local_volumes)
+                write_command_args_file(args_file, py_command_args)
 
-            if data_sample_paths is not None and len(data_sample_paths) > 0:
-                _symlink_data_samples(data_sample_paths, local_volumes[VOLUME_INPUTS])
+                if data_sample_paths is not None and len(data_sample_paths) > 0:
+                    _symlink_data_samples(data_sample_paths, local_volumes[VOLUME_INPUTS])
 
-            # Catching error and raising to be ISO to the docker local backend
-            # Don't capture the output to be able to use pdb
-            try:
-                subprocess.run(py_command, capture_output=False, check=True, cwd=function_dir, env=envs)
-            except subprocess.CalledProcessError as e:
-                raise ExecutionError(e)
+                # Catching error and raising to be ISO to the docker local backend
+                # Don't capture the output to be able to use pdb
+                try:
+                    subprocess.run(py_command, capture_output=False, check=True, cwd=function_dir, env=envs)
+                except subprocess.CalledProcessError as e:
+                    raise ExecutionError(e)

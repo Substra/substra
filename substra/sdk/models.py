@@ -178,7 +178,7 @@ class Function(_Model):
     outputs: List[FunctionOutput]
 
     description: _File
-    function: _File
+    archive: _File
 
     type_: ClassVar[str] = schemas.Type.Function
 

@@ -72,7 +72,7 @@ Asset creation specification base class.
 - inputs: typing.List[substra.sdk.models.FunctionInput]
 - outputs: typing.List[substra.sdk.models.FunctionOutput]
 - description: <class 'substra.sdk.models._File'>
-- function: <class 'substra.sdk.models._File'>
+- archive: <class 'substra.sdk.models._File'>
 ```
 
 ## ComputePlan

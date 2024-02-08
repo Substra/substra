@@ -57,8 +57,8 @@ def test_verify_login(mocker, config):
     c.login("foo", "bar")
     c.logout()
     if config.get("insecure", None):
-        assert m_post.call_args.kwargs["verify"] == False
-        assert m_delete.call_args.kwargs["verify"] == False
+        assert m_post.call_args.kwargs["verify"] is False
+        assert m_delete.call_args.kwargs["verify"] is False
     else:
         assert "verify" not in m_post.call_args.kwargs or m_post.call_args.kwargs["verify"]
         assert "verify" not in m_post.call_args.kwargs or m_delete.call_args.kwargs["verify"]
