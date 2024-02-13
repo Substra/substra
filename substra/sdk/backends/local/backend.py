@@ -244,7 +244,7 @@ class Local(base.BaseBackend):
             # Add to the compute plan
             compute_plan.task_count += 1
             compute_plan.todo_count += 1
-            compute_plan.status = models.Status.waiting
+            compute_plan.status = models.ComputePlanStatus.waiting
 
         elif not spec.compute_plan_key and (spec.rank == 0 or spec.rank is None):
             # Create a compute plan
@@ -426,7 +426,8 @@ class Local(base.BaseBackend):
             inputs=_schemas_list_to_models_list(spec.inputs, models.InputRef),
             outputs=_output_from_spec(spec.outputs),
             tag=spec.tag or "",
-            status=models.Status.waiting,
+            # TODO: the waiting status should be more granular now
+            status=models.Status.waiting_for_builder_slot,
             metadata=spec.metadata if spec.metadata else dict(),
         )
 
