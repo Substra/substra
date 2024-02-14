@@ -325,7 +325,7 @@ class Remote(base.BaseBackend):
         """Download the logs of a failed task. If destination_file is set, return the full
         destination path, otherwise, return the logs as a str.
         """
-        url = f"{self._client.base_url}/logs/{task_key}/file/"
+        url = f"{self._client.base_url}/task/{task_key}/logs/"
 
         if destination_file:
             return self._download(url, destination_file)

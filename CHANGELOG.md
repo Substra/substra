@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - BREAKING: Renamed `function` field of the Function pydantic model to `archive`([#393](https://github.com/Substra/substra/pull/393))
 - BREAKING: Renamed ComputeTask status ([#397](https://github.com/Substra/substra/pull/397))
+- `download_logs` uses the new endpoint ([#398](https://github.com/Substra/substra/pull/398))
 
 ### Added
 
