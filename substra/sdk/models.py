@@ -307,8 +307,10 @@ class ComputePlan(_Model):
     owner: str
     metadata: Dict[str, str]
     task_count: int = 0
-    waiting_count: int = 0
-    todo_count: int = 0
+    waiting_builder_slot_count: int = 0
+    building_count: int = 0
+    waiting_parent_tasks_count: int = 0
+    waiting_executor_slot_count: int = 0
     doing_count: int = 0
     canceled_count: int = 0
     failed_count: int = 0

@@ -217,7 +217,7 @@ class Local(base.BaseBackend):
             tag="",
             name=key,
             task_count=task_count,
-            todo_count=task_count,
+            waiting_for_executor_slot=task_count,
             metadata=dict(),
             owner="local",
             delete_intermediary_models=False,
@@ -243,7 +243,7 @@ class Local(base.BaseBackend):
 
             # Add to the compute plan
             compute_plan.task_count += 1
-            compute_plan.todo_count += 1
+            compute_plan.waiting_executor_slot_count += 1
             compute_plan.status = models.ComputePlanStatus.waiting
 
         elif not spec.compute_plan_key and (spec.rank == 0 or spec.rank is None):
@@ -390,8 +390,10 @@ class Local(base.BaseBackend):
             status=models.ComputePlanStatus.empty,
             metadata=spec.metadata or dict(),
             task_count=0,
-            waiting_count=0,
-            todo_count=0,
+            waiting_builder_slot_count=0,
+            building_count=0,
+            waiting_parent_tasks_count=0,
+            waiting_executor_slot_count=0,
             doing_count=0,
             canceled_count=0,
             failed_count=0,

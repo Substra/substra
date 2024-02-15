@@ -1,15 +1,17 @@
 # Summary
 
-- [DataSample](#DataSample)
-- [Dataset](#Dataset)
-- [Task](#Task)
-- [Function](#Function)
-- [ComputePlan](#ComputePlan)
-- [Performances](#Performances)
-- [Organization](#Organization)
-- [Permissions](#Permissions)
-- [InModel](#InModel)
-- [OutModel](#OutModel)
+- [Summary](#summary)
+- [Models](#models)
+  - [DataSample](#datasample)
+  - [Dataset](#dataset)
+  - [Task](#task)
+  - [Function](#function)
+  - [ComputePlan](#computeplan)
+  - [Performances](#performances)
+  - [Organization](#organization)
+  - [Permissions](#permissions)
+  - [InModel](#inmodel)
+  - [OutModel](#outmodel)
 
 
 # Models
@@ -84,8 +86,10 @@ ComputePlan
 - owner: <class 'str'>
 - metadata: typing.Dict[str, str]
 - task_count: <class 'int'>
-- waiting_count: <class 'int'>
-- todo_count: <class 'int'>
+- waiting_parent_tasks_count: <class 'int'>;
+- waiting_executor_slot_count: <class 'int'>;
+- waiting_builder_slot_count: <class 'int'>;
+- building_count: <class 'int'>;
 - doing_count: <class 'int'>
 - canceled_count: <class 'int'>
 - failed_count: <class 'int'>

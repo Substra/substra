@@ -99,7 +99,7 @@ class Worker:
 
     def _update_cp(self, compute_plan: models.ComputePlan, update_live_performances: bool):
         compute_plan.done_count += 1
-        compute_plan.todo_count -= 1
+        compute_plan.waiting_executor_slot_count -= 1
         if compute_plan.done_count == compute_plan.task_count:
             compute_plan.status = models.ComputePlanStatus.done
             compute_plan.end_date = datetime.datetime.now()
