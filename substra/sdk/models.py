@@ -34,11 +34,13 @@ class Status(str, enum.Enum):
     """Status of the task"""
 
     unknown = "STATUS_UNKNOWN"
+    building = "STATUS_BUILDING"
     doing = "STATUS_DOING"
     done = "STATUS_DONE"
     failed = "STATUS_FAILED"
-    todo = "STATUS_TODO"
-    waiting = "STATUS_WAITING"
+    waiting_for_executor_slot = "STATUS_WAITING_FOR_EXECUTOR_SLOT"
+    waiting_for_parent_tasks = "STATUS_WAITING_FOR_PARENT_TASKS"
+    waiting_for_builder_slot = "STATUS_WAITING_FOR_BUILDER_SLOT"
     canceled = "STATUS_CANCELED"
 
 
@@ -305,8 +307,10 @@ class ComputePlan(_Model):
     owner: str
     metadata: Dict[str, str]
     task_count: int = 0
-    waiting_count: int = 0
-    todo_count: int = 0
+    waiting_builder_slot_count: int = 0
+    building_count: int = 0
+    waiting_parent_tasks_count: int = 0
+    waiting_executor_slot_count: int = 0
     doing_count: int = 0
     canceled_count: int = 0
     failed_count: int = 0

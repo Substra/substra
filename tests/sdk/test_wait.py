@@ -58,7 +58,9 @@ def test_wait_task_failed(client, mocker):
 @pytest.mark.parametrize(
     ("asset_dict", "function_name", "status"),
     [
-        (datastore.TRAINTASK, "wait_task", Status.todo),
+        (datastore.TRAINTASK, "wait_task", Status.waiting_for_parent_tasks),
+        (datastore.TRAINTASK, "wait_task", Status.waiting_for_builder_slot),
+        (datastore.TRAINTASK, "wait_task", Status.waiting_for_executor_slot),
         (datastore.COMPUTE_PLAN, "wait_compute_plan", ComputePlanStatus.todo),
     ],
     ids=_param_name_maker,

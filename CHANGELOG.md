@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - BREAKING: Renamed `function` field of the Function pydantic model to `archive`([#393](https://github.com/Substra/substra/pull/393))
+- BREAKING: Renamed ComputeTask status ([#397](https://github.com/Substra/substra/pull/397))
 
 ### Added
 
