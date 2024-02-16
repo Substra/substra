@@ -123,7 +123,7 @@ class DataAccess:
         performances = models.Performances()
 
         for task in list_tasks:
-            if task.status == models.Status.done:
+            if task.status == models.ComputeTaskStatus.done:
                 function = self.get(schemas.Type.Function, task.function.key)
                 perf_identifiers = [
                     output.identifier for output in function.outputs if output.kind == schemas.AssetKind.performance

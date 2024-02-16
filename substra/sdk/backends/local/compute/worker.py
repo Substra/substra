@@ -255,7 +255,7 @@ class Worker:
             task: Task to execute
         """
         with self._context(task.key) as task_dir:
-            task.status = models.Status.doing
+            task.status = models.ComputeTaskStatus.doing
             task.start_date = datetime.datetime.now()
             function = self._db.get_with_files(schemas.Type.Function, task.function.key)
             input_multiplicity = {i.identifier: i.multiple for i in function.inputs}
@@ -377,7 +377,7 @@ class Worker:
                 )
 
             # Set status
-            task.status = models.Status.done
+            task.status = models.ComputeTaskStatus.done
             task.end_date = datetime.datetime.now()
 
             self._update_cp(compute_plan=compute_plan, update_live_performances=update_live_performances)

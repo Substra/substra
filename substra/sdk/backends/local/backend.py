@@ -429,7 +429,7 @@ class Local(base.BaseBackend):
             outputs=_output_from_spec(spec.outputs),
             tag=spec.tag or "",
             # TODO: the waiting status should be more granular now
-            status=models.Status.waiting_for_executor_slot,
+            status=models.ComputeTaskStatus.waiting_for_executor_slot,
             metadata=spec.metadata if spec.metadata else dict(),
         )
 

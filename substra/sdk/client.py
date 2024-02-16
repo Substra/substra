@@ -763,7 +763,7 @@ class Client:
             worker (List[str]): list tasks which ran on listed workers. Remote mode only.\n
             rank (List[int]): list tasks which are at given ranks.\n
             status (List[str]): list tasks with given status.
-                The possible values are the values of `substra.models.Status`
+                The possible values are the values of `substra.models.ComputeTaskStatus`
             metadata (dict)
                 {
                     "key": str # the key of the metadata to filter on
@@ -1062,9 +1062,9 @@ class Client:
                 Not raised when `timeout == None`
         """
         asset_getter = self.get_task
-        status_canceled = models.Status.canceled.value
-        status_failed = models.Status.failed.value
-        statuses_stopped = (models.Status.done.value, models.Status.canceled.value)
+        status_canceled = models.ComputeTaskStatus.canceled.value
+        status_failed = models.ComputeTaskStatus.failed.value
+        statuses_stopped = (models.ComputeTaskStatus.done.value, models.ComputeTaskStatus.canceled.value)
         return self._wait(
             key=key,
             asset_getter=asset_getter,
@@ -1095,7 +1095,7 @@ class Client:
             if asset.status in statuses_stopped:
                 break
 
-            if asset.status == models.Status.failed.value and asset.error_type is not None:
+            if asset.status == models.ComputeTaskStatus.failed.value and asset.error_type is not None:
                 # when dealing with a failed task, wait for the error_type field of the task to be set
                 # i.e. wait for the registration of the failure report
                 break

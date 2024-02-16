@@ -30,7 +30,7 @@ class MetadataFilterType(str, enum.Enum):
     exists = "exists"
 
 
-class Status(str, enum.Enum):
+class ComputeTaskStatus(str, enum.Enum):
     """Status of the task"""
 
     unknown = "STATUS_UNKNOWN"
@@ -268,7 +268,7 @@ class Task(_Model):
     owner: str
     compute_plan_key: str
     metadata: Dict[str, str]
-    status: Status
+    status: ComputeTaskStatus
     worker: str
     rank: Optional[int] = None
     tag: str
