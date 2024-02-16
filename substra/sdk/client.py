@@ -1076,6 +1076,43 @@ class Client:
             timeout=timeout,
         )
 
+    @logit
+    def wait_function(
+        self, key: str, *, timeout: Optional[float] = None, polling_period: float = 1.0, raise_on_failure: bool = True
+    ) -> models.Task:
+        """Wait for the build of the given function to finish.
+
+        It is considered finished when the status is ready, failed or cancelled.
+
+        Args:
+            key (str): the key of the task to wait for.
+            timeout (float, optional): maximum time to wait, in seconds. If set to None, will hang until completion.
+            polling_period (float): time to wait between two checks, in seconds. Defaults to 2.0.
+            raise_on_failure (bool): whether to raise an exception if the execution fails. Defaults to True.
+
+        Returns:
+            models.Task: the task after completion
+
+         Raises:
+            exceptions.FutureFailureError: The task failed or have been cancelled.
+            exceptions.FutureTimeoutError: The task took more than the duration set in the timeout to complete.
+                Not raised when `timeout == None`
+        """
+        asset_getter = self.get_function
+        status_canceled = models.FunctionStatus.canceled.value
+        status_failed = models.FunctionStatus.failed.value
+        statuses_stopped = (models.FunctionStatus.ready.value, models.FunctionStatus.canceled.value)
+        return self._wait(
+            key=key,
+            asset_getter=asset_getter,
+            polling_period=polling_period,
+            raise_on_failure=raise_on_failure,
+            status_canceled=status_canceled,
+            status_failed=status_failed,
+            statuses_stopped=statuses_stopped,
+            timeout=timeout,
+        )
+
     def _wait(
         self,
         *,
