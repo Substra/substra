@@ -78,6 +78,7 @@ FUNCTION = {
         "opener": {"kind": "ASSET_DATA_MANAGER", "optional": False, "multiple": False},
     },
     "outputs": {"model": {"kind": "ASSET_MODEL", "multiple": False}},
+    "status": "FUNCTION_STATUS_READY",
 }
 
 
@@ -106,6 +107,7 @@ FUNCTION_PREDICT = {
         "shared": {"kind": "ASSET_MODEL", "optional": True, "multiple": False},
     },
     "outputs": {"predictions": {"kind": "ASSET_MODEL", "multiple": False}},
+    "status": "FUNCTION_STATUS_READY",
 }
 
 
@@ -133,6 +135,7 @@ FUNCTION_METRIC = {
         "predictions": {"kind": "ASSET_MODEL", "optional": False, "multiple": False},
     },
     "outputs": {"performance": {"kind": "ASSET_PERFORMANCE", "multiple": False}},
+    "status": "FUNCTION_STATUS_READY",
 }
 
 
@@ -162,6 +165,7 @@ TRAINTASK = {
             "opener": {"kind": "ASSET_DATA_MANAGER", "optional": False, "multiple": False},
         },
         "outputs": {"model": {"kind": "ASSET_MODEL", "multiple": False}},
+        "status": "FUNCTION_STATUS_READY",
     },
     "owner": "MyOrg1MSP",
     "creation_date": "2021-08-24T13:36:07.393646367Z",
@@ -234,6 +238,7 @@ AGGREGATETASK = {
         "metadata": {"foo": "bar"},
         "inputs": {"model": {"kind": "ASSET_MODEL", "optional": False, "multiple": True}},
         "outputs": {"model": {"kind": "ASSET_MODEL", "multiple": False}},
+        "status": "FUNCTION_STATUS_READY",
     },
     "owner": "MyOrg1MSP",
     "creation_date": "2021-08-24T13:36:07.393646367Z",
@@ -308,6 +313,7 @@ COMPOSITE_TRAINTASK = {
             "local": {"kind": "ASSET_MODEL", "multiple": False},
             "shared": {"kind": "ASSET_MODEL", "multiple": False},
         },
+        "status": "FUNCTION_STATUS_READY",
     },
     "owner": "MyOrg1MSP",
     "creation_date": "2021-08-24T13:36:07.393646367Z",
@@ -420,6 +426,7 @@ COMPOSITE_TRAINTASK_DOING = {
             "local": {"kind": "ASSET_MODEL", "multiple": False},
             "shared": {"kind": "ASSET_MODEL", "multiple": False},
         },
+        "status": "FUNCTION_STATUS_READY",
     },
     "owner": "MyOrg1MSP",
     "creation_date": "2021-08-24T13:36:07.393646367Z",
@@ -478,6 +485,7 @@ PREDICTTASK = {
             "shared": {"kind": "ASSET_MODEL", "optional": True, "multiple": False},
         },
         "outputs": {"predictions": {"kind": "ASSET_MODEL", "multiple": False}},
+        "status": "FUNCTION_STATUS_READY",
     },
     "owner": "MyOrg1MSP",
     "creation_date": "2021-08-24T13:36:07.393646367Z",
@@ -536,6 +544,7 @@ TESTTASK = {
             "predictions": {"kind": "ASSET_MODEL", "optional": False, "multiple": False},
         },
         "outputs": {"performance": {"kind": "ASSET_PERFORMANCE", "multiple": False}},
+        "status": "FUNCTION_STATUS_READY",
     },
     "owner": "MyOrg1MSP",
     "creation_date": "2021-08-24T13:36:07.393646367Z",

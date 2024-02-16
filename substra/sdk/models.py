@@ -57,6 +57,17 @@ class ComputePlanStatus(str, enum.Enum):
     empty = "PLAN_STATUS_EMPTY"
 
 
+class FunctionStatus(str, enum.Enum):
+    """Status of the function"""
+
+    unknown = "FUNCTION_STATUS_UNKNOWN"
+    waiting = "FUNCTION_STATUS_WAITING"
+    building = "FUNCTION_STATUS_BUILDING"
+    ready = "FUNCTION_STATUS_READY"
+    failed = "FUNCTION_STATUS_FAILED"
+    canceled = "FUNCTION_STATUS_CANCELED"
+
+
 class TaskErrorType(str, enum.Enum):
     """Types of errors that can occur in a task"""
 
@@ -178,6 +189,7 @@ class Function(_Model):
     creation_date: datetime
     inputs: List[FunctionInput]
     outputs: List[FunctionOutput]
+    status: FunctionStatus
 
     description: _File
     archive: _File

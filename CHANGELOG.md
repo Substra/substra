@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Paths are now resolved on DatasampleSpec objects. Which means that users can pass relative paths ([#392](https://github.com/Substra/substra/pull/392))
+- Added FunctionStatus ([#399](https://github.com/Substra/substra/pull/399))
 
 ## [0.49.0](https://github.com/Substra/substra/releases/tag/0.49.0) - 2023-10-18
 

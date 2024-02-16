@@ -301,6 +301,7 @@ class Local(base.BaseBackend):
             metadata=spec.metadata if spec.metadata else dict(),
             inputs=_schemas_list_to_models_list(spec.inputs, models.FunctionInput),
             outputs=_schemas_list_to_models_list(spec.outputs, models.FunctionOutput),
+            status=models.FunctionStatus.ready,
         )
         return self._db.add(function)
 
