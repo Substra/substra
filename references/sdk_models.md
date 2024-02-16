@@ -48,7 +48,7 @@ Asset creation specification base class.
 - owner: <class 'str'>
 - compute_plan_key: <class 'str'>
 - metadata: typing.Dict[str, str]
-- status: <enum 'Status'>
+- status: <enum 'ComputeTaskStatus'>
 - worker: <class 'str'>
 - rank: typing.Optional[int]
 - tag: <class 'str'>

@@ -10,12 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - BREAKING: Renamed `function` field of the Function pydantic model to `archive`([#393](https://github.com/Substra/substra/pull/393))
-- BREAKING: Renamed ComputeTask status ([#397](https://github.com/Substra/substra/pull/397))
+- BREAKING: Renamed ComputeTask status values ([#397](https://github.com/Substra/substra/pull/397))
 - `download_logs` uses the new endpoint ([#398](https://github.com/Substra/substra/pull/398))
+- BREAKING: Renamed Status to ComputeTaskStatus ([#399](https://github.com/Substra/substra/pull/399))
 
 ### Added
 
 - Paths are now resolved on DatasampleSpec objects. Which means that users can pass relative paths ([#392](https://github.com/Substra/substra/pull/392))
+- Added FunctionStatus ([#399](https://github.com/Substra/substra/pull/399))
 
 ## [0.49.0](https://github.com/Substra/substra/releases/tag/0.49.0) - 2023-10-18
 

@@ -4,7 +4,7 @@ import pytest
 
 from substra.sdk import exceptions
 from substra.sdk.models import ComputePlanStatus
-from substra.sdk.models import Status
+from substra.sdk.models import ComputeTaskStatus
 from substra.sdk.models import TaskErrorType
 
 from .. import datastore
@@ -21,8 +21,8 @@ def _param_name_maker(arg):
 @pytest.mark.parametrize(
     ("asset_dict", "function_name", "status", "expectation"),
     [
-        (datastore.TRAINTASK, "wait_task", Status.done, does_not_raise()),
-        (datastore.TRAINTASK, "wait_task", Status.canceled, pytest.raises(exceptions.FutureFailureError)),
+        (datastore.TRAINTASK, "wait_task", ComputeTaskStatus.done, does_not_raise()),
+        (datastore.TRAINTASK, "wait_task", ComputeTaskStatus.canceled, pytest.raises(exceptions.FutureFailureError)),
         (datastore.COMPUTE_PLAN, "wait_compute_plan", ComputePlanStatus.done, does_not_raise()),
         (
             datastore.COMPUTE_PLAN,
@@ -49,7 +49,7 @@ def test_wait(client, mocker, asset_dict, function_name, status, expectation):
 
 def test_wait_task_failed(client, mocker):
     # We need an error type to stop the iteration
-    item = {**datastore.TRAINTASK, "status": Status.failed, "error_type": TaskErrorType.internal}
+    item = {**datastore.TRAINTASK, "status": ComputeTaskStatus.failed, "error_type": TaskErrorType.internal}
     mock_requests(mocker, "get", item)
     with pytest.raises(exceptions.FutureFailureError):
         client.wait_task(key=item["key"])
@@ -58,9 +58,9 @@ def test_wait_task_failed(client, mocker):
 @pytest.mark.parametrize(
     ("asset_dict", "function_name", "status"),
     [
-        (datastore.TRAINTASK, "wait_task", Status.waiting_for_parent_tasks),
-        (datastore.TRAINTASK, "wait_task", Status.waiting_for_builder_slot),
-        (datastore.TRAINTASK, "wait_task", Status.waiting_for_executor_slot),
+        (datastore.TRAINTASK, "wait_task", ComputeTaskStatus.waiting_for_parent_tasks),
+        (datastore.TRAINTASK, "wait_task", ComputeTaskStatus.waiting_for_builder_slot),
+        (datastore.TRAINTASK, "wait_task", ComputeTaskStatus.waiting_for_executor_slot),
         (datastore.COMPUTE_PLAN, "wait_compute_plan", ComputePlanStatus.todo),
     ],
     ids=_param_name_maker,

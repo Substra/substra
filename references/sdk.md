@@ -546,7 +546,7 @@ The ``filters`` argument is a dictionary, with those possible keys:
     rank (List[int]): list tasks which are at given ranks.
 
     status (List[str]): list tasks with given status.
-        The possible values are the values of `substra.models.Status`
+        The possible values are the values of `substra.models.ComputeTaskStatus`
     metadata (dict)
         {
             "key": str # the key of the metadata to filter on

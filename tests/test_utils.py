@@ -81,8 +81,8 @@ def test_check_metadata_search_filter(filters, expected, exception):
         ),
         (
             schemas.Type.Task,
-            {"status": [substra.models.Status.done.value]},
-            {"status": [substra.models.Status.done.value]},
+            {"status": [substra.models.ComputeTaskStatus.done.value]},
+            {"status": [substra.models.ComputeTaskStatus.done.value]},
             None,
         ),
         (schemas.Type.Task, {"rank": [1]}, {"rank": ["1"]}, None),

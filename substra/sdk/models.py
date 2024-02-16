@@ -30,7 +30,7 @@ class MetadataFilterType(str, enum.Enum):
     exists = "exists"
 
 
-class Status(str, enum.Enum):
+class ComputeTaskStatus(str, enum.Enum):
     """Status of the task"""
 
     unknown = "STATUS_UNKNOWN"
@@ -55,6 +55,17 @@ class ComputePlanStatus(str, enum.Enum):
     waiting = "PLAN_STATUS_WAITING"
     canceled = "PLAN_STATUS_CANCELED"
     empty = "PLAN_STATUS_EMPTY"
+
+
+class FunctionStatus(str, enum.Enum):
+    """Status of the function"""
+
+    unknown = "FUNCTION_STATUS_UNKNOWN"
+    waiting = "FUNCTION_STATUS_WAITING"
+    building = "FUNCTION_STATUS_BUILDING"
+    ready = "FUNCTION_STATUS_READY"
+    failed = "FUNCTION_STATUS_FAILED"
+    canceled = "FUNCTION_STATUS_CANCELED"
 
 
 class TaskErrorType(str, enum.Enum):
@@ -178,6 +189,7 @@ class Function(_Model):
     creation_date: datetime
     inputs: List[FunctionInput]
     outputs: List[FunctionOutput]
+    status: FunctionStatus
 
     description: _File
     archive: _File
@@ -268,7 +280,7 @@ class Task(_Model):
     owner: str
     compute_plan_key: str
     metadata: Dict[str, str]
-    status: Status
+    status: ComputeTaskStatus
     worker: str
     rank: Optional[int] = None
     tag: str

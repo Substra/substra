@@ -301,6 +301,7 @@ class Local(base.BaseBackend):
             metadata=spec.metadata if spec.metadata else dict(),
             inputs=_schemas_list_to_models_list(spec.inputs, models.FunctionInput),
             outputs=_schemas_list_to_models_list(spec.outputs, models.FunctionOutput),
+            status=models.FunctionStatus.ready,
         )
         return self._db.add(function)
 
@@ -429,7 +430,7 @@ class Local(base.BaseBackend):
             outputs=_output_from_spec(spec.outputs),
             tag=spec.tag or "",
             # TODO: the waiting status should be more granular now
-            status=models.Status.waiting_for_executor_slot,
+            status=models.ComputeTaskStatus.waiting_for_executor_slot,
             metadata=spec.metadata if spec.metadata else dict(),
         )
 
