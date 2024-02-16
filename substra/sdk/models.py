@@ -35,7 +35,7 @@ class ComputeTaskStatus(str, enum.Enum):
 
     unknown = "STATUS_UNKNOWN"
     building = "STATUS_BUILDING"
-    doing = "STATUS_DOING"
+    executing = "STATUS_EXECUTING"
     done = "STATUS_DONE"
     failed = "STATUS_FAILED"
     waiting_for_executor_slot = "STATUS_WAITING_FOR_EXECUTOR_SLOT"
@@ -323,7 +323,7 @@ class ComputePlan(_Model):
     building_count: int = 0
     waiting_parent_tasks_count: int = 0
     waiting_executor_slot_count: int = 0
-    doing_count: int = 0
+    executing_count: int = 0
     canceled_count: int = 0
     failed_count: int = 0
     done_count: int = 0

@@ -395,7 +395,7 @@ class Local(base.BaseBackend):
             building_count=0,
             waiting_parent_tasks_count=0,
             waiting_executor_slot_count=0,
-            doing_count=0,
+            executing_count=0,
             canceled_count=0,
             failed_count=0,
             done_count=0,
