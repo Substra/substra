@@ -1101,7 +1101,11 @@ class Client:
         asset_getter = self.get_function
         status_canceled = models.FunctionStatus.canceled.value
         status_failed = models.FunctionStatus.failed.value
-        statuses_stopped = (models.FunctionStatus.ready.value, models.FunctionStatus.canceled.value)
+        statuses_stopped = (
+            models.FunctionStatus.ready.value,
+            models.FunctionStatus.canceled.value,
+            models.FunctionStatus.failed.value,
+        )
         return self._wait(
             key=key,
             asset_getter=asset_getter,
