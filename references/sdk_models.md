@@ -71,6 +71,7 @@ Asset creation specification base class.
 - creation_date: <class 'datetime.datetime'>
 - inputs: typing.List[substra.sdk.models.FunctionInput]
 - outputs: typing.List[substra.sdk.models.FunctionOutput]
+- status: <enum 'FunctionStatus'>
 - description: <class 'substra.sdk.models._File'>
 - archive: <class 'substra.sdk.models._File'>
 ```
