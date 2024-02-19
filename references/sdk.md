@@ -644,6 +644,27 @@ It is considered finished when the status is done, failed or cancelled.
 
  - `exceptions.FutureTimeoutError`: The compute plan took more than the duration set in the timeout to complete.
 Not raised when `timeout == None`
+## wait_function
+```text
+wait_function(self, key: str, *, timeout: Optional[float] = None, polling_period: float = 1.0, raise_on_failure: bool = True) -> substra.sdk.models.Function
+```
+
+Wait for the build of the given function to finish.
+It is considered finished when the status is ready, failed or cancelled.
+
+**Arguments:**
+ - `key (str, required)`: the key of the task to wait for.
+ - `timeout (float, optional)`: maximum time to wait, in seconds. If set to None, will hang until completion.
+ - `polling_period (float, required)`: time to wait between two checks, in seconds. Defaults to 2.0.
+ - `raise_on_failure (bool, required)`: whether to raise an exception if the execution fails. Defaults to True.
+
+**Returns:**
+
+ - `models.Function`: the function once built
+Raises:
+   exceptions.FutureFailureError: The function build failed or have been cancelled.
+   exceptions.FutureTimeoutError: The function took more than the duration set in the timeout to build.
+       Not raised when `timeout == None`
 ## wait_task
 ```text
 wait_task(self, key: str, *, timeout: Optional[float] = None, polling_period: float = 2.0, raise_on_failure: bool = True) -> substra.sdk.models.Task

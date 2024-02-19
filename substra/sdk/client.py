@@ -1079,7 +1079,7 @@ class Client:
     @logit
     def wait_function(
         self, key: str, *, timeout: Optional[float] = None, polling_period: float = 1.0, raise_on_failure: bool = True
-    ) -> models.Task:
+    ) -> models.Function:
         """Wait for the build of the given function to finish.
 
         It is considered finished when the status is ready, failed or cancelled.
@@ -1091,11 +1091,11 @@ class Client:
             raise_on_failure (bool): whether to raise an exception if the execution fails. Defaults to True.
 
         Returns:
-            models.Task: the task after completion
+            models.Function: the function once built
 
          Raises:
-            exceptions.FutureFailureError: The task failed or have been cancelled.
-            exceptions.FutureTimeoutError: The task took more than the duration set in the timeout to complete.
+            exceptions.FutureFailureError: The function build failed or have been cancelled.
+            exceptions.FutureTimeoutError: The function took more than the duration set in the timeout to build.
                 Not raised when `timeout == None`
         """
         asset_getter = self.get_function
