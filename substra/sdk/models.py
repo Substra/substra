@@ -51,10 +51,8 @@ class ComputePlanStatus(str, enum.Enum):
     doing = "PLAN_STATUS_DOING"
     done = "PLAN_STATUS_DONE"
     failed = "PLAN_STATUS_FAILED"
-    todo = "PLAN_STATUS_TODO"
-    waiting = "PLAN_STATUS_WAITING"
+    created = "PLAN_STATUS_CREATED"
     canceled = "PLAN_STATUS_CANCELED"
-    empty = "PLAN_STATUS_EMPTY"
 
 
 class FunctionStatus(str, enum.Enum):

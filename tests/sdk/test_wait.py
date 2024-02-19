@@ -61,7 +61,7 @@ def test_wait_task_failed(client, mocker):
         (datastore.TRAINTASK, "wait_task", ComputeTaskStatus.waiting_for_parent_tasks),
         (datastore.TRAINTASK, "wait_task", ComputeTaskStatus.waiting_for_builder_slot),
         (datastore.TRAINTASK, "wait_task", ComputeTaskStatus.waiting_for_executor_slot),
-        (datastore.COMPUTE_PLAN, "wait_compute_plan", ComputePlanStatus.todo),
+        (datastore.COMPUTE_PLAN, "wait_compute_plan", ComputePlanStatus.created),
     ],
     ids=_param_name_maker,
 )

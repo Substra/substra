@@ -213,7 +213,7 @@ class Local(base.BaseBackend):
             key=key,
             creation_date=self.__now(),
             start_date=self.__now(),
-            status=models.ComputePlanStatus.waiting,
+            status=models.ComputePlanStatus.created,
             tag="",
             name=key,
             task_count=task_count,
@@ -244,7 +244,7 @@ class Local(base.BaseBackend):
             # Add to the compute plan
             compute_plan.task_count += 1
             compute_plan.waiting_executor_slot_count += 1
-            compute_plan.status = models.ComputePlanStatus.waiting
+            compute_plan.status = models.ComputePlanStatus.created
 
         elif not spec.compute_plan_key and (spec.rank == 0 or spec.rank is None):
             # Create a compute plan
@@ -388,7 +388,7 @@ class Local(base.BaseBackend):
             start_date=self.__now(),
             tag=spec.tag or "",
             name=spec.name,
-            status=models.ComputePlanStatus.empty,
+            status=models.ComputePlanStatus.created,
             metadata=spec.metadata or dict(),
             task_count=0,
             waiting_builder_slot_count=0,
