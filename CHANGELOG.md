@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Compute task status `DOING` is renamed `EXECUTING` ([#401](https://github.com/Substra/substra/pull/401))
+- Compute plan statuses `EMPTY`, `WAITING` ansd `TODO` are merged into new status `CREATED` ([#401](https://github.com/Substra/substra/pull/401))
+
 ## [0.50.0](https://github.com/Substra/substra/releases/tag/0.50.0) - 2024-02-26
 
 ### Changed
