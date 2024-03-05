@@ -89,7 +89,7 @@ ComputePlan
 - building_count: <class 'int'>
 - waiting_parent_tasks_count: <class 'int'>
 - waiting_executor_slot_count: <class 'int'>
-- doing_count: <class 'int'>
+- executing_count: <class 'int'>
 - canceled_count: <class 'int'>
 - failed_count: <class 'int'>
 - done_count: <class 'int'>
