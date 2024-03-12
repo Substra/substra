@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Dropped Python 3.8 support
+- Dropped Python 3.8 support ([#404](https://github.com/Substra/substra/pull/404))
 - Compute task status `DOING` is renamed `EXECUTING` ([#401](https://github.com/Substra/substra/pull/401))
 - Compute plan statuses `EMPTY`, `WAITING` ansd `TODO` are merged into new status `CREATED` ([#401](https://github.com/Substra/substra/pull/401))
 
