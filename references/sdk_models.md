@@ -31,7 +31,6 @@ Dataset asset
 - name: <class 'str'>
 - owner: <class 'str'>
 - permissions: <class 'substra.sdk.models.Permissions'>
-- type: <class 'str'>
 - data_sample_keys: typing.List[str]
 - opener: <class 'substra.sdk.models._File'>
 - description: <class 'substra.sdk.models._File'>
