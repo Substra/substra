@@ -77,3 +77,18 @@ make doc
 ```
 
 Documentation will be available in the *references/* directory.
+
+# Changelog generation
+
+The changelog is managed with [towncrier](https://towncrier.readthedocs.io/en/stable/index.html).
+To add a new entry in the changelog, add a file in the `changes` folder. The file name should have the following structure:
+`<unique_id>.<change_type>`.
+The `unique_id` is a unique identifier, we currently use the PR number.
+The `change_type` can be of the following types: `added`, `changed`, `removed`, `fixed`.
+
+To generate the changelog (for example during a release), use the following command (you must have the dev dependencies installed):
+
+```
+towncrier build --version=<x.y.z>
+```
+You can use the `--draft` option to see what would be generated without actually writing to the changelog (and without removing the fragments).

@@ -60,6 +60,7 @@ setup(
             "flake8",
             "isort",
             "docstring_parser",
+            "towncrier",
         ],
     },
     zip_safe=False,
