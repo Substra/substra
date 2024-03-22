@@ -1,4 +1,62 @@
 
+[build-system]
+requires = ["setuptools>=61.0.0"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+exclude = ["tests*"]
+
+[tool.setuptools.dynamic]
+version = { attr = "substra.__version__" }
+
+[project]
+name = "substra"
+description = "Low-level Python library for interacting with a Substra network"
+python_requires = ">=3.9"
+dependencies = [
+    "requests",
+    "urllib3<2",
+    "docker",
+    "pyyaml",
+    "pydantic>=2.3.0,<3.0.0",
+    "tqdm",
+    "python-slugify",
+]
+keywords = ["substra"]
+classifiers = [
+    "License :: Apache 2.0",
+    "Intended Audience :: Developers",
+    "Topic :: Utilities",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+license = { file = "LICENSE" }
+authors = [{ name = "Owkin, Inc." }]
+dynamic = "version"
+
+[project.optional-dependencies]
+dev = [
+    "pandas",
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+    "substratools>=0.21.2",
+    "black",
+    "flake8",
+    "isort",
+    "docstring_parser",
+]
+
+[project.urls]
+Documentation = "https://docs.substra.org/en/stable/"
+Repository = "https://github.com/Substra/substra"
+Changelog = "https://github.com/Substra/substra/blob/main/CHANGELOG.md"
+
 [tool.black]
 line-length = 120
 target-version = ['py39']
