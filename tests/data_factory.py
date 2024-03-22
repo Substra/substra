@@ -362,7 +362,6 @@ class AssetsFactory:
         return substra.sdk.schemas.DatasetSpec(
             name=name,
             data_opener=str(opener_path),
-            type="Test",
             metadata=metadata,
             description=str(description_path),
             permissions=permissions or DEFAULT_PERMISSIONS,

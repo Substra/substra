@@ -282,7 +282,6 @@ class DatasetSpec(_Spec):
 
     name: str
     data_opener: pathlib.Path  # Path to the data opener
-    type: str
     description: pathlib.Path  # Path to the description file
     permissions: Permissions
     metadata: Optional[Dict[str, str]] = None
