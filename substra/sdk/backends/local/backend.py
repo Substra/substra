@@ -324,7 +324,6 @@ class Local(base.BaseBackend):
                     "authorized_ids": permissions.authorized_ids,
                 },
             },
-            type=spec.type,
             data_sample_keys=[],
             opener={"checksum": fs.hash_file(dataset_file_path), "storage_address": dataset_file_path},
             description={
