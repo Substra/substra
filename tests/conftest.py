@@ -40,7 +40,6 @@ def dataset_query(tmpdir):
     return {
         "name": "dataset_name",
         "data_opener": str(opener_path),
-        "type": "images",
         "description": str(desc_path),
         "permissions": {
             "public": True,
