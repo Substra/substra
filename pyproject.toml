@@ -55,6 +55,9 @@ Documentation = "https://docs.substra.org/en/stable/"
 Repository = "https://github.com/Substra/substra"
 Changelog = "https://github.com/Substra/substra/blob/main/CHANGELOG.md"
 
+[tool.pytest.ini_options]
+addopts = "-v --cov=substra --ignore=tests/unit --ignore=tests/e2e"
+
 [tool.black]
 line-length = 120
 target-version = ['py39']
