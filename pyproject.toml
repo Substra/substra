@@ -1,3 +1,62 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
+exclude = ["tests*"]
+
+[tool.hatch.version]
+path = "substra/__version__.py"
+
+[project]
+name = "substra"
+description = "Low-level Python library for interacting with a Substra network"
+dynamic = ["version"]
+requires-python = ">= 3.9"
+dependencies = [
+    "requests",
+    "urllib3<2",
+    "docker",
+    "pyyaml",
+    "pydantic>=2.3.0,<3.0.0",
+    "tqdm",
+    "python-slugify",
+]
+keywords = ["substra"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Topic :: Utilities",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+license = { file = "LICENSE" }
+authors = [{ name = "Owkin, Inc." }]
+
+
+[project.optional-dependencies]
+dev = [
+    "pandas",
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+    "substratools>=0.21.2",
+    "black",
+    "flake8",
+    "isort",
+    "docstring_parser",
+    "towncrier",
+]
+
+[project.urls]
+Documentation = "https://docs.substra.org/en/stable/"
+Repository = "https://github.com/Substra/substra"
+Changelog = "https://github.com/Substra/substra/blob/main/CHANGELOG.md"
+
+[tool.pytest.ini_options]
+addopts = "-v --cov=substra --ignore=tests/unit --ignore=tests/e2e"
 
 [tool.black]
 line-length = 120
