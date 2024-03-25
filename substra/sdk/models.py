@@ -150,7 +150,6 @@ class Dataset(_Model):
     name: str
     owner: str
     permissions: Permissions
-    type: str
     data_sample_keys: List[str] = []
     opener: _File
     description: _File

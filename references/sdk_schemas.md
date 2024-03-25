@@ -36,7 +36,6 @@ note : metadata field does not accept strings containing '__' as dict key
 ```text
 - name: <class 'str'>
 - data_opener: <class 'pathlib.Path'>
-- type: <class 'str'>
 - description: <class 'pathlib.Path'>
 - permissions: <class 'substra.sdk.schemas.Permissions'>
 - metadata: typing.Optional[typing.Dict[str, str]]

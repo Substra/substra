@@ -33,7 +33,6 @@ DATASET = {
         "process": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
         "download": {"public": True, "authorized_ids": ["MyOrg1MSP"]},
     },
-    "type": "Test",
     "data_sample_keys": [],
     "metadata": {"foo": "bar"},
     "opener": {
