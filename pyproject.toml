@@ -1,20 +1,16 @@
-
 [build-system]
-requires = ["setuptools>=61.0.0"]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.setuptools]
-include-package-data = true
-
-[tool.setuptools.packages.find]
+[tool.hatch.build.targets.sdist]
 exclude = ["tests*"]
 
-[tool.setuptools.dynamic]
-version = { attr = "substra.__version__" }
+[tool.hatch.version]
+path = "substra/__version__.py"
 
 [project]
 name = "substra"
 description = "Low-level Python library for interacting with a Substra network"
-python_requires = ">=3.9"
 dependencies = [
     "requests",
     "urllib3<2",
@@ -26,7 +22,6 @@ dependencies = [
 ]
 keywords = ["substra"]
 classifiers = [
-    "License :: Apache 2.0",
     "Intended Audience :: Developers",
     "Topic :: Utilities",
     "Natural Language :: English",
@@ -37,7 +32,9 @@ classifiers = [
 ]
 license = { file = "LICENSE" }
 authors = [{ name = "Owkin, Inc." }]
-dynamic = "version"
+dynamic = ["version"]
+requires-python = ">= 3.9"
+
 
 [project.optional-dependencies]
 dev = [
@@ -50,6 +47,7 @@ dev = [
     "flake8",
     "isort",
     "docstring_parser",
+    "towncrier",
 ]
 
 [project.urls]
