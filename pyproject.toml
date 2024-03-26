@@ -73,6 +73,7 @@ filename = "CHANGELOG.md"
 start_string = "<!-- towncrier release notes start -->\n"
 underlines = ["", "", ""]
 title_format = "## [{version}](https://github.com/Substra/substra/releases/tag/{version}) - {project_date}"
+issue_format = "[#{issue}](https://github.com/Substra/substra/pull/{issue})"
 [tool.towncrier.fragment.added]
 [tool.towncrier.fragment.removed]
 [tool.towncrier.fragment.changed]
