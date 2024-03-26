@@ -15,7 +15,6 @@ dynamic = ["version"]
 requires-python = ">= 3.9"
 dependencies = [
     "requests",
-    "urllib3<2",
     "docker",
     "pyyaml",
     "pydantic>=2.3.0,<3.0.0",
