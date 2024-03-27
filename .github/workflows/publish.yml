@@ -6,20 +6,16 @@ on:
 
 jobs:
   publish:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: 3.11
-      - name: Install tools
-        run: pip install wheel
-      - name: Build
-        run:
-          python -m build
+      - name: Install Hatch
+        run: pipx install hatch
+      - name: Build dist
+        run: hatch build
       - name: Publish
-        uses: pypa/gh-action-pypi-publish@v1.5.1
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
-          repository_url: https://upload.pypi.org/legacy/
+        run: hatch publish -u __token__ -a ${{ secrets.PYPI_API_TOKEN }}
+
