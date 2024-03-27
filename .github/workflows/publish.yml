@@ -16,8 +16,6 @@ jobs:
           python-version: 3.11
       - name: Install Hatch
         run: pipx install hatch
-      - name: Run tests
-        run: hatch run test:test
       - name: Build dist
         run: hatch build
       # - name: Publish
