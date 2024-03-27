@@ -12,6 +12,7 @@ path = "substra/__version__.py"
 name = "substra"
 description = "Low-level Python library for interacting with a Substra network"
 dynamic = ["version"]
+readme = "README.md"
 requires-python = ">= 3.9"
 dependencies = [
     "requests",
