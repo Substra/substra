@@ -1,25 +1,25 @@
 name: Publish
 
 on:
+  pull_request:
+
   release:
     types: [published]
 
 jobs:
   publish:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
           python-version: 3.11
-      - name: Install tools
-        run: pip install wheel
-      - name: Build
-        run:
-          python -m build
-      - name: Publish
-        uses: pypa/gh-action-pypi-publish@v1.5.1
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
-          repository_url: https://upload.pypi.org/legacy/
+      - name: Install Hatch
+        run: pipx install hatch
+      - name: Run tests
+        run: hatch run test:test
+      - name: Build dist
+        run: hatch build
+      # - name: Publish
+      #   run: hatch publish -u __token__ -a ${{ secrets.PYPI_API_TOKEN }}
+
