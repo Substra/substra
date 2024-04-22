@@ -343,6 +343,10 @@ class Client:
         if backend_type in [schemas.BackendType.LOCAL_DOCKER, schemas.BackendType.LOCAL_SUBPROCESS]:
             backend = None
             if self._url:
+                logger.warning(
+                    f"Backend mode {backend_type} given with a URL is a hybrid mode. The client will connect to the "
+                    "platform in read-only."
+                )
                 backend = backends.get(
                     schemas.BackendType.REMOTE,
                     url=self._url,
