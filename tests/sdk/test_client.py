@@ -92,6 +92,7 @@ def test_client_should_raise_when_missing_name():
 def test_client_with_password(mocker):
     mocker.patch("substra.sdk.Client.login", side_effect=stub_login)
     rest_client_logout = mocker.patch("substra.sdk.backends.remote.rest_client.Client.logout")
+    rest_client_logout.reset_mock()
     client_args = {
         "backend_type": "remote",
         "url": "example.com",
