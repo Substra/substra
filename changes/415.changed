@@ -1,0 +1,1 @@
+Exclude `requests` 2.32.* due to bug introduction in these version.
