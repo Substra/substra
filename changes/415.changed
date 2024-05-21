@@ -1,0 +1,1 @@
+Pin `requests` to 2.31.0 due to bug introduction in 2.32.1. To be unpinned as soon as the library is fixed.
