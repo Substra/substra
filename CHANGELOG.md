@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- towncrier release notes start -->
 
+## [0.53.0](https://github.com/Substra/substra/releases/tag/0.53.0) - 2024-06-03
+
+
+### Added
+
+- A warning indicates when a `Client` is set in hybrid mode ([#413](https://github.com/Substra/substra/pull/413))
+
+### Changed
+
+- Exclude `requests` 2.32.* due to bug introduction in these version. ([#415](https://github.com/Substra/substra/pull/415))
+
+
 ## [0.52.0](https://github.com/Substra/substra/releases/tag/0.52.0) - 2024-03-27
 
 
