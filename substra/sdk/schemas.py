@@ -2,7 +2,6 @@ import contextlib
 import enum
 import json
 import pathlib
-import tempfile
 import typing
 import uuid
 from typing import Dict
