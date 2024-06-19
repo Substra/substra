@@ -23,7 +23,7 @@ GENERATED_DESCRIPTION_CONTENT = """
 # No description given
 
 To add a dataset description, create a markdown file and pass it to your
-`substra.sdk.schemasDatasetSpec` on your dataset opener registration.
+`substra.sdk.schemas.DatasetSpec` on your dataset opener registration.
 """
 
 
