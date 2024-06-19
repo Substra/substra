@@ -33,6 +33,7 @@ the 'paths' field.
 Specification for creating a dataset
 
 note : metadata field does not accept strings containing '__' as dict key
+
 note : If no description markdown file is given, create an empty one on the data_opener folder.
 ```text
 - name: <class 'str'>
