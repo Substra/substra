@@ -45,9 +45,6 @@ def test_datasample_spec_path_set_to_none():
 def test_dataset_spec_no_description(tmpdir):
 
     opener_path = tmpdir / "fake_opener.py"
-    with open(opener_path, "w") as f:
-        f.write("print('I'm opening your data')")
-
     permissions = Permissions(public=True, authorized_ids=[])
 
     DatasetSpec(
