@@ -19,6 +19,13 @@ _SERVER_NAMES = {
     "summary_task": "task",
 }
 
+GENERATED_DESCRIPTION_CONTENT = """
+# No description given
+
+To add a dataset description, create a markdown file and pass it to your
+`substra.sdk.schemas.DatasetSpec` on your dataset opener registration.
+"""
+
 
 class BackendType(str, enum.Enum):
     REMOTE = "remote"
@@ -278,16 +285,29 @@ class DatasetSpec(_Spec):
     """Specification for creating a dataset
 
     note : metadata field does not accept strings containing '__' as dict key
+
+    note : If no description markdown file is given, create an empty one on the data_opener folder.
     """
 
     name: str
     data_opener: pathlib.Path  # Path to the data opener
-    description: pathlib.Path  # Path to the description file
+    description: Optional[pathlib.Path] = None  # Path to the description file
     permissions: Permissions
     metadata: Optional[Dict[str, str]] = None
     logs_permission: Permissions
 
     type_: typing.ClassVar[Type] = Type.Dataset
+
+    @pydantic.model_validator(mode="before")
+    @classmethod
+    def _check_description(cls, values):
+        if "description" not in values:
+            parent_path = pathlib.Path(values["data_opener"]).parent
+            description_path = parent_path / "generated_description.md"
+            with description_path.open("w", encoding="utf-8") as f:
+                f.write(GENERATED_DESCRIPTION_CONTENT)
+            values["description"] = description_path
+        return values
 
     class Meta:
         file_attributes = (

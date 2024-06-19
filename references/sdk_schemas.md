@@ -33,10 +33,12 @@ the 'paths' field.
 Specification for creating a dataset
 
 note : metadata field does not accept strings containing '__' as dict key
+
+note : If no description markdown file is given, create an empty one on the data_opener folder.
 ```text
 - name: <class 'str'>
 - data_opener: <class 'pathlib.Path'>
-- description: <class 'pathlib.Path'>
+- description: typing.Optional[pathlib.Path]
 - permissions: <class 'substra.sdk.schemas.Permissions'>
 - metadata: typing.Optional[typing.Dict[str, str]]
 - logs_permission: <class 'substra.sdk.schemas.Permissions'>
