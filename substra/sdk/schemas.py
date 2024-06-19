@@ -291,7 +291,7 @@ class DatasetSpec(_Spec):
 
     name: str
     data_opener: pathlib.Path  # Path to the data opener
-    description: Optional[pathlib.Path] = None  # Path to the description file.
+    description: Optional[pathlib.Path] = None  # Path to the description file
     permissions: Permissions
     metadata: Optional[Dict[str, str]] = None
     logs_permission: Permissions
