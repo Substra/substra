@@ -286,11 +286,12 @@ class DatasetSpec(_Spec):
     """Specification for creating a dataset
 
     note : metadata field does not accept strings containing '__' as dict key
+    note : If no description markdown file is given, create an empty one on the data_opener folder.
     """
 
     name: str
     data_opener: pathlib.Path  # Path to the data opener
-    description: Optional[pathlib.Path] = None  # Path to the description file
+    description: Optional[pathlib.Path] = None  # Path to the description file.
     permissions: Permissions
     metadata: Optional[Dict[str, str]] = None
     logs_permission: Permissions
