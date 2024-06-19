@@ -1,0 +1,1 @@
+`description.md` are now `Optional` in `DatasampleSpec`. If none is given, `Ssubtra` will generate a template indicating how to add a custom description file on dataset registration.
