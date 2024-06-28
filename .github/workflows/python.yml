@@ -15,7 +15,7 @@ jobs:
       - name: Set up python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
       - name: Install tools
         run: pip install flake8 black isort wheel docstring-parser
       - name: Lint
@@ -45,7 +45,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     name: Tests on Python ${{ matrix.python-version }}
     steps:
       - name: Set up python
