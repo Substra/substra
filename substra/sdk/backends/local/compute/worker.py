@@ -135,6 +135,12 @@ class Worker:
         ]
         return command_template
 
+    def _tmp_is_three_nine(self):
+        """Temporary helper function to remove as soon as support of Python 3.9 is dropped."""
+        import platform
+
+        return platform.python_version_tuple()[1] == "9"
+
     def _prepare_artifact_input(self, task_input, task_key, input_volume, multiple):
         outputs = self._db.list(
             schemas.Type.OutputAsset,
@@ -150,7 +156,10 @@ class Worker:
         assert output.kind == schemas.AssetKind.model, "The task_input value must be an artifact, not a performance"
         filename = _generate_filename()
         path_to_input = input_volume / filename
-        Path(output.asset.address.storage_address).link_to(path_to_input)
+        if self._tmp_is_three_nine():
+            Path(output.asset.address.storage_address).link_to(path_to_input)
+        else:
+            Path(path_to_input).hardlink_to(output.asset.address.storage_address)
 
         return TaskResource(id=task_input.identifier, value=f"{TPL_VOLUME_INPUTS}/{filename}", multiple=multiple)
 
@@ -158,7 +167,10 @@ class Worker:
         self, dataset: models.Dataset, task_input: models.InputRef, input_volume: str, multiple: bool
     ):
         path_to_opener = input_volume / Filenames.OPENER.value
-        Path(dataset.opener.storage_address).link_to(path_to_opener)
+        if self._tmp_is_three_nine():
+            Path(dataset.opener.storage_address).link_to(path_to_opener)
+        else:
+            Path(path_to_opener).hardlink_to(dataset.opener.storage_address)
         return TaskResource(
             id=task_input.identifier,
             value=f"{TPL_VOLUME_INPUTS}/{Filenames.OPENER.value}",

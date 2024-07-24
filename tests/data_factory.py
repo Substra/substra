@@ -16,11 +16,9 @@ from .fl_interface import OutputIdentifiers
 
 DEFAULT_DATA_SAMPLE_FILENAME = "data.csv"
 
-DEFAULT_SUBSTRATOOLS_VERSION = (
-    f"latest-nvidiacuda11.8.0-base-ubuntu22.04-python{sys.version_info.major}.{sys.version_info.minor}"
-)
+DEFAULT_SUBSTRATOOLS_VERSION = f"{sys.version_info.major}.{sys.version_info.minor}-slim"
 
-DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE = f"ghcr.io/substra/substra-tools:{DEFAULT_SUBSTRATOOLS_VERSION}"
+DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE = f"python:{DEFAULT_SUBSTRATOOLS_VERSION}"
 
 DEFAULT_OPENER_SCRIPT = f"""
 import csv
@@ -246,6 +244,8 @@ DEFAULT_FUNCTION_FUNCTION_NAME = {
 DEFAULT_FUNCTION_DOCKERFILE = f"""
 FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
 COPY function.py .
+RUN apt-get update && apt-get install -y git
+RUN python3 -m pip install git+https://github.com/Substra/substra-tools.git@main
 ENTRYPOINT ["python3", "function.py", "--function-name", "{{function_name}}"]
 """
 
