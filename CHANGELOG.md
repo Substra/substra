@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- towncrier release notes start -->
 
+# ## [0.53.10fake](https://github.com/Substra/substra/releases/tag/0.53.10fake) - 2024-08-07
+
+### Added
+
+- Python 3.12 support ([#418](https://github.com/Substra/substra/pull/418))
+
+### Changed
+
+- `description.md` are now `Optional` in `DatasampleSpec`. If no description file is given, `Substra` will generate a template indicating how to add a custom description file during dataset registration. ([#417](https://github.com/Substra/substra/pull/417))
+
+
 ## [0.53.0](https://github.com/Substra/substra/releases/tag/0.53.0) - 2024-06-03
 
 
