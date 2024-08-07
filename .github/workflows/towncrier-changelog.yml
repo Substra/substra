@@ -1,0 +1,22 @@
+name: Towncrier changelog
+
+on:
+  workflow_dispatch:
+    inputs:
+        app_version:
+            type: string
+            description: 'The version of the app'
+            required: true
+        branch:
+            type: string
+            description: 'The branch to update'
+            required: true
+
+jobs:
+  test-generate-publish:
+    uses: substra/substra-gha-workflows/.github/workflows/towncrier-changelog.yml@main
+    secrets: inherit
+    with:
+      app_version: ${{ inputs.app_version }}
+      repo: substra
+      branch: ${{ inputs.branch }}
