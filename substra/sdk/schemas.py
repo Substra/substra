@@ -142,11 +142,14 @@ class DataSampleSpec(_Spec):
     """Specification to create one or many data samples
     To create one data sample, use the 'path' field, otherwise use
     the 'paths' field.
+    Use 'followlinks' to follow symbolic links recursively. Note that it could lead to infinite
+    loops if a symbolic link points to a parent directory.
     """
 
     path: Optional[pathlib.Path] = None  # Path to the data sample if only one
     paths: Optional[List[pathlib.Path]] = None  # Path to the data samples if several
     data_manager_keys: typing.List[str]
+    followlinks: Optional[bool] = False
 
     type_: typing.ClassVar[Type] = Type.DataSample
 
@@ -187,7 +190,7 @@ class DataSampleSpec(_Spec):
         # Serialize and deserialize to prevent errors eg with pathlib.Path
         data = json.loads(self.model_dump_json(exclude_unset=True))
         if local:
-            with utils.extract_data_sample_files(data) as (data, files):
+            with utils.extract_data_sample_files(data, followlinks=self.followlinks) as (data, files):
                 yield (data, files)
         else:
             yield data, None
