@@ -142,7 +142,7 @@ class DataSampleSpec(_Spec):
     """Specification to create one or many data samples
     To create one data sample, use the 'path' field, otherwise use
     the 'paths' field.
-    Use 'followlinks' to follow symbolic links recursively. Note that it could lead to infinite
+    Use 'followlinks' to follow symbolic links recursively. Note that it will lead to infinite
     loops if a symbolic link points to a parent directory.
     """
 
