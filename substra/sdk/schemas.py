@@ -194,8 +194,8 @@ class DataSampleSpec(_Spec):
         data = json.loads(self.model_dump_json(exclude_unset=True))
         if self.followlinks:
             logger.warning(
-                "The 'followlinks' option is enabled. Be careful, it may lead to infinite loops if a symbolic link "
-                "points to a parent directory."
+                "The 'followlinks' option is enabled for you're datasample registration. It may lead to infinite loops "
+                "if a symbolic link points to a parent directory."
             )
         if local:
             with utils.extract_data_sample_files(data, followlinks=self.followlinks) as (data, files):
