@@ -1,6 +1,7 @@
 import contextlib
 import enum
 import json
+import logging
 import pathlib
 import typing
 import uuid
@@ -13,6 +14,8 @@ from pydantic import ConfigDict
 from pydantic.fields import Field
 
 from substra.sdk import utils
+
+logger = logging.getLogger(__name__)
 
 _SERVER_NAMES = {
     "dataset": "data_manager",
@@ -189,6 +192,11 @@ class DataSampleSpec(_Spec):
         # redefine kwargs builder to handle the local paths
         # Serialize and deserialize to prevent errors eg with pathlib.Path
         data = json.loads(self.model_dump_json(exclude_unset=True))
+        if self.followlinks:
+            logger.warning(
+                "The 'followlinks' option is enabled. Be careful, it may lead to infinite loops if a symbolic link "
+                "points to a parent directory."
+            )
         if local:
             with utils.extract_data_sample_files(data, followlinks=self.followlinks) as (data, files):
                 yield (data, files)
