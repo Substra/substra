@@ -44,9 +44,9 @@ def extract_files(data, file_attributes):
             f.close()
 
 
-def zip_folder(fp, path):
+def zip_folder(fp, path, followlinks=False):
     zipf = zipfile.ZipFile(fp, "w", zipfile.ZIP_DEFLATED)
-    for root, _, files in os.walk(path):
+    for root, _, files in os.walk(path, followlinks=followlinks):
         for f in files:
             abspath = os.path.join(root, f)
             archive_path = os.path.relpath(abspath, start=path)
@@ -54,15 +54,15 @@ def zip_folder(fp, path):
     zipf.close()
 
 
-def zip_folder_in_memory(path):
+def zip_folder_in_memory(path, followlinks=False):
     fp = io.BytesIO()
-    zip_folder(fp, path)
+    zip_folder(fp, path, followlinks=followlinks)
     fp.seek(0)
     return fp
 
 
 @contextlib.contextmanager
-def extract_data_sample_files(data):
+def extract_data_sample_files(data, followlinks=False):
     # handle data sample specific case; paths and path cases
     data = copy.deepcopy(data)
 
@@ -81,7 +81,7 @@ def extract_data_sample_files(data):
     for k, f in folders.items():
         if not os.path.isdir(f):
             raise exceptions.LoadDataException(f"Paths '{f}' is not an existing directory")
-        files[k] = zip_folder_in_memory(f)
+        files[k] = zip_folder_in_memory(f, followlinks=followlinks)
 
     try:
         yield (data, files)
