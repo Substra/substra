@@ -194,7 +194,7 @@ class DataSampleSpec(_Spec):
         data = json.loads(self.model_dump_json(exclude_unset=True))
         if self.followlinks:
             logger.warning(
-                "The 'followlinks' option is enabled for you're datasample registration. It may lead to infinite loops "
+                "The 'followlinks' option is enabled for your datasample registration. It may lead to infinite loops "
                 "if a symbolic link points to a parent directory."
             )
         if local:
