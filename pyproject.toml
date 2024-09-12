@@ -43,7 +43,7 @@ dev = [
     "pytest",
     "pytest-cov",
     "pytest-mock",
-    "substratools~=0.22.0a2",
+    "substratools~=0.22.0",
     "black",
     "flake8",
     "isort",
