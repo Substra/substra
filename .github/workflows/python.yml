@@ -31,7 +31,7 @@ jobs:
           python bin/generate_sdk_schemas_documentation.py --output-path references/sdk_schemas.md
           python bin/generate_sdk_schemas_documentation.py --models --output-path='references/sdk_models.md'
       - name: Documentation artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           retention-days: 1
