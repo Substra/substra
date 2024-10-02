@@ -8,7 +8,14 @@ from substra.sdk.schemas import DatasetSpec
 from substra.sdk.schemas import Permissions
 
 
-@pytest.mark.parametrize("path", [pathlib.Path() / "data", "./data", pathlib.Path().cwd() / "data"])
+@pytest.mark.parametrize(
+    "path",
+    [
+        pathlib.Path() / "data",
+        pathlib.Path().cwd() / "data",
+        "./data",
+    ],
+)
 def test_datasample_spec_resolve_path(path):
     datasample_spec = DataSampleSpec(path=path, data_manager_keys=[str(uuid.uuid4())])
 

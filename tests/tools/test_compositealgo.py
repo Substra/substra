@@ -12,8 +12,8 @@ from substratools import opener
 from substratools.task_resources import TaskResources
 from substratools.workspace import FunctionWorkspace
 from tests.tools import utils
-from tests.utils import InputIdentifiers
-from tests.utils import OutputIdentifiers
+from tests.tools.utils import InputIdentifiers
+from tests.tools.utils import OutputIdentifiers
 
 
 @pytest.fixture(autouse=True)
