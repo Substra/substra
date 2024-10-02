@@ -11,26 +11,26 @@ from substratools.utils import load_interface_from_module
 from substratools.workspace import DEFAULT_INPUT_DATA_FOLDER_PATH
 
 
-@pytest.fixture
-def tmp_cwd(tmp_path):
-    # create a temporary current working directory
-    new_dir = tmp_path / "workspace"
-    new_dir.mkdir()
+# @pytest.fixture
+# def tmp_cwd(tmp_path):
+#     # create a temporary current working directory
+#     new_dir = tmp_path / "workspace"
+#     new_dir.mkdir()
 
-    old_dir = os.getcwd()
-    os.chdir(new_dir)
+#     old_dir = os.getcwd()
+#     os.chdir(new_dir)
 
-    yield new_dir
+#     yield new_dir
 
-    os.chdir(old_dir)
+#     os.chdir(old_dir)
 
 
-def test_load_opener_not_found(tmp_cwd):
+def test_load_opener_not_found():
     with pytest.raises(ImportError):
         load_from_module()
 
 
-def test_load_invalid_opener(tmp_cwd):
+def test_load_invalid_opener():
     invalid_script = """
 def get_data():
     raise NotImplementedError
@@ -42,7 +42,7 @@ def get_data():
         load_from_module()
 
 
-def test_load_opener_as_class(tmp_cwd):
+def test_load_opener_as_class():
     script = """
 from substratools import Opener
 class MyOpener(Opener):
@@ -58,7 +58,7 @@ class MyOpener(Opener):
     assert o.get_data() == "data_class"
 
 
-def test_load_opener_from_path(tmp_cwd, valid_opener_code):
+def test_load_opener_from_path(valid_opener_code):
     dirpath = tmp_cwd / "myopener"
     dirpath.mkdir()
     path = dirpath / "my_opener.py"
@@ -74,7 +74,7 @@ def test_load_opener_from_path(tmp_cwd, valid_opener_code):
     assert o.get_data()[0] == "X"
 
 
-def test_opener_check_folders(tmp_cwd):
+def test_opener_check_folders():
     script = """
 from substratools import Opener
 class MyOpener(Opener):
