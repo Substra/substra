@@ -39,6 +39,7 @@ authors = [{ name = "Owkin, Inc." }]
 [project.optional-dependencies]
 dev = [
     "pandas",
+    "numpy",
     "pytest",
     "pytest-cov",
     "pytest-mock",
