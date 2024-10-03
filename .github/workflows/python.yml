@@ -66,15 +66,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: substra
-      - name: Cloning substratools
-        uses: actions/checkout@v4
-        with:
-          repository: Substra/substra-tools
-          path: substratools
-          ref: main
-      - name: Install substra and substratools
+      - name: Install substra
         run: |
-          pip install --no-cache-dir -e substratools
           pip install --no-cache-dir -e 'substra[dev]'
 
       - name: Test

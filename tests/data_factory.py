@@ -16,9 +16,9 @@ from .fl_interface import OutputIdentifiers
 
 DEFAULT_DATA_SAMPLE_FILENAME = "data.csv"
 
-DEFAULT_SUBSTRATOOLS_VERSION = f"{sys.version_info.major}.{sys.version_info.minor}-slim"
+DEFAULT_BASE_IMAGE_VERSION = f"{sys.version_info.major}.{sys.version_info.minor}-slim"
 
-DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE = f"python:{DEFAULT_SUBSTRATOOLS_VERSION}"
+DEFAULT_BASE_DOCKER_IMAGE = f"python:{DEFAULT_BASE_IMAGE_VERSION}"
 
 DEFAULT_OPENER_SCRIPT = f"""
 import csv
@@ -242,26 +242,26 @@ DEFAULT_FUNCTION_FUNCTION_NAME = {
 }
 
 DEFAULT_FUNCTION_DOCKERFILE = f"""
-FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
+FROM {DEFAULT_BASE_DOCKER_IMAGE}
 COPY function.py .
 RUN apt-get update && apt-get install -y git
-RUN python3 -m pip install git+https://github.com/Substra/substra-tools.git@main
+RUN python3 -m pip install git+https://github.com/Substra/substra.git@main
 ENTRYPOINT ["python3", "function.py", "--function-name", "{{function_name}}"]
 """
 
 BAD_ENTRYPOINT_DOCKERFILE = f"""
-FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
+FROM {DEFAULT_BASE_DOCKER_IMAGE}
 COPY function.py .
 ENTRYPOINT ["python3", "function.txt"]
 """
 
 NO_ENTRYPOINT_DOCKERFILE = f"""
-FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
+FROM {DEFAULT_BASE_DOCKER_IMAGE}
 COPY function.py .
 """
 
 NO_FUNCTION_NAME_DOCKERFILE = f"""
-FROM {DEFAULT_SUBSTRATOOLS_DOCKER_IMAGE}
+FROM {DEFAULT_BASE_DOCKER_IMAGE}
 COPY function.py .
 ENTRYPOINT ["python3", "function.txt", "train"]
 """

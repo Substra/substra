@@ -64,7 +64,7 @@ body:
     attributes:
       label: Installed Substra versions
       description: >
-        Which version of `substrafl`/ `substra` / `substra-tools` are you using?
+        Which version of `substrafl`/ `substra` are you using?
         You can check if they are compatible in the [compatibility table](https://docs.substra.org/en/stable/additional/release.html#compatibility-table).
       placeholder: >
         pip freeze | grep substra

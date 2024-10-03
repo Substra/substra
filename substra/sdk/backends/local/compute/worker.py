@@ -38,7 +38,7 @@ class TaskResource(dict):
 
 
 class Filenames(str, Enum):
-    OPENER = "opener.py"  # The name must end in .py for substra-tools module loading
+    OPENER = "opener.py"  # The name must end in .py for substra.tools module loading
 
 
 def _mkdir(path, delete_if_exists=False):

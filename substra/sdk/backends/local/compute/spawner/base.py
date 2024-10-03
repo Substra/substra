@@ -41,7 +41,7 @@ class BaseSpawner(abc.ABC):
 
 
 def write_command_args_file(args_file: pathlib.Path, command_args: typing.List[str]) -> None:
-    """Write the substra-tools command line arguments to a file.
+    """Write the tools command line arguments to a file.
 
     The format uses one line per argument. See
     https://docs.python.org/3/library/argparse.html#fromfile-prefix-chars
